@@ -6,15 +6,36 @@
  */
 
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 /** Visible chip / tooltip text for the command palette trigger. */
 export const COMMAND_PALETTE_DISPLAY_SHORTCUT = "Ctrl+K";
 
+/** Visible label for the operator shell help trigger (top bar). */
+export function resolveOperatorHelpTriggerLabel(productLineId: ProductLineId): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return "Help";
+  }
+
+  return "Help & Support";
+}
+
 /** Accessible name for the operator shell help trigger (top bar). */
-export const OPERATOR_HELP_ARIA_LABEL = "Help & Support (F1)";
+export function resolveOperatorHelpAriaLabel(productLineId: ProductLineId): string {
+  return `${resolveOperatorHelpTriggerLabel(productLineId)} (F1)`;
+}
 
 /** Tooltip for the operator shell help trigger. */
-export const OPERATOR_HELP_TOOLTIP = "Help & Support (F1)";
+export function resolveOperatorHelpTooltip(productLineId: ProductLineId): string {
+  return resolveOperatorHelpAriaLabel(productLineId);
+}
+
+/** ArchLucid default — prefer {@link resolveOperatorHelpAriaLabel} when product line is known. */
+export const OPERATOR_HELP_ARIA_LABEL = resolveOperatorHelpAriaLabel("architecture");
+
+/** ArchLucid default — prefer {@link resolveOperatorHelpTooltip} when product line is known. */
+export const OPERATOR_HELP_TOOLTIP = resolveOperatorHelpTooltip("architecture");
 
 /** WAI-ARIA `aria-keyshortcuts` for help — F1 and Shift+/. */
 export const OPERATOR_HELP_ARIA_KEYSHORTCUTS = "F1 Shift+?";

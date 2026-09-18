@@ -1,12 +1,15 @@
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
-  GOVERNANCE_STANDARDS_AND_RULES_PATH,
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAlertRules,
   pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
   pathMatchesGovernanceExceptions,
+  pathMatchesGovernanceFindings,
+  pathMatchesGovernancePolicyPacks,
+  pathMatchesGovernanceResolution,
 } from "@/lib/governance/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
@@ -36,6 +39,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+
 export type BuyerPolishedRouteOrientationOptions = {
   /** When `/insights/search-review-evidence` or `/governance` carries `runId`, header copy can reflect a scoped review. */
   readonly searchRunId?: string;
@@ -127,7 +131,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+  if (pathMatchesGovernanceFindings(path)) {
     return null;
   }
 
@@ -135,11 +139,15 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+  if (pathMatchesGovernancePolicyPacks(path)) {
     return null;
   }
 
-  if (path === GOVERNANCE_STANDARDS_AND_RULES_PATH || path.startsWith(`${GOVERNANCE_STANDARDS_AND_RULES_PATH}/`)) {
+  if (pathMatchesGovernanceResolution(path)) {
+    return null;
+  }
+
+  if (path === SECURENOW_AUDIT_EVIDENCE_PATH || path.startsWith(`${SECURENOW_AUDIT_EVIDENCE_PATH}/`)) {
     return null;
   }
 

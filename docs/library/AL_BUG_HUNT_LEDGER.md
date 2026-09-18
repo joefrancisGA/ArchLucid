@@ -14237,6 +14237,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+Historical `(proven)` rows that cite deleted `*Weekkk*Tests` class names stay as hunt history; do not copy `week`+extra-`k` UOM inputs into new hunts (see `docs/library/AZURE_WEEK_UOM_KEEP_LIST.md` and `/al-bug` §1.1b).
+
 2026-09-14 seed hunt #2915 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekkkkkkkkkTests`.
 
 2026-09-14 seed hunt #2910 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkTests`.

@@ -76,7 +76,17 @@ public sealed class HostedAzureExtractorClient(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<HostedAzureArmResourceRecord> resources = enrichResult.Resources;
+        HostedAzureArmPaasResourceEnrichResult paasEnrichResult = await HostedAzureArmPaasResourceEnricher
+            .EnrichAsync(
+                _armReadClient,
+                accessToken.Token,
+                subscriptionId,
+                enrichResult.Resources,
+                _logger,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = paasEnrichResult.Resources;
 
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = await _armReadClient
             .ListSubscriptionRoleAssignmentsAsync(accessToken.Token, subscriptionId, cancellationToken)
@@ -101,9 +111,10 @@ public sealed class HostedAzureExtractorClient(
             .ListSubscriptionPolicyAssignmentsAsync(accessToken.Token, subscriptionId, cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> diagnosticSettings = await _armReadClient
+        HostedAzureDiagnosticSettingsCollectResult diagnosticSettingsResult = await _armReadClient
             .ListDiagnosticSettingsAsync(accessToken.Token, resources, cancellationToken)
             .ConfigureAwait(false);
+        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> diagnosticSettings = diagnosticSettingsResult.Settings;
 
         IReadOnlyList<HostedAzureArmDefenderSummaryRecord> defenderSummaries = await _armReadClient
             .ListSubscriptionDefenderSummariesAsync(accessToken.Token, subscriptionId, cancellationToken)
@@ -114,11 +125,45 @@ public sealed class HostedAzureExtractorClient(
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
+        await AppendAvdSessionHostAssociationsAsync(
+            networkAssociations,
+            resources,
+            accessToken.Token,
+            cancellationToken).ConfigureAwait(false);
+
         HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
             .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
 
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfLinkedServices = await HostedAzureInventoryAdfLinkedServiceCollector
+            .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
+        HostedAzureInventoryAdfPipelineMetadataCollectResult adfPipelineMetadata =
+            await HostedAzureInventoryAdfPipelineMetadataCollector
+                .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
+        HostedAzureInventoryAdfExtendedMetadataCollectResult adfExtendedMetadata =
+            await HostedAzureInventoryAdfExtendedMetadataCollector
+                .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
+        HostedAzureDiagramEnrichmentCollectResult diagramEnrichment = await CollectDiagramEnrichmentAsync(
+            subscriptionId,
+            resources,
+            accessToken.Token,
+            cancellationToken).ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
+        List<string> collectionWarnings = [];
+
+        if (diagnosticSettingsResult.PartialCollection)
+        {
+            collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
+        }
+
+        collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
@@ -149,7 +194,20 @@ public sealed class HostedAzureExtractorClient(
             policyAssignments,
             diagnosticSettings,
             defenderSummaries,
-            effectiveNetworkControls.Rows);
+            effectiveNetworkControls.Rows,
+            adfLinkedServices,
+            adfPipelineMetadata.Datasets,
+            adfPipelineMetadata.PipelineFlows,
+            adfExtendedMetadata.Triggers,
+            adfExtendedMetadata.IntegrationRuntimes,
+            adfExtendedMetadata.Dataflows,
+            diagramEnrichment.EventGridSubscriptions,
+            diagramEnrichment.LogicAppConnections,
+            diagramEnrichment.MessagingAssociations,
+            diagramEnrichment.PaasChildAssociations,
+            diagramEnrichment.ServiceConnectorLinks,
+            appSettingHosts: null,
+            collectionWarnings: collectionWarnings);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -218,7 +276,17 @@ public sealed class HostedAzureExtractorClient(
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            resources.AddRange(enrichResult.Resources);
+            HostedAzureArmPaasResourceEnrichResult paasEnrichResult = await HostedAzureArmPaasResourceEnricher
+                .EnrichAsync(
+                    _armReadClient,
+                    accessTokenValue,
+                    subscriptionId,
+                    enrichResult.Resources,
+                    _logger,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            resources.AddRange(paasEnrichResult.Resources);
 
             standingRoleAssignments.AddRange(
                 await _armReadClient
@@ -253,20 +321,55 @@ public sealed class HostedAzureExtractorClient(
             .ListFederatedCredentialsAsync(accessTokenValue, resources, cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> diagnosticSettings = await _armReadClient
+        HostedAzureDiagnosticSettingsCollectResult diagnosticSettingsResult = await _armReadClient
             .ListDiagnosticSettingsAsync(accessTokenValue, resources, cancellationToken)
             .ConfigureAwait(false);
+        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> diagnosticSettings = diagnosticSettingsResult.Settings;
 
         List<HostedAzureArmNetworkAssociationRecord> networkAssociations =
             HostedAzureInventoryNetworkAssociationBuilder.Build(resources).ToList();
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
+        await AppendAvdSessionHostAssociationsAsync(
+            networkAssociations,
+            resources,
+            accessTokenValue,
+            cancellationToken).ConfigureAwait(false);
+
         HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
             .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
 
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfLinkedServices = await HostedAzureInventoryAdfLinkedServiceCollector
+            .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
+        HostedAzureInventoryAdfPipelineMetadataCollectResult adfPipelineMetadata =
+            await HostedAzureInventoryAdfPipelineMetadataCollector
+                .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
+        HostedAzureInventoryAdfExtendedMetadataCollectResult adfExtendedMetadata =
+            await HostedAzureInventoryAdfExtendedMetadataCollector
+                .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
+        HostedAzureDiagramEnrichmentCollectResult diagramEnrichment = await CollectDiagramEnrichmentAsync(
+            subscriptionId: null,
+            resources,
+            accessTokenValue,
+            cancellationToken).ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
+        List<string> collectionWarnings = [];
+
+        if (diagnosticSettingsResult.PartialCollection)
+        {
+            collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
+        }
+
+        collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
@@ -297,7 +400,20 @@ public sealed class HostedAzureExtractorClient(
             policyAssignments,
             diagnosticSettings,
             defenderSummaries,
-            effectiveNetworkControls.Rows);
+            effectiveNetworkControls.Rows,
+            adfLinkedServices,
+            adfPipelineMetadata.Datasets,
+            adfPipelineMetadata.PipelineFlows,
+            adfExtendedMetadata.Triggers,
+            adfExtendedMetadata.IntegrationRuntimes,
+            adfExtendedMetadata.Dataflows,
+            diagramEnrichment.EventGridSubscriptions,
+            diagramEnrichment.LogicAppConnections,
+            diagramEnrichment.MessagingAssociations,
+            diagramEnrichment.PaasChildAssociations,
+            diagramEnrichment.ServiceConnectorLinks,
+            appSettingHosts: null,
+            collectionWarnings: collectionWarnings);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -310,11 +426,57 @@ public sealed class HostedAzureExtractorClient(
         };
     }
 
+    private async Task AppendAvdSessionHostAssociationsAsync(
+        List<HostedAzureArmNetworkAssociationRecord> networkAssociations,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        string accessToken,
+        CancellationToken cancellationToken)
+    {
+        if (_armReadClient is not GetOnlyHostedAzureArmReadClient concreteArmReadClient)
+        {
+            return;
+        }
+
+        networkAssociations.AddRange(
+            await HostedAzureInventoryAvdSessionHostAssociationCollector.CollectAsync(
+                concreteArmReadClient,
+                accessToken,
+                resources,
+                _logger,
+                cancellationToken).ConfigureAwait(false));
+    }
+
+    private async Task<HostedAzureDiagramEnrichmentCollectResult> CollectDiagramEnrichmentAsync(
+        string? subscriptionId,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        string accessToken,
+        CancellationToken cancellationToken)
+    {
+        if (_armReadClient is not GetOnlyHostedAzureArmReadClient concreteArmReadClient)
+        {
+            return new HostedAzureDiagramEnrichmentCollectResult();
+        }
+
+        return await HostedAzureInventoryDiagramEnrichmentCollector.CollectAsync(
+            concreteArmReadClient,
+            accessToken,
+            subscriptionId,
+            resources,
+            _logger,
+            cancellationToken).ConfigureAwait(false);
+    }
+
     private static List<HostedAzureArmResourceRecord> FilterInventoryResources(
         IReadOnlyList<HostedAzureArmResourceRecord> resources)
     {
+        HashSet<string> privateLinkOnlyNicArmIds =
+            HostedAzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(resources);
+
         return resources
-            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.ResourceId,
+                privateLinkOnlyNicArmIds))
             .ToList();
     }
 

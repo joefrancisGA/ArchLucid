@@ -41,5 +41,10 @@ describe('ArchitectureDiagramMermaidViewportFrame', () => {
     expect(cameraRef.current).toBe(camera);
     expect(frameRef.current).toBe(viewport);
     expect(viewport).toHaveAttribute('aria-describedby', 'diagram-alt');
+
+    const inkClip = screen.getByTestId('architecture-diagram-ink-clip');
+    expect(camera).toContainElement(inkClip);
+    expect(inkClip).toContainElement(screen.getByTestId('diagram-ink'));
+    expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
   });
 });

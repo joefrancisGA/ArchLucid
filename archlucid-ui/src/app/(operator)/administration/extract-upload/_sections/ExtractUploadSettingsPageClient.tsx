@@ -37,7 +37,6 @@ import {
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
   EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND,
-  EXTRACT_UPLOAD_REVIEW_BINDING_NONE,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
   EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
   EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX,
@@ -68,7 +67,6 @@ import {
 import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
-import { ExtractUploadBaselineOverwriteConfirmDialog } from "./ExtractUploadBaselineOverwriteConfirmDialog";
 import { ExtractUploadProviderSelector } from "./ExtractUploadProviderSelector";
 
 function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
@@ -87,11 +85,11 @@ function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
   }
 }
 
-function reviewBindingStepLabel(associateRunId: string | null): string {
+function reviewBindingStepLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return EXTRACT_UPLOAD_REVIEW_BINDING_NONE;
+    return null;
   }
 
   return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
@@ -138,10 +136,6 @@ function ExtractUploadSettingsPageClientInner() {
     upload,
     folderZip,
     demo,
-    baselineOverwriteOpen,
-    setBaselineOverwriteOpen,
-    confirmBaselineOverwrite,
-    cancelBaselineOverwrite,
     showAcceptedDropZone,
     beginReplaceInventory,
   } = viewModel;
@@ -175,6 +169,7 @@ function ExtractUploadSettingsPageClientInner() {
   const validateCommand = validateCommandForPlatform(selectedPlatform);
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
+  const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
 
   return (
     <div
@@ -330,12 +325,14 @@ function ExtractUploadSettingsPageClientInner() {
                   <CardDescription>
                     {EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION}
                   </CardDescription>
-                  <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="extract-upload-step-review-binding"
-                  >
-                    {reviewBindingStepLabel(associateRunId)}
-                  </p>
+                  {reviewBindingLabel !== null ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="extract-upload-step-review-binding"
+                    >
+                      {reviewBindingLabel}
+                    </p>
+                  ) : null}
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {upload.uploadSuccessMessage !== null ? (
@@ -489,17 +486,6 @@ function ExtractUploadSettingsPageClientInner() {
         </div>
       </div>
 
-      <ExtractUploadBaselineOverwriteConfirmDialog
-        open={baselineOverwriteOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            cancelBaselineOverwrite();
-          } else {
-            setBaselineOverwriteOpen(true);
-          }
-        }}
-        onConfirm={confirmBaselineOverwrite}
-      />
     </div>
   );
 }

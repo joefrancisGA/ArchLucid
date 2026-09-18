@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 
 import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
 import { decideHostGateRedirect } from "@/lib/host-gate";
+import {
+  decideProductLineRouteRedirect,
+  resolveProductLineIdFromRequest,
+} from "@/lib/product-line/product-line-route-gate";
 
 /**
  * Next.js proxy (formerly "middleware"): host gating (TB-2019) and demo run id aliases.
@@ -26,6 +30,19 @@ export function proxy(request: NextRequest) {
     u.pathname = nextPath;
 
     return NextResponse.redirect(u, 308);
+  }
+
+  const productLineRouteGate = decideProductLineRouteRedirect({
+    pathname: request.nextUrl.pathname,
+    productLine: resolveProductLineIdFromRequest(request),
+  });
+
+  if (productLineRouteGate.kind === "redirect") {
+    const u = request.nextUrl.clone();
+
+    u.pathname = productLineRouteGate.location;
+
+    return NextResponse.redirect(u, 307);
   }
 
   if (request.nextUrl.pathname === "/403") {

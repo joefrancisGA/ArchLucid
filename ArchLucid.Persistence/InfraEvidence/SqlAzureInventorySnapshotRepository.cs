@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
@@ -77,16 +78,53 @@ public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFa
 
         const string sql = """
                            SELECT TOP (1)
-                               SnapshotId, TenantId, WorkspaceId, ProjectId, PackageId,
-                               SubscriptionId, SubscriptionName, CapturedUtc, CaptureStatus, CaptureVersion,
-                               ResourceCount, RelationshipCount, CaptureMethod, CollectorVersion,
-                               RequestedBy, DurationMs, CompletenessScore, WarningCount, ErrorCount,
-                               ContentHashSha256, CreatedUtc, UpdatedUtc
-                           FROM dbo.AzureInventorySnapshots
-                           WHERE TenantId = @TenantId
-                               AND WorkspaceId = @WorkspaceId
-                               AND ProjectId = @ProjectId
-                               AND PackageId = @PackageId;
+                               s.SnapshotId, s.TenantId, s.WorkspaceId, s.ProjectId, s.PackageId,
+                               COALESCE(s.SubscriptionId, JSON_VALUE(p.ManifestJson, '$.subscriptionId')) AS SubscriptionId,
+                               s.SubscriptionName, s.CapturedUtc, s.CaptureStatus, s.CaptureVersion,
+                               s.ResourceCount, s.RelationshipCount, s.CaptureMethod, s.CollectorVersion,
+                               s.RequestedBy, s.DurationMs, s.CompletenessScore, s.WarningCount, s.CompletenessWarningsJson, s.ErrorCount,
+                               s.ContentHashSha256, s.CreatedUtc, s.UpdatedUtc,
+                               JSON_VALUE(p.ManifestJson, '$.subscriptionName') AS ManifestSubscriptionName,
+                               sibling.SiblingSubscriptionName
+                           FROM dbo.AzureInventorySnapshots s
+                           LEFT JOIN dbo.AzureExtractorPackages p
+                               ON p.PackageId = s.PackageId
+                               AND p.TenantId = s.TenantId
+                               AND p.WorkspaceId = s.WorkspaceId
+                               AND p.ProjectId = s.ProjectId
+                           OUTER APPLY (
+                               SELECT TOP (1)
+                                   COALESCE(
+                                       sib.SubscriptionName,
+                                       JSON_VALUE(pSib.ManifestJson, '$.subscriptionName')
+                                   ) AS SiblingSubscriptionName
+                               FROM dbo.AzureInventorySnapshots sib
+                               LEFT JOIN dbo.AzureExtractorPackages pSib
+                                   ON pSib.PackageId = sib.PackageId
+                                   AND pSib.TenantId = sib.TenantId
+                                   AND pSib.WorkspaceId = sib.WorkspaceId
+                                   AND pSib.ProjectId = sib.ProjectId
+                               WHERE sib.TenantId = s.TenantId
+                                   AND sib.WorkspaceId = s.WorkspaceId
+                                   AND sib.ProjectId = s.ProjectId
+                                   AND sib.CaptureStatus IN (@SucceededStatus, @PartialStatus)
+                                   AND COALESCE(
+                                       sib.SubscriptionId,
+                                       JSON_VALUE(pSib.ManifestJson, '$.subscriptionId')
+                                   ) = COALESCE(
+                                       s.SubscriptionId,
+                                       JSON_VALUE(p.ManifestJson, '$.subscriptionId')
+                                   )
+                                   AND COALESCE(
+                                       sib.SubscriptionName,
+                                       JSON_VALUE(pSib.ManifestJson, '$.subscriptionName')
+                                   ) IS NOT NULL
+                               ORDER BY COALESCE(sib.CapturedUtc, sib.CreatedUtc) DESC
+                           ) sibling
+                           WHERE s.TenantId = @TenantId
+                               AND s.WorkspaceId = @WorkspaceId
+                               AND s.ProjectId = @ProjectId
+                               AND s.PackageId = @PackageId;
                            """;
 
         using System.Data.IDbConnection conn =
@@ -101,6 +139,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFa
                     scope.WorkspaceId,
                     scope.ProjectId,
                     PackageId = packageId,
+                    SucceededStatus = (int)AzureInventoryCaptureStatus.Succeeded,
+                    PartialStatus = (int)AzureInventoryCaptureStatus.Partial,
                 },
                 cancellationToken: cancellationToken));
 
@@ -116,16 +156,53 @@ public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFa
 
         const string sql = """
                            SELECT TOP (1)
-                               SnapshotId, TenantId, WorkspaceId, ProjectId, PackageId,
-                               SubscriptionId, SubscriptionName, CapturedUtc, CaptureStatus, CaptureVersion,
-                               ResourceCount, RelationshipCount, CaptureMethod, CollectorVersion,
-                               RequestedBy, DurationMs, CompletenessScore, WarningCount, ErrorCount,
-                               ContentHashSha256, CreatedUtc, UpdatedUtc
-                           FROM dbo.AzureInventorySnapshots
-                           WHERE TenantId = @TenantId
-                               AND WorkspaceId = @WorkspaceId
-                               AND ProjectId = @ProjectId
-                               AND SnapshotId = @SnapshotId;
+                               s.SnapshotId, s.TenantId, s.WorkspaceId, s.ProjectId, s.PackageId,
+                               COALESCE(s.SubscriptionId, JSON_VALUE(p.ManifestJson, '$.subscriptionId')) AS SubscriptionId,
+                               s.SubscriptionName, s.CapturedUtc, s.CaptureStatus, s.CaptureVersion,
+                               s.ResourceCount, s.RelationshipCount, s.CaptureMethod, s.CollectorVersion,
+                               s.RequestedBy, s.DurationMs, s.CompletenessScore, s.WarningCount, s.CompletenessWarningsJson, s.ErrorCount,
+                               s.ContentHashSha256, s.CreatedUtc, s.UpdatedUtc,
+                               JSON_VALUE(p.ManifestJson, '$.subscriptionName') AS ManifestSubscriptionName,
+                               sibling.SiblingSubscriptionName
+                           FROM dbo.AzureInventorySnapshots s
+                           LEFT JOIN dbo.AzureExtractorPackages p
+                               ON p.PackageId = s.PackageId
+                               AND p.TenantId = s.TenantId
+                               AND p.WorkspaceId = s.WorkspaceId
+                               AND p.ProjectId = s.ProjectId
+                           OUTER APPLY (
+                               SELECT TOP (1)
+                                   COALESCE(
+                                       sib.SubscriptionName,
+                                       JSON_VALUE(pSib.ManifestJson, '$.subscriptionName')
+                                   ) AS SiblingSubscriptionName
+                               FROM dbo.AzureInventorySnapshots sib
+                               LEFT JOIN dbo.AzureExtractorPackages pSib
+                                   ON pSib.PackageId = sib.PackageId
+                                   AND pSib.TenantId = sib.TenantId
+                                   AND pSib.WorkspaceId = sib.WorkspaceId
+                                   AND pSib.ProjectId = sib.ProjectId
+                               WHERE sib.TenantId = s.TenantId
+                                   AND sib.WorkspaceId = s.WorkspaceId
+                                   AND sib.ProjectId = s.ProjectId
+                                   AND sib.CaptureStatus IN (@SucceededStatus, @PartialStatus)
+                                   AND COALESCE(
+                                       sib.SubscriptionId,
+                                       JSON_VALUE(pSib.ManifestJson, '$.subscriptionId')
+                                   ) = COALESCE(
+                                       s.SubscriptionId,
+                                       JSON_VALUE(p.ManifestJson, '$.subscriptionId')
+                                   )
+                                   AND COALESCE(
+                                       sib.SubscriptionName,
+                                       JSON_VALUE(pSib.ManifestJson, '$.subscriptionName')
+                                   ) IS NOT NULL
+                               ORDER BY COALESCE(sib.CapturedUtc, sib.CreatedUtc) DESC
+                           ) sibling
+                           WHERE s.TenantId = @TenantId
+                               AND s.WorkspaceId = @WorkspaceId
+                               AND s.ProjectId = @ProjectId
+                               AND s.SnapshotId = @SnapshotId;
                            """;
 
         using System.Data.IDbConnection conn =
@@ -140,22 +217,32 @@ public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFa
                     scope.WorkspaceId,
                     scope.ProjectId,
                     SnapshotId = snapshotId,
+                    SucceededStatus = (int)AzureInventoryCaptureStatus.Succeeded,
+                    PartialStatus = (int)AzureInventoryCaptureStatus.Partial,
                 },
                 cancellationToken: cancellationToken));
 
         return row is null ? null : Map(row);
     }
 
-    private static AzureInventorySnapshotRecord Map(Row row) =>
-        new()
+    private static AzureInventorySnapshotRecord Map(Row row)
+    {
+        (string? subscriptionId, string? subscriptionName) = AzureInventorySnapshotSubscriptionIdentity.Resolve(
+            row.SubscriptionId,
+            row.SubscriptionName,
+            manifestSubscriptionId: null,
+            row.ManifestSubscriptionName,
+            row.SiblingSubscriptionName);
+
+        return new AzureInventorySnapshotRecord
         {
             SnapshotId = row.SnapshotId,
             TenantId = row.TenantId,
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             PackageId = row.PackageId,
-            SubscriptionId = row.SubscriptionId,
-            SubscriptionName = row.SubscriptionName,
+            SubscriptionId = subscriptionId,
+            SubscriptionName = subscriptionName,
             CapturedUtc = row.CapturedUtc,
             CaptureStatus = (AzureInventoryCaptureStatus)row.CaptureStatus,
             CaptureVersion = row.CaptureVersion,
@@ -167,11 +254,13 @@ public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFa
             DurationMs = row.DurationMs,
             CompletenessScore = row.CompletenessScore,
             WarningCount = row.WarningCount,
+            CompletenessWarningsJson = row.CompletenessWarningsJson,
             ErrorCount = row.ErrorCount,
             ContentHashSha256 = row.ContentHashSha256,
             CreatedUtc = row.CreatedUtc,
             UpdatedUtc = row.UpdatedUtc,
         };
+    }
 
     private sealed class Row
     {
@@ -283,6 +372,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFa
             init;
         }
 
+        public string? CompletenessWarningsJson
+        {
+            get;
+            init;
+        }
+
         public int ErrorCount
         {
             get;
@@ -302,6 +397,18 @@ public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFa
         }
 
         public DateTime UpdatedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? ManifestSubscriptionName
+        {
+            get;
+            init;
+        }
+
+        public string? SiblingSubscriptionName
         {
             get;
             init;

@@ -16,12 +16,13 @@ import {
   policyPacksRefreshAssistReaderLine,
   policyPacksRefreshAssistReaderLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   GOVERNANCE_POLICY_PACKS_BUYER_START_HERE_HELPER,
   GOVERNANCE_POLICY_PACKS_LOAD_ERROR,
-  GOVERNANCE_POLICY_PACKS_PAGE_LEAD,
   GOVERNANCE_POLICY_PACKS_PRIMARY_CONTENT_ID,
   GOVERNANCE_POLICY_PACKS_SKIP_LINK_LABEL,
+  resolveGovernancePolicyPacksPageLead,
 } from "@/lib/governance-policy-packs-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
@@ -94,6 +95,8 @@ function resolveSurfaceTabFromValue(value: string): "my-packs" | "catalog" {
 
 export function PolicyPacksPageView(props: Props) {
   const m = props.model;
+  const { productLine } = useProductLine();
+  const pageLead = resolveGovernancePolicyPacksPageLead(productLine);
   const surfaceTab = resolveSurfaceTab(m.pageTab);
   const authoringInnerTab = resolveAuthoringInnerTab(m.pageTab);
   const enforcedRuleRows = buildPolicyPackEnforcedRuleRows(m.effectiveContent, m.effective?.packs ?? []);
@@ -324,7 +327,7 @@ export function PolicyPacksPageView(props: Props) {
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="governance-policy-packs-intro"
         >
-          {GOVERNANCE_POLICY_PACKS_PAGE_LEAD}
+          {pageLead}
         </p>
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -387,7 +390,7 @@ export function PolicyPacksPageView(props: Props) {
       ) : null}
 
       <PolicyPacksPageHeader
-        subtitle={policyPacksPageSubtitle(m.buyerPolishedShell)}
+        subtitle={policyPacksPageSubtitle(m.buyerPolishedShell, productLine)}
         refreshing={m.loading}
         lastRefreshedAt={m.lastRefreshedAt}
         onRefresh={m.load}

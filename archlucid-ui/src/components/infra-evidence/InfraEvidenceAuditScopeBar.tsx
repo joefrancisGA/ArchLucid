@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { buildAuditEvidenceLineageUiPath } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import {
   buildInfraEvidenceAuditScopeBarAuditTabHref,
@@ -27,7 +26,6 @@ type InfraEvidenceAuditScopeBarProps = {
   readonly auditControlOptions?: readonly CloudResourceAuditLineageMatch[];
   readonly onAuditControlChange?: (match: CloudResourceAuditLineageMatch) => void;
   readonly testId?: string;
-  readonly showCopyLink?: boolean;
 };
 
 function formatAuditControlLabel(
@@ -67,7 +65,6 @@ export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProp
     auditControlOptions = [],
     onAuditControlChange,
     testId = "infra-evidence-audit-scope-bar",
-    showCopyLink = true,
   } = props;
   const router = useRouter();
   const controlLabel = formatAuditControlLabel(auditScope, controlNumber, controlTitle);
@@ -138,12 +135,6 @@ export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProp
         >
           Clear audit scope
         </Button>
-        {showCopyLink ? (
-          <CopyScopedOperatorLinkButton
-            label="Copy scoped link"
-            testId={`${testId}-copy-link`}
-          />
-        ) : null}
       </div>
     </div>
   );
