@@ -92,6 +92,23 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             Should -Be $false
     }
 
+    It 'skips public IP network associations when ipConfiguration.id is absent' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/publicIPAddresses'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/unattached-pip'
+                properties = @{}
+            }
+        )
+
+        { Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory } |
+            Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
+    }
+
     It 'builds network association rows from enriched inventory resources' {
         $inventory = @(
             [ordered]@{

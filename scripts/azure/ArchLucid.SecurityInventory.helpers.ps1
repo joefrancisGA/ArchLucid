@@ -554,6 +554,24 @@ function Get-ArchLucidInventoryPropertyEntries([object] $Properties)
     return @($Properties.psobject.Properties)
 }
 
+function Test-ArchLucidInventoryPropertyExists
+{
+    param(
+        [object] $Properties,
+        [string] $PropertyName
+    )
+
+    if ($null -eq $Properties) { return $false }
+    if ([string]::IsNullOrWhiteSpace($PropertyName)) { return $false }
+
+    if ($Properties -is [System.Collections.IDictionary])
+    {
+        return $Properties.Contains($PropertyName)
+    }
+
+    return $Properties.PSObject.Properties.Match($PropertyName).Count -gt 0
+}
+
 function Test-ArchLucidAzureInventoryNeverShowResourceType
 {
     param(
@@ -869,7 +887,7 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
 
             [string]$nsgId = ""
 
-            if ($resource.properties.PSObject.Properties.Match('networkSecurityGroup.id').Count -gt 0)
+            if (Test-ArchLucidInventoryPropertyExists -Properties $resource.properties -PropertyName 'networkSecurityGroup.id')
             {
                 $nsgId = "$( $resource.properties.'networkSecurityGroup.id' )".Trim()
             }
@@ -887,7 +905,12 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
 
         if ($resourceType -like "*publicIPAddresses*")
         {
-            [string]$ipConfigurationId = "$( $resource.properties.'ipConfiguration.id' )".Trim()
+            [string]$ipConfigurationId = ""
+
+            if (Test-ArchLucidInventoryPropertyExists -Properties $resource.properties -PropertyName 'ipConfiguration.id')
+            {
+                $ipConfigurationId = "$( $resource.properties.'ipConfiguration.id' )".Trim()
+            }
 
             if (-not ([string]::IsNullOrWhiteSpace($ipConfigurationId)))
             {
@@ -924,7 +947,12 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
                 }
             }
 
-            [string]$subnetId = "$( $resource.properties.'subnet.id' )".Trim()
+            [string]$subnetId = ""
+
+            if (Test-ArchLucidInventoryPropertyExists -Properties $resource.properties -PropertyName 'subnet.id')
+            {
+                $subnetId = "$( $resource.properties.'subnet.id' )".Trim()
+            }
 
             if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
             {
@@ -1008,7 +1036,7 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
 
             [string]$peeringsJson = ""
 
-            if ($resource.properties.PSObject.Properties.Match('virtualNetworkPeerings').Count -gt 0)
+            if (Test-ArchLucidInventoryPropertyExists -Properties $resource.properties -PropertyName 'virtualNetworkPeerings')
             {
                 $peeringsJson = "$( $resource.properties.virtualNetworkPeerings )".Trim()
             }
