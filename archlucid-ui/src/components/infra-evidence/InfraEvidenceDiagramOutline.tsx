@@ -6,7 +6,7 @@ import { InfraEvidenceDeclaredConnectionDetailPanel } from "@/components/infra-e
 import { InfraEvidenceInventoryEdgeDetailPanel } from "@/components/infra-evidence/InfraEvidenceInventoryEdgeDetailPanel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT,
@@ -281,7 +281,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             type="button"
             className={cn(
               "m-0 mb-2 flex w-full items-center justify-between gap-2 border-0 bg-transparent p-0 text-left",
-              OPERATOR_TYPOGRAPHY.sectionTitle,
+              OPERATOR_DISCLOSURE_TRIGGER_CLASS,
             )}
             data-testid="infra-diagrams-outline-nodes-disclosure"
             aria-expanded={nodesOpen}
@@ -341,7 +341,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                         <InfraEvidenceDiagramOutlineNodeLabel node={node} />
                       </td>
                       <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
-                      <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
+                      <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>{formatOutlineCell(node.resourceGroup)}</td>
                       {showNeighborhoodActions ? (
                         <td className="px-3 py-2">
                           <Button
@@ -374,11 +374,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
           <div>
             <button
               type="button"
-              className={cn(
-                "m-0 mb-2 flex w-full items-center justify-between gap-2 border-0 bg-transparent p-0 text-left",
-                OPERATOR_TYPOGRAPHY.sectionTitle,
-              )}
-              data-testid="infra-diagrams-outline-edges-disclosure"
+            className={cn(
+              "m-0 mb-2 flex w-full items-center justify-between gap-2 border-0 bg-transparent p-0 text-left",
+              OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+            )}
+            data-testid="infra-diagrams-outline-edges-disclosure"
               aria-expanded={edgesOpen}
               aria-controls="infra-diagrams-outline-edges-panel"
               onClick={toggleEdgesOpen}

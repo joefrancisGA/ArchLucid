@@ -137,7 +137,11 @@ import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHub
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE,
@@ -1700,7 +1704,7 @@ export function DiagramsWorkbenchClient() {
       {selectedSnapshotId.length > 0 ? (
         <div className={cn("flex flex-wrap items-center gap-2", cnCard)} aria-label="Diagram follow-up links">
           <Link
-            className={OPERATOR_LINK.inline}
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             data-testid="infra-diagrams-open-ask"
             href={buildInfrastructureAskHref({
               cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
@@ -1854,7 +1858,7 @@ export function DiagramsWorkbenchClient() {
                   className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
                   data-testid="infra-diagrams-always-excluded-panel"
                 >
-                  <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                  <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
                     {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE}
                   </h3>
                   <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
