@@ -3,12 +3,15 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import {
+  OpenSampleReviewLink,
+  OPEN_SAMPLE_REVIEW_HREF,
+} from "@/components/operator/OpenSampleReviewLink";
+import { Button } from "@/components/ui/button";
+import {
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-
-const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+import { OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA } from "@/lib/buyer-copy/operator-home-sample";
 
 /** First-run workspace with no reviews — compact empty pattern with direct start paths. */
 export function OperatorHomeWorkspaceEmptyState() {
@@ -24,10 +27,14 @@ export function OperatorHomeWorkspaceEmptyState() {
           <InlineGlossaryChip nounId="governance-approval">approval</InlineGlossaryChip>.
         </>
       }
-      actions={[
-        { label: "Start first review", href: "/architecture/reviews/new", variant: "primary" },
-        { label: "Open sample review", href: sampleReviewHref, variant: "outline" },
-      ]}
+      actions={[{ label: "Start first review", href: "/architecture/reviews/new", variant: "primary" }]}
+      footer={
+        <Button type="button" variant="outline" size="sm" asChild data-testid="operator-home-open-sample-review">
+          <OpenSampleReviewLink href={OPEN_SAMPLE_REVIEW_HREF}>
+            {OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA}
+          </OpenSampleReviewLink>
+        </Button>
+      }
     />
   );
 }
