@@ -17,11 +17,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(resourceType);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
-        HostedAzureArmTypeListDescriptor? descriptor = HostedAzureArmNetworkTypeListDescriptors.SubscriptionLists
-            .FirstOrDefault(candidate =>
-                candidate.ResourceType.Equals(resourceType, StringComparison.OrdinalIgnoreCase));
-
-        if (descriptor is null)
+        if (!HostedAzureArmTypeListDescriptorRegistry.TryGet(resourceType, out HostedAzureArmTypeListDescriptor descriptor))
         {
             throw new ArgumentException(
                 $"Unsupported type-scoped list resource type '{resourceType}'.",
@@ -169,6 +165,79 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                 foreach (JsonElement item in valueElement.EnumerateArray())
                 {
                     HostedAzureArmResourceRecord? mapped = MapPrivateDnsVirtualNetworkLink(item, trimmedZoneId);
+
+                    if (mapped is not null)
+                    {
+                        resources.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                nextLink = nextLinkElement.GetString();
+            }
+        }
+
+        return resources;
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListVirtualNetworkPeeringsAsync(
+        string accessToken,
+        string subscriptionId,
+        string virtualNetworkResourceId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(virtualNetworkResourceId);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        List<HostedAzureArmResourceRecord> resources = [];
+        string trimmedVnetId = virtualNetworkResourceId.Trim().TrimStart('/');
+        string? nextLink =
+            $"https://management.azure.com/{trimmedVnetId}/virtualNetworkPeerings?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmResourceRecord? mapped = MapResource(item);
 
                     if (mapped is not null)
                     {

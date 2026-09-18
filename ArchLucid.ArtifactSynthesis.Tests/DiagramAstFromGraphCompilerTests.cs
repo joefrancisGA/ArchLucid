@@ -1,7 +1,9 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -54,7 +56,111 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         executive.Nodes.Count.Should().BeLessThan(full.Nodes.Count);
         full.Nodes.Should().HaveCount(50);
-        executive.Nodes.Count.Should().BeLessThanOrEqualTo(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes);
+        executive.Nodes.Count.Should().BeLessThanOrEqualTo(DiagramAstFromGraphCompilerConstants.ExecutiveMaxTotalNodes);
+        // 10 VNets + 10 VMs + 10 storage accounts + 10 SQL servers; identities are not an always-show tier.
+        executive.Nodes.Should().HaveCount(40);
+        executive.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.ManagedIdentity/userAssignedIdentities");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_keeps_every_vnet_including_beyond_former_twelve_cap()
+    {
+        GraphSnapshot graph = BuildExecutiveSparseVnetGraph(resourceGroupCount: 13);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        ast.Nodes.Should().HaveCount(13);
+    }
+
+    [Fact]
+    public void Compile_executive_mode_synthesizes_peering_from_vnet_property_json()
+    {
+        GraphSnapshot graph = BuildExecutiveVnetOnlyGraph();
+        GraphNode left = graph.Nodes[0];
+        GraphNode right = graph.Nodes[1];
+        string rightArmId = DiagramAstGraphNodeClassifier.ReadArmId(right);
+        left.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
+            "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + rightArmId + "\"}}}]";
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        ast.Edges.Should().Contain(edge => !edge.IsLayoutOnly && edge.Label == "peering");
+        mermaid.Should().Contain("-->|\"peering\"|");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_always_shows_tiers_in_order_and_hides_unchecked_tiers()
+    {
+        GraphSnapshot graph = BuildExecutiveAlwaysShowGraph(virtualMachineCount: 2, databaseCount: 1, dataFactoryCount: 1);
+
+        DiagramAst allTiers = compiler.Compile(graph, DiagramMode.Executive);
+        DiagramAst withoutWorkloads = compiler.Compile(
+            graph,
+            DiagramMode.Executive,
+            new DiagramAstCompileOptions { HiddenExecutiveTierKeys = [ExecutiveAlwaysShowTiers.WorkloadsKey] });
+
+        allTiers.Nodes.Select(node => node.Label).Should().Equal(
+            "hub-vnet",
+            "vm-0",
+            "vm-1",
+            "sqldb-0",
+            "stcritical",
+            "adf-0");
+        allTiers.Nodes.Should().OnlyContain(node => !string.IsNullOrWhiteSpace(node.SeedNodeId));
+        withoutWorkloads.Nodes.Select(node => node.Label).Should().Equal("hub-vnet", "sqldb-0", "stcritical", "adf-0");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_rolls_tier_overflow_into_one_summary_node_without_seed()
+    {
+        int vmCount = DiagramAstFromGraphCompilerConstants.ExecutiveAlwaysShowTierMaxNodes + 5;
+        GraphSnapshot graph = BuildExecutiveAlwaysShowGraph(virtualMachineCount: vmCount, databaseCount: 0, dataFactoryCount: 0);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        List<DiagramNode> vmNodes = ast.Nodes
+            .Where(node => node.ArmResourceType == "Microsoft.Compute/virtualMachines")
+            .ToList();
+        vmNodes.Should().HaveCount(DiagramAstFromGraphCompilerConstants.ExecutiveAlwaysShowTierMaxNodes);
+
+        DiagramNode overflow = ast.Nodes.Should().ContainSingle(node => node.Label == "+5 more compute workloads").Subject;
+        overflow.SeedNodeId.Should().BeNull();
+        overflow.ArmResourceType.Should().BeNull();
+        overflow.CloudResourceId.Should().BeNull();
+        overflow.IsExecutiveOverflow.Should().BeTrue();
+        mermaid.Should().Contain("+5 more compute workloads");
+        mermaid.Should().NotContain("al-seed=executive-overflow");
+
+        DiagramForestLayoutResult forestLayout = new DiagramForestLayoutSvgRenderer().Render(ast);
+        forestLayout.Succeeded.Should().BeTrue();
+        forestLayout.Svg.Should().NotContain("+5 more compute workloads");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_region_frames_include_always_show_resources()
+    {
+        GraphSnapshot graph = BuildExecutiveMultiRegionVnetGraph();
+        GraphNode westVm = CreateTopologyNode(
+            "vm-west",
+            "vm-westus-app",
+            "Microsoft.Compute/virtualMachines",
+            "network-rg-west",
+            "44444444-4444-4444-4444-444444444444",
+            GraphTopologyCategories.Compute);
+        westVm.Properties["arm.location"] = "westus";
+        graph.Nodes.Add(westVm);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        ast.Subgraphs.Should().HaveCount(3);
+        ast.Subgraphs.Should().OnlyContain(subgraph => subgraph.Label.StartsWith("Region ", StringComparison.Ordinal));
+        DiagramNode vmNode = ast.Nodes.Should().ContainSingle(node => node.Label == "vm-westus-app").Subject;
+        string westRegionId = ast.Subgraphs.Should().ContainSingle(subgraph => subgraph.Label == "Region westus").Subject.SubgraphId;
+        vmNode.SubgraphId.Should().Be(westRegionId);
+        ast.Nodes.Should().OnlyContain(node =>
+            node.SubgraphId == null || ast.Subgraphs.Any(subgraph => subgraph.SubgraphId == node.SubgraphId));
     }
 
     [Fact]
@@ -241,6 +347,104 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         ast.Nodes.Should().ContainSingle();
         ast.Nodes[0].Label.Should().Be("core-vnet");
+    }
+
+    [Fact]
+    public void Compile_network_mode_excludes_private_endpoint_nodes_and_access_badges()
+    {
+        const string peArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-sql";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/core-vnet";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql/databases/app";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                BuildNetworkTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "core-vnet"),
+                BuildNetworkTopologyNode("pe-1", peArmId, "Microsoft.Network/privateEndpoints", "pe-sql"),
+                BuildNetworkTopologyNode("sql-1", sqlArmId, "Microsoft.Sql/servers/databases", "app"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-pe-sql",
+                    FromNodeId = "pe-1",
+                    ToNodeId = "sql-1",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                    Weight = 1.0d,
+                },
+            ],
+        };
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Network);
+
+        ast.Nodes.Should().ContainSingle();
+        ast.Nodes[0].Label.Should().Be("core-vnet");
+        ast.Nodes.Should().NotContain(node => node.Label == "pe-sql");
+        ast.Nodes.Should().OnlyContain(node => !node.HasPrivateEndpointAccess);
+
+        DiagramForestLayoutResult svg = new DiagramForestLayoutSvgRenderer().Render(ast);
+        svg.Svg.Should().NotContain("class=\"private-endpoint-lock\"");
+        svg.Svg.Should().NotContain("Private endpoint access");
+    }
+
+    [Fact]
+    public void Compile_full_subscription_excludes_private_endpoint_nodes_and_keeps_access_badges()
+    {
+        const string peArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-sql";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/core-vnet";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql/databases/app";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                BuildNetworkTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "core-vnet"),
+                BuildNetworkTopologyNode("pe-1", peArmId, "Microsoft.Network/privateEndpoints", "pe-sql"),
+                BuildNetworkTopologyNode("sql-1", sqlArmId, "Microsoft.Sql/servers/databases", "app"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-pe-sql",
+                    FromNodeId = "pe-1",
+                    ToNodeId = "sql-1",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                    Weight = 1.0d,
+                },
+            ],
+        };
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node => node.Label == "pe-sql");
+        ast.Nodes.Should().Contain(node => node.Label == "core-vnet");
+        ast.Nodes.Single(node => node.Label == "app").HasPrivateEndpointAccess.Should().BeTrue();
+
+        DiagramForestLayoutResult svg = new DiagramForestLayoutSvgRenderer().Render(ast);
+        svg.Svg.Should().Contain("class=\"private-endpoint-lock\"");
+        svg.Svg.Should().Contain("Private endpoint access");
+        svg.Svg.Should().NotContain(">pe-sql<");
     }
 
     [Fact]
@@ -621,6 +825,76 @@ public sealed class DiagramAstFromGraphCompilerTests
         return graph;
     }
 
+    private static GraphSnapshot BuildExecutiveAlwaysShowGraph(int virtualMachineCount, int databaseCount, int dataFactoryCount)
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        const string subscriptionId = "55555555-5555-5555-5555-555555555555";
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "vnet-hub",
+            "hub-vnet",
+            "Microsoft.Network/virtualNetworks",
+            "rg-network",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "storage-critical",
+            "stcritical",
+            "Microsoft.Storage/storageAccounts",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Storage));
+        graph.Nodes.Add(CreateTopologyNode(
+            "nic-noise",
+            "app-nic",
+            "Microsoft.Network/networkInterfaces",
+            "rg-app",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+
+        for (int index = 0; index < virtualMachineCount; index++)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                $"vm-{index}",
+                $"vm-{index}",
+                "Microsoft.Compute/virtualMachines",
+                "rg-app",
+                subscriptionId,
+                GraphTopologyCategories.Compute));
+        }
+
+        for (int index = 0; index < databaseCount; index++)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                $"sqldb-{index}",
+                $"sqldb-{index}",
+                "Microsoft.Sql/servers/databases",
+                "rg-data",
+                subscriptionId,
+                GraphTopologyCategories.Data));
+        }
+
+        for (int index = 0; index < dataFactoryCount; index++)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                $"adf-{index}",
+                $"adf-{index}",
+                "Microsoft.DataFactory/factories",
+                "rg-data",
+                subscriptionId,
+                GraphTopologyCategories.Data));
+        }
+
+        return graph;
+    }
+
     private static GraphSnapshot BuildLargeInventoryGraph(int resourceCount)
     {
         GraphSnapshot graph = new()
@@ -701,5 +975,230 @@ public sealed class DiagramAstFromGraphCompilerTests
             SourceId = armId,
             Properties = properties,
         };
+    }
+
+    [Fact]
+    public void Compile_human_assertion_edge_carries_provenance_and_declared_label()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "app-1",
+            "app-1",
+            "Microsoft.Web/sites",
+            "rg-app",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "sql-1",
+            "sql-1",
+            "Microsoft.Sql/servers",
+            "rg-data",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Data));
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-declared",
+            FromNodeId = "app-1",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Label = GraphEdgeTypes.ConnectsTo,
+            InferenceSource = GraphEdgeInferenceSources.HumanDeclaredConnection,
+            ProvenanceKind = "HumanAssertion",
+            DeclaredConnectionId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString(),
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-inventory",
+            FromNodeId = "app-1",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Label = GraphEdgeTypes.ConnectsTo,
+            InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+            ProvenanceKind = "ObservedFact",
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramEdge? declaredEdge = ast.Edges.FirstOrDefault(edge =>
+            edge.ProvenanceKind == "HumanAssertion");
+        DiagramEdge? observedEdge = ast.Edges.FirstOrDefault(edge =>
+            edge.ProvenanceKind == "ObservedFact");
+
+        declaredEdge.Should().NotBeNull();
+        declaredEdge!.InferenceSource.Should().Be(GraphEdgeInferenceSources.HumanDeclaredConnection);
+        declaredEdge.DeclaredConnectionId.Should().NotBeNullOrWhiteSpace();
+        declaredEdge.Label.Should().Be("declared · connects");
+
+        observedEdge.Should().NotBeNull();
+        observedEdge!.Label.Should().Be("connects");
+        observedEdge.Label.Should().NotContain("declared");
+
+        string mermaid = renderer.Render(ast);
+        mermaid.Should().Contain("-.->");
+        mermaid.Should().Contain("al-provenance=HumanAssertion");
+        mermaid.Should().Contain("al-declared-id=");
+    }
+
+    private static GraphNode BuildNetworkTopologyNode(string nodeId, string armId, string armType, string label)
+    {
+        return new GraphNode
+        {
+            NodeId = nodeId,
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = label,
+            SourceType = "azure-inventory-snapshot",
+            SourceId = armId,
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["arm.id"] = armId,
+                ["arm.type"] = armType,
+                ["arm.resourceGroup"] = "rg",
+                ["arm.subscriptionId"] = "sub",
+            },
+        };
+    }
+
+    [Fact]
+    public void Compile_data_flow_mode_shows_external_source_adf_and_sql_without_vnet()
+    {
+        GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Edges.Should().HaveCount(2);
+        ast.FlowchartDirection.Should().Be("LR");
+        ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.PrimarySentence);
+        mermaid.Should().StartWith("flowchart LR");
+        mermaid.Should().Contain("Writes to");
+        mermaid.Should().NotContain("corp-vnet");
+    }
+
+    [Fact]
+    public void Compile_network_mode_still_includes_vnet_on_data_flow_fixture()
+    {
+        GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Network);
+
+        ast.Nodes.Should().Contain(node => node.Label == "corp-vnet");
+    }
+
+    [Fact]
+    public void Compile_data_flow_mode_on_vm_only_graph_has_no_resource_nodes()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "vm-1",
+            "vm-1",
+            "Microsoft.Compute/virtualMachines",
+            "rg-app",
+            "sub",
+            GraphTopologyCategories.Compute));
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Nodes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Compile_data_architecture_mode_omits_movement_edges()
+    {
+        GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataArchitecture);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Edges.Should().BeEmpty();
+        ast.CaptionLines.Should().Contain(DiagramDataArchitectureHonestyLegend.PrimarySentence);
+    }
+
+    private static GraphSnapshot BuildDataFlowMvpGraph(bool includeVnet)
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string factoryId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        GraphNode externalSap = AzureInventoryAdfExternalSourceNodeFactory.CreateGraphNode(new AzureInventoryAdfLinkedServiceRow
+        {
+            FactoryResourceId = factoryId,
+            LinkedServiceName = "SapLS",
+            LinkedServiceType = "SapTable",
+            TargetHost = "sap.example.com",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved,
+        });
+
+        graph.Nodes.Add(externalSap);
+        graph.Nodes.Add(CreateTopologyNode(
+            "adf-1",
+            "adf1",
+            "Microsoft.DataFactory/factories",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Data));
+        graph.Nodes.Add(CreateTopologyNode(
+            "sql-1",
+            "sql1",
+            "Microsoft.Sql/servers",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Data));
+
+        if (includeVnet)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                "vnet-1",
+                "corp-vnet",
+                "Microsoft.Network/virtualNetworks",
+                "rg-net",
+                subscriptionId,
+                GraphTopologyCategories.Network));
+        }
+
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-read",
+            FromNodeId = "adf-1",
+            ToNodeId = externalSap.NodeId,
+            EdgeType = AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
+            Label = AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAdfReadsFrom,
+        });
+
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-write",
+            FromNodeId = "adf-1",
+            ToNodeId = "sql-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
+            Label = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAdfWritesTo,
+        });
+
+        return graph;
     }
 }

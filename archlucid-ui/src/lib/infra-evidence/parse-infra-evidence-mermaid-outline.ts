@@ -1,3 +1,4 @@
+import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
 
 /** Lightweight Mermaid flowchart outline for accessible diagram peers (nodes + edges only). */
@@ -10,10 +11,14 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly seedNodeId?: string | null;
 };
 
+export type InfraEvidenceDiagramOutlineEdgeSource = "observed" | "declared" | "inferred";
+
 export type InfraEvidenceMermaidOutlineEdge = {
   readonly from: string;
   readonly to: string;
   readonly label: string | null;
+  readonly source: InfraEvidenceDiagramOutlineEdgeSource;
+  readonly declaredConnectionId: string | null;
 };
 
 export type InfraEvidenceMermaidOutline = {
@@ -24,7 +29,104 @@ export type InfraEvidenceMermaidOutline = {
 const NODE_WITH_LABEL =
   /^([A-Za-z0-9_-]+)(?:\[\[([^\]]+)\]\]|\[([^\]]+)\]|\(\(([^)]+)\)\)|\(([^)]+)\)|\{\{([^}]+)\}\}|\{([^}]+)\}|>([^<]+)<)?/u;
 
-const EDGE_ARROW = /-->(?:\|([^|]+)\|)?|==+(?:\|([^|]+)\|)?|\.-+>/u;
+const EDGE_THICK = /==+(?:\|([^|]+)\|)?/u;
+
+const EDGE_DOTTED = /\.-+>/u;
+
+type MermaidEdgeArrowMatch = {
+  readonly index: number;
+  readonly length: number;
+  readonly label: string | null;
+};
+
+function readSolidMermaidEdgeArrow(line: string): MermaidEdgeArrowMatch | null {
+  const solidIndex = line.indexOf("-->");
+
+  if (solidIndex < 0) {
+    return null;
+  }
+
+  let length = 3;
+  let label: string | null = null;
+  const afterArrow = line.slice(solidIndex + 3);
+
+  if (afterArrow.startsWith("|")) {
+    const closingPipe = afterArrow.indexOf("|", 1);
+
+    if (closingPipe > 0) {
+      label = afterArrow.slice(1, closingPipe);
+      length = 3 + closingPipe + 1;
+    }
+  }
+
+  return { index: solidIndex, length, label };
+}
+
+function readDashedMermaidEdgeArrow(line: string): MermaidEdgeArrowMatch | null {
+  const dashedIndex = line.indexOf("-.->");
+
+  if (dashedIndex < 0) {
+    return null;
+  }
+
+  let length = 4;
+  let label: string | null = null;
+  const afterArrow = line.slice(dashedIndex + length);
+
+  if (afterArrow.startsWith("|")) {
+    const closingPipe = afterArrow.indexOf("|", 1);
+
+    if (closingPipe > 0) {
+      label = afterArrow.slice(1, closingPipe);
+      length = 4 + closingPipe + 1;
+    }
+  }
+
+  return { index: dashedIndex, length, label };
+}
+
+function readMermaidEdgeArrow(line: string): MermaidEdgeArrowMatch | null {
+  const candidates: MermaidEdgeArrowMatch[] = [];
+  const solid = readSolidMermaidEdgeArrow(line);
+
+  if (solid !== null) {
+    candidates.push(solid);
+  }
+
+  const dashed = readDashedMermaidEdgeArrow(line);
+
+  if (dashed !== null) {
+    candidates.push(dashed);
+  }
+
+  const thickMatch = EDGE_THICK.exec(line);
+
+  if (thickMatch !== null && thickMatch.index !== undefined) {
+    candidates.push({
+      index: thickMatch.index,
+      length: thickMatch[0].length,
+      label: thickMatch[1] ?? null,
+    });
+  }
+
+  const dottedMatch = EDGE_DOTTED.exec(line);
+
+  if (dottedMatch !== null && dottedMatch.index !== undefined) {
+    candidates.push({
+      index: dottedMatch.index,
+      length: dottedMatch[0].length,
+      label: null,
+    });
+  }
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  candidates.sort((left, right) => left.index - right.index);
+
+  return candidates[0] ?? null;
+}
 
 const INVISIBLE_LAYOUT_LINK = /~{2,}/u;
 
@@ -39,10 +141,18 @@ const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
 const OUTLINE_METADATA_TOKEN = /(?:^|\s)(al-type|al-rg|al-seed)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
 
+const EDGE_OUTLINE_METADATA_TOKEN =
+  /(?:^|\s)(al-provenance|al-inference|al-declared-id)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+
 type OutlineNodeMetadata = {
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
   readonly seedNodeId: string | null;
+};
+
+type OutlineEdgeMetadata = {
+  readonly source: InfraEvidenceDiagramOutlineEdgeSource;
+  readonly declaredConnectionId: string | null;
 };
 
 function normalizeOutlineLabel(raw: string | undefined, fallback: string): string {
@@ -96,6 +206,98 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
 
 function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
   return { resourceType: null, resourceGroup: null, seedNodeId: null };
+}
+
+function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
+  return { source: "observed", declaredConnectionId: null };
+}
+
+function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {
+  let source: InfraEvidenceDiagramOutlineEdgeSource = "observed";
+  let declaredConnectionId: string | null = null;
+
+  for (const match of comment.matchAll(EDGE_OUTLINE_METADATA_TOKEN)) {
+    const key = match[1];
+    const value = unquoteMetadataValue(match[3] ?? match[4] ?? "");
+
+    if (value.length === 0) {
+      continue;
+    }
+
+    if (key === "al-provenance" && value.toLowerCase() === "humanassertion") {
+      source = "declared";
+    }
+
+    if (key === "al-inference" && value.toLowerCase() === "human-declared-connection") {
+      source = "declared";
+    }
+
+    if (key === "al-provenance" && value.toLowerCase() === "aiinference") {
+      source = "inferred";
+    }
+
+    if (key === "al-declared-id") {
+      declaredConnectionId = value;
+    }
+  }
+
+  return { source, declaredConnectionId };
+}
+
+function mergeOutlineEdgeMetadata(
+  preferred: OutlineEdgeMetadata,
+  fallback: OutlineEdgeMetadata,
+): OutlineEdgeMetadata {
+  return {
+    source: preferred.source !== "observed" ? preferred.source : fallback.source,
+    declaredConnectionId: preferred.declaredConnectionId ?? fallback.declaredConnectionId,
+  };
+}
+
+function resolveEdgeSourceFromArrow(line: string, metadata: OutlineEdgeMetadata): InfraEvidenceDiagramOutlineEdgeSource {
+  if (metadata.source !== "observed") {
+    return metadata.source;
+  }
+
+  if (line.includes("-.->")) {
+    return "declared";
+  }
+
+  return "observed";
+}
+
+export function hasInfraEvidenceDeclaredDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  mermaidSource?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "declared")) {
+    return true;
+  }
+
+  const source = mermaidSource?.trim() ?? "";
+
+  if (source.length === 0) {
+    return false;
+  }
+
+  return source.includes("-.->") || /declared\s·/u.test(source);
+}
+
+export function hasInfraEvidenceInferredDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  mermaidSource?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "inferred")) {
+    return true;
+  }
+
+  const source = mermaidSource?.trim() ?? "";
+
+  if (source.length === 0) {
+    return false;
+  }
+
+  return /al-provenance=AiInference/iu.test(source) || /inferred\s·/u.test(source);
 }
 
 function mergeOutlineNodeMetadata(
@@ -234,7 +436,7 @@ export function resolveInfraEvidenceOutlineNodeLabel(
     return nodeId;
   }
 
-  return match.label;
+  return normalizeSecureNowResourceNameForDisplay(match.label);
 }
 
 export function resolveInfraEvidenceOutlineSeedNodeId(node: InfraEvidenceMermaidOutlineNode): string {
@@ -291,6 +493,7 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
   const subgraphResourceGroups: string[] = [];
   let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
+  let pendingEdgeMetadata: OutlineEdgeMetadata = emptyOutlineEdgeMetadata();
 
   const attachPendingMetadata = (
     node: InfraEvidenceMermaidOutlineNode | null,
@@ -319,6 +522,7 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     // is emitted that way so the diagram parses; attach tokens to the next node.
     if (line.startsWith("%%")) {
       pendingMetadata = mergeOutlineNodeMetadata(parseOutlineNodeMetadata(line), pendingMetadata);
+      pendingEdgeMetadata = mergeOutlineEdgeMetadata(parseOutlineEdgeMetadata(line), pendingEdgeMetadata);
       continue;
     }
 
@@ -359,17 +563,20 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
       continue;
     }
 
-    const arrowMatch = EDGE_ARROW.exec(line);
+    const arrowMatch = readMermaidEdgeArrow(line);
 
     if (arrowMatch != null) {
       const arrowIndex = arrowMatch.index;
       const fromParts = splitNodeLine(line.slice(0, arrowIndex));
-      const toParts = splitNodeLine(line.slice(arrowIndex + arrowMatch[0].length));
+      const toParts = splitNodeLine(line.slice(arrowIndex + arrowMatch.length));
       const fromNode = attachPendingMetadata(
         readNodeToken(fromParts.nodeToken, fromParts.metadata, activeSubgraphResourceGroup),
       );
       const toNode = readNodeToken(toParts.nodeToken, toParts.metadata, activeSubgraphResourceGroup);
-      const edgeLabel = normalizeOutlineLabel(arrowMatch[1] ?? arrowMatch[2], "");
+      const edgeLabel = normalizeOutlineLabel(arrowMatch.label ?? undefined, "");
+      const edgeMetadata = pendingEdgeMetadata;
+      pendingEdgeMetadata = emptyOutlineEdgeMetadata();
+      const edgeSource = resolveEdgeSourceFromArrow(line, edgeMetadata);
 
       if (fromNode != null) {
         upsertNode(nodeMap, fromNode);
@@ -384,6 +591,8 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
           from: fromNode.id,
           to: toNode.id,
           label: edgeLabel.length > 0 ? edgeLabel : null,
+          source: edgeSource,
+          declaredConnectionId: edgeMetadata.declaredConnectionId,
         });
       }
 
@@ -400,6 +609,7 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     );
 
     if (standaloneNode != null) {
+      pendingEdgeMetadata = emptyOutlineEdgeMetadata();
       upsertNode(nodeMap, standaloneNode);
     }
   }

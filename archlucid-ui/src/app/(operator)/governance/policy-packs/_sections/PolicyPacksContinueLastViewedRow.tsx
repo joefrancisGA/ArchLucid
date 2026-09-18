@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { policyPackDetailHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPacksHubPathFromPathname } from "@/lib/product-line/securenow-compliance-routes";
 import { cn } from "@/lib/utils";
 import type { PolicyPack } from "@/types/policy-packs";
 
@@ -17,7 +19,8 @@ export type PolicyPacksContinueLastViewedRowProps = {
 export function PolicyPacksContinueLastViewedRow(
   props: PolicyPacksContinueLastViewedRowProps,
 ): React.JSX.Element {
-  const href = policyPackDetailHref(props.pack.policyPackId, props.scopedReviewId);
+  const hubPath = policyPacksHubPathFromPathname(usePathname());
+  const href = policyPackDetailHref(props.pack.policyPackId, props.scopedReviewId, hubPath);
 
   return (
     <section

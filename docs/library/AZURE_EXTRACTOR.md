@@ -52,6 +52,35 @@ Audit: `Integration.HostedAzureExtractorConfigured` on configure.
 - Cost Management and Policy Insights surfaces that require POST are **not** collected on the hosted path; Tier 1 PowerShell remains the full-fidelity collector.
 - No write or destructive ARM operations.
 
+### Azure Data Factory linked services (optional companion)
+
+Both Tier 1 and Tier 2 collectors may emit **`adf-linked-services.json`**: sanitized metadata from the read-only ARM endpoint `GET …/Microsoft.DataFactory/factories/{factory}/linkedservices?api-version=2018-06-01`.
+
+| Collected | Never collected |
+|-----------|-----------------|
+| Factory and linked-service ARM ids | Connection strings, passwords, keys, tokens |
+| Connector type (`AzureBlobStorage`, `AzureSqlDatabase`, …) | Raw `typeProperties` blobs |
+| Target ARM resource id when explicit | `SecureString` / `encryptedCredential` values |
+| Sanitized hostname (`*.blob.core.windows.net`, …) | Runtime traffic claims |
+
+Materialized snapshot relationships use association types **`adfLinkedService`** (observed ARM target) and **`adfLinkedServiceInferred`** (unique hostname match). Diagram labels: **Connected to** / **Likely connected to**.
+
+When **`adf-datasets.json`** and **`adf-pipeline-flows.json`** companions are present, declared pipeline activity inputs/outputs are joined through dataset → linked service → target to emit directional edges **`adfReadsFrom`** / **`adfWritesTo`** (DerivedFact). Diagram labels: **Reads from** / **Writes to**. Neutral **`adfLinkedService`** edges are omitted for the same factory→target pair when a directional edge exists.
+
+| Companion | ARM source |
+|-----------|------------|
+| `adf-datasets.json` | `GET …/factories/{factory}/datasets?api-version=2018-06-01` |
+| `adf-pipeline-flows.json` | Derived from `GET …/factories/{factory}/pipelines?api-version=2018-06-01` activity `inputs` / `outputs` (static references only; nested `ExecutePipeline` up to depth 3) |
+
+Optional Tier 1 switch **`-IncludeAppSettingsHosts`** may emit **`app-settings-hosts.json`** via POST `config/appsettings/list` and `config/connectionstrings/list` (requires `microsoft.web/sites/config/list/action` or equivalent per site). We persist setting names, parsed hostnames, and Key Vault URI host/secret name only — never values. Hosted Tier 2 emits manifest warning `app-settings-not-collected-hosted-get-only` and does not call those APIs.
+
+| Companion | ARM source |
+|-----------|------------|
+| `service-connector-links.json` | `GET …/providers/Microsoft.ServiceLinker/linkers?api-version=2022-11-01-preview` on Web sites and Container Apps |
+| `app-settings-hosts.json` | Tier 1 only: POST `config/appsettings/list` + `config/connectionstrings/list` when `-IncludeAppSettingsHosts` |
+
+See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md) and [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) for the shipped AX-DE collection set.
+
 ### Automated continuous pull (V1.x — ArchLucid-hosted)
 
 **V1 GA** ships Tier 1 upload, **on-demand** hosted collection (`POST /v1/admin/azure-extractor/hosted/run`), and **leader-elected background polling** (`AzureExtractorAutoPullHostedService` → `AzureExtractorAutoPullOrchestrator` → `HostedAzureExtractorRunService` → ingest pipeline). Polling is **off by default** (`AzureExtractor:AutoPull:Enabled=false`); hosted collection also requires `HostedAzureExtractor:Enabled=true`. See [V1_DEFERRED.md §6p](V1_DEFERRED.md) for V1.x hardening notes.

@@ -307,6 +307,111 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_avd_session_host_association_emits_observed_connects_to_vm()
+    {
+        const string sessionHost =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DesktopVirtualization/hostPools/pool/sessionHosts/host1";
+        const string vm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/avd01-001";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [
+                    ParseJson($$"""{"fromResourceId":"{{sessionHost}}","toResourceId":"{{vm}}","associationType":"avdSessionHostToVm"}"""),
+                ],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle();
+        result.Relationships[0].RelationshipType.Should().Be(GraphEdgeTypes.ConnectsTo);
+        result.Relationships[0].ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact);
+        result.Relationships[0].FromAzureResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(sessionHost));
+        result.Relationships[0].ToAzureResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(vm));
+        result.Relationships[0].InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryAvdSessionHostToVm);
+    }
+
+    [Fact]
+    public void Materialize_vnet_property_peerings_emit_peers_with_without_association_rows()
+    {
+        const string localVnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+        const string remoteVnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId = localVnet,
+                        ResourceType = "Microsoft.Network/virtualNetworks",
+                        Name = "vnet-a",
+                        Properties = new Dictionary<string, string>
+                        {
+                            [AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
+                                "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + remoteVnet + "\"}}}]",
+                        },
+                    },
+                ],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle(r =>
+            r.RelationshipType == GraphEdgeTypes.PeersWith
+            && r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(localVnet)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(remoteVnet));
+        result.CompletenessWarnings.Should().NotContain(
+            AzureInventoryRelationshipCompletenessWarningCodes.ArgVnetPeeringMissing);
+    }
+
+    [Fact]
+    public void Materialize_peering_child_without_remote_id_adds_completeness_warning()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/virtualNetworkPeerings/peer-to-b",
+                        ResourceType = "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                        Name = "peer-to-b",
+                    },
+                ],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().NotContain(relationship =>
+            relationship.RelationshipType == GraphEdgeTypes.PeersWith);
+        result.CompletenessWarnings.Should().Contain(
+            AzureInventoryRelationshipCompletenessWarningCodes.ArgVnetPeeringMissing);
+    }
+
+    [Fact]
     public void Materialize_unknown_association_type_adds_warning_and_skips_edge()
     {
         AzureInventorySecurityEdgeMaterializeResult result =
@@ -492,6 +597,198 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Materialize_diagnostic_settings_emit_diagnostic_to_destination_edges()
+    {
+        const string storageAccount =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string workspace =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1";
+        const string diagnosticStorage =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/diagstore";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [
+                    ParseJson($$"""
+                                {
+                                  "targetResourceId": "{{storageAccount}}",
+                                  "name": "diag-workspace",
+                                  "workspaceId": "{{workspace}}"
+                                }
+                                """),
+                    ParseJson($$"""
+                                {
+                                  "targetResourceId": "{{storageAccount}}",
+                                  "name": "diag-storage",
+                                  "storageAccountId": "{{diagnosticStorage}}"
+                                }
+                                """),
+                ],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().Contain(r =>
+            r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(storageAccount)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(workspace)
+            && r.RelationshipType == GraphEdgeTypes.ConnectsTo
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticDestination
+            && r.ProvenanceKind == ProvenanceKind.ObservedFact);
+
+        result.Relationships.Should().Contain(r =>
+            r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(diagnosticStorage)
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticDestination);
+    }
+
+    [Fact]
+    public void Materialize_diagnostic_without_destination_adds_warning()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [
+                    ParseJson("""
+                              {
+                                "targetResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                                "name": "diag-missing-dest"
+                              }
+                              """),
+                ],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().NotContain(r =>
+            r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticDestination);
+        result.CompletenessWarnings.Should().Contain("diagnostic-destination-unresolved");
+    }
+
+    [Fact]
+    public void Materialize_system_assigned_identity_and_sql_db_contributor_emits_app_authorized_access()
+    {
+        const string webApp =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+        const string sqlDatabase =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1/databases/db1";
+        const string principalId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        const string sqlDbContributorRoleId =
+            "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/056bdf58-6d9f-44a1-9ea7-69a42ce89f30";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId = webApp,
+                        ResourceType = "Microsoft.Web/sites",
+                        Name = "app1",
+                        Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                        {
+                            ["identity"] = $$"""{"type":"SystemAssigned","principalId":"{{principalId}}"}""",
+                        },
+                    },
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId = sqlDatabase,
+                        ResourceType = "Microsoft.Sql/servers/databases",
+                        Name = "db1",
+                    },
+                ],
+                [
+                    ParseJson($$"""
+                                {
+                                  "scope": "{{sqlDatabase}}",
+                                  "principalId": "{{principalId}}",
+                                  "roleDefinitionId": "{{sqlDbContributorRoleId}}"
+                                }
+                                """),
+                ],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().Contain(r =>
+            r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(webApp)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(sqlDatabase)
+            && r.RelationshipType == GraphEdgeTypes.MayAccess
+            && r.ProvenanceKind == ProvenanceKind.DerivedFact
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryAppAuthorizedAccess);
+    }
+
+    [Fact]
+    public void Materialize_subscription_scoped_storage_blob_data_contributor_adds_broad_scope_warning()
+    {
+        const string webApp =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+        const string principalId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        const string blobContributorRoleId =
+            "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96e00258736";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId = webApp,
+                        ResourceType = "Microsoft.Web/sites",
+                        Name = "app1",
+                        Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                        {
+                            ["identity"] = $$"""{"type":"SystemAssigned","principalId":"{{principalId}}"}""",
+                        },
+                    },
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                        ResourceType = "Microsoft.Storage/storageAccounts",
+                        Name = "sa1",
+                    },
+                ],
+                [
+                    ParseJson($$"""
+                                {
+                                  "scope": "/subscriptions/sub",
+                                  "principalId": "{{principalId}}",
+                                  "roleDefinitionId": "{{blobContributorRoleId}}"
+                                }
+                                """),
+                ],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().NotContain(r =>
+            r.RelationshipType == GraphEdgeTypes.MayAccess);
+        result.CompletenessWarnings.Should().Contain("rbac-scope-too-broad:/subscriptions/sub");
     }
 
     private static JsonElement ParseJson(string json)

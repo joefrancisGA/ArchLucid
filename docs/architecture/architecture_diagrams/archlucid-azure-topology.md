@@ -30,10 +30,6 @@ flowchart TB
     COSMOS["Cosmos optional"]
   end
 
-  subgraph net["Network"]
-    PE["Private endpoints<br/>terraform-private"]
-  end
-
   subgraph obs["Observability"]
     LAW["Log Analytics / Monitor"]
   end
@@ -55,9 +51,6 @@ flowchart TB
   CA_WK --> AOAI
   CA_API --> REDIS
   CA_API --> COSMOS
-  PE -.-> SQL
-  PE -.-> ST
-  PE -.-> KV
   CA_API --> LAW
   CA_WK --> LAW
 ```

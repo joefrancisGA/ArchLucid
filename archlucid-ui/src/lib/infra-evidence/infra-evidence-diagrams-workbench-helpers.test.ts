@@ -32,7 +32,13 @@ describe("parseInfraEvidenceMermaidOutline", () => {
 
     expect(outline.nodes.map((node) => node.id)).toEqual(["A", "B", "C"]);
     expect(outline.edges).toHaveLength(2);
-    expect(outline.edges[0]).toEqual({ from: "A", to: "B", label: null });
+    expect(outline.edges[0]).toEqual({
+      from: "A",
+      to: "B",
+      label: null,
+      source: "observed",
+      declaredConnectionId: null,
+    });
   });
 
   it("ignores subgraph structural lines", () => {

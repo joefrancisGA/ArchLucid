@@ -119,7 +119,7 @@ export function CtoDemoTourStepIndicators({
             ) : (
               <Link
                 href={def.href}
-                prefetch
+                prefetch={false}
                 aria-label={`Step ${def.step}: ${def.label}. ${def.chipTooltip}`}
                 className={cn(
                   "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
@@ -161,7 +161,7 @@ export function CtoDemoTourNavigationFooter({
         <div className="flex flex-wrap items-center gap-2">
           {navigation.prev !== null ? (
             <Button type="button" variant="outline" size="sm" asChild>
-              <Link href={navigation.prev.href} prefetch data-testid="buyer-cto-demo-tour-back">
+              <Link href={navigation.prev.href} prefetch={false} data-testid="buyer-cto-demo-tour-back">
                 {BUYER_CTO_DEMO_TOUR_BACK_CTA}: {navigation.prev.label}
               </Link>
             </Button>
@@ -173,7 +173,7 @@ export function CtoDemoTourNavigationFooter({
 
           {navigation.next !== null ? (
             <Button type="button" size="sm" asChild>
-              <Link href={navigation.next.href} prefetch data-testid="buyer-cto-demo-tour-next">
+              <Link href={navigation.next.href} prefetch={false} data-testid="buyer-cto-demo-tour-next">
                 {BUYER_CTO_DEMO_TOUR_NEXT_CTA}: {navigation.next.label}
               </Link>
             </Button>

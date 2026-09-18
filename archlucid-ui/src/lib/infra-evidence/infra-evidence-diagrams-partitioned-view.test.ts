@@ -30,6 +30,7 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
   it("hides partitioned chrome when there are no fallback artifacts", () => {
     expect(
       shouldShowInfraDiagramsPartitionedViews({
+        selectedMode: "full",
         selectedViewKey: "executive",
         previewStatus: "Partitioned",
         renderStatus: "Partitioned",
@@ -38,9 +39,22 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
     ).toBe(false);
   });
 
+  it("hides partitioned chrome in executive mode even when the server reports Partitioned", () => {
+    expect(
+      shouldShowInfraDiagramsPartitionedViews({
+        selectedMode: "executive",
+        selectedViewKey: "",
+        previewStatus: "Partitioned",
+        renderStatus: "Partitioned",
+        fallbackArtifactCount: 2,
+      }),
+    ).toBe(false);
+  });
+
   it("keeps partitioned chrome after a selected partition returns Succeeded", () => {
     expect(
       shouldShowInfraDiagramsPartitionedViews({
+        selectedMode: "full",
         selectedViewKey: "executive",
         previewStatus: "Partitioned",
         renderStatus: "Succeeded",
@@ -52,6 +66,7 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
   it("shows partitioned chrome from preview before a view key is selected", () => {
     expect(
       shouldShowInfraDiagramsPartitionedViews({
+        selectedMode: "full",
         selectedViewKey: "",
         previewStatus: "Partitioned",
         renderStatus: "",
@@ -63,6 +78,7 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
   it("shows partitioned chrome from the render status when preview has not loaded", () => {
     expect(
       shouldShowInfraDiagramsPartitionedViews({
+        selectedMode: "network",
         selectedViewKey: "",
         previewStatus: "",
         renderStatus: "Partitioned",
@@ -74,6 +90,7 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
   it("does not show partitioned chrome for a succeeded mode with no view key", () => {
     expect(
       shouldShowInfraDiagramsPartitionedViews({
+        selectedMode: "full",
         selectedViewKey: "",
         previewStatus: "Succeeded",
         renderStatus: "Succeeded",
