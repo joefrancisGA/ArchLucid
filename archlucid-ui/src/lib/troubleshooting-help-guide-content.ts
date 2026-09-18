@@ -1,6 +1,12 @@
+import { SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  SECURENOW_TROUBLESHOOTING_ADDITIONAL_ISSUES,
+  SECURENOW_TROUBLESHOOTING_BEFORE_CONTACT_ITEMS,
+  SECURENOW_TROUBLESHOOTING_DECISION_TREE_STEPS,
+} from "@/lib/product-line/securenow-troubleshooting-help-guide-content";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -407,12 +413,28 @@ export function troubleshootingStartHereItems(productLineId: ProductLineId = "ar
   return isSecureNowProductLine(productLineId) ? SECURENOW_TROUBLESHOOTING_START_HERE_ITEMS : TROUBLESHOOTING_START_HERE_ITEMS;
 }
 
+export function troubleshootingDecisionTreeSteps(
+  productLineId: ProductLineId = "architecture",
+): readonly TroubleshootingDecisionStep[] {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_TROUBLESHOOTING_DECISION_TREE_STEPS
+    : TROUBLESHOOTING_DECISION_TREE_STEPS;
+}
+
+export function troubleshootingBeforeContactItems(
+  productLineId: ProductLineId = "architecture",
+): readonly string[] {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_TROUBLESHOOTING_BEFORE_CONTACT_ITEMS
+    : TROUBLESHOOTING_BEFORE_CONTACT_ITEMS;
+}
+
 export function troubleshootingCommonIssues(productLineId: ProductLineId = "architecture"): readonly TroubleshootingIssue[] {
   if (!isSecureNowProductLine(productLineId)) {
     return TROUBLESHOOTING_COMMON_ISSUES;
   }
 
-  return TROUBLESHOOTING_COMMON_ISSUES
+  const sharedIssues = TROUBLESHOOTING_COMMON_ISSUES
     .filter((issue) => !SECURENOW_TROUBLESHOOTING_EXCLUDED_ISSUE_IDS.has(issue.id))
     .map((issue) => {
       if (issue.id === "overview-workspace-empty") {
@@ -447,7 +469,7 @@ export function troubleshootingCommonIssues(productLineId: ProductLineId = "arch
           tryFirst: "Confirm your role can export audit or lineage artifacts, then refresh the page.",
           ifStillBlocked: "Open audit evidence lineage or contact support with a support bundle.",
           nextSteps: [
-            { label: "Open audit evidence lineage", href: "/governance/audit-evidence-lineage" },
+            { label: "Open audit evidence lineage", href: SECURENOW_AUDIT_EVIDENCE_PATH },
             { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
           ],
         };
@@ -468,6 +490,8 @@ export function troubleshootingCommonIssues(productLineId: ProductLineId = "arch
 
       return issue;
     });
+
+  return [...sharedIssues, ...SECURENOW_TROUBLESHOOTING_ADDITIONAL_ISSUES];
 }
 
 export const TROUBLESHOOTING_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [

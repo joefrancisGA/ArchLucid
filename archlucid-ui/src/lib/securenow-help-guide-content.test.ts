@@ -24,7 +24,19 @@ import {
   standardsRulesHelpOverview,
   standardsRulesHelpPageSubtitle,
 } from "@/lib/standards-rules-help-guide-content";
-import { troubleshootingCommonIssues } from "@/lib/troubleshooting-help-guide-content";
+import {
+  SECURENOW_TROUBLESHOOTING_BEFORE_CONTACT_ITEMS,
+  SECURENOW_TROUBLESHOOTING_DECISION_TREE_STEPS,
+} from "@/lib/product-line/securenow-troubleshooting-help-guide-content";
+import {
+  SECURENOW_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
+  resolveTroubleshootingHelpSources,
+} from "@/lib/troubleshooting-help-evidence-copy";
+import {
+  troubleshootingBeforeContactItems,
+  troubleshootingCommonIssues,
+  troubleshootingDecisionTreeSteps,
+} from "@/lib/troubleshooting-help-guide-content";
 import {
   usersAndRolesCapabilityRows,
   usersAndRolesFaq,
@@ -81,9 +93,39 @@ describe("SecureNow help guide content", () => {
 
     expect(issues.some((issue) => issue.id === "sample-review-missing")).toBe(false);
     expect(issues.some((issue) => issue.id === "organization-sso-required")).toBe(true);
+    expect(issues.some((issue) => issue.id === "azure-connector-unhealthy")).toBe(true);
     expect(
       issues.flatMap((issue) => issue.nextSteps).some((step) => step.href.includes("/architecture/reviews")),
     ).toBe(false);
+  });
+
+  it("uses SecureNow troubleshooting decision tree without architecture review steps", () => {
+    const steps = troubleshootingDecisionTreeSteps("security");
+
+    expect(steps).toEqual(SECURENOW_TROUBLESHOOTING_DECISION_TREE_STEPS);
+    expect(steps.some((step) => step.question.toLowerCase().includes("review"))).toBe(false);
+    expect(
+      steps.flatMap((step) => step.branches).some((branch) => branch.href.includes("/architecture/reviews")),
+    ).toBe(false);
+    expect(steps.some((step) => step.id === "decision-inventory")).toBe(true);
+    expect(steps.some((step) => step.id === "decision-packs-assigned")).toBe(true);
+  });
+
+  it("omits review name from SecureNow before-contact checklist", () => {
+    const items = troubleshootingBeforeContactItems("security");
+
+    expect(items).toEqual(SECURENOW_TROUBLESHOOTING_BEFORE_CONTACT_ITEMS);
+    expect(items.some((item) => item.toLowerCase().includes("review"))).toBe(false);
+    expect(items.some((item) => item.toLowerCase().includes("finding"))).toBe(true);
+  });
+
+  it("uses SecureNow troubleshooting claim discipline and follow-up sources", () => {
+    expect(SECURENOW_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE).not.toContain("unblock reviews");
+    expect(SECURENOW_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE).toContain("connectors");
+
+    const sources = resolveTroubleshootingHelpSources("security");
+    expect(sources.some((source) => source.label === "Azure connections")).toBe(true);
+    expect(sources.some((source) => source.href.includes("how-archlucid-works"))).toBe(false);
   });
 
   it("resolves SecureNow contextual help for findings and onboarding routes", () => {
