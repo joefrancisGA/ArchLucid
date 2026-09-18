@@ -12,6 +12,11 @@ import { clearOperatorHomeRunsSnapshotStale } from "@/lib/operator/operator-home
 import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { readDedicatedWorkspaceScope } from "@/lib/operator/operator-dedicated-workspace-storage";
+import {
+  isSampleWorkspaceScope,
+  resolveDedicatedWorkspaceCandidate,
+} from "@/lib/operator/operator-workspace-scope-model";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { registrationScopeHeaders } from "@/lib/registration-session";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getScopeHeaders } from "@/lib/scope";
@@ -167,7 +172,8 @@ export function clearOperatorScopeStorage(): void {
 /**
  * Resolves the scope headers the browser should send to `/api/proxy`, matching
  * `buildUpstreamHeaders` in `app/api/proxy/[...path]/route.ts` (server fallback when a header is absent).
- * Priority: explicit operator selection (localStorage) → post-registration session (unsigned only) → dev defaults.
+ * Priority: explicit operator selection (localStorage) → dedicated workspace (signed-in) →
+ * post-registration session (unsigned only) → dev defaults (unsigned local demo only).
  */
 export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
   if (typeof window === "undefined") {
@@ -186,14 +192,40 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
     return headers;
   }
 
-  if (!isLikelySignedIn()) {
-    const reg = registrationScopeHeaders();
+  if (isLikelySignedIn()) {
+    const dedicated =
+      readDedicatedWorkspaceScope()
+      ?? resolveDedicatedWorkspaceCandidate();
 
-    if (reg !== null) {
-      writeOperatorScopeCookieFromHeaders(reg);
+    if (dedicated !== null && !isSampleWorkspaceScope(dedicated)) {
+      const headers = {
+        "x-tenant-id": dedicated.tenantId,
+        "x-workspace-id": dedicated.workspaceId,
+        "x-project-id": dedicated.projectId,
+      };
+      writeOperatorScopeCookieFromHeaders(headers);
 
-      return reg;
+      return headers;
     }
+  }
+
+  const reg = registrationScopeHeaders();
+
+  if (reg !== null) {
+    writeOperatorScopeCookieFromHeaders(reg);
+
+    return reg;
+  }
+
+  if (isLikelySignedIn()) {
+    const pendingHeaders = {
+      "x-tenant-id": "",
+      "x-workspace-id": "",
+      "x-project-id": "",
+    };
+    writeOperatorScopeCookieFromHeaders(pendingHeaders);
+
+    return pendingHeaders;
   }
 
   const devDefaults = getScopeHeaders();
