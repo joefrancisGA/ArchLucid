@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { InfraEvidenceDeclaredConnectionDetailPanel } from "@/components/infra-evidence/InfraEvidenceDeclaredConnectionDetailPanel";
+import { InfraEvidenceInventoryEdgeDetailPanel } from "@/components/infra-evidence/InfraEvidenceInventoryEdgeDetailPanel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -19,6 +20,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
@@ -75,6 +77,9 @@ function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource):
 
     case "inferred":
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED;
+
+    case "probable":
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE;
 
     default:
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
@@ -165,6 +170,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const [nodesOpen, setNodesOpen] = useState(defaultNodesOpen);
   const [edgesOpen, setEdgesOpen] = useState(defaultEdgesOpen);
   const [selectedDeclaredEdge, setSelectedDeclaredEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
+  const [selectedInventoryEdge, setSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
   const [declaredConnections, setDeclaredConnections] = useState<SecurityDeclaredConnectionRow[]>([]);
   const [declaredConnectionsLoading, setDeclaredConnectionsLoading] = useState(false);
   const [declaredConnectionsError, setDeclaredConnectionsError] = useState<string | null>(null);
@@ -395,6 +401,16 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     />
                   </div>
                 ) : null}
+                {selectedInventoryEdge != null ? (
+                  <div className="mb-4">
+                    <InfraEvidenceInventoryEdgeDetailPanel
+                      edge={selectedInventoryEdge}
+                      onClose={() => {
+                        setSelectedInventoryEdge(null);
+                      }}
+                    />
+                  </div>
+                ) : null}
                 <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
                   <thead className="bg-neutral-50 dark:bg-neutral-900/60">
                     <tr>
@@ -457,7 +473,22 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 data-testid={`infra-diagrams-declared-edge-${edge.from}-${edge.to}`}
                                 aria-label={`View declared connection from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
                                 onClick={() => {
+                                  setSelectedInventoryEdge(null);
                                   setSelectedDeclaredEdge(edge);
+                                }}
+                              >
+                                {formatOutlineEdgeSource(edge.source)}
+                              </Button>
+                            ) : edge.source === "probable" || edge.source === "inferred" ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                data-testid={`infra-diagrams-inventory-edge-${edge.from}-${edge.to}`}
+                                aria-label={`View connection evidence from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
+                                onClick={() => {
+                                  setSelectedDeclaredEdge(null);
+                                  setSelectedInventoryEdge(edge);
                                 }}
                               >
                                 {formatOutlineEdgeSource(edge.source)}

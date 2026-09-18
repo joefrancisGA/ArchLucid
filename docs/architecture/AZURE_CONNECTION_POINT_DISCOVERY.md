@@ -319,5 +319,7 @@ Future `associationType` values follow IE-RF-01 catalog rules:
 | [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | P0 ARM relationship collection (network) |
 | [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) | **AX-DE-01–18** collection prompts (**shipped** — do not re-run) |
 | [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md) | **AX-DC-01–08** consumption prompts (canvas, strokes, warnings) |
+| [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) | **SN-PE-01–07** — Data Flow families (ordinal bands; DNS-joined PE hop); **prompts only** |
+| [`../securenow/EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](../securenow/EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) | Locked Data Flow evidence-family design |
 | [`SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md) | Privilege / path engines consuming RBAC rows |
 | [`../library/CLOUD_CONNECTIONS.md`](../library/customer-facing/CLOUD_CONNECTIONS.md) | Customer-facing Tier 1 vs Tier 2 |

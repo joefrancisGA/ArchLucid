@@ -11187,6 +11187,7 @@ BEGIN
         DurationMs            INT               NULL,
         CompletenessScore     DECIMAL(5, 4)     NULL,
         WarningCount          INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_WarningCount DEFAULT (0),
+        CompletenessWarningsJson NVARCHAR(MAX)     NULL,
         ErrorCount            INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_ErrorCount DEFAULT (0),
         ContentHashSha256     VARBINARY(32)     NULL,
         CreatedUtc            DATETIME2         NOT NULL,
@@ -11200,6 +11201,13 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AzureInventorySnapshots_Scope_Created
         ON dbo.AzureInventorySnapshots (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.AzureInventorySnapshots', N'CompletenessWarningsJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.AzureInventorySnapshots
+        ADD CompletenessWarningsJson NVARCHAR(MAX) NULL;
 END;
 GO
 

@@ -442,6 +442,72 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Preview_and_render_surface_persisted_completeness_warnings()
+    {
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildSnapshot(resourceCount: 2);
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = baseSnapshot.Header.SnapshotId,
+                TenantId = baseSnapshot.Header.TenantId,
+                SubscriptionId = baseSnapshot.Header.SubscriptionId,
+                CaptureStatus = baseSnapshot.Header.CaptureStatus,
+                CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
+                [
+                    "app-settings-not-collected-hosted-get-only",
+                    "rbac-scope-too-broad:/subscriptions/sub",
+                ]),
+            },
+            Resources = baseSnapshot.Resources,
+            Relationships = baseSnapshot.Relationships,
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> preview =
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
+
+        preview.Succeeded.Should().BeTrue();
+        preview.Value!.CompletenessWarnings.Should().Equal(
+            "app-settings-not-collected-hosted-get-only",
+            "rbac-scope-too-broad:/subscriptions/sub");
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> render =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
+
+        render.Succeeded.Should().BeTrue();
+        render.Value!.CompletenessWarnings.Should().Equal(
+            "app-settings-not-collected-hosted-get-only",
+            "rbac-scope-too-broad:/subscriptions/sub");
+    }
+
+    [Fact]
+    public async Task Executive_mode_renders_may_access_between_web_app_and_sql_database()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildExecutiveMayAccessSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("orders-api");
+        result.Value.Mermaid.Should().Contain("orders-db");
+        result.Value.Mermaid.Should().Contain("May access");
+    }
+
+    [Fact]
     public async Task Executive_mode_omits_low_weight_effective_control_edges_from_golden_fixture()
     {
         AzureInventorySnapshotDetailReadModel baseSnapshot = BuildRelationshipFirstNetworkGoldenSnapshot();
@@ -1187,6 +1253,65 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         };
     }
 
+    private static AzureInventorySnapshotDetailReadModel BuildExecutiveMayAccessSnapshot()
+    {
+        const string webAppArmId =
+            "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Web/sites/orders-api";
+        const string sqlDatabaseArmId =
+            "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Sql/servers/orders-sql/databases/orders-db";
+
+        List<AzureInventoryResourceRecord> resources =
+        [
+            new()
+            {
+                ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000101"),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                AzureResourceId = webAppArmId,
+                ResourceType = "Microsoft.Web/sites",
+                ResourceGroup = "rg-app",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000102"),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+                AzureResourceId = sqlDatabaseArmId,
+                ResourceType = "Microsoft.Sql/servers/databases",
+                ResourceGroup = "rg-data",
+                SubscriptionId = "sub",
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipReadModel> relationships =
+        [
+            new()
+            {
+                FromAzureResourceId = webAppArmId,
+                ToAzureResourceId = sqlDatabaseArmId,
+                RelationshipType = GraphEdgeTypes.MayAccess,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+                InferenceSource = GraphEdgeInferenceSources.InventoryAppAuthorizedAccess,
+            },
+        ];
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
+        };
+    }
+
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(int resourceCount)
     {
         List<AzureInventoryResourceRecord> resources = [];
@@ -1236,6 +1361,114 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             },
             Resources = resources,
             Relationships = relationships,
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildDataFlowProbableEvidenceSnapshot()
+    {
+        const string factoryId =
+            "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.DataFactory/factories/adf1";
+        const string sqlId =
+            "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Sql/servers/sql1";
+        const string webAppId =
+            "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Web/sites/orders-api";
+        const string linkedFunctionId =
+            "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Web/sites/linked-fn";
+        const string unlinkedFunctionId =
+            "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Web/sites/unlinked-fn";
+        const string eventGridTopicId =
+            "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.EventGrid/topics/orders";
+        const string storageId =
+            "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/capture";
+        const string vnetLinkedId =
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/corp-vnet";
+        const string vnetUnlinkedId =
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/other-vnet";
+        const string linkedSubnetId = $"{vnetLinkedId}/subnets/app-subnet";
+        const string unlinkedSubnetId = $"{vnetUnlinkedId}/subnets/other-subnet";
+        const string peSubnetId = $"{vnetLinkedId}/subnets/pe-subnet";
+        const string peId =
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/privateEndpoints/pe-sql";
+        const string zoneId =
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net";
+        string externalTargetId = AzureInventoryAdfExternalSourceNodeFactory.BuildNodeKey(factoryId, "SapLS");
+
+        List<AzureInventoryResourceRecord> resources =
+        [
+            Resource(factoryId, "Microsoft.DataFactory/factories", "rg-data", "aaaaaaaa-bbbb-cccc-dddd-000000000001"),
+            Resource(sqlId, "Microsoft.Sql/servers", "rg-data", "aaaaaaaa-bbbb-cccc-dddd-000000000002"),
+            Resource(vnetLinkedId, "Microsoft.Network/virtualNetworks", "rg-net", "aaaaaaaa-bbbb-cccc-dddd-000000000003"),
+            Resource(vnetUnlinkedId, "Microsoft.Network/virtualNetworks", "rg-net", "aaaaaaaa-bbbb-cccc-dddd-000000000004"),
+            Resource(webAppId, "Microsoft.Web/sites", "rg-app", "aaaaaaaa-bbbb-cccc-dddd-000000000005"),
+            Resource(linkedFunctionId, "Microsoft.Web/sites", "rg-app", "aaaaaaaa-bbbb-cccc-dddd-000000000006"),
+            Resource(unlinkedFunctionId, "Microsoft.Web/sites", "rg-app", "aaaaaaaa-bbbb-cccc-dddd-000000000007"),
+            Resource(eventGridTopicId, "Microsoft.EventGrid/topics", "rg-app", "aaaaaaaa-bbbb-cccc-dddd-000000000008"),
+            Resource(storageId, "Microsoft.Storage/storageAccounts", "rg-data", "aaaaaaaa-bbbb-cccc-dddd-000000000009"),
+            Resource(peId, "Microsoft.Network/privateEndpoints", "rg-net", "aaaaaaaa-bbbb-cccc-dddd-00000000000a"),
+        ];
+
+        List<AzureInventoryResourceRelationshipReadModel> relationships =
+        [
+            Relationship(factoryId, externalTargetId, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, GraphEdgeInferenceSources.InventoryAdfReadsFrom),
+            Relationship(factoryId, sqlId, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, GraphEdgeInferenceSources.InventoryAdfWritesTo),
+            Relationship(webAppId, sqlId, GraphEdgeTypes.MayAccess, GraphEdgeInferenceSources.InventoryAppAuthorizedAccess),
+            Relationship(eventGridTopicId, linkedFunctionId, AzureInventoryRelationshipAssociationTypes.EventGridToDestination, GraphEdgeInferenceSources.InventoryEventGridDestination),
+            Relationship(webAppId, linkedSubnetId, GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            Relationship(unlinkedFunctionId, unlinkedSubnetId, GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            Relationship(peId, sqlId, GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Relationship(peId, zoneId, GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+            Relationship(zoneId, vnetLinkedId, GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+            Relationship(peId, peSubnetId, GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryPeSubnet),
+            Relationship(webAppId, sqlId, GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryPeReachableTarget, ProvenanceKind.DerivedFact),
+        ];
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
+        };
+    }
+
+    private static AzureInventoryResourceRecord Resource(
+        string armId,
+        string resourceType,
+        string resourceGroup,
+        string cloudResourceIdSuffix)
+    {
+        return new AzureInventoryResourceRecord
+        {
+            ResourceRowId = Guid.NewGuid(),
+            SnapshotId = SnapshotId,
+            TenantId = TenantId,
+            CloudResourceId = Guid.Parse(cloudResourceIdSuffix),
+            AzureResourceId = armId,
+            ResourceType = resourceType,
+            ResourceGroup = resourceGroup,
+            SubscriptionId = "sub",
+        };
+    }
+
+    private static AzureInventoryResourceRelationshipReadModel Relationship(
+        string fromArmId,
+        string toArmId,
+        string relationshipType,
+        string inferenceSource,
+        ProvenanceKind provenanceKind = ProvenanceKind.DerivedFact)
+    {
+        return new AzureInventoryResourceRelationshipReadModel
+        {
+            FromAzureResourceId = fromArmId,
+            ToAzureResourceId = toArmId,
+            RelationshipType = relationshipType,
+            InferenceSource = inferenceSource,
+            ProvenanceKind = provenanceKind,
         };
     }
 
@@ -1485,6 +1718,37 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             thresholds);
+    }
+
+    [Fact]
+    public async Task Data_flow_mode_probable_evidence_contract()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildDataFlowProbableEvidenceSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> dataFlowResult =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "dataFlow", null, null, cancellationToken: CancellationToken.None);
+
+        dataFlowResult.Succeeded.Should().BeTrue();
+        dataFlowResult.Value!.Mermaid.Should().Contain("adf1");
+        dataFlowResult.Value.Mermaid.Should().Contain("sql1");
+        dataFlowResult.Value.Mermaid.Should().Contain("orders-api");
+        dataFlowResult.Value.Mermaid.Should().Contain("Writes to");
+        dataFlowResult.Value.Mermaid.Should().Contain("May access");
+        dataFlowResult.Value.Mermaid.Should().Contain("Routes events to");
+        dataFlowResult.Value.Mermaid.Should().Contain("Private network path");
+        dataFlowResult.Value.Mermaid.Should().NotContain("corp-vnet");
+        dataFlowResult.Value.Mermaid.Should().NotContain("pe-sql");
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> networkResult =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, cancellationToken: CancellationToken.None);
+
+        networkResult.Succeeded.Should().BeTrue();
+        networkResult.Value!.Mermaid.Should().Contain("corp-vnet");
     }
 
     [Fact]

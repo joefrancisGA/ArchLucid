@@ -28,9 +28,14 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
 
-        if (!isSecureNowDataMode)
+        if (isDataFlowMode)
+        {
+            topologyNodes = DataFlowEvidenceEndpointIncluder.Include(graph, topologyNodes);
+        }
+        else if (!isSecureNowDataMode)
         {
             topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
+            topologyNodes = InventoryConnectionEndpointIncluder.Include(graph, topologyNodes, mode);
         }
 
         HashSet<string> includedNodeIds = topologyNodes

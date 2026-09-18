@@ -274,6 +274,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                     RelationshipCount = visibleRelationships.Count,
                     CompletenessScore = resources.Count == 0 ? 0m : 1.0m,
                     WarningCount = securityEdges.CompletenessWarnings.Count,
+                    CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
+                        securityEdges.CompletenessWarnings),
                     ErrorCount = 0,
                     ContentHashSha256 = contentHash,
                     CaptureMethod = captureMethod,

@@ -148,6 +148,11 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings);
         }
 
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
+            relationships,
+            relationshipKeys,
+            warnings);
+
         AddObservedVnetPeeringsFromResourceProperties(resources, relationships, relationshipKeys);
 
         AzureInventoryNetworkAssociationEdgeMapper.AddRelationshipCompletenessWarnings(

@@ -29,6 +29,16 @@ internal static class DiagramEdgeLabelHumanizer
 
     public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
     {
+        if (TryResolveCatalogDiagramLabel(edgeType, inferenceSource, out string catalogLabel))
+        {
+            return catalogLabel;
+        }
+
+        if (TryResolveAuthorizedAccessLabel(edgeType, inferenceSource, out string authorizedLabel))
+        {
+            return authorizedLabel;
+        }
+
         string fromStored = HumanizeLabel(storedLabel);
 
         if (!string.IsNullOrWhiteSpace(fromStored))
@@ -44,6 +54,68 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         return HumanizeLabel(inferenceSource);
+    }
+
+    private static bool TryResolveAuthorizedAccessLabel(
+        string? edgeType,
+        string? inferenceSource,
+        out string label)
+    {
+        label = string.Empty;
+
+        if (!string.Equals(
+                inferenceSource,
+                GraphEdgeInferenceSources.InventoryAppAuthorizedAccess,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "May read";
+
+            return true;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "May write";
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryResolveCatalogDiagramLabel(
+        string? edgeType,
+        string? inferenceSource,
+        out string label)
+    {
+        label = string.Empty;
+
+        if (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(inferenceSource, out AzureInventoryDataFlowEvidenceAssociation? fromInference)
+            && fromInference is not null
+            && fromInference.IncludeOnDataFlow
+            && !string.IsNullOrWhiteSpace(fromInference.DiagramLabel))
+        {
+            label = fromInference.DiagramLabel;
+
+            return true;
+        }
+
+        if (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edgeType, out AzureInventoryDataFlowEvidenceAssociation? fromType)
+            && fromType is not null
+            && fromType.IncludeOnDataFlow
+            && !string.IsNullOrWhiteSpace(fromType.DiagramLabel))
+        {
+            label = fromType.DiagramLabel;
+
+            return true;
+        }
+
+        return false;
     }
 
     public static string HumanizeLabel(string? label)
@@ -114,7 +186,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryEventGridDestination, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.EventGridToDestination, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Publishes to";
+            humanized = "Routes events to";
 
             return true;
         }
@@ -202,6 +274,14 @@ internal static class DiagramEdgeLabelHumanizer
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.EventHubCapture, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "Captures to";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryPeReachableTarget, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.PeReachableTarget, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Private network path";
 
             return true;
         }

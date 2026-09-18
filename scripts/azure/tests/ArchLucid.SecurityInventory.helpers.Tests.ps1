@@ -109,6 +109,28 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows.Count | Should -Be 0
     }
 
+    It 'skips subnet child resources and virtual networks without subnets under strict mode' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks/subnets'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default'
+                properties = [pscustomobject]@{ provisioningState = 'Succeeded' }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1'
+                properties = [pscustomobject]@{ provisioningState = 'Succeeded' }
+            }
+        )
+
+        { Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory } |
+            Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
+    }
+
     It 'builds network association rows from enriched inventory resources' {
         $inventory = @(
             [ordered]@{
@@ -154,6 +176,23 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].principalType | Should -Be 'User'
         $rows[0].roleDefinitionId | Should -Not -BeNullOrEmpty
         $rows[0].pimEligibilityKind | Should -Be 'standing'
+    }
+
+    It 'skips nsg allow rule derivation when securityRules is absent from inventory properties' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/networkSecurityGroups'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1'
+                properties = @{}
+            }
+        )
+
+        { Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory } |
+            Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
     }
 
     It 'builds nsg allow rule rows for storage service tag inbound allow rules' {
@@ -306,6 +345,36 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows.Count | Should -Be 1
         $rows[0].scope | Should -Be '/providers/Microsoft.Management/managementGroups/corp'
         $rows[0].policyDefinitionId | Should -Match 'policyDefinitions/audit-storage'
+    }
+
+    It 'maps policy assignments that omit PolicySetDefinitionId without throwing' {
+        $assignment = [PSCustomObject]@{
+            Scope = '/subscriptions/sub1'
+            PolicyDefinitionId = '/providers/Microsoft.Authorization/policyDefinitions/audit-storage'
+            Name = 'audit-storage-assignment'
+            ResourceId = '/subscriptions/sub1/providers/Microsoft.Authorization/policyAssignments/abc'
+        }
+
+        { Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment) } | Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment))
+
+        $rows.Count | Should -Be 1
+        $rows[0].policyDefinitionId | Should -Match 'policyDefinitions/audit-storage'
+    }
+
+    It 'maps initiative policy assignments that omit PolicyDefinitionId' {
+        $assignment = [PSCustomObject]@{
+            Scope = '/subscriptions/sub1'
+            PolicySetDefinitionId = '/providers/Microsoft.Authorization/policySetDefinitions/audit-initiative'
+            Name = 'audit-initiative-assignment'
+            ResourceId = '/subscriptions/sub1/providers/Microsoft.Authorization/policyAssignments/def'
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment))
+
+        $rows.Count | Should -Be 1
+        $rows[0].policyDefinitionId | Should -Match 'policySetDefinitions/audit-initiative'
     }
 
     It 'collects diagnostic settings for path-relevant resources' {

@@ -260,7 +260,7 @@ function Add-ArchLucidSecurityInventoryResourceProperties
     {
         try
         {
-            if ($null -ne $AzResource.Properties.securityRules)
+            if (Test-ArchLucidInventoryPropertyExists -Properties $AzResource.Properties -PropertyName 'securityRules')
             {
                 $Properties["securityRules"] = ($AzResource.Properties.securityRules | ConvertTo-Json -Depth 20 -Compress)
             }
@@ -570,6 +570,38 @@ function Test-ArchLucidInventoryPropertyExists
     }
 
     return $Properties.PSObject.Properties.Match($PropertyName).Count -gt 0
+}
+
+function Get-ArchLucidInventoryPropertyStringValue
+{
+    param(
+        [object] $Properties,
+        [string] $PropertyName
+    )
+
+    if (-not (Test-ArchLucidInventoryPropertyExists -Properties $Properties -PropertyName $PropertyName))
+    {
+        return ""
+    }
+
+    if ($Properties -is [System.Collections.IDictionary])
+    {
+        return "$( $Properties[$PropertyName] )".Trim()
+    }
+
+    return "$( $Properties.$PropertyName )".Trim()
+}
+
+function Test-ArchLucidAzureInventoryVirtualNetworkResourceType
+{
+    param(
+        [string] $ResourceType
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ResourceType)) { return $false }
+    if ($ResourceType -like "*virtualNetworkLinks*") { return $false }
+
+    return $ResourceType -match '(?i)/virtualNetworks$'
 }
 
 function Test-ArchLucidAzureInventoryNeverShowResourceType
@@ -982,9 +1014,9 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
             }
         }
 
-        if ($resourceType -like "*virtualNetworks*" -and $resourceType -notlike "*virtualNetworkLinks*")
+        if (Test-ArchLucidAzureInventoryVirtualNetworkResourceType -ResourceType $resourceType)
         {
-            [string]$subnetsJson = "$( $resource.properties.subnets )".Trim()
+            [string]$subnetsJson = Get-ArchLucidInventoryPropertyStringValue -Properties $resource.properties -PropertyName 'subnets'
 
             if (-not ([string]::IsNullOrWhiteSpace($subnetsJson)))
             {
@@ -1371,7 +1403,7 @@ function Get-ArchLucidAzureNsgAllowRuleCompanionRows
             continue
         }
 
-        if ($resourceType -like "*virtualNetworks*")
+        if (Test-ArchLucidAzureInventoryVirtualNetworkResourceType -ResourceType $resourceType)
         {
             Add-ArchLucidSubnetResourceGroups -SubnetResourceGroups $subnetResourceGroups -Resource $resource
             continue
@@ -1428,6 +1460,9 @@ function Add-ArchLucidNsgAllowRulesForResource
     )
 
     [string]$resourceId = "$( $Resource.resourceId )".Trim()
+
+    if (-not (Test-ArchLucidInventoryPropertyExists -Properties $Resource.properties -PropertyName 'securityRules')) { return }
+
     [string]$securityRulesJson = "$( $Resource.properties.securityRules )".Trim()
 
     if ([string]::IsNullOrWhiteSpace($securityRulesJson)) { return }
@@ -1495,7 +1530,7 @@ function Add-ArchLucidSubnetResourceGroups
 
     if ([string]::IsNullOrWhiteSpace($resourceGroupName)) { return }
 
-    [string]$subnetsJson = "$( $Resource.properties.subnets )".Trim()
+    [string]$subnetsJson = Get-ArchLucidInventoryPropertyStringValue -Properties $Resource.properties -PropertyName 'subnets'
 
     if ([string]::IsNullOrWhiteSpace($subnetsJson)) { return }
 
@@ -1531,9 +1566,9 @@ function Get-ArchLucidSubnetNetworkSecurityGroupId
 
         [string]$resourceType = "$( $resource.resourceType )".Trim()
 
-        if (-not ($resourceType -like "*virtualNetworks*")) { continue }
+        if (-not (Test-ArchLucidAzureInventoryVirtualNetworkResourceType -ResourceType $resourceType)) { continue }
 
-        [string]$subnetsJson = "$( $resource.properties.subnets )".Trim()
+        [string]$subnetsJson = Get-ArchLucidInventoryPropertyStringValue -Properties $resource.properties -PropertyName 'subnets'
 
         if ([string]::IsNullOrWhiteSpace($subnetsJson)) { continue }
 
@@ -1620,15 +1655,16 @@ function Get-ArchLucidAzurePolicyAssignmentCompanionRows
     {
         if ($null -eq $assignment) { continue }
 
-        [string]$scope = "$( $assignment.Scope )".Trim()
-        [string]$policyDefinitionId = "$( $assignment.PolicyDefinitionId )".Trim()
-        [string]$policySetDefinitionId = "$( $assignment.PolicySetDefinitionId )".Trim()
+        [string]$scope = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'Scope'
+        [string]$policyDefinitionId = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'PolicyDefinitionId'
+        [string]$policySetDefinitionId = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'PolicySetDefinitionId'
         [string]$definitionId = $(if (-not ([string]::IsNullOrWhiteSpace($policyDefinitionId))) { $policyDefinitionId } else { $policySetDefinitionId })
 
         if ([string]::IsNullOrWhiteSpace($scope)) { continue }
         if ([string]::IsNullOrWhiteSpace($definitionId)) { continue }
 
-        [string]$name = "$( $assignment.Name )".Trim()
+        [string]$name = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'Name'
+        [string]$assignmentResourceId = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'ResourceId'
         [string]$key = "$scope|$definitionId|$name"
 
         if ($seen.ContainsKey($key))
@@ -1642,7 +1678,7 @@ function Get-ArchLucidAzurePolicyAssignmentCompanionRows
             scope = $scope
             policyDefinitionId = $definitionId
             name = $(if ([string]::IsNullOrWhiteSpace($name)) { $null } else { $name })
-            assignmentId = $assignment.ResourceId
+            assignmentId = $(if ([string]::IsNullOrWhiteSpace($assignmentResourceId)) { $null } else { $assignmentResourceId })
         })
     }
 

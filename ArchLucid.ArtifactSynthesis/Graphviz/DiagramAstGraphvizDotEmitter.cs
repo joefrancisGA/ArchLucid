@@ -233,7 +233,9 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         visualKind switch
         {
             DiagramEdgeVisualKind.Declared => "style=dashed, color=\"#64748b\"",
+            DiagramEdgeVisualKind.Probable => "style=dashed, color=\"#64748b\"",
             DiagramEdgeVisualKind.AiInferred => "style=dotted, color=\"#64748b\"",
+            DiagramEdgeVisualKind.Inferred => "style=dotted, color=\"#64748b\"",
             _ => string.Empty,
         };
 }
