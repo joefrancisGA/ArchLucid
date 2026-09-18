@@ -1,16 +1,19 @@
 export const INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX =
   "Declared pipeline wiring, not observed traffic.";
 
+const INFRA_EVIDENCE_MERMAID_METADATA_COMMENT_PATTERN = /(?:^|\s)al-(?:type|rg|seed)=/u;
+
+/** True when a Mermaid comment line carries inventory node metadata rather than buyer-facing caption copy. */
+export function isInfraEvidenceMermaidMetadataComment(line: string): boolean {
+  return INFRA_EVIDENCE_MERMAID_METADATA_COMMENT_PATTERN.test(line);
+}
+
 export type InfraDiagramsDataFlowCaptionPresentation = {
   readonly honestyCaptions: readonly string[];
   readonly metadataComments: readonly string[];
 };
 
-function isInfraDiagramsDataFlowMetadataComment(caption: string): boolean {
-  return caption.startsWith("al-type=");
-}
-
-export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: string): readonly string[] {
+function parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource: string): readonly string[] {
   if (mermaidSource.trim().length === 0) {
     return [];
   }
@@ -23,14 +26,20 @@ export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: str
     .filter((line) => line.length > 0);
 }
 
+export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: string): readonly string[] {
+  return parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource).filter(
+    (line) => !isInfraEvidenceMermaidMetadataComment(line),
+  );
+}
+
 export function parseInfraDiagramsDataFlowCaptionPresentation(
   mermaidSource: string,
 ): InfraDiagramsDataFlowCaptionPresentation {
-  const captions = parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource);
+  const captions = parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource);
 
   return {
-    honestyCaptions: captions.filter((caption) => !isInfraDiagramsDataFlowMetadataComment(caption)),
-    metadataComments: captions.filter((caption) => isInfraDiagramsDataFlowMetadataComment(caption)),
+    honestyCaptions: captions.filter((caption) => !isInfraEvidenceMermaidMetadataComment(caption)),
+    metadataComments: captions.filter((caption) => isInfraEvidenceMermaidMetadataComment(caption)),
   };
 }
 
