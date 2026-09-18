@@ -4,7 +4,8 @@ namespace ArchLucid.Core.ProductCapability;
 
 /// <summary>
 ///     Pure evaluator for OP-04. Shared (<c>both</c>) and <c>disputed</c> map rows always allow. Effective
-///     <see cref="EffectiveProductLineKind.Both" /> allows exclusive rows for either shell (local dual-UI).
+///     <see cref="EffectiveProductLineKind.Both" /> and <see cref="EffectiveProductLineKind.Architecture" /> may call
+///     any mapped route; only <see cref="EffectiveProductLineKind.Security" /> is blocked from architecture-only rows.
 /// </summary>
 public static class ProductLineRouteGateEvaluator
 {
@@ -22,19 +23,14 @@ public static class ProductLineRouteGateEvaluator
             return ProductLineRouteGateDecision.Allow;
         }
 
-        if (effectiveProductLine == EffectiveProductLineKind.Both)
+        if (effectiveProductLine == EffectiveProductLineKind.Both
+            || effectiveProductLine == EffectiveProductLineKind.Architecture)
         {
             return ProductLineRouteGateDecision.Allow;
         }
 
         if (string.Equals(mapProductLine, "architecture", StringComparison.OrdinalIgnoreCase)
             && effectiveProductLine == EffectiveProductLineKind.Security)
-        {
-            return ProductLineRouteGateDecision.Forbidden;
-        }
-
-        if (string.Equals(mapProductLine, "security", StringComparison.OrdinalIgnoreCase)
-            && effectiveProductLine == EffectiveProductLineKind.Architecture)
         {
             return ProductLineRouteGateDecision.Forbidden;
         }

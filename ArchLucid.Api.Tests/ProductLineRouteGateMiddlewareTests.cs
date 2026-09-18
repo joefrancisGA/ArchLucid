@@ -95,6 +95,32 @@ public sealed class ProductLineRouteGateMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_architecture_effective_line_allows_security_only_controller()
+    {
+        bool nextCalled = false;
+        ProductLineRouteGateMiddleware middleware = new(_ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        DefaultHttpContext context = CreateHttpContext(
+            "/v1/example",
+            AuthenticatedPrincipal(),
+            effectiveProductLine: EffectiveProductLineKind.Architecture,
+            mapProductLine: "security",
+            controllerTypeName: RunsControllerTypeName);
+
+        await middleware.InvokeAsync(
+            context,
+            context.RequestServices.GetRequiredService<IProductLineRequestAccessor>(),
+            context.RequestServices.GetRequiredService<IProductCapabilityControllerCatalog>());
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_architecture_effective_line_allows_architecture_controller()
     {
         bool nextCalled = false;
