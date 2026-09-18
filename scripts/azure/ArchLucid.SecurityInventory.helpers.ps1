@@ -260,7 +260,7 @@ function Add-ArchLucidSecurityInventoryResourceProperties
     {
         try
         {
-            if ($null -ne $AzResource.Properties.securityRules)
+            if (Test-ArchLucidInventoryPropertyExists -Properties $AzResource.Properties -PropertyName 'securityRules')
             {
                 $Properties["securityRules"] = ($AzResource.Properties.securityRules | ConvertTo-Json -Depth 20 -Compress)
             }
@@ -1460,6 +1460,9 @@ function Add-ArchLucidNsgAllowRulesForResource
     )
 
     [string]$resourceId = "$( $Resource.resourceId )".Trim()
+
+    if (-not (Test-ArchLucidInventoryPropertyExists -Properties $Resource.properties -PropertyName 'securityRules')) { return }
+
     [string]$securityRulesJson = "$( $Resource.properties.securityRules )".Trim()
 
     if ([string]::IsNullOrWhiteSpace($securityRulesJson)) { return }
