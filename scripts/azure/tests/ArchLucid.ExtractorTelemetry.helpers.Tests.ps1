@@ -37,6 +37,22 @@ Describe 'ArchLucid.ExtractorTelemetry.helpers.ps1' {
         $manifestFragment.warnings[0].step | Should -Be 'PolicyCompliance'
     }
 
+    It 'uses the configured console brand name in step events' {
+        [string]$previousBrand = Get-ArchLucidExtractorConsoleBrandName
+
+        try
+        {
+            Set-ArchLucidExtractorConsoleBrandName -BrandName 'SecureNow Azure extractor'
+
+            { Write-ArchLucidExtractorEvent -Step Inventory -Level Info -Message 'Step started.' } |
+                Should -Not -Throw
+        }
+        finally
+        {
+            Set-ArchLucidExtractorConsoleBrandName -BrandName $previousBrand
+        }
+    }
+
     It 'builds an empty policy compliance document with a reader note' {
         [object]$doc = New-ArchLucidEmptyPolicyComplianceDocument `
             -ScopeDescriptor '/subscriptions/test-sub' `

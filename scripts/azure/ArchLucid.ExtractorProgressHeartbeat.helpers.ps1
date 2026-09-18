@@ -2,6 +2,16 @@
 # Azure ARM / Cost Management / Policy calls block the main thread, so ticks run in a background
 # runspace and write to [Console]::Out (the caller's command prompt).
 
+function Resolve-ArchLucidExtractorProgressHeartbeatConsoleBrandName
+{
+    if (Get-Command -Name Get-ArchLucidExtractorConsoleBrandName -ErrorAction SilentlyContinue)
+    {
+        return Get-ArchLucidExtractorConsoleBrandName
+    }
+
+    return 'ArchLucid Azure extractor'
+}
+
 function Resolve-ArchLucidExtractorProgressHeartbeatIntervalSeconds
 {
     [int]$defaultSeconds = 10
@@ -52,7 +62,7 @@ function Format-ArchLucidExtractorProgressHeartbeatMessage
     [int]$hours = [Math]::Floor($Elapsed.TotalHours)
     [string]$clock = '{0:00}:{1:00}:{2:00}' -f $hours, $Elapsed.Minutes, $Elapsed.Seconds
 
-    return ('ArchLucid Azure extractor | {0} | Still running... {1}' -f $safeStep, $clock)
+    return ('{0} | {1} | Still running... {2}' -f (Resolve-ArchLucidExtractorProgressHeartbeatConsoleBrandName), $safeStep, $clock)
 }
 
 function New-ArchLucidExtractorProgressHeartbeatState
@@ -74,6 +84,7 @@ function New-ArchLucidExtractorProgressHeartbeatState
             Running = $false
             Step = $initialStep.Trim()
             IntervalSeconds = $IntervalSeconds
+            DisplayBrandName = Resolve-ArchLucidExtractorProgressHeartbeatConsoleBrandName
             StartedUtc = [datetime]::UtcNow
             StepStartedUtc = [datetime]::UtcNow
             TickCount = 0
@@ -99,7 +110,8 @@ function Get-ArchLucidExtractorProgressHeartbeatWorkerScript
         {
             param(
                 [string] $Step,
-                [TimeSpan] $Elapsed
+                [TimeSpan] $Elapsed,
+                [string] $DisplayBrandName
             )
 
             [string]$safeStep = $Step
@@ -113,10 +125,17 @@ function Get-ArchLucidExtractorProgressHeartbeatWorkerScript
                 $safeStep = $safeStep.Trim()
             }
 
+            [string]$brandName = $DisplayBrandName
+
+            if ([string]::IsNullOrWhiteSpace($brandName))
+            {
+                $brandName = 'ArchLucid Azure extractor'
+            }
+
             [int]$hours = [Math]::Floor($Elapsed.TotalHours)
             [string]$clock = '{0:00}:{1:00}:{2:00}' -f $hours, $Elapsed.Minutes, $Elapsed.Seconds
 
-            return ('ArchLucid Azure extractor | {0} | Still running... {1}' -f $safeStep, $clock)
+            return ('{0} | {1} | Still running... {2}' -f $brandName, $safeStep, $clock)
         }
 
         [int]$sleptMs = 0
@@ -156,7 +175,10 @@ function Get-ArchLucidExtractorProgressHeartbeatWorkerScript
                 continue
             }
 
-            [string]$line = Format-ArchLucidExtractorProgressHeartbeatMessage -Step $step -Elapsed $elapsed
+            [string]$line = Format-ArchLucidExtractorProgressHeartbeatMessage `
+                -Step $step `
+                -Elapsed $elapsed `
+                -DisplayBrandName ([string]$State.DisplayBrandName)
 
             $State.TickCount = ([int]$State.TickCount) + 1
 
@@ -278,7 +300,7 @@ function Enter-ArchLucidExtractorProgressStep
         return
     }
 
-    Write-Host ('ArchLucid Azure extractor | {0} | Step started.' -f $Step) -ForegroundColor Cyan
+    Write-Host ('{0} | {1} | Step started.' -f (Resolve-ArchLucidExtractorProgressHeartbeatConsoleBrandName), $Step) -ForegroundColor Cyan
 }
 
 function Stop-ArchLucidExtractorProgressHeartbeat
