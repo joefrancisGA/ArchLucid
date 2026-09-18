@@ -98,17 +98,35 @@ internal static class AzureInventoryAppAuthorizedAccessEdgeMapper
 
             foreach (string computeArmId in computeArmIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
+                string relationshipType = ResolveAuthorizedAccessRelationshipType(permission);
+
                 AddRelationship(
                     relationships,
                     relationshipKeys,
                     computeArmId,
                     attestedScope,
-                    definition.DefaultGraphEdgeType,
+                    relationshipType,
                     definition.DefaultProvenanceKind,
                     DerivedFactConfidence,
                     definition.DefaultInferenceSource);
             }
         }
+    }
+
+    private static string ResolveAuthorizedAccessRelationshipType(
+        AzureInventoryDerivedDataPlanePermission permission)
+    {
+        if (permission is AzureInventoryDerivedDataPlanePermission.Read)
+        {
+            return GraphEdgeTypes.CanRead;
+        }
+
+        if (permission is AzureInventoryDerivedDataPlanePermission.Write)
+        {
+            return GraphEdgeTypes.CanWrite;
+        }
+
+        return GraphEdgeTypes.MayAccess;
     }
 
     private static bool IsPimEligibilityUnknown(string? pimEligibilityKind)
