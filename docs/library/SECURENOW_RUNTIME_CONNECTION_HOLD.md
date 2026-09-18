@@ -9,6 +9,7 @@
 
 ```text
 A: Reader ARM GET Container Apps env + parsers + RBAC allowlist + stages
+        → E (on top of A): inference questionnaire for ambiguous edges → HumanAssertion
         → B (opt-in): Log Analytics observations as a separate Observed family
               → C (opt-in): sys.database_principals names only
                     → D (opt-in): uploaded config → confirm → HumanAssertion
@@ -27,6 +28,7 @@ A: Reader ARM GET Container Apps env + parsers + RBAC allowlist + stages
 | Azure HTTP at Mermaid compile | Snapshot companions only |
 | Numeric `"confidence": 80` | Ordinal bands |
 | Mint OpenAI / Search / Fabric when ARM type is absent | Stage empty |
+| Auto-answer questionnaire; compute×SQL cartesian in a RG | Named rules only (**SN-RT-12**) |
 | `terraform apply` / ARM writes | Plane |
 | GTM **M-90 / M-44 / M-91 / M-92**; **TB-135 / TB-136** | Owner/GTM |
 | Desktop review tabs behind **More** | workspace rule |
@@ -34,7 +36,7 @@ A: Reader ARM GET Container Apps env + parsers + RBAC allowlist + stages
 
 ## If a session is already implementing a hold item
 
-Stop. Revert uncommitted hold-item code. Point at **SN-RT-01–10** and the plane.
+Stop. Revert uncommitted hold-item code. Point at **SN-RT-01–10 / 12–13** and the plane.
 
 ## Done when
 

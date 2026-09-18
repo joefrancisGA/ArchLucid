@@ -1,7 +1,7 @@
 > **Scope:** Expected **Data flow** diagram connections for the ArchLucid DEV Azure subscription, derived from Terraform, CD, and threat-model docs — not from observed traffic. **Contributor-reference** — internal engineering only.
 > **Created:** 2026-09-18
 > **Snapshot:** ArchLucid DEV (`8aa56f3b-18bc-43ca-ad45-bad9e811d33b`), captured 2026-09-18 15:48 UTC (43 resources; 19 shown in Data flow mode, 0 relationships)
-> **Spine:** [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) · [`EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) · [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) · [`../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) (**SN-RT-01–10**) · [`../library/REFERENCE_SAAS_STACK_ORDER.md`](../library/REFERENCE_SAAS_STACK_ORDER.md)
+> **Spine:** [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) · [`EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) · [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) · [`../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) (**SN-RT-01–10**, **12–13**) · [`../library/REFERENCE_SAAS_STACK_ORDER.md`](../library/REFERENCE_SAAS_STACK_ORDER.md)
 
 # ArchLucid DEV — expected Data flow diagram connections
 
@@ -172,7 +172,7 @@ For **this** subscription that means:
 
 So the missing picture is not “Azure forgot the NICs.” It is: **ArchLucid DEV’s real data plane is MI + RBAC + connection strings**, and Data flow still behaves like an **ADF diagram** unless `role-assignments.json` plus app-setting hosts actually landed in this snapshot.
 
-Closing that gap is **SN-RT** (prompts only — do not implement from this note). Container Apps env is on ARM **GET** (**SN-RT-01**); Web App `config/list` stays AX-DE-18. Catalog/HTTPS parse, SQL database grain, PaaS stages, and the RBAC allowlist are **A**. Logs, in-database Entra users, and upload+confirm are **B/C/D**.
+Closing that gap is **SN-RT** (prompts only — do not implement from this note). Container Apps env is on ARM **GET** (**SN-RT-01**); Web App `config/list` stays AX-DE-18. Catalog/HTTPS parse, SQL database grain, PaaS stages, and the RBAC allowlist are **A**. **E** is the questionnaire on top of A (`{0}` tenant DBs, unresolved hosts). Logs, in-database Entra users, and upload+confirm are **B/C/D**.
 
 ---
 
@@ -189,5 +189,5 @@ Closing that gap is **SN-RT** (prompts only — do not implement from this note)
 | SQL MI pattern | `docs/security/MANAGED_IDENTITY_SQL_BLOB.md` |
 | Connection-point discovery | `docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md` |
 | Runtime A/B/C/D design | [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) |
-| Composer prompts | [`../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) (**SN-RT-01–10**) |
+| Composer prompts | [`../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) (**SN-RT-01–10**, **12–13**) |
 | Hold | [`../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md) |
