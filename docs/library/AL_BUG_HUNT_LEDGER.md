@@ -15099,6 +15099,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-18 seed hunt #5032 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `peers` property gap; regression `ParseAsync_peers_maps_tf_peers_property`.
+
 2026-09-18 seed hunt #5027 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #5022 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -16141,11 +16143,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 655
-- **bugs-found:** 346
+- **hunts:** 656
+- **bugs-found:** 347
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-18 — hunt #5007: terraform-show-json role property gap
+- **last-bug:** 2026-09-18 — hunt #5032: terraform-show-json peers property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
