@@ -784,7 +784,27 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("pqv", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("prw", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("psx", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("pty", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("pty", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qaf", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qbg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qch", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qdi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qej", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qfk", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qgl", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qhm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qin", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qjo", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qkp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qlq", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qmr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qns", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qot", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qpu", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qqv", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qrw", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qsx", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qty", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -1479,7 +1499,27 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("pqv", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("prw", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("psx", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("pty", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("pty", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qaf", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qbg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qch", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qdi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qej", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qfk", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qgl", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qhm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qin", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qjo", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qkp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qlq", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qmr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qns", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qot", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qpu", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qqv", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qrw", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qsx", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("qty", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
