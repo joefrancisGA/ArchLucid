@@ -13,6 +13,7 @@ export type OperatorSegmentedModeToolbarTab = {
   readonly id: string;
   readonly label: string;
   readonly testId?: string;
+  readonly disabled?: boolean;
 };
 
 export type OperatorSegmentedModeToolbarVisualVariant = "default" | "emphasized";
@@ -89,6 +90,7 @@ export function OperatorSegmentedModeToolbar(props: OperatorSegmentedModeToolbar
             type="button"
             variant={emphasized ? (isActive ? "primary" : "outline") : "secondary"}
             size="sm"
+            disabled={tab.disabled === true}
             onClick={() => props.onTabChange(tab.id)}
             className={cn(
               !emphasized &&

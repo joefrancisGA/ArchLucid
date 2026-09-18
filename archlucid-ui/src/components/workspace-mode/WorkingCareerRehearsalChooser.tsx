@@ -16,7 +16,10 @@ import {
   useEvaluateWorkingCareerDoorGate,
   useWorkingCareerDoorGate,
 } from "@/hooks/use-working-career-door-gate";
+import { useIsSampleWorkspaceSession } from "@/hooks/use-effective-operator-scope";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
+import { visitSampleWorkspaceScope } from "@/lib/operator/operator-scope-actions";
+import { readHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
 import type { WorkingCareerDoorGateResult } from "@/lib/governance/working-career-door-gate";
 import { resolveWorkingCareerDoorHostModeMatrixCell } from "@/lib/governance/working-career-door-host-mode-matrix";
 import { useWorkingCareerRehearsalDoor } from "@/hooks/use-working-career-rehearsal-door";
@@ -87,10 +90,26 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
   const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
   const [blockedDialogGate, setBlockedDialogGate] = useState<WorkingCareerDoorGateResult | null>(null);
   const [pendingDoor, setPendingDoor] = useState<WorkingCareerRehearsalDoorId | null>(null);
+  const isSampleWorkspaceSession = useIsSampleWorkspaceSession();
   const canShow = workspaceMounted && doorMounted && isWorkingWorkspaceMode(mode);
 
   const requestDoor = useCallback(
     (nextDoor: WorkingCareerRehearsalDoorId) => {
+      if (isSampleWorkspaceSession && nextDoor === "career") {
+        return;
+      }
+
+      if (
+        nextDoor === "rehearsal"
+        && !isSampleWorkspaceSession
+        && !readHasExistingRunsCache()
+      ) {
+        visitSampleWorkspaceScope();
+        setDoor("rehearsal");
+
+        return;
+      }
+
       const nextGate = evaluateGate(nextDoor);
 
       if (nextGate.isCareerExecuteBlocked) {
@@ -114,7 +133,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
 
       setDoor(nextDoor);
     },
-    [door, evaluateGate, hasInFlightReview, setDoor],
+    [door, evaluateGate, hasInFlightReview, isSampleWorkspaceSession, setDoor],
   );
 
   const cycleDoor = useCallback(() => {
@@ -157,6 +176,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
             id: option.id,
             label: labelForWorkingCareerRehearsalDoor(option.id),
             testId: workingCareerRehearsalDoorTestId(option.id),
+            disabled: isSampleWorkspaceSession && option.id === "career",
           }))}
           activeTabId={door}
           onTabChange={(tabId) => {

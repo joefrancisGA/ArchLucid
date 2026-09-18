@@ -251,6 +251,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION =
   "This diagram keeps virtual machines, databases, networks, and other backbone resources. Attachment and platform resources are hidden. Pick a Resource Group to see every resource in one group." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DATA_FLOW_CAPTION_TITLE =
+  "Declared pipeline wiring" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY =
   "This snapshot is too large for a single diagram in the selected mode. Pick a focused view — Executive is the default — or choose Pick a Resource Group." as const;
 
