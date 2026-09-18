@@ -52,8 +52,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
   );
   const [selectedPlatform, setSelectedPlatform] = useState<CloudInventoryPlatform>("azure");
-  const [baselineOverwriteOpen, setBaselineOverwriteOpen] = useState(false);
-  const [pendingUpload, setPendingUpload] = useState<PendingUploadRequest | null>(null);
   const [replaceInventoryMode, setReplaceInventoryMode] = useState(false);
   const [sessionAcceptedPackage, setSessionAcceptedPackage] = useState<ExtractUploadAcceptedPackageRecord | null>(
     null,
@@ -111,18 +109,9 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
         return;
       }
 
-      const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
-
-      if (hasBaselineArtifacts === true && !replaceInventoryMode) {
-        setPendingUpload(request);
-        setBaselineOverwriteOpen(true);
-
-        return;
-      }
-
       void executeUpload(request);
     },
-    [baselineQuery.data?.hasBaselineArtifacts, baselineQuery.isPending, executeUpload, replaceInventoryMode, upload],
+    [baselineQuery.isPending, executeUpload, upload],
   );
 
   const folderZip = useExtractUploadFolderZip({
@@ -145,24 +134,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     clearSelectionState: folderZip.clearSelectionState,
     setSelectedFileLabel: folderZip.setSelectedFileLabel,
   });
-
-  const confirmBaselineOverwrite = useCallback(() => {
-    setBaselineOverwriteOpen(false);
-
-    if (pendingUpload === null) {
-      return;
-    }
-
-    const request = pendingUpload;
-    setPendingUpload(null);
-    void executeUpload(request);
-  }, [executeUpload, pendingUpload]);
-
-  const cancelBaselineOverwrite = useCallback(() => {
-    setBaselineOverwriteOpen(false);
-    setPendingUpload(null);
-    folderZip.clearSelectionState();
-  }, [folderZip]);
 
   const baselineLoading = baselineQuery.isPending;
   const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
@@ -251,10 +222,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     upload,
     folderZip,
     demo,
-    baselineOverwriteOpen,
-    setBaselineOverwriteOpen,
-    confirmBaselineOverwrite,
-    cancelBaselineOverwrite,
     showAcceptedDropZone,
     beginReplaceInventory,
     replaceInventoryMode,
