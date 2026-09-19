@@ -49,9 +49,8 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
-  OPERATOR_HOME_BUYER_OVERVIEW,
+  OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH,
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
-  OPERATOR_HOME_PAGE_LEAD,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
   OPERATOR_HOME_SKIP_TARGET_ID,
@@ -314,16 +313,10 @@ function OperatorHomePageBody(props: {
                 className={OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS}
                 data-testid="operator-home-intro"
               >
-                {OPERATOR_HOME_PAGE_LEAD}
+                {OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH}
               </p>
             </div>
           </div>
-          <p
-            className={OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS}
-            data-testid="operator-home-overview"
-          >
-            {OPERATOR_HOME_BUYER_OVERVIEW}
-          </p>
           <div className="space-y-4" data-testid="operator-home-workspace">
             {workspaceSections.map((section) => renderSection(section))}
           </div>

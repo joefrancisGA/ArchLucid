@@ -54,7 +54,7 @@ describe("SN-020 Working Home has no peer start CTAs", () => {
     const workingPrimary = readFileSync(join(REPO_ROOT, WORKING_HOME_DUAL_START_GUARD_FILES[2]), "utf8");
 
     expect(workingPrimary).toContain("resolveWorkingHomeSingleStartPrimaryLabel");
-    expect(workingPrimary).toContain("resolveWorkingHomeNewReviewBridgeCopy");
+    expect(workingPrimary).toContain("OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH");
     expect(workingPrimary).not.toContain("START_REVIEW_LABEL");
     expect(workingPrimary).not.toContain("CREATE_ARCHITECTURE_LABEL");
     expect(existsSync(join(REPO_ROOT, SYSTEM_NOT_JOB_NO_SECOND_START_CTA_WORKING_DOC_ANCHOR))).toBe(true);

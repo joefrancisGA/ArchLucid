@@ -125,7 +125,10 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
         </div>
       }
     >
-      <OperatorHomeWorkingPrimaryCta variant="primary" />
+      <OperatorHomeWorkingPrimaryCta
+        variant="primary"
+        suppressOrientationCopy={props.buyerPolishedShell === true}
+      />
     </OperatorPageHeader>
   );
 }
