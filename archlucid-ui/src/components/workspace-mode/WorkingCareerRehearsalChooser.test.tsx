@@ -152,9 +152,8 @@ describe("WorkingCareerRehearsalChooser", () => {
       "aria-pressed",
       "true",
     );
-    expect(screen.getByTestId("working-career-rehearsal-active-door-tag")).toHaveTextContent(
-      WORKING_REHEARSAL_DOOR_LABEL,
-    );
+    expect(screen.queryByTestId("working-career-rehearsal-active-door-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("working-career-door-host-mode-rehearsal-simulator")).not.toBeInTheDocument();
   });
 
   it("hides in Guided mode", () => {
@@ -169,7 +168,7 @@ describe("WorkingCareerRehearsalChooser", () => {
     expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
   });
 
-  it("shows the Record active-door tag when Career is selected", () => {
+  it("does not duplicate a Record chip when Career is selected", () => {
     doorMock.door = "career";
 
     renderWithOperatorQuery(
@@ -178,9 +177,7 @@ describe("WorkingCareerRehearsalChooser", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("working-career-rehearsal-active-door-tag")).toHaveTextContent(
-      WORKING_CAREER_DOOR_LABEL,
-    );
+    expect(screen.queryByTestId("working-career-rehearsal-active-door-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("working-career-rehearsal-door-career")).toHaveAttribute(
       "aria-current",
       "true",
@@ -240,7 +237,7 @@ describe("WorkingCareerRehearsalChooser", () => {
     );
   });
 
-  it("labels Rehearsal + Real as practice — not career proof", () => {
+  it("labels Rehearsal + Real as practice without duplicating the Practice chip", () => {
     doorMock.door = "rehearsal";
     sessionModeMock.mode = "Real";
     readinessMock.hostMode = "Real";
@@ -252,7 +249,7 @@ describe("WorkingCareerRehearsalChooser", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("working-career-door-host-mode-rehearsal-real-practice")).toBeInTheDocument();
+    expect(screen.queryByTestId("working-career-door-host-mode-rehearsal-real-practice")).not.toBeInTheDocument();
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
       "data-door-host-mode-cell",
       "rehearsal-real-practice",

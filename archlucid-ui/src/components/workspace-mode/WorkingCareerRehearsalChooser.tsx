@@ -25,11 +25,9 @@ import { resolveWorkingCareerDoorHostModeMatrixCell } from "@/lib/governance/wor
 import { useWorkingCareerRehearsalDoor } from "@/hooks/use-working-career-rehearsal-door";
 import {
   WORKING_CAREER_DOOR_DETAIL,
-  WORKING_CAREER_DOOR_LABEL,
   WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL,
   WORKING_CAREER_REHEARSAL_HELP_LEARN_MORE_LABEL,
   WORKING_REHEARSAL_DOOR_DETAIL,
-  WORKING_REHEARSAL_DOOR_LABEL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
 import { WORKING_CAREER_REHEARSAL_HELP_CANONICAL_PATH } from "@/lib/governance/working-career-rehearsal-help-evidence-copy";
 import {
@@ -157,9 +155,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
     return null;
   }
 
-  const activeDetail = matrix.showStatusTag
-    ? matrix.detail
-    : DOOR_OPTIONS.find((option) => option.id === door)?.detail ?? WORKING_REHEARSAL_DOOR_DETAIL;
+  const activeDetail = matrix.detail;
 
   return (
     <>
@@ -188,12 +184,6 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
           ariaLabel={WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL}
           visualVariant="emphasized"
           className="mb-0 gap-1"
-        />
-        <StatusTag
-          kind={door === "career" ? "ready" : "needs-attention"}
-          label={door === "career" ? WORKING_CAREER_DOOR_LABEL : WORKING_REHEARSAL_DOOR_LABEL}
-          className="shrink-0"
-          data-testid="working-career-rehearsal-active-door-tag"
         />
         {matrix.showStatusTag ? (
           <StatusTag
