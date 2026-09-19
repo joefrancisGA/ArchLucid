@@ -11,6 +11,11 @@ import {
   dismissOperatorInferredConnection,
   listInferenceQuestionnaireItems,
 } from "@/lib/infra-evidence/operator-inferred-connection-api";
+import {
+  operatorInferredConnectionPanelErrorFromUnknown,
+  operatorInferredConnectionPanelErrorRecoveryScenario,
+  type OperatorInferredConnectionPanelError,
+} from "@/lib/infra-evidence/operator-inferred-connection-panel-error";
 import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +33,8 @@ export function InferenceQuestionnairePanel(
   const [currentIndex, setCurrentIndex] = useState(0);
   const [choice, setChoice] = useState<QuestionnaireChoice>(null);
   const [selectedCatalog, setSelectedCatalog] = useState<string>("");
-  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [panelError, setPanelError] = useState<OperatorInferredConnectionPanelError | null>(null);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const proposedItems = useMemo(
@@ -45,10 +51,11 @@ export function InferenceQuestionnairePanel(
   const loadItems = useCallback(async () => {
     if (snapshotId.trim().length === 0) {
       setItems([]);
+      setPanelError(null);
       return;
     }
 
-    setMutationError(null);
+    setLoading(true);
 
     try {
       const response = await listInferenceQuestionnaireItems(snapshotId);
@@ -56,8 +63,17 @@ export function InferenceQuestionnairePanel(
       setCurrentIndex(0);
       setChoice(null);
       setSelectedCatalog("");
+      setPanelError(null);
     } catch (error) {
-      setMutationError(error instanceof Error ? error.message : "Could not load inference questionnaire items.");
+      setPanelError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          error,
+          "Could not load inference questionnaire items.",
+          "load",
+        ),
+      );
+    } finally {
+      setLoading(false);
     }
   }, [snapshotId]);
 
@@ -86,7 +102,7 @@ export function InferenceQuestionnairePanel(
     }
 
     setSubmitting(true);
-    setMutationError(null);
+    setPanelError(null);
 
     try {
       if (choice === "yes") {
@@ -100,15 +116,23 @@ export function InferenceQuestionnairePanel(
 
       await loadItems();
     } catch (error) {
-      setMutationError(error instanceof Error ? error.message : "Could not save your answer.");
+      setPanelError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          error,
+          "Could not save your answer.",
+          "mutation",
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
   }, [choice, currentItem, loadItems, proposedItems.length, selectedCatalog, snapshotId]);
 
-  if (proposedItems.length === 0 && !hasHumanConfirmed && mutationError == null) {
+  if (proposedItems.length === 0 && !hasHumanConfirmed && !loading && panelError == null) {
     return null;
   }
+
+  const showEmptyRemainCaption = currentItem == null && panelError?.kind !== "load";
 
   return (
     <section
@@ -129,7 +153,26 @@ export function InferenceQuestionnairePanel(
           ) : null}
         </div>
 
-        {mutationError != null ? <OperatorMutationInlineError message={mutationError} /> : null}
+        {panelError != null ? (
+          <>
+            <OperatorMutationInlineError
+              message={panelError.message}
+              recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(panelError.kind)}
+            />
+            {panelError.kind === "load" ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                disabled={loading}
+                onClick={() => void loadItems()}
+                data-testid="inference-questionnaire-retry"
+              >
+                Retry
+              </Button>
+            ) : null}
+          </>
+        ) : null}
 
         {currentItem != null ? (
           <>
@@ -203,11 +246,11 @@ export function InferenceQuestionnairePanel(
               Continue
             </Button>
           </>
-        ) : (
+        ) : showEmptyRemainCaption ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             No proposed questionnaire items remain for this snapshot.
           </p>
-        )}
+        ) : null}
       </div>
     </section>
   );

@@ -19,6 +19,11 @@ import {
   dismissOperatorInferredConnection,
   listOperatorInferredConnections,
 } from "@/lib/infra-evidence/operator-inferred-connection-api";
+import {
+  operatorInferredConnectionPanelErrorFromUnknown,
+  operatorInferredConnectionPanelErrorRecoveryScenario,
+  type OperatorInferredConnectionPanelError,
+} from "@/lib/infra-evidence/operator-inferred-connection-panel-error";
 import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +46,7 @@ export function OperatorInferredConnectionsPanel(
   const [rows, setRows] = useState<OperatorInferredConnectionRow[]>([]);
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [panelError, setPanelError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const uploadRows = useMemo(
@@ -57,20 +62,28 @@ export function OperatorInferredConnectionsPanel(
   const loadRows = useCallback(async () => {
     if (snapshotId.trim().length === 0) {
       setRows([]);
+      setPanelError(null);
       return;
     }
 
     setLoading(true);
-    setMutationError(null);
 
     try {
       const nextRows = await listOperatorInferredConnections(snapshotId);
       setRows(nextRows);
+      setPanelError(null);
+
       if (selectedConnectionId != null && !nextRows.some((row) => row.connectionId === selectedConnectionId)) {
         setSelectedConnectionId(null);
       }
     } catch (error) {
-      setMutationError(error instanceof Error ? error.message : "Could not load proposed connections.");
+      setPanelError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          error,
+          "Could not load proposed connections.",
+          "load",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -86,13 +99,19 @@ export function OperatorInferredConnectionsPanel(
     }
 
     setSubmitting(true);
-    setMutationError(null);
+    setPanelError(null);
 
     try {
       await confirmOperatorInferredConnection(snapshotId, { connectionId: selectedConnectionId });
       await loadRows();
     } catch (error) {
-      setMutationError(error instanceof Error ? error.message : "Could not confirm the selected connection.");
+      setPanelError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          error,
+          "Could not confirm the selected connection.",
+          "mutation",
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -104,20 +123,26 @@ export function OperatorInferredConnectionsPanel(
     }
 
     setSubmitting(true);
-    setMutationError(null);
+    setPanelError(null);
 
     try {
       await dismissOperatorInferredConnection(snapshotId, { connectionId: selectedConnectionId });
       setSelectedConnectionId(null);
       await loadRows();
     } catch (error) {
-      setMutationError(error instanceof Error ? error.message : "Could not dismiss the selected connection.");
+      setPanelError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          error,
+          "Could not dismiss the selected connection.",
+          "mutation",
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
   }, [loadRows, selectedConnectionId, snapshotId]);
 
-  if (uploadRows.length === 0 && !hasHumanConfirmed && !loading && mutationError == null) {
+  if (uploadRows.length === 0 && !hasHumanConfirmed && !loading && panelError == null) {
     return null;
   }
 
@@ -143,7 +168,26 @@ export function OperatorInferredConnectionsPanel(
           ) : null}
         </div>
 
-        {mutationError != null ? <OperatorMutationInlineError message={mutationError} /> : null}
+        {panelError != null ? (
+          <>
+            <OperatorMutationInlineError
+              message={panelError.message}
+              recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(panelError.kind)}
+            />
+            {panelError.kind === "load" ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                disabled={loading}
+                onClick={() => void loadRows()}
+                data-testid="operator-inferred-connections-retry"
+              >
+                Retry
+              </Button>
+            ) : null}
+          </>
+        ) : null}
 
         {uploadRows.length > 0 ? (
           <EnterpriseTable data-testid="operator-inferred-connections-table" aria-label="Proposed uploaded config connections">
