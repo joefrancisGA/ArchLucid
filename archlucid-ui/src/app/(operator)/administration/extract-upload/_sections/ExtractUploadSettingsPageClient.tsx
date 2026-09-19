@@ -70,7 +70,6 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
-import { ExtractUploadProviderSelector } from "./ExtractUploadProviderSelector";
 
 function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
   switch (platform) {
@@ -133,7 +132,6 @@ function ExtractUploadSettingsPageClientInner() {
     lastAcceptedPackage,
     associateRunId,
     selectedPlatform,
-    setSelectedPlatform,
     extractUploadSteps,
     extractUploadEmphasizedStepId,
     upload,
@@ -254,10 +252,6 @@ function ExtractUploadSettingsPageClientInner() {
                   <CardDescription>{EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <ExtractUploadProviderSelector
-                    value={selectedPlatform}
-                    onValueChange={setSelectedPlatform}
-                  />
                   <div
                     className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80"
                     data-testid="extract-upload-scheduled-agent-panel"
