@@ -1156,6 +1156,32 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_data_flow_mode_shows_may_access_and_observed_in_logs_together()
+    {
+        GraphSnapshot graph = BuildDataFlowProbableEvidenceGraph(includeVnet: false);
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-observed-sql",
+            FromNodeId = "web-app",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.CanRead,
+            Label = GraphEdgeTypes.CanRead,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryObservedDependency,
+            ProvenanceKind = "ObservedFact",
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+        string mermaid = renderer.Render(ast);
+
+        ast.Edges.Should().Contain(edge => edge.Label == "May access");
+        ast.Edges.Should().Contain(edge => edge.Label == "Observed in logs (read)");
+        ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+        mermaid.Should().Contain("Observed in logs (read)");
+        DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence.Should().NotContain("%");
+    }
+
+    [Fact]
     public void Compile_data_flow_mode_excludes_diagnostic_edges()
     {
         GraphSnapshot graph = BuildDataFlowProbableEvidenceGraph(includeVnet: false);

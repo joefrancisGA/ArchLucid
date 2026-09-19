@@ -46,6 +46,10 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAppAuthorizedAccess = "inventory-app-authorized-access";
 
+    public const string InventoryObservedDependency = "inventory-observed-dependency";
+
+    public const string InventorySqlDatabasePrincipal = "inventory-sql-database-principal";
+
     public const string InventoryAppKeyVaultRef = "inventory-app-key-vault-ref";
 
     public const string InventoryHostnameInferredTarget = "inventory-hostname-inferred-target";

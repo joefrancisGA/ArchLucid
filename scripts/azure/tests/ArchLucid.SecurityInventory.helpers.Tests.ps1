@@ -671,4 +671,36 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].linkerName | Should -Be 'sql-link'
         $rows[0].targetResourceId | Should -Match 'Microsoft.Sql/servers/sql1'
     }
+
+    It 'returns empty dependency observation rows when no workspace is inventoried' {
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.Storage/storageAccounts'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureDependencyObservationCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
+    }
+
+    It 'skips master database when collecting SQL database principals' {
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.Sql/servers/databases'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1/databases/master'
+                name = 'master'
+            },
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.Sql/servers/databases'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1/databases/appdb'
+                name = 'appdb'
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureSqlDatabasePrincipalCompanionRows -InventoryResources $inventory)
+
+        $rows | ForEach-Object { $_.databaseArmId } | Should -Not -Contain '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1/databases/master'
+    }
 }

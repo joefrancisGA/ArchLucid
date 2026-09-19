@@ -12,4 +12,7 @@ public enum AzureInventoryDataFlowEvidenceFamily
 
     /// <summary>Operator-confirmed runtime connection (SN-RT-10 / SN-RT-13).</summary>
     HumanConfirmed = 4,
+
+    /// <summary>Time-bounded Log Analytics dependency observations (SN-RT-07).</summary>
+    ObservedRuntime = 5,
 }
