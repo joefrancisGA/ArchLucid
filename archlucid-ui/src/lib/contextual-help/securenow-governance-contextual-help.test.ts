@@ -7,6 +7,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -14,6 +15,7 @@ import {
   SECURENOW_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 describe("SecureNow governance contextual help rows", () => {
@@ -74,20 +76,20 @@ describe("SecureNow governance contextual help rows", () => {
     );
   });
 
-  it("does not resolve Approval copy for inventory diagrams", () => {
+  it("does not resolve Approval copy for diagrams", () => {
     const entry = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, { productLineId: "security" });
 
-    expect(entry?.whatIsThisPage).toContain("Inventory diagrams");
+    expect(entry?.whatIsThisPage).toContain(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
     expect(entry?.whatIsThisPage).not.toContain("Approval");
     expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.label).toBe(
-      "Inventory diagrams",
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     );
   });
 
   it("resolves infrastructure workbench rows without Approval steal", () => {
     const terraform = contextualHelpForPathname(GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH, { productLineId: "security" });
-    const resources = contextualHelpForPathname(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH, { productLineId: "security" });
-    const hub = contextualHelpForPathname(`${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/resource-abc`, {
+    const resources = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, { productLineId: "security" });
+    const hub = contextualHelpForPathname(`${SECURENOW_INFRASTRUCTURE_RESOURCES_PATH}/resource-abc`, {
       productLineId: "security",
     });
 
@@ -108,7 +110,7 @@ describe("SecureNow governance contextual help rows", () => {
     expect(entry?.whatIsThisPage).toContain("Extract and upload");
     expect(entry?.whatToDoNext).not.toContain("Start a review");
     expect(entry?.taskSteps?.join(" ")).not.toContain("Start a review");
-    expect(entry?.whatToDoNextAction?.href).toBe(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH);
+    expect(entry?.whatToDoNextAction?.href).toBe(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH);
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, "security")?.slug).toBe(
       "cloud-connections-azure",
     );

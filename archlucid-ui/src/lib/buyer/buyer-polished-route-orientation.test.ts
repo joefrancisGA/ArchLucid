@@ -77,6 +77,7 @@ describe("buyerPolishedRouteOrientation", () => {
 
   it("returns null for risk register — the page carries its own governance banner", () => {
     expect(buyerPolishedRouteOrientation("/governance/findings")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/compliance/findings")).toBeNull();
   });
 
   it("returns null for risk exceptions — the page carries its own governance banner", () => {
@@ -86,10 +87,13 @@ describe("buyerPolishedRouteOrientation", () => {
   it("returns null for policy packs — the page carries its own policy-pack basis banner", () => {
     expect(buyerPolishedRouteOrientation("/governance/policy-packs")).toBeNull();
     expect(buyerPolishedRouteOrientation("/policy-packs")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/compliance/policy-packs")).toBeNull();
   });
 
   it("returns null for standards & rules — the page carries its own governance banner", () => {
     expect(buyerPolishedRouteOrientation("/governance/standards-and-rules")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/compliance/standards-and-rules")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/compliance/audit-evidence")).toBeNull();
   });
 
   it("returns null for alerts — the page carries its own governance context header", () => {

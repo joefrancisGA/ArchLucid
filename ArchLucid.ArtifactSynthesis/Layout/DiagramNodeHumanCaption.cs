@@ -4,5 +4,6 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 public sealed record DiagramNodeHumanCaption(
     string ResourceName,
     string? TypeCaption,
+    string? ResourceGroupCaption,
     string CombinedPlainText,
     string AccessibilityTitle);

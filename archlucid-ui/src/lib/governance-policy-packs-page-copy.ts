@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+
 export const GOVERNANCE_POLICY_PACKS_PRIMARY_CONTENT_ID =
   "governance-policy-packs-primary-content" as const;
 
@@ -6,6 +9,15 @@ export const GOVERNANCE_POLICY_PACKS_SKIP_LINK_LABEL = "Skip to policy packs" as
 /** Buyer-facing copy for `/governance/policy-packs` (GPP). */
 export const GOVERNANCE_POLICY_PACKS_PAGE_LEAD =
   "Review the active pack and enforced rules for architecture reviews in this workspace — open the catalog to compare available packs.";
+
+export const SECURENOW_GOVERNANCE_POLICY_PACKS_PAGE_LEAD =
+  "Review the active pack and enforced rules for cloud evidence scans in this workspace — open the catalog to compare available packs.";
+
+export function resolveGovernancePolicyPacksPageLead(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_GOVERNANCE_POLICY_PACKS_PAGE_LEAD
+    : GOVERNANCE_POLICY_PACKS_PAGE_LEAD;
+}
 
 export const GOVERNANCE_POLICY_PACKS_BUYER_START_HERE_HELPER =
   "Switch My packs or Catalog to inspect registered packs, then refresh to reload inventory and combined rules for this workspace.";

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.User;
+
 namespace ArchLucid.Persistence.Models;
 
 public sealed class TenantSponsorDigestPreferencesRow
@@ -30,7 +32,7 @@ public sealed class TenantSponsorDigestPreferencesRow
     {
         get;
         init;
-    } = "UTC";
+    } = IanaTimeZonePreferenceValues.Default;
 
     public byte DayOfWeek
     {

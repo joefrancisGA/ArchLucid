@@ -105,6 +105,7 @@ public static class AzureInventoryDiffHeuristics
     public static string? BuildRiskClassification(AzureInventoryChangeType changeType) =>
         changeType switch
         {
+            AzureInventoryChangeType.ResourceUnchanged => "none",
             AzureInventoryChangeType.NetworkExposureChanged => "elevated",
             AzureInventoryChangeType.PermissionChanged => "elevated",
             AzureInventoryChangeType.SecurityControlChanged => "elevated",

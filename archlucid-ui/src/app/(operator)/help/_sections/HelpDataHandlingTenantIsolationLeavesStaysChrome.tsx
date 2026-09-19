@@ -1,13 +1,18 @@
 import Link from "next/link";
 
-import { dataHandlingTenantIsolationHelpLeavesStaysCards } from "@/lib/data-handling-tenant-isolation-help-guide-content";
+import {
+  dataHandlingTenantIsolationHelpLeavesStaysCards,
+  dataHandlingTenantIsolationHelpLeavesStaysHelper,
+} from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Leaves vs stays orientation cards for `/help/data-handling` first viewport (TB-1654). */
 export function HelpDataHandlingTenantIsolationLeavesStaysChrome(): React.JSX.Element {
-  const leavesStaysCards = dataHandlingTenantIsolationHelpLeavesStaysCards(resolveProductLineIdFromEnv());
+  const productLineId = resolveProductLineIdFromEnv();
+  const leavesStaysCards = dataHandlingTenantIsolationHelpLeavesStaysCards(productLineId);
+  const leavesStaysHelper = dataHandlingTenantIsolationHelpLeavesStaysHelper(productLineId);
 
   return (
     <section
@@ -42,10 +47,7 @@ export function HelpDataHandlingTenantIsolationLeavesStaysChrome(): React.JSX.El
           </div>
         ))}
       </div>
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Optional connectors, demo data, and AI provider handling are covered below — start with leaves vs stays when
-        sponsors ask where review evidence flows.
-      </p>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{leavesStaysHelper}</p>
     </section>
   );
 }

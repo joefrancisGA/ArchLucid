@@ -1,18 +1,18 @@
 "use client";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
-import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
-import { isEffectiveDevDefaultScope } from "@/lib/scope-switcher-display";
+import { useIsSampleWorkspaceSession } from "@/hooks/use-effective-operator-scope";
+import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 
-/** Neutral demo posture tag beside the workspace switcher on sample-workspace sessions. */
+/** Neutral demo posture tag beside the workspace switcher on sample-workspace sessions (ArchLucid evaluation shell only). */
 export function OperatorShellDemoWorkspaceTag(): React.JSX.Element | null {
-  const scope = useOperatorScopeRecord();
+  const { productLine } = useProductLine();
+  const isSampleWorkspace = useIsSampleWorkspaceSession();
 
-  if (scope === null) {
+  if (isSecureNowDemoChromeExcluded(productLine)) {
     return null;
   }
-
-  const isSampleWorkspace = isEffectiveDevDefaultScope(scope.workspaceId, scope.projectId);
 
   if (!isSampleWorkspace) {
     return null;

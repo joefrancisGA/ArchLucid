@@ -2,7 +2,7 @@
 
 import type { JSX } from "react";
 
-import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import { extractUploadSettingsPathForProductLine } from "@/lib/extract-upload-settings-route";
 import {
@@ -29,9 +29,9 @@ export type ExtractUploadCloudConnectionsVocabularyRailProps = {
 export function ExtractUploadCloudConnectionsVocabularyRail(
   props: ExtractUploadCloudConnectionsVocabularyRailProps,
 ): JSX.Element {
-  const { productLine } = useProductLine();
+  const { productLine, localize } = useLocalizedProductCopy();
   const extractUploadHref = extractUploadSettingsPathForProductLine(productLine);
-  const pairwiseModel =
+  const basePairwiseModel =
     props.model !== undefined
       ? {
           heading: props.model.heading,
@@ -41,6 +41,19 @@ export function ExtractUploadCloudConnectionsVocabularyRail(
           peerLink: props.model.cloudConnectionsLink,
         }
       : buildExtractUploadCloudConnectionsPairwiseRail(extractUploadHref);
+  const pairwiseModel = {
+    heading: localize(basePairwiseModel.heading),
+    whyTwo: localize(basePairwiseModel.whyTwo),
+    compactLine: localize(basePairwiseModel.compactLine),
+    currentLink: {
+      ...basePairwiseModel.currentLink,
+      whenToUse: localize(basePairwiseModel.currentLink.whenToUse),
+    },
+    peerLink: {
+      ...basePairwiseModel.peerLink,
+      whenToUse: localize(basePairwiseModel.peerLink.whenToUse),
+    },
+  };
 
   return (
     <PairwiseVocabularyRailFromModel

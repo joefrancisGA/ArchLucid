@@ -1,3 +1,6 @@
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 /** Leaf title copy for authentication-sign-in help — no registry imports (avoids circular init). */
 export const AUTHENTICATION_SIGN_IN_HELP_PRIMARY_CONTENT_ID =
   "help-authentication-sign-in-primary-content" as const;
@@ -21,8 +24,11 @@ export const AUTHENTICATION_SIGN_IN_HELP_PAGE_SUBTITLE_BUYER =
 export const AUTHENTICATION_SIGN_IN_HELP_START_HERE_HELPER =
   "Without SSO admin access, expand Common sign-in issues below or use Where to go next for users, roles, or SSO setup." as const;
 
-export const AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD =
-  "ArchLucid uses passwordless sign-in for workspace access. Pick the path that fits your organization, then use the sections below for common issues or SSO setup." as const;
+export function authenticationSignInHelpPageLead(productLineId: ProductLineId): string {
+  return `${productLineDisplayName(productLineId)} uses passwordless sign-in for workspace access. Pick the path that fits your organization, then use the sections below for common issues or SSO setup.`;
+}
+
+export const AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD = authenticationSignInHelpPageLead("architecture");
 
 export const AUTHENTICATION_SIGN_IN_HELP_BUYER_OVERVIEW =
   "Use this guide when someone cannot sign in, needs an invitation, or is setting up SSO — collapsible sections below cover common issues before you return to sign in." as const;

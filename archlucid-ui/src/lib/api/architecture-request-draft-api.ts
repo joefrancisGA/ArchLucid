@@ -10,9 +10,9 @@ export const ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS = 20;
 /** Body for POST /v1/architecture/request/draft. */
 export type DraftArchitectureRequestInput = {
   freeTextDescription: string;
-  /** Constraints already on the draft — avoids semantic duplicates in new suggestions. */
+  /** Constraints already on the architecture draft — avoids semantic duplicates in new suggestions. */
   currentConstraints?: readonly string[];
-  /** Assumptions already on the draft — avoids semantic duplicates in new suggestions. */
+  /** Assumptions already on the architecture draft — avoids semantic duplicates in new suggestions. */
   currentAssumptions?: readonly string[];
   /** Confirmed assumptions — checked against overview evidence for contradictions. */
   confirmedAssumptions?: readonly string[];

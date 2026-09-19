@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 namespace ArchLucid.Api.Middleware;
 
 /// <summary>
-///     OP-04: when the effective product line is Security-only (or Architecture-only), block controllers mapped to the
-///     other exclusive line. Unmapped controllers fail closed with 500 so OP-01 coverage stays authoritative.
+///     OP-04: when the effective product line is Security, block controllers mapped to architecture-only rows.
+///     Architecture and dual-UI (<c>both</c>) effective lines may call any mapped route. Unmapped controllers fail
+///     closed with 500 so OP-01 coverage stays authoritative.
 /// </summary>
 internal sealed class ProductLineRouteGateMiddleware(RequestDelegate next)
 {

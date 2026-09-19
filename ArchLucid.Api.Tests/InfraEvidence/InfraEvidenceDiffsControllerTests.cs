@@ -37,6 +37,7 @@ public sealed class InfraEvidenceDiffsControllerTests
                 1,
                 50,
                 cloudResourceId,
+                false,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedResponse<AzureInventoryChangeRecord>
             {
@@ -57,6 +58,7 @@ public sealed class InfraEvidenceDiffsControllerTests
         IActionResult result = await controller.ListChangesForDiff(
             diffId,
             cloudResourceId,
+            includeUnchanged: false,
             page: 1,
             pageSize: 50,
             CancellationToken.None);
@@ -69,6 +71,59 @@ public sealed class InfraEvidenceDiffsControllerTests
                 1,
                 50,
                 cloudResourceId,
+                false,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ListChangesForDiff_passes_includeUnchanged_to_query_service()
+    {
+        Guid diffId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<IInfraEvidenceDriftWorkbenchQueryService> queryService = new();
+        queryService
+            .Setup(service => service.ListChangesForDiffAsync(
+                Scope,
+                diffId,
+                1,
+                50,
+                null,
+                true,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedResponse<AzureInventoryChangeRecord>
+            {
+                Items = [],
+                TotalCount = 0,
+                Page = 1,
+                PageSize = 50,
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        InfraEvidenceDiffsController controller = new(queryService.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.ListChangesForDiff(
+            diffId,
+            cloudResourceId: null,
+            includeUnchanged: true,
+            page: 1,
+            pageSize: 50,
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        queryService.Verify(
+            service => service.ListChangesForDiffAsync(
+                Scope,
+                diffId,
+                1,
+                50,
+                null,
+                true,
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

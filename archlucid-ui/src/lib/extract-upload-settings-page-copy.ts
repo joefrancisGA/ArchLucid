@@ -1,5 +1,7 @@
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
@@ -7,10 +9,13 @@ export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE = "Loading extract and upload workspace…" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
-  "Run the read-only cloud inventory script locally for your provider, validate the ZIP, then upload it for architecture reviews." as const;
+  "Schedule a customer-owned inventory agent for production, or run the read-only packager locally, then upload the ZIP for architecture reviews." as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER =
-  "Collect a read-only cloud inventory ZIP locally (Azure, AWS, or Google Cloud), validate it, and upload it to start architecture reviews." as const;
+  "Collect a read-only cloud inventory ZIP on a schedule or locally (Azure, AWS, or Google Cloud), then upload it to start architecture reviews." as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW =
+  "Collect a read-only Azure inventory ZIP" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID = "extract-upload-settings-primary-content" as const;
 
@@ -24,7 +29,14 @@ export const EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL = "Skip to extract and uplo
 
 export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE = EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE;
 
-export function extractUploadSettingsPageSubtitle(buyerPolishedShell: boolean): string {
+export function extractUploadSettingsPageSubtitle(
+  buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW;
+  }
+
   return buyerPolishedShell
     ? EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER
     : EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE;
@@ -67,10 +79,21 @@ export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
 export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =
   "Upload a bundled synthetic cloud inventory ZIP — same format as read-only packager output — without running a script locally." as const;
 
-export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory locally" as const;
+export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory" as const;
 
 export const EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION =
-  "Copy the quick-start command for your cloud provider, run it locally, then upload the ZIP in Step 2. Use preview mode on the advanced script when you need a dry run first." as const;
+  "Schedule a customer-owned agent for production collection, or run a one-time local command for a pilot. Upload the ZIP in Step 2." as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_TITLE = "Recommended: schedule a customer-owned agent" as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION =
+  "Deploy a runbook or timer Function in your subscription so inventory uploads on a cadence — no command line or UI pull. Local scripts remain for one-time pilots." as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF = "/help/cloud-connections" as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL = "Set up scheduled collection" as const;
+
+export const EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE = "One-time local collection (pilot)" as const;
 
 export const EXTRACT_UPLOAD_STEP_UPLOAD_TITLE = "Step 2 — Upload ZIP" as const;
 
@@ -92,18 +115,6 @@ export const EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE =
 
 export const EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX = "Upload binds to review" as const;
 
-export const EXTRACT_UPLOAD_REVIEW_BINDING_NONE =
-  "No review selected — upload updates workspace inventory for the next architecture review." as const;
-
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_TITLE = "Replace workspace inventory?" as const;
-
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_DESCRIPTION =
-  "This workspace already has inventory on file. Uploading replaces the workspace baseline used for findings and the evidence trail in sealed review records." as const;
-
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_CONFIRM = "Replace inventory" as const;
-
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_CANCEL = "Cancel" as const;
-
 export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted architecture package" as const;
 
 export const EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL = "Replace inventory" as const;
@@ -119,5 +130,3 @@ export const EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND =
   "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass" as const;
 
 export const EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX = "Script SHA-256" as const;
-
-export const EXTRACT_UPLOAD_PROVIDER_SELECTOR_LABEL = "Cloud provider" as const;

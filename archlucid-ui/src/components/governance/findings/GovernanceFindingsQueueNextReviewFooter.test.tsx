@@ -9,6 +9,9 @@ import {
 describe("GovernanceFindingsQueueNextReviewFooter", () => {
   it("builds the next review findings queue href from run id", () => {
     expect(governanceFindingsQueueNextReviewHref("run-2")).toBe("/governance/findings?runId=run-2");
+    expect(governanceFindingsQueueNextReviewHref("run-2", "/compliance/findings")).toBe(
+      "/compliance/findings?runId=run-2",
+    );
   });
 
   it("renders next review findings queue link", () => {

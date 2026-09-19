@@ -57,7 +57,7 @@ function HelpSection(props: {
   );
 }
 
-/** LW-094 — two architects on one draft for `/help/architecture-draft-editing`. */
+/** LW-094 — two architects on one architecture draft for `/help/architecture-draft-editing`. */
 export function HelpArchitectureDraftEditingGuideView(
   props: HelpArchitectureDraftEditingGuideViewProps,
 ): ReactElement {

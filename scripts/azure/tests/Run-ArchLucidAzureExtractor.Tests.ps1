@@ -5,8 +5,20 @@ Set-StrictMode -Version Latest
 Describe "Run-ArchLucidAzureExtractor.ps1" {
 
     BeforeAll {
-        function Get-AzContext { }
+        function Get-AzContext {
+            param(
+                [switch] $ListAvailable
+            )
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return $null
+        }
         function Connect-AzAccount { }
+        function Disconnect-AzAccount { }
         function Get-Module { }
         function Get-AzSubscription { }
         function Set-AzContext { }
@@ -25,6 +37,14 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
 
     AfterAll {
         $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
+    }
+
+    It "enables cost, retail prices, and app settings hosts by default" {
+        [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
+
+        $content | Should -Match 'IncludeCost\s*=\s*\$true'
+        $content | Should -Match 'IncludeRetailPrices\s*=\s*\$true'
+        $content | Should -Match 'IncludeAppSettingsHosts\s*=\s*\$true'
     }
 
     It "defaults output path to archlucid-azure-package.zip in the current directory" {
@@ -74,7 +94,18 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
         [hashtable]$connectParams = @{}
 
-        Mock Get-AzContext { return $null }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return $null
+        }
+        Mock Get-AzSubscription { return $null }
+        Mock Disconnect-AzAccount { }
         Mock Connect-AzAccount {
             param($Tenant, $Subscription, [switch] $UseDeviceAuthentication)
 
@@ -82,13 +113,6 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
             $connectParams.Subscription = $Subscription
             $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
         }
-        Mock Get-AzSubscription {
-            return [PSCustomObject]@{
-                Id = "/subscriptions/$subscriptionId"
-                TenantId = $tenantId
-            }
-        }
-        Mock Set-AzContext { }
 
         [string]$resolved = Resolve-ArchLucidAzureExtractorSubscriptionId `
             -TenantId $tenantId `
@@ -127,18 +151,128 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
         [hashtable]$connectParams = @{}
 
-        Mock Get-AzContext { return $null }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return $null
+        }
+        Mock Get-AzSubscription { return $null }
         Mock Connect-AzAccount {
             param($Subscription, [switch] $UseDeviceAuthentication)
 
             $connectParams.Subscription = $Subscription
             $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
         }
+        Mock Disconnect-AzAccount { }
 
         $null = Ensure-ArchLucidAzureLogin -SubscriptionId $subscriptionId
 
         $connectParams.Subscription | Should -Be $subscriptionId
         $connectParams.UseDeviceAuthentication | Should -Be $true
+    }
+
+    It "disconnects other tenants and sets context when subscription is already accessible" {
+        [string]$tenantId = "9fe44930-326a-4542-907d-5000c79fc027"
+        [string]$otherTenantId = "11111111-2222-3333-4444-555555555555"
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$contextParams = @{}
+        [hashtable]$disconnectParams = @{}
+
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/$subscriptionId"
+                TenantId = $tenantId
+            }
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @(
+                    [PSCustomObject]@{
+                        Account = [PSCustomObject]@{ Id = "user@contoso.com" }
+                        Tenant = [PSCustomObject]@{ Id = $tenantId }
+                        Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+                    },
+                    [PSCustomObject]@{
+                        Account = [PSCustomObject]@{ Id = "user@other.com" }
+                        Tenant = [PSCustomObject]@{ Id = $otherTenantId }
+                        Subscription = [PSCustomObject]@{ Id = "cccccccc-dddd-eeee-ffff-000000000000" }
+                    }
+                )
+            }
+
+            return [PSCustomObject]@{
+                Account = [PSCustomObject]@{ Id = "user@contoso.com" }
+                Tenant = [PSCustomObject]@{ Id = $tenantId }
+                Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+            }
+        }
+        Mock Disconnect-AzAccount {
+            param($Username)
+
+            $disconnectParams.Username = $Username
+        }
+        Mock Set-AzContext {
+            param($SubscriptionId, $Tenant)
+
+            $contextParams.SubscriptionId = $SubscriptionId
+            $contextParams.Tenant = $Tenant
+        }
+        Mock Connect-AzAccount { throw "Connect-AzAccount should not run when subscription is already accessible." }
+
+        $null = Ensure-ArchLucidAzureSubscriptionSession -SubscriptionId $subscriptionId -TenantId $tenantId
+
+        $disconnectParams.Username | Should -Be "user@other.com"
+        $contextParams.SubscriptionId | Should -Be $subscriptionId
+        $contextParams.Tenant | Should -Be $tenantId
+        Should -Not -Invoke Connect-AzAccount
+    }
+
+    It "signs out stale sessions and reconnects when subscription is not accessible" {
+        [string]$tenantId = "9fe44930-326a-4542-907d-5000c79fc027"
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzSubscription { return $null }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @(
+                    [PSCustomObject]@{
+                        Account = [PSCustomObject]@{ Id = "user@contoso.com" }
+                        Tenant = [PSCustomObject]@{ Id = $tenantId }
+                    }
+                )
+            }
+
+            return $null
+        }
+        Mock Disconnect-AzAccount { }
+        Mock Connect-AzAccount {
+            param($Tenant, $Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Tenant = $Tenant
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        $null = Ensure-ArchLucidAzureSubscriptionSession `
+            -SubscriptionId $subscriptionId `
+            -TenantId $tenantId
+
+        $connectParams.Tenant | Should -Be $tenantId
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $true
+        Should -Invoke Disconnect-AzAccount -Times 1 -Exactly
     }
 
     It "does not throw when the delegated extractor completes without setting LASTEXITCODE" {

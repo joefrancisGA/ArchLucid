@@ -42,7 +42,7 @@ function stampFromPilotRunDeltas(
   }
 
   return {
-    structuralExecutionMode,
+    structuralExecutionMode: structuralExecutionMode as StructuralExecutionModeInput,
     workingCareerRehearsalDoor: null,
   };
 }

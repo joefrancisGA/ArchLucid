@@ -1,3 +1,6 @@
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 /** Leaf title copy for compare-two-reviews — no registry imports (avoids circular init). */
 export const COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID = "compare-two-reviews-primary-content" as const;
 
@@ -23,5 +26,9 @@ export const COMPARE_START_HERE_HELPER =
 export const COMPARE_PAGE_LEAD =
   "Structured changes in scope, findings, decisions, and evidence between two finalized architecture reviews." as const;
 
-export const COMPARE_BUYER_OVERVIEW =
-  "Use the dimension preview above to confirm what ArchLucid compares, then follow the checklist and review pickers below to run the diff and share a leadership summary when ready." as const;
+export function compareBuyerOverview(productLineId: ProductLineId): string {
+  return `Use the dimension preview above to confirm what ${productLineDisplayName(productLineId)} compares, then follow the checklist and review pickers below to run the diff and share a leadership summary when ready.`;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const COMPARE_BUYER_OVERVIEW = compareBuyerOverview("architecture");

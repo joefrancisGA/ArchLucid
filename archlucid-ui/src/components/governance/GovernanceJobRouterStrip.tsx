@@ -73,7 +73,7 @@ function GovernanceJobRouterCard(props: {
       )}
       data-testid={`governance-job-router-option-${option.id}`}
       data-current="false"
-      prefetch
+      prefetch={false}
     >
       <p id={titleId} className={labelClassName}>
         {option.label}

@@ -6,4 +6,6 @@ namespace ArchLucid.Integrations.AzureExtractor;
 public sealed record HostedAzureArmDiagnosticSettingRecord(
     string TargetResourceId,
     string Name,
-    string WorkspaceId);
+    string? WorkspaceId,
+    string? StorageAccountId,
+    string? EventHubAuthorizationRuleId);

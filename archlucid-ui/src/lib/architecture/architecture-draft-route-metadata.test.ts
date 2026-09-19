@@ -16,7 +16,7 @@ describe("metadataForArchitectureDraftEditRoute (TB-1451)", () => {
     loadArchitectureDraftForRouteCachedMock.mockReset();
   });
 
-  it("uses the draft display name instead of Create architecture on edit routes", async () => {
+  it("uses the architecture draft display name instead of Create architecture on edit routes", async () => {
     loadArchitectureDraftForRouteCachedMock.mockResolvedValue({
       draftId: "arch-001",
       workspaceId: "ws",
@@ -40,7 +40,7 @@ describe("metadataForArchitectureDraftEditRoute (TB-1451)", () => {
     expect(metadata.title).not.toBe(CREATE_ARCHITECTURE_LABEL);
   });
 
-  it("falls back to Architecture draft when the draft cannot be loaded", async () => {
+  it("falls back to Architecture draft when the architecture draft cannot be loaded", async () => {
     loadArchitectureDraftForRouteCachedMock.mockRejectedValue(new Error("not found"));
 
     const metadata = await metadataForArchitectureDraftEditRoute("arch-missing");

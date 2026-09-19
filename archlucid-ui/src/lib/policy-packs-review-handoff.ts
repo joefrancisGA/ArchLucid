@@ -12,7 +12,10 @@ export type PolicyPacksImpactPreviewHandoff = {
   readonly packBId?: string | null;
 };
 
-export function buildPolicyPacksImpactPreviewHref(handoff: PolicyPacksImpactPreviewHandoff): string {
+export function buildPolicyPacksImpactPreviewHref(
+  handoff: PolicyPacksImpactPreviewHandoff,
+  hubPath: string = GOVERNANCE_POLICY_PACKS_PATH,
+): string {
   const params = new URLSearchParams();
   const reviewId = handoff.reviewId?.trim() ?? "";
   const packAId = handoff.packAId?.trim() ?? "";
@@ -33,14 +36,14 @@ export function buildPolicyPacksImpactPreviewHref(handoff: PolicyPacksImpactPrev
   const query = params.toString();
 
   if (query.length === 0) {
-    return GOVERNANCE_POLICY_PACKS_PATH;
+    return hubPath;
   }
 
-  return `${GOVERNANCE_POLICY_PACKS_PATH}?${query}`;
+  return `${hubPath}?${query}`;
 }
 
-export function buildPolicyPacksHrefWithReviewId(reviewId: string): string {
-  return buildPolicyPacksImpactPreviewHref({ reviewId });
+export function buildPolicyPacksHrefWithReviewId(reviewId: string, hubPath?: string): string {
+  return buildPolicyPacksImpactPreviewHref({ reviewId }, hubPath);
 }
 
 export function resolveCompareGovernancePackImpactHandoff(

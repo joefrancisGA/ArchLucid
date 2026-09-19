@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -36,7 +37,8 @@ import {
   AUDIT_EVIDENCE_START_FROM_INVENTORY_BODY,
   AUDIT_EVIDENCE_START_FROM_INVENTORY_TITLE,
 } from "@/lib/audit-evidence-page-copy";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { auditEvidencePathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { cn } from "@/lib/utils";
 
 import { AuditEvidenceBreadcrumb } from "./AuditEvidenceBreadcrumb";
@@ -55,6 +57,7 @@ function trimRequired(value: string): boolean {
 
 export function AuditEvidenceLookupClient() {
   const router = useRouter();
+  const { productLine } = useProductLine();
   const buyerPolishedShell = useProductionEvalChrome();
   const [assessmentId, setAssessmentId] = useState("");
   const [snapshotId, setSnapshotId] = useState("");
@@ -65,6 +68,10 @@ export function AuditEvidenceLookupClient() {
   const canOpenLineage = useMemo(
     () => trimRequired(assessmentId) && trimRequired(snapshotId) && trimRequired(controlId),
     [assessmentId, controlId, snapshotId],
+  );
+  const inventoryResourcesHref = useMemo(
+    () => infrastructureResourcesPathForProductLine(productLine),
+    [productLine],
   );
 
   function clearFieldError(field: keyof FieldErrors) {
@@ -112,7 +119,14 @@ export function AuditEvidenceLookupClient() {
     }
 
     setFieldErrors({});
-    router.push(buildAuditEvidenceControlLineagePath(assessmentId.trim(), snapshotId.trim(), controlId.trim()));
+    router.push(
+      buildAuditEvidenceControlLineagePath(
+        assessmentId.trim(),
+        snapshotId.trim(),
+        controlId.trim(),
+        auditEvidencePathForProductLine(productLine),
+      ),
+    );
   }
 
   function applyLineageUrlPaste() {
@@ -173,7 +187,7 @@ export function AuditEvidenceLookupClient() {
           </p>
           <div className="mt-3">
             <Link
-              href="/governance/infrastructure/resources"
+              href={inventoryResourcesHref}
               className={OPERATOR_LINK.inline}
               data-testid="audit-evidence-browse-inventory-link"
             >

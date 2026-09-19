@@ -1,5 +1,6 @@
-/** LW-094 — in-app help: work lease + CAS when two architects edit one draft (ADR 0090). */
+/** LW-094 — in-app help: work lease + CAS when two architects edit one architecture draft (ADR 0090). */
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { PRODUCT_LINE_DISPLAY_NAME } from "@/lib/product-line/product-line-display-name";
 import { ARCHITECTURE_DRAFT_EDITING_HELP_PATH } from "@/lib/architecture/architecture-draft-editing-help-route";
 import {
   ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_COPY,
@@ -9,18 +10,18 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export { ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_COPY, ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_TITLE };
 
-export const ARCHITECTURE_DRAFT_EDITING_HELP_PAGE_TITLE = "Two people on one draft";
+export const ARCHITECTURE_DRAFT_EDITING_HELP_PAGE_TITLE = "Two people on one architecture draft";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_PAGE_SUBTITLE =
   "Soft edit lease, compare-and-swap saves, and offline reconnect — not a shared collab editor.";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_OVERVIEW =
-  "Two architects can open the same architecture draft. ArchLucid uses a soft work lease and version checks on save so you do not silently overwrite each other. This is not Google Docs-style co-editing, live cursors, or chat on the draft desk.";
+  `Two architects can open the same architecture draft. ${PRODUCT_LINE_DISPLAY_NAME.architecture} uses a soft work lease and version checks on save so you do not silently overwrite each other. This is not Google Docs-style co-editing, live cursors, or chat on the architecture draft desk.`;
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_LEASE_TITLE = "Edit lease banner";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_LEASE_COPY =
-  "When you open a drafting desk, ArchLucid tries to acquire a short-lived edit lease. If someone else already holds an unexpired lease, you see a banner naming the holder and when the lease expires. That banner is not live presence — it only reflects the last lease the server recorded. This work lease is not the run execute lease that owns a Record job. When the lease expires, saving is blocked until you acquire it again — the other architect did not vanish from a presence feed.";
+  `When you open an architecture drafting desk, ${PRODUCT_LINE_DISPLAY_NAME.architecture} tries to acquire a short-lived edit lease. If someone else already holds an unexpired lease, you see a banner naming the holder and when the lease expires. That banner is not live presence — it only reflects the last lease the server recorded. This work lease is not the run execute lease that owns a Record job. When the lease expires, saving is blocked until you acquire it again — the other architect did not vanish from a presence feed.`;
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_STEAL_TITLE = "Take over the lease";
 
@@ -30,7 +31,7 @@ export const ARCHITECTURE_DRAFT_EDITING_HELP_STEAL_COPY =
 export const ARCHITECTURE_DRAFT_EDITING_HELP_CONFLICT_TITLE = "409 conflict and Keep mine";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_CONFLICT_COPY =
-  "Each save sends the draft version the tab last accepted. If the server moved ahead — another session saved, offline replay landed, or you lost the lease — save returns a conflict. Your on-screen edits stay intact. Choose Keep mine to retry with a force overwrite when you intend to replace the server copy, or reload to load the latest server draft.";
+  "Each save sends the architecture draft version the tab last accepted. If the server moved ahead — another session saved, offline replay landed, or you lost the lease — save returns a conflict. Your on-screen edits stay intact. Choose Keep mine to retry with a force overwrite when you intend to replace the server copy, or reload to load the latest server draft.";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_OFFLINE_TITLE = "Offline and reconnect";
 
@@ -40,7 +41,7 @@ export const ARCHITECTURE_DRAFT_EDITING_HELP_OFFLINE_COPY =
 export const ARCHITECTURE_DRAFT_EDITING_HELP_BOUNDARY_TITLE = "Not a collab editor";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_BOUNDARY_COPY =
-  "ArchLucid does not ship simultaneous multi-cursor editing, occupancy avatars, or draft-thread chat. For discussion on findings, use exports or your ITSM integration. For access control on who may edit, see architecture sharing when restrict-to-shares is enabled.";
+  `${PRODUCT_LINE_DISPLAY_NAME.architecture} does not ship simultaneous multi-cursor editing, occupancy avatars, or draft-thread chat. For discussion on findings, use exports or your ITSM integration. For access control on who may edit, see architecture sharing when restrict-to-shares is enabled.`;
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_PRIMARY_ACTION = {
   label: "Architecture drafts",

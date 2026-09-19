@@ -1,4 +1,4 @@
-> **Scope:** Tier 2 continuous Azure extractor ingestion — customer-owned automation that runs `Get-ArchLucidAzurePackage.ps1` on a schedule and uploads to ArchLucid.
+> **Scope:** CI-owned continuous Azure extractor ingestion — GitHub Actions (or equivalent) that runs `Get-ArchLucidAzurePackage.ps1` on a schedule and uploads to ArchLucid. Prefer the **customer-tenant scheduled agent** (Automation runbook / Function) in [`AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](AZURE_EXTRACTOR_SCHEDULED_AGENT.md) when operators should not pull from a command line.
 
 > **Spine doc:** [`../START_HERE.md`](../START_HERE.md).
 
@@ -6,7 +6,9 @@
 
 ## 1. Objective
 
-Enable **zero-touch** architecture and cost snapshots for Azure estates without giving ArchLucid standing credentials in the customer tenant. The customer provisions a **read-only** service principal, runs the signed extractor on a schedule, and **POST**s the ZIP to ArchLucid.
+Enable **zero-touch** architecture and cost snapshots for Azure estates without giving ArchLucid standing credentials in the customer tenant.
+
+**Preferred:** deploy [`deploy/customer-templates/scheduled-agent/`](../../deploy/customer-templates/scheduled-agent/) (Automation runbook in the customer subscription). Use this GitHub Actions example when collection must live in CI instead of Azure Automation or Functions.
 
 ## 2. Prerequisites
 
@@ -83,5 +85,5 @@ For enterprise hierarchies, pass **`-ManagementGroupId`** instead of **`-Subscri
 |-----|-----|
 | [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.16 | Product contract |
 | [`../library/AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) | Tier 2 hosted WIF + V1.x auto-pull architecture |
-| [`AZURE_EXTRACTOR_INGEST.md`](AZURE_EXTRACTOR_INGEST.md) | Upload API and validation |
+| [`AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](AZURE_EXTRACTOR_SCHEDULED_AGENT.md) | Preferred customer-tenant runbook / Function |
 | [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md) | Tier 1 vs Tier 2 buyer narrative |

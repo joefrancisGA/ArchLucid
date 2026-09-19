@@ -45,19 +45,17 @@ describe("resolveExtractUploadHasInventoryOnFile", () => {
 });
 
 describe("resolveExtractUploadPackageSteps", () => {
-  it("emphasizes provider before upload", () => {
+  it("emphasizes upload before parse", () => {
     expect(
       resolveExtractUploadPackageEmphasizedStepId({
-        providerSelected: false,
         packageAccepted: false,
         inventoryParsed: false,
       }),
-    ).toBe("provider");
+    ).toBe("upload");
   });
 
   it("marks upload complete only after acceptance", () => {
     const steps = resolveExtractUploadPackageSteps({
-      providerSelected: true,
       packageAccepted: true,
       inventoryParsed: false,
     });

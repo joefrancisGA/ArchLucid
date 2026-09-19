@@ -38,7 +38,7 @@ export const LOST_WRITE_HELP_OVERWRITE_COPY: readonly LostWriteHelpCopyRow[] = [
     id: "keyboard-save-draft",
     sourceRoots: ["docs/KEYBOARD_SHORTCUTS.md"],
     excerpt:
-      "Save architecture draft from the review workbench when the draft editor is open — may return a conflict if another session saved first",
+      "Save architecture draft from the review workbench when the architecture draft editor is open — may return a conflict if another session saved first",
     honesty: "conflict-aware",
     followUpPrompt: "LW-094",
   },

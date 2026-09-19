@@ -7,8 +7,9 @@ import { HelpDataHandlingTenantIsolationSourceLinks } from "@/app/(operator)/hel
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO,
+  resolveDataHandlingTenantIsolationHelpSourcesIntro,
 } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   HELP_DATA_HANDLING_TENANT_ISOLATION_SOURCES_OPEN_PARAM,
   helpDataHandlingTenantIsolationSourcesDisclosureHrefFromSearch,
@@ -17,6 +18,7 @@ import {
 
 /** Source links disclosure synced to `helpDataHandlingTenantIsolationSourcesOpen`. */
 export function HelpDataHandlingTenantIsolationSourcesDisclosure(): ReactElement {
+  const sourcesIntro = resolveDataHandlingTenantIsolationHelpSourcesIntro(resolveProductLineIdFromEnv());
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -54,7 +56,7 @@ export function HelpDataHandlingTenantIsolationSourcesDisclosure(): ReactElement
   return (
     <CollapsibleSection
       title={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE}
-      summaryLine={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
+      summaryLine={sourcesIntro}
       sectionTestId="help-data-handling-tenant-isolation-source-disclosure"
       open={open}
       onToggle={setOpen}

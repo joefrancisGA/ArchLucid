@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 
@@ -45,6 +46,19 @@ public static class InfraEvidenceMermaidModeParser
         string? seedNodeId,
         out InfraEvidenceMermaidModeParseResult result)
     {
+        return TryParse(mode, seedNodeId, hiddenExecutiveTierKeys: null, out result);
+    }
+
+    /// <param name="hiddenExecutiveTierKeys">
+    /// Comma-separated <see cref="ExecutiveAlwaysShowTiers" /> keys the viewer unchecked. Unknown keys are ignored;
+    /// only Executive mode consumes them.
+    /// </param>
+    public static bool TryParse(
+        string? mode,
+        string? seedNodeId,
+        string? hiddenExecutiveTierKeys,
+        out InfraEvidenceMermaidModeParseResult result)
+    {
         if (string.IsNullOrWhiteSpace(mode))
         {
             result = new InfraEvidenceMermaidModeParseResult
@@ -60,7 +74,7 @@ public static class InfraEvidenceMermaidModeParser
 
         if (string.Equals(normalized, "executive", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.Executive, "executive", null);
+            result = Success(DiagramMode.Executive, "executive", BuildExecutiveCompileOptions(hiddenExecutiveTierKeys));
             return true;
         }
 
@@ -79,6 +93,18 @@ public static class InfraEvidenceMermaidModeParser
         if (string.Equals(normalized, "data", StringComparison.OrdinalIgnoreCase))
         {
             result = Success(DiagramMode.Data, "data", null);
+            return true;
+        }
+
+        if (string.Equals(normalized, "dataFlow", StringComparison.OrdinalIgnoreCase))
+        {
+            result = Success(DiagramMode.DataFlow, "dataFlow", null);
+            return true;
+        }
+
+        if (string.Equals(normalized, "dataArchitecture", StringComparison.OrdinalIgnoreCase))
+        {
+            result = Success(DiagramMode.DataArchitecture, "dataArchitecture", null);
             return true;
         }
 
@@ -142,10 +168,22 @@ public static class InfraEvidenceMermaidModeParser
         {
             Succeeded = false,
             ErrorMessage =
-                "Unsupported mode. Use executive, network, identity, data, full, resourceGroup, resourceGroup:{name}, or dependencyNeighborhood.",
+                "Unsupported mode. Use executive, network, identity, data, dataFlow, dataArchitecture, full, resourceGroup, resourceGroup:{name}, or dependencyNeighborhood.",
         };
 
         return false;
+    }
+
+    private static DiagramAstCompileOptions? BuildExecutiveCompileOptions(string? hiddenExecutiveTierKeys)
+    {
+        IReadOnlyList<string> hiddenKeys = ExecutiveAlwaysShowTiers.ParseHiddenKeys(hiddenExecutiveTierKeys);
+
+        if (hiddenKeys.Count == 0)
+        {
+            return null;
+        }
+
+        return new DiagramAstCompileOptions { HiddenExecutiveTierKeys = hiddenKeys };
     }
 
     private static InfraEvidenceMermaidModeParseResult Success(
