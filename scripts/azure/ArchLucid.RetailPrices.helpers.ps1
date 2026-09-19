@@ -12,37 +12,60 @@ function CollapsedArchLucidSku([string]$Text)
     return ([regex]::Replace($Text.Trim(), "[\s_]+", "")).ToLowerInvariant()
 }
 
+function Get-ArchLucidRetailPricesRowValue
+{
+    param(
+        [object] $Row,
+        [Parameter(Mandatory = $true)]
+        [string] $PropertyName
+    )
+
+    if ($null -eq $Row) { return "" }
+    if ([string]::IsNullOrWhiteSpace($PropertyName)) { return "" }
+
+    if ($Row -is [Collections.IDictionary])
+    {
+        if (-not $Row.Contains($PropertyName)) { return "" }
+
+        return "$( $Row[$PropertyName] )"
+    }
+
+    if ($Row.PSObject.Properties.Name -notcontains $PropertyName) { return "" }
+
+    return "$( $Row.$PropertyName )"
+}
+
 function Test-ArchLucidRetailConsumptionRow([object]$Row)
 {
-    $currency = "$( $Row.currencyCode )"
+    $currency = Get-ArchLucidRetailPricesRowValue -Row $Row -PropertyName 'currencyCode'
 
     if (-not ([string]::Equals($currency, "USD", [System.StringComparison]::OrdinalIgnoreCase)))
     {
         return $false
     }
 
-    $ptype = "$( $Row.type )"
+    $ptype = Get-ArchLucidRetailPricesRowValue -Row $Row -PropertyName 'type'
 
     if ($ptype.Contains("Reservation", [System.StringComparison]::OrdinalIgnoreCase))
     {
         return $false
     }
 
-    $meterTierVal = "$( $Row.meterTier )"
+    $meterTierVal = Get-ArchLucidRetailPricesRowValue -Row $Row -PropertyName 'meterTier'
 
     if ($meterTierVal.Contains("Government", [System.StringComparison]::OrdinalIgnoreCase))
     {
         return $false
     }
 
-    $meterNameVal = "$( $Row.meterName )"
+    $meterNameVal = Get-ArchLucidRetailPricesRowValue -Row $Row -PropertyName 'meterName'
 
     if ($meterNameVal.Contains("Rsv", [System.StringComparison]::OrdinalIgnoreCase))
     {
         return $false
     }
 
-    $uom = "$( $Row.unitOfMeasure )"
+    $uom = Get-ArchLucidRetailPricesRowValue -Row $Row -PropertyName 'unitOfMeasure'
 
     if ([string]::IsNullOrWhiteSpace($uom))
     {
@@ -63,7 +86,9 @@ function Match-ArchLucidRetailSkuAgainstHints([Collections.Generic.HashSet[strin
 {
     foreach ($want in @($Hints))
     {
-        foreach ($candidate in @($RetailRow.skuName, $RetailRow.armSkuName))
+        foreach ($candidate in @(
+                (Get-ArchLucidRetailPricesRowValue -Row $RetailRow -PropertyName 'skuName')
+                (Get-ArchLucidRetailPricesRowValue -Row $RetailRow -PropertyName 'armSkuName')))
         {
             $wc = CollapsedArchLucidSku("$want")
             $gc = CollapsedArchLucidSku("$candidate")
@@ -480,8 +505,12 @@ function New-ArchLucidRetailPricesDocument(
 
                 if (-not (Match-ArchLucidRetailSkuAgainstHints $skuSet $it)) { continue }
 
-                [string]$sig =
-                    "$( $it.meterId )|$( $it.effectiveStartDate )|$( $it.armRegionName )|$( $it.skuName )|$( $it.meterName )"
+                [string]$sig = @(
+                    (Get-ArchLucidRetailPricesRowValue -Row $it -PropertyName 'meterId')
+                    (Get-ArchLucidRetailPricesRowValue -Row $it -PropertyName 'effectiveStartDate')
+                    (Get-ArchLucidRetailPricesRowValue -Row $it -PropertyName 'armRegionName')
+                    (Get-ArchLucidRetailPricesRowValue -Row $it -PropertyName 'skuName')
+                    (Get-ArchLucidRetailPricesRowValue -Row $it -PropertyName 'meterName')) -join '|'
 
                 if ($duplicateMeters.ContainsKey($sig)) { continue }
 
