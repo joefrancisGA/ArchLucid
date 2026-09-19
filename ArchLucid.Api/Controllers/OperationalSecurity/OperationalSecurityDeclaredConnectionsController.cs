@@ -43,6 +43,7 @@ public sealed class OperationalSecurityDeclaredConnectionsController(
         return Ok(response);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityDeclaredConnectionService logs create via IAuditService.")]
@@ -99,6 +100,7 @@ public sealed class OperationalSecurityDeclaredConnectionsController(
             new SecurityDeclaredConnectionCreateApiResponse { ConnectionId = result.ConnectionId.Value });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{connectionId:guid}/renew")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityDeclaredConnectionService logs renew via IAuditService.")]
@@ -153,6 +155,7 @@ public sealed class OperationalSecurityDeclaredConnectionsController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{connectionId:guid}/revoke")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityDeclaredConnectionService logs revoke via IAuditService.")]
@@ -195,6 +198,7 @@ public sealed class OperationalSecurityDeclaredConnectionsController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("sweep-expired")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityDeclaredConnectionService logs expiry sweep via IAuditService.")]
