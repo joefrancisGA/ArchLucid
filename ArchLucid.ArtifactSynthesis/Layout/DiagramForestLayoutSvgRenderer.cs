@@ -126,7 +126,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestCanvasLabelContext labelContext)
     {
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells =
-            DiagramResourceGroupPacker.PartitionCells(component);
+            DiagramResourceGroupCellFlowPlanner.OrderCells(
+                DiagramResourceGroupPacker.PartitionCells(component),
+                visibleEdges);
 
         if (cells.Count == 1 && cells[0].Nodes.Count == component.Count)
         {

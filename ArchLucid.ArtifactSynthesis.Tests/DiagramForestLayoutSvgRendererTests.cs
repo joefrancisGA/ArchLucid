@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.KnowledgeGraph;
@@ -172,6 +173,58 @@ public sealed class DiagramForestLayoutSvgRendererTests
         nodes[2].X.Should().BeLessThan(nodes[3].X);
         nodes[3].X.Should().BeLessThan(nodes[4].X);
         nodes.Select(node => node.Y).Distinct().Count().Should().Be(1);
+    }
+
+    [Fact]
+    public void Render_cross_resource_group_pair_places_from_left_of_to_when_order_key_is_inverted()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "ltr-pair",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "adf",
+                    Label = "adf-edw-hi-dev",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.DataFactory/factories",
+                    ArmResourceGroup = "rg-data-factory",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "storage",
+                    Label = "stnprdhiwus001",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    ArmResourceGroup = "rg-storage",
+                    OrderKey = 0,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "adf",
+                    ToNodeId = "storage",
+                    Label = "likely connected to",
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().NotBeNullOrWhiteSpace();
+
+        XDocument document = XDocument.Parse(result.Svg!);
+        XElement root = document.Root!;
+
+        double adfX = ParseTranslateX(FindNodeGroup(root, "adf").Attribute("transform")?.Value);
+        double storageX = ParseTranslateX(FindNodeGroup(root, "storage").Attribute("transform")?.Value);
+
+        adfX.Should().BeLessThan(storageX);
     }
 
     [Fact]
@@ -455,6 +508,20 @@ public sealed class DiagramForestLayoutSvgRendererTests
                 && string.Equals(element.Attribute("font-weight")?.Value, "400", StringComparison.Ordinal)
                 && string.Equals(element.Value, resourceGroup, StringComparison.Ordinal))
             .Count();
+    }
+
+    private static XElement FindNodeGroup(XElement root, string nodeId)
+    {
+        string sanitized = MermaidIdSanitizer.Sanitize(nodeId);
+        XElement? group = root.Descendants()
+            .FirstOrDefault(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("id"), $"node-{sanitized}", StringComparison.Ordinal));
+
+        group.Should().NotBeNull();
+
+        return group!;
     }
 
     private static double ParseTranslateX(string? transform)
