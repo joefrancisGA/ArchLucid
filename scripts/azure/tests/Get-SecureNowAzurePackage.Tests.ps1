@@ -156,6 +156,11 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
 
                 [object[]]$resources = @(Get-Content -LiteralPath $resourcesPath -Raw -Encoding Utf8 | ConvertFrom-Json)
                 $resources.Count | Should -Be 2
+
+                [string]$diagnosticSettingsPath = Join-Path $staging 'diagnostic-settings.json'
+                Test-Path -LiteralPath $diagnosticSettingsPath | Should -Be $true
+                [string]$diagnosticSettingsJson = Get-Content -LiteralPath $diagnosticSettingsPath -Raw -Encoding Utf8
+                $diagnosticSettingsJson.Trim() | Should -Be '[]'
             }
             finally
             {
