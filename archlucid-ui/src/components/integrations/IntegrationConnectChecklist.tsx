@@ -1,5 +1,5 @@
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ENTERPRISE_STATUS_LABELS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type IntegrationConnectChecklistStep = {
@@ -39,28 +39,37 @@ export function IntegrationConnectChecklist(props: IntegrationConnectChecklistPr
         aria-label={`${props.title} progress`}
         data-testid={`${props.testIdPrefix}-setup-progress`}
       >
-        {props.steps.map((step) => (
-          <li
-            key={step.id}
-            className="flex items-start justify-between gap-3"
-            aria-current={step.id === props.emphasizedStepId ? "step" : undefined}
-            data-emphasized={step.id === props.emphasizedStepId ? "true" : undefined}
-            data-testid={`${props.testIdPrefix}-setup-step-${step.id}`}
-          >
-            <span
-              className={cn(
-                step.complete ? "text-al-text-primary" : "text-al-text-secondary",
-                step.id === props.emphasizedStepId ? "font-medium text-al-text-primary" : undefined,
-              )}
+        {props.steps.map((step) => {
+          const emphasized = step.id === props.emphasizedStepId;
+          const statusLabel = step.complete
+            ? "Done"
+            : emphasized
+              ? ENTERPRISE_STATUS_LABELS["in-progress"]
+              : "Pending";
+
+          return (
+            <li
+              key={step.id}
+              className="flex items-start justify-between gap-3"
+              aria-current={emphasized ? "step" : undefined}
+              data-emphasized={emphasized ? "true" : undefined}
+              data-testid={`${props.testIdPrefix}-setup-step-${step.id}`}
             >
-              {step.label}
-            </span>
-            <StatusTag
-              kind={step.complete ? "ready" : step.id === props.emphasizedStepId ? "in-progress" : "neutral"}
-              label={step.complete ? "Done" : "Pending"}
-            />
-          </li>
-        ))}
+              <span
+                className={cn(
+                  step.complete ? "text-al-text-primary" : "text-al-text-secondary",
+                  emphasized ? "font-medium text-al-text-primary" : undefined,
+                )}
+              >
+                {step.label}
+              </span>
+              <StatusTag
+                kind={step.complete ? "ready" : emphasized ? "in-progress" : "neutral"}
+                label={statusLabel}
+              />
+            </li>
+          );
+        })}
       </ol>
     </div>
   );
