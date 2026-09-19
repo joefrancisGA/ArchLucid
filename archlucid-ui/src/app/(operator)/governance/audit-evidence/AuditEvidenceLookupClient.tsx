@@ -12,6 +12,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   buildAuditEvidenceControlLineagePath,
   parseAuditEvidenceControlLineagePath,

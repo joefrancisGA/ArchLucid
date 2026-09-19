@@ -1,5 +1,5 @@
 > **Scope:** Founder/operator prescription — what to ask Cursor (and other coding agents) to do in the private-beta window, split into **ArchLucid-specific** and **generic launch** work. Derived from assessment posture as of **2026-09-13**; not a buyer deliverable.
-> **Companion:** [`LATEST_GPT55.md`](LATEST_GPT55.md) (headline readiness) · [`LATEST_EXPOSURE.md`](LATEST_EXPOSURE.md) (controlled beta / public mention R/Y/G) · [`private_beta_access_prompt_07152026.md`](private_beta_access_prompt_07152026.md) (access-path assessment) · `/al-beta` (live trunk ranking command)
+> **Companion:** [`LATEST_GPT55.md`](LATEST_GPT55.md) (headline readiness) · [`LATEST_EXPOSURE.md`](LATEST_EXPOSURE.md) (controlled beta / public mention R/Y/G) · [`private_beta_access_prompt_07152026.md`](private_beta_access_prompt_07152026.md) (access-path assessment) · `/al-beta` (live RC34 ranking command)
 
 # Private-beta and launch — Cursor agent worklist
 
@@ -15,7 +15,7 @@ ArchLucid is past “hide it because the UI is a prototype.” It is **not** pas
 | **Public mention** | **YELLOW** — request-access CTA; no live-looking seed screenshots |
 | **Gate 1** (observed first review) | **UNKNOWN** — run `scripts/release-smoke.ps1` |
 | **G4** (Real proof packets) | **HOLD — 0 of 3** |
-| **Private-beta JwtBearer CI** | **Not yet observed green on `master`** |
+| **Private-beta JwtBearer CI** | **Witness on `RC34`** (release cut; `/al-beta` inspects this ref, not `master`) |
 
 **Central finding:** The scarce resource is **witnessing the machine** (smoke, invite path, Real packets, claim honesty), not building more platform surface.
 
@@ -23,7 +23,7 @@ ArchLucid is past “hide it because the UI is a prototype.” It is **not** pas
 
 **What not to ask Cursor for:** new engines, MCP GA, Marketplace `Published`, Graph-RAG community summarization, CPA SOC 2 kickoff, third-party pen-test execution, or another ROI honesty-strip batch unless a buyer path is still lying.
 
-**Standing command:** `/al-beta` — read-only ranking of the current top 10 (Human or Cursor) plus ≥15 Cursor suggestions from live trunk CI + assessment §8/§17.
+**Standing command:** `/al-beta` — read-only ranking of the current top 10 (Human or Cursor) plus ≥15 Cursor suggestions from live **`RC34`** CI + assessment §8/§17.
 
 ---
 
@@ -45,7 +45,7 @@ These tasks only make sense because of **this** product: governed reviews, JwtBe
 ```text
 Treat this as a private-beta witness pass, not a feature pass.
 1) Run scripts/release-smoke.ps1 (or the closest Linux equivalent) and report Gate 1 PASS/FAIL with artifact paths.
-2) Inspect the latest master run of private-beta-access-on-push.yml. If red, fix only blockers on invite → JwtBearer session → /reviews/new → row visible. Follow docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md.
+2) Inspect the latest RC34 run of private-beta-access-on-push.yml. If red, fix only blockers on invite → JwtBearer session → /reviews/new → row visible. Follow docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md.
 3) Do not add engines, MCP, Stripe live keys, or Quick Scan AI.
 ```
 
@@ -196,9 +196,9 @@ Do not start SOC 2 CPA or a pen-test program.
 
 ### Cursor (this week)
 
-1. `/al-beta` — live trunk snapshot + ranked queue
+1. `/al-beta` — live RC34 snapshot + ranked queue
 2. Release-smoke / Gate 1 witness
-3. Private-beta JwtBearer job green on `master`
+3. Private-beta JwtBearer job green on `RC34`
 4. Access-path recovery cases (§1B prompt)
 5. Kill-switch + LLM-spend inventory (§2A–2B prompts)
 6. Invitee welcome / known-issues / canned replies (§2E prompt)
