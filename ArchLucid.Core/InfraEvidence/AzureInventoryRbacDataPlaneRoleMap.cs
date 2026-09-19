@@ -61,6 +61,30 @@ public static class AzureInventoryRbacDataPlaneRoleMap
             return AzureInventoryDerivedDataPlanePermission.ReadAndWrite;
         }
 
+        if (normalized.Equals("Storage Queue Data Message Sender", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Cognitive Services OpenAI User", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.Write;
+        }
+
+        if (normalized.Equals("Storage Queue Data Message Processor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Search Index Data Reader", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.Read;
+        }
+
+        if (normalized.Equals("Storage Queue Data Contributor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Search Index Data Contributor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Search Service Contributor", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.ReadAndWrite;
+        }
+
+        if (normalized.Equals("AcrPull", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.None;
+        }
+
         return AzureInventoryDerivedDataPlanePermission.None;
     }
 }
