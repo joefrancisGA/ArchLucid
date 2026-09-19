@@ -128,7 +128,7 @@ export function InferenceQuestionnairePanel(
     }
   }, [choice, currentItem, loadItems, proposedItems.length, selectedCatalog, snapshotId]);
 
-  if (proposedItems.length === 0 && !hasHumanConfirmed && !loading && panelError == null) {
+  if (proposedItems.length === 0 && !hasHumanConfirmed && panelError == null) {
     return null;
   }
 
