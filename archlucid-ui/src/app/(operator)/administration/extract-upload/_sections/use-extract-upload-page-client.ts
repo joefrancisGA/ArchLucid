@@ -143,7 +143,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   });
   const extractorScriptVersion = baselineQuery.data?.extractorScriptVersion ?? null;
   const extractorUpdateBanner = baselineQuery.data?.extractorUpdateBanner ?? null;
-  const extractorScriptSha256 = baselineQuery.data?.extractorScriptSha256 ?? null;
   const lastAcceptedPackage =
     sessionAcceptedPackage ?? baselineQuery.data?.lastAcceptedPackage ?? null;
   const packageAccepted = upload.packageId !== null;
@@ -211,7 +210,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     hasInventoryOnFile,
     extractorScriptVersion,
     extractorUpdateBanner,
-    extractorScriptSha256,
     lastAcceptedPackage,
     associateRunId,
     selectedPlatform,
