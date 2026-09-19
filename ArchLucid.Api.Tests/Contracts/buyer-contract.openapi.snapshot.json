@@ -7156,6 +7156,12 @@
       },
       "AzureInventorySnapshotRecord": {
         "properties": {
+          "architectureDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "captureMethod": {
             "$ref": "#/components/schemas/AzureInventoryCaptureMethod"
           },

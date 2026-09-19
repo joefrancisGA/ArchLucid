@@ -2104,6 +2104,7 @@ export interface components {
             summary?: components["schemas"]["AzureInventoryDiffSummaryRecord"];
         };
         AzureInventorySnapshotRecord: {
+            architectureDisplayName?: null | string;
             captureMethod?: components["schemas"]["AzureInventoryCaptureMethod"];
             captureStatus?: components["schemas"]["AzureInventoryCaptureStatus"];
             captureVersion?: null | string;
