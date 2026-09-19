@@ -59,7 +59,7 @@ export type InhabitRecordCtaSimulatorLeakRow = {
 /** IH-005 — Record CTA can read career-complete before Simulator honesty ships on that surface. */
 export const INHABIT_RECORD_CTA_SIMULATOR_LEAK_ROWS: readonly InhabitRecordCtaSimulatorLeakRow[] = [
   {
-    surface: "Draft workspace Start review footer",
+    surface: "architecture draft workspace Start review footer",
     relativePath: "components/architecture/ArchitectureDraftWorkspaceStartReviewFooter.tsx",
     hasSimulatorIncompletenessCopy: true,
     ownerPrompt: "IH-025",

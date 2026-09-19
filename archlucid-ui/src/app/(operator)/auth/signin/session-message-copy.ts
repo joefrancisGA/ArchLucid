@@ -27,7 +27,7 @@ const SESSION_RECOVERY_SCOPE_NOTE =
   "This page covers sign-in recovery only — not a full audit export.";
 
 const SERVER_WORK_PRESERVATION_NOTE =
-  "Saved drafts and other server-stored work remain available after you sign in again. Unsaved changes in this browser tab were not preserved — if you had a dirty draft, you may see a recovery prompt after sign-in.";
+  "Saved architecture drafts and other server-stored work remain available after you sign in again. Unsaved changes in this browser tab were not preserved — if you had a dirty architecture draft, you may see a recovery prompt after sign-in.";
 
 const IDLE_SCOPE_RESTORE_NOTE =
   "Your workspace and project selection will be restored after you sign in again when they were active before the timeout.";

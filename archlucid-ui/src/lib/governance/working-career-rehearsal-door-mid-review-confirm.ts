@@ -29,7 +29,7 @@ export type ShouldConfirmWorkingCareerRehearsalDoorChangeArgs = {
 };
 
 /**
- * True when a review execute is still running (not terminal). Draft-only rows have no run id.
+ * True when a review execute is still running (not terminal). Architecture-architecture-draft-only rows have no run id.
  * Retain-until-consumed Succeeded rows are finished analysis — they do not gate the door.
  */
 export function hasInFlightReviewPipeline(

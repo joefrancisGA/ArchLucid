@@ -51,7 +51,7 @@ function readRecentArchitectureDraftId(): string | null {
   return null;
 }
 
-/** Resolves the draft row to pin as Continue last draft on the architectures list. */
+/** Resolves the architecture draft row to pin as Continue last draft on the architectures list. */
 export function resolveContinueLastArchitectureDraftEntry(
   entries: readonly ArchitectureDraftRegistryEntry[],
   serverLastOpenDraftId?: string | null,

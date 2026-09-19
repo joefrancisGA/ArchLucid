@@ -11,7 +11,7 @@ export const INHABIT_FINDINGS_SKETCH_CTA_LABEL = CHEAP_EXPLORATION_SKETCH_A_CHAN
 
 /** IH-049 — committed-manifest compare from architecture nested findings. */
 export const INHABIT_FINDINGS_COMPARE_HELPER =
-  "Compare committed child reviews of this architecture — committed manifests only, not draft-to-draft." as const;
+  "Compare committed child reviews of this architecture — committed manifests only, not architecture-draft-to-architecture-draft." as const;
 
 export const INHABIT_FINDINGS_COMPARE_DISABLED_REASON = ARCHITECTURE_DESK_COMPARE_DISABLED_REASON;
 

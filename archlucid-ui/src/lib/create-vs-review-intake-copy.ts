@@ -12,7 +12,7 @@ export const REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD =
 
 /**
  * Architecture draft workspace — iterative brief before review handoff (TB-1454: draft≠review boundary
- * lives in guidance disclosure only). Names only what the draft form actually asks for: system name and
+ * lives in guidance disclosure only). Names only what the architecture draft form actually asks for: system name and
  * architecture overview, business outcome, and people/systems. Do not promise fields the form omits.
  */
 export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
@@ -20,21 +20,21 @@ export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
 
 /** `/architectures/new` page subtitle — subordinate to H1 {@link CREATE_ARCHITECTURE_LABEL} (TB-1461). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =
-  "Describe the system, the outcome it must deliver, and the people and systems it touches. Start a new draft below. Saved drafts sync where you sign in.";
+  "Describe the system, the outcome it must deliver, and the people and systems it touches. Start a new architecture draft below. Saved architecture drafts sync where you sign in.";
 
 /** `/architectures/new` page subtitle when browser-local drafts exist (TB-1462). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS =
-  "Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Saved drafts sync where you sign in.";
+  "Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Saved architecture drafts sync where you sign in.";
 
-/** Form section heading on `/architectures/new` before the draft is named or persisted (TB-1461). */
+/** Form section heading on `/architectures/new` before the architecture draft is named or persisted (TB-1461). */
 export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture draft";
 
-/** Resume strip body when saved drafts exist (TB-1459). Account-first — not this-browser-only. */
+/** Resume strip body when saved architecture drafts exist (TB-1459). Account-first — not this-browser-only. */
 export const ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY =
-  "Saved drafts sync to your account where you sign in. Continue one below or browse the full list. Unsaved typing before the first save stays on this browser." as const;
+  "Saved architecture drafts sync to your account where you sign in. Continue one below or browse the full list. Unsaved typing before the first save stays on this browser." as const;
 
 /** Link to `/architectures` from the create path — aligned with architectures hub honesty (TB-1459). */
-export const ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL = "View all saved drafts" as const;
+export const ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL = "View all saved architecture drafts" as const;
 
 /** Concise create≠review boundary — not a warning banner. */
 export const ARCHITECTURE_CREATION_REVIEW_BOUNDARY =

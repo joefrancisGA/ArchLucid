@@ -118,7 +118,7 @@ describe("initializeArchitectureCreation", () => {
     });
   });
 
-  it("recreates the draft when the stored draft no longer exists", async () => {
+  it("recreates the architecture draft when the stored draft no longer exists", async () => {
     writeArchitectureCreationDraftId("draft-missing");
     getDraftRequest.mockRejectedValue(new Error("not found"));
     createDraftRequest.mockResolvedValue({
