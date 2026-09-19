@@ -53,6 +53,6 @@ Wait until Automation modules **Az.Accounts**, **Az.Resources**, and **Az.Resour
 
 ## Related
 
-- Operator runbook: `docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md`
+- **Canonical operator runbook:** [`docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](../../../docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md) (architecture, prerequisites, troubleshooting)
 - Ingest API: `docs/runbooks/AZURE_EXTRACTOR_INGEST.md`
 - Tier 2 hosted WIF (ArchLucid pulls): `deploy/customer-templates/README.md`

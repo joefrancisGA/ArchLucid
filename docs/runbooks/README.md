@@ -55,6 +55,8 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [INTEGRATION_EVENT_DLQ_RETRY_POLICY.md](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) | Outbox dead-letter auto-retry cadence, permanent failure, manual retry/suppress. |
 | **P2** | [OBSERVABILITY_DASHBOARD_BINDING.md](./OBSERVABILITY_DASHBOARD_BINDING.md) | Import/provision Grafana JSON; datasource UIDs; RAG per-tenant tag cardinality. |
 | **P2** | [SLO_PROMETHEUS_GRAFANA.md](./SLO_PROMETHEUS_GRAFANA.md) | Metrics, SLOs, Grafana panels. |
+| **P2** | [AZURE_EXTRACTOR_SCHEDULED_AGENT.md](./AZURE_EXTRACTOR_SCHEDULED_AGENT.md) | **Customer-owned** Azure inventory on a schedule (Automation runbook / Function timer) — preferred production path when operators should not pull from CLI or UI. |
+| **P2** | [AZURE_EXTRACTOR_INGEST.md](./AZURE_EXTRACTOR_INGEST.md) | Azure extractor ZIP upload API, schema, and audit events. |
 | **P2** | [INFRASTRUCTURE_OPS.md](./INFRASTRUCTURE_OPS.md) | Terraform stacks (APIM, Front Door, Entra, private endpoints): validate, roll out, triage. |
 | **P2** | [AZURE_MARKETPLACE_SAAS_OFFER.md](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity) | Roll Marketplace `ChangePlan` / `ChangeQuantity` to `AcknowledgedNoOp` (`Billing:AzureMarketplace:GaEnabled=false`). |
 | **P2** | [LLM_PROMPT_REDACTION.md](./LLM_PROMPT_REDACTION.md) | **`LlmPromptRedaction`** toggles, metrics (`archlucid_llm_prompt_redactions_total`), and forensics alignment with **`AgentExecutionTraceRecorder`**. |

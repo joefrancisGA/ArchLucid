@@ -9,7 +9,7 @@
 
 **Outcome.** Production Azure inventory collection can run as a customer-owned Automation runbook or Function timer so operators do not pull from a command line or UI. The agent reuses `Get-ArchLucidAzurePackage.ps1` and `POST /v1/azure-extractor/upload`.
 
-**Surfaces.** `scripts/azure/Invoke-ArchLucidScheduledAzureExtractor.ps1`; Terraform under `deploy/customer-templates/scheduled-agent/`; runbook [`docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md); Extract & upload and Cloud connections help copy.
+**Surfaces.** `scripts/azure/Invoke-ArchLucidScheduledAzureExtractor.ps1`; Terraform under `deploy/customer-templates/scheduled-agent/`; operator runbook [`docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md) (indexed in [`docs/runbooks/README.md`](runbooks/README.md)); Extract & upload and Cloud connections help copy.
 
 ## 2026-09-07 - Pricing: **M-305** profit re-rate
 
