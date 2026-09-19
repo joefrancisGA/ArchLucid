@@ -44,7 +44,7 @@ export function InfraEvidenceCompletenessWarningsBanner(
       <CollapsibleSection
         title="Warning details"
         defaultOpen={warnings.length <= 3}
-        testId="infra-evidence-completeness-warnings-details"
+        sectionTestId="infra-evidence-completeness-warnings-details"
       >
         <ul className={cn("m-0 list-disc space-y-2 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
           {warnings.map((warning) => {

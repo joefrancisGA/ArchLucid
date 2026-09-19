@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 
@@ -62,7 +64,13 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [Fact]
     public void Catalog_lists_all_types_with_inference_sources()
     {
-        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(40);
+        // Public const strings are the catalog's declared types; All must stay in lockstep when types are added.
+        FieldInfo[] publicStringConstants = typeof(AzureInventoryRelationshipAssociationTypes)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+            .ToArray();
+
+        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(publicStringConstants.Length);
         AzureInventoryRelationshipAssociationTypes.All.Should().OnlyContain(definition =>
             !string.IsNullOrWhiteSpace(definition.DefaultInferenceSource));
     }

@@ -411,8 +411,8 @@ def main(argv: list[str] | None = None) -> int:
         if "push:" not in text:
             errors.append(f"{_PUSH_REL}: missing on.push trigger")
 
-        if "branches: [main, master]" not in text:
-            errors.append(f"{_PUSH_REL}: missing push branches main/master")
+        if "branches: [main, master, RC34]" not in text:
+            errors.append(f"{_PUSH_REL}: missing push branches main/master/RC34")
 
         if _JOB_NAME not in text:
             errors.append(f"{_PUSH_REL}: missing job name {_JOB_NAME}")

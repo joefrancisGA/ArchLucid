@@ -14,6 +14,7 @@ High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: mar
 
 - Git tags matching `v*-rc*`
 - Branches matching `release/**`
+- Branch **`RC34`** (private-beta release cut)
 - Manual `workflow_dispatch`
 
 ## Blocking checks (RC/release only)
