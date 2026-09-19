@@ -207,9 +207,9 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
             }
         }
         Mock Disconnect-AzAccount {
-            param($InputObject)
+            param($Username)
 
-            $disconnectParams.InputObject = $InputObject
+            $disconnectParams.Username = $Username
         }
         Mock Set-AzContext {
             param($SubscriptionId, $Tenant)
@@ -221,7 +221,7 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
 
         $null = Ensure-ArchLucidAzureSubscriptionSession -SubscriptionId $subscriptionId -TenantId $tenantId
 
-        $disconnectParams.InputObject.Account.Id | Should -Be "user@other.com"
+        $disconnectParams.Username | Should -Be "user@other.com"
         $contextParams.SubscriptionId | Should -Be $subscriptionId
         $contextParams.Tenant | Should -Be $tenantId
         Should -Not -Invoke Connect-AzAccount
