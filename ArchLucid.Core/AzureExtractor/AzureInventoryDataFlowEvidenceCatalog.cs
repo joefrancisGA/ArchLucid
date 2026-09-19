@@ -24,6 +24,7 @@ public static class AzureInventoryDataFlowEvidenceCatalog
         Row(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.MayAccess, "May access"),
         Row(AzureInventoryRelationshipAssociationTypes.AppToKeyVaultRef, AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.MayAccess, "May access"),
         Row(AzureInventoryRelationshipAssociationTypes.HostnameInferredTarget, AzureInventoryDataFlowEvidenceFamily.InferredHostname, PathConfidenceBand.Possible, AzureInventoryDataFlowEdgeDirection.Undeclared, "Likely connected to"),
+        Row(AzureInventoryRelationshipAssociationTypes.OperatorConfirmedConnection, AzureInventoryDataFlowEvidenceFamily.HumanConfirmed, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "Confirmed connection"),
         Row(AzureInventoryRelationshipAssociationTypes.ServiceConnectorLink, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "Connected to"),
         Row(AzureInventoryRelationshipAssociationTypes.PeReachableTarget, AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.NetworkPath, "Private network path"),
         Excluded(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination),

@@ -9,7 +9,9 @@ import { ArchitectureDiagramViewer } from "@/components/architecture/Architectur
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InferenceQuestionnairePanel } from "@/components/infra-evidence/InferenceQuestionnairePanel";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
+import { OperatorInferredConnectionsPanel } from "@/components/infra-evidence/OperatorInferredConnectionsPanel";
 import { InfraEvidenceDataFlowCaptionDisclosure } from "@/components/infra-evidence/InfraEvidenceDataFlowCaptionDisclosure";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
@@ -1228,6 +1230,14 @@ export function DiagramsWorkbenchClient() {
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
         <InfraEvidenceCompletenessWarningsBanner warnings={completenessWarnings} />
+      ) : null}
+
+      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+        <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
+      ) : null}
+
+      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+        <InferenceQuestionnairePanel snapshotId={selectedSnapshotId} />
       ) : null}
 
       {loadError != null

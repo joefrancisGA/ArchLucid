@@ -124,6 +124,8 @@ public static class GraphEdgeInferenceSources
 
     public const string HumanDeclaredConnection = "human-declared-connection";
 
+    public const string OperatorConfirmedConnection = "inventory-operator-confirmed-connection";
+
     public const string PimEligibilityUnknown = "pim-eligibility-unknown";
 
     public static bool IsInventoryAdfMovementInferenceSource(string? inferenceSource)

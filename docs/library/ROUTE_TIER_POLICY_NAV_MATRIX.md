@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **247** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **250** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:247 -->
+<!-- route-tier-policy-nav-registry-count:250 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -235,6 +235,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `InfraEvidence/InfraEvidenceDiffsController.cs` | `/v1/infra-evidence/diffs` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceInventoryController.cs` | `/v1/infra-evidence/azure-inventory` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceOperationalFindingRemediationController.cs` | `/v1/infra-evidence/operational-findings/{findingId:guid}` | standard | ReadAuthority |  |  |
+| `InfraEvidence/InfraEvidenceOperatorInferredConnectionsController.cs` | `/v1/infra-evidence/snapshots/{snapshotId:guid}/operator-inferred-connections` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceSnapshotsController.cs` | `/v1/infra-evidence/snapshots` | standard | ReadAuthority |  |  |
 | `InfraEvidence/RemediationFactoryWorkbenchController.cs` | `/v1/infra-evidence/remediation-factory` | standard | ReadAuthority |  |  |
 | `InfraEvidence/RemediationInstancesController.cs` | `/v1/infra-evidence/remediation-instances` | standard | ReadAuthority |  |  |
@@ -267,6 +268,8 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
 | `Notifications/SponsorDigestUnsubscribeController.cs` | `/v1/notifications/sponsor-digest` | none | AllowAnonymous |  |  |
 | `OperationalSecurity/OperationalSecurityArchitectMetricsController.cs` | `/v1/operational-security/architect-metrics` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/OperationalSecurityAssetAssertionsController.cs` | `/v1/operational-security/asset-assertions` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/OperationalSecurityDeclaredConnectionsController.cs` | `/v1/operational-security/declared-connections` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/OperationalSecurityFindingsController.cs` | `/v1/operational-security/findings` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/OperationalSecurityPathsController.cs` | `/v1/operational-security/paths` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/RemediationFactoryMetricsController.cs` | `/v1/operational-security/remediation-metrics` | standard | ReadAuthority |  |  |

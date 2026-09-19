@@ -77,4 +77,10 @@ public static partial class AuditEventTypes
 
     /// <summary>Human declared resource connection expired.</summary>
     public const string SecurityDeclaredConnectionExpired = "SecurityDeclaredConnection.Expired";
+
+    /// <summary>Operator confirmed an inferred runtime connection proposal.</summary>
+    public const string OperatorInferredConnectionConfirmed = "OperatorInferredConnection.Confirmed";
+
+    /// <summary>Operator dismissed an inferred runtime connection proposal.</summary>
+    public const string OperatorInferredConnectionDismissed = "OperatorInferredConnection.Dismissed";
 }

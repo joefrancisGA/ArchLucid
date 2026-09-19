@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
 using ArchLucid.Application.InfraEvidence.SecurityDeclaredConnections;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -6,11 +7,12 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence;
 
 /// <summary>
-///     Decorates snapshot detail reads with active human-declared connections (not visible in ARM inventory).
+///     Decorates snapshot detail reads with active human-declared and operator-confirmed connections.
 /// </summary>
 public sealed class DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
     IAzureInventorySnapshotRepository inner,
-    ISecurityDeclaredConnectionRepository declaredConnectionRepository) : IAzureInventorySnapshotRepository
+    ISecurityDeclaredConnectionRepository declaredConnectionRepository,
+    IOperatorInferredConnectionRepository operatorInferredConnectionRepository) : IAzureInventorySnapshotRepository
 {
     public Task InsertHeaderAsync(AzureInventorySnapshotRecord record, CancellationToken cancellationToken = default) =>
         inner.InsertHeaderAsync(record, cancellationToken);
@@ -44,7 +46,15 @@ public sealed class DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
         IReadOnlyList<SecurityDeclaredConnectionRecord> activeConnections =
             await declaredConnectionRepository.ListActiveByTenantAsync(scope.TenantId, utcNow, cancellationToken);
 
-        return SecurityDeclaredConnectionSnapshotMerger.Merge(snapshot, activeConnections, utcNow);
+        AzureInventorySnapshotDetailReadModel declaredMerged =
+            SecurityDeclaredConnectionSnapshotMerger.Merge(snapshot, activeConnections, utcNow);
+
+        IReadOnlyList<OperatorInferredConnectionRecord> confirmedConnections =
+            (await operatorInferredConnectionRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken))
+            .Where(record => record.Status == OperatorInferredConnectionStatus.Confirmed)
+            .ToList();
+
+        return OperatorInferredConnectionSnapshotMerger.Merge(declaredMerged, confirmedConnections);
     }
 
     public Task MaterializeSnapshotAsync(
