@@ -495,6 +495,142 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $kvParsed.secretName | Should -Be 'sql-password'
     }
 
+    It 'parses sql catalog https hosts and template catalog warnings' {
+        $sqlParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'SqlConnection' `
+            -Value 'Server=tcp:prodsql.database.windows.net,1433;Initial Catalog=archlucid;'
+
+        $sqlParsed.parsedHost | Should -Be 'prodsql.database.windows.net'
+        $sqlParsed.catalog | Should -Be 'archlucid'
+
+        $blobParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'BlobUri' `
+            -Value 'https://starchlucidevarts.blob.core.windows.net/'
+
+        $blobParsed.parsedHost | Should -Be 'starchlucidevarts.blob.core.windows.net'
+
+        $vaultParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'VaultUri' `
+            -Value 'https://kvrgexample.vault.azure.net/'
+
+        $vaultParsed.keyVaultHost | Should -Be 'kvrgexample.vault.azure.net'
+
+        $apiParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'ARCHLUCID_API_BASE_URL' `
+            -Value 'https://archlucid-api.eastus2.azurecontainerapps.io'
+
+        $apiParsed.parsedHost | Should -Be 'archlucid-api.eastus2.azurecontainerapps.io'
+
+        $templateParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'SqlConnection' `
+            -Value 'Server=tcp:prodsql.database.windows.net,1433;Initial Catalog={0};'
+
+        $templateParsed.parsedHost | Should -Be 'prodsql.database.windows.net'
+        $templateParsed.catalog | Should -Be $null
+        $templateParsed.warningCode | Should -Be 'app-settings-catalog-template'
+    }
+
+    It 'collects container app env host rows without persisting values' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            $Method | Should -Be 'GET'
+            $Path | Should -Match 'Microsoft.App/containerApps/app1'
+
+            return [PSCustomObject]@{
+                StatusCode = 200
+                Content = (@{
+                    properties = @{
+                        template = @{
+                            containers = @(
+                                @{
+                                    name = 'app'
+                                    env = @(
+                                        @{
+                                            name = 'ConnectionStrings__ArchLucid'
+                                            value = 'Server=tcp:sql1.database.windows.net,1433;Initial Catalog=archlucid;'
+                                        }
+                                        @{
+                                            name = 'ConnectionStrings__ArchLucidSecret'
+                                            secretRef = 'al-cs-key'
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    }
+                } | ConvertTo-Json -Depth 12)
+            }
+        }
+
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.App/containerApps'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.App/containerApps/app1'
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureAppSettingHostCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 2
+        ($rows | Where-Object { $_.settingName -eq 'ConnectionStrings__ArchLucid' }).host |
+            Should -Be 'sql1.database.windows.net'
+        ($rows | ConvertTo-Json -Depth 6) | Should -Not -Match '1433'
+        ($rows | Where-Object { $_.settingName -eq 'ConnectionStrings__ArchLucidSecret' }).secretRef |
+            Should -Be 'al-cs-key'
+    }
+
+    It 'never posts container app env collection requests' {
+        $postedPaths = [System.Collections.ArrayList]::new()
+
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            if ($Method -eq 'POST')
+            {
+                [void]$postedPaths.Add($Path)
+            }
+
+            return [PSCustomObject]@{
+                StatusCode = 200
+                Content = (@{
+                    properties = @{
+                        template = @{
+                            containers = @(
+                                @{
+                                    name = 'app'
+                                    env = @(
+                                        @{
+                                            name = 'ARCHLUCID_API_BASE_URL'
+                                            value = 'https://archlucid-api.eastus2.azurecontainerapps.io'
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    }
+                } | ConvertTo-Json -Depth 12)
+            }
+        }
+
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.App/containerApps'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.App/containerApps/app1'
+            }
+        )
+
+        [void](Get-ArchLucidAzureAppSettingHostCompanionRows -InventoryResources $inventory)
+
+        @($postedPaths) | Should -Be @()
+    }
+
     It 'collects service connector linker rows when linkers exist' {
         function Invoke-AzRestMethod {
             param(
