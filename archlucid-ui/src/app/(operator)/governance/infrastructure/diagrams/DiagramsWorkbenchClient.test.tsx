@@ -272,9 +272,51 @@ describe("DiagramsWorkbenchClient", () => {
     expect(scopeContext.textContent ?? "").not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
   });
 
+  it("defaults the subscription picker to All and filters snapshots when a subscription is chosen", async () => {
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0],
+        {
+          snapshotId: "22222222-2222-2222-2222-222222222222",
+          subscriptionId: "sub-dev",
+          subscriptionName: "Dev",
+          architectureName: "Payments",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
+
+    expect(subscriptionPicker).toHaveValue("all");
+
+    const snapshotPicker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    expect(snapshotPicker.querySelectorAll("option")).toHaveLength(3);
+
+    fireEvent.change(subscriptionPicker, { target: { value: "sub-dev" } });
+
+    expect(snapshotPicker.querySelectorAll("option")).toHaveLength(2);
+    expect(snapshotPicker).toHaveValue("");
+  });
+
   it("does not auto-select a snapshot or render the Executive diagram until the user chooses one", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
+
+    const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
+
+    expect(subscriptionPicker).toHaveValue("all");
 
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
 

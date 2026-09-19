@@ -12,6 +12,8 @@ export type InfraEvidenceSnapshotSummary = {
   snapshotId: string;
   subscriptionId: string | null;
   subscriptionName: string | null;
+  /** Bound architecture display name when returned by the snapshots API. */
+  architectureName?: string | null;
   capturedUtc: string | null;
   captureStatus: number;
   resourceCount: number;

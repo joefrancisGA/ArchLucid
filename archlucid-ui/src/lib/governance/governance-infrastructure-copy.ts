@@ -162,6 +162,8 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
   "Downloaded a browser-rendered PNG because server-side rasterization is unavailable in this environment. Branded server PNG requires Mermaid CLI on the API host." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL = "Subscription" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE = "Select a snapshot" as const;

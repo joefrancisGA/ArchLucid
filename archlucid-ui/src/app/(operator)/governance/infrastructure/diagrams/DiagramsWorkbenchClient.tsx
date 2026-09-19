@@ -80,6 +80,14 @@ import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import {
+  buildInfraDiagramsSubscriptionFilterOptions,
+  filterInfraDiagramsSnapshotsBySubscription,
+  INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL,
+  normalizeInfraEvidenceDiagramsSnapshotSummaries,
+  resolveInfraDiagramsSubscriptionFilterForSnapshot,
+  sortInfraDiagramsSnapshotsForPicker,
+} from "@/lib/infra-evidence/infra-evidence-diagrams-snapshot-catalog";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
 import { parseInfraDiagramsDataFlowCaptionPresentation } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
@@ -174,6 +182,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
@@ -294,6 +303,9 @@ export function DiagramsWorkbenchClient() {
   }, [diagramsResourceIdOpenParam]);
 
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
+  const [selectedSubscriptionFilter, setSelectedSubscriptionFilter] = useState<string>(
+    INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL,
+  );
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
@@ -437,6 +449,16 @@ export function DiagramsWorkbenchClient() {
       scroll: false,
     });
   }, [pathname, router, searchParams]);
+  const subscriptionFilterOptions = useMemo(
+    () => buildInfraDiagramsSubscriptionFilterOptions(snapshots),
+    [snapshots],
+  );
+
+  const visibleSnapshots = useMemo(
+    () => filterInfraDiagramsSnapshotsBySubscription(snapshots, selectedSubscriptionFilter),
+    [selectedSubscriptionFilter, snapshots],
+  );
+
   const deepLinkedSnapshotMissing = useMemo(() => {
     if (urlSnapshotId.length === 0 || loadingSnapshots || snapshots.length === 0) {
       return false;
@@ -448,6 +470,11 @@ export function DiagramsWorkbenchClient() {
   const selectedSnapshot = useMemo(
     () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
     [selectedSnapshotId, snapshots],
+  );
+
+  const selectedSnapshotVisibleInSubscriptionFilter = useMemo(
+    () => visibleSnapshots.some((snapshot) => snapshot.snapshotId === selectedSnapshotId),
+    [selectedSnapshotId, visibleSnapshots],
   );
 
   const awaitingSnapshotSelection =
@@ -863,7 +890,9 @@ export function DiagramsWorkbenchClient() {
 
       try {
         const response = await fetchInfraEvidenceSnapshots(1, 50);
-        const items = response.items ?? [];
+        const items = sortInfraDiagramsSnapshotsForPicker(
+          normalizeInfraEvidenceDiagramsSnapshotSummaries(response.items ?? []),
+        );
 
         if (!cancelled) {
           setSnapshots(items);
@@ -871,6 +900,12 @@ export function DiagramsWorkbenchClient() {
           const resolvedSnapshotId = resolveInfraDiagramsSelectedSnapshotId(urlSnapshotId, items);
 
           setSelectedSnapshotId(resolvedSnapshotId);
+
+          if (resolvedSnapshotId.length > 0) {
+            const linkedSnapshot = items.find((snapshot) => snapshot.snapshotId === resolvedSnapshotId) ?? null;
+
+            setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+          }
         }
       } catch (error: unknown) {
         if (!cancelled) {
@@ -889,6 +924,33 @@ export function DiagramsWorkbenchClient() {
       cancelled = true;
     };
   }, [loadGeneration, urlSnapshotId]);
+
+  useEffect(() => {
+    if (urlSnapshotId.length === 0 || snapshots.length === 0) {
+      return;
+    }
+
+    const linkedSnapshot = snapshots.find((snapshot) => snapshot.snapshotId === urlSnapshotId) ?? null;
+
+    if (linkedSnapshot != null) {
+      setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+    }
+  }, [snapshots, urlSnapshotId]);
+
+  const handleSubscriptionFilterChange = useCallback(
+    (nextSubscriptionFilter: string) => {
+      setSelectedSubscriptionFilter(nextSubscriptionFilter);
+
+      const filteredSnapshots = filterInfraDiagramsSnapshotsBySubscription(snapshots, nextSubscriptionFilter);
+      const snapshotStillVisible = filteredSnapshots.some((snapshot) => snapshot.snapshotId === selectedSnapshotId);
+
+      if (!snapshotStillVisible) {
+        setSelectedSnapshotId("");
+        syncUrl({ snapshotId: "" });
+      }
+    },
+    [selectedSnapshotId, snapshots, syncUrl],
+  );
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
@@ -1334,28 +1396,47 @@ export function DiagramsWorkbenchClient() {
           "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
           cnCard,
         )}
-        aria-label="Snapshot and mode selection"
+        aria-label="Subscription, snapshot, and mode selection"
       >
         {buyerPolishedShell ? (
           <>
+            <div className="col-span-full grid min-w-0 gap-2">
+              <Label htmlFor="infra-diagrams-subscription-picker">
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
+              </Label>
+              <select
+                id="infra-diagrams-subscription-picker"
+                className={cn("w-full", cnField)}
+                data-testid="infra-diagrams-subscription-picker"
+                disabled={loadingSnapshots || snapshots.length === 0}
+                value={selectedSubscriptionFilter}
+                onChange={(event) => handleSubscriptionFilterChange(event.target.value)}
+              >
+                {subscriptionFilterOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL}</Label>
               <select
                 id="infra-diagrams-snapshot-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
-                disabled={loadingSnapshots || snapshots.length === 0}
-                value={selectedSnapshotId}
+                disabled={loadingSnapshots || visibleSnapshots.length === 0}
+                value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {snapshots.length === 0 ? (
+                {visibleSnapshots.length === 0 ? (
                   <option value="">No snapshots available</option>
                 ) : (
                   <>
-                    {selectedSnapshotId.length === 0 ? (
+                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
                       <option value="">Select a snapshot</option>
                     ) : null}
-                    {snapshots.map((snapshot) => (
+                    {visibleSnapshots.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
                         {formatSnapshotPickerLabel(snapshot)}
                       </option>
@@ -1395,6 +1476,25 @@ export function DiagramsWorkbenchClient() {
           </>
         ) : (
           <>
+            <div className="col-span-full flex min-w-0 flex-col gap-1">
+              <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-subscription-picker">
+                Subscription
+              </label>
+              <select
+                id="infra-diagrams-subscription-picker"
+                className={cn("w-full", cnField)}
+                data-testid="infra-diagrams-subscription-picker"
+                disabled={loadingSnapshots || snapshots.length === 0}
+                value={selectedSubscriptionFilter}
+                onChange={(event) => handleSubscriptionFilterChange(event.target.value)}
+              >
+                {subscriptionFilterOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="flex min-w-0 flex-col gap-1">
               <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-snapshot-picker">
                 Snapshot
@@ -1403,18 +1503,18 @@ export function DiagramsWorkbenchClient() {
                 id="infra-diagrams-snapshot-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
-                disabled={loadingSnapshots || snapshots.length === 0}
-                value={selectedSnapshotId}
+                disabled={loadingSnapshots || visibleSnapshots.length === 0}
+                value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {snapshots.length === 0 ? (
+                {visibleSnapshots.length === 0 ? (
                   <option value="">No snapshots available</option>
                 ) : (
                   <>
-                    {selectedSnapshotId.length === 0 ? (
+                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
                       <option value="">Select a snapshot</option>
                     ) : null}
-                    {snapshots.map((snapshot) => (
+                    {visibleSnapshots.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
                         {formatSnapshotPickerLabel(snapshot)}
                       </option>
