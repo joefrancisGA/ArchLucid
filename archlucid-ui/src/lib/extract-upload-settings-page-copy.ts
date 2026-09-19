@@ -104,7 +104,7 @@ export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY =
   "Advanced: full inventory packager command (Azure example)" as const;
 
 export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL =
-  "Download packager script — Azure example (inspect before running)" as const;
+  "Download packager script — Azure example" as const;
 
 export const EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL = "Cloud inventory ZIP upload" as const;
 
@@ -128,5 +128,3 @@ export const EXTRACT_UPLOAD_ACCEPTED_SUMMARY_LABEL = "Package accepted" as const
 
 export const EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND =
   "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass" as const;
-
-export const EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX = "Script SHA-256" as const;
