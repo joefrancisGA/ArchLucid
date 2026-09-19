@@ -195,9 +195,9 @@ const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CONTEXTUAL_HELP = {
 
 const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Extract and upload — run the read-only Azure extractor locally, validate the ZIP, then upload inventory for SecureNow inventory workbenches and ARC-AMPE scans.",
+    "Extract and upload — schedule a customer-owned inventory agent or run a one-time packager, then upload inventory for SecureNow inventory workbenches and ARC-AMPE scans.",
   whatToDoNext:
-    "Copy the quick-start extractor command, upload a validated inventory ZIP, then open the resource explorer or drift workbench.",
+    "Set up scheduled collection, or copy the one-time packager command, upload a validated inventory ZIP, then open the resource explorer or drift workbench.",
   whyEmpty:
     "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
   whereToConfigurePrerequisite:
@@ -211,7 +211,7 @@ const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_CONTEXTUAL_HELP = {
     href: GOVERNANCE_POLICY_PACKS_PATH,
   },
   taskSteps: [
-    "Copy the quick-start extractor command and run it locally — read-only, no vendor credentials in your subscription.",
+    "Schedule a customer-owned agent, or copy the one-time packager command and run it locally — read-only, no vendor credentials in your subscription.",
     "Upload a validated securenow-azure-package.zip inventory ZIP.",
     "Open resource explorer or drift when the upload completes.",
   ],

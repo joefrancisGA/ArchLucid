@@ -9,10 +9,10 @@ export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE = "Loading extract and upload workspace…" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
-  "Run the read-only cloud inventory script locally for your provider, validate the ZIP, then upload it for architecture reviews." as const;
+  "Schedule a customer-owned inventory agent for production, or run the read-only packager locally, then upload the ZIP for architecture reviews." as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER =
-  "Collect a read-only cloud inventory ZIP locally (Azure, AWS, or Google Cloud), validate it, and upload it to start architecture reviews." as const;
+  "Collect a read-only cloud inventory ZIP on a schedule or locally (Azure, AWS, or Google Cloud), then upload it to start architecture reviews." as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW =
   "Collect a read-only Azure inventory ZIP" as const;
@@ -79,10 +79,21 @@ export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
 export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =
   "Upload a bundled synthetic cloud inventory ZIP — same format as read-only packager output — without running a script locally." as const;
 
-export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory locally" as const;
+export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory" as const;
 
 export const EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION =
-  "Copy the quick-start command for your cloud provider, run it locally, then upload the ZIP in Step 2. Use preview mode on the advanced script when you need a dry run first." as const;
+  "Schedule a customer-owned agent for production collection, or run a one-time local command for a pilot. Upload the ZIP in Step 2." as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_TITLE = "Recommended: schedule a customer-owned agent" as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION =
+  "Deploy a runbook or timer Function in your subscription so inventory uploads on a cadence — no command line or UI pull. Local scripts remain for one-time pilots." as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF = "/help/cloud-connections" as const;
+
+export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL = "Set up scheduled collection" as const;
+
+export const EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE = "One-time local collection (pilot)" as const;
 
 export const EXTRACT_UPLOAD_STEP_UPLOAD_TITLE = "Step 2 — Upload ZIP" as const;
 

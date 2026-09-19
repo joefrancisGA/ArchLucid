@@ -1,14 +1,14 @@
-> **Reviewed:** 2026-07-31
+> **Reviewed:** 2026-09-18
 
 > **Scope:** Consolidated security and procurement posture for buyers — links only to in-repo evidence; no third-party attestation claims beyond what cited files state — plus the buyer scalability FAQ (formerly the body of `docs/library/BUYER_SCALABILITY_FAQ.md`; that filename remains a path-stable alias).
 
 # ArchLucid Trust Center
 
-<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-07-31 -->
+<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-09-18 -->
 
-**Last reviewed:** 2026-07-31
+**Last reviewed:** 2026-09-18
 
-**Last reviewed (UTC):** 2026-07-31
+**Last reviewed (UTC):** 2026-09-18
 
 **Canonical assurance wording:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md).
 
@@ -32,11 +32,13 @@ ArchLucid is for **architecture and governance evidence** about systems you desc
 
 ## Cloud inventory connectivity (Tier 1 default)
 
-**Default (Tier 1):** You run the in-repo PowerShell collector in **your** cloud account and upload a schema-versioned ZIP from the **New architecture review** wizard. **No ArchLucid credentials run in your AWS or GCP account** on this path, and **no vendor Entra app or subscription role** is required in Azure for Tier 1.
+**Default (Tier 1):** You collect read-only inventory **in your cloud account** and upload a schema-versioned ZIP. **No ArchLucid credentials run in your AWS or GCP account** on this path, and **no vendor Entra app or subscription role** is required in Azure for Tier 1.
+
+**Preferred Azure production cadence:** a customer-owned **scheduled agent** (Azure Automation runbook or Function timer) that runs the same collector and uploads the ZIP — operators do not pull from a command line or UI. One-time workstation collection remains valid for pilots.
 
 | Cloud | Customer-run script |
 |-------|-------------------|
-| Azure | `Get-ArchLucidAzurePackage.ps1` |
+| Azure | `Get-ArchLucidAzurePackage.ps1` (schedule via Automation / Function, or run once) |
 | AWS | `Get-ArchLucidAwsPackage.ps1` |
 | GCP | `Get-ArchLucidGcpPackage.ps1` |
 

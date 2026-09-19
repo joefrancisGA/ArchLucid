@@ -206,7 +206,12 @@ describe("ExtractUploadSettingsPageClient", () => {
 
     render(<ExtractUploadSettingsPageClient />);
 
-    expect(screen.getByText("Step 1 — Collect inventory locally")).toBeInTheDocument();
+    expect(screen.getByText("Step 1 — Collect inventory")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-scheduled-agent-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-scheduled-agent-help")).toHaveAttribute(
+      "href",
+      "/help/cloud-connections",
+    );
     expect(screen.getByText("Step 2 — Upload ZIP")).toBeInTheDocument();
     expect(screen.queryByText("Step 3 — Upload ZIP")).not.toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-go-reviews")).not.toBeInTheDocument();
