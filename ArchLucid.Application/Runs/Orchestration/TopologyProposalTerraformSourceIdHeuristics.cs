@@ -888,7 +888,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("vaf", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("vbg", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("vch", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("vdi", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("vdi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vej", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -1687,7 +1688,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("vaf", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("vbg", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("vch", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("vdi", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("vdi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vej", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
