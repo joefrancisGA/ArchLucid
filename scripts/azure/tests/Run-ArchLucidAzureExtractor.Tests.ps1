@@ -39,6 +39,14 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
     }
 
+    It "enables cost, retail prices, and app settings hosts by default" {
+        [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
+
+        $content | Should -Match 'IncludeCost\s*=\s*\$true'
+        $content | Should -Match 'IncludeRetailPrices\s*=\s*\$true'
+        $content | Should -Match 'IncludeAppSettingsHosts\s*=\s*\$true'
+    }
+
     It "defaults output path to archlucid-azure-package.zip in the current directory" {
         [string]$resolved = Resolve-ArchLucidAzureExtractorOutputPath -OutputPath ""
 

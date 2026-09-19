@@ -7,8 +7,9 @@
     context exists (unless -SkipConnect), prompts for a sign-in method and subscription
     by friendly name when -SubscriptionId is omitted (unless -NonInteractive), writes
     ./securenow-azure-package.zip by default, and delegates to Get-SecureNowAzurePackage.ps1
-    with -IncludeCost enabled. Azure CLI is signed in from the same Azure PowerShell session
-    so cost collection can succeed without a separate az login.
+    with -IncludeCost, -IncludeRetailPrices, and -IncludeAppSettingsHosts enabled.
+    Azure CLI is signed in from the same Azure PowerShell session so cost collection can
+    succeed without a separate az login.
 
 .NOTES
     Upload the resulting ZIP manually in SecureNow — this script never sends data to SecureNow.
@@ -98,6 +99,8 @@ Write-Host ""
     SubscriptionId = $resolvedSubscriptionId
     OutputPath = $resolvedOutputPath
     IncludeCost = $true
+    IncludeRetailPrices = $true
+    IncludeAppSettingsHosts = $true
 }
 
 if (-not ([string]::IsNullOrWhiteSpace($TenantId)))

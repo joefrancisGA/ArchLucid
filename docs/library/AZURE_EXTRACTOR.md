@@ -49,8 +49,10 @@ Audit: `Integration.HostedAzureExtractorConfigured` on configure.
 
 ### Trust boundary
 
-- Hosted ARM collection uses **GET-only** calls to `management.azure.com` (Resource Manager list resources).
-- Cost Management and Policy Insights surfaces that require POST are **not** collected on the hosted path; Tier 1 PowerShell remains the full-fidelity collector.
+- Hosted ARM inventory uses **GET-only** calls to `management.azure.com` (Resource Manager list resources).
+- Hosted **read-only POST** is limited to Cost Management `query` (ActualCost month-to-date) and Policy Insights `policyStates/latest/queryResults` when `IncludeCost` is true or policy compliance is collected at subscription scope. No write or destructive ARM operations.
+- Policy definition and assignment documents are collected via GET (`policyDefinitions`, `policyAssignments`) and emitted as `policy.json` alongside `policy-compliance.json`.
+- Tier 1 PowerShell remains the full-fidelity collector for optional surfaces not yet on hosted Tier 2 (retail prices, app-settings hosts, management-group ActualCost).
 - No write or destructive ARM operations.
 
 ### Azure Data Factory linked services (optional companion)

@@ -1,8 +1,9 @@
 # ArchLucid - Azure Cost Management helpers for Get-ArchLucidAzurePackage.ps1
 #
-# Subscription-scoped **Microsoft.CostManagement/query** via **Invoke-AzRestMethod** (preferred; reuses Connect-AzAccount)
-# with **az rest** fallback when Az.Accounts is unavailable. The **costmanagement** extension removed
-# **`az costmanagement query`** starting v0.2.1; payloads stay equivalent to **`--type ActualCost`**.
+# Subscription-scoped **Microsoft.CostManagement/query** via **az rest**, with **Invoke-AzRestMethod** fallback when
+# **az login** is unavailable but **Connect-AzAccount** already established an Az PowerShell session.
+# The **costmanagement** extension removed **`az costmanagement query`** starting v0.2.1; this path keeps **ActualCost**
+# payloads equivalent to **`--type ActualCost`** on the removed command.
 #
 
 Set-StrictMode -Version Latest
@@ -12,107 +13,270 @@ function Test-ArchLucidAzureCliRunnable {
     return $null -ne (Get-Command -Name az -ErrorAction SilentlyContinue)
 }
 
-function Test-ArchLucidAzRestMethodRunnable {
+function Test-ArchLucidAzCliAuthenticated {
+
+    if (-not (Test-ArchLucidAzureCliRunnable)) {
+
+        return $false
+    }
+
+    & az account show --output none 2>$null
+
+    return $LASTEXITCODE -eq 0
+}
+
+function Test-ArchLucidAzPowerShellRestRunnable {
 
     return $null -ne (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue)
 }
 
-function Resolve-ArchLucidArmRestRelativePath([string] $AbsoluteOrRelativeUri) {
+function ConvertTo-ArchLucidManagementAzureRestPath {
+    param(
+        [Parameter(Mandatory)][string]$Url
+    )
 
-    if ([string]::IsNullOrWhiteSpace($AbsoluteOrRelativeUri)) {
+    [string]$trimmedUrl = "$Url".Trim()
 
-        return $null
+    if ($trimmedUrl -match '^https?://management\.azure\.com(/.*)$') {
+
+        return $Matches[1]
     }
 
-    [string]$trimmed = "$AbsoluteOrRelativeUri".Trim()
+    if ($trimmedUrl.StartsWith('/', [System.StringComparison]::Ordinal)) {
 
-    if ($trimmed.StartsWith('/', [System.StringComparison]::Ordinal)) {
-
-        return $trimmed
+        return $trimmedUrl
     }
+
+    return $trimmedUrl
+}
+
+function Test-ArchLucidAzCliLoginRequiredMessage {
+    param(
+        [string]$CombinedOutput = ''
+    )
+
+    [string]$CombinedOutput = "$( $CombinedOutput )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($CombinedOutput)) {
+
+        return $false
+    }
+
+    return ($CombinedOutput -match "(?i)Please run 'az login'") -or ($CombinedOutput -match "(?i)run 'az login'")
+}
+
+function Invoke-ArchLucidAzPowerShellRestCaptured {
+    param(
+        [ValidateSet('GET', 'POST')]
+        [Parameter(Mandatory)][string]$Method,
+
+        [Parameter(Mandatory)][string]$Url,
+
+        [string]$Body = ''
+    )
+
+    if (-not (Test-ArchLucidAzPowerShellRestRunnable)) {
+
+        return [ordered]@{
+
+            Exit   = 1
+
+            Stdout = ''
+
+            Stderr = 'Invoke-AzRestMethod is unavailable; import Az.Accounts or sign in with az login.'
+        }
+    }
+
+    [string]$restPath = ConvertTo-ArchLucidManagementAzureRestPath -Url $Url
 
     try {
 
-        return ([Uri]::new($trimmed)).PathAndQuery
+        [hashtable]$restParams = @{
+
+            Method      = $Method
+
+            Path        = $restPath
+
+            ErrorAction = 'Stop'
+        }
+
+        if ($Method -eq 'POST' -and -not ([string]::IsNullOrWhiteSpace($Body))) {
+
+            $restParams['Payload'] = $Body
+        }
+
+        $response = Invoke-AzRestMethod @restParams
+
+        [int]$statusCode = [int]$response.StatusCode
+
+        if ($statusCode -ge 400) {
+
+            [string]$errorContent = "$( $response.Content )".Trim()
+
+            return [ordered]@{
+
+                Exit   = 1
+
+                Stdout = ''
+
+                Stderr = "HTTP $($statusCode) $($errorContent)"
+            }
+        }
+
+        return [ordered]@{
+
+            Exit   = 0
+
+            Stdout = "$( $response.Content )".TrimEnd()
+
+            Stderr = ''
+        }
     }
 
     catch {
 
-        return $null
+        [string]$message = "$( $_.Exception.Message )".Trim()
+
+        if (($_.Exception.PSObject.Properties.Match('Response').Count -gt 0) -and ($null -ne $_.Exception.Response)) {
+
+            try {
+
+                $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+
+                [string]$responseBody = $reader.ReadToEnd()
+
+                $reader.Dispose()
+
+                if (-not ([string]::IsNullOrWhiteSpace($responseBody))) {
+
+                    $message = "$message $responseBody"
+                }
+            }
+
+            catch {
+            }
+        }
+
+        return [ordered]@{
+
+            Exit   = 1
+
+            Stdout = ''
+
+            Stderr = $message.Trim()
+        }
     }
 }
 
-function Invoke-ArchLucidAzPowerShellRestRetryable(
-    [Parameter(Mandatory)][ValidateSet('GET', 'POST')][string]$Method,
-    [Parameter(Mandatory)][string]$PathOrUrl,
-    [string]$Body = '') {
+function Invoke-ArchLucidActualCostRestCaptured {
+    param(
+        [ValidateSet('GET', 'POST')]
+        [Parameter(Mandatory)][string]$Method,
 
-    for ($attempt = 1; $attempt -le 12; $attempt++) {
+        [Parameter(Mandatory)][string]$Url,
+
+        [string]$Body = ''
+    )
+
+    if (Test-ArchLucidAzCliAuthenticated) {
+
+        [System.Collections.Generic.List[string]]$tailArgs =
+            New-Object System.Collections.Generic.List[string]
+
+        [void]$tailArgs.Add('--method')
+        [void]$tailArgs.Add($Method)
+        [void]$tailArgs.Add('--url')
+        [void]$tailArgs.Add("$Url")
+        [void]$tailArgs.Add('--resource')
+        [void]$tailArgs.Add('https://management.azure.com/')
+
+        [string]$bodyFilePath = ''
+
+        if ($Method -eq 'POST') {
+
+            [void]$tailArgs.Add('--headers')
+            [void]$tailArgs.Add('Content-Type=application/json')
+
+            if (-not ([string]::IsNullOrWhiteSpace($Body))) {
+
+                $bodyFilePath = Join-Path ([IO.Path]::GetTempPath()) ("alcm-body-{0:N}.json" -f ([Guid]::NewGuid()))
+
+                [System.IO.File]::WriteAllText(
+                    $bodyFilePath,
+                    $Body,
+                    [System.Text.UTF8Encoding]::new($false))
+
+                [void]$tailArgs.Add('--body')
+                [void]$tailArgs.Add("@$bodyFilePath")
+            }
+        }
 
         try {
 
-            [string]$path = Resolve-ArchLucidArmRestRelativePath -AbsoluteOrRelativeUri $PathOrUrl
+            $snippet = Invoke-ArchLucidAzureCliAzRestCaptured -TailAfterRest @($tailArgs.ToArray())
+        }
 
-            if ([string]::IsNullOrWhiteSpace($path)) {
+        finally {
 
-                throw "ArchLucid Az PowerShell REST path could not be resolved from '$PathOrUrl'."
-            }
+            if (-not ([string]::IsNullOrWhiteSpace($bodyFilePath))) {
 
-            [hashtable]$invokeParams = @{
-                Method = $Method
-                Path = $path
-                ErrorAction = 'Stop'
-            }
-
-            if (($Method -eq 'POST') -and (-not ([string]::IsNullOrWhiteSpace($Body)))) {
-
-                $invokeParams['Payload'] = $Body
-            }
-
-            $response = Invoke-AzRestMethod @invokeParams
-
-            return [ordered]@{
-                Exit = 0
-                Stdout = "$( $response.Content )".TrimEnd()
-                Stderr = ''
+                Remove-Item -LiteralPath $bodyFilePath -Force -ErrorAction SilentlyContinue
             }
         }
 
-        catch {
+        if (($snippet.Exit -eq 0) -or -not (Test-ArchLucidAzCliLoginRequiredMessage -CombinedOutput "$( $snippet.Stderr ) $( $snippet.Stdout )")) {
 
-            [int]$code = [int]::MinValue
-
-            if (Get-Command Get-AzureHttpStatusFromPipelineError -ErrorAction SilentlyContinue) {
-
-                $code = Get-AzureHttpStatusFromPipelineError $_
-            }
-
-            if (-not (Test-ArchLucidAzRestTransientHttpStatus -StatusCode $code)) {
-
-                return [ordered]@{
-                    Exit = 1
-                    Stdout = ''
-                    Stderr = $_.Exception.Message
-                }
-            }
-
-            if ($attempt -eq 12) {
-
-                return [ordered]@{
-                    Exit = 1
-                    Stdout = ''
-                    Stderr = $_.Exception.Message
-                }
-            }
-
-            [int]$sleepMs = [Math]::Min(90000, (900 + (($attempt - 1) * 2800)))
-            [int]$fuzz = Get-Random -Minimum 120 -Maximum 620
-
-            Start-Sleep -Milliseconds ($sleepMs + $fuzz)
+            return $snippet
         }
     }
 
-    throw 'ArchLucid Az PowerShell REST retry loop exited without returning a captured response.'
+    return Invoke-ArchLucidAzPowerShellRestCaptured -Method $Method -Url $Url -Body $Body
+}
+
+function Invoke-ArchLucidActualCostRestRetryable {
+    param(
+        [ValidateSet('GET', 'POST')]
+        [Parameter(Mandatory)][string]$Method,
+
+        [Parameter(Mandatory)][string]$Url,
+
+        [string]$Body = ''
+    )
+
+    for ($attempt = 1; $attempt -le 12; $attempt++) {
+
+        [hashtable]$snippet = Invoke-ArchLucidActualCostRestCaptured `
+            -Method $Method `
+            -Url $Url `
+            -Body $Body
+
+        if ($snippet.Exit -eq 0) {
+
+            return $snippet
+        }
+
+        [int]$code = Get-AzureHttpStatusFromAzRestCaptured `
+            -ExitCode $snippet.Exit `
+            -Stdout $snippet.Stdout `
+            -Stderr $snippet.Stderr
+
+        if (-not (Test-ArchLucidAzRestTransientHttpStatus -StatusCode $code)) {
+
+            return $snippet
+        }
+
+        if ($attempt -eq 12) {
+
+            return $snippet
+        }
+
+        [int]$sleepMs = [Math]::Min(90000, (900 + (($attempt - 1) * 2800)))
+        [int]$fuzz = Get-Random -Minimum 120 -Maximum 620
+
+        Start-Sleep -Milliseconds ($sleepMs + $fuzz)
+    }
+
+    throw 'ArchLucid ActualCost REST retry loop exited without returning a captured response.'
 }
 
 function New-ArchLucidCostManagementActualCostBodyJson(
@@ -427,61 +591,16 @@ function Invoke-ArchLucidActualCostPagedQuery(
 
         $seenUrlsFlags[$cursor.Trim()] = $true
 
-        [System.Collections.Generic.List[string]]$tailArgs =
-            New-Object System.Collections.Generic.List[string]
-
-        [void]$tailArgs.Add('--method')
-        [void]$tailArgs.Add($(if ($stillPost) { 'POST' } else { 'GET' }))
-        [void]$tailArgs.Add('--url')
-        [void]$tailArgs.Add("$cursor")
-        [void]$tailArgs.Add('--resource')
-        [void]$tailArgs.Add('https://management.azure.com/')
-
-        [string]$bodyFilePath = ''
-
-        if ($stillPost) {
-
-            [void]$tailArgs.Add('--headers')
-            [void]$tailArgs.Add('Content-Type=application/json')
-
-            if (-not ([string]::IsNullOrWhiteSpace($reuseBody))) {
-
-                $bodyFilePath = Join-Path ([IO.Path]::GetTempPath()) ("alcm-body-{0:N}.json" -f ([Guid]::NewGuid()))
-
-                [System.IO.File]::WriteAllText(
-                    $bodyFilePath,
-                    $reuseBody,
-                    [System.Text.UTF8Encoding]::new($false))
-
-                [void]$tailArgs.Add('--body')
-                [void]$tailArgs.Add("@$bodyFilePath")
-
-            }
-
-        }
-
+        [string]$requestMethod = if ($stillPost) { 'POST' } else { 'GET' }
+        [string]$requestBody = if ($stillPost) { $reuseBody } else { '' }
 
         try {
 
-            if (Test-ArchLucidAzRestMethodRunnable) {
+            $snippet = Invoke-ArchLucidActualCostRestRetryable `
+                -Method $requestMethod `
+                -Url $cursor `
+                -Body $requestBody
 
-                $snippet = Invoke-ArchLucidAzPowerShellRestRetryable `
-                    -Method $(if ($stillPost) { 'POST' } else { 'GET' }) `
-                    -PathOrUrl "$cursor" `
-                    -Body $(if ($stillPost) { $reuseBody } else { '' })
-            }
-
-            elseif (Test-ArchLucidAzureCliRunnable) {
-
-                $snippet = Invoke-ArchLucidAzureCliAzRestRetryable -TailAfterRest @($tailArgs.ToArray())
-            }
-
-            else {
-
-                Write-Warning "ArchLucid ActualCost requires Invoke-AzRestMethod or az CLI on PATH."
-
-                return @{ Ok = $false; StderrCombined = 'Invoke-AzRestMethod and az CLI are unavailable.'; Pages = @() }
-            }
         }
 
         catch {
@@ -489,16 +608,6 @@ function Invoke-ArchLucidActualCostPagedQuery(
             Write-Warning "ArchLucid ActualCost REST invocation failed: $($_.Exception.Message)"
 
             return @{ Ok = $false; StderrCombined = $_.Exception.Message; Pages = @() }
-
-        }
-
-        finally {
-
-            if (-not ([string]::IsNullOrWhiteSpace($bodyFilePath))) {
-
-                Remove-Item -LiteralPath $bodyFilePath -Force -ErrorAction SilentlyContinue
-
-            }
 
         }
 
@@ -976,11 +1085,17 @@ function Get-ArchLucidActualCostSummary(
 
 
 
-    if (-not (Test-ArchLucidAzRestMethodRunnable) -and -not (Test-ArchLucidAzureCliRunnable)) {
+    if (-not (Test-ArchLucidAzureCliRunnable)) {
 
-        Write-Warning "ArchLucid ActualCost requires Invoke-AzRestMethod (Az.Accounts) or 'az' CLI on PATH; actualCostSummary cannot populate."
+
+
+
+        Write-Warning "ArchLucid 'az' CLI not discovered on PATH; actualCostSummary cannot populate."
+
 
         return $null
+
+
     }
 
 

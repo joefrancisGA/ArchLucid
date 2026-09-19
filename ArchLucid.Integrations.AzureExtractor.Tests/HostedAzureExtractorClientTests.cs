@@ -128,9 +128,12 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        ConfigurePolicyDocumentMocks(armClient);
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
+            CreatePostReadClientMock().Object,
             graphReader.Object,
             options.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
@@ -302,9 +305,12 @@ public sealed class HostedAzureExtractorClientTests
         Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions());
 
+        ConfigurePolicyDocumentMocks(armClient);
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
+            CreatePostReadClientMock().Object,
             graphReader.Object,
             options.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
@@ -330,6 +336,58 @@ public sealed class HostedAzureExtractorClientTests
         Assert.NotNull(manifest);
         Assert.Equal(string.Empty, manifest!.SubscriptionId);
         Assert.Equal("/providers/Microsoft.Management/managementGroups/corp", manifest.ScopeDescriptor);
+    }
+
+    private static Mock<IHostedAzureManagementPostReadClient> CreatePostReadClientMock()
+    {
+        Mock<IHostedAzureManagementPostReadClient> postClient = new();
+
+        postClient
+            .Setup(c => c.TryQueryActualCostSummaryAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((HostedAzureActualCostSummary?)null);
+
+        postClient
+            .Setup(c => c.QueryPolicyComplianceAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HostedAzurePolicyComplianceDocument
+            {
+                CollectionTimestampUtc = "2026-05-21T12:00:00Z",
+                Scope = "/subscriptions/11111111-1111-1111-1111-111111111111",
+                RecordCount = 0,
+                Records = [],
+            });
+
+        return postClient;
+    }
+
+    private static void ConfigurePolicyDocumentMocks(Mock<IHostedAzureArmReadClient> armClient)
+    {
+        armClient
+            .Setup(c => c.ListBuiltInPolicyDefinitionDocumentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListSubscriptionPolicyDefinitionDocumentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListSubscriptionPolicyAssignmentDocumentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
     }
 
     private sealed class StubTokenCredential : TokenCredential
