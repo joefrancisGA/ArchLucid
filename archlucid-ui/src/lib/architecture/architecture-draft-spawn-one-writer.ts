@@ -4,7 +4,7 @@ import type { RunSummary } from "@/types/authority";
 
 /** SN-004: Architecture tab copy when Created-origin review is the frozen snapshot writer. */
 export const ARCHITECTURE_TAB_SPAWN_ONE_WRITER_SNAPSHOT_HELPER =
-  "Review snapshot — source material is frozen while this review is open. Clone a new draft from the architecture desk to change it.";
+  "Review snapshot — source material is frozen while this review is open. Clone a new architecture draft from the architecture desk to change it.";
 
 export function guidedIntakeRerunHref(runId: string): string {
   return `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(runId)}`;
@@ -19,7 +19,7 @@ export function resolveArchitectureTabEditSourceHref(input: {
     return null;
   }
 
-  // Created-origin in-flight reviews: draft spawn path locks the drafting writer (SN-004).
+  // Created-origin in-flight reviews: draft spawn path locks the architecture drafting writer (SN-004).
   if (input.packageOrigin === "created") {
     return null;
   }

@@ -52,6 +52,42 @@ export function formatInventoryShowingLine(loaded: number, total: number, hasMor
   return `Showing ${safeLoaded} of ${safeTotal}`;
 }
 
+/** Page count for offset paging; empty inventories still report one page. */
+export function inventoryTotalPageCount(total: number, pageSize: number): number {
+  const safeTotal = Math.max(0, Math.trunc(total));
+  const safeSize = Math.max(1, Math.trunc(pageSize));
+
+  if (safeTotal <= 0) {
+    return 1;
+  }
+
+  return Math.max(1, Math.ceil(safeTotal / safeSize));
+}
+
+/**
+ * Offset-page copy: "Showing {from}–{to} of {total}".
+ * Returns null when the total is unknown or empty.
+ */
+export function formatInventoryPageRangeLine(page: number, pageSize: number, total: number): string | null {
+  if (!Number.isFinite(page) || !Number.isFinite(pageSize) || !Number.isFinite(total)) {
+    return null;
+  }
+
+  const safeTotal = Math.max(0, Math.trunc(total));
+
+  if (safeTotal <= 0) {
+    return null;
+  }
+
+  const safeSize = Math.max(1, Math.trunc(pageSize));
+  const pageCount = inventoryTotalPageCount(safeTotal, safeSize);
+  const safePage = Math.min(pageCount, Math.max(1, Math.trunc(page)));
+  const from = (safePage - 1) * safeSize + 1;
+  const to = Math.min(safePage * safeSize, safeTotal);
+
+  return `Showing ${from}–${to} of ${safeTotal}`;
+}
+
 /** Alternate copy when only a remainder count is known (no fake total). */
 export function formatInventoryShowingFirstLine(loaded: number, moreRemaining: number): string | null {
   const safeLoaded = Math.max(0, Math.trunc(loaded));

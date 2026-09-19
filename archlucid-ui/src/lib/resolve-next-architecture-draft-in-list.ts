@@ -7,7 +7,7 @@ export type ArchitectureDraftNextDraftTarget = {
   readonly href: string;
 };
 
-/** Next architecture draft in recency order after the current draft id. */
+/** Next architecture draft in recency order after the current architecture draft id. */
 export function resolveNextArchitectureDraftInList(
   entries: readonly ArchitectureDraftRegistryEntry[],
   currentDraftId: string,

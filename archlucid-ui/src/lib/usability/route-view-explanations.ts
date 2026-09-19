@@ -92,7 +92,7 @@ type RouteViewExplanationRow = {
   readonly prefix: string;
   /**
    * When true only the exact path matches. Use for inventory or hub rows whose copy would be wrong
-   * on the detail routes beneath them (telling an open draft to "open a draft", for example).
+   * on the detail routes beneath them (telling an open draft to "open an architecture draft", for example).
    */
   readonly matchExact?: boolean;
   readonly explanation: RouteViewExplanation;
@@ -124,7 +124,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
       title: "Reviews",
       summary:
         "Browse architecture review packages in this workspace — open one to triage findings, evidence, and approval status.",
-      nextAction: "Open the review you need, or start a new review when you are ready to assess a draft architecture.",
+      nextAction: "Open the review you need, or start a new review when you are ready to assess an architecture draft.",
     },
   },
   {
@@ -239,7 +239,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
       summary:
         "Run the read-only Azure extractor locally, validate the ZIP, then upload inventory for architecture reviews.",
       nextAction:
-        "Copy the quick-start command, upload a validated ZIP, then open Start a review when the package is ready.",
+        "Set up scheduled collection, or copy the one-time packager command, upload a validated ZIP, then open Start a review when the package is ready.",
     },
   },
   {
@@ -622,13 +622,13 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
   },
   {
     prefix: ARCHITECTURES_LIST_PATH,
-    // The draft editor and the new-draft workspace own their own heading, lead, and status tag; the
-    // inventory next action is also already complete once a draft is open.
+    // The architecture draft editor and the new-architecture draft workspace own their own heading, lead, and status tag; the
+    // inventory next action is also already complete once an architecture draft is open.
     matchExact: true,
     explanation: {
       title: "Architectures",
       summary:
-        "Inventory architecture drafts in this workspace — start a new draft or open one to prepare a review.",
+        "Inventory architecture drafts in this workspace — start a new architecture draft or open one to prepare a review.",
       nextAction: "Open an architecture draft or create a new one when you are ready to start a review.",
     },
   },

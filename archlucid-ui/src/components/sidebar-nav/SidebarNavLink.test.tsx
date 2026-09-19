@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -5,6 +9,11 @@ import { describe, expect, it, vi } from "vitest";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import type { NavLinkItem } from "@/lib/nav-config.types";
+
+const sidebarNavLinkSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "SidebarNavLink.tsx"),
+  "utf8",
+);
 
 vi.mock("next/link", () => ({
   default: ({
@@ -88,6 +97,10 @@ describe("SidebarNavLink", () => {
       "Open an architecture identity desk first.",
     );
     expect(document.getElementById("sidebar-nav-link-hint--insights-evidence-graph")).toHaveClass("sr-only");
+  });
+
+  it("disables Next.js prefetch to avoid segment-cache fetch abort races on soft-nav", () => {
+    expect(sidebarNavLinkSource).toContain("prefetch={false}");
   });
 
   it("exposes supplemental nav hint via aria-describedby instead of title", () => {

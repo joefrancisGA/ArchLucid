@@ -52,7 +52,7 @@ export function OperatorHomeNavigateLoadingButton(
       aria-busy={isNavigating}
       data-loading={isNavigating ? "true" : "false"}
     >
-      <Link href={href} onClick={onClick} aria-live="polite">
+      <Link href={href} prefetch={false} onClick={onClick} aria-live="polite">
         {isNavigating ? (
           <>
             <ReviewStartInlineSpinner />

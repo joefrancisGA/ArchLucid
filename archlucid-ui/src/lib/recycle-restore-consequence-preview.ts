@@ -49,9 +49,9 @@ export function buildRecycleRestoreConsequencePreview(): RecycleRestoreConsequen
       },
       {
         id: "staysDistinctDrafts",
-        label: "What stays distinct — drafts",
+        label: "What stays distinct — architecture drafts",
         detail:
-          "Architecture drafts remain on the drafts registry. Restore does not recreate or erase draft work.",
+          "Architecture drafts remain on the architecture drafts registry. Restore does not recreate or erase draft work.",
       },
       {
         id: "staysDistinctPackages",

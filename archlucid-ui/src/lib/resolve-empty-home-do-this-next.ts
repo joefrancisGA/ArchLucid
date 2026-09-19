@@ -82,7 +82,7 @@ function resolveWorkingModeNewReviewAction(): EmptyHomeDoThisNextAction {
     kind: "work",
     label: "New review",
     href: ARCHITECTURES_NEW_PATH,
-    bridgeCopy: "Open the draft editor and start a new architecture review.",
+    bridgeCopy: "Open the architecture draft editor and start a new architecture review.",
   };
 }
 

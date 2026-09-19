@@ -33,7 +33,7 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS: readonly SystemNotJobCompareG
     rightSide: "DraftRequests document (unsealed synthesis)",
     gateOutcome: "blocked",
     blockedReason:
-      "Draft-to-draft Compare is rejected (R12). No draft id pair enters AuthorityCompareService.",
+      "Compare architecture drafts is rejected (R12). No draft id pair enters AuthorityCompareService.",
     surface: "N/A — no draft-vs-draft Compare route",
     backendGate: "AuthorityCompareService requires GoldenManifestId on both runs",
     cheapPathOwner: "SN-008",
@@ -41,7 +41,7 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS: readonly SystemNotJobCompareG
   },
   {
     journeyId: "draftVsSealedRun",
-    userIntent: "Diff live draft edits against a finalized review without finalizing the draft",
+    userIntent: "Diff live draft edits against a finalized review without finalizing the architecture draft",
     leftSide: "In-flight draft (DraftRequests)",
     rightSide: "Committed run (GoldenManifestId + ManifestHash)",
     gateOutcome: "blocked",
@@ -154,7 +154,7 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS: readonly SystemNotJobCompareG
   {
     journeyId: "architectureSealDeltaOrientation",
     userIntent: "Use seal-delta panel as Career Compare substitute",
-    leftSide: "Current draft document",
+    leftSide: "Current architecture draft document",
     rightSide: "Last sealed record (orientation)",
     gateOutcome: "orientation-only",
     blockedReason: "ArchitectureSealDeltaPanel compares draft to prior seal for orientation only.",

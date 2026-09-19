@@ -88,7 +88,7 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(new HostedAzureDiagnosticSettingsCollectResult());
 
         armClient
             .Setup(c => c.ListSubscriptionDefenderSummariesAsync(
@@ -108,6 +108,21 @@ public sealed class HostedAzureExtractorClientTests
         armClient
             .Setup(c => c.ListPrivateDnsZoneVirtualNetworkLinksAsync(
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListVirtualNetworkPeeringsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListFactoryLinkedServicesAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
@@ -221,7 +236,7 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(new HostedAzureDiagnosticSettingsCollectResult());
         armClient
             .Setup(c => c.ListSubscriptionDefenderSummariesAsync(
                 It.IsAny<string>(),
@@ -269,6 +284,14 @@ public sealed class HostedAzureExtractorClientTests
 
         armClient
             .Setup(c => c.ListPrivateDnsZoneVirtualNetworkLinksAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListVirtualNetworkPeeringsAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),

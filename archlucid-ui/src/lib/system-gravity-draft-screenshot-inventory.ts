@@ -34,7 +34,7 @@ export const SYSTEM_GRAVITY_DRAFT_SCREENSHOT_ROWS: readonly SystemGravityDraftSc
   },
   {
     relativePath: "archlucid-ui/src/components/architecture/ArchitectureIdentityDeskCurrentDraft.tsx",
-    surface: "current draft child slot",
+    surface: "current architecture draft child slot",
     leakClass: "handoff",
     ownerPrompt: "SN-017",
     sgPrompt: "SG-072",

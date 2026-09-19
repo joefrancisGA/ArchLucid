@@ -75,6 +75,12 @@ export function isInfraEvidenceDriftRiskTooltipEligible(riskKey: InfraEvidenceDr
   return riskKey !== "none" && riskKey !== "unknown";
 }
 
+export function isInfraEvidenceDriftRiskyChange(riskClassification: string | null | undefined): boolean {
+  const riskKey = resolveInfraEvidenceDriftRiskKey(riskClassification);
+
+  return isInfraEvidenceDriftRiskTooltipEligible(riskKey);
+}
+
 function humanizeSignificanceToken(value: string): string {
   return value
     .split(/[\s_-]+/)

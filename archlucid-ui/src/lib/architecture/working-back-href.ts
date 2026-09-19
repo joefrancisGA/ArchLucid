@@ -11,7 +11,7 @@ import { parseArchitectureNestedRoute } from "@/lib/architecture/working-archite
 import { lookupArchitectureDraftParentArchitectureId } from "@/lib/review-package-validation-picker";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
-/** SN-005: spawn-locked draft bookmark/history back — review job first, never writable draft editor. */
+/** SN-005: spawn-locked draft bookmark/history back — review job first, never writable architecture draft editor. */
 export const ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL = "Back to review";
 
 export type ResolveWorkingBackLocatorInput = {
@@ -112,8 +112,8 @@ export function resolveSpawnLockedDraftPrimaryBackHref(
 }
 
 /**
- * After start-review, intake/history back must not target a writable draft editor when the draft is spawn-locked.
- * Returns null when the draft is still editable.
+ * After start-review, intake/history back must not target a writable architecture draft editor when the architecture draft is spawn-locked.
+ * Returns null when the architecture draft is still editable.
  */
 export function resolveStartReviewSpawnLockedDraftBackLocator(input: {
   readonly linkedReviewId: string | null | undefined;
@@ -153,7 +153,7 @@ export function isArchitectureDraftWritableEditorRoutePath(pathname: string): bo
   return nested?.childKind === "drafts";
 }
 
-/** Guard for SN-005: spawn-locked back hrefs must not reopen the writable draft editor. */
+/** Guard for SN-005: spawn-locked back hrefs must not reopen the writable architecture draft editor. */
 export function assertSpawnLockedDraftBackHrefHonest(
   backHref: string,
   draftEditorHref: string,
@@ -162,7 +162,7 @@ export function assertSpawnLockedDraftBackHrefHonest(
   const normalizedDraftEditor = draftEditorHref.split("?")[0] ?? "";
 
   if (normalizedBack === normalizedDraftEditor) {
-    throw new Error("Spawn-locked draft back href must not target the writable draft editor.");
+    throw new Error("Spawn-locked draft back href must not target the writable architecture draft editor.");
   }
 
   if (isArchitectureDraftWritableEditorRoutePath(normalizedBack)) {

@@ -106,7 +106,7 @@ export function resolveComparePickerFootnote(runId: string, picked: RunSummary |
   return resolveComparePickerTitleFootnote(trimmed, picked);
 }
 
-/** Compare API accepts run ids only — not draft workspace segments or draft-request ids. */
+/** Compare API accepts run ids only — not architecture draft workspace segments or draft-request ids. */
 export function isHonestCompareApiRunId(runId: string): boolean {
   const trimmed = runId.trim();
 

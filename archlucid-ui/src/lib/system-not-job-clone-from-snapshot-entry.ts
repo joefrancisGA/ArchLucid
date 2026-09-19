@@ -46,8 +46,8 @@ export function resolveSystemNotJobCloneFromSnapshotConfirmCopy(args: {
   const doorLabel = labelForWorkingCareerRehearsalDoor(args.effectiveDoor);
 
   const description = [
-    "Creates a new editable draft under this architecture — the legal new version after spawn lock. The parent snapshot and linked review stay sealed.",
-    `The clone stays ${doorLabel}-stamped as an architecture sketch (ADR 0092) until you explicitly execute a Record review. CG door rules apply to the new draft.`,
+    "Creates a new editable architecture draft under this architecture — the legal new version after spawn lock. The parent snapshot and linked review stay sealed.",
+    `The clone stays ${doorLabel}-stamped as an architecture sketch (ADR 0092) until you explicitly execute a Record review. CG door rules apply to the new architecture draft.`,
     "Review the what-if branch cap below before you continue — a later full-pipeline submit is billable under R12.",
   ].join(" ");
 

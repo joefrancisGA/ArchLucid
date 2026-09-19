@@ -19,7 +19,7 @@ function makeDraft(
 }
 
 describe("resolveLinkedDraftForReview (LS-06)", () => {
-  it("returns the draft linked to the review run id", () => {
+  it("returns the architecture draft linked to the review run id", () => {
     const drafts = [
       makeDraft({ draftId: "draft-a", linkedReviewId: "run-other" }),
       makeDraft({ draftId: "draft-b", linkedReviewId: "run-base" }),

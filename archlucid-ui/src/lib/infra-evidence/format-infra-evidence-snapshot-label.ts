@@ -1,12 +1,23 @@
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
+import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
 import type { InfraEvidenceDiffSummary, InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
-export function formatInfraEvidenceSnapshotCapturedLabel(capturedUtc: string | null | undefined): string {
+export function formatInfraEvidenceSnapshotCapturedLabel(
+  capturedUtc: string | null | undefined,
+  ianaTimeZoneId: string = DEFAULT_IANA_TIME_ZONE_ID,
+): string {
   if (capturedUtc == null || capturedUtc.trim().length === 0) {
     return "unknown time";
   }
 
-  return new Date(capturedUtc).toLocaleString();
+  const formatted = formatInstantInPreferredTimeZone(capturedUtc, ianaTimeZoneId);
+
+  if (formatted === " — ") {
+    return "unknown time";
+  }
+
+  return formatted;
 }
 
 export function formatInfraEvidenceSubscriptionLabel(

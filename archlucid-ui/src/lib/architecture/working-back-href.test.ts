@@ -115,7 +115,7 @@ describe("resolveWorkingBackLocator (AO-44)", () => {
 describe("resolveSpawnLockedDraftBackLocator (SN-005)", () => {
   const draftEditorHref = architectureIdentityDraftHref("architecture-identity-001", "draft-001");
 
-  it("targets nested review job and architecture desk after spawn-lock — not the writable draft editor", () => {
+  it("targets nested review job and architecture desk after spawn-lock — not the writable architecture draft editor", () => {
     const locator = resolveSpawnLockedDraftBackLocator({
       linkedReviewId: "run-001",
       parentArchitectureId: "architecture-identity-001",
@@ -150,7 +150,7 @@ describe("resolveSpawnLockedDraftBackLocator (SN-005)", () => {
     ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-001");
   });
 
-  it("resolveStartReviewSpawnLockedDraftBackLocator returns null while the draft is still editable", () => {
+  it("resolveStartReviewSpawnLockedDraftBackLocator returns null while the architecture draft is still editable", () => {
     expect(
       resolveStartReviewSpawnLockedDraftBackLocator({
         linkedReviewId: null,
@@ -159,7 +159,7 @@ describe("resolveSpawnLockedDraftBackLocator (SN-005)", () => {
     ).toBeNull();
   });
 
-  it("resolveStartReviewSpawnLockedDraftBackHref prefers review job over draft editor when spawn-locked", () => {
+  it("resolveStartReviewSpawnLockedDraftBackHref prefers review job over architecture draft editor when spawn-locked", () => {
     expect(
       resolveStartReviewSpawnLockedDraftBackHref({
         linkedReviewId: "run-001",
@@ -176,7 +176,7 @@ describe("resolveSpawnLockedDraftBackLocator (SN-005)", () => {
     ).toBe(draftEditorHref);
   });
 
-  it("detects nested draft editor route paths", () => {
+  it("detects nested architecture draft editor route paths", () => {
     expect(
       isArchitectureDraftWritableEditorRoutePath(
         "/architecture/architectures/architecture-identity-001/drafts/draft-001",
