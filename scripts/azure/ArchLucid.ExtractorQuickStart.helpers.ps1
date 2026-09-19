@@ -133,7 +133,7 @@ function Clear-ArchLucidAzureAccountSessions
         }
 
         $null = Disconnect-AzAccount `
-            -AccountId $context.Account.Id `
+            -InputObject $context `
             -Confirm:$false `
             -ErrorAction SilentlyContinue
     }
