@@ -65,4 +65,34 @@ describe("resolveExtractUploadPackageSteps", () => {
     expect(steps.find((step) => step.id === "upload")?.complete).toBe(true);
     expect(steps.find((step) => step.id === "parse")?.complete).toBe(false);
   });
+
+  it("marks upload complete when inventory is already on file", () => {
+    const steps = resolveExtractUploadPackageSteps({
+      providerSelected: true,
+      packageAccepted: false,
+      inventoryParsed: true,
+    });
+
+    expect(steps.find((step) => step.id === "upload")?.complete).toBe(true);
+    expect(steps.find((step) => step.id === "parse")?.complete).toBe(true);
+  });
+
+  it("keeps upload pending while replacing inventory even when baseline exists", () => {
+    const steps = resolveExtractUploadPackageSteps({
+      providerSelected: true,
+      packageAccepted: false,
+      inventoryParsed: true,
+      replacingInventory: true,
+    });
+
+    expect(steps.find((step) => step.id === "upload")?.complete).toBe(false);
+    expect(
+      resolveExtractUploadPackageEmphasizedStepId({
+        providerSelected: true,
+        packageAccepted: false,
+        inventoryParsed: true,
+        replacingInventory: true,
+      }),
+    ).toBe("upload");
+  });
 });

@@ -4,7 +4,12 @@ export function resolveExtractUploadPackageSteps(input: {
   readonly providerSelected: boolean;
   readonly packageAccepted: boolean;
   readonly inventoryParsed: boolean;
+  readonly replacingInventory?: boolean;
 }): readonly IntegrationConnectChecklistStep[] {
+  const uploadComplete =
+    input.packageAccepted ||
+    (input.inventoryParsed && input.replacingInventory !== true);
+
   return [
     {
       id: "provider",
@@ -14,7 +19,7 @@ export function resolveExtractUploadPackageSteps(input: {
     {
       id: "upload",
       label: "Upload architecture package",
-      complete: input.packageAccepted,
+      complete: uploadComplete,
     },
     {
       id: "parse",
@@ -28,6 +33,7 @@ export function resolveExtractUploadPackageEmphasizedStepId(input: {
   readonly providerSelected: boolean;
   readonly packageAccepted: boolean;
   readonly inventoryParsed: boolean;
+  readonly replacingInventory?: boolean;
 }): string {
   const steps = resolveExtractUploadPackageSteps(input);
   const incomplete = steps.find((step) => !step.complete);

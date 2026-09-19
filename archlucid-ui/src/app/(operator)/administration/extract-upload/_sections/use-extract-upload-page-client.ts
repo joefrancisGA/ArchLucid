@@ -155,8 +155,9 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
         providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
+        replacingInventory: replaceInventoryMode,
       }),
-    [hasBaselineArtifacts, packageAccepted],
+    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
   );
   const extractUploadEmphasizedStepId = useMemo(
     () =>
@@ -164,8 +165,9 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
         providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
+        replacingInventory: replaceInventoryMode,
       }),
-    [hasBaselineArtifacts, packageAccepted],
+    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
   );
 
   const syncAdvancedCommandOpenToUrl = useCallback(
