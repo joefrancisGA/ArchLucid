@@ -13,4 +13,10 @@ public sealed class InfraEvidenceMermaidPreviewResponse
         get;
         set;
     } = [];
+
+    public List<string> CompletenessWarnings
+    {
+        get;
+        set;
+    } = [];
 }

@@ -35,6 +35,7 @@ import { HelpEnterpriseOnboardingGuideView } from "@/app/(operator)/help/_sectio
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE,
+  ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import {
@@ -192,7 +193,11 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
 
     const sources = screen.getByTestId("enterprise-onboarding-help-sources");
 
-    expectWhereToGoNextFollowUpLinks(within(sources), ENTERPRISE_ONBOARDING_HELP_SOURCES);
+    expectWhereToGoNextFollowUpLinks(
+      within(sources),
+      ENTERPRISE_ONBOARDING_HELP_SOURCES,
+      ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
+    );
 
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();

@@ -4,7 +4,7 @@ import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-
 
 import { workingShareHref, WORKING_SHARE_UNLINKED_JOB_TOAST } from "@/lib/architecture/working-share-href";
 
-describe("workingShareHref (AO-09 / IP-004)", () => {
+describe("workingShareHref (AO-09 / AO-38 / IP-004)", () => {
   it("IP-004: prefers nested findings path when architecture id is known", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",
@@ -38,7 +38,7 @@ describe("workingShareHref (AO-09 / IP-004)", () => {
     expect(result.isUnlinkedJob).toBe(false);
   });
 
-  it("SY-21: room elicitation share keeps inhabited findings locator", () => {
+  it("AO-38: room elicitation share keeps architecture + job locator (SY-21)", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",
       reviewId: "run-001",

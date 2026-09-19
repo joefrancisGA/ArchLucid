@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+
 export const POLICY_PACKS_PAGE_TITLE = "Policy packs";
 
 export const POLICY_PACKS_PAGE_SUBTITLE =
@@ -6,11 +9,23 @@ export const POLICY_PACKS_PAGE_SUBTITLE =
 export const BUYER_POLICY_PACKS_PAGE_SUBTITLE =
   "See the active pack and rules enforced for reviews in this workspace.";
 
+export const SECURENOW_BUYER_POLICY_PACKS_PAGE_SUBTITLE =
+  "See the active pack and rules enforced for cloud evidence scans in this workspace.";
+
 export const POLICY_PACKS_PAGE_SUBTITLE_OPERATOR =
   "Policy packs bundle rules and scope defaults. Assign them to workspaces to enforce governance.";
 
-export function policyPacksPageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell ? BUYER_POLICY_PACKS_PAGE_SUBTITLE : POLICY_PACKS_PAGE_SUBTITLE_OPERATOR;
+export function policyPacksPageSubtitle(
+  buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (buyerPolishedShell) {
+    return isSecureNowProductLine(productLineId)
+      ? SECURENOW_BUYER_POLICY_PACKS_PAGE_SUBTITLE
+      : BUYER_POLICY_PACKS_PAGE_SUBTITLE;
+  }
+
+  return POLICY_PACKS_PAGE_SUBTITLE_OPERATOR;
 }
 
 export const POLICY_PACKS_LAST_REFRESHED_PREFIX = "Last refreshed" as const;

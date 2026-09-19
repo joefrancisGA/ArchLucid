@@ -102,8 +102,45 @@ Describe 'ArchLucid.CostManagement.helpers' {
 
     }
 
+    It 'prefers Invoke-AzRestMethod for ActualCost paging when Az.Accounts REST is available' {
+
+        Mock Test-ArchLucidAzRestMethodRunnable { return $true }
+
+        Mock Invoke-ArchLucidAzPowerShellRestRetryable {
+            param(
+                [string]$Method,
+                [string]$PathOrUrl,
+                [string]$Body
+            )
+
+            return @{
+                Exit = 0
+                Stdout = '{"properties":{"columns":[{"name":"ServiceName"},{"name":"PreTaxCost"},{"name":"Currency"}],"rows":[]}}'
+                Stderr = ''
+            }
+        }
+
+        [string]$body =
+            New-ArchLucidCostManagementActualCostBodyJson -Timeframe 'MonthToDate'
+
+        [hashtable]$result =
+            Invoke-ArchLucidActualCostPagedQuery `
+                -PostUrl 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.CostManagement/query?api-version=2023-03-01' `
+                -CompressedBody $body `
+                -DiagTokenForWarnings 'az-ps-token'
+
+        $result.Ok | Should -Be $true
+
+        Should -Invoke Invoke-ArchLucidAzPowerShellRestRetryable -Times 1 -ParameterFilter {
+            ($Method -eq 'POST') -and
+            (-not [string]::IsNullOrWhiteSpace($PathOrUrl)) -and
+            ($Body -eq $body)
+        }
+    }
+
     It 'passes CompressedBody when invoking the ActualCost paged query helper' {
 
+        Mock Test-ArchLucidAzRestMethodRunnable { return $false }
         Mock Test-ArchLucidAzureCliRunnable { return $true }
 
         Mock Invoke-ArchLucidActualCostPagedQuery {
@@ -191,6 +228,9 @@ Describe 'ArchLucid.CostManagement.helpers' {
 
         $script:CapturedAzRestTailArgs = @()
         $script:CapturedAzRestBodyText = ''
+
+        Mock Test-ArchLucidAzRestMethodRunnable { return $false }
+        Mock Test-ArchLucidAzureCliRunnable { return $true }
 
         Mock Invoke-ArchLucidAzureCliAzRestCaptured {
             param([string[]]$TailAfterRest)

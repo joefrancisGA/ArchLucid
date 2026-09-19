@@ -4,6 +4,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -28,8 +29,16 @@ public sealed partial class InfraEvidenceSnapshotsController(
     IInfraEvidenceDriftWorkbenchQueryService driftWorkbenchQueryService,
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
     IInfraEvidenceSnapshotMermaidService snapshotMermaidService,
+    IAzureInventorySnapshotDeleteService snapshotDeleteService,
+    IAuditService auditService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    private readonly IAzureInventorySnapshotDeleteService _snapshotDeleteService =
+        snapshotDeleteService ?? throw new ArgumentNullException(nameof(snapshotDeleteService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<AzureInventorySnapshotRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -49,6 +58,44 @@ public sealed partial class InfraEvidenceSnapshotsController(
                 pageSize,
                 subscriptionId,
                 cancellationToken);
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("{snapshotId:guid}/inventory-rows")]
+    [ProducesResponseType(typeof(PagedResponse<AzureInventoryChangeRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListInventoryRowsForSnapshot(
+        Guid snapshotId,
+        [FromQuery] Guid? cloudResourceId,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            PagedResponse<AzureInventoryChangeRecord>? response = await driftWorkbenchQueryService.ListInventoryRowsForSnapshotAsync(
+                scope,
+                snapshotId,
+                page,
+                pageSize,
+                cloudResourceId,
+                cancellationToken);
+
+            if (response is null)
+            {
+                return this.NotFoundProblem(
+                    $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
 
             return Ok(response);
         }
@@ -130,6 +177,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetMermaidPreview(
         Guid snapshotId,
+        [FromQuery] bool includeNeverShow = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -137,7 +185,11 @@ public sealed partial class InfraEvidenceSnapshotsController(
         try
         {
             InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-                await snapshotMermaidService.TryGetPreviewAsync(scope, snapshotId, cancellationToken);
+                await snapshotMermaidService.TryGetPreviewAsync(
+                    scope,
+                    snapshotId,
+                    includeNeverShow,
+                    cancellationToken);
 
             if (result.IsNotFound)
             {
@@ -171,6 +223,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] string? mode,
         [FromQuery] string? fallbackKey,
         [FromQuery] string? seedNodeId,
+        [FromQuery] bool includeNeverShow = false,
+        [FromQuery] string? hideTiers = null,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -184,6 +238,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     mode,
                     fallbackKey,
                     seedNodeId,
+                    includeNeverShow,
+                    hideTiers,
                     cancellationToken);
 
             if (result.IsNotFound)
@@ -226,6 +282,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] string? mode,
         [FromQuery] string? fallbackKey,
         [FromQuery] string? seedNodeId,
+        [FromQuery] bool includeNeverShow = false,
+        [FromQuery] string? hideTiers = null,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -238,6 +296,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                 mode,
                 fallbackKey,
                 seedNodeId,
+                includeNeverShow,
+                hideTiers,
                 cancellationToken);
 
             if (result.IsNotFound)

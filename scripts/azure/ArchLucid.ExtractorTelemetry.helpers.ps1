@@ -2,6 +2,24 @@
 
 Set-StrictMode -Version Latest
 
+$Script:ArchLucidExtractorConsoleBrandName = 'ArchLucid Azure extractor'
+
+function Get-ArchLucidExtractorConsoleBrandName
+{
+    return $Script:ArchLucidExtractorConsoleBrandName
+}
+
+function Set-ArchLucidExtractorConsoleBrandName
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string] $BrandName
+    )
+
+    $Script:ArchLucidExtractorConsoleBrandName = $BrandName.Trim()
+}
+
 function New-ArchLucidExtractorTelemetryContext
 {
     return [ordered]@{
@@ -43,7 +61,7 @@ function Write-ArchLucidExtractorEvent
         }
     }
 
-    [string]$formatted = "ArchLucid Azure extractor | {0} | {1}{2}" -f $Step, $Message, $contextSuffix
+    [string]$formatted = "{0} | {1} | {2}{3}" -f (Get-ArchLucidExtractorConsoleBrandName), $Step, $Message, $contextSuffix
 
     switch ($Level)
     {

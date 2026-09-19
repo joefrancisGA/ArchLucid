@@ -1,4 +1,5 @@
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
@@ -38,7 +39,11 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
         services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
-        services.AddScoped<IAzureInventorySnapshotRepository, SqlAzureInventorySnapshotRepository>();
+        services.AddScoped<SqlAzureInventorySnapshotRepository>();
+        services.AddScoped<IAzureInventorySnapshotRepository>(static sp =>
+            new DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
+                sp.GetRequiredService<SqlAzureInventorySnapshotRepository>(),
+                sp.GetRequiredService<ISecurityDeclaredConnectionRepository>()));
         services.AddScoped<IAzureInventoryDiffRepository, SqlAzureInventoryDiffRepository>();
         services.AddScoped<IAzureInventoryBaselineRepository, SqlAzureInventoryBaselineRepository>();
         services.AddScoped<IAzureInventoryDriftApprovalRepository, SqlAzureInventoryDriftApprovalRepository>();
@@ -61,6 +66,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<ISecurityEvidencePathExplanationRepository, SqlSecurityEvidencePathExplanationRepository>();
         services.AddScoped<IOperationalSecurityExceptionRepository, SqlOperationalSecurityExceptionRepository>();
         services.AddScoped<ISecurityAssetAssertionRepository, SqlSecurityAssetAssertionRepository>();
+        services.AddScoped<ISecurityDeclaredConnectionRepository, SqlSecurityDeclaredConnectionRepository>();
         services.AddScoped<IRemediationPatternRepository, SqlRemediationPatternRepository>();
         services.AddScoped<IRemediationPatternMatchRepository, SqlRemediationPatternMatchRepository>();
         services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();

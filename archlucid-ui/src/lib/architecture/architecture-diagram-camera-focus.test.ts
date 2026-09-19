@@ -14,8 +14,8 @@ describe("resolveDiagramCameraFocusNodeIds", () => {
         { id: "c", label: "C", resourceType: null, resourceGroup: null },
       ],
       edges: [
-        { from: "a", to: "b", label: null },
-        { from: "b", to: "c", label: null },
+        { from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null },
+        { from: "b", to: "c", label: null, source: "observed", declaredConnectionId: null },
       ],
     });
 

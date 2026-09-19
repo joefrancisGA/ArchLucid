@@ -1,3 +1,6 @@
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 export const SLACK_INTEGRATION_HELP_PRIMARY_CONTENT_ID = "help-slack-integration-primary-content" as const;
 
 export const SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID = "help-slack-integration-first-viewport" as const;
@@ -14,8 +17,12 @@ export const SLACK_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID =
 
 export const SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID = "help-slack-integration-workspace" as const;
 
-export const SLACK_INTEGRATION_HELP_PAGE_LEAD =
-  "Configure Slack incoming-webhook destinations for ArchLucid alert notifications." as const;
+export function slackIntegrationHelpPageLead(productLineId: ProductLineId): string {
+  return `Configure Slack incoming-webhook destinations for ${productLineDisplayName(productLineId)} alert notifications.`;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const SLACK_INTEGRATION_HELP_PAGE_LEAD = slackIntegrationHelpPageLead("architecture");
 
 export const SLACK_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER =
   "Learn how Slack incoming-webhook destinations route alert notifications, then open Slack notifications when integration admins are ready to configure delivery." as const;

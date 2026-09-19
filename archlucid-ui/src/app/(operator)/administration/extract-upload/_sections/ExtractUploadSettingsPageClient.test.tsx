@@ -454,8 +454,8 @@ describe("ExtractUploadSettingsPageClient", () => {
     );
   });
 
-  it("prompts before replacing workspace baseline inventory", async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+  it("uploads immediately when workspace baseline inventory already exists", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
       if (url.includes("workspace-baseline-artifacts")) {
@@ -464,6 +464,13 @@ describe("ExtractUploadSettingsPageClient", () => {
 
       if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
         return scriptVersionResponse("1.0.0");
+      }
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Response(JSON.stringify({ packageId: "pkg-baseline-replace" }), {
+          status: 202,
+          headers: { "Content-Type": "application/json" },
+        });
       }
 
       return new Response("not found", { status: 404 });
@@ -497,9 +504,12 @@ describe("ExtractUploadSettingsPageClient", () => {
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(screen.getByTestId("extract-upload-baseline-overwrite-dialog")).toBeInTheDocument();
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining("/v1/azure-extractor/upload"),
+        expect.objectContaining({ method: "POST" }),
+      );
     });
 
-    expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("/v1/azure-extractor/upload"), expect.anything());
+    expect(screen.queryByTestId("extract-upload-baseline-overwrite-dialog")).not.toBeInTheDocument();
   });
 });

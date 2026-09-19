@@ -21,6 +21,7 @@ export const OPERATOR_SHORT_HELPER_MEASURE_GUARDED_SOURCES = [
   "src/app/(operator)/architecture/reviews/new/ReviewsNewJobChooserSection.tsx",
   "src/app/(operator)/governance/_sections/GovernanceOverviewPanel.tsx",
   "src/app/(operator)/governance/audit/_sections/AuditPageView.tsx",
+  "src/app/(operator)/governance/infrastructure/_sections/InfrastructureOverviewClient.tsx",
   "src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
   "src/app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageView.tsx",
   "src/app/(operator)/administration/_sections/SettingsPageView.tsx",
