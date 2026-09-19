@@ -45,7 +45,7 @@ describe("resolveExtractUploadHasInventoryOnFile", () => {
 });
 
 describe("resolveExtractUploadPackageSteps", () => {
-  it("emphasizes upload before parse", () => {
+  it("emphasizes upload before inventory is confirmed", () => {
     expect(
       resolveExtractUploadPackageEmphasizedStepId({
         packageAccepted: false,
@@ -54,7 +54,18 @@ describe("resolveExtractUploadPackageSteps", () => {
     ).toBe("upload");
   });
 
-  it("marks upload complete only after acceptance", () => {
+  it("marks upload complete when inventory is already on file", () => {
+    const steps = resolveExtractUploadPackageSteps({
+      packageAccepted: false,
+      inventoryParsed: true,
+    });
+
+    expect(steps).toHaveLength(2);
+    expect(steps.find((step) => step.id === "upload")?.complete).toBe(true);
+    expect(steps.find((step) => step.id === "parse")?.complete).toBe(true);
+  });
+
+  it("marks upload complete only after acceptance when inventory is not yet on file", () => {
     const steps = resolveExtractUploadPackageSteps({
       packageAccepted: true,
       inventoryParsed: false,
@@ -62,22 +73,16 @@ describe("resolveExtractUploadPackageSteps", () => {
 
     expect(steps.find((step) => step.id === "upload")?.complete).toBe(true);
     expect(steps.find((step) => step.id === "parse")?.complete).toBe(false);
-  });
-
-  it("marks upload complete when inventory is already on file", () => {
-    const steps = resolveExtractUploadPackageSteps({
-      providerSelected: true,
-      packageAccepted: false,
-      inventoryParsed: true,
-    });
-
-    expect(steps.find((step) => step.id === "upload")?.complete).toBe(true);
-    expect(steps.find((step) => step.id === "parse")?.complete).toBe(true);
+    expect(
+      resolveExtractUploadPackageEmphasizedStepId({
+        packageAccepted: true,
+        inventoryParsed: false,
+      }),
+    ).toBe("parse");
   });
 
   it("keeps upload pending while replacing inventory even when baseline exists", () => {
     const steps = resolveExtractUploadPackageSteps({
-      providerSelected: true,
       packageAccepted: false,
       inventoryParsed: true,
       replacingInventory: true,
@@ -86,7 +91,6 @@ describe("resolveExtractUploadPackageSteps", () => {
     expect(steps.find((step) => step.id === "upload")?.complete).toBe(false);
     expect(
       resolveExtractUploadPackageEmphasizedStepId({
-        providerSelected: true,
         packageAccepted: false,
         inventoryParsed: true,
         replacingInventory: true,
