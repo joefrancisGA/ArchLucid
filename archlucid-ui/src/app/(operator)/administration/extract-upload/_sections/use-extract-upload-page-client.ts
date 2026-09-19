@@ -51,7 +51,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const [advancedCommandOpen, setAdvancedCommandOpenState] = useState(() =>
     parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
   );
-  const [selectedPlatform, setSelectedPlatform] = useState<CloudInventoryPlatform>("azure");
+  const selectedPlatform: CloudInventoryPlatform = "azure";
   const [replaceInventoryMode, setReplaceInventoryMode] = useState(false);
   const [sessionAcceptedPackage, setSessionAcceptedPackage] = useState<ExtractUploadAcceptedPackageRecord | null>(
     null,
@@ -152,7 +152,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const extractUploadSteps = useMemo(
     () =>
       resolveExtractUploadPackageSteps({
-        providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
       }),
@@ -161,7 +160,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const extractUploadEmphasizedStepId = useMemo(
     () =>
       resolveExtractUploadPackageEmphasizedStepId({
-        providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
       }),
@@ -215,7 +213,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     lastAcceptedPackage,
     associateRunId,
     selectedPlatform,
-    setSelectedPlatform,
     maxMb,
     extractUploadSteps,
     extractUploadEmphasizedStepId,

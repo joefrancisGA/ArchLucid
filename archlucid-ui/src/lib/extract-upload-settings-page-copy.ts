@@ -130,5 +130,3 @@ export const EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND =
   "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass" as const;
 
 export const EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX = "Script SHA-256" as const;
-
-export const EXTRACT_UPLOAD_PROVIDER_SELECTOR_LABEL = "Cloud provider" as const;
