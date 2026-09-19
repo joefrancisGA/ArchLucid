@@ -7,16 +7,18 @@ import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useWorkingCreateStartHref } from "@/hooks/use-working-start-href";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH } from "@/app/(operator)/_sections/operator-home-page-surface-copy";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
 import {
-  resolveWorkingHomeNewReviewBridgeCopy,
   resolveWorkingHomeSingleStartPrimaryLabel,
 } from "@/lib/system-not-job-no-second-start-cta-working";
 import { cn } from "@/lib/utils";
 
 export type OperatorHomeWorkingPrimaryCtaProps = {
   readonly variant?: "primary" | "outline";
+  /** Buyer-polished Home renders orientation in the intro paragraph below the header. */
+  readonly suppressOrientationCopy?: boolean;
 };
 
 /** Working Overview sole primary — resume last architecture identity, else draft/review, else new work (PC-05 / ADR 0069). */
@@ -29,6 +31,8 @@ export function OperatorHomeWorkingPrimaryCta(
   const latestDraft = drafts[0] ?? null;
   const draftResume = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
   const workingCreateStartHref = useWorkingCreateStartHref();
+  const orientationCopy =
+    props.suppressOrientationCopy === true ? null : OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH;
 
   if (architectureTarget !== null) {
     return (
@@ -61,9 +65,11 @@ export function OperatorHomeWorkingPrimaryCta(
           {resolveWorkingHomeSingleStartPrimaryLabel()}
         </Link>
       </Button>
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-        {resolveWorkingHomeNewReviewBridgeCopy()}
-      </p>
+      {orientationCopy !== null ? (
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          {orientationCopy}
+        </p>
+      ) : null}
     </div>
   );
 }
