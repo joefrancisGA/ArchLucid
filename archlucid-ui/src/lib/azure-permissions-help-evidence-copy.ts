@@ -2,6 +2,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import { localizeEvidenceSourceLinks } from "@/lib/product-line/securenow-evidence-navigation";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 export const AZURE_PERMISSIONS_HELP_CANONICAL_PATH = "/help/azure-permissions" as const;
 

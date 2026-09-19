@@ -206,394 +206,71 @@ public static class AzureExtractorPackageInventoryReader
     private static (bool FilePresent, List<AzureInventoryFederatedCredentialRow> Rows) ReadFederatedCredentials(
         ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.FederatedCredentials);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.FederatedCredentials} root must be a JSON array.");
-            }
-
-            List<AzureInventoryFederatedCredentialRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryFederatedCredentialParser.TryParse(element, out AzureInventoryFederatedCredentialRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.FederatedCredentials} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryFederatedCredentialRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.FederatedCredentials,
+            AzureInventoryFederatedCredentialParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryEntraGroupMembershipRow> Rows) ReadEntraGroupMemberships(
         ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.EntraGroupMemberships);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.EntraGroupMemberships} root must be a JSON array.");
-            }
-
-            List<AzureInventoryEntraGroupMembershipRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryEntraGroupMembershipParser.TryParse(element, out AzureInventoryEntraGroupMembershipRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.EntraGroupMemberships} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryEntraGroupMembershipRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
+            AzureInventoryEntraGroupMembershipParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryAdfLinkedServiceRow> Rows) ReadAdfLinkedServices(
         ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfLinkedServices);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.AdfLinkedServices} root must be a JSON array.");
-            }
-
-            List<AzureInventoryAdfLinkedServiceRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryAdfLinkedServiceParser.TryParse(element, out AzureInventoryAdfLinkedServiceRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfLinkedServices} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryAdfLinkedServiceRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfLinkedServices,
+            AzureInventoryAdfLinkedServiceParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryAdfDatasetRow> Rows) ReadAdfDatasets(
         ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfDatasets);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.AdfDatasets} root must be a JSON array.");
-            }
-
-            List<AzureInventoryAdfDatasetRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryAdfDatasetParser.TryParse(element, out AzureInventoryAdfDatasetRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfDatasets} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryAdfDatasetRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfDatasets,
+            AzureInventoryAdfDatasetParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryAdfPipelineFlowRow> Rows) ReadAdfPipelineFlows(
         ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfPipelineFlows);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.AdfPipelineFlows} root must be a JSON array.");
-            }
-
-            List<AzureInventoryAdfPipelineFlowRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryAdfPipelineFlowParser.TryParse(element, out AzureInventoryAdfPipelineFlowRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfPipelineFlows} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryAdfPipelineFlowRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfPipelineFlows,
+            AzureInventoryAdfPipelineFlowParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryAdfTriggerRow> Rows) ReadAdfTriggers(ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfTriggers);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.AdfTriggers} root must be a JSON array.");
-            }
-
-            List<AzureInventoryAdfTriggerRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryAdfTriggerParser.TryParse(element, out AzureInventoryAdfTriggerRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfTriggers} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryAdfTriggerRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfTriggers,
+            AzureInventoryAdfTriggerParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryAdfIntegrationRuntimeRow> Rows) ReadAdfIntegrationRuntimes(
         ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes} root must be a JSON array.");
-            }
-
-            List<AzureInventoryAdfIntegrationRuntimeRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryAdfIntegrationRuntimeParser.TryParse(
-                        element,
-                        out AzureInventoryAdfIntegrationRuntimeRow? row,
-                        out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryAdfIntegrationRuntimeRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes,
+            AzureInventoryAdfIntegrationRuntimeParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryAdfDataflowRow> Rows) ReadAdfDataflows(ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfDataflows);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.AdfDataflows} root must be a JSON array.");
-            }
-
-            List<AzureInventoryAdfDataflowRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryAdfDataflowParser.TryParse(element, out AzureInventoryAdfDataflowRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfDataflows} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryAdfDataflowRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfDataflows,
+            AzureInventoryAdfDataflowParser.TryParse);
     }
 
     private static (bool FilePresent, List<AzureInventoryEventGridSubscriptionRow> Rows) ReadEventGridSubscriptions(
@@ -686,15 +363,10 @@ public static class AzureExtractorPackageInventoryReader
         try
         {
             using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException($"{entryName} root must be a JSON array.");
-            }
-
+            JsonElement[] elements = CloneCompanionArrayRows(document.RootElement, entryName);
             List<TRow> rows = [];
 
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            foreach (JsonElement element in elements)
             {
                 if (!tryParse(element, out TRow? row, out _))
                 {
@@ -725,50 +397,10 @@ public static class AzureExtractorPackageInventoryReader
     private static (bool FilePresent, List<AzureInventoryEffectiveNetworkControlRow> Rows) ReadEffectiveNetworkControls(
         ZipArchive archive)
     {
-        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.EffectiveNetworkControls);
-
-        if (entry is null)
-        {
-            return (false, []);
-        }
-
-        using Stream stream = entry.Open();
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                throw new JsonException(
-                    $"{AzureExtractorPackageZipEntryNames.EffectiveNetworkControls} root must be a JSON array.");
-            }
-
-            List<AzureInventoryEffectiveNetworkControlRow> rows = [];
-
-            foreach (JsonElement element in document.RootElement.EnumerateArray())
-            {
-                if (!AzureInventoryEffectiveNetworkControlParser.TryParse(element, out AzureInventoryEffectiveNetworkControlRow? row, out _))
-                {
-                    continue;
-                }
-
-                if (row is not null)
-                {
-                    rows.Add(row);
-                }
-            }
-
-            return (true, rows);
-        }
-        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
-        {
-            throw;
-        }
-        catch (JsonException)
-        {
-            throw new JsonException($"{AzureExtractorPackageZipEntryNames.EffectiveNetworkControls} is not valid JSON.");
-        }
+        return ReadCompanionRows<AzureInventoryEffectiveNetworkControlRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.EffectiveNetworkControls,
+            AzureInventoryEffectiveNetworkControlParser.TryParse);
     }
 
     private static List<JsonElement> ReadOptionalArray(ZipArchive archive, string entryName)
@@ -784,10 +416,7 @@ public static class AzureExtractorPackageInventoryReader
         {
             using JsonDocument document = JsonDocument.Parse(stream);
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-                throw new JsonException($"{entryName} root must be a JSON array.");
-
-            return document.RootElement.EnumerateArray().Select(static element => element.Clone()).ToList();
+            return CloneCompanionArrayRows(document.RootElement, entryName).ToList();
         }
         catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
         {
@@ -797,6 +426,16 @@ public static class AzureExtractorPackageInventoryReader
         {
             throw new JsonException($"{entryName} is not valid JSON.");
         }
+    }
+
+    private static JsonElement[] CloneCompanionArrayRows(JsonElement root, string entryName)
+    {
+        if (!AzureExtractorJsonArrayRoot.TryCloneRows(root, out JsonElement[] rows))
+        {
+            throw new JsonException($"{entryName} root must be a JSON array.");
+        }
+
+        return rows;
     }
 
     private static ZipArchiveEntry? FindEntry(ZipArchive archive, string entryName) =>

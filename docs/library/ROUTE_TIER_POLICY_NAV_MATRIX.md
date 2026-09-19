@@ -269,7 +269,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Notifications/SponsorDigestUnsubscribeController.cs` | `/v1/notifications/sponsor-digest` | none | AllowAnonymous |  |  |
 | `OperationalSecurity/OperationalSecurityArchitectMetricsController.cs` | `/v1/operational-security/architect-metrics` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/OperationalSecurityAssetAssertionsController.cs` | `/v1/operational-security/asset-assertions` | standard | ReadAuthority |  |  |
-| `OperationalSecurity/OperationalSecurityDeclaredConnectionsController.cs` | `/v1/operational-security/declared-connections` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/OperationalSecurityDeclaredConnectionsController.cs` | `/v1/operational-security/declared-connections` | standard | ReadAuthority | /governance/infrastructure/declared-connections |  |
 | `OperationalSecurity/OperationalSecurityFindingsController.cs` | `/v1/operational-security/findings` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/OperationalSecurityPathsController.cs` | `/v1/operational-security/paths` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/RemediationFactoryMetricsController.cs` | `/v1/operational-security/remediation-metrics` | standard | ReadAuthority |  |  |

@@ -1979,7 +1979,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": null
+      "nav_operator_href": "/governance/infrastructure/declared-connections"
     },
     {
       "controller_file": "OperationalSecurity/OperationalSecurityFindingsController.cs",

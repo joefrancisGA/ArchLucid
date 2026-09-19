@@ -23,6 +23,7 @@ import { readHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
 import type { WorkingCareerDoorGateResult } from "@/lib/governance/working-career-door-gate";
 import { resolveWorkingCareerDoorHostModeMatrixCell } from "@/lib/governance/working-career-door-host-mode-matrix";
 import { useWorkingCareerRehearsalDoor } from "@/hooks/use-working-career-rehearsal-door";
+import { shouldBypassSampleWorkspaceRecordPin } from "@/lib/governance/local-dev-record-startup";
 import {
   WORKING_CAREER_DOOR_DETAIL,
   WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL,
@@ -89,16 +90,19 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
   const [blockedDialogGate, setBlockedDialogGate] = useState<WorkingCareerDoorGateResult | null>(null);
   const [pendingDoor, setPendingDoor] = useState<WorkingCareerRehearsalDoorId | null>(null);
   const isSampleWorkspaceSession = useIsSampleWorkspaceSession();
+  const sampleWorkspaceRecordPinActive =
+    isSampleWorkspaceSession && !shouldBypassSampleWorkspaceRecordPin();
   const canShow = workspaceMounted && doorMounted && isWorkingWorkspaceMode(mode);
 
   const requestDoor = useCallback(
     (nextDoor: WorkingCareerRehearsalDoorId) => {
-      if (isSampleWorkspaceSession && nextDoor === "career") {
+      if (sampleWorkspaceRecordPinActive && nextDoor === "career") {
         return;
       }
 
       if (
         nextDoor === "rehearsal"
+        && !sampleWorkspaceRecordPinActive
         && !isSampleWorkspaceSession
         && !readHasExistingRunsCache()
       ) {
@@ -131,7 +135,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
 
       setDoor(nextDoor);
     },
-    [door, evaluateGate, hasInFlightReview, isSampleWorkspaceSession, setDoor],
+    [door, evaluateGate, hasInFlightReview, isSampleWorkspaceSession, sampleWorkspaceRecordPinActive, setDoor],
   );
 
   const cycleDoor = useCallback(() => {
@@ -172,7 +176,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
             id: option.id,
             label: labelForWorkingCareerRehearsalDoor(option.id),
             testId: workingCareerRehearsalDoorTestId(option.id),
-            disabled: isSampleWorkspaceSession && option.id === "career",
+            disabled: sampleWorkspaceRecordPinActive && option.id === "career",
           }))}
           activeTabId={door}
           onTabChange={(tabId) => {

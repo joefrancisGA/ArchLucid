@@ -6,13 +6,15 @@ description: Rank private-beta priority top 10 plus at least 15 Cursor suggestio
 
 Run this workflow **once per invocation**. Produce the **current top 10 tasks** (human **or** Cursor) that best mitigate ArchLucid's standing weaknesses and move the product to **private beta**. Then **stop**. Do **not** implement, edit tracked files, commit, push, or run a fresh assessment.
 
-This command is **read-only prioritization** for the private-beta milestone. It blends assessment weaknesses, ship gates, GTM proof work, and **live trunk CI** — not the general `/ship-next-improvement` backlog queue.
+This command is **read-only prioritization** for the private-beta milestone. It blends assessment weaknesses, ship gates, GTM proof work, and **live `RC34` CI** — not the general `/ship-next-improvement` backlog queue.
+
+**Release branch:** inspect **`RC34`** (the private-beta release cut). Do **not** rank from `master` / `main` CI.
 
 ---
 
 ## Private-beta definition (scope boundary)
 
-**Private beta** means: an invited user can reliably get from invitation → authentication → correct tenant → Operator first meaningful action, with JwtBearer (not DevelopmentBypass-only), while trunk corset + beta-readiness wiring stay green.
+**Private beta** means: an invited user can reliably get from invitation → authentication → correct tenant → Operator first meaningful action, with JwtBearer (not DevelopmentBypass-only), while **`RC34`** corset + beta-readiness wiring stay green.
 
 Authoritative references:
 
@@ -37,9 +39,9 @@ Same standing exclusions as other assessment commands:
 
 - **Never** promote GTM assessment items **#2, #3, #5, #6** (**M-90**, **M-44**, **M-91**, **M-92**) per `.cursor/rules/GTM-V1_1-assessment-exclusions.mdc`.
 - **Never** treat absent CPA SOC 2 or third-party pen-test publication as private-beta blockers per `.cursor/rules/V1_1-assurance-backlog.mdc`.
-- **Do not** re-open items marked **shipped this cycle** in `LATEST_GPT55.md` §17 preamble (e.g. AV suppressions, Gate 5 typecheck batch, azurerm pin, conflict-marker hotfix) unless **live trunk CI** or a newer merged PR proves regression.
+- **Do not** re-open items marked **shipped this cycle** in `LATEST_GPT55.md` §17 preamble (e.g. AV suppressions, Gate 5 typecheck batch, azurerm pin, conflict-marker hotfix) unless **live `RC34` CI** or a newer merged PR proves regression.
 - **Do not** list **V2**, **DEFERRED**, or **Hold for reassessment** engineering rows unless they block the private-beta access path today.
-- **Do not** rank prefix-family / `typed-engine-protected` / deep engine-corpus themes (**LATEST_GPT55.md** §8 #2, #8, #10) above **red trunk jobs**, **Gate 1 UNKNOWN**, or **private-beta JwtBearer failures** — those are design debt, not invite-wave blockers.
+- **Do not** rank prefix-family / `typed-engine-protected` / deep engine-corpus themes (**LATEST_GPT55.md** §8 #2, #8, #10) above **red `RC34` jobs**, **Gate 1 UNKNOWN**, or **private-beta JwtBearer failures** — those are design debt, not invite-wave blockers.
 - **Human vs Cursor:** label **Human** when only an owner can execute (GitHub ruleset UI apply, staging deploy approval, live pilot runs, screenshot capture, founder sign-off). Label **Cursor** when a coding agent can land code/tests/CI/docs in-repo without live customer participation.
 
 ---
@@ -55,15 +57,15 @@ Same standing exclusions as other assessment commands:
 
 ## Data sources (read in this order)
 
-### 1 — Live trunk CI (required)
+### 1 — Live RC34 CI (required)
 
-Inspect **current** `master` / `main` health before ranking. Prefer **completed** runs from the last ~48h.
+Inspect **current** `RC34` health before ranking. Prefer **completed** runs from the last ~48h. Do **not** substitute `master` / `main`.
 
 ```bash
-gh run list --branch master --limit 15
-gh run list --workflow ui-typecheck-on-push.yml --branch master --limit 5
-gh run list --workflow private-beta-access-on-push.yml --branch master --limit 5
-gh run list --workflow openapi-snapshot-refresh.yml --branch master --limit 5
+gh run list --branch RC34 --limit 15
+gh run list --workflow ui-typecheck-on-push.yml --branch RC34 --limit 5
+gh run list --workflow private-beta-access-on-push.yml --branch RC34 --limit 5
+gh run list --workflow openapi-snapshot-refresh.yml --branch RC34 --limit 5
 ```
 
 For any **failure** or **action_required** on beta-critical workflows, pull job names:
@@ -106,10 +108,10 @@ Use `docs/assessments/LATEST_EXPOSURE.md` §20 only when a private-beta-specific
 ### 4 — Recent merges (lightweight)
 
 ```bash
-git log origin/master -15 --oneline
+git log origin/RC34 -15 --oneline
 ```
 
-Close or downgrade tasks fixed on trunk in the last few merges (e.g. Playwright ESM `createRequire`, OpenAPI snapshot regen). Do not list them as `open`.
+Close or downgrade tasks fixed on **`RC34`** in the last few merges (e.g. Playwright ESM `createRequire`, OpenAPI snapshot regen). Do not list them as `open`.
 
 ---
 
@@ -119,7 +121,7 @@ Score each candidate task on **private-beta impact** (not general V1.1 polish):
 
 | Signal | Weight |
 | --- | --- |
-| Red **beta-critical** CI job on `master` | Highest — usually ranks 1–3 |
+| Red **beta-critical** CI job on `RC34` | Highest — usually ranks 1–3 |
 | **Gate 1 UNKNOWN** (no observed staging first review) | Highest human |
 | **G-REAL-06** zero pilots (commercial proof for beta cohort) | High human |
 | **§8 weakness #1** — corset decoupled from required checks | High human (apply ruleset) + Cursor (keep jobs green) |
@@ -158,12 +160,12 @@ Prefer these Cursor-actionable items (skip if `shipped`):
 
 ## Report format
 
-Lead with a one-paragraph **trunk snapshot** (last corset + private-beta job + OpenAPI job + staging CD if visible). Then **two tables**.
+Lead with a one-paragraph **RC34 snapshot** (last corset + private-beta job + OpenAPI job + staging CD if visible). Then **two tables**.
 
 ```markdown
 ## /al-beta — private-beta readiness
 
-**Trunk snapshot:** <1–3 sentences — corset green/red, private-beta job, OpenAPI, ruleset lag, Gate 1, G-REAL-06>
+**RC34 snapshot:** <1–3 sentences — corset green/red, private-beta job, OpenAPI, ruleset lag, Gate 1, G-REAL-06>
 **Primary weakness driving priority #1:** <§8 # or CI job name>
 
 ### Priority top 10
@@ -217,4 +219,4 @@ Lead with a one-paragraph **trunk snapshot** (last corset + private-beta job + O
 - Do **not** implement, commit, push, or update backlog/assessment files.
 - Do **not** run compile, test, or assessment generation.
 - Do **not** ask which branch to commit to (no commit will occur).
-- Do **not** substitute a generic weakness list without checking **live** `master` CI first.
+- Do **not** substitute a generic weakness list without checking **live** `RC34` CI first.

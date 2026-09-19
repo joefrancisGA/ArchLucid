@@ -39,7 +39,6 @@ import {
   EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
   EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
-  EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX,
   EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
   EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION,
@@ -61,7 +60,6 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/extract-upload-settings-page-copy";
 import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-package-record";
-import { truncateExtractorScriptSha256Digest } from "@/lib/extract-upload-script-hash";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -128,7 +126,6 @@ function ExtractUploadSettingsPageClientInner() {
     hasInventoryOnFile,
     extractorScriptVersion,
     extractorUpdateBanner,
-    extractorScriptSha256,
     lastAcceptedPackage,
     associateRunId,
     selectedPlatform,
@@ -319,23 +316,15 @@ function ExtractUploadSettingsPageClientInner() {
                     </pre>
                   </details>
                   {showScriptDownload ? (
-                    <div className="space-y-1">
-                      <a
-                        href={extractorScriptDownloadUrl}
-                        className={cn("inline-block", OPERATOR_LINK.nav)}
-                        target="_blank"
-                        rel="noreferrer"
-                        data-testid="extract-upload-script-download"
-                      >
-                        {EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL}
-                      </a>
-                      {extractorScriptSha256 !== null ? (
-                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="extract-upload-script-hash">
-                          {EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX}:{" "}
-                          <span className="font-mono">{truncateExtractorScriptSha256Digest(extractorScriptSha256)}</span>
-                        </p>
-                      ) : null}
-                    </div>
+                    <a
+                      href={extractorScriptDownloadUrl}
+                      className={cn("inline-block", OPERATOR_LINK.nav)}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-testid="extract-upload-script-download"
+                    >
+                      {EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL}
+                    </a>
                   ) : (
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                       Download {platformLabel} packager scripts from your ArchLucid checkout under <code>scripts/</code>.

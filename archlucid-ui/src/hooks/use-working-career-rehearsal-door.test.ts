@@ -1,7 +1,14 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { LOCAL_DEV_PRACTICE_SESSION_STORAGE_KEY } from "@/lib/governance/local-dev-record-startup";
 import { WORKING_CAREER_REHEARSAL_TENANT_STORAGE_KEY } from "@/lib/governance/working-career-rehearsal-door";
+
+const devOverridesMock = vi.hoisted(() => ({ enabled: false }));
+
+vi.mock("@/lib/dev-testing-overrides", () => ({
+  isDevTestingOverridesEnabled: () => devOverridesMock.enabled,
+}));
 
 const workspaceModeMock = vi.hoisted(() => ({
   mode: "working" as "guided" | "working",
@@ -41,6 +48,8 @@ vi.mock("@/lib/api/user-preferences", () => ({
 describe("useWorkingCareerRehearsalDoor", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
+    devOverridesMock.enabled = false;
     workspaceModeMock.mode = "working";
     agentExecutionModeMock.mode = "Simulator";
     getUserPreferencesMock.mockReset();
@@ -54,6 +63,30 @@ describe("useWorkingCareerRehearsalDoor", () => {
 
   afterEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+
+  it("starts on Record in local dev and keeps Practice in sessionStorage only", async () => {
+    devOverridesMock.enabled = true;
+    window.localStorage.setItem(WORKING_CAREER_REHEARSAL_TENANT_STORAGE_KEY, "rehearsal");
+
+    const { useWorkingCareerRehearsalDoor } = await import("@/hooks/use-working-career-rehearsal-door");
+    const { result } = renderHook(() => useWorkingCareerRehearsalDoor());
+
+    await waitFor(() => {
+      expect(result.current.door).toBe("career");
+    });
+    expect(getUserPreferencesMock).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.setDoor("rehearsal");
+    });
+
+    await waitFor(() => {
+      expect(result.current.door).toBe("rehearsal");
+    });
+    expect(window.sessionStorage.getItem(LOCAL_DEV_PRACTICE_SESSION_STORAGE_KEY)).toBe("rehearsal");
+    expect(setUserWorkingCareerRehearsalDoorMock).not.toHaveBeenCalled();
   });
 
   it("overlays an explicit server door over empty localStorage", async () => {

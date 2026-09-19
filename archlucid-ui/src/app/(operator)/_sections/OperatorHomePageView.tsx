@@ -64,6 +64,9 @@ type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;
 };
 
+/** Home lead/overview match PageHeaderClaimDiscipline — operator helper, not help-reading 15px. */
+const OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS = cn("m-0", OPERATOR_TYPOGRAPHY.helper);
+
 function HomeSectionHeading(props: { readonly id?: string; readonly children: string }) {
   return (
     <h2 id={props.id} className={OPERATOR_HOME_SECTION_HEADING}>
@@ -308,7 +311,7 @@ function OperatorHomePageBody(props: {
           >
             <div className="space-y-4" data-testid="operator-home-buyer-intro">
               <p
-                className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+                className={OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS}
                 data-testid="operator-home-intro"
               >
                 {OPERATOR_HOME_PAGE_LEAD}
@@ -316,7 +319,7 @@ function OperatorHomePageBody(props: {
             </div>
           </div>
           <p
-            className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+            className={OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS}
             data-testid="operator-home-overview"
           >
             {OPERATOR_HOME_BUYER_OVERVIEW}

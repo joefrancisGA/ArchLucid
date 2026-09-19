@@ -136,16 +136,16 @@ export function DeclaredConnectionsWorkbenchClient() {
         navHref={GOVERNANCE_INFRASTRUCTURE_PATH}
         title={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD}
-        actions={<PageContextualHelpButton topicId="infrastructure-declared-connections" />}
+        actions={<PageContextualHelpButton />}
       />
 
-      <p className={OPERATOR_TYPOGRAPHY.bodyMuted}>{GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE}</p>
+      <p className={OPERATOR_TYPOGRAPHY.helper}>{GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE}</p>
 
       <section className="space-y-3 rounded-md border border-border p-4" aria-labelledby="declared-connection-form-heading">
         <h2 id="declared-connection-form-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
           Add declared connection
         </h2>
-        <p className={OPERATOR_TYPOGRAPHY.bodyMuted}>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
           Use cloud resource IDs from the resource explorer. Connections are labeled HumanAssertion and expire unless renewed.
         </p>
 
@@ -231,9 +231,9 @@ export function DeclaredConnectionsWorkbenchClient() {
         </h2>
 
         {loading ? (
-          <p className={OPERATOR_TYPOGRAPHY.bodyMuted}>Loading declared connections…</p>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>Loading declared connections…</p>
         ) : (
-          <EnterpriseTable>
+          <EnterpriseTable ariaLabel="Declared connections">
             <EnterpriseTableHead>
               <EnterpriseTableRow>
                 <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>

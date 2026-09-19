@@ -145,6 +145,10 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 $roleAssignments.Count | Should -Be 1
                 $roleAssignments[0].principalId | Should -Be '11111111-1111-1111-1111-111111111111'
 
+                [string]$roleAssignmentsJson = Get-Content -LiteralPath $roleAssignmentsPath -Raw -Encoding Utf8
+                # One role assignment must remain a JSON array; pipeline ConvertTo-Json unwraps a single row to an object.
+                $roleAssignmentsJson.Trim().StartsWith('[') | Should -Be $true
+
                 [object[]]$resourceTypes = @( $resources | ForEach-Object { $_.resourceType } )
 
                 ($resourceTypes -contains 'Microsoft.Storage/storageAccounts') | Should -Be $true

@@ -21,6 +21,7 @@ describe("InfraEvidenceCompletenessWarningsBanner", () => {
     );
 
     expect(screen.getByTestId("infra-evidence-completeness-warnings-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-completeness-warnings-details")).toBeInTheDocument();
     expect(screen.getByText("Inventory completeness warnings (2)")).toBeInTheDocument();
     expect(screen.getByText(/App setting hostnames not collected on hosted pull/)).toBeInTheDocument();
     expect(screen.getByText(/Role assignment scope is too broad/)).toBeInTheDocument();

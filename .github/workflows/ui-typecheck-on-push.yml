@@ -1,11 +1,12 @@
-# Thin master/main push corset — gitleaks, OpenAPI v1 snapshot, dotnet build + Core/Decisioning
+# Thin master/main/RC34 push corset — gitleaks, OpenAPI v1 snapshot, dotnet build + Core/Decisioning
 # fast-core tests, UI typecheck, beta-readiness guards (WK-11 / WK-09).
 # Full CI matrix remains pull_request + workflow_dispatch in ci.yml.
+# RC34 is the private-beta release cut (/al-beta inspects this ref, not master).
 name: UI typecheck on push
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, RC34]
 
 concurrency:
   # One push corset per ref: cancel superseded trunk pushes so the queue drains to the latest SHA.

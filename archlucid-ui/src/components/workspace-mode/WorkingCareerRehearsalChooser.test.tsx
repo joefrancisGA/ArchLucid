@@ -44,6 +44,7 @@ const evaluateGateMock = vi.hoisted(() =>
 
 const inFlightReviewMock = vi.hoisted(() => ({ value: false }));
 const sampleWorkspaceMock = vi.hoisted(() => ({ isSample: false, hasRuns: true }));
+const localDevRecordStartupMock = vi.hoisted(() => ({ enabled: false }));
 
 const sessionModeMock = vi.hoisted(() => ({
   mode: "Simulator" as "Real" | "Simulator",
@@ -111,6 +112,10 @@ vi.mock("@/lib/operator/operator-scope-actions", () => ({
   visitSampleWorkspaceScope: vi.fn(),
 }));
 
+vi.mock("@/lib/governance/local-dev-record-startup", () => ({
+  shouldBypassSampleWorkspaceRecordPin: () => localDevRecordStartupMock.enabled,
+}));
+
 describe("WorkingCareerRehearsalChooser", () => {
   beforeEach(() => {
     workspaceModeMock.mode = "working";
@@ -128,6 +133,7 @@ describe("WorkingCareerRehearsalChooser", () => {
     inFlightReviewMock.value = false;
     sampleWorkspaceMock.isSample = false;
     sampleWorkspaceMock.hasRuns = true;
+    localDevRecordStartupMock.enabled = false;
   });
 
   it("renders Career and Rehearsal segmented controls in Working mode", () => {
@@ -331,5 +337,23 @@ describe("WorkingCareerRehearsalChooser", () => {
     fireEvent.click(screen.getByRole("button", { name: WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CANCEL_ACTION }));
 
     expect(doorMock.setDoor).not.toHaveBeenCalled();
+  });
+
+  it("allows Record on the sample workspace when local dev startup bypass is enabled", () => {
+    sampleWorkspaceMock.isSample = true;
+    localDevRecordStartupMock.enabled = true;
+    doorMock.door = "rehearsal";
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-rehearsal-door-career")).not.toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("working-career-rehearsal-door-career"));
+
+    expect(doorMock.setDoor).toHaveBeenCalledWith("career");
   });
 });

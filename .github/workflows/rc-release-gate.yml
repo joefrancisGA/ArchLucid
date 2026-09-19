@@ -10,6 +10,7 @@ on:
       - "v*-rc*"
     branches:
       - "release/**"
+      - RC34
 
 permissions:
   contents: read
