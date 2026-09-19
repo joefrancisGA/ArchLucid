@@ -3,6 +3,9 @@
  * @see docs/library/UI_DESIGN_SYSTEM.md
  */
 
+import { OPERATOR_TYPE_SCALE } from "./design-tokens-shell-typography";
+import { cn } from "@/lib/utils";
+
 /** Shared card chrome for operator surfaces — prefer over per-page `px-2.5` overrides. */
 export const OPERATOR_CARD = {
   /** CardHeader: 16px inset, 12px title → body when paired with {@link OPERATOR_CARD.content}. */
@@ -94,6 +97,13 @@ export const OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS = "h-8";
 
 /** Inventory hub toolbars — align search/select height with adjacent filter chips. */
 export const OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS = OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS;
+
+/** Sticky header find-a-page search — compact type aligned with top-bar control density. */
+export const OPERATOR_SHELL_GLOBAL_SEARCH_INPUT_CLASS = cn(
+  OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
+  OPERATOR_TYPE_SCALE.navHelper,
+  "text-al-text-primary",
+);
 
 /**
  * Sidebar + main content row beneath the sticky header.

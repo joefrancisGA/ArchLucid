@@ -16,7 +16,7 @@ import { GlobalSearchQuickActionsPanel } from "@/components/GlobalSearchQuickAct
 import { GlobalSearchReviewDetailSectionsPanel } from "@/components/GlobalSearchReviewDetailSectionsPanel";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_GLOBAL_SEARCH_INPUT_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import type { ReviewPackageSearchScope } from "@/lib/review-detail-package-search-scope";
 import { cn } from "@/lib/utils";
@@ -112,7 +112,10 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
             aria-describedby={`${inputId}-helper`}
             aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
             autoComplete="off"
-            className="h-8 border-neutral-300 bg-white pr-14 text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"
+            className={cn(
+              OPERATOR_SHELL_GLOBAL_SEARCH_INPUT_CLASS,
+              "border-neutral-300 bg-white pr-14 placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400",
+            )}
           />
           <div
             className="absolute inset-y-0 right-2 flex items-center"
