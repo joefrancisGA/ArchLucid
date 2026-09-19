@@ -6036,3 +6036,4 @@
 {"at":"2026-09-19T00:45:01.6343725Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-19T00:45:05.6487427Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-19T00:45:09.2879735Z","zoneId":"tenant-data-export","outcome":"seed-only"}
+{"at":"2026-09-19T00:45:13.4802576Z","zoneId":"persistence-identity","outcome":"seed-only"}
