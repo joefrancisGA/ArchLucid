@@ -4,7 +4,7 @@
 # Triggers:
 #   - workflow_dispatch — manual refresh on any branch
 #   - pull_request (same-repo only) — auto-commit when OpenAPI-relevant paths change
-#   - push to main/master (same paths) — auto-commit when contract-layer changes land directly on default branch
+#   - push to main/master/RC34 (same paths) — auto-commit when contract-layer changes land directly on default or RC34
 #
 # See docs/library/OPENAPI_CONTRACT_DRIFT.md
 name: "Refresh OpenAPI v1 snapshot"
@@ -28,7 +28,7 @@ on:
         default: true
 
   push:
-    branches: [main, master]
+    branches: [main, master, RC34]
     paths: &openapi-contract-paths
       - 'ArchLucid.Api/**'
       - 'ArchLucid.Api.Tests/**'
