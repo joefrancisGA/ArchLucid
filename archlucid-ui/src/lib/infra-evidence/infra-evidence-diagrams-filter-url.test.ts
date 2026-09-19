@@ -18,13 +18,13 @@ describe("infra-evidence-diagrams-filter-url", () => {
     expect(parseInfraDiagramsCloudResourceIdFromSearch("11111111-1111-1111-1111-111111111111")).toBe(
       "11111111-1111-1111-1111-111111111111",
     );
-    expect(parseInfraDiagramsMermaidModeFromSearch(null)).toBe(INFRA_DIAGRAMS_DEFAULT_MODE);
+    expect(parseInfraDiagramsMermaidModeFromSearch(null)).toBe("");
     expect(parseInfraDiagramsMermaidModeFromSearch("network")).toBe("network");
     expect(parseInfraDiagramsMermaidModeFromSearch("dataFlow")).toBe("dataFlow");
     expect(parseInfraDiagramsMermaidModeFromSearch("dataArchitecture")).toBe("dataArchitecture");
     expect(parseInfraDiagramsMermaidModeFromSearch("resourceGroup")).toBe("resourceGroup");
     expect(parseInfraDiagramsMermaidModeFromSearch("dependencyNeighborhood")).toBe("dependencyNeighborhood");
-    expect(parseInfraDiagramsMermaidModeFromSearch("bogus")).toBe(INFRA_DIAGRAMS_DEFAULT_MODE);
+    expect(parseInfraDiagramsMermaidModeFromSearch("bogus")).toBe("");
     expect(parseInfraDiagramsMermaidViewFromSearch("executive")).toBe("executive");
     expect(parseInfraDiagramsSeedNodeIdFromSearch("/subscriptions/x")).toBe("/subscriptions/x");
   });
@@ -43,12 +43,18 @@ describe("infra-evidence-diagrams-filter-url", () => {
       infraDiagramsFilterHrefFromSearch(
         "snapshotId=snap-1&mermaidMode=network&mermaidView=executive&seedNodeId=node-1",
         {
-          mermaidMode: INFRA_DIAGRAMS_DEFAULT_MODE,
+          mermaidMode: "",
           mermaidView: "",
           seedNodeId: "",
         },
       ),
     ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1");
+
+    expect(
+      infraDiagramsFilterHrefFromSearch("snapshotId=snap-1", {
+        mermaidMode: INFRA_DIAGRAMS_DEFAULT_MODE,
+      }),
+    ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1&mermaidMode=executive");
   });
 
   it("builds scoped diagrams workbench href with cloudResourceId", () => {
