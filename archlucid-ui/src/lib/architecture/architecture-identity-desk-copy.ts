@@ -5,11 +5,11 @@ export const ARCHITECTURE_IDENTITY_DESK_PAGE_TITLE = "Architecture" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_UPDATED_LABEL = "Last updated" as const;
 
-export const ARCHITECTURE_IDENTITY_DESK_CURRENT_DRAFT_LABEL = "Current draft" as const;
+export const ARCHITECTURE_IDENTITY_DESK_CURRENT_DRAFT_LABEL = "Current architecture draft" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_CONTINUE_ARCHITECTURE_LABEL = "Continue this architecture" as const;
 
-export const ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT = "No open draft" as const;
+export const ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT = "No open architecture draft" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL =
   CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL;
@@ -27,18 +27,18 @@ export const ARCHITECTURE_IDENTITY_DESK_RENAME_SAVE_LABEL = "Save name" as const
 export const ARCHITECTURE_IDENTITY_DESK_RENAME_EMPTY_ERROR = "Enter a name for this architecture." as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_RENAME_HELPER =
-  "Renames the durable architecture identity. Draft document titles stay unchanged." as const;
+  "Renames the durable architecture identity. Architecture draft document titles stay unchanged." as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY =
-  "This URL opens an architecture draft, not the durable architecture identity. Save or link the draft to reopen it from your architecture portfolio." as const;
+  "This URL opens an architecture draft, not the durable architecture identity. Save or link the architecture draft to reopen it from your architecture portfolio." as const;
 
 export const ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE = "Architectures" as const;
 
 export const ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE =
-  "Durable architecture identities in this workspace — each groups drafts and sealed review records." as const;
+  "Durable architecture identities in this workspace — each groups architecture drafts and sealed review records." as const;
 
 export const ARCHITECTURE_IDENTITY_LIST_CLAIM_DISCIPLINE =
-  "Each row is a durable architecture identity — not a draft or a sealed review record. Open one to see its drafts and reviews." as const;
+  "Each row is a durable architecture identity — not an architecture draft or a sealed review record. Open one to see its architecture drafts and reviews." as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE =
   "This is the durable architecture identity for your system — not a sealed review record." as const;
@@ -70,7 +70,7 @@ export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_RETRY_LABEL = "Retry" as
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_SECTION_TITLE = "Architecture versions" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_HONESTY =
-  "Version pins are read-only history — not a draft merge or edit surface." as const;
+  "Version pins are read-only history — not an architecture draft merge or edit surface." as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_EMPTY =
   "No architecture version pins yet for this identity." as const;
@@ -90,7 +90,7 @@ export const ARCHITECTURE_IDENTITY_TABLE_UPDATED_COLUMN = "Updated" as const;
 
 export const ARCHITECTURE_IDENTITY_TABLE_REVIEWS_COLUMN = "Reviews" as const;
 
-export const ARCHITECTURE_IDENTITY_TABLE_DRAFTS_COLUMN = "Drafts" as const;
+export const ARCHITECTURE_IDENTITY_TABLE_DRAFTS_COLUMN = "Architecture drafts" as const;
 
 export const ARCHITECTURE_IDENTITY_LIST_SHOW_ARCHIVED_LABEL = "Show archived" as const;
 
@@ -115,7 +115,7 @@ export const ARCHITECTURE_IDENTITY_RESTORE_SUCCESS_TOAST = "Architecture restore
 export const ARCHITECTURE_IDENTITY_ARCHIVE_FAILURE_MESSAGE = "Could not update archive state." as const;
 
 export const architectureIdentityArchiveConfirmDescription = (displayName: string): string =>
-  `${displayName.trim().length > 0 ? displayName.trim() : "This architecture"} will leave your default portfolio. Drafts and sealed review records stay attached — open them from this desk or turn on Show archived on the hub.`;
+  `${displayName.trim().length > 0 ? displayName.trim() : "This architecture"} will leave your default portfolio. Architecture drafts and sealed review records stay attached — open them from this desk or turn on Show archived on the hub.`;
 
 export const architectureIdentityRestoreConfirmDescription = (displayName: string): string =>
   `${displayName.trim().length > 0 ? displayName.trim() : "This architecture"} will reappear in your default Working portfolio.`;

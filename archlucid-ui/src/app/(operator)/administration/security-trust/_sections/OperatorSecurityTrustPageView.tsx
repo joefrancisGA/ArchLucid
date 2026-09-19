@@ -33,7 +33,7 @@ import {
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_LABEL,
-  OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE,
+  resolveOperatorSecurityTrustDataRetentionNote,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE,
@@ -285,6 +285,7 @@ export function OperatorSecurityTrustPageView() {
   const { productLine } = useProductLine();
   const materialItems = operatorSecurityTrustMaterialItems(productLine);
   const ndaRequestHref = operatorSecurityTrustNdaRequestHrefForProductLine(productLine);
+  const dataRetentionNote = resolveOperatorSecurityTrustDataRetentionNote(productLine);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
@@ -428,7 +429,7 @@ export function OperatorSecurityTrustPageView() {
         </h2>
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            {OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE}
+            {dataRetentionNote}
           </p>
           <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION}

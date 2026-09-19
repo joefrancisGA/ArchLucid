@@ -71,7 +71,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Sends diagnostics to")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
     [InlineData(GraphEdgeTypes.MayAccess, "May access")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Publishes to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Triggers")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Runs on")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, "Captures to")]

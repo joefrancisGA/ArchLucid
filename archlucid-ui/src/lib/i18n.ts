@@ -129,7 +129,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/architecture/sponsor-dashboard`); the standalone sponsor-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Sponsor dashboard",
   SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
-  /** Architecture hub (`/architecture/architectures`) — Working: identity portfolio; Guided: draft inventory (CA-32). */
+  /** Architecture hub (`/architecture/architectures`) — Working: identity portfolio; Guided: architecture draft inventory (CA-32). */
   architectures: ARCHITECTURE_IDENTITIES_NAV_LABEL,
   /** Unified packages list (`/architecture/reviews`) — reviews plus architecture drafts. */
   packages: "Packages",

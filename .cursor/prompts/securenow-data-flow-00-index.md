@@ -50,7 +50,7 @@ Keep: Network / Executive / Identity / existing **Data** mode as the ARM categor
 
 Do **not** switch Executive/Network/Data emission to `flowchart LR`. Data Flow **may** use left-to-right stage columns; that change is **SN-DF-03 only**.
 
-Do **not** add App → MI → SQL edges (connection-point P1 — later wave). Do **not** invent Power BI / Fabric / Databricks nodes. Do **not** stamp TLS 1.3 or Confidential. Do **not** generate classic `Order Processing` process DFDs. Do **not** hide desktop review workspace tabs behind **More**.
+Do **not** add App → MI → SQL edges in SN-DF (that is **SN-PE**). Do **not** invent Power BI / Fabric / Databricks nodes. Do **not** stamp TLS 1.3 or Confidential. Do **not** generate classic `Order Processing` process DFDs. Do **not** hide desktop review workspace tabs behind **More**.
 
 ## Relationship to prior work
 

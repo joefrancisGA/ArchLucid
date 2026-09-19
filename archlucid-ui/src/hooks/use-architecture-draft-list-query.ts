@@ -41,7 +41,7 @@ export function useArchitectureDraftListQuery(options?: { readonly enabled?: boo
   };
 }
 
-/** Invalidates the server-backed draft inventory after create, patch, abandon, or submit. */
+/** Invalidates the server-backed architecture draft inventory after create, patch, abandon, or submit. */
 export function useInvalidateArchitectureDraftList(): () => void {
   const queryClient = useQueryClient();
 

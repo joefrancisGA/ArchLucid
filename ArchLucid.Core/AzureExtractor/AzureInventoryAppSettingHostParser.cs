@@ -46,10 +46,14 @@ public static class AzureInventoryAppSettingHostParser
         string? host = TryReadBoundedString(element, "host", MaxNameLength);
         string? keyVaultHost = TryReadBoundedString(element, "keyVaultHost", MaxNameLength);
         string? secretName = TryReadBoundedString(element, "secretName", MaxNameLength);
+        string? catalog = TryReadBoundedString(element, "catalog", MaxNameLength);
+        string? secretRef = TryReadBoundedString(element, "secretRef", MaxNameLength);
 
         if (AzureInventoryAppSettingHostRedactor.ShouldRejectValue(host)
             || AzureInventoryAppSettingHostRedactor.ShouldRejectValue(keyVaultHost)
-            || AzureInventoryAppSettingHostRedactor.ShouldRejectValue(secretName))
+            || AzureInventoryAppSettingHostRedactor.ShouldRejectValue(secretName)
+            || AzureInventoryAppSettingHostRedactor.ShouldRejectValue(catalog)
+            || AzureInventoryAppSettingHostRedactor.ShouldRejectValue(secretRef))
         {
             errorMessage = "Companion row contains rejected secret-like content.";
 
@@ -63,6 +67,8 @@ public static class AzureInventoryAppSettingHostParser
             Host = host,
             KeyVaultHost = keyVaultHost,
             SecretName = secretName,
+            Catalog = catalog,
+            SecretRef = secretRef,
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };

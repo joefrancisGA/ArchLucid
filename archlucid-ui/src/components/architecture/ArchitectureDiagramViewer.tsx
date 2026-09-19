@@ -315,7 +315,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_.clusterLabelText]:font-bold [&_svg_.clusterLabelText]:fill-neutral-800 dark:[&_svg_.clusterLabelText]:fill-neutral-100',
   '[&_svg_.cluster-label_text]:font-bold [&_svg_.cluster-label_.nodeLabel]:font-bold',
   '[&_svg_.rg-frame_text]:font-bold [&_svg_.rg-frame_text]:fill-neutral-800 dark:[&_svg_.rg-frame_text]:fill-neutral-100',
-  '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
+  '[&_svg_.nodeLabel]:text-[13px] [&_svg_.nodeLabel]:leading-5 [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
   '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
   // Fallback ink when Mermaid CSS is stripped. Scope to card bodies only — never pictogram or accent rects.

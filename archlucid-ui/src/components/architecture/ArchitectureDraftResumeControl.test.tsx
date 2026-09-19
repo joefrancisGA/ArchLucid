@@ -42,7 +42,7 @@ describe("ArchitectureDraftResumeControl", () => {
     reopenDraftRequest.mockReset();
   });
 
-  it("navigates to the draft when the architecture is still drafting", async () => {
+  it("navigates to the architecture draft when the architecture is still drafting", async () => {
     getDraftRequest.mockResolvedValue(draft("Drafting"));
 
     render(
@@ -82,7 +82,7 @@ describe("ArchitectureDraftResumeControl", () => {
     expect(routerPush).not.toHaveBeenCalled();
   });
 
-  it("reopens the draft then navigates after unlock", async () => {
+  it("reopens the architecture draft then navigates after unlock", async () => {
     getDraftRequest.mockResolvedValue(draft("Admitted"));
     reopenDraftRequest.mockResolvedValue(draft("Drafting"));
 
@@ -112,7 +112,7 @@ describe("ArchitectureDraftResumeControl", () => {
     });
   });
 
-  it("shows an inline error instead of a toast when opening the draft fails", async () => {
+  it("shows an inline error instead of a toast when opening the architecture draft fails", async () => {
     getDraftRequest.mockRejectedValue(
       new ApiRequestError("Draft not found in this tenant.", {
         problem: { title: "Not Found", detail: "Draft not found in this tenant.", type: "about:blank" },
@@ -124,14 +124,14 @@ describe("ArchitectureDraftResumeControl", () => {
     render(
       <ArchitectureDraftResumeControl
         draftId="arch-001"
-        label="Continue draft"
+        label="Continue architecture draft"
         source="architectures-new"
         variant="primary"
         testId="architecture-creation-resume-draft-continue-arch-001"
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Continue draft" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue architecture draft" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toBeInTheDocument();
@@ -152,8 +152,8 @@ describe("ArchitectureDraftResumeControl", () => {
   it("shows an inline error when unlock fails", async () => {
     getDraftRequest.mockResolvedValue(draft("Admitted"));
     reopenDraftRequest.mockRejectedValue(
-      new ApiRequestError("Unlock is not allowed for this draft.", {
-        problem: { title: "Conflict", detail: "Unlock is not allowed for this draft.", type: "about:blank" },
+      new ApiRequestError("Unlock is not allowed for this architecture draft.", {
+        problem: { title: "Conflict", detail: "Unlock is not allowed for this architecture draft.", type: "about:blank" },
         correlationId: "corr-unlock-001",
         httpStatus: 409,
       }),
@@ -162,14 +162,14 @@ describe("ArchitectureDraftResumeControl", () => {
     render(
       <ArchitectureDraftResumeControl
         draftId="arch-001"
-        label="Continue draft"
+        label="Continue architecture draft"
         source="architectures-new"
         variant="primary"
         testId="architecture-creation-resume-draft-continue-arch-001"
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Continue draft" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue architecture draft" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-intake-mode-dialog-unlock")).toBeInTheDocument();

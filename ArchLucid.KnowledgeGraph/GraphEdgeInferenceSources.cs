@@ -75,6 +75,8 @@ public static class GraphEdgeInferenceSources
     public const string InventoryContainerAppEnv = "inventory-container-app-env";
 
     public const string InventoryPeDnsZoneGroup = "inventory-pe-dns-zone-group";
+
+    public const string InventoryPeReachableTarget = "inventory-pe-reachable-target";
     public const string InventoryPolicyAssignment = "inventory-policy-assignment";
     public const string InventoryNsgAllowRule = "inventory-nsg-allow-rule";
 

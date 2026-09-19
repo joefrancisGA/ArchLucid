@@ -38,4 +38,12 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
     public const string AppSettingsNotCollectedHostedGetOnly = "app-settings-not-collected-hosted-get-only";
 
     public const string AppSettingsHostUnresolved = "app-settings-host-unresolved";
+
+    public const string AppSettingsCatalogTemplate = "app-settings-catalog-template";
+
+    public const string AppSettingsSqlCatalogMissing = "app-settings-sql-catalog-missing";
+
+    public const string AppSettingsHostsContainerAppsEnvMissing = "app-settings-hosts-container-apps-env-missing";
+
+    public const string PeReachableDnsLinkMissing = "pe-reachable-dns-link-missing";
 }

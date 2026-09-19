@@ -1,7 +1,7 @@
 > **Scope:** Product design for SecureNow / inventory **data architecture** and **data flow** diagrams. **Contributor-reference** — internal engineering only. **Not implementation.**
 > **Created:** 2026-09-16
 > **Spine:** [`../library/SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md) · **Observation plane:** [`../library/INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md) · **Collector:** [`../library/AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · **Connection points:** [`../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md) · **Data-mode leftovers:** [`../architecture/INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md)
-> **Hold:** Do not claim observed traffic, exfiltration, or data classification from ARM inventory. Capability-to-flow copy stays “may access / declared wiring.” See [`../library/SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md).
+> **Hold:** Do not claim observed traffic, exfiltration, or data classification from ARM inventory. Capability-to-flow copy stays “may access / declared wiring.” See [`../library/SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md). Observed overlay is a later wave: [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) (**SN-RT**).
 
 # Data architecture and data flow diagrams
 
@@ -57,7 +57,7 @@ Inventory can discover **declared** and **authorized** relationships. It cannot 
 | ADF `adfLinkedService` | Factory connected to this ARM target | `ObservedFact` |
 | ADF `adfLinkedServiceInferred` | Likely connected (unique hostname match) | `DeterministicInference` |
 | Private endpoint → store | Network path to the store, not ETL | `ObservedFact` |
-| App MI + RBAC (future) | Application **may access** this store | Derived / inferred — not traffic |
+| App MI + RBAC | Application **may access** this store | Derived / inferred — not traffic; Data Flow family **SN-PE** |
 | TLS 1.3 / encryption on the canvas | Do not stamp unless collected | Azure SQL TLS is **assumed**, not observed |
 | Classification (Confidential) | Do not invent | Needs a separate data-class source or HumanAssertion |
 
@@ -273,8 +273,9 @@ If the factory both reads and writes, two arrows — not one undirected “Conne
 
 | Slice | Diagram | Notes |
 |-------|---------|--------|
-| App → MI → SQL / storage | 3 (second flow family) + security overlay | Connection-point **P1**; copy = may access — **AX-DE-03** |
-| Remaining ADF / Synapse / Event Grid / Logic / messaging | 3 | Collector prompts **AX-DE-05–13** — do not collect from SN-DF chats |
+| App → MI → SQL / storage | 3 (second flow family) + security overlay | Connection-point **P1**; copy = may access — collected **AX-DE-03**; **paint on Data Flow** via **SN-PE-03** |
+| Remaining ADF / Synapse / Event Grid / Logic / messaging | 3 | Collector **AX-DE-05–13** shipped — do not collect from SN-DF/SN-PE chats; Data Flow families **SN-PE-03** / **SN-PE-05** |
+| PE hop Web App → store | 3 (network-path family, not spine) | **SN-PE-04** — DNS zone join required; not 95% Observed |
 | Databricks / Fabric / Power BI | 2 and 3 Transform / Analytics / Consumer | Only when the resource is in the snapshot — **AX-DE-16** |
 | Zone labels Raw / Curated | 3 | Inference; say so — dataset location **AX-DE-08** |
 | Security overlay | Example 3 | Identity on the edge first (MI); classification only with a real source |
@@ -301,8 +302,9 @@ If the factory both reads and writes, two arrows — not one undirected “Conne
 | ZIP companions | `adf-linked-services.json`, `adf-datasets.json`, `adf-pipeline-flows.json` in [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
 | Data-mode prompts (SQL in Data mode) | IE-DD-01–04 — **do not re-run from SN-DF chats** |
 | Data flow / architecture **implementation prompts** | [`../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) (**SN-DF-01–08**) |
+| Evidence-based probable families on Data Flow | [`EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) · prompts **SN-PE-01–07** |
 | App/MI/RBAC feasibility | [`AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md) |
-| Extractor collection to feed these pictures | [`../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) (**AX-DE-01–18**) — **do not implement from SN-DF chats** |
+| Extractor collection to feed these pictures | [`../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) (**AX-DE-01–18**) — **do not implement from SN-DF/SN-PE chats** |
 
 ## 9. Success criteria
 

@@ -48,7 +48,7 @@ export const ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD =
   "Review assessment findings for this architecture draft before you finalize the review package.";
 
 export const ARCHITECTURE_CREATED_FINDINGS_OVERVIEW =
-  "Findings panels below list surfaced assessment items, severity cues, and triage follow-ups for this draft scope.";
+  "Findings panels below list surfaced assessment items, severity cues, and triage follow-ups for this architecture draft scope.";
 
 /** Buyer bridge between first-viewport lead and findings workspace (REF). */
 export const ARCHITECTURE_CREATED_FINDINGS_BUYER_OVERVIEW = ARCHITECTURE_CREATED_FINDINGS_OVERVIEW;

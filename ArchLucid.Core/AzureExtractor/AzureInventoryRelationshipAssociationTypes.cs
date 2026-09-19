@@ -88,6 +88,11 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string PeDnsZoneGroup = "peDnsZoneGroup";
 
+    /// <summary>
+    ///     Composed compute → store hop when private DNS proves reachability (SN-PE-04). Never ObservedFact.
+    /// </summary>
+    public const string PeReachableTarget = "peReachableTarget";
+
     public const string AvdSessionHostToVm = "avdSessionHostToVm";
 
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
@@ -132,6 +137,7 @@ public static class AzureInventoryRelationshipAssociationTypes
         Observed(FrontDoorToOrigin, AzureInventoryRelationshipArmKind.FrontDoor, AzureInventoryRelationshipArmKind.BackendPoolMember, "CONNECTS_TO", "inventory-front-door-origin"),
         Observed(ContainerAppToEnv, AzureInventoryRelationshipArmKind.ContainerApp, AzureInventoryRelationshipArmKind.ContainerAppEnvironment, "CONNECTS_TO", "inventory-container-app-env"),
         Observed(PeDnsZoneGroup, AzureInventoryRelationshipArmKind.PrivateEndpoint, AzureInventoryRelationshipArmKind.PrivateDnsZone, "CONNECTS_TO", "inventory-pe-dns-zone-group"),
+        Inferred(PeReachableTarget, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-pe-reachable-target", ProvenanceKind.DerivedFact),
         Observed(
             AvdSessionHostToVm,
             AzureInventoryRelationshipArmKind.VirtualDesktopSessionHost,

@@ -37,7 +37,7 @@ describe("system-not-job spawn-lock draft back honesty (SN-005)", () => {
     expect(existsSync(join(REPO_ROOT, WORKING_BACK_HREF_PATH))).toBe(true);
   });
 
-  it("never returns the writable nested draft editor as the spawn-locked primary back href", () => {
+  it("never returns the writable nested architecture draft editor as the spawn-locked primary back href", () => {
     const backHref = resolveSpawnLockedDraftPrimaryBackHref({
       linkedReviewId: "run-001",
       parentArchitectureId: "architecture-identity-001",

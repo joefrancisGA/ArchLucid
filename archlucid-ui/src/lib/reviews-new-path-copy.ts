@@ -47,7 +47,7 @@ export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
 /** Mode-specific hint shown under the path tabs (one sentence per active mode). */
 export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
   "guided-intake":
-    "Structured clarifying questions when you want readiness checks and branch drafts before starting the review.",
+    "Structured clarifying questions when you want readiness checks and branch architecture drafts before starting the review.",
   "quick-review":
     "Quick start: review title, attach evidence, and start a review in one screen.",
   detailed:

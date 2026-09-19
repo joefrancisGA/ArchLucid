@@ -10,7 +10,7 @@ export async function invalidateArchitectureDraftListQueries(): Promise<void> {
   });
 }
 
-/** Drops one draft from the cached hub inventory immediately after abandon/delete. */
+/** Drops one architecture draft from the cached hub inventory immediately after abandon/delete. */
 export function removeArchitectureDraftFromListCache(draftId: string): void {
   const trimmedId = draftId.trim();
 

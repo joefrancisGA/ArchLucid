@@ -149,7 +149,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     });
   });
 
-  it("sends confirmed and suggested constraints and assumptions to the draft API", async () => {
+  it("sends confirmed and suggested constraints and assumptions to the architecture draft API", async () => {
     mockDraftSuggestResponse({
       suggestedConstraints: [],
       suggestedAssumptions: [],
@@ -673,7 +673,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.getByTestId("architecture-draft-suggest-structured-brief-budget-blocked")).toBeInTheDocument();
   });
 
-  it("shows an editor-locked hint when the draft form is disabled", () => {
+  it("shows an editor-locked hint when the architecture draft form is disabled", () => {
     render(
       <StructuredBriefHarness
         freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
@@ -781,7 +781,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     });
   });
 
-  it("resumes a queued suggest operation when returning to the draft", async () => {
+  it("resumes a queued suggest operation when returning to the architecture draft", async () => {
     trackAdvisoryDraftInFlight({
       operationId: succeededDraftSuggestOperation.operationId,
       draftId: "arch-001",

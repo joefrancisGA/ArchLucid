@@ -7,7 +7,7 @@ import { findEffectReadSites } from "@/lib/query/effect-read-scanner";
  * is the wrong owner: a one-shot write, a cache seed, or a call the scanner cannot prove is a read.
  */
 const NON_QUERY_SITES: readonly string[] = [
-  // Creates the draft and seeds form fields once per intake; both effects are guarded by a ref.
+  // Creates the architecture draft and seeds form fields once per intake; both effects are guarded by a ref.
   "src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-workflow.ts",
   // Exchanges the OAuth authorization code exactly once; replaying it on a refetch would fail.
   "src/app/(operator)/auth/callback/CallbackClient.tsx",

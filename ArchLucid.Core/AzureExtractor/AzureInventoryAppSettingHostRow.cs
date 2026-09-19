@@ -35,6 +35,18 @@ public sealed class AzureInventoryAppSettingHostRow
         init;
     }
 
+    public string? Catalog
+    {
+        get;
+        init;
+    }
+
+    public string? SecretRef
+    {
+        get;
+        init;
+    }
+
     public string CollectionStatus
     {
         get;

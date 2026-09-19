@@ -72,7 +72,16 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
                 logger,
                 cancellationToken).ConfigureAwait(false);
 
+        HostedAzureInventoryAppSettingHostCollectResult appSettingHostResult =
+            await HostedAzureInventoryAppSettingHostCollector.CollectAsync(
+                armReadClient,
+                accessToken,
+                resources,
+                logger,
+                cancellationToken).ConfigureAwait(false);
+
         collectionWarnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsNotCollectedHostedGetOnly);
+        collectionWarnings.AddRange(appSettingHostResult.CollectionWarnings);
 
         return new HostedAzureDiagramEnrichmentCollectResult
         {
@@ -81,6 +90,7 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
             MessagingAssociations = messagingAssociations,
             PaasChildAssociations = paasChildResult.Associations,
             ServiceConnectorLinks = serviceConnectorLinks,
+            AppSettingHosts = appSettingHostResult.AppSettingHosts,
             CollectionWarnings = collectionWarnings,
         };
     }

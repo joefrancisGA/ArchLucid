@@ -17,7 +17,7 @@ Keep Data Flow diagrams inside declared Azure wiring. Do not turn SecureNow into
 | Confidential / classification on nodes or edges | Needs HumanAssertion or a separate class source |
 | Classic Level-1 DFD (`Order Processing` processes) | Inventory has resources, not business processes |
 | Fake Databricks / Fabric / Power BI nodes | Only if the ARM type is in the snapshot |
-| App → MI → SQL as this set | Connection-point **P1** — later wave; copy = may access |
+| App → MI → SQL as this set | Collected **AX-DE-03**; Data Flow paint is **SN-PE** — not SN-DF |
 | Customer → App Gateway → Web App on Data Flow | Diagram 1 (network) or a later app-flow overlay |
 | ADLS Raw vs Curated as ObservedFact | Heuristic only in a later slice, labeled inference |
 | Second ZIP collector / SQL DMV table harvest | One collector family; no ER diagrams in SN-DF |
@@ -39,9 +39,9 @@ ADF linked services + pipeline flows (+ external source nodes)
 
 ## When to start a *new* prompt set instead
 
-- App/MI/RBAC `appAuthorizedAccess` (security Example 3 identity on the edge).
+- App/MI/RBAC **on Data Flow**, Event Grid family, DNS-joined PE hop, ordinal bands — **SN-PE** ([`securenow-probable-evidence-00-index.md`](securenow-probable-evidence-00-index.md)). Do not implement SN-PE from an SN-DF chat.
 - Power BI / Fabric tenant collection.
 - SQL table/FK ER diagrams.
 - Zone-name heuristics for Raw/Curated.
 
-Until then, empty Consumer/Transform is correct.
+Until SN-PE, empty Consumer/Transform is still correct when those ARM types are absent.

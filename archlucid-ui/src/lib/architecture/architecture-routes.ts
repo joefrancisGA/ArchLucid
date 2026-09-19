@@ -1,13 +1,13 @@
 ﻿/** Architecture draft list. */
 export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;
 
-/** Query param for opening a draft editor under an architecture identity desk (ADR 0074). */
+/** Query param for opening a architecture draft editor under an architecture identity desk (ADR 0074). */
 export const ARCHITECTURE_DRAFT_QUERY_PARAM = "draft" as const;
 
 /** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{draftId}`). */
 export const ARCHITECTURES_NEW_PATH = "/architecture/architectures/new" as const;
 
-/** Route segment for the unsaved new-draft workspace — not a server draft id. */
+/** Route segment for the unsaved new-architecture draft workspace — not a server draft id. */
 export const ARCHITECTURE_NEW_DRAFT_SEGMENT = "new" as const;
 
 /** Architecture reviews list (hub). */
@@ -39,7 +39,7 @@ export function architectureIdentityPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;
 }
 
-/** Opens the nested draft editor under a durable architecture identity desk (ADR 0077 / AO-05). */
+/** Opens the nested architecture draft editor under a durable architecture identity desk (ADR 0077 / AO-05). */
 export function architectureIdentityDraftHref(architectureId: string, draftId: string): string {
   return architectureNestedDraftPath(architectureId, draftId);
 }

@@ -9,12 +9,12 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const ARCHITECTURES_LIST_CANONICAL_PATH = ARCHITECTURES_LIST_PATH;
 
 export const ARCHITECTURES_LIST_CLAIM_DISCIPLINE =
-  "The architectures list shows saved drafts only — browsing here does not start a review. Use Create architecture or Start a review when you are ready to draft or file evidence.";
+  "The architectures list shows saved architecture drafts only — browsing here does not start a review. Use Create architecture or Start a review when you are ready to draft or file evidence.";
 
 export const ARCHITECTURES_LIST_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.architecturesHub;
 
 export const ARCHITECTURES_LIST_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "you are ready to create a draft, start a review, or need first-run orientation",
+  "you are ready to create an architecture draft, start a review, or need first-run orientation",
 );
 
 

@@ -39,7 +39,7 @@ describe("SN-029 drafts reachable from Working portfolio", () => {
     );
   });
 
-  it("shows the draft band only in Working mode", () => {
+  it("shows the architecture draft band only in Working mode", () => {
     expect(resolveSystemNotJobWorkingPortfolioShowsDraftSection(true)).toBe(true);
     expect(resolveSystemNotJobWorkingPortfolioShowsDraftSection(false)).toBe(false);
   });
@@ -58,7 +58,9 @@ describe("SN-029 drafts reachable from Working portfolio", () => {
   });
 
   it("Working nav title mentions drafts on the portfolio page", () => {
-    expect(resolveSystemNotJobWorkingArchitecturesListNavTitle()).toContain("Drafts are listed on this page");
+    expect(resolveSystemNotJobWorkingArchitecturesListNavTitle()).toContain(
+      "Architecture drafts are listed on this page",
+    );
   });
 
   it("ratchet module documents SN-029 anchor and surfaces", () => {

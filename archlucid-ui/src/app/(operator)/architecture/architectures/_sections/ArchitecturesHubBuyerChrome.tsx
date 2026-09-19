@@ -5,7 +5,7 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { ArchitecturesHubClaimOrientationStrip } from "./ArchitecturesHubClaimOrientationStrip";
 
-/** Guided eval chrome: mount Sources orientation above the draft inventory workspace (ARA). */
+/** Guided eval chrome: mount Sources orientation above the architecture draft inventory workspace (ARA). */
 export function ArchitecturesHubBuyerChrome(): React.JSX.Element | null {
   const evalChromeShell = useProductionEvalChrome();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();

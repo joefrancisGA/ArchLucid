@@ -31,6 +31,13 @@ const CATALOG_ARM_TYPES: readonly string[] = [
   "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
 ];
 
+const SQL_DATABASE_ARM_TYPE_PREFIXES: readonly string[] = [
+  "Microsoft.Sql/servers/databases",
+  "Microsoft.Sql/managedInstances/databases",
+];
+
+const NEVER_SHOW_SQL_DATABASE_NAMES: readonly string[] = ["master"];
+
 const LAST_SEGMENTS: readonly string[] = [
   "dashboards",
   "workspaces",
@@ -86,8 +93,44 @@ export function shouldOmitAzureInventoryNeverShowArmType(armType: string | null 
   return LAST_SEGMENTS.some((segment) => segment === lastSegment);
 }
 
+export function shouldOmitAzureInventoryNeverShowSqlDatabaseName(
+  resourceType: string | null | undefined,
+  resourceName: string | null | undefined,
+): boolean {
+  if (!isSqlDatabaseResourceType(resourceType)) {
+    return false;
+  }
+
+  const trimmedName = resourceName?.trim() ?? "";
+
+  if (trimmedName.length === 0) {
+    return false;
+  }
+
+  const normalizedName = trimmedName.toLowerCase();
+
+  return NEVER_SHOW_SQL_DATABASE_NAMES.some((databaseName) => databaseName === normalizedName);
+}
+
+function isSqlDatabaseResourceType(resourceType: string | null | undefined): boolean {
+  const trimmed = resourceType?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return SQL_DATABASE_ARM_TYPE_PREFIXES.some(
+    (prefix) => trimmed.localeCompare(prefix, undefined, { sensitivity: "accent" }) === 0
+      || trimmed.toLowerCase().startsWith(`${prefix.toLowerCase()}/`),
+  );
+}
+
 export function shouldOmitInfraEvidenceOutlineNode(node: InfraEvidenceMermaidOutlineNode): boolean {
-  return shouldOmitAzureInventoryNeverShowArmType(node.resourceType);
+  if (shouldOmitAzureInventoryNeverShowArmType(node.resourceType)) {
+    return true;
+  }
+
+  return shouldOmitAzureInventoryNeverShowSqlDatabaseName(node.resourceType, node.label);
 }
 
 export function filterInfraEvidenceMermaidOutline(

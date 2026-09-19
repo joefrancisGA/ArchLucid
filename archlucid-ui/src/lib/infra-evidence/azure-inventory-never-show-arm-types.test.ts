@@ -24,6 +24,26 @@ describe("azure-inventory-never-show-arm-types", () => {
     expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Compute/virtualMachines")).toBe(false);
   });
 
+  it("omits SQL Server master databases from diagram outlines", () => {
+    expect(
+      shouldOmitInfraEvidenceOutlineNode({
+        id: "sql-master",
+        label: "master",
+        resourceType: "Microsoft.Sql/servers/databases",
+        resourceGroup: "rg-data",
+      }),
+    ).toBe(true);
+
+    expect(
+      shouldOmitInfraEvidenceOutlineNode({
+        id: "sql-app",
+        label: "appdb",
+        resourceType: "Microsoft.Sql/servers/databases",
+        resourceGroup: "rg-data",
+      }),
+    ).toBe(false);
+  });
+
   it("filters never-show nodes from diagram outlines by default", () => {
     const outline = filterInfraEvidenceMermaidOutline(
       {

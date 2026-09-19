@@ -240,7 +240,7 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.MessagingAssociations,
             diagramEnrichment.PaasChildAssociations,
             diagramEnrichment.ServiceConnectorLinks,
-            appSettingHosts: null,
+            appSettingHosts: diagramEnrichment.AppSettingHosts,
             collectionWarnings: collectionWarnings,
             actualCostSummary: actualCostSummary,
             policyComplianceDocument: policyComplianceDocument,
@@ -448,7 +448,7 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.MessagingAssociations,
             diagramEnrichment.PaasChildAssociations,
             diagramEnrichment.ServiceConnectorLinks,
-            appSettingHosts: null,
+            appSettingHosts: diagramEnrichment.AppSettingHosts,
             collectionWarnings: collectionWarnings);
 
         string fileName =

@@ -28,7 +28,7 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "network", label: "Network" },
   { value: "identity", label: "Identity" },
   { value: "data", label: "Data" },
-  { value: "dataFlow", label: "Data flow" },
+  { value: "dataFlow", label: "Data flow diagram" },
   { value: "dataArchitecture", label: "Data architecture" },
   { value: "full", label: "Full subscription" },
   { value: "resourceGroup", label: "Pick a Resource Group" },

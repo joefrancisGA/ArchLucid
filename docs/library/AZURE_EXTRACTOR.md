@@ -2,13 +2,14 @@
 
 # Azure extractor
 
-ArchLucid ingests read-only Azure inventory from a schema-versioned ZIP produced either by the customer-run PowerShell collector (**Tier 1**) or by ArchLucid's hosted collector (**Tier 2**, opt-in).
+ArchLucid ingests read-only Azure inventory from a schema-versioned ZIP produced either by the customer-run PowerShell collector (**Tier 1**) or by ArchLucid's hosted collector (**Tier 2**, opt-in). **Production customer-owned cadence:** schedule the same Tier 1 collector as an Azure Automation runbook or Function timer so operators do not pull from a command line or UI — see [`docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](../runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md).
 
 ## Tier 1 — customer-run PowerShell
 
 - Script: [`scripts/azure/Get-ArchLucidAzurePackage.ps1`](../../scripts/azure/Get-ArchLucidAzurePackage.ps1)
 - Upload: `POST /v1/azure-extractor/upload` (multipart `file`, optional `runId`)
 - No ArchLucid credentials run in the customer tenant.
+- **Scheduled agent (recommended for production):** [`deploy/customer-templates/scheduled-agent/`](../../deploy/customer-templates/scheduled-agent/) — Automation runbook (Terraform) or Function timer wrapping `Invoke-ArchLucidScheduledAzureExtractor.ps1`.
 
 ## Tier 2 — cloud-hosted extractor (Workload Identity Federation)
 
@@ -98,6 +99,6 @@ See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZ
 | Ingest path | Collected ZIP flows through **`HostedAzureExtractorClient`** into the existing upload/audit pipeline (same events as manual upload). |
 | Operations | Leader-elected loop gated by `AzureExtractor:AutoPull:Enabled` (default `false`) and `AzureExtractor:AutoPull:IntervalMinutes` (15–10080). |
 
-**Customer-owned alternative (available today):** schedule `Get-ArchLucidAzurePackage.ps1` in customer CI and POST the ZIP — no ArchLucid standing credentials. See [`docs/runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md`](../runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md).
+**Customer-owned alternative (available today):** schedule `Get-ArchLucidAzurePackage.ps1` via the **scheduled agent** (Automation runbook / Function) or customer CI and POST the ZIP — no ArchLucid standing credentials. See [`docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](../runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md) and [`docs/runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md`](../runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md).
 
 See also: [`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md), [`docs/library/V1_SCOPE.md`](V1_SCOPE.md) §2.16.

@@ -7,6 +7,8 @@ public static class AzureInventoryDataFlowStageNames
 {
     public const string Source = "Source";
 
+    public const string Application = "Application";
+
     public const string Ingestion = "Ingestion";
 
     public const string Storage = "Storage";
@@ -18,6 +20,7 @@ public static class AzureInventoryDataFlowStageNames
     public static readonly IReadOnlyList<string> OrderedStages =
     [
         Source,
+        Application,
         Ingestion,
         Storage,
         Transform,

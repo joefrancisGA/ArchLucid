@@ -43,6 +43,7 @@ const evaluateGateMock = vi.hoisted(() =>
 );
 
 const inFlightReviewMock = vi.hoisted(() => ({ value: false }));
+const sampleWorkspaceMock = vi.hoisted(() => ({ isSample: false, hasRuns: true }));
 
 const sessionModeMock = vi.hoisted(() => ({
   mode: "Simulator" as "Real" | "Simulator",
@@ -98,6 +99,18 @@ vi.mock("@/hooks/session-ai-readiness-context", () => ({
   useSessionAiReadiness: () => readinessMock,
 }));
 
+vi.mock("@/hooks/use-effective-operator-scope", () => ({
+  useIsSampleWorkspaceSession: () => sampleWorkspaceMock.isSample,
+}));
+
+vi.mock("@/lib/operator/operator-run-presence", () => ({
+  readHasExistingRunsCache: () => sampleWorkspaceMock.hasRuns,
+}));
+
+vi.mock("@/lib/operator/operator-scope-actions", () => ({
+  visitSampleWorkspaceScope: vi.fn(),
+}));
+
 describe("WorkingCareerRehearsalChooser", () => {
   beforeEach(() => {
     workspaceModeMock.mode = "working";
@@ -113,6 +126,8 @@ describe("WorkingCareerRehearsalChooser", () => {
     doorMock.setDoor.mockReset();
     evaluateGateMock.mockClear();
     inFlightReviewMock.value = false;
+    sampleWorkspaceMock.isSample = false;
+    sampleWorkspaceMock.hasRuns = true;
   });
 
   it("renders Career and Rehearsal segmented controls in Working mode", () => {

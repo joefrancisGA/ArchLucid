@@ -56,6 +56,24 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             Should -Be $true
     }
 
+    It 'omits SQL Server master databases from never-show filtering' {
+        $masterDatabase = [ordered]@{
+            resourceType = 'Microsoft.Sql/servers/databases'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod/databases/master'
+            name = 'master'
+        }
+        $appDatabase = [ordered]@{
+            resourceType = 'Microsoft.Sql/servers/databases'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod/databases/appdb'
+            name = 'appdb'
+        }
+
+        Test-ArchLucidAzureInventoryNeverShowResource -Resource $masterDatabase |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResource -Resource $appDatabase |
+            Should -Be $false
+    }
+
     It 'omits private-link-only network interfaces from never-show filtering' {
         $inventory = @(
             [ordered]@{
@@ -98,6 +116,28 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
                 resourceType = 'Microsoft.Network/publicIPAddresses'
                 resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/unattached-pip'
                 properties = @{}
+            }
+        )
+
+        { Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory } |
+            Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
+    }
+
+    It 'skips subnet child resources and virtual networks without subnets under strict mode' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks/subnets'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default'
+                properties = [pscustomobject]@{ provisioningState = 'Succeeded' }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1'
+                properties = [pscustomobject]@{ provisioningState = 'Succeeded' }
             }
         )
 
@@ -325,6 +365,36 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].policyDefinitionId | Should -Match 'policyDefinitions/audit-storage'
     }
 
+    It 'maps policy assignments that omit PolicySetDefinitionId without throwing' {
+        $assignment = [PSCustomObject]@{
+            Scope = '/subscriptions/sub1'
+            PolicyDefinitionId = '/providers/Microsoft.Authorization/policyDefinitions/audit-storage'
+            Name = 'audit-storage-assignment'
+            ResourceId = '/subscriptions/sub1/providers/Microsoft.Authorization/policyAssignments/abc'
+        }
+
+        { Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment) } | Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment))
+
+        $rows.Count | Should -Be 1
+        $rows[0].policyDefinitionId | Should -Match 'policyDefinitions/audit-storage'
+    }
+
+    It 'maps initiative policy assignments that omit PolicyDefinitionId' {
+        $assignment = [PSCustomObject]@{
+            Scope = '/subscriptions/sub1'
+            PolicySetDefinitionId = '/providers/Microsoft.Authorization/policySetDefinitions/audit-initiative'
+            Name = 'audit-initiative-assignment'
+            ResourceId = '/subscriptions/sub1/providers/Microsoft.Authorization/policyAssignments/def'
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment))
+
+        $rows.Count | Should -Be 1
+        $rows[0].policyDefinitionId | Should -Match 'policySetDefinitions/audit-initiative'
+    }
+
     It 'collects diagnostic settings for path-relevant resources' {
         function Invoke-AzRestMethod {
             param(
@@ -423,6 +493,142 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
 
         $kvParsed.keyVaultHost | Should -Be 'myvault.vault.azure.net'
         $kvParsed.secretName | Should -Be 'sql-password'
+    }
+
+    It 'parses sql catalog https hosts and template catalog warnings' {
+        $sqlParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'SqlConnection' `
+            -Value 'Server=tcp:prodsql.database.windows.net,1433;Initial Catalog=archlucid;'
+
+        $sqlParsed.parsedHost | Should -Be 'prodsql.database.windows.net'
+        $sqlParsed.catalog | Should -Be 'archlucid'
+
+        $blobParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'BlobUri' `
+            -Value 'https://starchlucidevarts.blob.core.windows.net/'
+
+        $blobParsed.parsedHost | Should -Be 'starchlucidevarts.blob.core.windows.net'
+
+        $vaultParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'VaultUri' `
+            -Value 'https://kvrgexample.vault.azure.net/'
+
+        $vaultParsed.keyVaultHost | Should -Be 'kvrgexample.vault.azure.net'
+
+        $apiParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'ARCHLUCID_API_BASE_URL' `
+            -Value 'https://archlucid-api.eastus2.azurecontainerapps.io'
+
+        $apiParsed.parsedHost | Should -Be 'archlucid-api.eastus2.azurecontainerapps.io'
+
+        $templateParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'SqlConnection' `
+            -Value 'Server=tcp:prodsql.database.windows.net,1433;Initial Catalog={0};'
+
+        $templateParsed.parsedHost | Should -Be 'prodsql.database.windows.net'
+        $templateParsed.catalog | Should -Be $null
+        $templateParsed.warningCode | Should -Be 'app-settings-catalog-template'
+    }
+
+    It 'collects container app env host rows without persisting values' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            $Method | Should -Be 'GET'
+            $Path | Should -Match 'Microsoft.App/containerApps/app1'
+
+            return [PSCustomObject]@{
+                StatusCode = 200
+                Content = (@{
+                    properties = @{
+                        template = @{
+                            containers = @(
+                                @{
+                                    name = 'app'
+                                    env = @(
+                                        @{
+                                            name = 'ConnectionStrings__ArchLucid'
+                                            value = 'Server=tcp:sql1.database.windows.net,1433;Initial Catalog=archlucid;'
+                                        }
+                                        @{
+                                            name = 'ConnectionStrings__ArchLucidSecret'
+                                            secretRef = 'al-cs-key'
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    }
+                } | ConvertTo-Json -Depth 12)
+            }
+        }
+
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.App/containerApps'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.App/containerApps/app1'
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureAppSettingHostCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 2
+        ($rows | Where-Object { $_.settingName -eq 'ConnectionStrings__ArchLucid' }).host |
+            Should -Be 'sql1.database.windows.net'
+        ($rows | ConvertTo-Json -Depth 6) | Should -Not -Match '1433'
+        ($rows | Where-Object { $_.settingName -eq 'ConnectionStrings__ArchLucidSecret' }).secretRef |
+            Should -Be 'al-cs-key'
+    }
+
+    It 'never posts container app env collection requests' {
+        $postedPaths = [System.Collections.ArrayList]::new()
+
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            if ($Method -eq 'POST')
+            {
+                [void]$postedPaths.Add($Path)
+            }
+
+            return [PSCustomObject]@{
+                StatusCode = 200
+                Content = (@{
+                    properties = @{
+                        template = @{
+                            containers = @(
+                                @{
+                                    name = 'app'
+                                    env = @(
+                                        @{
+                                            name = 'ARCHLUCID_API_BASE_URL'
+                                            value = 'https://archlucid-api.eastus2.azurecontainerapps.io'
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    }
+                } | ConvertTo-Json -Depth 12)
+            }
+        }
+
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.App/containerApps'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.App/containerApps/app1'
+            }
+        )
+
+        [void](Get-ArchLucidAzureAppSettingHostCompanionRows -InventoryResources $inventory)
+
+        @($postedPaths) | Should -Be @()
     }
 
     It 'collects service connector linker rows when linkers exist' {

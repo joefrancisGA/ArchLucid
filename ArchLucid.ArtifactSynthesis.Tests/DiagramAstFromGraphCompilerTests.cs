@@ -1132,10 +1132,85 @@ public sealed class DiagramAstFromGraphCompilerTests
         ast.Nodes.Should().HaveCount(3);
         ast.Edges.Should().HaveCount(2);
         ast.FlowchartDirection.Should().Be("LR");
-        ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.PrimarySentence);
+        ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence);
         mermaid.Should().StartWith("flowchart LR");
         mermaid.Should().Contain("Writes to");
         mermaid.Should().NotContain("corp-vnet");
+    }
+
+    [Fact]
+    public void Compile_data_flow_mode_includes_web_app_may_access_without_vnet()
+    {
+        GraphSnapshot graph = BuildDataFlowProbableEvidenceGraph(includeVnet: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(4);
+        ast.Nodes.Should().Contain(node => node.Label == "orders-api");
+        ast.Edges.Should().Contain(edge => edge.Label == "Writes to");
+        ast.Edges.Should().Contain(edge => edge.Label == "May access");
+        ast.Edges.Should().HaveCount(3);
+        mermaid.Should().NotContain("corp-vnet");
+        ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.EvidenceFamiliesPrimarySentence);
+    }
+
+    [Fact]
+    public void Compile_data_flow_mode_excludes_diagnostic_edges()
+    {
+        GraphSnapshot graph = BuildDataFlowProbableEvidenceGraph(includeVnet: false);
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-diagnostic",
+            FromNodeId = "web-app",
+            ToNodeId = "sql-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination,
+            Label = AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryDiagnosticDestination,
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Edges.Should().NotContain(edge => edge.Label == "Sends diagnostics to");
+    }
+
+    [Fact]
+    public void Compile_data_flow_mode_excludes_private_endpoint_target_only()
+    {
+        GraphSnapshot graph = BuildDataFlowProbableEvidenceGraph(includeVnet: true);
+        GraphNode pe = CreateTopologyNode(
+            "pe-1",
+            "pe-sql",
+            "Microsoft.Network/privateEndpoints",
+            "rg-net",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Network);
+        graph.Nodes.Add(pe);
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-pe-target",
+            FromNodeId = "pe-1",
+            ToNodeId = "sql-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+            Label = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Nodes.Should().NotContain(node => node.Label == "pe-sql");
+        ast.Edges.Should().NotContain(edge => edge.Label == "connects");
+    }
+
+    [Fact]
+    public void Compile_data_flow_honesty_legend_forbids_percent_sign()
+    {
+        DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence.Should().NotContain("%");
+        DiagramDataFlowHonestyLegend.EvidenceFamiliesPrimarySentence.Should().NotContain("%");
+        DiagramDataFlowHonestyLegend.AuthorizedAccessBandSentence.Should().NotContain("%");
+        DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence.Should().NotContain("%");
     }
 
     [Fact]
@@ -1254,6 +1329,32 @@ public sealed class DiagramAstFromGraphCompilerTests
             Label = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
             Weight = 1,
             InferenceSource = GraphEdgeInferenceSources.InventoryAdfWritesTo,
+        });
+
+        return graph;
+    }
+
+    private static GraphSnapshot BuildDataFlowProbableEvidenceGraph(bool includeVnet)
+    {
+        GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: includeVnet);
+        GraphNode webApp = CreateTopologyNode(
+            "web-app",
+            "orders-api",
+            "Microsoft.Web/sites",
+            "rg-app",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Compute);
+        graph.Nodes.Add(webApp);
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-may-access",
+            FromNodeId = "web-app",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.MayAccess,
+            Label = GraphEdgeTypes.MayAccess,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAppAuthorizedAccess,
+            ProvenanceKind = "DerivedFact",
         });
 
         return graph;

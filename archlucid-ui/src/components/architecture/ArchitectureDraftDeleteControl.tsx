@@ -160,7 +160,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
         data-testid={props.testId ?? `architecture-draft-delete-${props.draftId}`}
         onClick={() => setConfirmOpen(true)}
       >
-        {props.buttonLabel ?? "Delete draft"}
+        {props.buttonLabel ?? "Delete architecture draft"}
       </Button>
       <ConfirmationDialog
         open={confirmOpen}
