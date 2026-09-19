@@ -112,7 +112,7 @@ export function buildArchitectureDraftPatchPayload(
   };
 }
 
-/** Maps a persisted draft document to workspace field state for readiness checks. */
+/** Maps a persisted architecture draft document to workspace field state for readiness checks. */
 export function architectureDraftFieldsFromDocument(draft: DraftRequestResponse): ArchitectureDraftFieldState {
   const bootstrapIntent = isArchitectureCreationBootstrapIntent(draft.document.freeTextIntent);
 

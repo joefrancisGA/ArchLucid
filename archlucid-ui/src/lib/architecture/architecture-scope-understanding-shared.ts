@@ -87,7 +87,7 @@ export const SCOPE_UNDERSTANDING_SECTION_HEADER = "Operator-confirmed in-scope u
 /** Ready line for surfaces where confirming scope is the last step before the review starts. */
 export const SCOPE_UNDERSTANDING_READY_HINT = "You can start the review.";
 export const SCOPE_UNDERSTANDING_SAVE_ERROR_HINT =
-  "Scope is confirmed locally, but the draft could not be saved. Fix the errors above, then save again.";
+  "Scope is confirmed locally, but the architecture draft could not be saved. Fix the errors above, then save again.";
 export const SCOPE_UNDERSTANDING_SAVING_HINT = "Saving scope to draft…";
 export const SCOPE_UNDERSTANDING_STALE_HINT =
   "Scope changed — re-confirm before starting a review.";

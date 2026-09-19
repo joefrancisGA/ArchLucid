@@ -35,14 +35,14 @@ export const OPERATOR_HOME_IN_PROGRESS_HEADING = "In progress";
 export const OPERATOR_HOME_ACTIVE_REVIEWS_LEAD =
   "Open an in-progress review or start another formal review when your architecture is ready.";
 
-export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest draft";
+export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest architecture draft";
 
 export const OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA = "Continue in review intake";
 
 export const OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA = "Continue in review";
 
-/** Eyebrow on eval-with-drafts home hero — saved draft architecture, not a lifecycle status. */
-export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
+/** Eyebrow on eval-with-drafts home hero — saved architecture draft, not a lifecycle status. */
+export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Architecture draft";
 
 export function formatOperatorHomeDraftArchitectureEyebrow(
   draftLastEditedLabel: string | null,
@@ -73,13 +73,13 @@ export function formatOperatorHomeContinueArchitectureLead(
   const refineGuidance = resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid);
 
   if (safeCount === 1) {
-    return `1 draft saved — ${refineGuidance}`;
+    return `1 architecture draft saved — ${refineGuidance}`;
   }
 
-  return `${safeCount} drafts saved — ${refineGuidance}`;
+  return `${safeCount} architecture drafts saved — ${refineGuidance}`;
 }
 
-/** Single-row draft status beside Resume latest draft on Overview (eval-with-drafts). */
+/** Single-row draft status beside Resume latest architecture draft on Overview (eval-with-drafts). */
 export function formatOperatorHomeCompactDraftStatusRow(
   draftCount: number,
   draftLastEditedLabel: string | null,
@@ -114,10 +114,10 @@ export function formatOperatorHomePastDraftingLead(displayName: string): string 
   const trimmedName = displayName.trim();
 
   if (trimmedName.length > 0) {
-    return `${trimmedName} is already in review intake — continue from here instead of reopening the draft workspace.`;
+    return `${trimmedName} is already in review intake — continue from here instead of reopening the architecture draft workspace.`;
   }
 
-  return "This architecture is already in review intake — continue from here instead of reopening the draft workspace.";
+  return "This architecture is already in review intake — continue from here instead of reopening the architecture draft workspace.";
 }
 
 export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCount: number): string {
@@ -129,10 +129,10 @@ export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCo
   }
 
   if (trimmedName.length > 0) {
-    return `Pick up "${trimmedName}" — your most recent draft — or start a formal review from the lifecycle steps below.`;
+    return `Pick up "${trimmedName}" — your most recent architecture draft — or start a formal review from the lifecycle steps below.`;
   }
 
-  return "Resume your most recent draft or start a formal review from the lifecycle steps below.";
+  return "Resume your most recent architecture draft or start a formal review from the lifecycle steps below.";
 }
 
 export const OPERATOR_HOME_RECOMMENDED_NEXT_HEADING = "Recommended next";
@@ -154,7 +154,7 @@ export const OPERATOR_HOME_YOUR_WORK_COLUMN_CREATED = "Created";
 export const OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS = "Status";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY_COMPACT =
-  "Describe your system or connect cloud inventory to produce a draft architecture.";
+  "Describe your system or connect cloud inventory to produce an architecture draft.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY_COMPACT =
   "Attach diagrams, documents, or inventory to run a formal architecture review.";

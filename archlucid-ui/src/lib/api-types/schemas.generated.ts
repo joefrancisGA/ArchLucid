@@ -6799,7 +6799,7 @@ export interface components {
             businessOutcome?: null | string;
             /**
              * Format: date-time
-             * @description Required unless forceOverwrite is true. Must match the current draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).
+             * @description Required unless forceOverwrite is true. Must match the current architecture draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).
              */
             expectedUpdatedUtc?: null | string;
             focusedPilotModeEnabled?: null | boolean;

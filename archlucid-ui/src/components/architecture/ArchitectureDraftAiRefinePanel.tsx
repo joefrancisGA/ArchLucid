@@ -278,8 +278,8 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {canPublish
-            ? "Closed-loop reasoning uses this draft’s overview and publishes gated findings into the linked review."
-            : "Closed-loop reasoning uses this draft’s overview to surface findings before you start a review. Publishing into product findings requires a linked review."}
+            ? "Closed-loop reasoning uses this architecture draft’s overview and publishes gated findings into the linked review."
+            : "Closed-loop reasoning uses this architecture draft’s overview to surface findings before you start a review. Publishing into product findings requires a linked review."}
         </p>
       </div>
 

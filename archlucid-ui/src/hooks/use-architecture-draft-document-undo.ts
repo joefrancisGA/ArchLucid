@@ -145,12 +145,12 @@ export function useArchitectureDraftDocumentUndo(
 
   useKeyboardShortcuts({
     "ctrl+z": {
-      description: "Undo draft edit",
+      description: "Undo architecture draft edit",
       allowInInput: true,
       handler: undo,
     },
     "ctrl+shift+z": {
-      description: "Redo draft edit",
+      description: "Redo architecture draft edit",
       allowInInput: true,
       handler: redo,
     },

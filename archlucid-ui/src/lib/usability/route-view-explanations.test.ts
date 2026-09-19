@@ -226,7 +226,7 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(`${SIGNED_RECORDS_LIST_PATH}/manifest-1`)).toBeNull();
   });
 
-  it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {
+  it("keeps drafts-inventory orientation off the architecture draft editor and the new-draft workspace", () => {
     expect(routeViewExplanationForPathname(architectureDraftPath("vertex"))).toBeNull();
     expect(routeViewExplanationForPathname(ARCHITECTURES_NEW_PATH)).toBeNull();
   });

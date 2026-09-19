@@ -1,7 +1,7 @@
 > **Scope:** Product design for SecureNow / inventory **data architecture** and **data flow** diagrams. **Contributor-reference** — internal engineering only. **Not implementation.**
 > **Created:** 2026-09-16
 > **Spine:** [`../library/SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md) · **Observation plane:** [`../library/INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md) · **Collector:** [`../library/AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · **Connection points:** [`../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md) · **Data-mode leftovers:** [`../architecture/INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md)
-> **Hold:** Do not claim observed traffic, exfiltration, or data classification from ARM inventory. Capability-to-flow copy stays “may access / declared wiring.” See [`../library/SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md).
+> **Hold:** Do not claim observed traffic, exfiltration, or data classification from ARM inventory. Capability-to-flow copy stays “may access / declared wiring.” See [`../library/SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md). Observed overlay is a later wave: [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) (**SN-RT**).
 
 # Data architecture and data flow diagrams
 
