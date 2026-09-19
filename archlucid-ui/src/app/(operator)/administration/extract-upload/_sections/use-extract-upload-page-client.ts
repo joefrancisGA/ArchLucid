@@ -152,7 +152,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const extractUploadSteps = useMemo(
     () =>
       resolveExtractUploadPackageSteps({
-        providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
       }),
@@ -161,7 +160,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const extractUploadEmphasizedStepId = useMemo(
     () =>
       resolveExtractUploadPackageEmphasizedStepId({
-        providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
       }),

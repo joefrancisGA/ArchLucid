@@ -1,20 +1,16 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
 export function resolveExtractUploadPackageSteps(input: {
-  readonly providerSelected: boolean;
   readonly packageAccepted: boolean;
   readonly inventoryParsed: boolean;
 }): readonly IntegrationConnectChecklistStep[] {
+  const inventoryOnFile = input.packageAccepted || input.inventoryParsed;
+
   return [
-    {
-      id: "provider",
-      label: "Select cloud provider",
-      complete: input.providerSelected,
-    },
     {
       id: "upload",
       label: "Upload architecture package",
-      complete: input.packageAccepted,
+      complete: inventoryOnFile,
     },
     {
       id: "parse",
@@ -25,7 +21,6 @@ export function resolveExtractUploadPackageSteps(input: {
 }
 
 export function resolveExtractUploadPackageEmphasizedStepId(input: {
-  readonly providerSelected: boolean;
   readonly packageAccepted: boolean;
   readonly inventoryParsed: boolean;
 }): string {
