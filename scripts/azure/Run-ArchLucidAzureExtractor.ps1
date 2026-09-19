@@ -6,7 +6,8 @@
     Installs Az modules when missing (unless -SkipModuleInstall), signs in when no Azure
     context exists (unless -SkipConnect), resolves the active subscription when
     -SubscriptionId is omitted, writes ./archlucid-azure-package.zip by default, and
-    delegates to Get-ArchLucidAzurePackage.ps1 with -IncludeCost enabled.
+    delegates to Get-ArchLucidAzurePackage.ps1 with -IncludeCost, -IncludeRetailPrices,
+    and -IncludeAppSettingsHosts enabled.
 
 .NOTES
     Upload the resulting ZIP manually in ArchLucid — this script never sends data to ArchLucid.
@@ -79,6 +80,8 @@ Write-Host ""
     SubscriptionId = $resolvedSubscriptionId
     OutputPath = $resolvedOutputPath
     IncludeCost = $true
+    IncludeRetailPrices = $true
+    IncludeAppSettingsHosts = $true
 }
 
 if (-not ([string]::IsNullOrWhiteSpace($TenantId)))
