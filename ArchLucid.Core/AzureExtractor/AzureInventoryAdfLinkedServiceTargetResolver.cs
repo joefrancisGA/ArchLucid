@@ -196,6 +196,21 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
             yield return $"{name.ToLowerInvariant()}.azurewebsites.net";
         }
 
+        if (resourceType.Equals("Microsoft.App/containerApps", StringComparison.OrdinalIgnoreCase)
+            && resource.Properties.TryGetValue("configuration.ingress.fqdn", out string? ingressFqdn)
+            && !string.IsNullOrWhiteSpace(ingressFqdn))
+        {
+            yield return ingressFqdn.Trim().ToLowerInvariant();
+        }
+
+        if (resourceType.Equals("Microsoft.Sql/servers/databases", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name)
+            && TryReadSqlServerName(resource.AzureResourceId, out string? sqlServerName)
+            && !AzureInventoryNeverShowSqlDatabaseNames.ShouldOmit(resourceType, resource.AzureResourceId, name))
+        {
+            yield return $"{sqlServerName.ToLowerInvariant()}.database.windows.net|{name.ToLowerInvariant()}";
+        }
+
         if (resourceType.Equals("Microsoft.Databricks/workspaces", StringComparison.OrdinalIgnoreCase)
             && resource.Properties.TryGetValue("workspaceUrl", out string? workspaceUrl)
             && !string.IsNullOrWhiteSpace(workspaceUrl))
@@ -211,5 +226,32 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
     private static string Normalize(string armId)
     {
         return ArmResourceIdNormalizer.Normalize(armId);
+    }
+
+    private static bool TryReadSqlServerName(string azureResourceId, out string sqlServerName)
+    {
+        sqlServerName = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(azureResourceId))
+        {
+            return false;
+        }
+
+        string[] segments = azureResourceId.Split(
+            '/',
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        for (int index = 0; index < segments.Length - 1; index++)
+        {
+            if (segments[index].Equals("servers", StringComparison.OrdinalIgnoreCase)
+                && index + 1 < segments.Length)
+            {
+                sqlServerName = segments[index + 1];
+
+                return !string.IsNullOrWhiteSpace(sqlServerName);
+            }
+        }
+
+        return false;
     }
 }

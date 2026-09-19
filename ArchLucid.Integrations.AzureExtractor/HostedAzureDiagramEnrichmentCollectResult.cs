@@ -37,6 +37,12 @@ public sealed class HostedAzureDiagramEnrichmentCollectResult
         init;
     } = [];
 
+    public IReadOnlyList<AzureInventoryAppSettingHostRow> AppSettingHosts
+    {
+        get;
+        init;
+    } = [];
+
     public IReadOnlyList<string> CollectionWarnings
     {
         get;

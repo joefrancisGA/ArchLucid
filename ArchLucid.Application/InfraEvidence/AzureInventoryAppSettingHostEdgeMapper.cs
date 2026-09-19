@@ -6,7 +6,7 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence;
 
 /// <summary>
-///     Maps redacted App Service setting host rows to inferred relationships (AX-DE-18).
+///     Maps redacted App Service / Container App setting host rows to inferred relationships (AX-DE-18, SN-RT-03).
 /// </summary>
 internal static class AzureInventoryAppSettingHostEdgeMapper
 {
@@ -44,6 +44,11 @@ internal static class AzureInventoryAppSettingHostEdgeMapper
 
             string normalizedSiteId = ArmResourceIdNormalizer.Normalize(row.SiteResourceId);
 
+            if (!string.IsNullOrWhiteSpace(row.WarningCode))
+            {
+                warnings.Add(row.WarningCode);
+            }
+
             if (!string.IsNullOrWhiteSpace(row.KeyVaultHost)
                 && hostToArmId.TryGetValue(row.KeyVaultHost.Trim().ToLowerInvariant(), out string? vaultArmId))
             {
@@ -65,6 +70,46 @@ internal static class AzureInventoryAppSettingHostEdgeMapper
 
             string normalizedHost = row.Host.Trim().ToLowerInvariant();
 
+            if (!string.IsNullOrWhiteSpace(row.Catalog)
+                && !ShouldSkipCatalogTarget(row.Catalog)
+                && TryResolveDatabaseTarget(normalizedHost, row.Catalog, hostToArmId, out string? databaseArmId))
+            {
+                MapRelationship(
+                    relationships,
+                    relationshipKeys,
+                    normalizedSiteId,
+                    databaseArmId,
+                    AzureInventoryRelationshipAssociationTypes.HostnameInferredTarget,
+                    ProvenanceKind.DeterministicInference,
+                    DeterministicInferenceConfidence,
+                    GraphEdgeInferenceSources.InventoryHostnameInferredTarget);
+
+                continue;
+            }
+
+            if (ShouldSkipCatalogTarget(row.Catalog))
+            {
+                continue;
+            }
+
+            if (IsSqlServerHost(normalizedHost))
+            {
+                if (string.IsNullOrWhiteSpace(row.Catalog))
+                {
+                    if (!string.Equals(
+                            row.WarningCode,
+                            AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsCatalogTemplate,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsSqlCatalogMissing);
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
             if (!hostToArmId.TryGetValue(normalizedHost, out string? targetArmId))
             {
                 warnings.Add($"{AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsHostUnresolved}:{normalizedHost}");
@@ -82,6 +127,33 @@ internal static class AzureInventoryAppSettingHostEdgeMapper
                 DeterministicInferenceConfidence,
                 GraphEdgeInferenceSources.InventoryHostnameInferredTarget);
         }
+    }
+
+    private static bool ShouldSkipCatalogTarget(string? catalog)
+    {
+        if (string.IsNullOrWhiteSpace(catalog))
+        {
+            return false;
+        }
+
+        return AzureInventoryNeverShowSqlDatabaseNames.NeverShowDatabaseNames
+            .Contains(catalog.Trim(), StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool TryResolveDatabaseTarget(
+        string normalizedHost,
+        string catalog,
+        IReadOnlyDictionary<string, string> hostToArmId,
+        out string databaseArmId)
+    {
+        string catalogKey = $"{normalizedHost}|{catalog.Trim().ToLowerInvariant()}";
+
+        return hostToArmId.TryGetValue(catalogKey, out databaseArmId!);
+    }
+
+    private static bool IsSqlServerHost(string normalizedHost)
+    {
+        return normalizedHost.EndsWith(".database.windows.net", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void MapRelationship(

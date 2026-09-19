@@ -3253,17 +3253,38 @@ function Get-ArchLucidAzureAppSettingHostFromValue
     $row = [ordered]@{
         settingName = $SettingName
         parsedHost = $null
+        catalog = $null
         keyVaultHost = $null
         secretName = $null
+        warningCode = $null
     }
 
     if (-not [string]::IsNullOrWhiteSpace($Value))
     {
-        $sqlMatch = [regex]::Match($Value, 'Server\s*=\s*tcp:(?<host>[^,;]+)', 'IgnoreCase')
+        $sqlMatch = [regex]::Match($Value, 'Server\s*=\s*(?:tcp:)?(?<host>[^,;]+)', 'IgnoreCase')
 
         if ($sqlMatch.Success)
         {
             $row.parsedHost = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+        }
+
+        $catalogMatch = [regex]::Match(
+            $Value,
+            '(?:Initial\s+Catalog|Database)\s*=\s*(?<catalog>[^;]+)',
+            'IgnoreCase')
+
+        if ($catalogMatch.Success)
+        {
+            [string]$catalog = $catalogMatch.Groups['catalog'].Value.Trim()
+
+            if ($catalog -match '[{}]' -or $catalog -match '(?i)\{0\}' -or $catalog -match '(?i)\{tenant\}')
+            {
+                $row.warningCode = 'app-settings-catalog-template'
+            }
+            else
+            {
+                $row.catalog = $catalog
+            }
         }
 
         $kvMatch = [regex]::Match(
@@ -3276,14 +3297,199 @@ function Get-ArchLucidAzureAppSettingHostFromValue
             $row.keyVaultHost = $kvMatch.Groups['host'].Value.Trim().ToLowerInvariant()
             $row.secretName = $kvMatch.Groups['secret'].Value.Trim()
         }
+
+        if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and [string]::IsNullOrWhiteSpace($row.keyVaultHost))
+        {
+            $httpsMatch = [regex]::Match($Value, 'https?://(?<host>[^/\s;]+)', 'IgnoreCase')
+
+            if ($httpsMatch.Success)
+            {
+                [string]$httpsHost = $httpsMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+
+                if ($httpsHost.EndsWith('.vault.azure.net', [StringComparison]::OrdinalIgnoreCase))
+                {
+                    $row.keyVaultHost = $httpsHost
+                }
+                else
+                {
+                    $row.parsedHost = $httpsHost
+                }
+            }
+        }
     }
 
-    if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and [string]::IsNullOrWhiteSpace($row.keyVaultHost))
+    if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and
+        [string]::IsNullOrWhiteSpace($row.keyVaultHost) -and
+        [string]::IsNullOrWhiteSpace($row.catalog) -and
+        [string]::IsNullOrWhiteSpace($row.warningCode))
     {
         return $null
     }
 
     return $row
+}
+
+function Add-ArchLucidAzureAppSettingHostCompanionRow
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [System.Collections.ArrayList] $Rows,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable] $Seen,
+
+        [Parameter(Mandatory = $true)]
+        [string] $SiteResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $SettingName,
+
+        [Parameter(Mandatory = $false)]
+        [string] $ParsedHost,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Catalog,
+
+        [Parameter(Mandatory = $false)]
+        [string] $KeyVaultHost,
+
+        [Parameter(Mandatory = $false)]
+        [string] $SecretName,
+
+        [Parameter(Mandatory = $false)]
+        [string] $SecretRef,
+
+        [Parameter(Mandatory = $false)]
+        [string] $WarningCode,
+
+        [Parameter(Mandatory = $false)]
+        [string] $CollectionStatus = 'Succeeded'
+    )
+
+    [string]$key = "$SiteResourceId|$SettingName|$ParsedHost|$Catalog|$KeyVaultHost|$SecretName|$SecretRef|$WarningCode"
+
+    if ($Seen.ContainsKey($key)) { return }
+
+    $Seen[$key] = $true
+
+    [void]$Rows.Add([ordered]@{
+        siteResourceId = $SiteResourceId
+        settingName = $SettingName
+        host = $ParsedHost
+        catalog = $Catalog
+        keyVaultHost = $KeyVaultHost
+        secretName = $SecretName
+        secretRef = $SecretRef
+        warningCode = $WarningCode
+        collectionStatus = $CollectionStatus
+    })
+}
+
+function Get-ArchLucidAzureContainerAppEnvEntriesFromJson
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $ContainerAppJson
+    )
+
+    $entries = [System.Collections.ArrayList]::new()
+
+    if ($null -eq $ContainerAppJson) { return @($entries.ToArray()) }
+
+    [object[]]$containers = @()
+
+    try
+    {
+        if ($ContainerAppJson.properties.template.containers)
+        {
+            $containers = @($ContainerAppJson.properties.template.containers)
+        }
+    }
+    catch
+    {
+        return @($entries.ToArray())
+    }
+
+    foreach ($container in @($containers))
+    {
+        if ($null -eq $container -or $null -eq $container.env) { continue }
+
+        foreach ($envEntry in @($container.env))
+        {
+            if ($null -eq $envEntry) { continue }
+
+            [string]$name = "$( $envEntry.name )".Trim()
+
+            if ([string]::IsNullOrWhiteSpace($name)) { continue }
+
+            [string]$value = $null
+            [string]$secretRef = $null
+
+            if ($envEntry.PSObject.Properties.Match('value').Count -gt 0 -and $null -ne $envEntry.value)
+            {
+                $value = "$( $envEntry.value )".Trim()
+            }
+
+            if ($envEntry.PSObject.Properties.Match('secretRef').Count -gt 0 -and $null -ne $envEntry.secretRef)
+            {
+                $secretRef = "$( $envEntry.secretRef )".Trim()
+            }
+
+            [void]$entries.Add([ordered]@{
+                name = $name
+                value = $value
+                secretRef = $secretRef
+            })
+        }
+    }
+
+    return @($entries.ToArray())
+}
+
+function Get-ArchLucidAzureContainerAppEnvEntries
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Resource
+    )
+
+    [string]$siteResourceId = "$( $Resource.resourceId )".Trim()
+    $entries = @(Get-ArchLucidAzureContainerAppEnvEntriesFromJson -ContainerAppJson $Resource)
+
+    if ($entries.Count -gt 0)
+    {
+        return $entries
+    }
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    if ([string]::IsNullOrWhiteSpace($siteResourceId))
+    {
+        return @()
+    }
+
+    try
+    {
+        [string]$path = "${siteResourceId}?api-version=2024-03-01"
+        $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+        if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+        {
+            return @()
+        }
+
+        $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+        return @(Get-ArchLucidAzureContainerAppEnvEntriesFromJson -ContainerAppJson $payload)
+    }
+    catch
+    {
+        return @()
+    }
 }
 
 function Get-ArchLucidAzureAppSettingHostCompanionRows
@@ -3308,54 +3514,92 @@ function Get-ArchLucidAzureAppSettingHostCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$siteResourceId = "$( $resource.resourceId )".Trim()
 
-        if ($resourceType -ne 'Microsoft.Web/sites') { continue }
         if ([string]::IsNullOrWhiteSpace($siteResourceId)) { continue }
 
-        foreach ($listPath in @('config/appsettings/list', 'config/connectionstrings/list'))
+        if ($resourceType -eq 'Microsoft.Web/sites')
         {
-            try
+            foreach ($listPath in @('config/appsettings/list', 'config/connectionstrings/list'))
             {
-                [string]$path = "$siteResourceId/$listPath?api-version=2022-03-01"
-                $response = Invoke-AzRestMethod -Method POST -Path $path -Payload '{}' -ErrorAction Stop
-
-                if ($response.StatusCode -eq 403 -or $response.StatusCode -eq 404)
+                try
                 {
-                    continue
+                    [string]$path = "$siteResourceId/$listPath?api-version=2022-03-01"
+                    $response = Invoke-AzRestMethod -Method POST -Path $path -Payload '{}' -ErrorAction Stop
+
+                    if ($response.StatusCode -eq 403 -or $response.StatusCode -eq 404)
+                    {
+                        continue
+                    }
+
+                    if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+                    {
+                        continue
+                    }
+
+                    $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+                    foreach ($property in @($payload.properties.PSObject.Properties))
+                    {
+                        [string]$settingName = "$( $property.Name )".Trim()
+                        [string]$settingValue = "$( $property.Value )".Trim()
+                        $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
+
+                        if ($null -eq $parsed) { continue }
+
+                        Add-ArchLucidAzureAppSettingHostCompanionRow `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -SiteResourceId $siteResourceId `
+                            -SettingName $settingName `
+                            -ParsedHost $parsed.parsedHost `
+                            -Catalog $parsed.catalog `
+                            -KeyVaultHost $parsed.keyVaultHost `
+                            -SecretName $parsed.secretName `
+                            -WarningCode $parsed.warningCode
+                    }
                 }
-
-                if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+                catch
                 {
-                    continue
-                }
-
-                $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
-
-                foreach ($property in @($payload.properties.PSObject.Properties))
-                {
-                    [string]$settingName = "$( $property.Name )".Trim()
-                    [string]$settingValue = "$( $property.Value )".Trim()
-                    $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
-
-                    if ($null -eq $parsed) { continue }
-
-                    [string]$key = "$siteResourceId|$settingName|$($parsed.parsedHost)|$($parsed.keyVaultHost)|$($parsed.secretName)"
-
-                    if ($seen.ContainsKey($key)) { continue }
-                    $seen[$key] = $true
-
-                    [void]$rows.Add([ordered]@{
-                        siteResourceId = $siteResourceId
-                        settingName = $settingName
-                        host = $parsed.parsedHost
-                        keyVaultHost = $parsed.keyVaultHost
-                        secretName = $parsed.secretName
-                        collectionStatus = 'Succeeded'
-                    })
                 }
             }
-            catch
+
+            continue
+        }
+
+        if ($resourceType -ne 'Microsoft.App/containerApps')
+        {
+            continue
+        }
+
+        [object[]]$envEntries = @(Get-ArchLucidAzureContainerAppEnvEntries -Resource $resource)
+
+        foreach ($envEntry in @($envEntries))
+        {
+            [string]$settingName = "$( $envEntry.name )".Trim()
+            [string]$settingValue = "$( $envEntry.value )".Trim()
+            [string]$secretRef = "$( $envEntry.secretRef )".Trim()
+            $parsed = $null
+
+            if (-not [string]::IsNullOrWhiteSpace($settingValue))
             {
+                $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
             }
+
+            if ($null -eq $parsed -and [string]::IsNullOrWhiteSpace($secretRef))
+            {
+                continue
+            }
+
+            Add-ArchLucidAzureAppSettingHostCompanionRow `
+                -Rows $rows `
+                -Seen $seen `
+                -SiteResourceId $siteResourceId `
+                -SettingName $settingName `
+                -ParsedHost $(if ($null -ne $parsed) { $parsed.parsedHost } else { $null }) `
+                -Catalog $(if ($null -ne $parsed) { $parsed.catalog } else { $null }) `
+                -KeyVaultHost $(if ($null -ne $parsed) { $parsed.keyVaultHost } else { $null }) `
+                -SecretName $(if ($null -ne $parsed) { $parsed.secretName } else { $null }) `
+                -SecretRef $(if (-not [string]::IsNullOrWhiteSpace($secretRef)) { $secretRef } else { $null }) `
+                -WarningCode $(if ($null -ne $parsed) { $parsed.warningCode } else { $null })
         }
     }
 

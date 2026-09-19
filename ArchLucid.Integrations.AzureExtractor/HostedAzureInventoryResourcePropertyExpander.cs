@@ -524,6 +524,21 @@ internal static class HostedAzureInventoryResourcePropertyExpander
                 properties["managedEnvironmentId"] = environmentId.Trim();
             }
         }
+
+        if (propertiesElement.TryGetProperty("configuration", out JsonElement configurationElement)
+            && configurationElement.ValueKind is JsonValueKind.Object
+            && configurationElement.TryGetProperty("ingress", out JsonElement ingressElement)
+            && ingressElement.ValueKind is JsonValueKind.Object
+            && ingressElement.TryGetProperty("fqdn", out JsonElement fqdnElement)
+            && fqdnElement.ValueKind is JsonValueKind.String)
+        {
+            string? fqdn = fqdnElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(fqdn))
+            {
+                properties["configuration.ingress.fqdn"] = fqdn.Trim().ToLowerInvariant();
+            }
+        }
     }
 
     private static void AddManagedEnvironmentProperties(
