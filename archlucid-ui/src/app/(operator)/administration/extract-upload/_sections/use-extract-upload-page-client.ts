@@ -154,16 +154,18 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
       resolveExtractUploadPackageSteps({
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
+        replacingInventory: replaceInventoryMode,
       }),
-    [hasBaselineArtifacts, packageAccepted],
+    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
   );
   const extractUploadEmphasizedStepId = useMemo(
     () =>
       resolveExtractUploadPackageEmphasizedStepId({
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
+        replacingInventory: replaceInventoryMode,
       }),
-    [hasBaselineArtifacts, packageAccepted],
+    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
   );
 
   const syncAdvancedCommandOpenToUrl = useCallback(
