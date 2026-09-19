@@ -48,7 +48,11 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
         IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
         IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
-        IReadOnlyList<string>? collectionWarnings = null)
+        IReadOnlyList<string>? collectionWarnings = null,
+        HostedAzureActualCostSummary? actualCostSummary = null,
+        HostedAzurePolicyComplianceDocument? policyComplianceDocument = null,
+        IReadOnlyList<JsonElement>? policyDefinitionDocuments = null,
+        IReadOnlyList<JsonElement>? policyAssignmentDocuments = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -87,8 +91,21 @@ public static class HostedAzureExtractorZipBuilder
 
         if (includeCostRequested)
         {
-            // Cost Management query requires POST on management.azure.com — omitted on hosted GET-only path.
-            manifest["actualCostSummary"] = null;
+            manifest["actualCostSummary"] = actualCostSummary is null
+                ? null
+                : new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["TotalActualCostUsd"] = actualCostSummary.TotalActualCostUsd,
+                    ["CurrencyCode"] = actualCostSummary.CurrencyCode,
+                    ["BillingPeriod"] = actualCostSummary.BillingPeriod,
+                    ["BreakdownByServiceName"] = actualCostSummary.BreakdownByServiceName
+                        .Select(static row => new Dictionary<string, object?>(StringComparer.Ordinal)
+                        {
+                            ["ServiceName"] = row.ServiceName,
+                            ["PreTaxCost"] = row.PreTaxCost,
+                        })
+                        .ToArray(),
+                };
         }
 
         HashSet<string> privateLinkOnlyNicArmIds =
@@ -113,16 +130,10 @@ public static class HostedAzureExtractorZipBuilder
 
         manifest["resourceCount"] = resourceRows.Length;
 
-        Dictionary<string, object?> policyCompliance = new(StringComparer.Ordinal)
-        {
-            ["schemaVersion"] = 1,
-            ["collectionTimestampUtc"] = collectionTimestampUtc.ToString("o"),
-            ["scope"] = scope,
-            ["subscriptionId"] = hasSubscriptionId ? subscriptionId!.Trim() : null,
-            ["policyStates"] = Array.Empty<object>(),
-            ["note"] =
-                "Hosted Tier 2 collector uses GET-only management.azure.com calls; policy states require POST and are not collected in this path."
-        };
+        Dictionary<string, object?> policyCompliance = BuildPolicyCompliancePayload(
+            scope,
+            collectionTimestampUtc,
+            policyComplianceDocument);
 
         const string readme = """
                               ArchLucid hosted Azure extractor package (Tier 2 — Workload Identity Federation).
@@ -479,10 +490,62 @@ public static class HostedAzureExtractorZipBuilder
             }
 
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
+
+            if (policyDefinitionDocuments is not null || policyAssignmentDocuments is not null)
+            {
+                object[] definitionRows = policyDefinitionDocuments?.Select(static element => (object)element).ToArray()
+                    ?? Array.Empty<object>();
+
+                object[] assignmentRows = policyAssignmentDocuments?.Select(static element => (object)element).ToArray()
+                    ?? Array.Empty<object>();
+
+                Dictionary<string, object> policyDocument = new(StringComparer.Ordinal)
+                {
+                    ["policyDefinitions"] = definitionRows,
+                    ["policyAssignments"] = assignmentRows,
+                };
+
+                AddUtf8Entry(archive, "policy.json", JsonSerializer.Serialize(policyDocument, SerializerOptions));
+            }
+
             AddUtf8Entry(archive, "README.txt", readme);
         }
 
         return zipStream.ToArray();
+    }
+
+    private static Dictionary<string, object?> BuildPolicyCompliancePayload(
+        string scope,
+        DateTimeOffset collectionTimestampUtc,
+        HostedAzurePolicyComplianceDocument? policyComplianceDocument)
+    {
+        if (policyComplianceDocument is not null)
+        {
+            return new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["policyComplianceSchemaVersion"] = policyComplianceDocument.PolicyComplianceSchemaVersion,
+                ["collectionTimestampUtc"] = policyComplianceDocument.CollectionTimestampUtc,
+                ["scope"] = policyComplianceDocument.Scope,
+                ["managementPlane"] = policyComplianceDocument.ManagementPlane,
+                ["apiShape"] = policyComplianceDocument.ApiShape,
+                ["readerNote"] = policyComplianceDocument.ReaderNote,
+                ["recordCount"] = policyComplianceDocument.RecordCount,
+                ["records"] = policyComplianceDocument.Records,
+            };
+        }
+
+        return new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["policyComplianceSchemaVersion"] = 1,
+            ["collectionTimestampUtc"] = collectionTimestampUtc.ToString("o"),
+            ["scope"] = scope,
+            ["managementPlane"] = "AzurePolicyInsights",
+            ["apiShape"] = "policyStates/latest/queryResults",
+            ["readerNote"] =
+                "Policy compliance was not collected for this hosted run (subscription scope required).",
+            ["recordCount"] = 0,
+            ["records"] = Array.Empty<object>(),
+        };
     }
 
     private static void AddUtf8Entry(ZipArchive archive, string entryName, string content)

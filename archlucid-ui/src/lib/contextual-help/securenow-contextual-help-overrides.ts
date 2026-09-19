@@ -35,7 +35,7 @@ const SECURENOW_FINDINGS_QUEUE_HUB: PageContextualHelpEntry = {
   whatIsThisPage:
     "Triage open findings raised by ARC-AMPE policy packs against connected cloud inventory evidence in this workspace.",
   whatToDoNext: "Open a finding, assign an owner, and follow the resource evidence hub or audit lineage when context is missing.",
-  whyEmpty: "Rows appear after policy packs apply to connected inventory — not after architecture reviews finalize.",
+  whyEmpty: "Rows appear after policy packs apply to connected inventory — not after security reviews finalize.",
   whereToConfigurePrerequisite: "Assign ARC-AMPE policy packs and connect Azure before expecting inventory-backed findings.",
   whatToDoNextAction: {
     label: "Open assigned-to-me",
@@ -138,7 +138,7 @@ const SECURENOW_STANDARDS_RULES_HUB: PageContextualHelpEntry = {
 
 const SECURENOW_STANDARDS_RULES_HELP: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Standards and rules — how effective policy resolution rows apply to the active workspace scope, not a sealed architecture review.",
+    "Standards and rules — how effective policy resolution rows apply to the active workspace scope, not a sealed security review.",
   whatToDoNext: "Open standards and rules for this workspace scope, then follow policy packs or findings when maintenance is required.",
   whyEmpty: "This guide is always available; rule rows appear when packs are assigned to this scope.",
   whereToConfigurePrerequisite: "Policy packs help explains how packs are authored, versioned, and assigned across scopes.",

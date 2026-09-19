@@ -39,6 +39,14 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
     }
 
+    It "enables cost, retail prices, and app settings hosts by default" {
+        [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
+
+        $content | Should -Match 'IncludeCost\s*=\s*\$true'
+        $content | Should -Match 'IncludeRetailPrices\s*=\s*\$true'
+        $content | Should -Match 'IncludeAppSettingsHosts\s*=\s*\$true'
+    }
+
     It "defaults output path to archlucid-azure-package.zip in the current directory" {
         [string]$resolved = Resolve-ArchLucidAzureExtractorOutputPath -OutputPath ""
 
@@ -207,9 +215,9 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
             }
         }
         Mock Disconnect-AzAccount {
-            param($AccountId)
+            param($Username)
 
-            $disconnectParams.AccountId = $AccountId
+            $disconnectParams.Username = $Username
         }
         Mock Set-AzContext {
             param($SubscriptionId, $Tenant)
@@ -221,7 +229,7 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
 
         $null = Ensure-ArchLucidAzureSubscriptionSession -SubscriptionId $subscriptionId -TenantId $tenantId
 
-        $disconnectParams.AccountId | Should -Be "user@other.com"
+        $disconnectParams.Username | Should -Be "user@other.com"
         $contextParams.SubscriptionId | Should -Be $subscriptionId
         $contextParams.Tenant | Should -Be $tenantId
         Should -Not -Invoke Connect-AzAccount

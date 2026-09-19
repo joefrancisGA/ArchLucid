@@ -3,14 +3,17 @@ import type { IntegrationConnectChecklistStep } from "@/components/integrations/
 export function resolveExtractUploadPackageSteps(input: {
   readonly packageAccepted: boolean;
   readonly inventoryParsed: boolean;
+  readonly replacingInventory?: boolean;
 }): readonly IntegrationConnectChecklistStep[] {
-  const inventoryOnFile = input.packageAccepted || input.inventoryParsed;
+  const uploadComplete =
+    input.packageAccepted ||
+    (input.inventoryParsed && input.replacingInventory !== true);
 
   return [
     {
       id: "upload",
       label: "Upload architecture package",
-      complete: inventoryOnFile,
+      complete: uploadComplete,
     },
     {
       id: "parse",
@@ -23,6 +26,7 @@ export function resolveExtractUploadPackageSteps(input: {
 export function resolveExtractUploadPackageEmphasizedStepId(input: {
   readonly packageAccepted: boolean;
   readonly inventoryParsed: boolean;
+  readonly replacingInventory?: boolean;
 }): string {
   const steps = resolveExtractUploadPackageSteps(input);
   const incomplete = steps.find((step) => !step.complete);

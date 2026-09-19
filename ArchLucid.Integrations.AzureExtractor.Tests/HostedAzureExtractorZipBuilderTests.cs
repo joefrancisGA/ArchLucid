@@ -92,6 +92,60 @@ public sealed class HostedAzureExtractorZipBuilderTests
     }
 
     [Fact]
+    public void BuildZip_writes_actual_cost_summary_when_provided()
+    {
+        HostedAzureActualCostSummary summary = new(
+            12.75,
+            "USD",
+            "MonthToDate",
+            [new HostedAzureActualCostServiceBreakdownRow("Storage", 12.75)]);
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "22222222-2222-2222-2222-222222222222",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: true,
+            DateTimeOffset.UtcNow,
+            actualCostSummary: summary);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream manifestStream = archive.GetEntry("manifest.json")!.Open();
+        using StreamReader reader = new(manifestStream);
+        string json = reader.ReadToEnd();
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        JsonElement actualCost = document.RootElement.GetProperty("actualCostSummary");
+
+        Assert.Equal(12.75, actualCost.GetProperty("TotalActualCostUsd").GetDouble());
+        Assert.Equal("USD", actualCost.GetProperty("CurrencyCode").GetString());
+        Assert.Equal(1, actualCost.GetProperty("BreakdownByServiceName").GetArrayLength());
+    }
+
+    [Fact]
+    public void BuildZip_writes_policy_json_when_policy_documents_are_provided()
+    {
+        using JsonDocument definition = JsonDocument.Parse(
+            """{"id":"/providers/Microsoft.Authorization/policyDefinitions/audit-storage","name":"audit-storage"}""");
+
+        using JsonDocument assignment = JsonDocument.Parse(
+            """{"id":"/subscriptions/sub/providers/Microsoft.Authorization/policyAssignments/assign1","name":"assign1"}""");
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "22222222-2222-2222-2222-222222222222",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.UtcNow,
+            policyDefinitionDocuments: [definition.RootElement.Clone()],
+            policyAssignmentDocuments: [assignment.RootElement.Clone()]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        Assert.NotNull(archive.GetEntry("policy.json"));
+    }
+
+    [Fact]
     public void BuildZip_manifest_includes_management_group_scope()
     {
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(

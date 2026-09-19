@@ -1657,6 +1657,64 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "completed", out JsonElement completed)
+                || TryGetPropertyIgnoreCase(res, "completed", out completed))
+            && (completed.ValueKind == JsonValueKind.True || completed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.completed"] = completed.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "deleted", out JsonElement deleted)
+                || TryGetPropertyIgnoreCase(res, "deleted", out deleted))
+            && (deleted.ValueKind == JsonValueKind.True || deleted.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.deleted"] = deleted.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "title", out JsonElement title)
+                || TryGetPropertyIgnoreCase(res, "title", out title))
+            && title.ValueKind == JsonValueKind.String)
+        {
+            string? titleText = title.GetString();
+
+            if (!string.IsNullOrWhiteSpace(titleText))
+                properties["tf.title"] = titleText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "gateways", out JsonElement gatewaysEl)
+            || TryGetPropertyIgnoreCase(res, "gateways", out gatewaysEl))
+        {
+            List<string> gatewaysFields = [];
+
+            if (gatewaysEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in gatewaysEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        gatewaysFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (gatewaysEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = gatewaysEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    gatewaysFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (gatewaysFields.Count > 0)
+            {
+                string joined = string.Join('|', gatewaysFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.gateways"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);

@@ -132,10 +132,30 @@ function Clear-ArchLucidAzureAccountSessions
             }
         }
 
-        $null = Disconnect-AzAccount `
-            -AccountId $context.Account.Id `
-            -Confirm:$false `
-            -ErrorAction SilentlyContinue
+        [object]$account = $context.Account
+        [string]$accountId = "$( $account.Id )".Trim()
+        [string]$accountType = ""
+
+        if ($null -ne $account.PSObject.Properties['Type'])
+        {
+            $accountType = "$( $account.Type )".Trim()
+        }
+
+        if ($accountType -eq 'ServicePrincipal')
+        {
+            $null = Disconnect-AzAccount `
+                -ApplicationId $accountId `
+                -TenantId $contextTenantId `
+                -Confirm:$false `
+                -ErrorAction SilentlyContinue
+        }
+        else
+        {
+            $null = Disconnect-AzAccount `
+                -Username $accountId `
+                -Confirm:$false `
+                -ErrorAction SilentlyContinue
+        }
     }
 }
 

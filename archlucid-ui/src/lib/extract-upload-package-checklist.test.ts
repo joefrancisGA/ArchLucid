@@ -80,4 +80,21 @@ describe("resolveExtractUploadPackageSteps", () => {
       }),
     ).toBe("parse");
   });
+
+  it("keeps upload pending while replacing inventory even when baseline exists", () => {
+    const steps = resolveExtractUploadPackageSteps({
+      packageAccepted: false,
+      inventoryParsed: true,
+      replacingInventory: true,
+    });
+
+    expect(steps.find((step) => step.id === "upload")?.complete).toBe(false);
+    expect(
+      resolveExtractUploadPackageEmphasizedStepId({
+        packageAccepted: false,
+        inventoryParsed: true,
+        replacingInventory: true,
+      }),
+    ).toBe("upload");
+  });
 });
