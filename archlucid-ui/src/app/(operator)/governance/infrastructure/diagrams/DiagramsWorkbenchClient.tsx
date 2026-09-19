@@ -1396,7 +1396,7 @@ export function DiagramsWorkbenchClient() {
           "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
           cnCard,
         )}
-        aria-label="Subscription, snapshot, and mode selection"
+        aria-label="Subscription, snapshot, and diagram type selection"
       >
         {buyerPolishedShell ? (
           <>
@@ -1525,7 +1525,7 @@ export function DiagramsWorkbenchClient() {
             </div>
             <div className="flex min-w-0 flex-col gap-1">
               <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-mode-picker">
-                Diagram mode
+                Diagram Type
               </label>
               <select
                 id="infra-diagrams-mode-picker"

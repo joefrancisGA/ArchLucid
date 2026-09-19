@@ -166,7 +166,7 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
     expect(snapshotLabel).toHaveClass("font-semibold");
     expect(modeLabel).toHaveClass("font-semibold");
 
-    expect(screen.getByLabelText("Subscription, snapshot, and mode selection")).toHaveClass(
+    expect(screen.getByLabelText("Subscription, snapshot, and diagram type selection")).toHaveClass(
       "items-start",
       "md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
     );
