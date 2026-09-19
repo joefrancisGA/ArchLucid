@@ -731,7 +731,15 @@ describe("DiagramsWorkbenchClient", () => {
     );
     render(<DiagramsWorkbenchClient />);
 
-    fireEvent.click(await screen.findByTestId("infra-diagrams-export-png"));
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    const exportButton = await screen.findByTestId("infra-diagrams-export-png");
+
+    await waitFor(() => {
+      expect(exportButton).not.toBeDisabled();
+    });
+
+    fireEvent.click(exportButton);
 
     expect(await screen.findByTestId("infra-diagrams-png-export-error")).toHaveTextContent(
       "Could not download diagram PNG",
