@@ -1599,6 +1599,64 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "validated", out JsonElement validated)
+                || TryGetPropertyIgnoreCase(res, "validated", out validated))
+            && (validated.ValueKind == JsonValueKind.True || validated.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.validated"] = validated.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "canceled", out JsonElement canceled)
+                || TryGetPropertyIgnoreCase(res, "canceled", out canceled))
+            && (canceled.ValueKind == JsonValueKind.True || canceled.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.canceled"] = canceled.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "notes", out JsonElement notes)
+                || TryGetPropertyIgnoreCase(res, "notes", out notes))
+            && notes.ValueKind == JsonValueKind.String)
+        {
+            string? notesText = notes.GetString();
+
+            if (!string.IsNullOrWhiteSpace(notesText))
+                properties["tf.notes"] = notesText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "subnets", out JsonElement subnetsEl)
+            || TryGetPropertyIgnoreCase(res, "subnets", out subnetsEl))
+        {
+            List<string> subnetsFields = [];
+
+            if (subnetsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in subnetsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        subnetsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (subnetsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = subnetsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    subnetsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (subnetsFields.Count > 0)
+            {
+                string joined = string.Join('|', subnetsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.subnets"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
