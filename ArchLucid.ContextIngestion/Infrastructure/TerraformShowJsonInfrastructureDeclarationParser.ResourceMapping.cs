@@ -1729,6 +1729,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.expired"] = expired.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "reason", out JsonElement reason)
+                || TryGetPropertyIgnoreCase(res, "reason", out reason))
+            && reason.ValueKind == JsonValueKind.String)
+        {
+            string? reasonText = reason.GetString();
+
+            if (!string.IsNullOrWhiteSpace(reasonText))
+                properties["tf.reason"] = reasonText.Trim();
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
