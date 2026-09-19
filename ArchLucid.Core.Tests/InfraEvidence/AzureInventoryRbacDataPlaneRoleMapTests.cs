@@ -27,6 +27,21 @@ public sealed class AzureInventoryRbacDataPlaneRoleMapTests
         AzureInventoryRbacDataPlaneRoleMap.Resolve(roleName).Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData("Storage Queue Data Message Sender", AzureInventoryDerivedDataPlanePermission.Write)]
+    [InlineData("Storage Queue Data Message Processor", AzureInventoryDerivedDataPlanePermission.Read)]
+    [InlineData("Storage Queue Data Contributor", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
+    [InlineData("Cognitive Services OpenAI User", AzureInventoryDerivedDataPlanePermission.Write)]
+    [InlineData("Search Index Data Contributor", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
+    [InlineData("Search Index Data Reader", AzureInventoryDerivedDataPlanePermission.Read)]
+    [InlineData("Search Service Contributor", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
+    public void Resolve_sn_rt_05_runtime_roles_map_to_derived_permissions(
+        string roleName,
+        AzureInventoryDerivedDataPlanePermission expected)
+    {
+        AzureInventoryRbacDataPlaneRoleMap.Resolve(roleName).Should().Be(expected);
+    }
+
     [Fact]
     public void Resolve_unknown_role_returns_none()
     {
@@ -34,5 +49,7 @@ public sealed class AzureInventoryRbacDataPlaneRoleMapTests
             AzureInventoryDerivedDataPlanePermission.None);
         AzureInventoryRbacDataPlaneRoleMap.Resolve("Contributor").Should().Be(
             AzureInventoryDerivedDataPlanePermission.Write);
+        AzureInventoryRbacDataPlaneRoleMap.Resolve("AcrPull").Should().Be(
+            AzureInventoryDerivedDataPlanePermission.None);
     }
 }

@@ -29,6 +29,11 @@ internal static class DiagramEdgeLabelHumanizer
 
     public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
     {
+        if (TryResolveObservedDependencyLabel(edgeType, inferenceSource, out string observedLabel))
+        {
+            return observedLabel;
+        }
+
         if (TryResolveCatalogDiagramLabel(edgeType, inferenceSource, out string catalogLabel))
         {
             return catalogLabel;
@@ -86,6 +91,40 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         return false;
+    }
+
+    private static bool TryResolveObservedDependencyLabel(
+        string? edgeType,
+        string? inferenceSource,
+        out string label)
+    {
+        label = string.Empty;
+
+        if (!string.Equals(
+                inferenceSource,
+                GraphEdgeInferenceSources.InventoryObservedDependency,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Observed in logs (read)";
+
+            return true;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Observed in logs (write)";
+
+            return true;
+        }
+
+        label = "Observed in logs";
+
+        return true;
     }
 
     private static bool TryResolveCatalogDiagramLabel(

@@ -47,8 +47,17 @@ internal static class DiagramDataFlowCaptionBuilder
             string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeReachableTarget, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeReachableTarget, StringComparison.OrdinalIgnoreCase));
 
+        bool hasObservedRuntime = includedEdges.Any(edge =>
+            (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.EdgeType, out AzureInventoryDataFlowEvidenceAssociation? observedType)
+                && observedType is not null
+                && observedType.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime)
+            || (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.InferenceSource, out AzureInventoryDataFlowEvidenceAssociation? observedInference)
+                && observedInference is not null
+                && observedInference.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime));
+
         bool hasNonAdfFamilies = hasAuthorizedAccess
             || hasPeReachable
+            || hasObservedRuntime
             || includedEdges.Any(edge =>
                 (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.EdgeType, out AzureInventoryDataFlowEvidenceAssociation? evidence)
                     && evidence is not null
@@ -74,6 +83,11 @@ internal static class DiagramDataFlowCaptionBuilder
         if (hasPeReachable)
         {
             captions.Add(DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence);
+        }
+
+        if (hasObservedRuntime)
+        {
+            captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
         }
 
         bool hasIngestion = includedNodes.Any(node =>

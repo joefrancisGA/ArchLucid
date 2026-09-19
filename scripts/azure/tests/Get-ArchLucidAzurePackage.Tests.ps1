@@ -153,6 +153,9 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
                 ($resourceTypes -contains 'Microsoft.Storage/storageAccounts') | Should -Be $true
                 ($resourceTypes -contains 'Microsoft.Compute/virtualMachines') | Should -Be $true
+
+                Test-Path -LiteralPath (Join-Path $staging 'dependency-observations.json') | Should -Be $false
+                Test-Path -LiteralPath (Join-Path $staging 'sql-database-principals.json') | Should -Be $false
             }
             finally
             {

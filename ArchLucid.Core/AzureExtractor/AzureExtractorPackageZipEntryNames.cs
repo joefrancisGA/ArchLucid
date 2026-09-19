@@ -47,6 +47,10 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string AppSettingsHosts = "app-settings-hosts.json";
 
+    public const string DependencyObservations = "dependency-observations.json";
+
+    public const string SqlDatabasePrincipals = "sql-database-principals.json";
+
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
     [
         RoleAssignments,
@@ -69,5 +73,7 @@ public static class AzureExtractorPackageZipEntryNames
         PaasChildAssociations,
         ServiceConnectorLinks,
         AppSettingsHosts,
+        DependencyObservations,
+        SqlDatabasePrincipals,
     ];
 }

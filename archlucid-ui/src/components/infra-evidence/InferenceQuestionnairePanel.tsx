@@ -1,0 +1,214 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  confirmOperatorInferredConnection,
+  dismissOperatorInferredConnection,
+  listInferenceQuestionnaireItems,
+} from "@/lib/infra-evidence/operator-inferred-connection-api";
+import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
+import { cn } from "@/lib/utils";
+
+type InferenceQuestionnairePanelProps = {
+  readonly snapshotId: string;
+};
+
+type QuestionnaireChoice = "yes" | "no" | "skip" | null;
+
+export function InferenceQuestionnairePanel(
+  props: InferenceQuestionnairePanelProps,
+): React.JSX.Element | null {
+  const { snapshotId } = props;
+  const [items, setItems] = useState<OperatorInferredConnectionRow[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [choice, setChoice] = useState<QuestionnaireChoice>(null);
+  const [selectedCatalog, setSelectedCatalog] = useState<string>("");
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const proposedItems = useMemo(
+    () => items.filter((item) => item.status === "Proposed"),
+    [items],
+  );
+
+  const currentItem = proposedItems[currentIndex] ?? null;
+  const hasHumanConfirmed = useMemo(
+    () => items.some((item) => item.status === "Confirmed"),
+    [items],
+  );
+
+  const loadItems = useCallback(async () => {
+    if (snapshotId.trim().length === 0) {
+      setItems([]);
+      return;
+    }
+
+    setMutationError(null);
+
+    try {
+      const response = await listInferenceQuestionnaireItems(snapshotId);
+      setItems(response.items);
+      setCurrentIndex(0);
+      setChoice(null);
+      setSelectedCatalog("");
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : "Could not load inference questionnaire items.");
+    }
+  }, [snapshotId]);
+
+  useEffect(() => {
+    void loadItems();
+  }, [loadItems]);
+
+  const requiresCatalogChoice =
+    currentItem?.ruleName === "SQL catalog missing" || currentItem?.ruleName === "Tenant catalog template";
+
+  const canSubmit =
+    choice != null
+    && !submitting
+    && (choice !== "yes" || !requiresCatalogChoice || selectedCatalog.trim().length > 0 || choice === "skip");
+
+  const onSubmit = useCallback(async () => {
+    if (currentItem == null || choice == null) {
+      return;
+    }
+
+    if (choice === "skip") {
+      setCurrentIndex((index) => Math.min(index + 1, Math.max(proposedItems.length - 1, 0)));
+      setChoice(null);
+      setSelectedCatalog("");
+      return;
+    }
+
+    setSubmitting(true);
+    setMutationError(null);
+
+    try {
+      if (choice === "yes") {
+        await confirmOperatorInferredConnection(snapshotId, {
+          connectionId: currentItem.connectionId,
+          toCatalog: selectedCatalog.trim().length > 0 ? selectedCatalog : currentItem.toCatalog,
+        });
+      } else {
+        await dismissOperatorInferredConnection(snapshotId, { connectionId: currentItem.connectionId });
+      }
+
+      await loadItems();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : "Could not save your answer.");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [choice, currentItem, loadItems, proposedItems.length, selectedCatalog, snapshotId]);
+
+  if (proposedItems.length === 0 && !hasHumanConfirmed && mutationError == null) {
+    return null;
+  }
+
+  return (
+    <section
+      className="rounded-md border border-al-border bg-al-surface p-4"
+      data-testid="inference-questionnaire-panel"
+      aria-label="Inference questionnaire"
+    >
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Inference questionnaire</h2>
+          {hasHumanConfirmed ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="inference-questionnaire-human-confirmed-caption"
+            >
+              Confirmed connection edges are operator assertions from uploaded config or the inference questionnaire.
+            </p>
+          ) : null}
+        </div>
+
+        {mutationError != null ? <OperatorMutationInlineError message={mutationError} /> : null}
+
+        {currentItem != null ? (
+          <>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-progress">
+              Question {currentIndex + 1} of {proposedItems.length}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {currentItem.ruleName ?? "Inference gap"}
+            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-question">
+              {currentItem.questionText ?? "Does this connection exist?"}
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={choice === "yes" ? "primary" : "outline"}
+                onClick={() => setChoice("yes")}
+                data-testid="inference-questionnaire-yes"
+              >
+                Yes
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={choice === "no" ? "primary" : "outline"}
+                onClick={() => setChoice("no")}
+                data-testid="inference-questionnaire-no"
+              >
+                No
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={choice === "skip" ? "primary" : "outline"}
+                onClick={() => setChoice("skip")}
+                data-testid="inference-questionnaire-skip"
+              >
+                Skip
+              </Button>
+            </div>
+
+            {choice === "yes" && requiresCatalogChoice ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="inference-questionnaire-catalog">Database choice</Label>
+                <select
+                  id="inference-questionnaire-catalog"
+                  className="rounded-md border border-al-border bg-al-surface px-3 py-2 text-sm"
+                  value={selectedCatalog}
+                  onChange={(event) => setSelectedCatalog(event.target.value)}
+                  data-testid="inference-questionnaire-catalog"
+                >
+                  <option value="">Select a database</option>
+                  {currentItem.toCatalog != null ? (
+                    <option value={currentItem.toCatalog}>{currentItem.toCatalog}</option>
+                  ) : null}
+                  <option value="server-only">Server only</option>
+                </select>
+              </div>
+            ) : null}
+
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              disabled={!canSubmit}
+              onClick={() => void onSubmit()}
+              data-testid="inference-questionnaire-submit"
+            >
+              Continue
+            </Button>
+          </>
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            No proposed questionnaire items remain for this snapshot.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}

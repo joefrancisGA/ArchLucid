@@ -53,6 +53,10 @@ public static class AzureExtractorPackageInventoryReader
                 ReadServiceConnectorLinks(archive);
             (bool appSettingHostsFilePresent, List<AzureInventoryAppSettingHostRow> appSettingHosts) =
                 ReadAppSettingHosts(archive);
+            (bool dependencyObservationsFilePresent, List<AzureInventoryDependencyObservationRow> dependencyObservations) =
+                ReadDependencyObservations(archive);
+            (bool sqlDatabasePrincipalsFilePresent, List<AzureInventorySqlDatabasePrincipalRow> sqlDatabasePrincipals) =
+                ReadSqlDatabasePrincipals(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -92,6 +96,10 @@ public static class AzureExtractorPackageInventoryReader
                 ServiceConnectorLinksFilePresent = serviceConnectorLinksFilePresent,
                 AppSettingHosts = appSettingHosts,
                 AppSettingHostsFilePresent = appSettingHostsFilePresent,
+                DependencyObservations = dependencyObservations,
+                DependencyObservationsFilePresent = dependencyObservationsFilePresent,
+                SqlDatabasePrincipals = sqlDatabasePrincipals,
+                SqlDatabasePrincipalsFilePresent = sqlDatabasePrincipalsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -317,6 +325,24 @@ public static class AzureExtractorPackageInventoryReader
             archive,
             AzureExtractorPackageZipEntryNames.AppSettingsHosts,
             AzureInventoryAppSettingHostParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryDependencyObservationRow> Rows) ReadDependencyObservations(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryDependencyObservationRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.DependencyObservations,
+            AzureInventoryDependencyObservationParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventorySqlDatabasePrincipalRow> Rows) ReadSqlDatabasePrincipals(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventorySqlDatabasePrincipalRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.SqlDatabasePrincipals,
+            AzureInventorySqlDatabasePrincipalParser.TryParse);
     }
 
     private static (bool FilePresent, List<TRow> Rows) ReadCompanionRows<TRow>(
@@ -765,6 +791,30 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool AppSettingHostsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryDependencyObservationRow> DependencyObservations
+    {
+        get;
+        init;
+    } = [];
+
+    public bool DependencyObservationsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventorySqlDatabasePrincipalRow> SqlDatabasePrincipals
+    {
+        get;
+        init;
+    } = [];
+
+    public bool SqlDatabasePrincipalsFilePresent
     {
         get;
         init;
