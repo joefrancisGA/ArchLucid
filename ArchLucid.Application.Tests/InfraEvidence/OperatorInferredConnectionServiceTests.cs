@@ -211,9 +211,7 @@ public sealed class OperatorInferredConnectionServiceTests
         result.ErrorMessage.Should().Be("Inferred connection was not found.");
 
         connectionRepository.Verify(repository => repository.TryGetByIdInScopeAsync(
-            Scope.TenantId,
-            Scope.WorkspaceId,
-            Scope.ProjectId,
+            Scope.ToProjectScopeKey(),
             foreign.ConnectionId,
             It.IsAny<CancellationToken>()), Times.Once);
         connectionRepository.Verify(repository => repository.UpdateStatusAsync(
