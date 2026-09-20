@@ -190,7 +190,10 @@ export function OperatorInferredConnectionsPanel(
         ) : null}
 
         {uploadRows.length > 0 ? (
-          <EnterpriseTable data-testid="operator-inferred-connections-table" aria-label="Proposed uploaded config connections">
+          <EnterpriseTable
+            data-testid="operator-inferred-connections-table"
+            ariaLabel="Proposed uploaded config connections"
+          >
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
                 <EnterpriseTableHeaderCell>Select</EnterpriseTableHeaderCell>

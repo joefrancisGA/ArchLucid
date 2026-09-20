@@ -56,6 +56,7 @@
     "ux-audit:screenshots:operator": "playwright test -c playwright.operator-mock.config.ts --project=chromium-ux-audit-operator",
     "ux-audit:screenshots:marketing": "playwright test -c playwright.mock.config.ts --project=chromium-ux-audit-marketing",
     "ux-audit": "pwsh -NoProfile -File ./scripts/run-ux-audit.ps1",
+    "securenow-ui-rate:screenshots": "playwright test -c playwright.securenow-mock.config.ts --project=chromium-securenow-ui-rate",
     "test:e2e:live": "playwright test",
     "test:e2e:founder": "playwright test -c playwright.founder.config.ts --grep @founder",
     "test:e2e:founder:headed": "playwright test -c playwright.founder.config.ts --grep @founder --headed",
