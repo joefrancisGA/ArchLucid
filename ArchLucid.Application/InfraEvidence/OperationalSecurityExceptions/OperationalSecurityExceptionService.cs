@@ -365,7 +365,7 @@ public sealed class OperationalSecurityExceptionService(
         {
             ObservationId = Guid.NewGuid(),
             FindingId = findingId,
-            TenantId = tenantId,
+            TenantId = scope.TenantId,
             ObservedUtc = utcNow,
             Status = reopenedStatus,
             Severity = finding.Severity,
