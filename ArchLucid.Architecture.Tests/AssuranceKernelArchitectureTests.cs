@@ -56,7 +56,7 @@ public sealed class AssuranceKernelArchitectureTests
             "FindingEngineFailureCommitClassifier.cs");
         string provenanceValidator = Path.Combine(
             RepoRoot,
-            "ArchLucid.Core",
+            "ArchLucid.Decisioning",
             "Findings",
             "DecisionGradeFindingProvenanceValidator.cs");
         string checklistRouter = Path.Combine(
