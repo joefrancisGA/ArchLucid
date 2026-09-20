@@ -106,8 +106,11 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await conn.ExecuteAsync(
+        int affected = await conn.ExecuteAsync(
             new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped remediation instance mutation did not update exactly one record.");
     }
 
     public async Task<RemediationInstanceRecord?> TryGetByIdAsync(
