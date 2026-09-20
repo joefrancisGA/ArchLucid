@@ -75,7 +75,7 @@ public sealed class PathRankingEngine(
         foreach (SecurityEvidencePathRecord path in paths)
         {
             IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, path.PathId, cancellationToken);
+                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), path.PathId, cancellationToken);
 
             SecurityEvidencePathRankEvaluation evaluation =
                 SecurityEvidencePathRankCalculator.Evaluate(
