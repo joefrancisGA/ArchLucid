@@ -67,7 +67,7 @@ public sealed class RemediationInstanceService(
             return Blocked(rejection!);
 
         OperationalSecurityFindingRecord? finding =
-            await operationalFindingRepository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, findingId, cancellationToken);
 
         Guid? pathId = null;
         string? pathNarrativeJson = null;
