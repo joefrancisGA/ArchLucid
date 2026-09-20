@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and test-program evidence; not buyer-facing proof or a correctness/superiority claim.
+
 # Risk-weighted mutation testing
 
 Mutation testing should be concentrated where a surviving semantic defect could invalidate trust, not raised globally until every low-value helper has an arbitrary score.
