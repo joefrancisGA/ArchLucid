@@ -41,6 +41,11 @@ public interface IRemediationPrioritizationRepository
     Task<IReadOnlyList<RemediationPrioritizationScoreRecord>> ListScoresByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RemediationPrioritizationScoreRecord>> ListScoresByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default) =>
+        ListScoresByTenantAsync(scope.TenantId, cancellationToken);
 }
 
 
