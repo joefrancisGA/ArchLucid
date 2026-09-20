@@ -56,6 +56,18 @@ public interface IRemediationInstanceRepository
         Guid tenantId,
         CancellationToken cancellationToken = default);
 
+    async Task<IReadOnlyList<RemediationInstanceRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationInstanceRecord> rows =
+            await ListByTenantAsync(scope.TenantId, cancellationToken);
+
+        return rows
+            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId))
+            .ToList();
+    }
+
     Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,

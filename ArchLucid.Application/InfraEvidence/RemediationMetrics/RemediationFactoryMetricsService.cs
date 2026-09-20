@@ -148,16 +148,17 @@ public sealed class RemediationFactoryMetricsService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         DateTime weekStart = utcNow.AddDays(-7);
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
 
         IReadOnlyList<OperationalSecurityFindingRecord> allFindings =
-            await findingRepository.ListByTenantAsync(scope.TenantId, status: null, cancellationToken);
+            await findingRepository.ListByScopeAsync(projectScope, status: null, cancellationToken);
 
         IReadOnlyList<OperationalSecurityFindingRecord> openFindings = allFindings
             .Where(item => item.Status is OperationalSecurityFindingStatus.Open or OperationalSecurityFindingStatus.Recurred)
             .ToList();
 
         IReadOnlyList<RemediationPrioritizationScoreRecord> scores =
-            await prioritizationRepository.ListScoresByTenantAsync(scope.TenantId, cancellationToken);
+            await prioritizationRepository.ListScoresByScopeAsync(projectScope, cancellationToken);
 
         Dictionary<Guid, decimal> scoreByFinding = scores.ToDictionary(item => item.FindingId, item => item.TotalScore);
 
@@ -173,7 +174,7 @@ public sealed class RemediationFactoryMetricsService(
         int recurrenceCount = allFindings.Count(item => item.Status == OperationalSecurityFindingStatus.Recurred);
 
         IReadOnlyList<RemediationInstanceRecord> instances =
-            await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+            await instanceRepository.ListByScopeAsync(projectScope, cancellationToken);
 
         int remediatedThisWeek = instances.Count(item =>
             item.VerifiedUtc.HasValue
@@ -188,7 +189,7 @@ public sealed class RemediationFactoryMetricsService(
         foreach (OperationalSecurityFindingRecord finding in openFindings)
         {
             RemediationPatternMatchResultRecord? match =
-                await matchRepository.TryGetActiveMatchAsync(scope.TenantId, finding.FindingId, cancellationToken);
+                await matchRepository.TryGetActiveMatchInScopeAsync(projectScope, finding.FindingId, cancellationToken);
 
             if (match is null)
                 continue;
@@ -214,7 +215,7 @@ public sealed class RemediationFactoryMetricsService(
         int businessBlocked = instances.Count(item => item.Status == RemediationInstanceStatus.PreflightBlocked);
 
         IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
-            await exceptionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+            await exceptionRepository.ListByScopeAsync(projectScope, cancellationToken);
 
         int exceptionsActive = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Active);
         int exceptionsExpired = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Expired);

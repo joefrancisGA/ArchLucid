@@ -32,6 +32,32 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
         return row is null ? null : MapPath(row);
     }
 
+    public async Task<SecurityEvidencePathRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT PathId, TenantId, WorkspaceId, ProjectId, SnapshotId, PathKind, PathConfidenceBand,
+                                  CanonicalHopHashSha256, WeakestHopOrdinal, WeakestHopReason, CrownJewelAssertionId,
+                                  CreatedUtc, UpdatedUtc
+                           FROM dbo.SecurityEvidencePaths
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND PathId = @PathId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        PathRow? row = await conn.QuerySingleOrDefaultAsync<PathRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : MapPath(row);
+    }
+
     public async Task<SecurityEvidencePathRecord?> TryGetByCanonicalHashAsync(
         Guid tenantId,
         Guid snapshotId,

@@ -41,7 +41,7 @@ public sealed class PathRankingEngine(
 
         if (paths.Count == 0)
         {
-            await rankRepository.ReplaceRanksForSnapshotAsync(scope.TenantId, snapshotId, [], cancellationToken);
+            await rankRepository.ReplaceRanksForSnapshotInScopeAsync(scope.ToProjectScopeKey(), snapshotId, [], cancellationToken);
 
             return new PathRankingEngineResult
             {
@@ -121,8 +121,8 @@ public sealed class PathRankingEngine(
 
         try
         {
-            await rankRepository.ReplaceRanksForSnapshotAsync(
-                scope.TenantId,
+            await rankRepository.ReplaceRanksForSnapshotInScopeAsync(
+                scope.ToProjectScopeKey(),
                 snapshotId,
                 rankRecords,
                 cancellationToken);

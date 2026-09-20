@@ -88,12 +88,15 @@ public sealed class PathRankingEngineTests
             .Setup(repository => repository.TryGetWeightsAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((SecurityEvidencePathRankWeightsRecord?)null);
         rankRepository
-            .Setup(repository => repository.ReplaceRanksForSnapshotAsync(
-                TenantId,
+            .Setup(repository => repository.ReplaceRanksForSnapshotInScopeAsync(
+                It.Is<ProjectScopeKey>(scopeKey =>
+                    scopeKey.TenantId == TenantId
+                    && scopeKey.WorkspaceId == WorkspaceId
+                    && scopeKey.ProjectId == ProjectId),
                 SnapshotId,
                 It.IsAny<IReadOnlyList<SecurityEvidencePathRankRecord>>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<Guid, Guid, IReadOnlyList<SecurityEvidencePathRankRecord>, CancellationToken>(
+            .Callback<ProjectScopeKey, Guid, IReadOnlyList<SecurityEvidencePathRankRecord>, CancellationToken>(
                 (_, _, ranks, _) => persistedRanks.AddRange(ranks))
             .Returns(Task.CompletedTask);
 

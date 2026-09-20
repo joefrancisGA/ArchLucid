@@ -275,6 +275,34 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return rows.Select(MapInstance).ToList();
     }
 
+    public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY UpdatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapInstance).ToList();
+    }
+
     public async Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,
