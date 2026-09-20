@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -10,16 +11,19 @@ public interface IRemediationInstanceRepository
 
     async Task UpdateInstanceInScopeAsync(
         ProjectScopeKey scope,
-        RemediationInstanceRecord instance,
+        RemediationInstanceMutation mutation,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(instance);
+        ArgumentNullException.ThrowIfNull(mutation);
 
-        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
-            throw new InvalidOperationException("Remediation instance scope does not match the authorized project scope.");
+        RemediationInstanceRecord? current =
+            await TryGetByIdInScopeAsync(scope, mutation.InstanceId, cancellationToken);
 
-        await UpdateInstanceAsync(instance, cancellationToken);
+        if (current is null)
+            return;
+
+        await UpdateInstanceAsync(mutation.ApplyTo(current), cancellationToken);
     }
 
     Task<RemediationInstanceRecord?> TryGetByIdAsync(
@@ -63,4 +67,69 @@ public interface IRemediationInstanceRepository
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default);
+}
+
+public sealed record RemediationInstanceMutation
+{
+    public required Guid InstanceId { get; init; }
+    public required RemediationInstanceStatus Status { get; init; }
+    public Guid? CloudResourceId { get; init; }
+    public Guid? PathId { get; init; }
+    public string? PathNarrativeJson { get; init; }
+    public Guid? AssessmentId { get; init; }
+    public Guid? ControlId { get; init; }
+    public Guid? PreflightSnapshotId { get; init; }
+    public Guid? ExecutionSnapshotId { get; init; }
+    public Guid? VerificationSnapshotId { get; init; }
+    public Guid? WaveId { get; init; }
+    public string? PreflightResultJson { get; init; }
+    public string? VerificationResultJson { get; init; }
+    public string? ApprovedByActorKey { get; init; }
+    public required DateTime UpdatedUtc { get; init; }
+    public DateTime? ApprovedUtc { get; init; }
+    public DateTime? ExecutedUtc { get; init; }
+    public DateTime? VerifiedUtc { get; init; }
+    public DateTime? ClosedUtc { get; init; }
+
+    public RemediationInstanceRecord ApplyTo(RemediationInstanceRecord source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source.InstanceId != InstanceId)
+            throw new InvalidOperationException("Remediation mutation id does not match the source record.");
+
+        return new RemediationInstanceRecord
+        {
+            InstanceId = source.InstanceId,
+            TenantId = source.TenantId,
+            WorkspaceId = source.WorkspaceId,
+            ProjectId = source.ProjectId,
+            FindingId = source.FindingId,
+            PatternId = source.PatternId,
+            PatternVersionId = source.PatternVersionId,
+            PatternKey = source.PatternKey,
+            FrozenPatternVersion = source.FrozenPatternVersion,
+            AutomationLevel = source.AutomationLevel,
+            Status = Status,
+            CloudResourceId = CloudResourceId,
+            PathId = PathId,
+            PathNarrativeJson = PathNarrativeJson,
+            AssessmentId = AssessmentId,
+            ControlId = ControlId,
+            PreflightSnapshotId = PreflightSnapshotId,
+            ExecutionSnapshotId = ExecutionSnapshotId,
+            VerificationSnapshotId = VerificationSnapshotId,
+            WaveId = WaveId,
+            PreflightResultJson = PreflightResultJson,
+            VerificationResultJson = VerificationResultJson,
+            CreatedByActorKey = source.CreatedByActorKey,
+            ApprovedByActorKey = ApprovedByActorKey,
+            CreatedUtc = source.CreatedUtc,
+            UpdatedUtc = UpdatedUtc,
+            ApprovedUtc = ApprovedUtc,
+            ExecutedUtc = ExecutedUtc,
+            VerifiedUtc = VerifiedUtc,
+            ClosedUtc = ClosedUtc,
+        };
+    }
 }

@@ -155,14 +155,11 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
 
     public async Task UpdateStatusInScopeAsync(
         ProjectScopeKey scope,
-        OperatorInferredConnectionRecord record,
+        OperatorInferredConnectionMutation mutation,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(record);
-
-        if (!scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId))
-            throw new InvalidOperationException("Inferred connection scope does not match the authorized project scope.");
+        ArgumentNullException.ThrowIfNull(mutation);
 
         using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -182,7 +179,23 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
                            """;
 
         int affected = await connection.ExecuteAsync(
-            new CommandDefinition(sql, MapParameters(record), cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.ConnectionId,
+                    Status = (int)mutation.Status,
+                    mutation.FromCloudResourceId,
+                    mutation.ToArmId,
+                    mutation.ToCloudResourceId,
+                    mutation.ToCatalog,
+                    mutation.ActorKey,
+                    mutation.UpdatedUtc,
+                },
+                cancellationToken: cancellationToken));
 
         if (affected != 1)
             throw new InvalidOperationException("Scoped inferred connection mutation did not update exactly one record.");

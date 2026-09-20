@@ -69,14 +69,11 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
 
     public async Task UpdateInstanceInScopeAsync(
         ProjectScopeKey scope,
-        RemediationInstanceRecord instance,
+        RemediationInstanceMutation mutation,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(instance);
-
-        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
-            throw new InvalidOperationException("Remediation instance scope does not match the authorized project scope.");
+        ArgumentNullException.ThrowIfNull(mutation);
 
         const string sql = """
                            UPDATE dbo.RemediationInstances
@@ -107,7 +104,34 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         int affected = await conn.ExecuteAsync(
-            new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.InstanceId,
+                    Status = (int)mutation.Status,
+                    mutation.CloudResourceId,
+                    mutation.PathId,
+                    mutation.PathNarrativeJson,
+                    mutation.AssessmentId,
+                    mutation.ControlId,
+                    mutation.PreflightSnapshotId,
+                    mutation.ExecutionSnapshotId,
+                    mutation.VerificationSnapshotId,
+                    mutation.WaveId,
+                    mutation.PreflightResultJson,
+                    mutation.VerificationResultJson,
+                    mutation.ApprovedByActorKey,
+                    mutation.UpdatedUtc,
+                    mutation.ApprovedUtc,
+                    mutation.ExecutedUtc,
+                    mutation.VerifiedUtc,
+                    mutation.ClosedUtc,
+                },
+                cancellationToken: cancellationToken));
 
         if (affected != 1)
             throw new InvalidOperationException("Scoped remediation instance mutation did not update exactly one record.");
