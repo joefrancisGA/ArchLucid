@@ -313,7 +313,7 @@ public sealed class SecurityAssetAssertionService(
             }
 
             int created = await CreateExpiryObservationsAsync(
-                scope.TenantId,
+                scope,
                 expired,
                 utcNow,
                 cancellationToken);
@@ -354,14 +354,14 @@ public sealed class SecurityAssetAssertionService(
     }
 
     private async Task<int> CreateExpiryObservationsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         SecurityAssetAssertionRecord expired,
         DateTime utcNow,
         CancellationToken cancellationToken)
     {
         (IReadOnlyList<OperationalSecurityFindingRecord> findings, _) =
             await findingRepository.ListByCloudResourceIdPagedAsync(
-                tenantId,
+                scope.TenantId,
                 expired.CloudResourceId,
                 page: 1,
                 pageSize: 100,
@@ -379,7 +379,7 @@ public sealed class SecurityAssetAssertionService(
                      && finding.ProjectId == expired.ProjectId))
         {
             IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
-                await findingRepository.ListObservationsByFindingAsync(tenantId, finding.FindingId, cancellationToken);
+                await findingRepository.ListObservationsByFindingAsync(scope.TenantId, finding.FindingId, cancellationToken);
 
             if (observations.Any(observation =>
                     string.Equals(
@@ -399,7 +399,7 @@ public sealed class SecurityAssetAssertionService(
             {
                 ObservationId = Guid.NewGuid(),
                 FindingId = finding.FindingId,
-                TenantId = tenantId,
+                TenantId = scope.TenantId,
                 ObservedUtc = utcNow,
                 Status = finding.Status,
                 Severity = finding.Severity,
@@ -415,7 +415,7 @@ public sealed class SecurityAssetAssertionService(
             OperationalSecurityFindingRecord updated = CloneFinding(finding, utcNow);
 
             await findingRepository.UpdateInScopeAsync(
-                ProjectScopeKey.Create(tenantId, expired.WorkspaceId, expired.ProjectId),
+                scope.ToProjectScopeKey(),
                 ToMutation(updated),
                 [],
                 ToMutation(observation),
