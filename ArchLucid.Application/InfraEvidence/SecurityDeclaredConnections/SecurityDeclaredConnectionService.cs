@@ -36,9 +36,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         IReadOnlyList<SecurityDeclaredConnectionRecord> scopedConnections =
             await connectionRepository.ListByScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 cancellationToken);
 
         bool existingActive = scopedConnections.Any(record =>
@@ -128,9 +126,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         SecurityDeclaredConnectionRecord? existing =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 connectionId,
                 cancellationToken);
 
@@ -223,9 +219,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         SecurityDeclaredConnectionRecord? existing =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 connectionId,
                 cancellationToken);
 
@@ -278,9 +272,7 @@ public sealed class SecurityDeclaredConnectionService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecurityDeclaredConnectionRecord> records =
             await connectionRepository.ListByScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 cancellationToken);
 
         List<SecurityDeclaredConnectionRecord> results = [];
