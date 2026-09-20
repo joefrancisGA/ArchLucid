@@ -63,6 +63,21 @@ public interface IOperationalSecurityExceptionRepository
         DateTime asOfUtc,
         CancellationToken cancellationToken = default);
 
+    async Task<bool> HasActiveExceptionForFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityExceptionRecord> rows =
+            await ListByScopeAsync(scope, cancellationToken);
+
+        return rows.Any(row =>
+            row.FindingId == findingId
+            && row.Status == OperationalSecurityExceptionStatus.Active
+            && row.ExpirationUtc > asOfUtc);
+    }
+
     async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> MarkExpiredInScopeAsync(
         ProjectScopeKey scope,
         DateTime asOfUtc,

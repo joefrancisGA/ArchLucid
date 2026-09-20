@@ -161,8 +161,8 @@ public sealed class RemediationInstanceService(
         RemediationPatternMatchResultRecord? activeMatch =
             await matchRepository.TryGetActiveMatchAsync(scope.TenantId, instance.FindingId, cancellationToken);
 
-        bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingAsync(
-            scope.TenantId,
+        bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingInScopeAsync(
+            scope.ToProjectScopeKey(),
             instance.FindingId,
             TimeProvider.System.UtcNowDateTime(),
             cancellationToken);

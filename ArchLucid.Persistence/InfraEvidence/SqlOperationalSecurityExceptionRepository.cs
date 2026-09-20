@@ -376,6 +376,42 @@ public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFact
         return exists.HasValue;
     }
 
+    public async Task<bool> HasActiveExceptionForFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT TOP (1) 1
+                           FROM dbo.OperationalSecurityExceptions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND FindingId = @FindingId
+                             AND Status = @ActiveStatus
+                             AND ExpirationUtc > @AsOfUtc;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int? exists = await conn.ExecuteScalarAsync<int?>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    FindingId = findingId,
+                    AsOfUtc = asOfUtc,
+                    ActiveStatus = (int)OperationalSecurityExceptionStatus.Active,
+                },
+                cancellationToken: cancellationToken));
+
+        return exists.HasValue;
+    }
+
     private static object MapParameters(OperationalSecurityExceptionRecord record) =>
         new
         {

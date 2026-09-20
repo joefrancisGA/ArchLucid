@@ -94,7 +94,10 @@ public sealed class PathRankingEngineTests
         Mock<ISecurityAssetAssertionResolver> assertionResolver = new();
         assertionResolver
             .Setup(resolver => resolver.GetActiveCrownJewelAssertionIdsAsync(
-                TenantId,
+                It.Is<ProjectScopeKey>(scopeKey =>
+                    scopeKey.TenantId == TenantId
+                    && scopeKey.WorkspaceId == WorkspaceId
+                    && scopeKey.ProjectId == ProjectId),
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<Guid>());

@@ -45,10 +45,44 @@ public interface ISecurityAssetAssertionRepository
         DateTime asOfUtc,
         CancellationToken cancellationToken = default);
 
+    async Task<SecurityAssetAssertionRecord?> TryGetActiveByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<SecurityAssetAssertionRecord> rows =
+            await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row =>
+                row.CloudResourceId == cloudResourceId
+                && row.Status == SecurityAssetAssertionStatus.Active
+                && row.ExpirationUtc > asOfUtc)
+            .OrderByDescending(row => row.CreatedUtc)
+            .FirstOrDefault();
+    }
+
     Task<IReadOnlyList<Guid>> ListActiveAssertionIdsAsync(
         Guid tenantId,
         DateTime asOfUtc,
         CancellationToken cancellationToken = default);
+
+    async Task<IReadOnlyList<Guid>> ListActiveAssertionIdsInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<SecurityAssetAssertionRecord> rows =
+            await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row =>
+                row.Status == SecurityAssetAssertionStatus.Active
+                && row.ExpirationUtc > asOfUtc)
+            .Select(row => row.AssertionId)
+            .ToList();
+    }
 
     Task<IReadOnlyList<SecurityAssetAssertionRecord>> MarkExpiredAsync(
         Guid tenantId,

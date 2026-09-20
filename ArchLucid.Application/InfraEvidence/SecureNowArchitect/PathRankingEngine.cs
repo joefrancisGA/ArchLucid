@@ -58,7 +58,7 @@ public sealed class PathRankingEngine(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlySet<Guid> activeCrownJewelAssertionIds =
-            await assertionResolver.GetActiveCrownJewelAssertionIdsAsync(scope.TenantId, utcNow, cancellationToken);
+            await assertionResolver.GetActiveCrownJewelAssertionIdsAsync(scope.ToProjectScopeKey(), utcNow, cancellationToken);
 
         DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown;
 

@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
@@ -7,7 +8,7 @@ public sealed class SecurityAssetAssertionResolver(ISecurityAssetAssertionReposi
     : ISecurityAssetAssertionResolver
 {
     public async Task<Guid?> TryResolveCrownJewelAssertionIdAsync(
-        Guid tenantId,
+        ProjectScopeKey scope,
         IReadOnlyList<Guid> cloudResourceIds,
         DateTime asOfUtc,
         CancellationToken cancellationToken = default)
@@ -24,8 +25,8 @@ public sealed class SecurityAssetAssertionResolver(ISecurityAssetAssertionReposi
                 continue;
             }
 
-            SecurityAssetAssertionRecord? assertion = await assertionRepository.TryGetActiveByCloudResourceIdAsync(
-                tenantId,
+            SecurityAssetAssertionRecord? assertion = await assertionRepository.TryGetActiveByCloudResourceIdInScopeAsync(
+                scope,
                 cloudResourceId,
                 asOfUtc,
                 cancellationToken);
@@ -40,12 +41,12 @@ public sealed class SecurityAssetAssertionResolver(ISecurityAssetAssertionReposi
     }
 
     public async Task<IReadOnlySet<Guid>> GetActiveCrownJewelAssertionIdsAsync(
-        Guid tenantId,
+        ProjectScopeKey scope,
         DateTime asOfUtc,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<SecurityAssetAssertionRecord> assertions =
-            await assertionRepository.ListByTenantAsync(tenantId, cancellationToken);
+            await assertionRepository.ListByScopeAsync(scope, cancellationToken);
 
         HashSet<Guid> activeIds = assertions
             .Where(assertion =>
@@ -59,7 +60,7 @@ public sealed class SecurityAssetAssertionResolver(ISecurityAssetAssertionReposi
     }
 
     public async Task<bool> IsActiveCrownJewelAssertionAsync(
-        Guid tenantId,
+        ProjectScopeKey scope,
         Guid assertionId,
         DateTime asOfUtc,
         CancellationToken cancellationToken = default)
@@ -70,7 +71,7 @@ public sealed class SecurityAssetAssertionResolver(ISecurityAssetAssertionReposi
         }
 
         SecurityAssetAssertionRecord? assertion =
-            await assertionRepository.TryGetByIdAsync(tenantId, assertionId, cancellationToken);
+            await assertionRepository.TryGetByIdInScopeAsync(scope, assertionId, cancellationToken);
 
         return assertion is not null
                && assertion.Status == SecurityAssetAssertionStatus.Active
