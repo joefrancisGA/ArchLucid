@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and operational controls; not buyer-facing proof or a correctness/superiority claim.
+
 # False-positive reduction program
 
 False positives are not reduced by suppressing uncomfortable findings. They are reduced by producing **counterexamples that should stay clean**.
