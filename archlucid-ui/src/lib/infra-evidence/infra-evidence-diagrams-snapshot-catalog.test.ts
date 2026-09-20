@@ -48,7 +48,7 @@ describe("infra-evidence-diagrams-snapshot-catalog", () => {
     ]);
   });
 
-  it("builds subscription filter options with All first", () => {
+  it("builds subscription filter options without an All row", () => {
     const options = buildInfraDiagramsSubscriptionFilterOptions([
       snapshot({ subscriptionId: "sub-dev", subscriptionName: "Dev" }),
       snapshot({
@@ -58,8 +58,7 @@ describe("infra-evidence-diagrams-snapshot-catalog", () => {
       }),
     ]);
 
-    expect(options[0]).toEqual({ value: INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL, label: "All" });
-    expect(options.map((option) => option.label)).toEqual(["All", "Dev", "Prod"]);
+    expect(options.map((option) => option.label)).toEqual(["Dev", "Prod"]);
   });
 
   it("filters snapshots by subscription id", () => {
@@ -73,6 +72,7 @@ describe("infra-evidence-diagrams-snapshot-catalog", () => {
     ];
 
     expect(filterInfraDiagramsSnapshotsBySubscription(rows, INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL)).toHaveLength(2);
+    expect(filterInfraDiagramsSnapshotsBySubscription(rows, "")).toHaveLength(0);
     expect(filterInfraDiagramsSnapshotsBySubscription(rows, "sub-dev")).toHaveLength(1);
     expect(filterInfraDiagramsSnapshotsBySubscription(rows, "sub-dev")[0]?.snapshotId).toBe(
       "22222222-2222-2222-2222-222222222222",
