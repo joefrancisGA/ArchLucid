@@ -15,7 +15,9 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "ListByScopeAsync"];
         yield return [typeof(IOperatorInferredConnectionRepository), typeof(SqlOperatorInferredConnectionRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(IOperatorInferredConnectionRepository), typeof(SqlOperatorInferredConnectionRepository), "UpdateStatusInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "UpdateInstanceInScopeAsync"];
     }
 
     [Theory]

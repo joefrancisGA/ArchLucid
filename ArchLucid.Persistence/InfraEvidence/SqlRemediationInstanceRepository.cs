@@ -67,6 +67,52 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
     }
 
+    public async Task UpdateInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceRecord instance,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(instance);
+
+        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
+            throw new InvalidOperationException("Remediation instance scope does not match the authorized project scope.");
+
+        const string sql = """
+                           UPDATE dbo.RemediationInstances
+                           SET Status = @Status,
+                               CloudResourceId = @CloudResourceId,
+                               PathId = @PathId,
+                               PathNarrativeJson = @PathNarrativeJson,
+                               AssessmentId = @AssessmentId,
+                               ControlId = @ControlId,
+                               PreflightSnapshotId = @PreflightSnapshotId,
+                               ExecutionSnapshotId = @ExecutionSnapshotId,
+                               VerificationSnapshotId = @VerificationSnapshotId,
+                               WaveId = @WaveId,
+                               PreflightResultJson = @PreflightResultJson,
+                               VerificationResultJson = @VerificationResultJson,
+                               ApprovedByActorKey = @ApprovedByActorKey,
+                               UpdatedUtc = @UpdatedUtc,
+                               ApprovedUtc = @ApprovedUtc,
+                               ExecutedUtc = @ExecutedUtc,
+                               VerifiedUtc = @VerifiedUtc,
+                               ClosedUtc = @ClosedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND InstanceId = @InstanceId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped remediation instance mutation did not update exactly one record.");
+    }
+
     public async Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid instanceId,

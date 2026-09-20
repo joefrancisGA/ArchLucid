@@ -36,4 +36,18 @@ public interface IOperatorInferredConnectionRepository
     Task UpdateStatusAsync(
         OperatorInferredConnectionRecord record,
         CancellationToken cancellationToken = default);
+
+    async Task UpdateStatusInScopeAsync(
+        ProjectScopeKey scope,
+        OperatorInferredConnectionRecord record,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(record);
+
+        if (!scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId))
+            throw new InvalidOperationException("Inferred connection scope does not match the authorized project scope.");
+
+        await UpdateStatusAsync(record, cancellationToken);
+    }
 }

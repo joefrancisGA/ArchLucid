@@ -153,6 +153,41 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
             new CommandDefinition(sql, MapParameters(record), cancellationToken: cancellationToken));
     }
 
+    public async Task UpdateStatusInScopeAsync(
+        ProjectScopeKey scope,
+        OperatorInferredConnectionRecord record,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(record);
+
+        if (!scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId))
+            throw new InvalidOperationException("Inferred connection scope does not match the authorized project scope.");
+
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           UPDATE dbo.OperatorInferredConnections
+                           SET Status = @Status,
+                               FromCloudResourceId = @FromCloudResourceId,
+                               ToArmId = @ToArmId,
+                               ToCloudResourceId = @ToCloudResourceId,
+                               ToCatalog = @ToCatalog,
+                               ActorKey = @ActorKey,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId;
+                           """;
+
+        int affected = await connection.ExecuteAsync(
+            new CommandDefinition(sql, MapParameters(record), cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped inferred connection mutation did not update exactly one record.");
+    }
+
     private static object MapParameters(OperatorInferredConnectionRecord record) =>
         new
         {
