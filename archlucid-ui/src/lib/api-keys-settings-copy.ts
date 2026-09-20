@@ -28,14 +28,14 @@ export const API_KEYS_SSO_ONLY_NOTICE =
 export const API_KEYS_SUMMARY_ACCESS_LABEL = "API key access";
 export const API_KEYS_SUMMARY_ADMIN_KEYS_LABEL = "Active admin keys";
 export const API_KEYS_SUMMARY_READONLY_KEYS_LABEL = "Active read-only keys";
-export const API_KEYS_SUMMARY_LAST_ROTATION_LABEL = "Last rotation";
+export const API_KEYS_SUMMARY_LAST_ROTATION_LABEL = "Rotation material issued this session";
 export const API_KEYS_SUMMARY_LAST_USED_LABEL = "Last used";
 
 export const API_KEYS_ACCESS_ENABLED_LABEL = "Enabled";
 export const API_KEYS_ACCESS_DISABLED_LABEL = "Disabled";
 
 export const API_KEYS_CREDENTIALS_SECTION_TITLE = "Managed credentials";
-export const API_KEYS_RECENT_EVENTS_SECTION_TITLE = "Recent key events";
+export const API_KEYS_RECENT_EVENTS_SECTION_TITLE = "This session\'s key events";
 export const API_KEYS_RECENT_EVENTS_EMPTY = "No key events recorded in this session.";
 
 export const API_KEYS_ONE_TIME_COPY_NOTICE =
@@ -75,7 +75,7 @@ export const API_KEYS_TECHNICAL_DETAILS_DESCRIPTION =
 
 export const API_KEYS_TABLE_COLUMN_NAME = "Key name";
 export const API_KEYS_TABLE_COLUMN_PERMISSION = "Permission level";
-export const API_KEYS_TABLE_COLUMN_CREATED = "Created";
+export const API_KEYS_TABLE_COLUMN_CREATED = "Configuration";
 export const API_KEYS_TABLE_COLUMN_LAST_USED = "Last used";
 export const API_KEYS_TABLE_COLUMN_EXPIRES = "Expires";
 export const API_KEYS_TABLE_COLUMN_STATUS = "Status";
