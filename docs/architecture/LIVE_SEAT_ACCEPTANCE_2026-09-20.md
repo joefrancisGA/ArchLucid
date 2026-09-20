@@ -42,8 +42,8 @@
 
 ## Residual / not closed here
 
-- **TB-927** full live invitee product walk (Playwright accept → first review) — scope half addressed via dedicated scope on accept.
-- **Playwright** first-login matrix extension beyond Vitest (`live-seat-018` optional Playwright).
+- **TB-927** invitee create-review walk remains in `live-api-private-beta-access.spec.ts`; operator Home scope chrome after accept is asserted via `assertLiveSeatOperatorScopeChrome` (LS-018 Playwright).
+- **Playwright** full first-login matrix (all join paths × Training) remains Vitest-only; release-gate specs cover invite accept → live scope chrome.
 - Silent demo writers listed in `LIVE_SEAT_SIGNED_IN_SAMPLE_SCOPE_INVENTORY.md` — re-audit if new scope writers land.
 
 ## Explicit non-changes

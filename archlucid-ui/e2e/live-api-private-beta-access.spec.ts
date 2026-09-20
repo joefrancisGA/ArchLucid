@@ -35,6 +35,7 @@ import {
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
+import { assertLiveSeatOperatorScopeChrome } from "./helpers/live-seat-scope-assertions";
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
@@ -467,6 +468,10 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+
+    await stubEmptyArchitectureDraftListRoute(page);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await assertLiveSeatOperatorScopeChrome(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);

@@ -16,6 +16,7 @@ import {
 } from "./helpers/live-private-beta-access";
 import { isLiveEmailOtpLaneConfigured, liveEmailOtpLaneSkipReason } from "./helpers/live-email-otp-harness";
 import { liveApiBase, liveJsonHeaders, resolveLiveJwtMode } from "./helpers/live-api-client";
+import { assertLiveSeatOperatorScopeChrome } from "./helpers/live-seat-scope-assertions";
 
 const releaseGateTag = "@release-gate";
 
@@ -177,6 +178,9 @@ test.describe(
         await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/, {
           timeout: 120_000,
         });
+
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await assertLiveSeatOperatorScopeChrome(page);
       } finally {
         await inviteeContext.close();
       }
