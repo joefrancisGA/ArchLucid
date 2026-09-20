@@ -14,6 +14,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "UpdateInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListByScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListMetadataByFindingInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "ListByScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "UpdateRenewalInScopeAsync"];
@@ -38,6 +39,14 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "MarkExpiryProcessedInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "RevokeInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "HasActiveExceptionForFindingInScopeAsync"];
+        yield return [typeof(ISecurityEvidencePathRepository), typeof(SqlSecurityEvidencePathRepository), "ListHopsByPathInScopeAsync"];
+        yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "DeactivateMatchesForFindingInScopeAsync"];
+        yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "InsertMatchResultInScopeAsync"];
+        yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "InsertConflictInScopeAsync"];
+        yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "TryGetActiveMatchInScopeAsync"];
+        yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListByFindingInScopeAsync"];
+        yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListConflictsByFindingInScopeAsync"];
+        yield return [typeof(IRemediationPrioritizationRepository), typeof(SqlRemediationPrioritizationRepository), "UpsertScoreInScopeAsync"];
     }
 
     [Theory]
@@ -75,6 +84,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(SecurityAssetAssertionExpiryProcessedMutation)];
         yield return [typeof(OperationalSecurityExceptionRevokeMutation)];
         yield return [typeof(OperationalSecurityExceptionExpiryProcessedMutation)];
+        yield return [typeof(RemediationPrioritizationScoreMutation)];
     }
 
     [Theory]
