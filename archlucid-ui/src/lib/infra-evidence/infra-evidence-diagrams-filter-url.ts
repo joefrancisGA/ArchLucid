@@ -48,7 +48,13 @@ function resolveInfraDiagramsMermaidMode(raw: string): string {
     (option) => option.value.toLowerCase() === trimmed.toLowerCase(),
   );
 
-  return canonical?.value ?? INFRA_DIAGRAMS_DEFAULT_MODE;
+  return canonical?.value ?? "";
+}
+
+export function isInfraDiagramsMermaidModeSelected(mode: string | null | undefined): boolean {
+  const trimmed = mode?.trim() ?? "";
+
+  return trimmed.length > 0 && ALLOWED_MODES.has(trimmed);
 }
 
 export function parseInfraDiagramsSnapshotIdFromSearch(raw: string | null | undefined): string {
@@ -90,10 +96,14 @@ export function parseInfraDiagramsCloudResourceIdFromSearch(raw: string | null |
 
 export function parseInfraDiagramsMermaidModeFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
-    return INFRA_DIAGRAMS_DEFAULT_MODE;
+    return "";
   }
 
   const trimmed = raw.trim();
+
+  if (trimmed.length === 0) {
+    return "";
+  }
 
   return resolveInfraDiagramsMermaidMode(trimmed);
 }
@@ -216,12 +226,18 @@ export function infraDiagramsFilterHrefFromSearch(
   }
 
   if (patch.mermaidMode !== undefined) {
-    const resolved = resolveInfraDiagramsMermaidMode(patch.mermaidMode);
+    const trimmedMode = patch.mermaidMode.trim();
 
-    if (resolved === INFRA_DIAGRAMS_DEFAULT_MODE) {
+    if (trimmedMode.length === 0) {
       params.delete(INFRA_DIAGRAMS_MERMAID_MODE_PARAM);
     } else {
-      params.set(INFRA_DIAGRAMS_MERMAID_MODE_PARAM, resolved);
+      const resolved = resolveInfraDiagramsMermaidMode(trimmedMode);
+
+      if (resolved.length === 0) {
+        params.delete(INFRA_DIAGRAMS_MERMAID_MODE_PARAM);
+      } else {
+        params.set(INFRA_DIAGRAMS_MERMAID_MODE_PARAM, resolved);
+      }
     }
   }
 

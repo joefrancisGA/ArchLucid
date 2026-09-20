@@ -105,7 +105,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                    s.RequestedBy, s.DurationMs, s.CompletenessScore, s.WarningCount, s.CompletenessWarningsJson, s.ErrorCount,
                                    s.ContentHashSha256, s.CreatedUtc, s.UpdatedUtc,
                                    JSON_VALUE(p.ManifestJson, '$.subscriptionName') AS ManifestSubscriptionName,
-                                   sibling.SiblingSubscriptionName
+                                   sibling.SiblingSubscriptionName,
+                                   architectureBinding.ArchitectureDisplayName
                                FROM dbo.AzureInventorySnapshots s
                                LEFT JOIN dbo.AzureExtractorPackages p
                                    ON p.PackageId = s.PackageId
@@ -141,6 +142,16 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                        ) IS NOT NULL
                                    ORDER BY COALESCE(sib.CapturedUtc, sib.CreatedUtc) DESC
                                ) sibling
+                               OUTER APPLY (
+                                   SELECT TOP (1)
+                                       a.DisplayName AS ArchitectureDisplayName
+                                   FROM dbo.ArchitectureInventoryBindings bib
+                                   INNER JOIN dbo.Architectures a
+                                       ON a.ArchitectureId = bib.ArchitectureId
+                                   WHERE bib.TenantId = s.TenantId
+                                       AND bib.SnapshotId = s.SnapshotId
+                                   ORDER BY bib.BoundUtc DESC
+                               ) architectureBinding
                                WHERE s.TenantId = @TenantId
                                    AND s.WorkspaceId = @WorkspaceId
                                    AND s.ProjectId = @ProjectId
@@ -201,6 +212,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             PackageId = row.PackageId,
             SubscriptionId = subscriptionId,
             SubscriptionName = subscriptionName,
+            ArchitectureDisplayName = row.ArchitectureDisplayName,
             CapturedUtc = row.CapturedUtc,
             CaptureStatus = (AzureInventoryCaptureStatus)row.CaptureStatus,
             CaptureVersion = row.CaptureVersion,
@@ -367,6 +379,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         }
 
         public string? SiblingSubscriptionName
+        {
+            get;
+            init;
+        }
+
+        public string? ArchitectureDisplayName
         {
             get;
             init;

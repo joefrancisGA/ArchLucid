@@ -162,14 +162,28 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
   "Downloaded a browser-rendered PNG because server-side rasterization is unavailable in this environment. Branded server PNG requires Mermaid CLI on the API host." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL = "Subscription" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE = "Select a subscription" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY =
+  "Choose a subscription before selecting a diagram type." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE = "Select a snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY =
-  "Select an inventory snapshot first. The Executive diagram then renders automatically." as const;
+  "Choose a subscription, then select an inventory snapshot." as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL = "Diagram mode" as const;
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL = "Diagram Type" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER = "Select Type" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE = "Select a diagram type" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY =
+  "Choose a diagram type to render this snapshot." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL = "Starting Resource" as const;
 
