@@ -13,6 +13,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByNaturalKeyInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "UpdateInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListByScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "ListByScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "UpdateRenewalInScopeAsync"];
@@ -29,11 +30,14 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "MarkExpiryProcessedInScopeAsync"];
         yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "RevokeInScopeAsync"];
         yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "UpdateRenewalInScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "TryGetActiveByCloudResourceIdInScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "ListActiveAssertionIdsInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "ListByScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "MarkExpiredInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "MarkExpiryProcessedInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "RevokeInScopeAsync"];
+        yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "HasActiveExceptionForFindingInScopeAsync"];
     }
 
     [Theory]
