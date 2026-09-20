@@ -138,7 +138,7 @@ public sealed class OperatorInferredConnectionService(
             UpdatedUtc = utcNow,
         };
 
-        await connectionRepository.UpdateStatusAsync(updated, cancellationToken);
+        await connectionRepository.UpdateStatusInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
         await LogAuditAsync(scope, actorKey, AuditEventTypes.OperatorInferredConnectionConfirmed, updated, cancellationToken);
 
         return new OperatorInferredConnectionMutationResult { Succeeded = true };
@@ -197,7 +197,7 @@ public sealed class OperatorInferredConnectionService(
             UpdatedUtc = utcNow,
         };
 
-        await connectionRepository.UpdateStatusAsync(updated, cancellationToken);
+        await connectionRepository.UpdateStatusInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
         await LogAuditAsync(scope, actorKey, AuditEventTypes.OperatorInferredConnectionDismissed, updated, cancellationToken);
 
         return new OperatorInferredConnectionMutationResult { Succeeded = true };
