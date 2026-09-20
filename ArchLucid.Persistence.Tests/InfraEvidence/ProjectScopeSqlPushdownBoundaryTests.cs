@@ -23,6 +23,17 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperatorInferredConnectionRepository), typeof(SqlOperatorInferredConnectionRepository), "UpdateStatusInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "UpdateInstanceInScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "ListByScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "MarkExpiredInScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "MarkExpiryProcessedInScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "RevokeInScopeAsync"];
+        yield return [typeof(ISecurityAssetAssertionRepository), typeof(SqlSecurityAssetAssertionRepository), "UpdateRenewalInScopeAsync"];
+        yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "ListByScopeAsync"];
+        yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "MarkExpiredInScopeAsync"];
+        yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "MarkExpiryProcessedInScopeAsync"];
+        yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "RevokeInScopeAsync"];
     }
 
     [Theory]
@@ -55,6 +66,11 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(OperationalSecurityFindingMutation)];
         yield return [typeof(OperationalSecurityFindingMetadataMutation)];
         yield return [typeof(OperationalSecurityFindingObservationMutation)];
+        yield return [typeof(SecurityAssetAssertionRevokeMutation)];
+        yield return [typeof(SecurityAssetAssertionRenewalMutation)];
+        yield return [typeof(SecurityAssetAssertionExpiryProcessedMutation)];
+        yield return [typeof(OperationalSecurityExceptionRevokeMutation)];
+        yield return [typeof(OperationalSecurityExceptionExpiryProcessedMutation)];
     }
 
     [Theory]
