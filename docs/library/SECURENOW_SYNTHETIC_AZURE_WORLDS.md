@@ -1,4 +1,4 @@
-> **Scope:** Test-only assurance framework for SecureNow architect-plane deterministic reasoning. No Azure mutation, no second collector, no new `IFindingEngine`.
+> **Scope:** Contributor-reference — test-only SecureNow synthetic-world assurance for maintainers; not buyer-facing proof.
 
 # SecureNow synthetic Azure worlds
 
