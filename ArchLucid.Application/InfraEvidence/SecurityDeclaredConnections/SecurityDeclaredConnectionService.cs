@@ -34,21 +34,21 @@ public sealed class SecurityDeclaredConnectionService(
             };
         }
 
-        SecurityDeclaredConnectionRecord? existingActive =
-            await connectionRepository.TryGetActiveDuplicateAsync(
+        IReadOnlyList<SecurityDeclaredConnectionRecord> scopedConnections =
+            await connectionRepository.ListByScopeAsync(
                 scope.TenantId,
-                request.FromCloudResourceId,
-                request.ToCloudResourceId,
-                request.RelationshipType,
-                utcNow,
+                scope.WorkspaceId,
+                scope.ProjectId,
                 cancellationToken);
 
-        if (existingActive is not null
-            && SecureNowScopeGuard.Matches(
-                scope,
-                existingActive.TenantId,
-                existingActive.WorkspaceId,
-                existingActive.ProjectId))
+        bool existingActive = scopedConnections.Any(record =>
+            record.FromCloudResourceId == request.FromCloudResourceId
+            && record.ToCloudResourceId == request.ToCloudResourceId
+            && record.RelationshipType == request.RelationshipType
+            && record.Status == SecurityDeclaredConnectionStatus.Active
+            && record.ExpirationUtc > utcNow);
+
+        if (existingActive)
         {
             return new SecurityDeclaredConnectionCreateResult
             {
