@@ -27,7 +27,9 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         # Pester 5 discovery can run before $PSScriptRoot is populated at script scope.
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:extractorScript = Join-Path $script:scriptRoot 'Get-ArchLucidAzurePackage.ps1'
+        [string]$script:helpersScript = Join-Path $script:scriptRoot 'ArchLucid.ExtractorQuickStart.helpers.ps1'
         [string]$script:armFixturePath = Join-Path $PSScriptRoot 'fixtures/arm-resources.sample.json'
+        . $script:helpersScript
         [string]$script:previousModuleAutoLoadingPreference = $PSModuleAutoLoadingPreference
         $PSModuleAutoLoadingPreference = 'None'
 
@@ -100,6 +102,15 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
         Mock Get-AzPolicyAssignment {
             return @()
+        }
+
+        Mock Ensure-ArchLucidAzureSubscriptionSession {
+            param([string] $SubscriptionId)
+
+            return $SubscriptionId
+        }
+
+        Mock Connect-ArchLucidAzureAccountForSubscription {
         }
 
         $env:ARCHLUCID_EXTRACTOR_SKIP_MODULE_PREFLIGHT = '1'

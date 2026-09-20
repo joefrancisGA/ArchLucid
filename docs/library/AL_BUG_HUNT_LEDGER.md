@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — AL bug hunt ledger zones and proven rows for agent `/al-bug` workflows.
+
 ## Zone: topology-proposal-merge
 
 2026-09-14 seed hunt #2913 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.

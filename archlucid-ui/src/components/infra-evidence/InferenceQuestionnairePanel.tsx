@@ -87,7 +87,9 @@ export function InferenceQuestionnairePanel(
   const canSubmit =
     choice != null
     && !submitting
-    && (choice !== "yes" || !requiresCatalogChoice || selectedCatalog.trim().length > 0 || choice === "skip");
+    && (choice === "skip"
+      || choice === "no"
+      || (choice === "yes" && (!requiresCatalogChoice || selectedCatalog.trim().length > 0)));
 
   const onSubmit = useCallback(async () => {
     if (currentItem == null || choice == null) {
