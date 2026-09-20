@@ -215,6 +215,16 @@ function Sync-ArchLucidAzureCliSessionFromAzContext
         return
     }
 
+    if ($env:ARCHLUCID_EXTRACTOR_SKIP_MODULE_PREFLIGHT -eq "1")
+    {
+        return
+    }
+
+    if ($env:ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC -eq "1")
+    {
+        return
+    }
+
     if ($null -eq (Get-Command -Name az -ErrorAction SilentlyContinue))
     {
         return
