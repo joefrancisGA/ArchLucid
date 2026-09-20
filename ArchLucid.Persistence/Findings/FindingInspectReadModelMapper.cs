@@ -9,10 +9,12 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingSeverity sev))
-            return FindingSeverity.Info;
+        string normalized = raw.Trim();
 
-        return Enum.IsDefined(sev) ? sev : FindingSeverity.Info;
+        if (!Enum.TryParse(normalized, ignoreCase: true, out FindingSeverity sev) || !Enum.IsDefined(sev))
+            throw new InvalidDataException($"Stored finding severity '{normalized}' is invalid.");
+
+        return sev;
     }
 
     public static FindingHumanReviewStatus ParseHumanReview(string? raw)
@@ -20,10 +22,12 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return FindingHumanReviewStatus.NotRequired;
 
-        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingHumanReviewStatus status))
-            return FindingHumanReviewStatus.NotRequired;
+        string normalized = raw.Trim();
 
-        return Enum.IsDefined(status) ? status : FindingHumanReviewStatus.NotRequired;
+        if (!Enum.TryParse(normalized, ignoreCase: true, out FindingHumanReviewStatus status) || !Enum.IsDefined(status))
+            throw new InvalidDataException($"Stored human review status '{normalized}' is invalid.");
+
+        return status;
     }
 
     public static FindingConfidenceLevel? TryParseEvaluationConfidenceLevel(string? raw)
