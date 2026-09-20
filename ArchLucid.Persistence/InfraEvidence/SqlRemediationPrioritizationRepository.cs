@@ -193,6 +193,31 @@ public sealed class SqlRemediationPrioritizationRepository(ISqlConnectionFactory
         return rows.Select(MapScore).ToList();
     }
 
+    public async Task<IReadOnlyList<RemediationPrioritizationScoreRecord>> ListScoresByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT s.FindingId, s.TenantId, s.TotalScore, s.BreakdownJson,
+                                  s.ExplanationSummary, s.RuleVersion, s.ComputedUtc
+                           FROM dbo.RemediationPrioritizationScores s
+                           INNER JOIN dbo.OperationalSecurityFindings f
+                               ON f.TenantId = s.TenantId AND f.FindingId = s.FindingId
+                           WHERE s.TenantId = @TenantId
+                             AND f.WorkspaceId = @WorkspaceId
+                             AND f.ProjectId = @ProjectId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ScoreRow> rows = await conn.QueryAsync<ScoreRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapScore).ToList();
+    }
+
     private static RemediationPrioritizationScoreRecord MapScore(ScoreRow row) =>
         new()
         {
