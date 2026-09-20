@@ -97,9 +97,7 @@ public sealed class OperatorInferredConnectionService(
 
         OperatorInferredConnectionRecord? record =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 request.ConnectionId,
                 cancellationToken);
 
@@ -163,9 +161,7 @@ public sealed class OperatorInferredConnectionService(
 
         OperatorInferredConnectionRecord? record =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 request.ConnectionId,
                 cancellationToken);
 
