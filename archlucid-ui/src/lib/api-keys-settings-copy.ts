@@ -45,9 +45,9 @@ export function apiKeysOneTimeCopyNotice(productLineId: ProductLineId = "archite
   return localizeProductCopy(productLineId, API_KEYS_ONE_TIME_COPY_NOTICE);
 }
 
-export const API_KEYS_ROTATE_SUCCESS_ADMIN = "Admin key rotated";
-export const API_KEYS_ROTATE_SUCCESS_READONLY = "Read-only key rotated";
-export const API_KEYS_OVERLAP_SUCCESS = "Overlap key issued";
+export const API_KEYS_ROTATE_SUCCESS_ADMIN = "Admin key rotation material issued — deploy the replacement value to complete rotation.";
+export const API_KEYS_ROTATE_SUCCESS_READONLY = "Read-only key rotation material issued — deploy the replacement value to complete rotation.";
+export const API_KEYS_OVERLAP_SUCCESS = "Overlap key material issued — deploy the appended value to activate the overlap key.";
 export const API_KEYS_ROTATE_FAILED = "Key rotation failed";
 
 export const API_KEYS_ACTION_ISSUE_OVERLAP = "Issue overlap key";
