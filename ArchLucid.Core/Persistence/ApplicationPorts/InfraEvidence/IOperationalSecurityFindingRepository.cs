@@ -18,17 +18,39 @@ public interface IOperationalSecurityFindingRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
-    Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyInScopeAsync(
+    async Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyInScopeAsync(
         ProjectScopeKey scope,
         CloudProvider provider,
         string sourceSystem,
         string sourceFindingId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+    {
+        OperationalSecurityFindingRecord? record = await TryGetByNaturalKeyAsync(
+            scope.TenantId,
+            provider,
+            sourceSystem,
+            sourceFindingId,
+            cancellationToken);
 
-    Task<OperationalSecurityFindingRecord?> TryGetByIdInScopeAsync(
+        return record is not null
+               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
+            ? record
+            : null;
+    }
+
+    async Task<OperationalSecurityFindingRecord?> TryGetByIdInScopeAsync(
         ProjectScopeKey scope,
         Guid findingId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+    {
+        OperationalSecurityFindingRecord? record =
+            await TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+
+        return record is not null
+               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
+            ? record
+            : null;
+    }
 
     Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByTenantAsync(
         Guid tenantId,
