@@ -57,6 +57,19 @@ public interface IOperationalSecurityFindingRepository
         OperationalSecurityFindingStatus? status,
         CancellationToken cancellationToken = default);
 
+    async Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityFindingStatus? status,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityFindingRecord> rows =
+            await ListByTenantAsync(scope.TenantId, status, cancellationToken);
+
+        return rows
+            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId))
+            .ToList();
+    }
+
     Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,
