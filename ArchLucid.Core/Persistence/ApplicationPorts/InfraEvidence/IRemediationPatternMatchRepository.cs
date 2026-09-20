@@ -20,9 +20,21 @@ public interface IRemediationPatternMatchRepository
         RemediationPatternMatchResultRecord matchResult,
         CancellationToken cancellationToken = default);
 
+    Task InsertMatchResultInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationPatternMatchResultRecord matchResult,
+        CancellationToken cancellationToken = default) =>
+        InsertMatchResultAsync(matchResult, cancellationToken);
+
     Task InsertConflictAsync(
         RemediationPatternMatchConflictRecord conflict,
         CancellationToken cancellationToken = default);
+
+    Task InsertConflictInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationPatternMatchConflictRecord conflict,
+        CancellationToken cancellationToken = default) =>
+        InsertConflictAsync(conflict, cancellationToken);
 
     Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchAsync(
         Guid tenantId,
