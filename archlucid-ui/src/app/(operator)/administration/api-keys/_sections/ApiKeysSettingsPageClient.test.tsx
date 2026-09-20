@@ -116,7 +116,11 @@ describe("ApiKeysSettingsPageClient", () => {
     });
 
     expect(screen.getByText("Copy this key now. ArchLucid will not show it again.")).toBeInTheDocument();
-    expect(screen.getByText("Admin key rotated")).toBeInTheDocument();
+    expect(
+      screen.getByText("Admin key rotation material issued — deploy the replacement value to complete rotation."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Admin key rotated")).not.toBeInTheDocument();
+    expect(screen.getByText("Rotation material issued")).toBeInTheDocument();
   });
 
   it("shows restricted state when surface is disabled", () => {
