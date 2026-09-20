@@ -276,6 +276,29 @@ public sealed class RemediationInstanceServiceTests
         normalized.Should().NotContain("arm.Delete", "execute must not invoke ARM DELETE");
     }
 
+    [Fact]
+    public async Task ApproveAsync_foreign_project_instance_returns_not_found()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        Guid instanceId = Guid.NewGuid();
+        instanceRepository.Instances.Add(CreateInstance(
+            instanceId,
+            RemediationInstanceStatus.PreflightPassed,
+            projectId: Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult result =
+            await sut.ApproveAsync(CreateScope(), instanceId, "approver");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Remediation instance was not found.");
+        instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
+    }
+
     private static RemediationInstanceService CreateSut(
         InMemoryRemediationInstanceRepository instanceRepository,
         InMemoryRemediationPatternMatchRepository matchRepository,
@@ -375,13 +398,14 @@ public sealed class RemediationInstanceServiceTests
         Guid instanceId,
         RemediationInstanceStatus status,
         Guid? executionSnapshotId = null,
-        Guid? cloudResourceId = null) =>
+        Guid? cloudResourceId = null,
+        Guid? projectId = null) =>
         new()
         {
             InstanceId = instanceId,
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
+            ProjectId = projectId ?? ProjectId,
             FindingId = FindingId,
             PatternId = PatternId,
             PatternVersionId = VersionId,
