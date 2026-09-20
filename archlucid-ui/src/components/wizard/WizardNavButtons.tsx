@@ -45,7 +45,7 @@ export function WizardNavButtons({
   isLastInputStep = false,
   nextLabel = "Next",
   onSaveDraft,
-  saveDraftLabel = "Save draft",
+  saveDraftLabel = "Save architecture draft",
   submitLabel = "Submit",
   submittingLabel = "Submitting…",
   submitAriaDescribedBy,

@@ -514,8 +514,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
   },
   {
     "slug": "architecture-draft-editing",
-    "title": "Two people on one draft",
-    "summary": "Soft edit lease, 409 Keep mine, and offline reconnect when two architects edit the same draft — not live co-editing.",
+    "title": "Two people on one architecture draft",
+    "summary": "Soft edit lease, 409 Keep mine, and offline reconnect when two architects edit the same architecture draft — not live co-editing.",
     "audience": "operator",
     "sourcePaths": [
       "docs/architecture/adrs/0090-architecture-work-lease-without-presence.md",

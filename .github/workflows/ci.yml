@@ -2225,6 +2225,10 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Run-ArchLucidAzureExtractor.Tests.ps1'
 
+      - name: ArchLucid.ScheduledExtractor.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ScheduledExtractor.helpers.Tests.ps1'
+
       - name: Get-ArchLucidAwsPackage.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/Get-ArchLucidAwsPackage.Tests.ps1'
@@ -2244,6 +2248,14 @@ jobs:
       - name: ArchLucid.CostManagement.helpers.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1'
+
+      - name: ArchLucid.ExtractorJson.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ExtractorJson.helpers.Tests.ps1'
+
+      - name: ArchLucid.ExtractorProgressHeartbeat.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ExtractorProgressHeartbeat.helpers.Tests.ps1'
 
       - name: ApiIntegrationTestShardSupport.Tests.ps1
         shell: pwsh

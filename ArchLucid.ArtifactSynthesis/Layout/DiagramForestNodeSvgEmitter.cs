@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Security;
 using System.Xml.Linq;
 
+using ArchLucid.Core.Diagrams;
+
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
 public static class DiagramForestNodeSvgEmitter
@@ -18,44 +20,82 @@ public static class DiagramForestNodeSvgEmitter
         ArgumentNullException.ThrowIfNull(metrics);
         ArgumentNullException.ThrowIfNull(options);
 
+        string accessibilityTitle = metrics.HasPrivateEndpointAccess
+            ? $"{metrics.Caption.AccessibilityTitle} — Private endpoint access"
+            : metrics.Caption.AccessibilityTitle;
+
         XElement group = new(
             svgNamespace + "g",
             new XAttribute("class", "node"),
             new XAttribute("id", $"node-{nodeId}"));
-        group.Add(new XElement(svgNamespace + "title", Escape(metrics.Caption.AccessibilityTitle)));
+        group.Add(new XElement(svgNamespace + "title", Escape(accessibilityTitle)));
         group.Add(new XElement(
             svgNamespace + "rect",
+            new XAttribute("class", "node-card"),
             new XAttribute("width", Format(width)),
             new XAttribute("height", Format(height)),
-            new XAttribute("fill", "none"),
+            new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeFill),
+            new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightNodeBorder),
+            new XAttribute("stroke-width", "1.5"),
+            new XAttribute("rx", "6"),
             new XAttribute("pointer-events", "all")));
+        group.Add(new XElement(
+            svgNamespace + "rect",
+            new XAttribute("class", "node-accent"),
+            new XAttribute("x", "0"),
+            new XAttribute("y", "0"),
+            new XAttribute("width", "4"),
+            new XAttribute("height", Format(height)),
+            new XAttribute("fill", DiagramInventoryPictogramKindColors.FillFor(metrics.PictogramKind)),
+            new XAttribute("stroke", "none"),
+            new XAttribute("pointer-events", "none")));
 
-        double pictogramX = (width - options.PictogramSize) / 2.0;
+        double textBlockHeight = (metrics.NameLines.Count * options.LineHeight)
+            + (metrics.ResourceGroupLines.Count * options.LineHeight);
+        double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
+        double contentTop = (height - contentHeight) / 2.0;
+        double pictogramY = contentTop + ((contentHeight - options.PictogramSize) / 2.0);
+        double privateEndpointIndicatorWidth = metrics.HasPrivateEndpointAccess
+            ? DiagramForestPrivateEndpointAccessSvgEmitter.ReservedWidth
+            : 0.0d;
+        double pictogramX = options.NodePaddingX + privateEndpointIndicatorWidth;
+        double textX = pictogramX + options.PictogramSize + options.IconToLabelGap;
+        double firstLineBaseline = contentTop + (options.LineHeight * 0.75);
+
+        if (metrics.HasPrivateEndpointAccess)
+        {
+            group.Add(
+                DiagramForestPrivateEndpointAccessSvgEmitter.Emit(
+                    svgNamespace,
+                    options.NodePaddingX,
+                    contentTop,
+                    contentHeight));
+        }
+
         group.Add(
             DiagramInventoryPictogramSvgEmitter.Emit(
                 svgNamespace,
                 metrics.PictogramKind,
                 options.PictogramSize,
                 pictogramX,
-                options.NodePaddingY));
+                pictogramY));
 
-        double textY = options.NodePaddingY + options.PictogramSize + options.IconToLabelGap + (options.LineHeight * 0.75);
         XElement text = new(
             svgNamespace + "text",
-            new XAttribute("x", Format(width / 2.0)),
-            new XAttribute("y", Format(textY)),
-            new XAttribute("text-anchor", "middle"),
+            new XAttribute("x", Format(textX)),
+            new XAttribute("y", Format(firstLineBaseline)),
+            new XAttribute("text-anchor", "start"),
             new XAttribute("font-size", "12"),
             new XAttribute("font-weight", "700"),
             new XAttribute("font-family", "system-ui,sans-serif"),
-            new XAttribute("fill", "#0f172a"));
+            new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeText));
 
         for (int index = 0; index < metrics.NameLines.Count; index++)
         {
             string line = metrics.NameLines[index];
             XElement tspan = new(
                 svgNamespace + "tspan",
-                new XAttribute("x", Format(width / 2.0)),
+                new XAttribute("x", Format(textX)),
                 Escape(line));
 
             if (index > 0)
@@ -67,6 +107,38 @@ public static class DiagramForestNodeSvgEmitter
         }
 
         group.Add(text);
+
+        if (metrics.ResourceGroupLines.Count > 0)
+        {
+            double resourceGroupTextY = firstLineBaseline + (metrics.NameLines.Count * options.LineHeight);
+            XElement resourceGroupText = new(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute("y", Format(resourceGroupTextY)),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-weight", "400"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption));
+
+            for (int index = 0; index < metrics.ResourceGroupLines.Count; index++)
+            {
+                string line = metrics.ResourceGroupLines[index];
+                XElement tspan = new(
+                    svgNamespace + "tspan",
+                    new XAttribute("x", Format(textX)),
+                    Escape(line));
+
+                if (index > 0)
+                {
+                    tspan.Add(new XAttribute("dy", Format(options.LineHeight)));
+                }
+
+                resourceGroupText.Add(tspan);
+            }
+
+            group.Add(resourceGroupText);
+        }
 
         return group;
     }

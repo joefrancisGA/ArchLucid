@@ -32,6 +32,15 @@ export const GOVERNANCE_SETUP_PATH = GOVERNANCE_SETUP_HREF;
 /** Cross-review risk-register queue (left-nav Findings). */
 export const GOVERNANCE_FINDINGS_PATH = "/governance/findings" as const;
 
+/** SecureNow Compliance shell — policy packs hub (same page, Compliance URL namespace). */
+export const SECURENOW_POLICY_PACKS_PATH = "/compliance/policy-packs" as const;
+
+/** SecureNow Compliance shell — standards and rules (same page, Compliance URL namespace). */
+export const SECURENOW_STANDARDS_AND_RULES_PATH = "/compliance/standards-and-rules" as const;
+
+/** SecureNow Compliance shell — tenant findings queue (same page, Compliance URL namespace). */
+export const SECURENOW_FINDINGS_PATH = "/compliance/findings" as const;
+
 /** Personal assigned-to-me open findings queue (TB-2195). */
 export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH = "/governance/findings/assigned-to-me" as const;
 
@@ -91,11 +100,22 @@ export function pathMatchesGovernancePolicyPacks(pathname: string): boolean {
   return (
     pathMatchesRoutePrefix(pathname, GOVERNANCE_POLICY_PACKS_PATH)
     || pathMatchesRoutePrefix(pathname, LEGACY_POLICY_PACKS_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_POLICY_PACKS_PATH)
   );
 }
 
 export function pathMatchesGovernanceResolution(pathname: string): boolean {
-  return pathMatchesRoutePrefix(pathname, GOVERNANCE_STANDARDS_AND_RULES_PATH);
+  return (
+    pathMatchesRoutePrefix(pathname, GOVERNANCE_STANDARDS_AND_RULES_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_STANDARDS_AND_RULES_PATH)
+  );
+}
+
+export function pathMatchesGovernanceFindings(pathname: string): boolean {
+  return (
+    pathMatchesRoutePrefix(pathname, GOVERNANCE_FINDINGS_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_FINDINGS_PATH)
+  );
 }
 
 export function pathMatchesGovernanceAudit(pathname: string): boolean {

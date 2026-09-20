@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
   type CuratedRulesDocument,
 } from "@/lib/policy/policy-pack-curated-rules-v1";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksHubPathFromPathname } from "@/lib/product-line/securenow-compliance-routes";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type PolicyPackNaturalLanguageBuilderProps = {
@@ -24,6 +26,7 @@ export type PolicyPackNaturalLanguageBuilderProps = {
 
 export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguageBuilderProps) {
   const { canMutatePacks, onGenerated } = props;
+  const hubPath = policyPacksHubPathFromPathname(usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH);
 
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState(false);
@@ -49,7 +52,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
         data-testid="policy-pack-nl-human-review-callout"
       >
         <strong>Generated packs require human review before publish.</strong>{" "}
-        <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_LINK.inline}>
+        <Link href={hubPath} className={OPERATOR_LINK.inline}>
           Open policy packs editor
         </Link>{" "}
         to refine rules before activation.

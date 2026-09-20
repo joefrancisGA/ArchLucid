@@ -29,7 +29,7 @@ export const architectureSealDeltaSectionLabel = (section: string): string => {
 export const architectureSealDeltaDiffKindLabel = (diffKind: string): string => {
   switch (diffKind) {
     case "Added":
-      return "Added in draft";
+      return "Added in architecture draft";
     case "Removed":
       return "Removed from seal";
     case "Changed":

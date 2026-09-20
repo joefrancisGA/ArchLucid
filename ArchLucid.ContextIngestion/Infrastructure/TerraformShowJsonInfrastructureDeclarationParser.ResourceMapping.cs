@@ -1956,6 +1956,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
         InfrastructureDeclarationSpecialPropertyMapper.Apply(properties, tfType, name);
 
+        TryEmitTerraformProposedEdges(res, moduleAddress, declaration, results);
+
         results.Add(new CanonicalObject
         {
             ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(

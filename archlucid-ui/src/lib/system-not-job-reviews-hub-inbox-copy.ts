@@ -25,7 +25,7 @@ export const SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY =
   "Reviews appear here after you start a job from an architecture desk. Open Architectures to pick a system and resume work — Inbox is triage, not home." as const;
 
 export const SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
-  "Continue the draft from the header, or open Architectures to pick a system desk — Inbox lists jobs; desks own the work." as const;
+  "Continue the architecture draft from the header, or open Architectures to pick a system desk — Inbox lists jobs; desks own the work." as const;
 
 export const SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
   "Pick an architecture ready for review below, or open Architectures to browse named systems — resume from a desk, not from Inbox alone." as const;

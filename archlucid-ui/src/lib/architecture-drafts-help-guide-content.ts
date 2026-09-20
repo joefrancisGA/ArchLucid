@@ -38,10 +38,10 @@ export const ARCHITECTURE_DRAFTS_HELP_ORIENTATION_BOTTOM_TEST_ID =
   "help-architecture-drafts-orientation-bottom" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_LEAD =
-  "Architecture drafts are saved child briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review. In Working mode, the Architectures hub lists named architecture identities (each may own child drafts and reviews); this guide focuses on Guided-mode draft inventory and draft editing.";
+  "Architecture drafts are saved child briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review. In Working mode, the Architectures hub lists named architecture identities (each may own child architecture drafts and reviews); this guide focuses on Guided-mode architecture draft inventory and draft editing.";
 
 export const ARCHITECTURE_DRAFTS_HELP_START_HERE_HELPER =
-  "Use Start here below to open draft inventory or start review intake, then follow the step-by-step section when you need a guided walkthrough.";
+  "Use Start here below to open architecture draft inventory or start review intake, then follow the step-by-step section when you need a guided walkthrough.";
 
 export function architectureDraftsHelpPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell
@@ -71,15 +71,15 @@ export type ArchitectureDraftsHelpItem = {
 export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDraftsHelpItem[] = [
   {
     label: "Draft list",
-    detail: "In Guided mode, browse saved drafts for the workspace and project selected in the header switcher.",
+    detail: "In Guided mode, browse saved architecture drafts for the workspace and project selected in the header switcher.",
   },
   {
     label: "Resume editing",
-    detail: `Open a draft to continue refining the brief before evidence intake. When two architects edit the same draft, see ${ARCHITECTURE_DRAFT_EDITING_HELP_LEARN_MORE_LABEL.toLowerCase()} (${inAppHelpHref("architecture-draft-editing")}).`,
+    detail: `Open an architecture draft to continue refining the brief before evidence intake. When two architects edit the same architecture draft, see ${ARCHITECTURE_DRAFT_EDITING_HELP_LEARN_MORE_LABEL.toLowerCase()} (${inAppHelpHref("architecture-draft-editing")}).`,
   },
   {
     label: CREATE_ARCHITECTURE_LABEL,
-    detail: "Start a new draft when you need a fresh system brief.",
+    detail: "Start a new architecture draft when you need a fresh system brief.",
   },
   {
     label: "Evidence intake",

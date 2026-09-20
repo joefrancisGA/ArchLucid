@@ -70,11 +70,10 @@ import {
   BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
 } from "@/lib/operator/operator-home-page-copy";
 import {
-  OPERATOR_HOME_BUYER_OVERVIEW,
+  OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH,
   OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
   OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID,
-  OPERATOR_HOME_PAGE_LEAD,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
   OPERATOR_HOME_SKIP_TARGET_ID,
@@ -84,8 +83,10 @@ import {
   OPERATOR_HOME_FOLLOW_UPS_TITLE,
   OPERATOR_HOME_ORIENTATION_SOURCES,
 } from "@/lib/operator/operator-home-evidence-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 function mockHomeModel(overrides?: Partial<OperatorHomePageViewModel["runsDashboard"]>): OperatorHomePageViewModel {
   return {
@@ -136,19 +137,22 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
 
     const primaryContent = screen.getByTestId(OPERATOR_HOME_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID);
-    const overview = screen.getByTestId("operator-home-overview");
     const workspace = screen.getByTestId("operator-home-workspace");
 
     expect(primaryContent).toContainElement(firstViewport);
-    expect(screen.getByTestId("operator-home-intro")).toHaveTextContent(OPERATOR_HOME_PAGE_LEAD);
-    expect(overview).toHaveTextContent(OPERATOR_HOME_BUYER_OVERVIEW);
-    expect(primaryContent).toContainElement(overview);
+    const intro = screen.getByTestId("operator-home-intro");
+    const claimDiscipline = screen.getByTestId(OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID);
+
+    expect(intro).toHaveTextContent(OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH);
+    expect(intro.className).toContain(OPERATOR_TYPOGRAPHY.helper);
+    expect(intro.className).not.toContain(HELP_PAGE_LAYOUT.readingBody);
+    expect(claimDiscipline.className).toContain(OPERATOR_TYPOGRAPHY.helper);
+    expect(screen.queryByTestId("operator-home-overview")).toBeNull();
     expect(primaryContent).toContainElement(workspace);
-    expect(firstViewport).toContainElement(screen.getByTestId("operator-home-intro"));
+    expect(firstViewport).toContainElement(intro);
     expect(within(workspace).getByTestId("operator-home-hero-section")).toBeInTheDocument();
 
-    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders returning-home hierarchy with metrics before recent reviews and orientation follow-ups", () => {
@@ -192,14 +196,14 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
 
     const primaryContent = screen.getByTestId(OPERATOR_HOME_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID);
-    const overview = screen.getByTestId("operator-home-overview");
+    const intro = screen.getByTestId("operator-home-intro");
     const orientationBottom = screen.getByTestId(OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("operator-home-settings-sources");
 
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
-    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(intro) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(intro.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(OPERATOR_HOME_ORIENTATION_SOURCES)) {

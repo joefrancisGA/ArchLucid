@@ -6,5 +6,8 @@
   "workspaceId": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
   "projectId": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
   "previousRunId": null,
+  "structuralExecutionMode": "Simulator",
+  "workingCareerRehearsalDoor": "rehearsal",
+  "careerComplete": false,
   "findings": []
 }

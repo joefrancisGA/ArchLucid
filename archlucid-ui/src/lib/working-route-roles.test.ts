@@ -35,6 +35,9 @@ describe("working-route-roles (AO-39)", () => {
     ).toBe("nested-job");
     expect(classifyWorkingRouteRole("/architecture/reviews/run-001")).toBe("peer-review-job");
     expect(classifyWorkingRouteRole("/architecture/reviews")).toBe("inbox");
+    expect(classifyWorkingRouteRole("/governance/findings")).toBe("inbox");
+    expect(classifyWorkingRouteRole("/compliance/findings")).toBe("inbox");
+    expect(classifyWorkingRouteRole("/compliance-journey")).toBe("marketing");
   });
 
   it("lists bind-tool hrefs consumed by AO-40 and AO-41", () => {

@@ -5,7 +5,7 @@ import { ArchitectureDraftListClient } from "@/components/architecture/Architect
 import { ArchitectureIdentityListClient } from "@/components/architecture/ArchitectureIdentityListClient";
 import { ArchitectureWorkingPortfolioDraftsSection } from "@/components/architecture/ArchitectureWorkingPortfolioDraftsSection";
 
-/** Guided shows draft inventory; Working shows open drafts plus durable identities (DA-04 / SN-029). */
+/** Guided shows architecture draft inventory; Working shows open drafts plus durable identities (DA-04 / SN-029). */
 export function ArchitecturesHubListSection(): React.JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
 

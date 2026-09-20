@@ -226,7 +226,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
         </p>
         <Button type="button" variant="secondary" asChild>
           <Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
-            Back to review package
+            Back to architecture package
 
           </Link>
         </Button>

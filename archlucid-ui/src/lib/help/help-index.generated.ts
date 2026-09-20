@@ -234,14 +234,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "what-good-looks-like",
     "sectionHeading": "What good looks like",
-    "excerpt": "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor."
+    "excerpt": "Resume an architecture draft, open an architecture package, inspect sealed records, or start a new review from the architecture draft editor."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
     "docTitle": "Your first architecture review",
     "sectionSlug": "recommended-first-session",
     "sectionHeading": "Recommended first session",
-    "excerpt": "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor."
+    "excerpt": "Resume an architecture draft, open an architecture package, inspect sealed records, or start a new review from the architecture draft editor."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
@@ -4301,7 +4301,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "53-data-handling-and-retention",
     "sectionHeading": "5.3 Data handling and retention",
-    "excerpt": "Q: How long is customer data retained? A: Retention posture is documented and configurable. A formal data-retention schedule is a draft artifact pending owner review. See [`trust-center.md`](trust-center.md)."
+    "excerpt": "Q: How long is customer data retained? A: Retention posture is documented and configurable. A formal data-retention schedule is an architecture draft artifact pending owner review. See [`trust-center.md`](trust-center.md)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4322,7 +4322,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "56-incident-response",
     "sectionHeading": "5.6 Incident response",
-    "excerpt": "Q: Does ArchLucid have an incident response plan? A: An incident communications policy is documented at [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md). A formal IR plan is a draft artifact pending owner review. Pilot buyers will be contacted within 24 hours of a confirmed incident affecting…"
+    "excerpt": "Q: Does ArchLucid have an incident response plan? A: An incident communications policy is documented at [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md). A formal IR plan is an architecture draft artifact pending owner review. Pilot buyers will be contacted within 24 hours of a confirmed incident affecting…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

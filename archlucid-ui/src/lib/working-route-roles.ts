@@ -137,6 +137,7 @@ export function classifyWorkingRouteRole(pathname: string): WorkingRouteRole {
 
   if (
     matchesPrefix(path, "/governance")
+    || matchesPrefix(path, "/compliance")
     || path === "/architecture/digests"
     || path === "/architecture/first-review-guide"
     || path === "/architecture/sponsor-dashboard"

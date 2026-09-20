@@ -280,7 +280,7 @@ public sealed class AzureExtractorPackageInventoryReaderTests
             ]
             """,
             AzureExtractorPackageZipEntryNames.DiagnosticSettings,
-            "{}");
+            "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -305,7 +305,7 @@ public sealed class AzureExtractorPackageInventoryReaderTests
             ]
             """,
             AzureExtractorPackageZipEntryNames.RoleAssignments,
-            "{}");
+            "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -330,7 +330,7 @@ public sealed class AzureExtractorPackageInventoryReaderTests
             ]
             """,
             AzureExtractorPackageZipEntryNames.NetworkAssociations,
-            "{}");
+            "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -355,7 +355,7 @@ public sealed class AzureExtractorPackageInventoryReaderTests
             ]
             """,
             AzureExtractorPackageZipEntryNames.PolicyAssignments,
-            "{}");
+            "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -380,7 +380,7 @@ public sealed class AzureExtractorPackageInventoryReaderTests
             ]
             """,
             AzureExtractorPackageZipEntryNames.DefenderSummary,
-            "{}");
+            "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -1735,6 +1735,32 @@ public sealed class AzureExtractorPackageInventoryReaderTests
             """,
             AzureExtractorPackageZipEntryNames.DiagnosticSettings,
             """[{"name":"diag1","workspaceId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"}]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.DiagnosticSettings.Should().ContainSingle();
+        result.DiagnosticSettings[0].GetProperty("name").GetString().Should().Be("diag1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_single_object_diagnostic_settings_json()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.DiagnosticSettings,
+            """{"name":"diag1","workspaceId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"}""");
 
         using MemoryStream stream = new(zipBytes);
 

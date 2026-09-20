@@ -7,6 +7,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     BeforeAll {
         # Stub targets for Pester Mock when Az.* modules are installed locally.
         function Get-AzSubscription { }
+        function Get-AzContext { }
         function Set-AzContext { }
         function Get-AzResource { }
         function Get-AzPolicyDefinition { }
@@ -69,6 +70,14 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 SubscriptionId = $SubscriptionId
                 TenantId = '99999999-8888-7777-6666-555555555555'
                 Name = 'Contoso Production'
+            }
+        }
+
+        Mock Get-AzContext {
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
+                Tenant = [PSCustomObject]@{ Id = '99999999-8888-7777-6666-555555555555' }
+                Account = [PSCustomObject]@{ Id = 'ci-extractor-test@contoso.com' }
             }
         }
 
@@ -145,10 +154,17 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 $roleAssignments.Count | Should -Be 1
                 $roleAssignments[0].principalId | Should -Be '11111111-1111-1111-1111-111111111111'
 
+                [string]$roleAssignmentsJson = Get-Content -LiteralPath $roleAssignmentsPath -Raw -Encoding Utf8
+                # One role assignment must remain a JSON array; pipeline ConvertTo-Json unwraps a single row to an object.
+                $roleAssignmentsJson.Trim().StartsWith('[') | Should -Be $true
+
                 [object[]]$resourceTypes = @( $resources | ForEach-Object { $_.resourceType } )
 
                 ($resourceTypes -contains 'Microsoft.Storage/storageAccounts') | Should -Be $true
                 ($resourceTypes -contains 'Microsoft.Compute/virtualMachines') | Should -Be $true
+
+                Test-Path -LiteralPath (Join-Path $staging 'dependency-observations.json') | Should -Be $false
+                Test-Path -LiteralPath (Join-Path $staging 'sql-database-principals.json') | Should -Be $false
             }
             finally
             {

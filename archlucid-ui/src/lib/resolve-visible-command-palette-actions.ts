@@ -25,7 +25,7 @@ export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly workingMode: boolean;
   readonly hasCommittedArchitectureReview?: boolean;
   readonly showFullNav?: boolean;
-  /** Working Start resolver output (IS-03); defaults to draft editor when omitted. */
+  /** Working Start resolver output (IS-03); defaults to architecture draft editor when omitted. */
   readonly workingStartHref?: string;
   /** Sidebar-visible href set — Working palette nav rows must agree (SD-11). */
   readonly visibleNavHrefs?: ReadonlySet<string>;

@@ -17,7 +17,7 @@ export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_LABEL = "Required 
 
 /** Body copy after the required refine guidance label. */
 export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY =
-  "complete the system name, architecture overview, business outcome, and at least one confirmed person or system in this draft." as const;
+  "complete the system name, architecture overview, business outcome, and at least one confirmed person or system in this architecture draft." as const;
 
 /** Draft still missing required review-readiness fields — refinement is required, not optional. */
 export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE =
@@ -58,7 +58,7 @@ export function resolveArchitectureDraftAutosaveSentence(
 
 /** Draft meets minimum review-readiness — further refinement is optional. */
 export const ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE =
-  "You can start a review now, or keep refining this draft if you want." as const;
+  "You can start a review now, or keep refining this architecture draft if you want." as const;
 
 /**
  * @deprecated Prefer {@link resolveArchitectureDraftRefineGuidanceSentence} — static copy implied refinement was always required.
@@ -109,6 +109,6 @@ export function architectureDraftDetailPageSubtitle(
   return ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR;
 }
 
-export const ARCHITECTURE_DRAFT_DETAIL_LOAD_RETRY_LABEL = "Retry loading draft";
+export const ARCHITECTURE_DRAFT_DETAIL_LOAD_RETRY_LABEL = "Retry loading architecture draft";
 
 export const ARCHITECTURE_DRAFT_DETAIL_BREADCRUMB_FALLBACK_LABEL = "Architecture draft";

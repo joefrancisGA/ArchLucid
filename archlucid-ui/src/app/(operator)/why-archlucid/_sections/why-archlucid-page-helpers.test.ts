@@ -7,7 +7,7 @@ describe("formatWhyPageInstant", () => {
     const formatted = formatWhyPageInstant("2026-04-20T12:00:00.000Z");
 
     expect(formatted).toContain("2026");
-    expect(formatted).toContain("UTC");
+    expect(formatted).toContain("EDT");
     expect(formatted).not.toContain("T12:00:00");
   });
 

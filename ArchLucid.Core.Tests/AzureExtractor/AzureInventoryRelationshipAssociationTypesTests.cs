@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 
@@ -62,8 +64,46 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [Fact]
     public void Catalog_lists_all_types_with_inference_sources()
     {
-        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(15);
+        // Public const strings are the catalog's declared types; All must stay in lockstep when types are added.
+        FieldInfo[] publicStringConstants = typeof(AzureInventoryRelationshipAssociationTypes)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+            .ToArray();
+
+        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(publicStringConstants.Length);
         AzureInventoryRelationshipAssociationTypes.All.Should().OnlyContain(definition =>
             !string.IsNullOrWhiteSpace(definition.DefaultInferenceSource));
+    }
+
+    [Fact]
+    public void Diagram_enrichment_types_are_catalogued_with_expected_provenance()
+    {
+        AzureInventoryRelationshipAssociationTypes.TryGet(
+            AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination,
+            out AzureInventoryRelationshipAssociationTypeDefinition? diagnostic).Should().BeTrue();
+        diagnostic!.DefaultProvenanceKind.Should().Be(ProvenanceKind.ObservedFact);
+        diagnostic.DefaultInferenceSource.Should().Be("inventory-diagnostic-destination");
+
+        AzureInventoryRelationshipAssociationTypes.TryGet(
+            AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess,
+            out AzureInventoryRelationshipAssociationTypeDefinition? authorizedAccess).Should().BeTrue();
+        authorizedAccess!.DefaultProvenanceKind.Should().Be(ProvenanceKind.DerivedFact);
+        authorizedAccess.DefaultGraphEdgeType.Should().Be("MAY_ACCESS");
+
+        AzureInventoryRelationshipAssociationTypes.TryGet(
+            AzureInventoryRelationshipAssociationTypes.NsgAllowRule,
+            out AzureInventoryRelationshipAssociationTypeDefinition? nsgAllowRule).Should().BeTrue();
+        nsgAllowRule!.DefaultProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
+    [Theory]
+    [InlineData("diagnosticToDestination")]
+    [InlineData("appAuthorizedAccess")]
+    [InlineData("synapseReadsFrom")]
+    [InlineData("eventHubCapture")]
+    [InlineData("avdSessionHostToVm")]
+    public void New_association_types_are_known_members(string associationType)
+    {
+        AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
     }
 }

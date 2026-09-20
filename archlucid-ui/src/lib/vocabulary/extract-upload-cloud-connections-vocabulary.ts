@@ -49,7 +49,7 @@ export const EXTRACT_UPLOAD_CLOUD_CONNECTIONS_EXTRACT_LINK: ExtractUploadCloudCo
     id: "extract-upload",
     label: "Extract & Upload",
     href: EXTRACT_UPLOAD_SETTINGS_PATH,
-    whenToUse: "Run the extractor locally and upload an Azure inventory ZIP.",
+    whenToUse: "Schedule a customer-owned agent, or upload an inventory ZIP from a one-time collection.",
   };
 
 export const EXTRACT_UPLOAD_CLOUD_CONNECTIONS_CLOUD_LINK: ExtractUploadCloudConnectionsLink =

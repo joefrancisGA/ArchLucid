@@ -1,7 +1,7 @@
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
 /// <summary>
-/// Formats inventory node labels for uniform-width diagram canvases. Full names remain in
+/// Formats inventory node labels for content-sized diagram canvases. Full names remain in
 /// accessibility titles and outline tables; this type only shapes on-canvas text.
 /// </summary>
 public static class DiagramInventoryNodeCanvasLabelFormatter
@@ -9,7 +9,8 @@ public static class DiagramInventoryNodeCanvasLabelFormatter
     public static IReadOnlyList<string> FormatLines(
         string resourceName,
         IReadOnlyList<string> peerResourceNames,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        int? textColumnMaxWidthPx = null)
     {
         if (string.IsNullOrWhiteSpace(resourceName))
         {
@@ -17,7 +18,7 @@ public static class DiagramInventoryNodeCanvasLabelFormatter
         }
 
         string trimmed = resourceName.Trim();
-        int maxWidthPx = ResolveInnerLabelWidthPx(options);
+        int maxWidthPx = textColumnMaxWidthPx ?? ResolveInnerLabelWidthPx(options);
         int maxChars = ResolveMaxChars(maxWidthPx, options.CharacterWidth);
 
         if (trimmed.Length <= maxChars)
@@ -39,7 +40,7 @@ public static class DiagramInventoryNodeCanvasLabelFormatter
 
         return Math.Max(
             48,
-            options.UniformNodeWidth - (options.NodePaddingX * 2));
+            options.MaxNodeWidth - (options.NodePaddingX * 2) - options.PictogramSize - options.IconToLabelGap);
     }
 
     private static int ResolveMaxChars(int maxWidthPx, double characterWidth)
