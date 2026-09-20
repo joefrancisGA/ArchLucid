@@ -10266,6 +10266,9 @@ export interface components {
             showAdvisoryEnabled?: boolean;
             showLowConfidenceEnabled?: boolean;
         };
+        SetFirstSessionPurposeRequest: {
+            purpose?: string;
+        };
         SetIanaTimeZonePreferenceRequest: {
             ianaTimeZoneId?: null | string;
         };
@@ -10290,9 +10293,6 @@ export interface components {
         };
         SetWhereToGoNextVisibilityRequest: {
             enabled?: boolean;
-        };
-        SetFirstSessionPurposeRequest: {
-            purpose?: string;
         };
         SetWorkingCareerRehearsalDoorRequest: {
             door?: string;
