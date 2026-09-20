@@ -558,9 +558,7 @@ public sealed class RemediationInstanceService(
         Guid instanceId,
         CancellationToken cancellationToken) =>
         await instanceRepository.TryGetByIdInScopeAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
+            scope.ToProjectScopeKey(),
             instanceId,
             cancellationToken);
 
