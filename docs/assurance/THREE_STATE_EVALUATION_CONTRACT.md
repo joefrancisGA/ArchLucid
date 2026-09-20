@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and test-program evidence; not buyer-facing proof or a correctness/superiority claim.
+
 # Three-state evaluation contract
 
 Every analytical engine has three semantically distinct outcomes:
