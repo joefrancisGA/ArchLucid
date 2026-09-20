@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -19,18 +20,15 @@ public interface IOperatorInferredConnectionRepository
         CancellationToken cancellationToken = default);
 
     async Task<OperatorInferredConnectionRecord?> TryGetByIdInScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
+        ProjectScopeKey scope,
         Guid connectionId,
         CancellationToken cancellationToken = default)
     {
         OperatorInferredConnectionRecord? record =
-            await TryGetByIdAsync(tenantId, connectionId, cancellationToken);
+            await TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
 
         return record is not null
-               && record.WorkspaceId == workspaceId
-               && record.ProjectId == projectId
+               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
             ? record
             : null;
     }
