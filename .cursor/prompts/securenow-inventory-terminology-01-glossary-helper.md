@@ -14,7 +14,7 @@ Add a locked buyer glossary entry and a small TypeScript helper so SecureNow inf
 
 ## What to build
 
-1. Add a **Azure inventory capture** row to `docs/library/UI_GLOSSARY_V1.md` (or the canonical glossary file used by TB-645) defining: noun = materialized Azure inventory point-in-time; distinguish from **assessment snapshot** (audit export) and Architecture **sealed review** artifacts.
+1. Add a **Azure inventory capture** row to `docs/go-to-market/UI_GLOSSARY_V1.md` (canonical TB-645 glossary) defining: noun = materialized Azure inventory point-in-time; distinguish from **assessment snapshot** (audit export) and Architecture **sealed review** artifacts.
 2. Create `archlucid-ui/src/lib/product-line/securenow-inventory-terminology-copy.ts` with exported constants for: capture (singular/plural), baseline capture, compare capture, drift nav title **Drift & Azure inventory**, and a one-line empty-state hint. No runtime string replace — constants only.
 3. Vitest: `securenow-inventory-terminology-copy.test.ts` asserts locked strings and that constants do not contain standalone ` snapshot` or `Snapshot A` / `Snapshot B`.
 
