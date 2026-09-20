@@ -161,7 +161,7 @@ public sealed class RemediationPrioritizationService(
                 cancellationToken);
 
             RemediationPatternMatchResultRecord? match =
-                await matchRepository.TryGetActiveMatchInScopeAsync(scope, finding.FindingId, cancellationToken);
+                await matchRepository.TryGetActiveMatchInScopeAsync(projectScope, finding.FindingId, cancellationToken);
 
             ranked.Add(new RemediationPrioritizedFinding
             {
