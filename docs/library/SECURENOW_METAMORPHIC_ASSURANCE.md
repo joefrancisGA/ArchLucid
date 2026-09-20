@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — test-only SecureNow metamorphic assurance for maintainers; not buyer-facing proof.
+
 # SecureNow metamorphic assurance
 
 > **Scope:** Test-only metamorphic assurance over the synthetic Azure worlds. No Azure mutation, no LLM, no second collector, no new `IFindingEngine`.
