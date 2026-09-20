@@ -112,14 +112,19 @@ warm_path "auth scope" "${API_URL}/v1/scope"
 warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
 
 if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
-  # Prime inline create-run on cold SQL before Playwright (best-effort; long per-attempt budget).
-  CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
-  warm_path_post_optional \
-    "create architecture run" \
-    "${API_URL}/v1/architecture/request" \
-    "${CREATE_BODY}" \
-    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-120}" \
-    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-3}"
+  # Skip create-run warm when the API is not accepting connections (curl HTTP 000).
+  # A hung 120s POST does not help invite-wave Playwright and delays JWT refresh.
+  if curl -fsS --max-time 5 "${API_URL}/health/ready" >/dev/null; then
+    CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+    warm_path_post_optional \
+      "create architecture run" \
+      "${API_URL}/v1/architecture/request" \
+      "${CREATE_BODY}" \
+      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-20}" \
+      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-2}"
+  else
+    echo "::warning::Skipping create-run warm; ${API_URL}/health/ready is not reachable." >&2
+  fi
   echo "Skipping draft inventory shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright stubs draft inventory in-browser."
 else
   warm_path "draft inventory" "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1"

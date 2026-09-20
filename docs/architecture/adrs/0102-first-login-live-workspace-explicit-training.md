@@ -48,3 +48,6 @@ Does not rewrite ADR 0086, 0091, 0094, or 0097. No host `AgentExecution:Mode` fl
 
 - UI: `FirstSessionPurposeChooserHost`, copy module `first-session-purpose-copy.ts`, OpenAPI preference fields.
 - Ops: No new infrastructure; preference stored in existing `dbo.UserSettings`.
+- **Training is not Practice (LS-020):** first-session **Training** is Guided scope plus an explicit sample visit. **Practice** remains the Working review-type door (`rehearsal`). Do not add Training as a third Record/Practice segment or `training` door token on `WorkingCareerRehearsalChooser`.
+- **Default workspace waiting (LS-009):** tenant provisioning creates a live default workspace and project; invitations bind to that workspace (or the admin’s current workspace). Missing invitation workspace ids resolve to the tenant default — never Customer Intake Demo.
+- **Host demo seed ≠ customer create (LS-022):** `DemoSeedStartupHostedService` and eval hosts may seed Contoso-style demo data; post-auth `IncludeDemoSeed` stays default **false** for customer workspaces. Training sample scope is explicit, not create-time seeding.

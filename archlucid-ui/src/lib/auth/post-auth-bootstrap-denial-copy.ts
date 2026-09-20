@@ -31,7 +31,7 @@ export function resolvePostAuthBootstrapDenialMessage(denialReason?: string | nu
 }
 
 export const POST_AUTH_BOOTSTRAP_COPY = {
-  selectWorkspaceLead: "Choose the workspace you want to open.",
+  selectWorkspaceLead: "Choose the workspace you were invited to or want to open.",
   selectWorkspaceEmpty:
     "No workspaces are available for this account. Request access or sign in with a different email.",
   selectWorkspaceContinueLabel: (workspaceName: string) => `Continue to ${workspaceName}`,

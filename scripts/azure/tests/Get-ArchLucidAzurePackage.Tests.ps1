@@ -30,9 +30,15 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         [string]$script:helpersScript = Join-Path $script:scriptRoot 'ArchLucid.ExtractorQuickStart.helpers.ps1'
         [string]$script:armFixturePath = Join-Path $PSScriptRoot 'fixtures/arm-resources.sample.json'
         . $script:helpersScript
-        [object]$script:previousModuleAutoLoadingPreference = (
+        [object]$previousModuleAutoLoadingPreference =
             Get-Variable -Name PSModuleAutoLoadingPreference -ValueOnly -ErrorAction SilentlyContinue
-        )
+
+        if ($null -eq $previousModuleAutoLoadingPreference)
+        {
+            $previousModuleAutoLoadingPreference = 'All'
+        }
+
+        [string]$script:previousModuleAutoLoadingPreference = "$previousModuleAutoLoadingPreference"
         $PSModuleAutoLoadingPreference = 'None'
 
         function script:New-ArchLucidMockAzResource([object] $FixtureRow)
@@ -50,12 +56,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     }
 
     AfterAll {
-        if ($null -eq $script:previousModuleAutoLoadingPreference) {
-            Remove-Variable -Name PSModuleAutoLoadingPreference -Scope Global -ErrorAction SilentlyContinue
-        }
-        else {
-            $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
-        }
+        Set-Variable -Name PSModuleAutoLoadingPreference -Value $script:previousModuleAutoLoadingPreference -Scope Global
     }
 
     It 'writes a schema-version-2 ZIP with manifest.json and resources.json from mocked ARM inventory' {

@@ -147,6 +147,14 @@ public sealed class PostAuthInvitationBootstrapService(
         WorkspaceMembershipRecord? existingMembership = activeMemberships.FirstOrDefault(row =>
             row.TenantId == invitation.TenantId && row.WorkspaceId == invitation.WorkspaceId);
 
+        Guid resolvedWorkspaceId = await ResolveInvitationWorkspaceIdAsync(invitation, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (resolvedWorkspaceId == Guid.Empty)
+        {
+            return null;
+        }
+
         if (existingMembership is not null)
         {
             await _invitations.MarkAcceptedAsync(invitation.Id, _timeProvider.GetUtcNow(), cancellationToken)
@@ -158,7 +166,7 @@ public sealed class PostAuthInvitationBootstrapService(
             return new PostAuthBootstrapSessionResult
             {
                 TenantId = invitation.TenantId,
-                WorkspaceId = invitation.WorkspaceId,
+                WorkspaceId = resolvedWorkspaceId,
                 ProjectId = existingLink?.DefaultProjectId ?? Guid.Empty,
                 Role = existingMembership.Role,
                 RedirectPath = PostAuthBootstrapSupport.IsResumePath(safeReturnPath) ? safeReturnPath! : "/"
@@ -178,7 +186,7 @@ public sealed class PostAuthInvitationBootstrapService(
             {
                 UserId = platformUserId,
                 TenantId = invitation.TenantId,
-                WorkspaceId = invitation.WorkspaceId,
+                WorkspaceId = resolvedWorkspaceId,
                 Role = invitation.AppRole,
                 Status = WorkspaceMembershipStatus.Active
             },
@@ -208,13 +216,28 @@ public sealed class PostAuthInvitationBootstrapService(
         return new PostAuthBootstrapSessionResult
         {
             TenantId = invitation.TenantId,
-            WorkspaceId = invitation.WorkspaceId,
+            WorkspaceId = resolvedWorkspaceId,
             ProjectId = projectId,
             Role = invitation.AppRole,
             RedirectPath = PostAuthBootstrapSupport.IsResumePath(safeReturnPath)
                 ? safeReturnPath!
                 : PostAuthOperatorRoutes.InvitationAcceptedPath
         };
+    }
+
+    private async Task<Guid> ResolveInvitationWorkspaceIdAsync(
+        UserInvitationRecord invitation,
+        CancellationToken cancellationToken)
+    {
+        if (invitation.WorkspaceId != Guid.Empty)
+        {
+            return invitation.WorkspaceId;
+        }
+
+        TenantWorkspaceLink? defaultLink =
+            await _tenantRepository.GetFirstWorkspaceAsync(invitation.TenantId, cancellationToken).ConfigureAwait(false);
+
+        return defaultLink?.WorkspaceId ?? Guid.Empty;
     }
 
     private async Task<UserInvitationRecord?> ResolveInvitationForAcceptanceAsync(
