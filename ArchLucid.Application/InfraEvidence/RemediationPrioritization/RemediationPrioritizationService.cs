@@ -147,11 +147,11 @@ public sealed class RemediationPrioritizationService(
                 weights,
                 cancellationToken);
 
-            await prioritizationRepository.UpsertScoreAsync(
-                new RemediationPrioritizationScoreRecord
+            await prioritizationRepository.UpsertScoreInScopeAsync(
+                projectScope,
+                new RemediationPrioritizationScoreMutation
                 {
                     FindingId = finding.FindingId,
-                    TenantId = scope.TenantId,
                     TotalScore = score.TotalScore,
                     BreakdownJson = score.BreakdownJson,
                     ExplanationSummary = score.ExplanationSummary,
@@ -161,7 +161,7 @@ public sealed class RemediationPrioritizationService(
                 cancellationToken);
 
             RemediationPatternMatchResultRecord? match =
-                await matchRepository.TryGetActiveMatchAsync(scope.TenantId, finding.FindingId, cancellationToken);
+                await matchRepository.TryGetActiveMatchInScopeAsync(scope, finding.FindingId, cancellationToken);
 
             ranked.Add(new RemediationPrioritizedFinding
             {
@@ -278,7 +278,7 @@ public sealed class RemediationPrioritizationService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadata =
-            await findingRepository.ListMetadataByFindingAsync(scope.TenantId, finding.FindingId, cancellationToken);
+            await findingRepository.ListMetadataByFindingInScopeAsync(scope, finding.FindingId, cancellationToken);
 
         bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingInScopeAsync(
             scope,
@@ -291,7 +291,7 @@ public sealed class RemediationPrioritizationService(
         bool patternHasRollback = false;
 
         RemediationPatternMatchResultRecord? match =
-            await matchRepository.TryGetActiveMatchAsync(scope.TenantId, finding.FindingId, cancellationToken);
+            await matchRepository.TryGetActiveMatchInScopeAsync(scope, finding.FindingId, cancellationToken);
 
         if (match is not null)
         {
