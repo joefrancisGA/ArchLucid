@@ -70,7 +70,7 @@ public sealed class GoldenCorpusCrossRunDiffCoverageTests
             [
                 ContextNode("ctx-current"),
                 RequirementNode("req-availability", "availability"),
-                TopologyNode("sql-current", "database", GraphTopologyCategories.Datastore),
+                TopologyNode("sql-current", "database", GraphTopologyCategories.Data),
             ],
             Edges = [],
             Warnings = [],
