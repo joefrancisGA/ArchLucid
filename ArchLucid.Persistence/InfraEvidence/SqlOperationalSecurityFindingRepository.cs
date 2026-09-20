@@ -193,6 +193,44 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         return rows.Select(MapFinding).ToList();
     }
 
+    public async Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityFindingStatus? status,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+                                  CloudResourceId, ExternalResourceId, ResourceType, SubscriptionOrAccountId,
+                                  ControlId, ControlFramework, Title, Description, Severity, RiskScore,
+                                  Exploitability, Exposure, BusinessCriticality, BlastRadius,
+                                  FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
+                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
+                                  PayloadHashSha256, CreatedUtc, UpdatedUtc
+                           FROM dbo.OperationalSecurityFindings
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND (@Status IS NULL OR Status = @Status)
+                           ORDER BY LastObservedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<FindingRow> rows = await conn.QueryAsync<FindingRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    Status = status.HasValue ? (int?)status.Value : null,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapFinding).ToList();
+    }
+
     public async Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,
