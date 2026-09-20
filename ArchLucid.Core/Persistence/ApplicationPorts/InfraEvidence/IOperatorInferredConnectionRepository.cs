@@ -18,6 +18,23 @@ public interface IOperatorInferredConnectionRepository
         Guid snapshotId,
         CancellationToken cancellationToken = default);
 
+    async Task<OperatorInferredConnectionRecord?> TryGetByIdInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid connectionId,
+        CancellationToken cancellationToken = default)
+    {
+        OperatorInferredConnectionRecord? record =
+            await TryGetByIdAsync(tenantId, connectionId, cancellationToken);
+
+        return record is not null
+               && record.WorkspaceId == workspaceId
+               && record.ProjectId == projectId
+            ? record
+            : null;
+    }
+
     Task UpdateStatusAsync(
         OperatorInferredConnectionRecord record,
         CancellationToken cancellationToken = default);
