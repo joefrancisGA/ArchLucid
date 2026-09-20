@@ -88,6 +88,43 @@ public sealed class InfraEvidenceOperatorInferredConnectionsControllerTests
         payload.Should().ContainSingle(item => item.Source == "upload");
     }
 
+    [Fact]
+    public async Task ListQuestionnaire_uses_questionnaire_list_and_omits_upload_rows()
+    {
+        Mock<IOperatorInferredConnectionService> service = new();
+        service
+            .Setup(s => s.ListQuestionnaireBySnapshotAsync(Scope, SnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new OperatorInferredConnectionRecord
+                {
+                    ConnectionId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    SnapshotId = SnapshotId,
+                    Status = OperatorInferredConnectionStatus.Proposed,
+                    Source = OperatorInferredConnectionSource.Questionnaire,
+                    QuestionText = "Does ui call api?",
+                    ProposalPayloadHashSha256 = [],
+                    CreatedUtc = DateTime.UtcNow,
+                    UpdatedUtc = DateTime.UtcNow,
+                },
+            ]);
+
+        InfraEvidenceOperatorInferredConnectionsController controller = CreateController(service.Object);
+        IActionResult result = await controller.ListQuestionnaire(SnapshotId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        InferenceQuestionnaireListResponse payload =
+            ok.Value.Should().BeOfType<InferenceQuestionnaireListResponse>().Subject;
+
+        payload.Items.Should().ContainSingle(item => item.Source == "questionnaire");
+        service.Verify(
+            s => s.ListBySnapshotAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static InfraEvidenceOperatorInferredConnectionsController CreateController(
         IOperatorInferredConnectionService service)
     {

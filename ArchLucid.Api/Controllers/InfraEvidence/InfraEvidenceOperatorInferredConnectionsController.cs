@@ -56,10 +56,9 @@ public sealed class InfraEvidenceOperatorInferredConnectionsController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         IReadOnlyList<OperatorInferredConnectionRecord> records =
-            await connectionService.ListBySnapshotAsync(scope, snapshotId, cancellationToken);
+            await connectionService.ListQuestionnaireBySnapshotAsync(scope, snapshotId, cancellationToken);
 
         IReadOnlyList<OperatorInferredConnectionResponse> questionnaireItems = records
-            .Where(record => record.Source == OperatorInferredConnectionSource.Questionnaire)
             .Select(MapResponse)
             .ToList();
 
