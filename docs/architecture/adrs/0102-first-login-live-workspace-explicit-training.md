@@ -48,3 +48,4 @@ Does not rewrite ADR 0086, 0091, 0094, or 0097. No host `AgentExecution:Mode` fl
 
 - UI: `FirstSessionPurposeChooserHost`, copy module `first-session-purpose-copy.ts`, OpenAPI preference fields.
 - Ops: No new infrastructure; preference stored in existing `dbo.UserSettings`.
+- **Training is not Practice (LS-020):** first-session **Training** is Guided scope plus an explicit sample visit. **Practice** remains the Working review-type door (`rehearsal`). Do not add Training as a third Record/Practice segment or `training` door token on `WorkingCareerRehearsalChooser`.
