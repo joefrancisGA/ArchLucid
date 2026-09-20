@@ -1,4 +1,5 @@
 import * as httpApi from "@/lib/api/http";
+import { recordFirstSessionPurposeChosen } from "@/lib/live-seat-funnel-telemetry";
 
 import { patchUserPreferencesCache } from "./user-preferences-cache";
 import type { FirstSessionPurposeId, SetFirstSessionPurposeRequest } from "./user-preferences-types";
@@ -13,4 +14,5 @@ export async function setUserFirstSessionPurpose(purpose: FirstSessionPurposeId)
     firstSessionPurpose: purpose,
     firstSessionPurposeIsExplicit: true,
   });
+  recordFirstSessionPurposeChosen(purpose);
 }

@@ -17,6 +17,7 @@ import {
   writeOperatorScopeToStorage,
   type OperatorScopeRecord,
 } from "@/lib/operator/operator-scope-storage";
+import { recordLiveSeatScopeLandingOnce } from "@/lib/live-seat-funnel-telemetry";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 
 export function persistDedicatedWorkspaceScope(record: OperatorScopeRecord): void {
@@ -74,6 +75,7 @@ export async function bootstrapDedicatedWorkspaceScope(): Promise<boolean> {
   }
 
   applyDedicatedWorkspaceScope(candidate);
+  recordLiveSeatScopeLandingOnce(false);
 
   return true;
 }

@@ -40,6 +40,18 @@ public static class FirstTenantFunnelEventNames
     /// </summary>
     public const string ThirtyMinuteMilestone = "thirty_minute_milestone";
 
+    /// <summary>First-session chooser: Start in my workspace (live-seat / ADR 0102).</summary>
+    public const string FirstSessionPurposeLive = "first_session_purpose_live";
+
+    /// <summary>First-session chooser: Training (live-seat / ADR 0102).</summary>
+    public const string FirstSessionPurposeTraining = "first_session_purpose_training";
+
+    /// <summary>Post-auth or bootstrap landed on dedicated tenant scope (coarse; no workspace names).</summary>
+    public const string PostAuthLandedDedicatedScope = "post_auth_landed_dedicated_scope";
+
+    /// <summary>Post-auth or bootstrap landed on sample/demo scope after explicit Training or visit.</summary>
+    public const string PostAuthLandedSampleScope = "post_auth_landed_sample_scope";
+
     /// <summary>Frozen ordered set used for validation and dashboard tile names.</summary>
     public static readonly IReadOnlyList<string> All =
     [
@@ -50,7 +62,11 @@ public static class FirstTenantFunnelEventNames
         FirstFindingViewed,
         FirstFinalizationAttempted,
         FirstExportOpened,
-        ThirtyMinuteMilestone
+        ThirtyMinuteMilestone,
+        FirstSessionPurposeLive,
+        FirstSessionPurposeTraining,
+        PostAuthLandedDedicatedScope,
+        PostAuthLandedSampleScope
     ];
 
     /// <summary>True when <paramref name="value" /> matches a catalog event name.</summary>

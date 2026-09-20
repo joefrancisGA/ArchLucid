@@ -1,3 +1,4 @@
+import { recordLiveSeatScopeLandingOnce } from "@/lib/live-seat-funnel-telemetry";
 import { applyDedicatedWorkspaceScope } from "@/lib/operator/operator-scope-bootstrap";
 import { clearSampleWorkspaceVisitActive } from "@/lib/operator/operator-sample-workspace-visit";
 import {
@@ -23,6 +24,7 @@ export function applyDedicatedWorkspaceScopeFromAccessToken(accessToken: string)
   }
 
   applyDedicatedWorkspaceScope(record);
+  recordLiveSeatScopeLandingOnce(false);
 
   return true;
 }
