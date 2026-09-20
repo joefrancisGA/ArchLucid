@@ -4,6 +4,9 @@ import { resolveInfraEvidenceSnapshotSubscriptionLabel } from "@/lib/infra-evide
 
 export const INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL = "all";
 
+/** Empty value — subscription picker placeholder until the operator chooses a scope. */
+export const INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_UNSELECTED = "";
+
 export type InfraDiagramsSubscriptionFilterOption = {
   readonly value: string;
   readonly label: string;
@@ -86,10 +89,13 @@ export function buildInfraDiagramsSubscriptionFilterOptions(
     compareStrings(left.label, right.label),
   );
 
-  return [
-    { value: INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL, label: "All" },
-    ...subscriptionOptions,
-  ];
+  return subscriptionOptions;
+}
+
+export function isInfraDiagramsSubscriptionFilterChosen(subscriptionFilter: string): boolean {
+  const trimmed = subscriptionFilter.trim();
+
+  return trimmed.length > 0 && trimmed !== INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL;
 }
 
 export function filterInfraDiagramsSnapshotsBySubscription(
@@ -98,7 +104,11 @@ export function filterInfraDiagramsSnapshotsBySubscription(
 ): InfraEvidenceSnapshotSummary[] {
   const trimmedFilter = subscriptionFilter.trim();
 
-  if (trimmedFilter.length === 0 || trimmedFilter === INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL) {
+  if (trimmedFilter === INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_UNSELECTED) {
+    return [];
+  }
+
+  if (trimmedFilter === INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL) {
     return [...rows];
   }
 

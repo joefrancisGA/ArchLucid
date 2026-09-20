@@ -37,6 +37,11 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
 
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));
 
+/** Diagram type picker — resource group scope uses a separate control. */
+export const INFRA_DIAGRAMS_DIAGRAM_TYPE_OPTIONS = INFRA_DIAGRAMS_MODE_OPTIONS.filter(
+  (option) => option.value !== "resourceGroup",
+);
+
 function resolveInfraDiagramsMermaidMode(raw: string): string {
   const trimmed = raw.trim();
 
