@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -99,6 +100,55 @@ public sealed class SqlRemediationPrioritizationRepository(ISqlConnectionFactory
                     score.ExplanationSummary,
                     score.RuleVersion,
                     score.ComputedUtc,
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task UpsertScoreInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationPrioritizationScoreMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.OperationalSecurityFindings
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND FindingId = @FindingId
+                           )
+                               THROW 50001, 'Scoped prioritization score target finding was not found.', 1;
+
+                           MERGE dbo.RemediationPrioritizationScores AS target
+                           USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
+                           ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
+                           WHEN MATCHED THEN
+                               UPDATE SET TotalScore = @TotalScore,
+                                          BreakdownJson = @BreakdownJson,
+                                          ExplanationSummary = @ExplanationSummary,
+                                          RuleVersion = @RuleVersion,
+                                          ComputedUtc = @ComputedUtc
+                           WHEN NOT MATCHED THEN
+                               INSERT (FindingId, TenantId, TotalScore, BreakdownJson, ExplanationSummary, RuleVersion, ComputedUtc)
+                               VALUES (@FindingId, @TenantId, @TotalScore, @BreakdownJson, @ExplanationSummary, @RuleVersion, @ComputedUtc);
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.FindingId,
+                    mutation.TotalScore,
+                    mutation.BreakdownJson,
+                    mutation.ExplanationSummary,
+                    mutation.RuleVersion,
+                    mutation.ComputedUtc,
                 },
                 cancellationToken: cancellationToken));
     }
