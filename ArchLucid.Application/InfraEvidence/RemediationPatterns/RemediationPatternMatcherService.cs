@@ -24,7 +24,7 @@ public sealed class RemediationPatternMatcherService(
         try
         {
             OperationalSecurityFindingRecord? finding =
-                await findingRepository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+                await findingRepository.TryGetByIdInScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, findingId, cancellationToken);
 
             if (finding is null)
             {
