@@ -8,6 +8,20 @@ public interface IRemediationInstanceRepository
 
     Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
 
+    async Task UpdateInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceRecord instance,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(instance);
+
+        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
+            throw new InvalidOperationException("Remediation instance scope does not match the authorized project scope.");
+
+        await UpdateInstanceAsync(instance, cancellationToken);
+    }
+
     Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid instanceId,
