@@ -29,14 +29,25 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:quickStartScript = Join-Path $script:scriptRoot "Run-ArchLucidAzureExtractor.ps1"
         [string]$script:helpersScript = Join-Path $script:scriptRoot "ArchLucid.ExtractorQuickStart.helpers.ps1"
-        [string]$script:previousModuleAutoLoadingPreference = $PSModuleAutoLoadingPreference
+
+        [object]$previousModuleAutoLoadingPreference =
+            Get-Variable -Name PSModuleAutoLoadingPreference -ValueOnly -ErrorAction SilentlyContinue
+
+        if ($null -eq $previousModuleAutoLoadingPreference)
+        {
+            $previousModuleAutoLoadingPreference = "All"
+        }
+
+        [string]$script:previousModuleAutoLoadingPreference = "$previousModuleAutoLoadingPreference"
         $PSModuleAutoLoadingPreference = "None"
 
         . $script:helpersScript
+        $env:ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC = "1"
     }
 
     AfterAll {
-        $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
+        Set-Variable -Name PSModuleAutoLoadingPreference -Value $script:previousModuleAutoLoadingPreference -Scope Global
+        Remove-Item Env:ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC -ErrorAction SilentlyContinue
     }
 
     It "enables cost, retail prices, and app settings hosts by default" {

@@ -103,7 +103,10 @@ export async function primeJwtBrowserSession(page: Page, accessToken: string): P
       await fetch(bffPath, {
         method: "POST",
         credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Origin: window.location.origin,
+        },
         body: JSON.stringify({ access_token: token, expires_in: 3600 }),
       });
     },
@@ -161,26 +164,41 @@ export async function primePrivateBetaBrowserSessionIfJwtMode(
 /** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(appOrigin)) {
+    await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
+  }
 
   await page.evaluate(
-    async ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
+    ({ expiresKey, expiresAt, displayKey }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
       sessionStorage.setItem(displayKey, "e2e-user");
-      await fetch(bffPath, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_token: token, expires_in: 3600 }),
-      });
     },
     {
       expiresKey: OIDC_EXPIRES_AT_MS_KEY,
       displayKey: OIDC_DISPLAY_NAME_KEY,
-      bffPath: "/api/auth/bff-session",
-      token: accessToken,
       expiresAt: expiresAtMs,
     },
   );
+
+  // page.request shares the browser cookie jar; Origin is required by isSameOriginBffRequest.
+  const response = await page.request.post(`${appOrigin}/api/auth/bff-session`, {
+    headers: {
+      "Content-Type": "application/json",
+      Origin: appOrigin,
+    },
+    data: {
+      access_token: accessToken,
+      expires_in: 3600,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = (await response.text()).slice(0, 400);
+
+    throw new Error(`POST /api/auth/bff-session failed ${response.status()}: ${body}`);
+  }
 }
 
 /** Clears OIDC session hints to simulate expiry / signed-out state. */
