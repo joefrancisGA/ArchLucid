@@ -190,7 +190,7 @@ public sealed class RemediationInstanceService(
             preflightResultJson: preflight.ResultJson,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         if (!preflight.Passed)
             return Blocked(preflight.Blockers.ToArray());
@@ -241,7 +241,7 @@ public sealed class RemediationInstanceService(
             approvedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.Approved);
     }
@@ -286,7 +286,7 @@ public sealed class RemediationInstanceService(
             waveId: waveId,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.WaveAssigned);
     }
@@ -405,7 +405,7 @@ public sealed class RemediationInstanceService(
             executedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceExecuted, instanceId, cancellationToken);
 
@@ -507,7 +507,7 @@ public sealed class RemediationInstanceService(
             verifiedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         if (!verification.Passed)
             return Blocked(verification.Failures.ToArray());
@@ -546,7 +546,7 @@ public sealed class RemediationInstanceService(
             closedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceClosed, instanceId, cancellationToken);
 
@@ -693,6 +693,30 @@ public sealed class RemediationInstanceService(
             ExecutedUtc = executedUtc ?? source.ExecutedUtc,
             VerifiedUtc = verifiedUtc ?? source.VerifiedUtc,
             ClosedUtc = closedUtc ?? source.ClosedUtc,
+        };
+
+    private static RemediationInstanceMutation ToMutation(RemediationInstanceRecord source) =>
+        new()
+        {
+            InstanceId = source.InstanceId,
+            Status = source.Status,
+            CloudResourceId = source.CloudResourceId,
+            PathId = source.PathId,
+            PathNarrativeJson = source.PathNarrativeJson,
+            AssessmentId = source.AssessmentId,
+            ControlId = source.ControlId,
+            PreflightSnapshotId = source.PreflightSnapshotId,
+            ExecutionSnapshotId = source.ExecutionSnapshotId,
+            VerificationSnapshotId = source.VerificationSnapshotId,
+            WaveId = source.WaveId,
+            PreflightResultJson = source.PreflightResultJson,
+            VerificationResultJson = source.VerificationResultJson,
+            ApprovedByActorKey = source.ApprovedByActorKey,
+            UpdatedUtc = source.UpdatedUtc,
+            ApprovedUtc = source.ApprovedUtc,
+            ExecutedUtc = source.ExecutedUtc,
+            VerifiedUtc = source.VerifiedUtc,
+            ClosedUtc = source.ClosedUtc,
         };
 
     private static RemediationInstanceOperationResult Succeeded(Guid instanceId, RemediationInstanceStatus status) =>
