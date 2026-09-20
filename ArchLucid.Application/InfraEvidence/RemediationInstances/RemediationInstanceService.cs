@@ -190,7 +190,7 @@ public sealed class RemediationInstanceService(
             preflightResultJson: preflight.ResultJson,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
 
         if (!preflight.Passed)
             return Blocked(preflight.Blockers.ToArray());
@@ -241,7 +241,7 @@ public sealed class RemediationInstanceService(
             approvedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.Approved);
     }
@@ -286,7 +286,7 @@ public sealed class RemediationInstanceService(
             waveId: waveId,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.WaveAssigned);
     }
@@ -405,7 +405,7 @@ public sealed class RemediationInstanceService(
             executedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceExecuted, instanceId, cancellationToken);
 
@@ -507,7 +507,7 @@ public sealed class RemediationInstanceService(
             verifiedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
 
         if (!verification.Passed)
             return Blocked(verification.Failures.ToArray());
@@ -546,7 +546,7 @@ public sealed class RemediationInstanceService(
             closedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), updated, cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceClosed, instanceId, cancellationToken);
 
