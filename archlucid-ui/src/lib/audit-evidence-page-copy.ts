@@ -88,4 +88,4 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION = "Hide chain of cus
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL = "Loading chain of custody…" as const;
 
 export const AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE =
-  "Audit evidence package download failed" as const;
+  "Audit evidence bundle download failed" as const;

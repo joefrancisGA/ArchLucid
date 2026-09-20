@@ -7,6 +7,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     BeforeAll {
         # Stub targets for Pester Mock when Az.* modules are installed locally.
         function Get-AzSubscription { }
+        function Get-AzContext { }
         function Set-AzContext { }
         function Get-AzResource { }
         function Get-AzPolicyDefinition { }
@@ -69,6 +70,14 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 SubscriptionId = $SubscriptionId
                 TenantId = '99999999-8888-7777-6666-555555555555'
                 Name = 'Contoso Production'
+            }
+        }
+
+        Mock Get-AzContext {
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
+                Tenant = [PSCustomObject]@{ Id = '99999999-8888-7777-6666-555555555555' }
+                Account = [PSCustomObject]@{ Id = 'ci-extractor-test@contoso.com' }
             }
         }
 

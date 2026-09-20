@@ -45,7 +45,7 @@ export const ARCHITECTURE_CREATED_FINDINGS_ORIENTATION_BOTTOM_TEST_ID =
   "architecture-findings-orientation-bottom" as const;
 
 export const ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD =
-  "Review assessment findings for this architecture draft before you finalize the review package.";
+  "Review assessment findings for this architecture draft before you finalize the architecture package.";
 
 export const ARCHITECTURE_CREATED_FINDINGS_OVERVIEW =
   "Findings panels below list surfaced assessment items, severity cues, and triage follow-ups for this architecture draft scope.";

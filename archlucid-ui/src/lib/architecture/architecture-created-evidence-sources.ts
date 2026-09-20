@@ -45,7 +45,7 @@ export const ARCHITECTURE_CREATED_EVIDENCE_ORIENTATION_BOTTOM_TEST_ID =
   "architecture-evidence-orientation-bottom" as const;
 
 export const ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD =
-  "Attach supporting capture for this architecture draft before you finalize the review package.";
+  "Attach supporting capture for this architecture draft before you finalize the architecture package.";
 
 export const ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW =
   "Capture panels below list uploaded files, linked citations, and diagram cross-links for this architecture draft scope.";
