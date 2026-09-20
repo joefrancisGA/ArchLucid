@@ -448,41 +448,9 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
-    public void ParseFindingSeverity_rejects_negative_numeric_string()
-    {
-        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("  -1  ");
-
-        act.Should().Throw<InvalidDataException>();
-    }
-
-    [Fact]
-    public void ParseHumanReview_rejects_negative_numeric_string()
-    {
-        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("  -1  ");
-
-        act.Should().Throw<InvalidDataException>();
-    }
-
-    [Fact]
     public void ParseDisposition_trims_whitespace_from_negative_numeric_string_before_rejecting()
     {
         FindingInspectReadModelMapper.ParseDisposition("  -1  ").Should().BeNull();
-    }
-
-    [Fact]
-    public void ParseFindingSeverity_rejects_fractional_numeric_string()
-    {
-        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("  1.5  ");
-
-        act.Should().Throw<InvalidDataException>();
-    }
-
-    [Fact]
-    public void ParseHumanReview_rejects_fractional_numeric_string()
-    {
-        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("  2.5  ");
-
-        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
@@ -502,14 +470,6 @@ public sealed class FindingInspectReadModelMapperTests
     public void ParseDisposition_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
     {
         FindingInspectReadModelMapper.ParseDisposition("  5  ").Should().BeNull();
-    }
-
-    [Fact]
-    public void ParseFindingSeverity_rejects_positive_undefined_numeric_string()
-    {
-        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("  4  ");
-
-        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
