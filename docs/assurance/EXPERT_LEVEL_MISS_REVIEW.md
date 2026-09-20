@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and benchmark methodology; not buyer-facing proof or a superiority claim.
+
 # Expert-level miss review
 
 For each benchmark case, an independent reviewer enumerates important architectural issues **before seeing ArchLucid's output**.
