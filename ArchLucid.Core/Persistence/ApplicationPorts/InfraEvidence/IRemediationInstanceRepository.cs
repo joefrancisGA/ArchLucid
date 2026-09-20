@@ -9,10 +9,22 @@ public interface IRemediationInstanceRepository
 
     Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
 
-    Task UpdateInstanceInScopeAsync(
+    async Task UpdateInstanceInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceMutation mutation,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(mutation);
+
+        RemediationInstanceRecord? current =
+            await TryGetByIdInScopeAsync(scope, mutation.InstanceId, cancellationToken);
+
+        if (current is null)
+            return;
+
+        await UpdateInstanceAsync(mutation.ApplyTo(current), cancellationToken);
+    }
 
     Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
@@ -78,4 +90,46 @@ public sealed record RemediationInstanceMutation
     public DateTime? ExecutedUtc { get; init; }
     public DateTime? VerifiedUtc { get; init; }
     public DateTime? ClosedUtc { get; init; }
+
+    public RemediationInstanceRecord ApplyTo(RemediationInstanceRecord source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source.InstanceId != InstanceId)
+            throw new InvalidOperationException("Remediation mutation id does not match the source record.");
+
+        return new RemediationInstanceRecord
+        {
+            InstanceId = source.InstanceId,
+            TenantId = source.TenantId,
+            WorkspaceId = source.WorkspaceId,
+            ProjectId = source.ProjectId,
+            FindingId = source.FindingId,
+            PatternId = source.PatternId,
+            PatternVersionId = source.PatternVersionId,
+            PatternKey = source.PatternKey,
+            FrozenPatternVersion = source.FrozenPatternVersion,
+            AutomationLevel = source.AutomationLevel,
+            Status = Status,
+            CloudResourceId = CloudResourceId,
+            PathId = PathId,
+            PathNarrativeJson = PathNarrativeJson,
+            AssessmentId = AssessmentId,
+            ControlId = ControlId,
+            PreflightSnapshotId = PreflightSnapshotId,
+            ExecutionSnapshotId = ExecutionSnapshotId,
+            VerificationSnapshotId = VerificationSnapshotId,
+            WaveId = WaveId,
+            PreflightResultJson = PreflightResultJson,
+            VerificationResultJson = VerificationResultJson,
+            CreatedByActorKey = source.CreatedByActorKey,
+            ApprovedByActorKey = ApprovedByActorKey,
+            CreatedUtc = source.CreatedUtc,
+            UpdatedUtc = UpdatedUtc,
+            ApprovedUtc = ApprovedUtc,
+            ExecutedUtc = ExecutedUtc,
+            VerifiedUtc = VerifiedUtc,
+            ClosedUtc = ClosedUtc,
+        };
+    }
 }
