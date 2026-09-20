@@ -16,31 +16,14 @@ public interface ISecurityDeclaredConnectionRepository
         Guid tenantId,
         CancellationToken cancellationToken = default);
 
-    async Task<SecurityDeclaredConnectionRecord?> TryGetByIdInScopeAsync(
+    Task<SecurityDeclaredConnectionRecord?> TryGetByIdInScopeAsync(
         ProjectScopeKey scope,
         Guid connectionId,
-        CancellationToken cancellationToken = default)
-    {
-        SecurityDeclaredConnectionRecord? record =
-            await TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
+        CancellationToken cancellationToken = default);
 
-        return record is not null
-               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
-            ? record
-            : null;
-    }
-
-    async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> ListByScopeAsync(
+    Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> ListByScopeAsync(
         ProjectScopeKey scope,
-        CancellationToken cancellationToken = default)
-    {
-        IReadOnlyList<SecurityDeclaredConnectionRecord> records =
-            await ListByTenantAsync(scope.TenantId, cancellationToken);
-
-        return records
-            .Where(record => scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId))
-            .ToList();
-    }
+        CancellationToken cancellationToken = default);
 
     Task<SecurityDeclaredConnectionRecord?> TryGetActiveDuplicateAsync(
         Guid tenantId,
