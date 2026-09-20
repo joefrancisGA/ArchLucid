@@ -87,6 +87,12 @@ public interface IOperationalSecurityFindingRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default) =>
+        ListMetadataByFindingAsync(scope.TenantId, findingId, cancellationToken);
+
     Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingAsync(
         Guid tenantId,
         Guid findingId,
