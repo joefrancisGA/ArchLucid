@@ -214,7 +214,8 @@ public sealed class OperatorInferredConnectionServiceTests
             Scope.ToProjectScopeKey(),
             foreign.ConnectionId,
             It.IsAny<CancellationToken>()), Times.Once);
-        connectionRepository.Verify(repository => repository.UpdateStatusAsync(
+        connectionRepository.Verify(repository => repository.UpdateStatusInScopeAsync(
+            It.IsAny<ProjectScopeKey>(),
             It.IsAny<OperatorInferredConnectionRecord>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
