@@ -75,35 +75,3 @@ internal sealed class SyntheticAzureWorld
         return new Guid(bytes.AsSpan(0, 16));
     }
 }
-
-internal sealed class SyntheticAzurePath
-{
-    public required Guid PathId { get; init; }
-
-    public required PathKind PathKind { get; init; }
-
-    public required PathConfidenceBand ConfidenceBand { get; init; }
-
-    public Guid? CrownJewelAssertionId { get; init; }
-
-    public IReadOnlyList<SyntheticAzureHop> Hops { get; init; } = [];
-}
-
-internal sealed class SyntheticAzureHop
-{
-    public required string FromNodeId { get; init; }
-
-    public required string ToNodeId { get; init; }
-
-    public required string EdgeType { get; init; }
-
-    public required ProvenanceKind ProvenanceKind { get; init; }
-
-    public required PathConfidenceBand ConfidenceBand { get; init; }
-
-    public required string EvidenceReference { get; init; }
-
-    public Guid? CloudResourceId { get; init; }
-
-    public string? InferenceSource { get; init; }
-}
