@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and operational controls; not buyer-facing proof or a correctness/superiority claim.
+
 # ArchLucid decision kernel
 
 ArchLucid should separate deterministic evidence facts from bounded inference and from human/model judgment.
