@@ -181,8 +181,11 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
                              AND ConnectionId = @ConnectionId;
                            """;
 
-        await connection.ExecuteAsync(
+        int affected = await connection.ExecuteAsync(
             new CommandDefinition(sql, MapParameters(record), cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped inferred connection mutation did not update exactly one record.");
     }
 
     private static object MapParameters(OperatorInferredConnectionRecord record) =>
