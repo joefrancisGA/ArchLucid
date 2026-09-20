@@ -61,17 +61,15 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             return null;
         }
 
-        SecurityEvidencePathRecord? path = await pathRepository.TryGetByIdAsync(scope.TenantId, pathId, cancellationToken);
+        SecurityEvidencePathRecord? path = await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        if (path is null
-            || path.WorkspaceId != scope.WorkspaceId
-            || path.ProjectId != scope.ProjectId)
+        if (path is null)
         {
             return null;
         }
 
         IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-            await pathRepository.ListHopsByPathAsync(scope.TenantId, pathId, cancellationToken);
+            await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         IReadOnlyList<Guid> citingFindingIds =
             await findingRepository.ListFindingIdsByPathIdAsync(scope.TenantId, pathId, cancellationToken);
@@ -79,10 +77,10 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         SecurityEvidencePathHopRecord? weakestHopRecord = hops.FirstOrDefault(hop => hop.HopOrdinal == path.WeakestHopOrdinal);
 
         IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints =
-            await cutPointRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+            await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
-            await routingRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+            await routingRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         return new SecurityEvidencePathDetailResponse
         {
