@@ -4,7 +4,7 @@ namespace ArchLucid.Core.Scoping;
 ///     Validated tenant/workspace/project authority key for project-scoped reads and mutations.
 ///     Use a distinct tenant-only API for deliberately tenant-global operations.
 /// </summary>
-public readonly record struct ProjectScopeKey
+public sealed record ProjectScopeKey
 {
     private ProjectScopeKey(Guid tenantId, Guid workspaceId, Guid projectId)
     {
