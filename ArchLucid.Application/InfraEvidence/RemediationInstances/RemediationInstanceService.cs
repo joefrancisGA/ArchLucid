@@ -557,7 +557,12 @@ public sealed class RemediationInstanceService(
         ScopeContext scope,
         Guid instanceId,
         CancellationToken cancellationToken) =>
-        await instanceRepository.TryGetByIdAsync(scope.TenantId, instanceId, cancellationToken);
+        await instanceRepository.TryGetByIdInScopeAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            instanceId,
+            cancellationToken);
 
     private async Task<RemediationInstanceOperationResult?> TryEnsureSealedManifestForFindingAsync(
         ScopeContext scope,
