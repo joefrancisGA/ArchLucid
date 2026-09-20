@@ -11,14 +11,47 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
 import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator/operator-welcome-onboarding-storage";
+import { PRODUCT_LINE_COOKIE } from "@/lib/product-line/product-line-storage";
 import { SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY } from "@/lib/sidebar-nav-group-expansion-storage";
 import { OPERATE_NAV_UNLOCK_STORAGE_KEY } from "@/lib/usability/operate-nav-progressive-unlock";
 
-import { assertPageFreeOfScreenshotDemoFailures } from "./screenshot-demo-quality-gates";
+import {
+  fixtureArtifactDescriptorsScreenshot,
+  fixtureComparisonExplanation,
+  fixtureGoldenManifestComparisonScreenshot,
+  fixtureLegacyRunComparisonScreenshot,
+  fixtureManifestSummaryScreenshot,
+  fixtureRunDetailScreenshot,
+  SCREENSHOT_APPROVAL_ID,
+  SCREENSHOT_FINDING_ID,
+  SCREENSHOT_LEFT_RUN_ID,
+  SCREENSHOT_MANIFEST_ID,
+  SCREENSHOT_RIGHT_RUN_ID,
+  SCREENSHOT_RUN_ID,
+} from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
+import { waitForLiveOperatorPageHydration } from "./helpers/live-page-readiness";
+import {
+  FIXTURE_EMPTY_ZIP_BYTES,
+  registerOperatorJourneyApiRoutes,
+  registerScreenshotSuiteProxyRoutes,
+} from "./helpers/register-operator-api-routes";
+import {
+  assertPageFreeOfScreenshotDemoFailures,
+  waitForScreenshotOperatorShellChildren,
+} from "./screenshot-demo-quality-gates";
+import { screenshotEffectiveHref } from "./screenshot-legacy-redirects";
 import { publicDirUnderUi } from "./screenshot-output-helpers";
 import { SECURENOW_UI_RATE_ROUTES } from "./securenow-ui-rate-route-registry";
 
 const UX_AUDIT_VIEWPORT = { width: 1440, height: 900 } as const;
+
+const SECURENOW_BASE_URL = `http://127.0.0.1:${process.env.MOCK_E2E_SECURENOW_PORT ?? "3004"}`;
+
+/** Skeleton-only captures stay tiny and identical — fail the run before Opus rates grey boxes. */
+const MIN_MAIN_TEXT_LENGTH = 80;
+
+const MIN_PNG_BYTES = 12_000;
 
 const screenshotOptions = {
   animations: "disabled" as const,
@@ -42,6 +75,22 @@ async function dismissBlockingHomeModals(page: Page): Promise<void> {
   }
 }
 
+/**
+ * The product line must be readable on the first document request. Setting it from an init script only lands
+ * after that request, so the server renders the default line and `ProductLineRouteGate` bounces SecureNow
+ * routes to home — each test gets a fresh context, so every gated route captures the wrong page.
+ */
+async function primeSecureNowProductLineCookie(page: Page, baseUrl: string): Promise<void> {
+  await page.context().addCookies([
+    {
+      name: PRODUCT_LINE_COOKIE,
+      value: "security",
+      url: baseUrl,
+      sameSite: "Lax",
+    },
+  ]);
+}
+
 async function primeSecureNowShellStorage(page: Page): Promise<void> {
   await page.addInitScript(
     (keys: {
@@ -59,7 +108,6 @@ async function primeSecureNowShellStorage(page: Page): Promise<void> {
       localStorage.setItem(keys.hasSeenOnboardingKey, "true");
       localStorage.setItem(keys.onboardingTourCompletedKey, "1");
       localStorage.setItem("archlucid_sidebar_recent_activity_open", "0");
-      document.cookie = "archlucid_product_line_v1=security; Max-Age=2592000; Path=/; SameSite=Lax";
     },
     {
       hasSeenOnboardingKey: HAS_SEEN_ONBOARDING_STORAGE_KEY,
@@ -70,6 +118,26 @@ async function primeSecureNowShellStorage(page: Page): Promise<void> {
   );
 }
 
+async function waitForSecureNowScreenshotHydration(page: Page, href: string): Promise<string> {
+  await waitForLiveOperatorPageHydration(page, { timeoutMs: 90_000 });
+
+  const effectiveHref = screenshotEffectiveHref(page.url());
+
+  await waitForScreenshotOperatorShellChildren(page, href, effectiveHref);
+
+  const main = getAppMain(page);
+
+  await expect(main).toBeVisible({ timeout: 60_000 });
+
+  await expect
+    .poll(async () => (await main.innerText()).trim().length, { timeout: 90_000 })
+    .toBeGreaterThan(MIN_MAIN_TEXT_LENGTH);
+
+  await assertPageFreeOfScreenshotDemoFailures(page, effectiveHref);
+
+  return effectiveHref;
+}
+
 async function captureSecureNowScreenshot(page: Page, slug: string, href: string): Promise<void> {
   await page.goto(href, { waitUntil: "load", timeout: 120_000 });
 
@@ -77,16 +145,32 @@ async function captureSecureNowScreenshot(page: Page, slug: string, href: string
     await dismissBlockingHomeModals(page);
   }
 
-  await assertPageFreeOfScreenshotDemoFailures(page, href);
+  const effectiveHref = await waitForSecureNowScreenshotHydration(page, href);
+
+  if (href !== "/" && new URL(page.url()).pathname === "/") {
+    throw new Error(
+      `Route ${href} landed on home (effective ${effectiveHref}); product line gate bounced the capture.`,
+    );
+  }
 
   const outputDir = publicDirUnderUi("screenshots", "securenow-ui-rate");
 
   fs.mkdirSync(outputDir, { recursive: true });
 
+  const outputPath = path.join(outputDir, `${slug}.png`);
+
   await page.screenshot({
-    path: path.join(outputDir, `${slug}.png`),
+    path: outputPath,
     ...screenshotOptions,
   });
+
+  const stat = fs.statSync(outputPath);
+
+  if (stat.size < MIN_PNG_BYTES) {
+    throw new Error(
+      `Screenshot too small for ${href} (${stat.size} bytes < ${MIN_PNG_BYTES}); likely skeleton or blank capture.`,
+    );
+  }
 }
 
 test.describe.configure({ mode: "serial", timeout: 180_000 });
@@ -94,18 +178,35 @@ test.describe.configure({ mode: "serial", timeout: 180_000 });
 test.describe("securenow ui rate screenshots @securenow-ui-rate", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize(UX_AUDIT_VIEWPORT);
+    await primeSecureNowProductLineCookie(page, SECURENOW_BASE_URL);
     await primeSecureNowShellStorage(page);
+    await registerOperatorJourneyApiRoutes(page, {
+      runDetail: { runId: SCREENSHOT_RUN_ID, body: fixtureRunDetailScreenshot() },
+      manifestSummary: { manifestId: SCREENSHOT_MANIFEST_ID, body: fixtureManifestSummaryScreenshot() },
+      artifactList: { manifestId: SCREENSHOT_MANIFEST_ID, body: fixtureArtifactDescriptorsScreenshot() },
+      artifactBundle: { manifestId: SCREENSHOT_MANIFEST_ID, body: FIXTURE_EMPTY_ZIP_BYTES, headOk: true },
+      legacyCompare: {
+        leftRunId: SCREENSHOT_LEFT_RUN_ID,
+        rightRunId: SCREENSHOT_RIGHT_RUN_ID,
+        body: fixtureLegacyRunComparisonScreenshot(),
+      },
+      structuredCompare: {
+        baseRunId: SCREENSHOT_LEFT_RUN_ID,
+        targetRunId: SCREENSHOT_RIGHT_RUN_ID,
+        body: fixtureGoldenManifestComparisonScreenshot(),
+      },
+      compareExplanation: {
+        baseRunId: SCREENSHOT_LEFT_RUN_ID,
+        targetRunId: SCREENSHOT_RIGHT_RUN_ID,
+        body: fixtureComparisonExplanation(),
+      },
+    });
+    await registerScreenshotSuiteProxyRoutes(page);
   });
 
   for (const route of SECURENOW_UI_RATE_ROUTES) {
     test(`captures ${route.slug} (${route.href})`, async ({ page }) => {
-      try {
-        await captureSecureNowScreenshot(page, route.slug, route.href);
-      }
-      catch (error) {
-        console.warn(`[securenow-ui-rate] capture failed for ${route.href}:`, error);
-        test.skip(true, `capture failed: ${route.href}`);
-      }
+      await captureSecureNowScreenshot(page, route.slug, route.href);
     });
   }
 });
