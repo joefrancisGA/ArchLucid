@@ -73,7 +73,13 @@ public sealed class PathRankingEngineTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([path]);
         pathRepository
-            .Setup(repository => repository.ListHopsByPathAsync(TenantId, PathId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListHopsByPathInScopeAsync(
+                It.Is<ProjectScopeKey>(scopeKey =>
+                    scopeKey.TenantId == TenantId
+                    && scopeKey.WorkspaceId == WorkspaceId
+                    && scopeKey.ProjectId == ProjectId),
+                PathId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(hops);
 
         List<SecurityEvidencePathRankRecord> persistedRanks = [];
