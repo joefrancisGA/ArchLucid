@@ -1,3 +1,5 @@
+using System.IO;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Findings;
 
