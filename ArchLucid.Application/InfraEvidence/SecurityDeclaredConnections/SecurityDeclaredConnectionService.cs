@@ -43,7 +43,12 @@ public sealed class SecurityDeclaredConnectionService(
                 utcNow,
                 cancellationToken);
 
-        if (existingActive is not null)
+        if (existingActive is not null
+            && SecureNowScopeGuard.Matches(
+                scope,
+                existingActive.TenantId,
+                existingActive.WorkspaceId,
+                existingActive.ProjectId))
         {
             return new SecurityDeclaredConnectionCreateResult
             {
@@ -122,7 +127,12 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         SecurityDeclaredConnectionRecord? existing =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                connectionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -212,7 +222,12 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         SecurityDeclaredConnectionRecord? existing =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                connectionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -262,7 +277,11 @@ public sealed class SecurityDeclaredConnectionService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecurityDeclaredConnectionRecord> records =
-            await connectionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+            await connectionRepository.ListByScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                cancellationToken);
 
         List<SecurityDeclaredConnectionRecord> results = [];
 
