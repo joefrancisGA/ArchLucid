@@ -1,4 +1,5 @@
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -29,6 +30,35 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
 
         RankRow? row = await conn.QuerySingleOrDefaultAsync<RankRow>(
             new CommandDefinition(sql, new { TenantId = tenantId, PathId = pathId }, cancellationToken: cancellationToken));
+
+        return row is null ? null : MapRank(row);
+    }
+
+    public async Task<SecurityEvidencePathRankRecord?> TryGetRankInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT r.PathId, r.TenantId, r.SnapshotId, r.RuleVersion,
+                                  r.TechnicalExposureScore, r.PrivilegeDepthScore, r.BlastRadiusScore,
+                                  r.BusinessConsequenceScore, r.ConfidenceBandScore, r.CompositeSortScore,
+                                  r.RankOrder, r.ExplanationSummary, r.BreakdownJson, r.ComputedUtc
+                           FROM dbo.SecurityEvidencePathRanks r
+                           INNER JOIN dbo.SecurityEvidencePaths p
+                               ON p.TenantId = r.TenantId AND p.PathId = r.PathId
+                           WHERE r.TenantId = @TenantId
+                             AND r.PathId = @PathId
+                             AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        RankRow? row = await conn.QuerySingleOrDefaultAsync<RankRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
+                cancellationToken: cancellationToken));
 
         return row is null ? null : MapRank(row);
     }
@@ -129,6 +159,95 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
                         rank.PathId,
                         rank.TenantId,
                         rank.SnapshotId,
+                        rank.RuleVersion,
+                        rank.TechnicalExposureScore,
+                        rank.PrivilegeDepthScore,
+                        rank.BlastRadiusScore,
+                        rank.BusinessConsequenceScore,
+                        rank.ConfidenceBandScore,
+                        rank.CompositeSortScore,
+                        rank.RankOrder,
+                        rank.ExplanationSummary,
+                        rank.BreakdownJson,
+                        rank.ComputedUtc,
+                    },
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
+        }
+
+        tx.Commit();
+    }
+
+    public async Task ReplaceRanksForSnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        IReadOnlyList<SecurityEvidencePathRankRecord> ranks,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(ranks);
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using System.Data.IDbTransaction tx = conn.BeginTransaction();
+
+        const string deleteSql = """
+                                 DELETE r
+                                 FROM dbo.SecurityEvidencePathRanks r
+                                 INNER JOIN dbo.SecurityEvidencePaths p
+                                     ON p.TenantId = r.TenantId AND p.PathId = r.PathId
+                                 WHERE r.TenantId = @TenantId
+                                   AND r.SnapshotId = @SnapshotId
+                                   AND p.WorkspaceId = @WorkspaceId
+                                   AND p.ProjectId = @ProjectId;
+                                 """;
+
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                deleteSql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId },
+                transaction: tx,
+                cancellationToken: cancellationToken));
+
+        const string insertSql = """
+                                 IF NOT EXISTS (
+                                     SELECT 1
+                                     FROM dbo.SecurityEvidencePaths
+                                     WHERE TenantId = @TenantId
+                                       AND WorkspaceId = @WorkspaceId
+                                       AND ProjectId = @ProjectId
+                                       AND SnapshotId = @SnapshotId
+                                       AND PathId = @PathId
+                                 )
+                                     THROW 50004, 'Scoped path rank target path was not found.', 1;
+
+                                 INSERT INTO dbo.SecurityEvidencePathRanks
+                                 (
+                                     PathId, TenantId, SnapshotId, RuleVersion,
+                                     TechnicalExposureScore, PrivilegeDepthScore, BlastRadiusScore,
+                                     BusinessConsequenceScore, ConfidenceBandScore, CompositeSortScore,
+                                     RankOrder, ExplanationSummary, BreakdownJson, ComputedUtc
+                                 )
+                                 VALUES
+                                 (
+                                     @PathId, @TenantId, @SnapshotId, @RuleVersion,
+                                     @TechnicalExposureScore, @PrivilegeDepthScore, @BlastRadiusScore,
+                                     @BusinessConsequenceScore, @ConfidenceBandScore, @CompositeSortScore,
+                                     @RankOrder, @ExplanationSummary, @BreakdownJson, @ComputedUtc
+                                 );
+                                 """;
+
+        foreach (SecurityEvidencePathRankRecord rank in ranks)
+        {
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    insertSql,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        rank.PathId,
+                        SnapshotId = snapshotId,
                         rank.RuleVersion,
                         rank.TechnicalExposureScore,
                         rank.PrivilegeDepthScore,
