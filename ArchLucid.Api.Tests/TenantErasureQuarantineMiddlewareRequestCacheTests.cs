@@ -291,7 +291,7 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
     }
 
     [Fact]
-    public async Task Erasure_quarantine_passes_through_when_tenant_record_missing()
+    public async Task Erasure_quarantine_fails_closed_when_tenant_record_missing()
     {
         DefaultHttpContext http = new()
         {
@@ -332,8 +332,8 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
         TenantErasureQuarantineMiddleware middleware = new(terminal);
         await middleware.InvokeAsync(http);
 
-        terminalReached.Should().BeTrue();
-        http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+        terminalReached.Should().BeFalse();
+        http.Response.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]
