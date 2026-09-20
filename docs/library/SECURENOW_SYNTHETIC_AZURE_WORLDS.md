@@ -20,6 +20,8 @@ All worlds also preserve explicit evidence references through path materializati
 ## Location
 
 - `ArchLucid.Application.Tests/InfraEvidence/SyntheticAzureWorlds/SyntheticAzureWorld.cs`
+- `ArchLucid.Application.Tests/InfraEvidence/SyntheticAzureWorlds/SyntheticAzurePath.cs`
+- `ArchLucid.Application.Tests/InfraEvidence/SyntheticAzureWorlds/SyntheticAzureHop.cs`
 - `ArchLucid.Application.Tests/InfraEvidence/SyntheticAzureWorlds/SyntheticAzureWorldCatalog.cs`
 - `ArchLucid.Application.Tests/InfraEvidence/SecureNowSyntheticAzureWorldTests.cs`
 
