@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and test-program evidence; not buyer-facing proof or a correctness/superiority claim.
+
 # Assurance envelope
 
 Important ArchLucid/SecureNow conclusions should retain enough context to answer: **what was evaluated, by what logic, against which evidence, with what certainty, and did evaluation actually complete?**
