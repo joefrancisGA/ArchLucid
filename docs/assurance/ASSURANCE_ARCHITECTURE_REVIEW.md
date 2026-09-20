@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and operational controls; not buyer-facing proof or a correctness/superiority claim.
+
 # Assurance architecture review
 
 The assurance system itself can be wrong. Review it as production architecture.
