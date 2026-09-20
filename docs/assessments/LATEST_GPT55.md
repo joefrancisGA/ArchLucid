@@ -84,9 +84,9 @@ Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §
 
 ## 3. Diagnostic Scores (non-headline — do not feed `(A)`)
 
-These numbers measure **market and competitive outcomes**. They are **not** folded into 80.94%.
+These numbers measure **market and competitive outcomes**. They are **not** folded into the current **86.30%** headline readiness score.
 
-**Decision Advantage Score: 63 / 100.** ArchLucid can change a decision a skilled architect using frontier AI would not operationalize — when a policy pack assignment, pre-commit gate, disposition, or citation-backed cost line is in play. ROI batches **5A–9** extend **showReason** semantic-band honesty, compare classification/semantic/treatment/ROI/gate/pack/execution-mode deltas, dual-channel audit disclosure, spine disposition loop, and first-review literacy but did **not** add live customer proof. Tension with headline: 80.94% says the **product contract is largely built**; 63 says **decision change in the wild is still unproven** (G4 = 0 of 3). That is consistent: `(A)` scores in-contract engineering, not paid pilots.
+**Decision Advantage Score: 63 / 100.** ArchLucid can change a decision a skilled architect using frontier AI would not operationalize — when a policy pack assignment, pre-commit gate, disposition, or citation-backed cost line is in play. ROI batches **5A–9** extend **showReason** semantic-band honesty, compare classification/semantic/treatment/ROI/gate/pack/execution-mode deltas, dual-channel audit disclosure, spine disposition loop, and first-review literacy but did **not** add live customer proof. Tension with headline: 86.30% says the **product contract is largely built**; 63 says **decision change in the wild is still unproven** (G4 = 0 of 3). That is consistent: `(A)` scores in-contract engineering, not paid pilots.
 
 **Frontier-AI Survival Probability (12-month): 48–64%.**  
 - **Reference class:** specialized workflow SaaS wrapping frontier models (copilots, GRC-adjacent review tools) — historically ~30–50% still differentiated at 12 months unless they own customer-specific state + workflow.  
