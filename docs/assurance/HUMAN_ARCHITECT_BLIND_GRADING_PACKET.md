@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and benchmark methodology; not buyer-facing proof or a superiority claim.
+
 # Human architect blind-grading packet
 
 This packet is for the owner-executed blind panel. It contains **no ArchLucid answer key**.
