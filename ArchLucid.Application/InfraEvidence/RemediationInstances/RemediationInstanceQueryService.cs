@@ -273,7 +273,7 @@ public sealed class RemediationInstanceQueryService(
             cancellationToken);
 
         OperationalSecurityFindingRecord? finding =
-            await findingRepository.TryGetByIdAsync(scope.TenantId, instance.FindingId, cancellationToken);
+            await findingRepository.TryGetByIdInScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, instance.FindingId, cancellationToken);
 
         RemediationPatternMatchResultRecord? activeMatch =
             await matchRepository.TryGetActiveMatchAsync(scope.TenantId, instance.FindingId, cancellationToken);
