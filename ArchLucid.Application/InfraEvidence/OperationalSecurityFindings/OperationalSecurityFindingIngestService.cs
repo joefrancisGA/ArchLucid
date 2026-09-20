@@ -93,9 +93,7 @@ public sealed class OperationalSecurityFindingIngestService(
 
         OperationalSecurityFindingRecord? finding =
             await repository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 findingId,
                 cancellationToken);
 
@@ -146,9 +144,7 @@ public sealed class OperationalSecurityFindingIngestService(
             byte[] payloadHash = OperationalSecurityFindingGuard.ComputePayloadHash(item);
 
             OperationalSecurityFindingRecord? existing = await repository.TryGetByNaturalKeyInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 item.Provider,
                 item.SourceSystem.Trim(),
                 item.SourceFindingId.Trim(),
