@@ -1,4 +1,3 @@
-{"at":"2026-08-21T13:27:27.3698649Z","zoneId":"ui-auth-proxy","outcome":"hit"}
 {"at":"2026-08-22T15:53:43.16222Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-08-22T18:56:26.2658172Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-08-22T23:21:26.1493261Z","zoneId":"ui-operator-routes","outcome":"hit"}
@@ -6375,3 +6374,4 @@
 {"at":"2026-09-20T13:26:25.8713526Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-20T13:26:30.0041291Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-20T13:26:34.3063784Z","zoneId":"persistence-identity","outcome":"seed-only"}
+{"at":"2026-09-20T13:28:20.4671415Z","zoneId":"topology-proposal-merge","outcome":"hit"}
