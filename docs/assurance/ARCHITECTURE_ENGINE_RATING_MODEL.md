@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and benchmark methodology; not buyer-facing proof or a superiority claim.
+
 # Architecture engine rating model
 
 A chess-style mental model is useful only if it does not erase the dimensions that matter.
