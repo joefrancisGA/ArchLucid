@@ -11,7 +11,7 @@ from pathlib import Path
 SEVERITY_WEIGHT = {"critical": 8, "high": 5, "medium": 3, "low": 1}
 
 
-def summarize(records: list[dict]) -> dict:
+def summarize(records: list[dict], all_zones: list[str] | None = None) -> dict:
     confirmed = [row for row in records if row.get("confirmed", True)]
     unique = [row for row in confirmed if not row.get("duplicateOf")]
     duplicates = len(confirmed) - len(unique)
@@ -19,6 +19,8 @@ def summarize(records: list[dict]) -> dict:
     cost = sum(float(row.get("costUsd", 0)) for row in confirmed)
 
     by_zone: dict[str, list[dict]] = defaultdict(list)
+    for zone in all_zones or []:
+        by_zone[str(zone)]
     for row in unique:
         by_zone[str(row.get("zone", "unclassified"))].append(row)
 
@@ -62,7 +64,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     payload = json.loads(args.ledger.read_text(encoding="utf-8"))
     records = payload.get("defects", payload if isinstance(payload, list) else [])
-    print(json.dumps(summarize(records), indent=2))
+    all_zones = payload.get("zones", []) if isinstance(payload, dict) else []
+    print(json.dumps(summarize(records, all_zones), indent=2))
     return 0
 
 
