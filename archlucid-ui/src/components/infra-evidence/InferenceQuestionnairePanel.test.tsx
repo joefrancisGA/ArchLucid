@@ -136,4 +136,19 @@ describe("InferenceQuestionnairePanel", () => {
     );
     expect(screen.queryByTestId("inference-questionnaire-retry")).not.toBeInTheDocument();
   });
+
+  it("keeps skipped questionnaire items out of the current session", async () => {
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    fireEvent.click(await screen.findByTestId("inference-questionnaire-skip"));
+    fireEvent.click(screen.getByTestId("inference-questionnaire-submit"));
+
+    expect(
+      screen.getByText("No proposed questionnaire items remain for this snapshot."),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("inference-questionnaire-question")).not.toBeInTheDocument();
+    expect(operatorInferredConnectionApi.confirmOperatorInferredConnection).not.toHaveBeenCalled();
+    expect(operatorInferredConnectionApi.dismissOperatorInferredConnection).not.toHaveBeenCalled();
+  });
+
 });

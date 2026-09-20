@@ -34,16 +34,19 @@ public sealed class SecurityDeclaredConnectionService(
             };
         }
 
-        SecurityDeclaredConnectionRecord? existingActive =
-            await connectionRepository.TryGetActiveDuplicateAsync(
-                scope.TenantId,
-                request.FromCloudResourceId,
-                request.ToCloudResourceId,
-                request.RelationshipType,
-                utcNow,
+        IReadOnlyList<SecurityDeclaredConnectionRecord> scopedConnections =
+            await connectionRepository.ListByScopeAsync(
+                scope.ToProjectScopeKey(),
                 cancellationToken);
 
-        if (existingActive is not null)
+        bool existingActive = scopedConnections.Any(record =>
+            record.FromCloudResourceId == request.FromCloudResourceId
+            && record.ToCloudResourceId == request.ToCloudResourceId
+            && record.RelationshipType == request.RelationshipType
+            && record.Status == SecurityDeclaredConnectionStatus.Active
+            && record.ExpirationUtc > utcNow);
+
+        if (existingActive)
         {
             return new SecurityDeclaredConnectionCreateResult
             {
@@ -122,7 +125,10 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         SecurityDeclaredConnectionRecord? existing =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                connectionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -212,7 +218,10 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         SecurityDeclaredConnectionRecord? existing =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                connectionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -262,7 +271,9 @@ public sealed class SecurityDeclaredConnectionService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecurityDeclaredConnectionRecord> records =
-            await connectionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+            await connectionRepository.ListByScopeAsync(
+                scope.ToProjectScopeKey(),
+                cancellationToken);
 
         List<SecurityDeclaredConnectionRecord> results = [];
 

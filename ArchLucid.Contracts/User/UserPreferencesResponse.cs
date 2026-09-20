@@ -99,6 +99,20 @@ public sealed class UserPreferencesResponse
         set;
     }
 
+    /// <summary>First-login seat purpose when set: <c>live</c> or <c>training</c>. Unset until the user chooses.</summary>
+    public string? FirstSessionPurpose
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when the user has an explicit stored first-session-purpose row.</summary>
+    public bool FirstSessionPurposeIsExplicit
+    {
+        get;
+        set;
+    }
+
     /// <summary>Working Career vs Rehearsal door: career (GET default when unset) or rehearsal.</summary>
     public string WorkingCareerRehearsalDoor
     {

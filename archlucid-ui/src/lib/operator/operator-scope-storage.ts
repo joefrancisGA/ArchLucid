@@ -13,6 +13,7 @@ import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-sta
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { readDedicatedWorkspaceScope } from "@/lib/operator/operator-dedicated-workspace-storage";
+import { isSampleWorkspaceVisitActive } from "@/lib/operator/operator-sample-workspace-visit";
 import {
   isSampleWorkspaceScope,
   resolveDedicatedWorkspaceCandidate,
@@ -182,14 +183,21 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
 
   const fromOperator = readOperatorScopeFromStorage();
   if (fromOperator !== null) {
-    const headers = {
-      "x-tenant-id": fromOperator.tenantId,
-      "x-workspace-id": fromOperator.workspaceId,
-      "x-project-id": fromOperator.projectId,
-    };
-    writeOperatorScopeCookieFromHeaders(headers);
+    const signedInStickyDemoScope =
+      isLikelySignedIn()
+      && isSampleWorkspaceScope(fromOperator)
+      && !isSampleWorkspaceVisitActive();
 
-    return headers;
+    if (!signedInStickyDemoScope) {
+      const headers = {
+        "x-tenant-id": fromOperator.tenantId,
+        "x-workspace-id": fromOperator.workspaceId,
+        "x-project-id": fromOperator.projectId,
+      };
+      writeOperatorScopeCookieFromHeaders(headers);
+
+      return headers;
+    }
   }
 
   if (isLikelySignedIn()) {

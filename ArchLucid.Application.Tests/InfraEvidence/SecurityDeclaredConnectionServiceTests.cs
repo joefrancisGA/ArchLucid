@@ -56,6 +56,44 @@ public sealed class SecurityDeclaredConnectionServiceTests
         repository.Records.Should().ContainSingle();
     }
 
+    [Fact]
+    public async Task CreateAsync_same_connection_in_other_project_does_not_block_current_project()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        InMemorySecurityDeclaredConnectionRepository repository = new();
+        repository.Records.Add(CreateActiveConnection(
+            Guid.NewGuid(),
+            utcNow.AddDays(10),
+            Guid.Parse("11111111-2222-3333-4444-555555555555")));
+
+        SecurityDeclaredConnectionService sut = CreateSut(repository);
+
+        SecurityDeclaredConnectionCreateResult result =
+            await sut.CreateAsync(CreateScope(), CreateValidCreateRequest(utcNow));
+
+        result.Succeeded.Should().BeTrue();
+        repository.Records.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task ListAsync_excludes_same_tenant_rows_from_other_project()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        InMemorySecurityDeclaredConnectionRepository repository = new();
+        SecurityDeclaredConnectionRecord local = CreateActiveConnection(Guid.NewGuid(), utcNow.AddDays(10));
+        SecurityDeclaredConnectionRecord foreign = CreateActiveConnection(
+            Guid.NewGuid(),
+            utcNow.AddDays(10),
+            Guid.Parse("66666666-7777-8888-9999-aaaaaaaaaaaa"));
+        repository.Records.AddRange([local, foreign]);
+
+        SecurityDeclaredConnectionService sut = CreateSut(repository);
+        IReadOnlyList<SecurityDeclaredConnectionRecord> rows = await sut.ListAsync(CreateScope());
+
+        rows.Should().ContainSingle();
+        rows[0].ConnectionId.Should().Be(local.ConnectionId);
+    }
+
     private static SecurityDeclaredConnectionService CreateSut(
         InMemorySecurityDeclaredConnectionRepository repository)
     {
@@ -90,13 +128,16 @@ public sealed class SecurityDeclaredConnectionServiceTests
             ApprovedByActorKey = "approver",
         };
 
-    private static SecurityDeclaredConnectionRecord CreateActiveConnection(Guid connectionId, DateTime expirationUtc) =>
+    private static SecurityDeclaredConnectionRecord CreateActiveConnection(
+        Guid connectionId,
+        DateTime expirationUtc,
+        Guid? projectId = null) =>
         new()
         {
             ConnectionId = connectionId,
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
+            ProjectId = projectId ?? ProjectId,
             FromCloudResourceId = FromCloudResourceId,
             ToCloudResourceId = ToCloudResourceId,
             RelationshipType = SecurityDeclaredConnectionRelationshipType.ConnectsTo,

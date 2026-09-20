@@ -6448,7 +6448,11 @@ BEGIN
                 N'first_finding_viewed',
                 N'first_finalization_attempted',
                 N'first_export_opened',
-                N'thirty_minute_milestone'
+                N'thirty_minute_milestone',
+                N'first_session_purpose_live',
+                N'first_session_purpose_training',
+                N'post_auth_landed_dedicated_scope',
+                N'post_auth_landed_sample_scope'
             )),
         CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
