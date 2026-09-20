@@ -231,14 +231,12 @@ public sealed class SecurityAssetAssertionService(
         }
 
         SecurityAssetAssertionRecord? existing =
-            await assertionRepository.TryGetByIdAsync(scope.TenantId, assertionId, cancellationToken);
+            await assertionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                assertionId,
+                cancellationToken);
 
-        if (existing is null
-            || !SecureNowScopeGuard.Matches(
-                scope,
-                existing.TenantId,
-                existing.WorkspaceId,
-                existing.ProjectId))
+        if (existing is null)
         {
             return new SecurityAssetAssertionRevokeResult
             {
