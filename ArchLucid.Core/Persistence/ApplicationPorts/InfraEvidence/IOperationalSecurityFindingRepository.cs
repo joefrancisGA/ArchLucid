@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 
@@ -18,41 +19,35 @@ public interface IOperationalSecurityFindingRepository
         CancellationToken cancellationToken = default);
 
     async Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyInScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
+        ProjectScopeKey scope,
         CloudProvider provider,
         string sourceSystem,
         string sourceFindingId,
         CancellationToken cancellationToken = default)
     {
         OperationalSecurityFindingRecord? record = await TryGetByNaturalKeyAsync(
-            tenantId,
+            scope.TenantId,
             provider,
             sourceSystem,
             sourceFindingId,
             cancellationToken);
 
         return record is not null
-               && record.WorkspaceId == workspaceId
-               && record.ProjectId == projectId
+               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
             ? record
             : null;
     }
 
     async Task<OperationalSecurityFindingRecord?> TryGetByIdInScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
+        ProjectScopeKey scope,
         Guid findingId,
         CancellationToken cancellationToken = default)
     {
         OperationalSecurityFindingRecord? record =
-            await TryGetByIdAsync(tenantId, findingId, cancellationToken);
+            await TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
 
         return record is not null
-               && record.WorkspaceId == workspaceId
-               && record.ProjectId == projectId
+               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
             ? record
             : null;
     }
