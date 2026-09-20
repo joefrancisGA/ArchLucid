@@ -188,7 +188,7 @@ public sealed class RemediationPrioritizationService(
         ArgumentNullException.ThrowIfNull(scope);
 
         OperationalSecurityFindingRecord? finding =
-            await findingRepository.TryGetByIdInScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, findingId, cancellationToken);
+            await findingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
 
         if (finding is null)
             return null;
