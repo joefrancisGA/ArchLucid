@@ -47,14 +47,18 @@ public sealed class GoldenCorpusCrossRunDiffCoverageTests
             CancellationToken.None,
             priorGraphFixture: priorFixture);
 
-        snapshot.Findings.Select(static finding => finding.EngineType)
+        List<Finding> allFindings = snapshot.Findings
+            .Concat(snapshot.ChecklistCoverage)
+            .ToList();
+
+        allFindings.Select(static finding => finding.EngineType)
             .Should().Contain("requirement-cross-run-diff");
-        snapshot.Findings.Select(static finding => finding.EngineType)
+        allFindings.Select(static finding => finding.EngineType)
             .Should().Contain("topology-cross-run-diff");
 
-        snapshot.Findings.Single(finding => finding.EngineType == "requirement-cross-run-diff")
+        allFindings.Single(finding => finding.EngineType == "requirement-cross-run-diff")
             .Title.Should().Contain("regressed");
-        snapshot.Findings.Single(finding => finding.EngineType == "topology-cross-run-diff")
+        allFindings.Single(finding => finding.EngineType == "topology-cross-run-diff")
             .Title.Should().Contain("regressed");
     }
 
