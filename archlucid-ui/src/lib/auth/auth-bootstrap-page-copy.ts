@@ -2,7 +2,7 @@
 export const AUTH_BOOTSTRAP_PAGE_TITLE = "Set up your workspace";
 
 export const AUTH_BOOTSTRAP_PAGE_DESCRIPTION =
-  "Finish workspace setup after sign-in — accept an invitation, choose a workspace, or create one.";
+  "Finish workspace setup after sign-in — accept an invitation, choose a workspace, create one when you have no membership, or request access.";
 
 export const AUTH_BOOTSTRAP_LOADING_DETAIL =
   "Checking your account and preparing workspace options…";
