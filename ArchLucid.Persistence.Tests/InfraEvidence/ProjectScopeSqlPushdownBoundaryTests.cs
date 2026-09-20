@@ -12,8 +12,13 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
     {
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByNaturalKeyInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "UpdateInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "ListByScopeAsync"];
+        yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "UpdateRenewalInScopeAsync"];
+        yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "RevokeInScopeAsync"];
+        yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "MarkExpiredInScopeAsync"];
+        yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "MarkExpiryProcessedInScopeAsync"];
         yield return [typeof(IOperatorInferredConnectionRepository), typeof(SqlOperatorInferredConnectionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IOperatorInferredConnectionRepository), typeof(SqlOperatorInferredConnectionRepository), "UpdateStatusInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "TryGetByIdInScopeAsync"];
@@ -44,6 +49,12 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
     {
         yield return [typeof(OperatorInferredConnectionMutation)];
         yield return [typeof(RemediationInstanceMutation)];
+        yield return [typeof(SecurityDeclaredConnectionRevokeMutation)];
+        yield return [typeof(SecurityDeclaredConnectionRenewalMutation)];
+        yield return [typeof(SecurityDeclaredConnectionExpiryProcessedMutation)];
+        yield return [typeof(OperationalSecurityFindingMutation)];
+        yield return [typeof(OperationalSecurityFindingMetadataMutation)];
+        yield return [typeof(OperationalSecurityFindingObservationMutation)];
     }
 
     [Theory]
