@@ -1,5 +1,6 @@
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -82,6 +83,34 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
 
         IEnumerable<HopRow> rows = await conn.QueryAsync<HopRow>(
             new CommandDefinition(sql, new { TenantId = tenantId, PathId = pathId }, cancellationToken: cancellationToken));
+
+        return rows.Select(MapHop).ToList();
+    }
+
+    public async Task<IReadOnlyList<SecurityEvidencePathHopRecord>> ListHopsByPathInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT h.HopRowId, h.PathId, h.TenantId, h.HopOrdinal, h.FromNodeId, h.ToNodeId, h.EdgeType,
+                                  h.ProvenanceKind, h.HopConfidenceBand, h.InferenceSource, h.EvidenceReference, h.CloudResourceId
+                           FROM dbo.SecurityEvidencePathHops h
+                           INNER JOIN dbo.SecurityEvidencePaths p
+                               ON p.TenantId = h.TenantId AND p.PathId = h.PathId
+                           WHERE h.TenantId = @TenantId
+                             AND h.PathId = @PathId
+                             AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId
+                           ORDER BY h.HopOrdinal;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<HopRow> rows = await conn.QueryAsync<HopRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
+                cancellationToken: cancellationToken));
 
         return rows.Select(MapHop).ToList();
     }
