@@ -23,9 +23,11 @@ export const FIRST_SESSION_PURPOSE_TRAINING_BUTTON_TEST_ID = "first-session-purp
 
 /** Guards copy drift against Record/Practice door labels. */
 export function firstSessionPurposeCopyDoesNotCollideWithReviewDoors(): boolean {
+  const trainingCta: string = FIRST_SESSION_PURPOSE_TRAINING_CTA;
+
   return (
-    FIRST_SESSION_PURPOSE_TRAINING_CTA !== WORKING_REHEARSAL_DOOR_LABEL
-    && FIRST_SESSION_PURPOSE_TRAINING_CTA !== WORKING_CAREER_DOOR_LABEL
+    trainingCta !== WORKING_REHEARSAL_DOOR_LABEL
+    && trainingCta !== WORKING_CAREER_DOOR_LABEL
     && !FIRST_SESSION_PURPOSE_LIVE_CTA.toLowerCase().includes("sample")
     && !FIRST_SESSION_PURPOSE_LIVE_CTA.toLowerCase().includes("demo")
   );
