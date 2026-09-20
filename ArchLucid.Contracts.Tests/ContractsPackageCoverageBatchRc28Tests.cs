@@ -134,7 +134,11 @@ public sealed class ContractsPackageCoverageBatchRc28Tests
             FirstTenantFunnelEventNames.FirstFindingViewed,
             FirstTenantFunnelEventNames.FirstFinalizationAttempted,
             FirstTenantFunnelEventNames.FirstExportOpened,
-            FirstTenantFunnelEventNames.ThirtyMinuteMilestone);
+            FirstTenantFunnelEventNames.ThirtyMinuteMilestone,
+            FirstTenantFunnelEventNames.FirstSessionPurposeLive,
+            FirstTenantFunnelEventNames.FirstSessionPurposeTraining,
+            FirstTenantFunnelEventNames.PostAuthLandedDedicatedScope,
+            FirstTenantFunnelEventNames.PostAuthLandedSampleScope);
     }
 
     [Theory]
