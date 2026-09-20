@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and benchmark methodology; not buyer-facing proof or a superiority claim.
+
 # Architecture tournament framework
 
 The tournament is a **measurement system**, not a marketing score generator.
