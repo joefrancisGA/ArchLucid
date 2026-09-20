@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -16,33 +17,28 @@ public interface ISecurityDeclaredConnectionRepository
         CancellationToken cancellationToken = default);
 
     async Task<SecurityDeclaredConnectionRecord?> TryGetByIdInScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
+        ProjectScopeKey scope,
         Guid connectionId,
         CancellationToken cancellationToken = default)
     {
         SecurityDeclaredConnectionRecord? record =
-            await TryGetByIdAsync(tenantId, connectionId, cancellationToken);
+            await TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
 
         return record is not null
-               && record.WorkspaceId == workspaceId
-               && record.ProjectId == projectId
+               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
             ? record
             : null;
     }
 
     async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> ListByScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
+        ProjectScopeKey scope,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<SecurityDeclaredConnectionRecord> records =
-            await ListByTenantAsync(tenantId, cancellationToken);
+            await ListByTenantAsync(scope.TenantId, cancellationToken);
 
         return records
-            .Where(record => record.WorkspaceId == workspaceId && record.ProjectId == projectId)
+            .Where(record => scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId))
             .ToList();
     }
 
