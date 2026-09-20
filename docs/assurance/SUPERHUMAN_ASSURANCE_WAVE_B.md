@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and benchmark methodology; not buyer-facing proof or a superiority claim.
+
 # Superhuman assurance program — wave B
 
 This wave rebases prompts **17–24, 33, 36 and 37** on the repository's existing Architecture Intelligence benchmark and held-out governance.
