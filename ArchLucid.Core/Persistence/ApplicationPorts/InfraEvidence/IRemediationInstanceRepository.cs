@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -8,19 +9,10 @@ public interface IRemediationInstanceRepository
 
     Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
 
-    async Task UpdateInstanceInScopeAsync(
+    Task UpdateInstanceInScopeAsync(
         ProjectScopeKey scope,
-        RemediationInstanceRecord instance,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(instance);
-
-        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
-            throw new InvalidOperationException("Remediation instance scope does not match the authorized project scope.");
-
-        await UpdateInstanceAsync(instance, cancellationToken);
-    }
+        RemediationInstanceMutation mutation,
+        CancellationToken cancellationToken = default);
 
     Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
@@ -63,4 +55,27 @@ public interface IRemediationInstanceRepository
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default);
+}
+
+public sealed record RemediationInstanceMutation
+{
+    public required Guid InstanceId { get; init; }
+    public required RemediationInstanceStatus Status { get; init; }
+    public Guid? CloudResourceId { get; init; }
+    public Guid? PathId { get; init; }
+    public string? PathNarrativeJson { get; init; }
+    public Guid? AssessmentId { get; init; }
+    public Guid? ControlId { get; init; }
+    public Guid? PreflightSnapshotId { get; init; }
+    public Guid? ExecutionSnapshotId { get; init; }
+    public Guid? VerificationSnapshotId { get; init; }
+    public Guid? WaveId { get; init; }
+    public string? PreflightResultJson { get; init; }
+    public string? VerificationResultJson { get; init; }
+    public string? ApprovedByActorKey { get; init; }
+    public required DateTime UpdatedUtc { get; init; }
+    public DateTime? ApprovedUtc { get; init; }
+    public DateTime? ExecutedUtc { get; init; }
+    public DateTime? VerifiedUtc { get; init; }
+    public DateTime? ClosedUtc { get; init; }
 }
