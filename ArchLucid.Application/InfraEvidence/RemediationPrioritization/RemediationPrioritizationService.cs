@@ -316,7 +316,10 @@ public sealed class RemediationPrioritizationService(
                 await exceptionRepository.ListByScopeAsync(scope, cancellationToken);
 
             compensatingControls = exceptions
-                .FirstOrDefault(item => item.FindingId == finding.FindingId && item.Status == OperationalSecurityExceptionStatus.Active)
+                .FirstOrDefault(item =>
+                    item.FindingId == finding.FindingId
+                    && item.Status == OperationalSecurityExceptionStatus.Active
+                    && item.ExpirationUtc > asOfUtc)
                 ?.CompensatingControls;
         }
 
