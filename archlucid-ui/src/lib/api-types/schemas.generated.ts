@@ -10266,6 +10266,9 @@ export interface components {
             showAdvisoryEnabled?: boolean;
             showLowConfidenceEnabled?: boolean;
         };
+        SetFirstSessionPurposeRequest: {
+            purpose?: string;
+        };
         SetIanaTimeZonePreferenceRequest: {
             ianaTimeZoneId?: null | string;
         };
@@ -11834,6 +11837,8 @@ export interface components {
             findingsShowAdvisoryEnabledIsExplicit?: boolean;
             findingsShowLowConfidenceEnabled?: boolean;
             findingsShowLowConfidenceEnabledIsExplicit?: boolean;
+            firstSessionPurpose?: null | string;
+            firstSessionPurposeIsExplicit?: boolean;
             ianaTimeZoneId?: string;
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;

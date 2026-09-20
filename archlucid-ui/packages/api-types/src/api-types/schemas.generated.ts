@@ -10291,6 +10291,9 @@ export interface components {
         SetWhereToGoNextVisibilityRequest: {
             enabled?: boolean;
         };
+        SetFirstSessionPurposeRequest: {
+            purpose?: string;
+        };
         SetWorkingCareerRehearsalDoorRequest: {
             door?: string;
         };
@@ -11834,6 +11837,8 @@ export interface components {
             findingsShowAdvisoryEnabledIsExplicit?: boolean;
             findingsShowLowConfidenceEnabled?: boolean;
             findingsShowLowConfidenceEnabledIsExplicit?: boolean;
+            firstSessionPurpose?: null | string;
+            firstSessionPurposeIsExplicit?: boolean;
             ianaTimeZoneId?: string;
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;

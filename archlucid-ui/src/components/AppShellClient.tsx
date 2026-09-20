@@ -37,6 +37,7 @@ import {
 } from "@/components/shell/app-shell-deferred-chunks";
 import { AppShellLivelihoodMutationResumeHost } from "@/components/shell/AppShellLivelihoodMutationResumeHost";
 import { OperatorSampleWorkspaceDoorPinHost } from "@/components/shell/OperatorSampleWorkspaceDoorPinHost";
+import { FirstSessionPurposeChooserHost } from "@/components/auth/FirstSessionPurposeChooserHost";
 import { OperatorWorkspaceScopeBootstrapHost } from "@/components/shell/OperatorWorkspaceScopeBootstrapHost";
 import { AppShellSyncCommandPaletteHost } from "@/components/shell/AppShellSyncCommandPaletteHost";
 import { AppShellSyncKeyboardShortcutListener } from "@/components/shell/AppShellSyncKeyboardShortcutListener";
@@ -240,6 +241,7 @@ function AppShellInner({ children }: AppShellClientProps) {
           <AppShellSyncSessionIdleGuard />
           <AppShellLivelihoodMutationResumeHost />
           <OperatorWorkspaceScopeBootstrapHost />
+          <FirstSessionPurposeChooserHost />
           <OperatorSampleWorkspaceDoorPinHost />
           <CommandPaletteWorkActionBridge />
           <AppShellSyncCommandPaletteHost />
@@ -351,6 +353,7 @@ function AppShellInner({ children }: AppShellClientProps) {
       <AppShellSyncSessionIdleGuard />
       <AppShellLivelihoodMutationResumeHost />
       <OperatorWorkspaceScopeBootstrapHost />
+      <FirstSessionPurposeChooserHost />
       <OperatorSampleWorkspaceDoorPinHost />
       <CommandPaletteWorkActionBridge />
       <AppShellSyncCommandPaletteHost />

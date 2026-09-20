@@ -31,6 +31,7 @@ import {
   POST_AUTH_BOOTSTRAP_COPY,
   resolvePostAuthBootstrapDenialMessage,
 } from "@/lib/auth/post-auth-bootstrap-denial-copy";
+import { applyDedicatedWorkspaceScopeFromAccessToken } from "@/lib/auth/post-auth-dedicated-scope";
 import { POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE, POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE } from "@/lib/auth/post-auth-bootstrap-exit-copy";
 function applyBootstrapSession(session: {
   accessToken: string;
@@ -43,6 +44,7 @@ function applyBootstrapSession(session: {
     token_type: session.tokenType,
     expires_in: session.expiresInSeconds,
   });
+  applyDedicatedWorkspaceScopeFromAccessToken(session.accessToken);
   restoreIdleDeskScopeAfterSignIn();
 
   const destination = isSafeReturnPath(session.redirectPath) ? session.redirectPath : "/";
