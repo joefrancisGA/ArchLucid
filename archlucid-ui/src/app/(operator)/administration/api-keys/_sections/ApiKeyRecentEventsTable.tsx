@@ -38,6 +38,10 @@ function formatAuditActionLabel(action: ApiKeyAuditEvent["action"]): string {
     return "Key rotated";
   }
 
+  if (action === "rotation_material_issued") {
+    return "Rotation material issued";
+  }
+
   if (action === "key_revoked") {
     return "Key revoked";
   }
