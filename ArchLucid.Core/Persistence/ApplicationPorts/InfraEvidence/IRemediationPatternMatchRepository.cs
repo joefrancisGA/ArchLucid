@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
@@ -8,6 +9,12 @@ public interface IRemediationPatternMatchRepository
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default);
+
+    Task DeactivateMatchesForFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default) =>
+        DeactivateMatchesForFindingAsync(scope.TenantId, findingId, cancellationToken);
 
     Task InsertMatchResultAsync(
         RemediationPatternMatchResultRecord matchResult,
@@ -22,13 +29,31 @@ public interface IRemediationPatternMatchRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default) =>
+        TryGetActiveMatchAsync(scope.TenantId, findingId, cancellationToken);
+
     Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingAsync(
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default) =>
+        ListByFindingAsync(scope.TenantId, findingId, cancellationToken);
+
     Task<IReadOnlyList<RemediationPatternMatchConflictRecord>> ListConflictsByFindingAsync(
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RemediationPatternMatchConflictRecord>> ListConflictsByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default) =>
+        ListConflictsByFindingAsync(scope.TenantId, findingId, cancellationToken);
 }
