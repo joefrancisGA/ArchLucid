@@ -13,19 +13,10 @@ public interface IRemediationInstanceRepository
         Guid instanceId,
         CancellationToken cancellationToken = default);
 
-    async Task<RemediationInstanceRecord?> TryGetByIdInScopeAsync(
+    Task<RemediationInstanceRecord?> TryGetByIdInScopeAsync(
         ProjectScopeKey scope,
         Guid instanceId,
-        CancellationToken cancellationToken = default)
-    {
-        RemediationInstanceRecord? record =
-            await TryGetByIdAsync(scope.TenantId, instanceId, cancellationToken);
-
-        return record is not null
-               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
-            ? record
-            : null;
-    }
+        CancellationToken cancellationToken = default);
 
     Task InsertEvidenceAsync(RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default);
 
