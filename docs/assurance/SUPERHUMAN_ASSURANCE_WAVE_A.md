@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and test-program evidence; not buyer-facing proof or a correctness/superiority claim.
+
 # Superhuman assurance program — wave A
 
 This wave executes prompts **5–16** from the 40-prompt assurance program, rebased against current repository truth.
