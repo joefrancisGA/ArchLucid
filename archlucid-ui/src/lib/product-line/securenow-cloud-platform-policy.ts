@@ -16,7 +16,10 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "accelerator-chooser",
   "billing-and-plans",
   "architecture-desk",
+  "architecture-draft-editing",
+  "architecture-sharing",
   "career-rehearsal-doors",
+  "slack-integration",
 ];
 
 /** Help topic slugs shown only in the SecureNow Security shell. */
@@ -48,8 +51,18 @@ export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
   return productLineId === "security";
 }
 
-/** SecureNow is a production security shell — ArchLucid training, simulator, and Career/Rehearsal chrome do not apply. */
+/** SecureNow is a production security shell — ArchLucid training, simulator, demo/sample, and Career/Rehearsal chrome do not apply. */
 export function isSecureNowTrainingChromeExcluded(productLineId: ProductLineId): boolean {
+  return isSecureNowProductLine(productLineId);
+}
+
+/** Demo/sample/live-data disclaimers are ArchLucid evaluation chrome — not SecureNow. */
+export function isSecureNowDemoChromeExcluded(productLineId: ProductLineId): boolean {
+  return isSecureNowTrainingChromeExcluded(productLineId);
+}
+
+/** SecureNow is a production security shell — workspace footer Security & Trust link is ArchLucid buyer chrome. */
+export function isSecureNowWorkspaceFooterTrustLinkExcluded(productLineId: ProductLineId): boolean {
   return isSecureNowProductLine(productLineId);
 }
 

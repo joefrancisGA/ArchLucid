@@ -129,7 +129,7 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
     expect(items[0]?.href).toBe("/architecture/reviews/await-1");
   });
 
-  it("AO-08: nests in-flight review href when parent architecture is in the draft registry", () => {
+  it("AO-08: nests in-flight review href when parent architecture is in the architecture draft registry", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [
         draft({

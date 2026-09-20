@@ -68,7 +68,7 @@ const ARCHITECTURE_DRAFT_LOAD_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "This architecture draft could not be loaded.",
   whatIsIntact:
     "Typed work in this browser may still be recoverable from offline recovery until you reload successfully.",
-  nextStep: "Retry loading the draft, or return to the architectures list.",
+  nextStep: "Retry loading the architecture draft, or return to the architectures list.",
 };
 
 const IN_FLIGHT_CANCEL_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {
@@ -89,7 +89,7 @@ const ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY: ErrorRecoveryContract
   whatFailed: "This architecture draft changed in another browser session or from offline replay.",
   whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
   nextStep:
-    "Refresh the draft to load the latest version, then re-apply any edits you still need.",
+    "Refresh the architecture draft to load the latest version, then re-apply any edits you still need.",
 };
 
 const ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_WORKING_RECOVERY: ErrorRecoveryContractPresentation = {

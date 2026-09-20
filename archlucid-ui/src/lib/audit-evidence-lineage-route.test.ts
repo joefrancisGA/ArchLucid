@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
+  SECURENOW_AUDIT_EVIDENCE_PATH,
   buildAuditEvidenceControlLineagePath,
   isAuditEvidenceRoutePath,
   parseAuditEvidenceControlLineagePath,
@@ -11,6 +13,22 @@ describe("audit-evidence-lineage-route", () => {
     const path = buildAuditEvidenceControlLineagePath("assess-1", "snap-2", "ctrl-3");
 
     expect(path).toBe("/governance/audit-evidence/assess-1/snapshots/snap-2/controls/ctrl-3");
+    expect(parseAuditEvidenceControlLineagePath(path)).toEqual({
+      assessmentId: "assess-1",
+      snapshotId: "snap-2",
+      controlId: "ctrl-3",
+    });
+  });
+
+  it("builds and parses SecureNow compliance lineage paths", () => {
+    const path = buildAuditEvidenceControlLineagePath(
+      "assess-1",
+      "snap-2",
+      "ctrl-3",
+      SECURENOW_AUDIT_EVIDENCE_PATH,
+    );
+
+    expect(path).toBe("/compliance/audit-evidence/assess-1/snapshots/snap-2/controls/ctrl-3");
     expect(parseAuditEvidenceControlLineagePath(path)).toEqual({
       assessmentId: "assess-1",
       snapshotId: "snap-2",
@@ -36,8 +54,10 @@ describe("audit-evidence-lineage-route", () => {
   });
 
   it("detects audit evidence routes", () => {
-    expect(isAuditEvidenceRoutePath("/governance/audit-evidence")).toBe(true);
+    expect(isAuditEvidenceRoutePath(AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH)).toBe(true);
     expect(isAuditEvidenceRoutePath("/governance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
+    expect(isAuditEvidenceRoutePath(SECURENOW_AUDIT_EVIDENCE_PATH)).toBe(true);
+    expect(isAuditEvidenceRoutePath("/compliance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
     expect(isAuditEvidenceRoutePath("/governance/audit")).toBe(false);
   });
 });

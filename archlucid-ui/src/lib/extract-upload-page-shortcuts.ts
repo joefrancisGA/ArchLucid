@@ -9,6 +9,6 @@ export const EXTRACT_UPLOAD_PAGE_SHORTCUTS: readonly PageShortcutEntry[] = [
   {
     id: "copy",
     label: "Copy quick-start command (Ctrl+Shift+C)",
-    description: "Copy the quick-start packager command for the selected cloud provider",
+    description: "Copy the quick-start Azure inventory packager command",
   },
 ];

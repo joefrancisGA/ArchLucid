@@ -110,7 +110,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(screen.getByTestId("architecture-scope-understanding-add").className).not.toContain("border-t");
   });
 
-  it("adds a typed item via Add to scope and clears the draft field", () => {
+  it("adds a typed item via Add to scope and clears the architecture draft field", () => {
     const onBulletsChange = vi.fn();
 
     render(

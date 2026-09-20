@@ -10,6 +10,7 @@ public interface IMermaidDiagramInventoryRenderOrchestrator
         DiagramMode mode,
         DiagramAstCompileOptions? compileOptions,
         MermaidDiagramReadabilityThresholds thresholds,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 
     MermaidDiagramRenderArtifact BuildFallbackArtifact(

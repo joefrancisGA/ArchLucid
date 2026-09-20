@@ -77,7 +77,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CONTEXTUAL_HELP_ROWS: readonly Page
     entry: {
       whatIsThisPage: `Drift and snapshots — ${GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL.toLowerCase()} for inventory evidence workbenches.`,
       whatToDoNext:
-        "Open the drift workbench to compare snapshots, then follow resource explorer or inventory diagrams when scope needs narrowing.",
+        "Open the drift workbench to compare snapshots, then follow resource explorer or diagrams when scope needs narrowing.",
       whyEmpty: "This guide is always available; live snapshots appear after cloud inventory capture exists.",
       whereToConfigurePrerequisite:
         "Confirm cloud connections and snapshot capture before trusting drift rows or advisory exports.",

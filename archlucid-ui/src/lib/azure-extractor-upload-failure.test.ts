@@ -44,6 +44,36 @@ describe("resolveAzureExtractorUploadError", () => {
     expect(resolution.heading).toBe("Invalid ZIP archive");
   });
 
+  it("maps companion array-root failures instead of missing schemaVersion", () => {
+    const resolution = resolveAzureExtractorUploadError(
+      {
+        detail: "diagnostic-settings.json root must be a JSON array.",
+        failureKind: "schema",
+        errorCode: "VALIDATION_FAILED",
+      },
+      "Upload failed",
+    );
+
+    expect(resolution.semanticCode).toBe("AZURE_EXTRACTOR_COMPANION_NOT_ARRAY");
+    expect(resolution.heading).toBe("Extractor package rejected");
+    expect(resolution.guidance).toContain("diagnostic-settings.json");
+    expect(resolution.guidance).not.toContain("schemaVersion (1–2)");
+  });
+
+  it("does not default generic schema failures to missing schemaVersion", () => {
+    const resolution = resolveAzureExtractorUploadError(
+      {
+        detail: "Package failed schema validation.",
+        failureKind: "schema",
+        errorCode: "VALIDATION_FAILED",
+      },
+      "Upload failed",
+    );
+
+    expect(resolution.semanticCode).toBe("AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID");
+    expect(resolution.heading).toBe("Extractor package rejected");
+  });
+
   it("maps missing resources.json to AZURE_EXTRACTOR_MISSING_RESOURCES_JSON", () => {
     const resolution = resolveAzureExtractorUploadError(
       {

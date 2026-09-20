@@ -38,7 +38,7 @@ describe("architecture-draft-intake-mode", () => {
     expect(architectureDraftAllowsBriefUnlock("Drafting")).toBe(false);
   });
 
-  it("uses submitted lead copy when the draft is already submitted", () => {
+  it("uses submitted lead copy when the architecture draft is already submitted", () => {
     expect(ARCHITECTURE_DRAFT_INTAKE_MODE_TITLE).toBe("This architecture is already in review intake");
     expect(architectureDraftIntakeModeLead("Admitted")).toBe(ARCHITECTURE_DRAFT_INTAKE_MODE_LEAD);
     expect(architectureDraftIntakeModeLead("Submitted")).toContain("already started a review");

@@ -1,3 +1,6 @@
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 export const RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID = "recurrence-schedules-primary-content" as const;
 
 export const RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID = "recurrence-schedules-first-viewport" as const;
@@ -7,8 +10,12 @@ export const RECURRENCE_SCHEDULES_SKIP_TARGET_ID = RECURRENCE_SCHEDULES_PRIMARY_
 export const RECURRENCE_SCHEDULES_SKIP_LINK_LABEL = "Skip to recurrence schedules" as const;
 
 /** Buyer-facing copy for `/governance/recurrence-schedules` (GRX). */
-export const RECURRENCE_SCHEDULES_PAGE_LEAD =
-  "Define when architecture reviews repeat for an identity — ArchLucid clones the source review when each schedule comes due.";
+export function recurrenceSchedulesPageLead(productLineId: ProductLineId): string {
+  return `Define when architecture reviews repeat for an identity — ${productLineDisplayName(productLineId)} clones the source review when each schedule comes due.`;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const RECURRENCE_SCHEDULES_PAGE_LEAD = recurrenceSchedulesPageLead("architecture");
 
 export const RECURRENCE_SCHEDULES_BUYER_START_HERE_HELPER =
   "Pick a review to scope create and edit actions, then enable a schedule or open architecture reviews when cadence setup needs package context.";

@@ -47,6 +47,18 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
     expect(rows.some((row) => row.group.id === "operator-system-admin")).toBe(false);
   });
 
+  it("returns operate-compliance when a SecureNow compliance route is active", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, 3, "all", true, false, {
+      productLine: "security",
+      showVendorInternalNav: true,
+    });
+
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/compliance/policy-packs")).toEqual([
+      "operate-compliance",
+    ]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/compliance/findings")).toEqual(["operate-compliance"]);
+  });
+
   it("returns governance when a governance child route is active", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, 3, "all", true);
 

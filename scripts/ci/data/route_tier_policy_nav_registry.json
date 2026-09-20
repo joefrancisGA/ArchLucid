@@ -1632,6 +1632,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "InfraEvidence/InfraEvidenceOperatorInferredConnectionsController.cs",
+      "class_name": "InfraEvidenceOperatorInferredConnectionsController",
+      "route_template": "v{version:apiVersion}/infra-evidence/snapshots/{snapshotId:guid}/operator-inferred-connections",
+      "normalized_prefix": "/v1/infra-evidence/snapshots/{snapshotId:guid}/operator-inferred-connections",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "InfraEvidence/InfraEvidenceSnapshotsController.cs",
       "class_name": "InfraEvidenceSnapshotsController",
       "route_template": "v{version:apiVersion}/infra-evidence/snapshots",
@@ -1950,6 +1960,26 @@
       "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
+    },
+    {
+      "controller_file": "OperationalSecurity/OperationalSecurityAssetAssertionsController.cs",
+      "class_name": "OperationalSecurityAssetAssertionsController",
+      "route_template": "v{version:apiVersion}/operational-security/asset-assertions",
+      "normalized_prefix": "/v1/operational-security/asset-assertions",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "OperationalSecurity/OperationalSecurityDeclaredConnectionsController.cs",
+      "class_name": "OperationalSecurityDeclaredConnectionsController",
+      "route_template": "v{version:apiVersion}/operational-security/declared-connections",
+      "normalized_prefix": "/v1/operational-security/declared-connections",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/governance/infrastructure/declared-connections"
     },
     {
       "controller_file": "OperationalSecurity/OperationalSecurityFindingsController.cs",

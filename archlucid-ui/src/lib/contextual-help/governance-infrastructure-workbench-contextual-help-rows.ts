@@ -6,7 +6,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD,
@@ -18,9 +20,15 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_REMEDIATION_INSTANCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
-  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
@@ -47,7 +55,7 @@ const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CONTEXTUAL_HELP = {
     href: `${CLOUD_CONNECTIONS_PATH}/azure`,
   },
   taskSteps: [
-    "Apply work-queue filters — snapshot context on links preserves hub scope but does not filter the list.",
+    "Apply work-queue filters, then open a resource hub or Ask from a row.",
     "Open a resource evidence hub for drift, findings, remediation, diagram correspondence, Terraform, and audit lineage.",
     "Copy assessment, snapshot, and control IDs when audit lineage lookup needs inventory-linked evidence.",
   ],
@@ -99,9 +107,9 @@ const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTEXTUAL_HELP = {
 } as const;
 
 const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP = {
-  whatIsThisPage: `Inventory diagrams — ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}`,
+  whatIsThisPage: `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE} — ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}`,
   whatToDoNext:
-    "Select a snapshot and a diagram mode. To inspect one resource and its neighbors, choose Focus neighborhood on a Nodes row, then export PNG when procurement needs a shareable image.",
+    "Choose a snapshot first. The Executive diagram then renders automatically. To inspect one resource and its neighbors, choose Focus neighborhood on a Nodes row, then export PNG when procurement needs a shareable image.",
   whyEmpty: "Diagram renders appear after inventory snapshots exist for your scope.",
   whereToConfigurePrerequisite:
     "Connect Azure or upload inventory with extract and upload before diagram renders are available.",
@@ -114,7 +122,7 @@ const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP = {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   },
   taskSteps: [
-    "Wait for or select an inventory snapshot before rendering.",
+    "Choose an inventory snapshot. The Executive diagram then renders automatically.",
     "Choose Focus neighborhood on a Nodes row to start Dependency neighborhood from that resource.",
     "Export server PNG only after confirming the snapshot scope matches buyer questions.",
   ],
@@ -128,7 +136,7 @@ const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CONTEXTUAL_HELP = {
   whereToConfigurePrerequisite:
     "Connect Azure or upload inventory, and ingest a diagram with authority, before reconciliation runs.",
   whatToDoNextAction: {
-    label: "Open inventory diagrams",
+    label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   },
   whereToConfigureAction: {
@@ -138,7 +146,7 @@ const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CONTEXTUAL_HELP = {
   taskSteps: [
     "Pick a snapshot and ingested diagram — correspondence is deterministic, not a sealed review record.",
     "Review explainable rows; AI rationale appears only on Possible or Unknown matches.",
-    "Return to inventory diagrams or a resource hub when scope needs narrowing.",
+    "Return to diagrams or a resource hub when scope needs narrowing.",
   ],
 } as const;
 
@@ -187,9 +195,9 @@ const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CONTEXTUAL_HELP = {
 
 const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Extract and upload — run the read-only Azure extractor locally, validate the ZIP, then upload inventory for SecureNow inventory workbenches and ARC-AMPE scans.",
+    "Extract and upload — schedule a customer-owned inventory agent or run a one-time packager, then upload inventory for SecureNow inventory workbenches and ARC-AMPE scans.",
   whatToDoNext:
-    "Copy the quick-start extractor command, upload a validated inventory ZIP, then open the resource explorer or drift workbench.",
+    "Set up scheduled collection, or copy the one-time packager command, upload a validated inventory ZIP, then open the resource explorer or drift workbench.",
   whyEmpty:
     "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
   whereToConfigurePrerequisite:
@@ -203,22 +211,40 @@ const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_CONTEXTUAL_HELP = {
     href: GOVERNANCE_POLICY_PACKS_PATH,
   },
   taskSteps: [
-    "Copy the quick-start extractor command and run it locally — read-only, no vendor credentials in your subscription.",
+    "Schedule a customer-owned agent, or copy the one-time packager command and run it locally — read-only, no vendor credentials in your subscription.",
     "Upload a validated securenow-azure-package.zip inventory ZIP.",
     "Open resource explorer or drift when the upload completes.",
   ],
 } as const;
 
 const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PREFIX = `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/` as const;
+const SECURENOW_INFRASTRUCTURE_RESOURCE_HUB_PREFIX = `${SECURENOW_INFRASTRUCTURE_RESOURCES_PATH}/` as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_WORKBENCH_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+    entry: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_CONTEXTUAL_HELP,
+  },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
     entry: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_CONTEXTUAL_HELP,
   },
   {
+    prefix: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    entry: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CONTEXTUAL_HELP,
+  },
+  {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
     entry: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_RESOURCE_HUB_PREFIX,
+    entry: GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+    exactPathOnly: true,
+    entry: GOVERNANCE_INFRASTRUCTURE_RESOURCES_CONTEXTUAL_HELP,
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PREFIX,
@@ -228,6 +254,10 @@ export const GOVERNANCE_INFRASTRUCTURE_WORKBENCH_CONTEXTUAL_HELP_ROWS: readonly 
     prefix: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
     exactPathOnly: true,
     entry: GOVERNANCE_INFRASTRUCTURE_RESOURCES_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+    entry: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTEXTUAL_HELP,
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
@@ -242,11 +272,19 @@ export const GOVERNANCE_INFRASTRUCTURE_WORKBENCH_CONTEXTUAL_HELP_ROWS: readonly 
     entry: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP,
   },
   {
+    prefix: SECURENOW_INFRASTRUCTURE_ASK_PATH,
+    entry: GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXTUAL_HELP,
+  },
+  {
     prefix: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
     entry: GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXTUAL_HELP,
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    entry: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: SECURENOW_REMEDIATION_INSTANCES_PATH,
     entry: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CONTEXTUAL_HELP,
   },
 ];

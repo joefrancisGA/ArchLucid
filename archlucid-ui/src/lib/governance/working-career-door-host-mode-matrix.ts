@@ -112,7 +112,7 @@ export function resolveWorkingCareerDoorHostModeMatrixCell(
       effectiveDoor,
       isCareerExecuteBlocked: false,
       labelAsRehearsal: true,
-      showStatusTag: true,
+      showStatusTag: false,
       statusTagKind: "needs-attention",
       statusLabel: WORKING_CAREER_DOOR_HOST_MODE_MATRIX_REHEARSAL_REAL_PRACTICE_LABEL,
       detail: WORKING_CAREER_DOOR_HOST_MODE_MATRIX_REHEARSAL_REAL_PRACTICE_DETAIL,

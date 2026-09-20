@@ -104,7 +104,7 @@ function architectureDraftEntryIsVisibleToActor(
   return visibleArchitectureIds.has(resolvedArchitectureId);
 }
 
-/** CA-42: draft title hits labeled separately from identity desks — never searches draft document bodies. */
+/** CA-42: draft title hits labeled separately from identity desks — never searches architecture draft document bodies. */
 export function filterGlobalSearchArchitectureDraftHits(
   entries: readonly ArchitectureDraftRegistryEntry[],
   search: string,

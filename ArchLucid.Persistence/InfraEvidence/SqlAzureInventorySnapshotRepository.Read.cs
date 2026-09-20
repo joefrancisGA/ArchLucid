@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
@@ -115,7 +116,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     new { scope.TenantId, SnapshotId = snapshotId },
                     cancellationToken: cancellationToken));
 
-        return new AzureInventorySnapshotDetailReadModel
+        return AzureInventoryVisibleSnapshotProjection.Apply(new AzureInventorySnapshotDetailReadModel
         {
             Header = header,
             Resources = resources.ToList(),
@@ -134,7 +135,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             RoleAssignments = roleAssignments.ToList(),
             Diagnostics = diagnostics.ToList(),
             DefenderSummaries = defenderSummaries.ToList(),
-        };
+        });
     }
 
     private sealed class RelationshipRow

@@ -59,4 +59,22 @@ public class DiagramNode
         get;
         set;
     }
+
+    /// <summary>
+    ///     True when inventory shows a private endpoint reaching this resource (lock badge on forest canvases).
+    /// </summary>
+    public bool HasPrivateEndpointAccess
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Synthetic Executive rollup ("+N more …") kept in Mermaid for the Nodes outline, but omitted from painted canvases.
+    /// </summary>
+    public bool IsExecutiveOverflow
+    {
+        get;
+        set;
+    }
 }

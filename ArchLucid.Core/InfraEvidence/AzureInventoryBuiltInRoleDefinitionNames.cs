@@ -14,6 +14,7 @@ public static class AzureInventoryBuiltInRoleDefinitionNames
             ["2a2b9908-6ea1-4ae2-8e65-a410df84e7dd"] = "Storage Blob Data Reader",
             ["ba92f5b4-2d11-453d-a403-e96e00258736"] = "Storage Blob Data Contributor",
             ["46334506-40de-4032-8ed3-560375d397ba"] = "Key Vault Secrets User",
+            ["056bdf58-6d9f-44a1-9ea7-69a42ce89f30"] = "SQL DB Contributor",
         };
 
     public static string? TryResolveFromAssignment(JsonElement assignment, string roleDefinitionId)

@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { listPolicyPacks } from "@/lib/api";
+import { policyPacksHubPathFromPathname } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveNextPolicyPackInList } from "@/lib/resolve-next-policy-pack-in-list";
 import type { PolicyPack } from "@/types/policy-packs";
 
@@ -32,9 +34,10 @@ export function PolicyPackDetailNextPackFooterClient(
     void loadPacks();
   }, [loadPacks]);
 
+  const hubPath = policyPacksHubPathFromPathname(usePathname());
   const nextPack = useMemo(
-    () => resolveNextPolicyPackInList(packs, props.policyPackId, props.reviewId),
-    [packs, props.policyPackId, props.reviewId],
+    () => resolveNextPolicyPackInList(packs, props.policyPackId, props.reviewId, hubPath),
+    [hubPath, packs, props.policyPackId, props.reviewId],
   );
 
   if (nextPack === null) {

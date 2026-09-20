@@ -41,10 +41,13 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                             RelationshipCount = @RelationshipCount,
                                             CompletenessScore = @CompletenessScore,
                                             WarningCount = @WarningCount,
+                                            CompletenessWarningsJson = @CompletenessWarningsJson,
                                             ErrorCount = @ErrorCount,
                                             ContentHashSha256 = @ContentHashSha256,
                                             CaptureMethod = @CaptureMethod,
                                             CollectorVersion = @CollectorVersion,
+                                            SubscriptionId = COALESCE(SubscriptionId, @SubscriptionId),
+                                            SubscriptionName = COALESCE(SubscriptionName, @SubscriptionName),
                                             UpdatedUtc = @UpdatedUtc
                                         WHERE TenantId = @TenantId
                                             AND SnapshotId = @SnapshotId;
@@ -62,10 +65,13 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                         writeRequest.RelationshipCount,
                         writeRequest.CompletenessScore,
                         writeRequest.WarningCount,
+                        writeRequest.CompletenessWarningsJson,
                         writeRequest.ErrorCount,
                         writeRequest.ContentHashSha256,
                         CaptureMethod = (int)writeRequest.CaptureMethod,
                         writeRequest.CollectorVersion,
+                        writeRequest.SubscriptionId,
+                        writeRequest.SubscriptionName,
                         UpdatedUtc = utcNow,
                     },
                     transaction: tx,

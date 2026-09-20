@@ -126,7 +126,7 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
       <OperatorErrorRecoveryContract
         presentation={errorRecoveryContractForScenario("api-problem", {
           failureSummary: heading,
-          productLineId: productLine.id,
+          productLineId: productLine,
         })}
       />
       <OperatorErrorUiReferenceLine />

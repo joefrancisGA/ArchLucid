@@ -15,7 +15,7 @@ export type SystemGravityOutOfWaveResidualRow = {
 /** SG-082+ — explicit skips for wave 32 close audit; do not pretend shipped. */
 export const SYSTEM_GRAVITY_OUT_OF_WAVE_RESIDUAL_ROWS: readonly SystemGravityOutOfWaveResidualRow[] = [
   {
-    item: "Draft-to-draft Compare",
+    item: "Compare architecture drafts",
     tracking: "R12 rejected alternative / ADR 0092",
     ownerPrompt: "SG-082",
     status: "not-shipped",
@@ -26,7 +26,7 @@ export const SYSTEM_GRAVITY_OUT_OF_WAVE_RESIDUAL_ROWS: readonly SystemGravityOut
     tracking: "ADR 0092",
     ownerPrompt: "SG-111",
     status: "not-shipped",
-    notes: "Spawn-locked drafts are not a second Career editor.",
+    notes: "Spawn-locked architecture drafts are not a second Career editor.",
   },
   {
     item: "Live presence (avatars, cursors, occupancy)",

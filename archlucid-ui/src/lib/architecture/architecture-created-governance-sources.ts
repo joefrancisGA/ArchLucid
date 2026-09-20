@@ -49,7 +49,7 @@ export const ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD =
   "Review governance readiness for this architecture draft before you finalize the review package.";
 
 export const ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW =
-  "Governance panels below summarize readiness checks, policy alignment cues, and approval follow-ups for this draft scope.";
+  "Governance panels below summarize readiness checks, policy alignment cues, and approval follow-ups for this architecture draft scope.";
 
 /** Buyer bridge between first-viewport lead and governance workspace (REG). */
 export const ARCHITECTURE_CREATED_GOVERNANCE_BUYER_OVERVIEW = ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW;

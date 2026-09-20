@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 /** Relative to repository root (parent of archlucid-ui). */
@@ -174,6 +174,15 @@ function shouldSkipScannedFile(fileName: string): boolean {
   return false;
 }
 
+function isNodeErrno(error: unknown, code: string): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === code
+  );
+}
+
 function walkUiSourceFiles(directory: string, root: string, hits: string[]): void {
   const entries = readdirSync(directory);
 
@@ -183,10 +192,18 @@ function walkUiSourceFiles(directory: string, root: string, hits: string[]): voi
     }
 
     const fullPath = join(directory, name);
-    const stats = statSync(fullPath);
+    let source: string;
 
-    if (stats.isDirectory()) {
-      walkUiSourceFiles(fullPath, root, hits);
+    try {
+      // Local inventory of the UI source tree (CI/dev), not a user-controlled path.
+      // Prefer open/read over exists/stat then read (js/file-system-race).
+      // codeql[js/file-system-race]
+      source = readFileSync(fullPath, "utf8");
+    } catch (error: unknown) {
+      if (isNodeErrno(error, "EISDIR")) {
+        walkUiSourceFiles(fullPath, root, hits);
+      }
+
       continue;
     }
 
@@ -198,7 +215,6 @@ function walkUiSourceFiles(directory: string, root: string, hits: string[]): voi
       continue;
     }
 
-    const source = readFileSync(fullPath, "utf8");
     const isHit = CAREER_GRAVITY_UNLABELED_READY_SCAN_MARKERS.some((marker) =>
       source.includes(marker),
     );

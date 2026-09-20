@@ -90,7 +90,7 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
   });
 
-  it("lists Architectures as the draft inventory destination (LI-06)", () => {
+  it("lists Architectures as the architecture draft inventory destination (LI-06)", () => {
     const group = new PilotNavGroupBuilder().build();
     const architecturesLink = group.links.find((link) => link.href === ARCHITECTURES_LIST_PATH);
 

@@ -23,7 +23,7 @@ export const LOST_WRITE_MUTATION_ERROR_TOAST_INVENTORY: readonly LostWriteMutati
   {
     id: "architecture-draft-delete",
     sourceRoots: ["components/architecture/ArchitectureDraftDeleteControl.tsx"],
-    notes: "Abandon draft mutation failure.",
+    notes: "Abandon architecture draft mutation failure.",
   },
   {
     id: "architecture-share-grant",

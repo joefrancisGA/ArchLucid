@@ -23,7 +23,7 @@ import { ArchitecturesHubPageHeader } from "./ArchitecturesHubPageHeader";
 import { ArchitecturesHubWorkingAskBindEmptyStrip } from "./ArchitecturesHubWorkingAskBindEmptyStrip";
 import { ArchitecturesHubWorkingGraphBindEmptyStrip } from "./ArchitecturesHubWorkingGraphBindEmptyStrip";
 
-/** Shared `/architecture/architectures` layout — skip link, header, and draft inventory workspace (ARA). */
+/** Shared `/architecture/architectures` layout — skip link, header, and architecture draft inventory workspace (ARA). */
 export function ArchitecturesHubPageShell(): React.JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
   const evalChromeShell = useProductionEvalChrome();

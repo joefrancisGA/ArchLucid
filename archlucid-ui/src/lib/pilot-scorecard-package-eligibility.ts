@@ -5,7 +5,7 @@ import type { ManifestSummary } from "@/types/authority";
  * summary that is not a pre-finalize draft. `ManifestDocument.Metadata.Status` after commit is an evaluation outcome
  * (`Resolved` / `NeedsAttention`), not the run lifecycle label `Committed` — both must count as a finalized package.
  * Buyer/summary projections may also surface `Finalized`. Avoids advertising sponsor exports while the summary is
- * still a draft or while summary fetch failed.
+ * still an architecture draft or while summary fetch failed.
  */
 export function isManifestCommittedForPilotScorecardPackage(manifestSummary: ManifestSummary | null): boolean {
   if (manifestSummary === null) return false;

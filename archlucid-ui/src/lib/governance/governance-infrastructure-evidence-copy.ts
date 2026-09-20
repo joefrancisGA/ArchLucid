@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -132,7 +133,7 @@ export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES: readonly EvidenceSou
 ] as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES_INTRO =
-  "Use these surfaces when buyers need inventory diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
+  "Use these surfaces when buyers need diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
 
 /** Operator Sources for drift workbench (GOR). */
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
@@ -142,7 +143,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES: readonly EvidenceSourceLin
     when: "Open a resource hub to scope drift comparison to one cloud resource",
   },
   {
-    label: "Inventory diagrams",
+    label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     when: "Inspect diagram views for the same snapshot before reviewing property drift",
   },
@@ -187,7 +188,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SOURCES: readonly EvidenceSource
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
-    label: "Inventory diagrams",
+    label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     when: "Export or inspect diagram views before uploading Mermaid for reconciliation",
   },
