@@ -80,7 +80,7 @@ const IN_FLIGHT_CANCEL_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {
 const REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "This review desk could not render.",
   whatIsIntact:
-    "The review package on the server is unchanged. Typed livelihood fields registered on this page may still restore after Retry when idle snapshots were preserved.",
+    "The architecture package on the server is unchanged. Typed livelihood fields registered on this page may still restore after Retry when idle snapshots were preserved.",
   nextStep:
     "Choose Retry to reload this review desk. Retry does not change execute posture or mark a practice run record-complete. Open reviews only if Retry keeps failing.",
 };

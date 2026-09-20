@@ -29,7 +29,7 @@ export const WORKING_PIPELINE_READY_TO_FINALIZE_TOOLTIP =
   "Analysis finished on a practice path. Finalize stays practice-incomplete unless structural execute is Real on the Record review type.";
 
 export const WORKING_PIPELINE_REHEARSAL_FINALIZED_TOOLTIP =
-  "A finalized review record exists, but this run is practice-incomplete — not sealed-record proof.";
+  "A finalized review record exists, but this review is practice-incomplete — not sealed-record proof.";
 
 export const WORKING_PIPELINE_CAREER_BLOCKED_FINALIZED_TOOLTIP =
   "A finalized review record exists on Simulator/Fallback — not a record-complete seal.";

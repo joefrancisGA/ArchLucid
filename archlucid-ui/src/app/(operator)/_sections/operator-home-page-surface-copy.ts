@@ -14,4 +14,4 @@ export const OPERATOR_HOME_PAGE_LEAD =
   "Resume active reviews, start new architecture work, and track recent results from your workspace home." as const;
 
 export const OPERATOR_HOME_BUYER_OVERVIEW =
-  "Use the workspace sections below to continue in-progress reviews or open completed results; follow-up links appear after your first committed review package." as const;
+  "Use the workspace sections below to continue in-progress reviews or open completed results; follow-up links appear after your first committed architecture package." as const;

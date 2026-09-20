@@ -56,7 +56,7 @@ export function HelpSealedVsDecisionRegisterGuideView(
           Sealed review record
         </h2>
         <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>
-          One finalized review package — manifest detail, exports, and findings for a single seal. Not a disposition
+          One finalized architecture package — manifest detail, exports, and findings for a single seal. Not a disposition
           ledger across the workspace.
         </p>
       </section>
