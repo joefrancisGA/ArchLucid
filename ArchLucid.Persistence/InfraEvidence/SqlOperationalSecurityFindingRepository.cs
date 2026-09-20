@@ -347,14 +347,13 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<OperationalSecurityFindingMetadataRecord> rows =
-            await conn.QueryAsync<OperationalSecurityFindingMetadataRecord>(
-                new CommandDefinition(
-                    sql,
-                    new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
-                    cancellationToken: cancellationToken));
+        IEnumerable<MetadataRow> rows = await conn.QueryAsync<MetadataRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
+                cancellationToken: cancellationToken));
 
-        return rows.ToList();
+        return rows.Select(MapMetadata).ToList();
     }
 
     public async Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingAsync(
