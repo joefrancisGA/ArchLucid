@@ -44,7 +44,12 @@ public sealed class SecurityAssetAssertionService(
                 utcNow,
                 cancellationToken);
 
-        if (existingActive is not null)
+        if (existingActive is not null
+            && SecureNowScopeGuard.Matches(
+                scope,
+                existingActive.TenantId,
+                existingActive.WorkspaceId,
+                existingActive.ProjectId))
         {
             return new SecurityAssetAssertionCreateResult
             {
@@ -129,7 +134,12 @@ public sealed class SecurityAssetAssertionService(
         SecurityAssetAssertionRecord? existing =
             await assertionRepository.TryGetByIdAsync(scope.TenantId, assertionId, cancellationToken);
 
-        if (existing is null)
+        if (existing is null
+            || !SecureNowScopeGuard.Matches(
+                scope,
+                existing.TenantId,
+                existing.WorkspaceId,
+                existing.ProjectId))
         {
             return new SecurityAssetAssertionRenewResult
             {
@@ -218,7 +228,12 @@ public sealed class SecurityAssetAssertionService(
         SecurityAssetAssertionRecord? existing =
             await assertionRepository.TryGetByIdAsync(scope.TenantId, assertionId, cancellationToken);
 
-        if (existing is null)
+        if (existing is null
+            || !SecureNowScopeGuard.Matches(
+                scope,
+                existing.TenantId,
+                existing.WorkspaceId,
+                existing.ProjectId))
         {
             return new SecurityAssetAssertionRevokeResult
             {
@@ -263,7 +278,16 @@ public sealed class SecurityAssetAssertionService(
 
         await SweepExpiredAsync(scope, cancellationToken);
 
-        return await assertionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        IReadOnlyList<SecurityAssetAssertionRecord> assertions =
+            await assertionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+
+        return assertions
+            .Where(assertion => SecureNowScopeGuard.Matches(
+                scope,
+                assertion.TenantId,
+                assertion.WorkspaceId,
+                assertion.ProjectId))
+            .ToList();
     }
 
     public async Task<SecurityAssetAssertionExpirySweepResult> SweepExpiredAsync(
@@ -345,7 +369,9 @@ public sealed class SecurityAssetAssertionService(
 
         int created = 0;
 
-        foreach (OperationalSecurityFindingRecord finding in findings)
+        foreach (OperationalSecurityFindingRecord finding in findings.Where(finding =>
+                     finding.WorkspaceId == expired.WorkspaceId
+                     && finding.ProjectId == expired.ProjectId))
         {
             IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
                 await findingRepository.ListObservationsByFindingAsync(tenantId, finding.FindingId, cancellationToken);
