@@ -164,7 +164,9 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
                 analysisContext);
         }
 
-        IFindingEngine[] engines = CreateEngines(graphSnapshotRepository);
+        IFindingEngine[] engines = CreateEngines(
+            graphSnapshotRepository,
+            includeCrossRunDiffEngines: priorGraphFixture is not null);
         FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
         FileComplianceRulePackProvider defaultComplianceProvider = new(complianceLoader);
         ArchLucid.Decisioning.Compliance.Loaders.IComplianceRulePackProvider effectfulRulePackProvider = assignedPackFixture is null
@@ -293,7 +295,9 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         return (azureRepository, cloudRepository, analysisContext);
     }
 
-    private IFindingEngine[] CreateEngines(IGraphSnapshotRepository graphSnapshotRepository)
+    private IFindingEngine[] CreateEngines(
+        IGraphSnapshotRepository graphSnapshotRepository,
+        bool includeCrossRunDiffEngines = false)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
 
@@ -305,7 +309,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
 
         // WK-06 actor slice: ExternalExposure was already in the prior 14-engine set;
         // TrustBoundary + PrivilegedAccess join it. Policy-filtered packs stay in sibling tests (WK-22).
-        return
+        List<IFindingEngine> engines =
         [
             new RequirementFindingEngine(),
             new RequirementGapFindingEngine(),
@@ -336,6 +340,14 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new TopologyAntiPatternFindingEngine(),
             new TopologySecurityDriftFindingEngine(graphSnapshotRepository, _scopeContextProvider),
         ];
+
+        if (includeCrossRunDiffEngines)
+        {
+            engines.Add(new RequirementCrossRunDiffFindingEngine(graphSnapshotRepository, _scopeContextProvider));
+            engines.Add(new TopologyCrossRunDiffFindingEngine(graphSnapshotRepository, _scopeContextProvider));
+        }
+
+        return engines.ToArray();
     }
 
     private GoldenCorpusMergeSummary RunMerge(GoldenCorpusMergeInput merge)
