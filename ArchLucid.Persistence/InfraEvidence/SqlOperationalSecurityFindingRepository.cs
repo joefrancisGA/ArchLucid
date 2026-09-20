@@ -50,6 +50,51 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         return row is null ? null : MapFinding(row);
     }
 
+    public async Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CloudProvider provider,
+        string sourceSystem,
+        string sourceFindingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+                                  CloudResourceId, ExternalResourceId, ResourceType, SubscriptionOrAccountId,
+                                  ControlId, ControlFramework, Title, Description, Severity, RiskScore,
+                                  Exploitability, Exposure, BusinessCriticality, BlastRadius,
+                                  FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
+                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
+                                  PayloadHashSha256, CreatedUtc, UpdatedUtc
+                           FROM dbo.OperationalSecurityFindings
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Provider = @Provider
+                             AND SourceSystem = @SourceSystem
+                             AND SourceFindingId = @SourceFindingId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        FindingRow? row = await conn.QuerySingleOrDefaultAsync<FindingRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    Provider = (int)provider,
+                    SourceSystem = sourceSystem,
+                    SourceFindingId = sourceFindingId,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : MapFinding(row);
+    }
+
     public async Task<OperationalSecurityFindingRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid findingId,
@@ -73,6 +118,45 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, FindingId = findingId },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : MapFinding(row);
+    }
+
+    public async Task<OperationalSecurityFindingRecord?> TryGetByIdInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+                                  CloudResourceId, ExternalResourceId, ResourceType, SubscriptionOrAccountId,
+                                  ControlId, ControlFramework, Title, Description, Severity, RiskScore,
+                                  Exploitability, Exposure, BusinessCriticality, BlastRadius,
+                                  FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
+                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
+                                  PayloadHashSha256, CreatedUtc, UpdatedUtc
+                           FROM dbo.OperationalSecurityFindings
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND FindingId = @FindingId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        FindingRow? row = await conn.QuerySingleOrDefaultAsync<FindingRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    FindingId = findingId,
+                },
                 cancellationToken: cancellationToken));
 
         return row is null ? null : MapFinding(row);
