@@ -184,10 +184,9 @@ public sealed class OperatorInferredConnectionServiceTests
     [Fact]
     public async Task ConfirmAsync_foreign_project_connection_returns_not_found()
     {
-        OperatorInferredConnectionRecord foreign = CreateRecord(OperatorInferredConnectionSource.Questionnaire) with
-        {
-            ProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-        };
+        OperatorInferredConnectionRecord foreign = CreateRecord(
+            OperatorInferredConnectionSource.Questionnaire,
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"));
 
         Mock<IOperatorInferredConnectionRepository> connectionRepository = new();
         connectionRepository
@@ -289,13 +288,15 @@ public sealed class OperatorInferredConnectionServiceTests
         return repository;
     }
 
-    private static OperatorInferredConnectionRecord CreateRecord(OperatorInferredConnectionSource source) =>
+    private static OperatorInferredConnectionRecord CreateRecord(
+        OperatorInferredConnectionSource source,
+        Guid? projectId = null) =>
         new()
         {
             ConnectionId = Guid.NewGuid(),
             TenantId = Scope.TenantId,
             WorkspaceId = Scope.WorkspaceId,
-            ProjectId = Scope.ProjectId,
+            ProjectId = projectId ?? Scope.ProjectId,
             SnapshotId = SnapshotId,
             Status = OperatorInferredConnectionStatus.Proposed,
             Source = source,
