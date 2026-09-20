@@ -1773,6 +1773,64 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "committed", out JsonElement committed)
+                || TryGetPropertyIgnoreCase(res, "committed", out committed))
+            && (committed.ValueKind == JsonValueKind.True || committed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.committed"] = committed.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "failed", out JsonElement failed)
+                || TryGetPropertyIgnoreCase(res, "failed", out failed))
+            && (failed.ValueKind == JsonValueKind.True || failed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.failed"] = failed.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "message", out JsonElement message)
+                || TryGetPropertyIgnoreCase(res, "message", out message))
+            && message.ValueKind == JsonValueKind.String)
+        {
+            string? messageText = message.GetString();
+
+            if (!string.IsNullOrWhiteSpace(messageText))
+                properties["tf.message"] = messageText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "listeners", out JsonElement listenersEl)
+            || TryGetPropertyIgnoreCase(res, "listeners", out listenersEl))
+        {
+            List<string> listenersFields = [];
+
+            if (listenersEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in listenersEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        listenersFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (listenersEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = listenersEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    listenersFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (listenersFields.Count > 0)
+            {
+                string joined = string.Join('|', listenersFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.listeners"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
