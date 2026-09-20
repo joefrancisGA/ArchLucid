@@ -763,6 +763,11 @@ function Ensure-ArchLucidAzureSubscriptionSession
         return
     }
 
+    if ($env:ARCHLUCID_EXTRACTOR_SKIP_MODULE_PREFLIGHT -eq '1')
+    {
+        return
+    }
+
     [string]$trimmedSubscriptionId = Get-ArchLucidAzureSubscriptionGuid -SubscriptionId $SubscriptionId
     [string]$trimmedTenantId = "$TenantId".Trim()
 
