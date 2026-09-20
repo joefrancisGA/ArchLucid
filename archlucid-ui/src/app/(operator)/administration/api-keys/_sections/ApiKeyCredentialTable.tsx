@@ -4,7 +4,6 @@ import {
   API_KEYS_TABLE_COLUMN_ACTIONS,
   API_KEYS_TABLE_COLUMN_CREATED,
   API_KEYS_TABLE_COLUMN_EXPIRES,
-  API_KEYS_TABLE_COLUMN_LAST_USED,
   API_KEYS_TABLE_COLUMN_NAME,
   API_KEYS_TABLE_COLUMN_PERMISSION,
   API_KEYS_TABLE_COLUMN_STATUS,
@@ -50,7 +49,7 @@ function formatExpiresLabel(expiresAtUtc: string | null | undefined): string {
   return expiresAtUtc;
 }
 
-function formatCreatedLabel(slotStatus: ApiKeySlotStatusDto | undefined): string {
+function formatConfigurationLabel(slotStatus: ApiKeySlotStatusDto | undefined): string {
   if (slotStatus?.isConfigured === true) {
     return "Configured";
   }
@@ -108,7 +107,6 @@ export function ApiKeyCredentialTable(props: ApiKeyCredentialTableProps): React.
           <EnterpriseTableHeaderCell>{API_KEYS_TABLE_COLUMN_NAME}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{API_KEYS_TABLE_COLUMN_PERMISSION}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{API_KEYS_TABLE_COLUMN_CREATED}</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>{API_KEYS_TABLE_COLUMN_LAST_USED}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{API_KEYS_TABLE_COLUMN_EXPIRES}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{API_KEYS_TABLE_COLUMN_STATUS}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{API_KEYS_TABLE_COLUMN_ACTIONS}</EnterpriseTableHeaderCell>
@@ -130,8 +128,7 @@ export function ApiKeyCredentialTable(props: ApiKeyCredentialTableProps): React.
               </div>
             </EnterpriseTableCell>
             <EnterpriseTableCell>{row.permissionLabel}</EnterpriseTableCell>
-            <EnterpriseTableCell>{formatCreatedLabel(row.slotStatus)}</EnterpriseTableCell>
-            <EnterpriseTableCell>—</EnterpriseTableCell>
+            <EnterpriseTableCell>{formatConfigurationLabel(row.slotStatus)}</EnterpriseTableCell>
             <EnterpriseTableCell>{formatExpiresLabel(row.slotStatus?.expiresAtUtc)}</EnterpriseTableCell>
             <EnterpriseTableCell>{row.statusLabel}</EnterpriseTableCell>
             <EnterpriseTableCell>{renderRowActions(row, props)}</EnterpriseTableCell>

@@ -37,14 +37,20 @@ public sealed class SecurityAssetAssertionService(
             };
         }
 
-        SecurityAssetAssertionRecord? existingActive =
-            await assertionRepository.TryGetActiveByCloudResourceIdAsync(
-                scope.TenantId,
-                request.CloudResourceId,
-                utcNow,
-                cancellationToken);
+        IReadOnlyList<SecurityAssetAssertionRecord> tenantAssertions =
+            await assertionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
 
-        if (existingActive is not null)
+        bool existingActive = tenantAssertions.Any(assertion =>
+            SecureNowScopeGuard.Matches(
+                scope,
+                assertion.TenantId,
+                assertion.WorkspaceId,
+                assertion.ProjectId)
+            && assertion.CloudResourceId == request.CloudResourceId
+            && assertion.Status == SecurityAssetAssertionStatus.Active
+            && assertion.ExpirationUtc > utcNow);
+
+        if (existingActive)
         {
             return new SecurityAssetAssertionCreateResult
             {
@@ -129,7 +135,12 @@ public sealed class SecurityAssetAssertionService(
         SecurityAssetAssertionRecord? existing =
             await assertionRepository.TryGetByIdAsync(scope.TenantId, assertionId, cancellationToken);
 
-        if (existing is null)
+        if (existing is null
+            || !SecureNowScopeGuard.Matches(
+                scope,
+                existing.TenantId,
+                existing.WorkspaceId,
+                existing.ProjectId))
         {
             return new SecurityAssetAssertionRenewResult
             {
@@ -218,7 +229,12 @@ public sealed class SecurityAssetAssertionService(
         SecurityAssetAssertionRecord? existing =
             await assertionRepository.TryGetByIdAsync(scope.TenantId, assertionId, cancellationToken);
 
-        if (existing is null)
+        if (existing is null
+            || !SecureNowScopeGuard.Matches(
+                scope,
+                existing.TenantId,
+                existing.WorkspaceId,
+                existing.ProjectId))
         {
             return new SecurityAssetAssertionRevokeResult
             {
@@ -263,7 +279,16 @@ public sealed class SecurityAssetAssertionService(
 
         await SweepExpiredAsync(scope, cancellationToken);
 
-        return await assertionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        IReadOnlyList<SecurityAssetAssertionRecord> assertions =
+            await assertionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+
+        return assertions
+            .Where(assertion => SecureNowScopeGuard.Matches(
+                scope,
+                assertion.TenantId,
+                assertion.WorkspaceId,
+                assertion.ProjectId))
+            .ToList();
     }
 
     public async Task<SecurityAssetAssertionExpirySweepResult> SweepExpiredAsync(
@@ -345,7 +370,9 @@ public sealed class SecurityAssetAssertionService(
 
         int created = 0;
 
-        foreach (OperationalSecurityFindingRecord finding in findings)
+        foreach (OperationalSecurityFindingRecord finding in findings.Where(finding =>
+                     finding.WorkspaceId == expired.WorkspaceId
+                     && finding.ProjectId == expired.ProjectId))
         {
             IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
                 await findingRepository.ListObservationsByFindingAsync(tenantId, finding.FindingId, cancellationToken);
@@ -423,6 +450,7 @@ public sealed class SecurityAssetAssertionService(
             AssessmentId = source.AssessmentId,
             InventoryDiffId = source.InventoryDiffId,
             AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
             PayloadHashSha256 = source.PayloadHashSha256,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = utcNow,

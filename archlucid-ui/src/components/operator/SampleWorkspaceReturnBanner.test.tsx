@@ -26,6 +26,12 @@ vi.mock("@/lib/operator/operator-scope-bootstrap", () => ({
   returnToDedicatedWorkspaceFromSample,
 }));
 
+const setUserFirstSessionPurposeMock = vi.hoisted(() => vi.fn(async () => undefined));
+
+vi.mock("@/lib/api/user-preferences", () => ({
+  setUserFirstSessionPurpose: (...args: unknown[]) => setUserFirstSessionPurposeMock(...args),
+}));
+
 import { SampleWorkspaceReturnBanner } from "@/components/operator/SampleWorkspaceReturnBanner";
 import { BUYER_SCOPE_BACK_TO_YOUR_WORKSPACE_CTA } from "@/lib/buyer/buyer-polish-copy";
 
@@ -34,6 +40,7 @@ describe("SampleWorkspaceReturnBanner", () => {
     sampleSessionMock.isSample = true;
     sampleSessionMock.visitActive = true;
     returnToDedicatedWorkspaceFromSample.mockClear();
+    setUserFirstSessionPurposeMock.mockClear();
     routerMock.replace.mockClear();
     routerMock.refresh.mockClear();
   });
@@ -53,6 +60,7 @@ describe("SampleWorkspaceReturnBanner", () => {
     expect(returnToDedicatedWorkspaceFromSample).toHaveBeenCalledTimes(1);
     expect(routerMock.replace).toHaveBeenCalledWith("/");
     expect(routerMock.refresh).toHaveBeenCalledTimes(1);
+    expect(setUserFirstSessionPurposeMock).toHaveBeenCalledWith("live");
   });
 
   it("hides_when_sample_visit_is_not_active", () => {

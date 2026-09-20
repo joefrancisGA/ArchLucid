@@ -92,6 +92,18 @@ export const SECURENOW_INTEGRATION_NAV_HREFS: readonly string[] = [
   INTEGRATIONS_TEAMS_PATH,
 ];
 
+/** SecureNow sidebar — infrastructure evidence destinations in display order. Terraform mapping is last. */
+export const SECURENOW_INFRASTRUCTURE_NAV_HREFS: readonly string[] = [
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+];
+
 function collectNavLinks(rows: readonly ProductLineNavGroupRow[]): Map<string, NavLinkItem> {
   const linksByHref = new Map<string, NavLinkItem>();
 
@@ -186,38 +198,6 @@ function remapSecureNowSecurityNavLink(link: NavLinkItem): NavLinkItem {
   };
 }
 
-function excludeRemediationInstancesFromInfrastructureLinks(links: readonly NavLinkItem[]): NavLinkItem[] {
-  return links.filter((link) => link.href !== GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH);
-}
-
-/** SecureNow Infrastructure sidebar — diagrams before advisory Terraform mapping. */
-const SECURENOW_INFRASTRUCTURE_NAV_ORDER_AFTER_DRIFT: readonly string[] = [
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
-  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
-];
-
-function reorderSecureNowInfrastructureNavLinks(links: readonly NavLinkItem[]): NavLinkItem[] {
-  const driftIndex = links.findIndex((link) => link.href === GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH);
-
-  if (driftIndex < 0) {
-    return [...links];
-  }
-
-  const beforeDrift = links.slice(0, driftIndex + 1);
-  const afterDrift = links.slice(driftIndex + 1);
-  const prioritized = SECURENOW_INFRASTRUCTURE_NAV_ORDER_AFTER_DRIFT.flatMap((href) => {
-    const link = afterDrift.find((candidate) => candidate.href === href);
-
-    return link !== undefined ? [link] : [];
-  });
-  const remaining = afterDrift.filter(
-    (link) => !SECURENOW_INFRASTRUCTURE_NAV_ORDER_AFTER_DRIFT.includes(link.href),
-  );
-
-  return [...beforeDrift, ...prioritized, ...remaining];
-}
-
 function remapSecureNowInfrastructureNavLink(link: NavLinkItem): NavLinkItem {
   const remappedHref = SECURENOW_INFRASTRUCTURE_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
 
@@ -308,9 +288,9 @@ export function reshapeNavGroupsForSecureNow(
     );
   }
 
-  const infrastructureLinks = reorderSecureNowInfrastructureNavLinks(
-    excludeRemediationInstancesFromInfrastructureLinks(infrastructureRow.visibleLinks),
-  ).map(remapSecureNowInfrastructureNavLink);
+  const infrastructureLinks = pickNavLinks(linksByHref, SECURENOW_INFRASTRUCTURE_NAV_HREFS).map(
+    remapSecureNowInfrastructureNavLink,
+  );
 
   reshaped.push({
     ...infrastructureRow,
@@ -318,9 +298,7 @@ export function reshapeNavGroupsForSecureNow(
       ...infrastructureRow.group,
       caption:
         "Explore Azure inventory snapshots, diagrams, resource evidence, and grounded Ask.",
-      links: reorderSecureNowInfrastructureNavLinks(
-        excludeRemediationInstancesFromInfrastructureLinks(infrastructureRow.group.links),
-      ).map(remapSecureNowInfrastructureNavLink),
+      links: infrastructureLinks,
     },
     visibleLinks: infrastructureLinks,
   });

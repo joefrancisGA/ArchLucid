@@ -116,7 +116,16 @@ describe("ApiKeysSettingsPageClient", () => {
     });
 
     expect(screen.getByText("Copy this key now. ArchLucid will not show it again.")).toBeInTheDocument();
-    expect(screen.getByText("Admin key rotated")).toBeInTheDocument();
+    expect(
+      screen.getByText("Admin key rotation material issued — deploy the replacement value to complete rotation."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Admin key rotated")).not.toBeInTheDocument();
+    expect(screen.getByText("Rotation material issued")).toBeInTheDocument();
+    expect(screen.getByText("This session's key events")).toBeInTheDocument();
+    expect(screen.getByText("Rotation material issued this session")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Configuration" })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Created" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Last used" })).not.toBeInTheDocument();
   });
 
   it("shows restricted state when surface is disabled", () => {

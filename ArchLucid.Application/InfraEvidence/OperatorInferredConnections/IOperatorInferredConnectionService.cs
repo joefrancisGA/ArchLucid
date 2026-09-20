@@ -10,6 +10,11 @@ public interface IOperatorInferredConnectionService
         Guid snapshotId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperatorInferredConnectionRecord>> ListQuestionnaireBySnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
     Task<OperatorInferredConnectionMutationResult> ConfirmAsync(
         ScopeContext scope,
         Guid snapshotId,

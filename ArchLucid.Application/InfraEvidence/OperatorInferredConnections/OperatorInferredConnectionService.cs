@@ -6,54 +6,78 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
 
 public sealed class OperatorInferredConnectionService(
     IOperatorInferredConnectionRepository connectionRepository,
     IAzureInventorySnapshotRepository snapshotRepository,
     IInferenceQuestionnaireItemGenerator questionnaireItemGenerator,
-    IAuditService auditService) : IOperatorInferredConnectionService
+    IAuditService auditService,
+    ILogger<OperatorInferredConnectionService> logger) : IOperatorInferredConnectionService
 {
     public async Task<IReadOnlyList<OperatorInferredConnectionRecord>> ListBySnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(scope);
+        // Upload proposals must list even when questionnaire generate/upsert fails.
+        IReadOnlyList<OperatorInferredConnectionRecord>? existing =
+            await TryListExistingInScopeAsync(scope, snapshotId, cancellationToken);
 
-        if (snapshotId == Guid.Empty)
+        return existing ?? [];
+    }
+
+    public async Task<IReadOnlyList<OperatorInferredConnectionRecord>> ListQuestionnaireBySnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperatorInferredConnectionRecord>? existing =
+            await TryListExistingInScopeAsync(scope, snapshotId, cancellationToken);
+
+        if (existing is null)
         {
             return [];
         }
-
-        AzureInventorySnapshotRecord? header =
-            await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
-
-        if (header is null || header.TenantId != scope.TenantId)
-        {
-            return [];
-        }
-
-        IReadOnlyList<OperatorInferredConnectionRecord> existing =
-            await connectionRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken);
 
         AzureInventorySnapshotDetailReadModel? snapshot =
             await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
 
         if (snapshot is null)
         {
-            return existing;
+            return QuestionnaireRows(existing);
         }
 
-        IReadOnlyList<OperatorInferredConnectionRecord> questionnaireProposals =
-            await questionnaireItemGenerator.GenerateAndPersistAsync(scope, snapshot, existing, cancellationToken);
-
-        if (questionnaireProposals.Count == 0)
+        try
         {
-            return existing;
+            IReadOnlyList<OperatorInferredConnectionRecord> generated =
+                await questionnaireItemGenerator.GenerateAndPersistAsync(
+                    scope,
+                    snapshot,
+                    existing,
+                    cancellationToken);
+
+            if (generated.Count == 0)
+            {
+                return QuestionnaireRows(existing);
+            }
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            logger.LogError(
+                exception,
+                "Failed to generate inference questionnaire items for snapshot {SnapshotId} in tenant {TenantId}.",
+                snapshotId,
+                scope.TenantId);
+            throw;
         }
 
-        return await connectionRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken);
+        IReadOnlyList<OperatorInferredConnectionRecord> refreshed =
+            await connectionRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken);
+
+        return QuestionnaireRows(refreshed);
     }
 
     public async Task<OperatorInferredConnectionMutationResult> ConfirmAsync(
@@ -72,7 +96,10 @@ public sealed class OperatorInferredConnectionService(
         }
 
         OperatorInferredConnectionRecord? record =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, request.ConnectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                request.ConnectionId,
+                cancellationToken);
 
         if (record is null || record.SnapshotId != snapshotId)
         {
@@ -133,7 +160,10 @@ public sealed class OperatorInferredConnectionService(
         }
 
         OperatorInferredConnectionRecord? record =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, request.ConnectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                request.ConnectionId,
+                cancellationToken);
 
         if (record is null || record.SnapshotId != snapshotId)
         {
@@ -204,6 +234,38 @@ public sealed class OperatorInferredConnectionService(
             },
             cancellationToken);
     }
+
+    private async Task<IReadOnlyList<OperatorInferredConnectionRecord>?> TryListExistingInScopeAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (snapshotId == Guid.Empty)
+        {
+            return null;
+        }
+
+        AzureInventorySnapshotRecord? header =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
+        if (header is null || header.TenantId != scope.TenantId)
+        {
+            return null;
+        }
+
+        IReadOnlyList<OperatorInferredConnectionRecord> existing =
+            await connectionRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken);
+
+        return existing ?? [];
+    }
+
+    private static IReadOnlyList<OperatorInferredConnectionRecord> QuestionnaireRows(
+        IReadOnlyList<OperatorInferredConnectionRecord> records) =>
+        records
+            .Where(record => record.Source == OperatorInferredConnectionSource.Questionnaire)
+            .ToList();
 
     private static OperatorInferredConnectionMutationResult Failed(string message) =>
         new() { Succeeded = false, ErrorMessage = message };

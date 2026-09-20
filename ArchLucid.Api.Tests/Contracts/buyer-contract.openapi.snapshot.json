@@ -35131,6 +35131,14 @@
         },
         "type": "object"
       },
+      "SetFirstSessionPurposeRequest": {
+        "properties": {
+          "purpose": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SetIanaTimeZonePreferenceRequest": {
         "properties": {
           "ianaTimeZoneId": {
@@ -40567,6 +40575,15 @@
             "type": "boolean"
           },
           "findingsShowLowConfidenceEnabledIsExplicit": {
+            "type": "boolean"
+          },
+          "firstSessionPurpose": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstSessionPurposeIsExplicit": {
             "type": "boolean"
           },
           "ianaTimeZoneId": {

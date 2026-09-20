@@ -1773,6 +1773,180 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "committed", out JsonElement committed)
+                || TryGetPropertyIgnoreCase(res, "committed", out committed))
+            && (committed.ValueKind == JsonValueKind.True || committed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.committed"] = committed.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "failed", out JsonElement failed)
+                || TryGetPropertyIgnoreCase(res, "failed", out failed))
+            && (failed.ValueKind == JsonValueKind.True || failed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.failed"] = failed.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "message", out JsonElement message)
+                || TryGetPropertyIgnoreCase(res, "message", out message))
+            && message.ValueKind == JsonValueKind.String)
+        {
+            string? messageText = message.GetString();
+
+            if (!string.IsNullOrWhiteSpace(messageText))
+                properties["tf.message"] = messageText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "listeners", out JsonElement listenersEl)
+            || TryGetPropertyIgnoreCase(res, "listeners", out listenersEl))
+        {
+            List<string> listenersFields = [];
+
+            if (listenersEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in listenersEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        listenersFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (listenersEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = listenersEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    listenersFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (listenersFields.Count > 0)
+            {
+                string joined = string.Join('|', listenersFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.listeners"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "isolated", out JsonElement isolated)
+                || TryGetPropertyIgnoreCase(res, "isolated", out isolated))
+            && (isolated.ValueKind == JsonValueKind.True || isolated.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.isolated"] = isolated.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "flagged", out JsonElement flagged)
+                || TryGetPropertyIgnoreCase(res, "flagged", out flagged))
+            && (flagged.ValueKind == JsonValueKind.True || flagged.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.flagged"] = flagged.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "status", out JsonElement status)
+                || TryGetPropertyIgnoreCase(res, "status", out status))
+            && status.ValueKind == JsonValueKind.String)
+        {
+            string? statusText = status.GetString();
+
+            if (!string.IsNullOrWhiteSpace(statusText))
+                properties["tf.status"] = statusText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "rules", out JsonElement rulesEl)
+            || TryGetPropertyIgnoreCase(res, "rules", out rulesEl))
+        {
+            List<string> rulesFields = [];
+
+            if (rulesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in rulesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        rulesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (rulesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = rulesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    rulesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (rulesFields.Count > 0)
+            {
+                string joined = string.Join('|', rulesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.rules"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "quarantined", out JsonElement quarantined)
+                || TryGetPropertyIgnoreCase(res, "quarantined", out quarantined))
+            && (quarantined.ValueKind == JsonValueKind.True || quarantined.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.quarantined"] = quarantined.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "rolling", out JsonElement rolling)
+                || TryGetPropertyIgnoreCase(res, "rolling", out rolling))
+            && (rolling.ValueKind == JsonValueKind.True || rolling.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.rolling"] = rolling.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "detail", out JsonElement detail)
+                || TryGetPropertyIgnoreCase(res, "detail", out detail))
+            && detail.ValueKind == JsonValueKind.String)
+        {
+            string? detailText = detail.GetString();
+
+            if (!string.IsNullOrWhiteSpace(detailText))
+                properties["tf.detail"] = detailText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "policies", out JsonElement policiesEl)
+            || TryGetPropertyIgnoreCase(res, "policies", out policiesEl))
+        {
+            List<string> policiesFields = [];
+
+            if (policiesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in policiesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        policiesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (policiesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = policiesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    policiesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (policiesFields.Count > 0)
+            {
+                string joined = string.Join('|', policiesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.policies"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);

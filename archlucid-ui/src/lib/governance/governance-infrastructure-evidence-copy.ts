@@ -13,7 +13,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE =
-  "These workbenches surface inventory evidence and advisory outputs — not sealed review records or official assurance materials. Confirm cloud connections and snapshot capture before trusting exports.";
+  "These workbenches surface inventory evidence and advisory outputs — not official compliance materials.";
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SOURCES_INTRO =
   "Use these surfaces when procurement asks for activity context, connector readiness, or assurance posture beyond inventory evidence.";

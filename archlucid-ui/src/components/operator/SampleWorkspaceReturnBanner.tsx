@@ -12,6 +12,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isSampleWorkspaceVisitActive } from "@/lib/operator/operator-sample-workspace-visit";
+import { setUserFirstSessionPurpose } from "@/lib/api/user-preferences";
 import { returnToDedicatedWorkspaceFromSample } from "@/lib/operator/operator-scope-bootstrap";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,7 @@ export function SampleWorkspaceReturnBanner(props: SampleWorkspaceReturnBannerPr
       return;
     }
 
+    void setUserFirstSessionPurpose("live");
     router.replace("/");
     router.refresh();
   }, [router]);

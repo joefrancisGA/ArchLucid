@@ -280,7 +280,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(scopeContext.textContent ?? "").not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
   });
 
-  it("defaults the subscription picker to All and filters snapshots when a subscription is chosen", async () => {
+  it("defaults the subscription picker to Select a subscription and filters snapshots when a subscription is chosen", async () => {
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
       items: [
         defaultSnapshotsResponse.items[0],
@@ -307,12 +307,12 @@ describe("DiagramsWorkbenchClient", () => {
     const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
     const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
 
-    expect(subscriptionPicker).toHaveValue("all");
+    expect(subscriptionPicker).toHaveValue("");
     expect(modePicker).toBeDisabled();
 
     const snapshotPicker = await screen.findByTestId("infra-diagrams-snapshot-picker");
 
-    expect(snapshotPicker.querySelectorAll("option")).toHaveLength(3);
+    expect(snapshotPicker).toBeDisabled();
 
     fireEvent.change(subscriptionPicker, { target: { value: "sub-dev" } });
 
@@ -327,7 +327,7 @@ describe("DiagramsWorkbenchClient", () => {
 
     const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
 
-    expect(subscriptionPicker).toHaveValue("all");
+    expect(subscriptionPicker).toHaveValue("");
     expect(await screen.findByTestId("infra-diagrams-subscription-prompt")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
 
@@ -516,6 +516,8 @@ describe("DiagramsWorkbenchClient", () => {
 
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
+
+    await selectDiagramsSubscription(subscriptionId);
 
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
     expect(picker).toHaveTextContent("889 resources");
@@ -1088,7 +1090,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-empty-content")).not.toBeInTheDocument();
   });
 
-  it("shows resource group cards when Pick a Resource Group is selected", async () => {
+  it("shows the resource group dropdown when the subscription has two or more resource groups", async () => {
     fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
       const mode = query.mode ?? "executive";
       const isPicker = mode === "resourceGroup";
@@ -1140,12 +1142,103 @@ describe("DiagramsWorkbenchClient", () => {
       };
     });
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    fetchInfraEvidenceMermaidPreviewMock.mockResolvedValue({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      modes: [
+        {
+          mode: "resourceGroup",
+          status: "Succeeded",
+          nodeCount: 0,
+          edgeCount: 0,
+          mermaid: null,
+          fallbackArtifacts: [
+            {
+              key: "resourceGroup:rg-net",
+              label: "rg-net",
+              status: "Succeeded",
+              nodeCount: 4,
+              edgeCount: 2,
+            },
+            {
+              key: "resourceGroup:rg-data",
+              label: "rg-data",
+              status: "Succeeded",
+              nodeCount: 2,
+              edgeCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+
+    searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
-    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
-      target: { value: "resourceGroup" },
+    await selectDiagramsSubscription("sub-1");
+
+    const resourceGroupPicker = await screen.findByTestId("infra-diagrams-resource-group-picker");
+
+    const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    fireEvent.change(picker, { target: { value: "11111111-1111-1111-1111-111111111111" } });
+
+    fireEvent.change(resourceGroupPicker, { target: { value: "rg-net" } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     });
+    expect(screen.queryByTestId("infra-diagrams-resource-group-cards")).not.toBeInTheDocument();
+  });
+
+  it("shows resource group cards when only one resource group exists and resource group mode is requested", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      const mode = query.mode ?? "executive";
+      const isPicker = mode === "resourceGroup";
+      const isNamedGroup = typeof mode === "string" && mode.startsWith("resourceGroup:");
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode,
+        fallbackKey: null,
+        status: "Succeeded",
+        mermaid: isNamedGroup ? "flowchart TD\n    %% al-type=Microsoft.Resources/resourceGroups al-rg=rg-net\n    n1[\"rg-net\"]" : "",
+        metrics: isNamedGroup
+          ? {
+              nodeCount: 4,
+              edgeCount: 2,
+              subgraphCount: 0,
+              maxDegree: 2,
+              crossSubgraphEdgeCount: 0,
+              textSizeBytes: 200,
+              layoutEstimate: 100,
+            }
+          : {
+              nodeCount: 0,
+              edgeCount: 0,
+              subgraphCount: 0,
+              maxDegree: 0,
+              crossSubgraphEdgeCount: 0,
+              textSizeBytes: 0,
+              layoutEstimate: 0,
+            },
+        fallbackArtifacts: isPicker || isNamedGroup
+          ? [
+              {
+                key: "resourceGroup:rg-net",
+                label: "rg-net",
+                status: "Succeeded",
+                nodeCount: 4,
+                edgeCount: 2,
+              },
+            ]
+          : [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=resourceGroup",
+    );
+    render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-resource-group-cards")).toBeInTheDocument();
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE)).toBeInTheDocument();

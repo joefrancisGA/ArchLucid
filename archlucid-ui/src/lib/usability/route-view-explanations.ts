@@ -113,7 +113,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     explanation: {
       title: "Ask review questions",
       summary:
-        "Ask natural-language questions about evidence, findings, and architecture decisions in a committed review package.",
+        "Ask natural-language questions about evidence, findings, and architecture decisions in a committed architecture package.",
       nextAction: "Select a review (or open one from review detail), then ask a focused question about findings or evidence.",
     },
   },
@@ -123,7 +123,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     explanation: {
       title: "Reviews",
       summary:
-        "Browse architecture review packages in this workspace — open one to triage findings, evidence, and approval status.",
+        "Browse architecture packages in this workspace — open one to triage findings, evidence, and approval status.",
       nextAction: "Open the review you need, or start a new review when you are ready to assess an architecture draft.",
     },
   },

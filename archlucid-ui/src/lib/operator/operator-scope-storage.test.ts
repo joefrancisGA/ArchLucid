@@ -54,6 +54,35 @@ describe("operator-scope-storage", () => {
     expect(h["x-project-id"]).toBe(DEV_SCOPE_PROJECT_ID);
   });
 
+  it("getEffectiveBrowserProxyScopeHeaders_ignoresStickyDemoStorageForSignedInUsersWithoutSampleVisit", () => {
+    const tenantId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const workspaceId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    const projectId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+
+    persistTokenResponse({
+      access_token: "signed-in-access-token",
+      token_type: "Bearer",
+      expires_in: 3600,
+    });
+    writeLastRegistrationPayloadForTests({
+      tenantId,
+      defaultWorkspaceId: workspaceId,
+      defaultProjectId: projectId,
+    });
+    writeOperatorScopeToStorage({
+      tenantId: DEV_SCOPE_TENANT_ID,
+      workspaceId: DEV_SCOPE_WORKSPACE_ID,
+      projectId: DEV_SCOPE_PROJECT_ID,
+      workspaceLabel: "Customer Intake Demo",
+      projectLabel: "Primary project",
+    });
+
+    const h = getEffectiveBrowserProxyScopeHeaders();
+
+    expect(h["x-workspace-id"]).toBe(workspaceId);
+    expect(h["x-workspace-id"]).not.toBe(DEV_SCOPE_WORKSPACE_ID);
+  });
+
   it("getEffectiveBrowserProxyScopeHeaders_prefersDedicatedRegistrationScopeForSignedInUsers", () => {
     const tenantId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
     const workspaceId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";

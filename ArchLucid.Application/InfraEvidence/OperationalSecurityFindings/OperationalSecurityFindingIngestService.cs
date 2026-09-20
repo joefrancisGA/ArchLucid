@@ -92,7 +92,10 @@ public sealed class OperationalSecurityFindingIngestService(
         }
 
         OperationalSecurityFindingRecord? finding =
-            await repository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+            await repository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                findingId,
+                cancellationToken);
 
         if (finding is null)
         {
@@ -140,8 +143,8 @@ public sealed class OperationalSecurityFindingIngestService(
             DateTime observedUtc = item.ObservedUtc ?? TimeProvider.System.UtcNowDateTime();
             byte[] payloadHash = OperationalSecurityFindingGuard.ComputePayloadHash(item);
 
-            OperationalSecurityFindingRecord? existing = await repository.TryGetByNaturalKeyAsync(
-                scope.TenantId,
+            OperationalSecurityFindingRecord? existing = await repository.TryGetByNaturalKeyInScopeAsync(
+                scope.ToProjectScopeKey(),
                 item.Provider,
                 item.SourceSystem.Trim(),
                 item.SourceFindingId.Trim(),

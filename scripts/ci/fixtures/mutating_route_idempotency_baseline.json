@@ -1,5 +1,5 @@
 {
-  "discoveredRouteCount": 187,
+  "discoveredRouteCount": 189,
   "formatVersion": "1.0",
   "routes": {
     "DELETE /scim/v2/Users/{id}": "naturally-idempotent",
@@ -107,6 +107,8 @@
     "POST /v1/infra-evidence/branding/admin/revert": "operator-documented-safe-retry",
     "POST /v1/infra-evidence/branding/assets": "operator-documented-safe-retry",
     "POST /v1/infra-evidence/operational-findings/{findingId}/match": "operator-documented-safe-retry",
+    "POST /v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/confirm": "operator-documented-safe-retry",
+    "POST /v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/dismiss": "operator-documented-safe-retry",
     "POST /v1/infra-evidence/remediation-instances": "operator-documented-safe-retry",
     "POST /v1/infra-evidence/remediation-instances/{instanceId}/approve": "operator-documented-safe-retry",
     "POST /v1/infra-evidence/remediation-instances/{instanceId}/assign-wave": "operator-documented-safe-retry",

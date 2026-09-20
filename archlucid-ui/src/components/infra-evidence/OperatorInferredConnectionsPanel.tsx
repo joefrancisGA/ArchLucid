@@ -191,8 +191,8 @@ export function OperatorInferredConnectionsPanel(
 
         {uploadRows.length > 0 ? (
           <EnterpriseTable
-            data-testid="operator-inferred-connections-table"
             ariaLabel="Proposed uploaded config connections"
+            data-testid="operator-inferred-connections-table"
           >
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
