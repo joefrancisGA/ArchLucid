@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -51,9 +52,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
     }
 
     public async Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyInScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
+        ProjectScopeKey scope,
         CloudProvider provider,
         string sourceSystem,
         string sourceFindingId,
@@ -83,9 +82,9 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                 sql,
                 new
                 {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
                     Provider = (int)provider,
                     SourceSystem = sourceSystem,
                     SourceFindingId = sourceFindingId,
@@ -124,9 +123,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
     }
 
     public async Task<OperationalSecurityFindingRecord?> TryGetByIdInScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
+        ProjectScopeKey scope,
         Guid findingId,
         CancellationToken cancellationToken = default)
     {
@@ -152,9 +149,9 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                 sql,
                 new
                 {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
                     FindingId = findingId,
                 },
                 cancellationToken: cancellationToken));

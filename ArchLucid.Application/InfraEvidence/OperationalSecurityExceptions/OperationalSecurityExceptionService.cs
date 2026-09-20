@@ -42,9 +42,7 @@ public sealed class OperationalSecurityExceptionService(
         {
             OperationalSecurityFindingRecord? finding =
                 await findingRepository.TryGetByIdInScopeAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
+                    scope.ToProjectScopeKey(),
                     findingId,
                     cancellationToken);
 
