@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and operational controls; not buyer-facing proof or a correctness/superiority claim.
+
 # Architectural defect prevention review
 
 Every recurring or credibility-relevant defect should be classified by the weakest layer that allowed it.
