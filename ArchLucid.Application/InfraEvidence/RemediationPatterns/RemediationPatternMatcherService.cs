@@ -231,7 +231,7 @@ public sealed class RemediationPatternMatcherService(
         new()
         {
             MatchResultId = Guid.NewGuid(),
-            TenantId = scope.TenantId,
+            TenantId = tenantId,
             FindingId = findingId,
             PatternId = candidate.ApprovedVersion.Pattern.PatternId,
             VersionId = candidate.ApprovedVersion.Version.VersionId,
