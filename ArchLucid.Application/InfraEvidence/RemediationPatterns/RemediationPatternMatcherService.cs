@@ -79,6 +79,21 @@ public sealed class RemediationPatternMatcherService(
             };
         }
 
+        OperationalSecurityFindingRecord? finding =
+            await findingRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                findingId,
+                cancellationToken);
+
+        if (finding is null)
+        {
+            return new RemediationPatternMatchEvaluationResult
+            {
+                Succeeded = false,
+                ErrorMessage = "Operational security finding was not found in current project scope.",
+            };
+        }
+
         RemediationPatternRecord? pattern =
             await patternRepository.TryGetPatternByIdAsync(scope.TenantId, patternId, cancellationToken);
 
