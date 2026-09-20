@@ -1,7 +1,12 @@
 import { isValidElement } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
+import { resolveRunDetailSponsorBriefingSection } from "./resolve-run-detail-sponsor-briefing-section";
+
+vi.mock("./run-detail-sponsor-briefing-deferred-chunks", () => ({
+  EmailRunToSponsorBannerDeferred: () => null,
+  PilotRoiValidationHandoffClientDeferred: () => null,
+}));
 
 describe("resolveRunDetailSponsorBriefingSection", () => {
   const base = {
