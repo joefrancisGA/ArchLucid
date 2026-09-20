@@ -106,25 +106,30 @@ public sealed class SecureNowSyntheticAzureWorldTests
         hop.ProvenanceKind.Should().NotBe(ProvenanceKind.ObservedFact);
     }
 
-    [Theory]
-    [MemberData(nameof(WorldsWithEvidence))]
-    public void Synthetic_worlds_preserve_manually_declared_evidence_references(SyntheticAzureWorld world)
+    [Fact]
+    public void Synthetic_worlds_preserve_manually_declared_evidence_references()
     {
-        IReadOnlyList<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> actual =
-            world.Materialize(TenantId, WorkspaceId, ProjectId, SnapshotId);
+        SyntheticAzureWorld[] worlds =
+        [
+            SyntheticAzureWorldCatalog.PublicExposureVsPrivateEndpoint(),
+            SyntheticAzureWorldCatalog.SharedManagedIdentityCutPoint(),
+            SyntheticAzureWorldCatalog.InsufficientEvidenceMustStayWeakest(),
+        ];
 
-        HashSet<string> actualEvidence = actual
-            .SelectMany(item => item.Hops)
-            .Select(hop => hop.EvidenceReference)
-            .ToHashSet(StringComparer.Ordinal);
+        foreach (SyntheticAzureWorld world in worlds)
+        {
+            IReadOnlyList<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> actual =
+                world.Materialize(TenantId, WorkspaceId, ProjectId, SnapshotId);
 
-        actualEvidence.Should().Contain(world.RequiredEvidenceReferences);
-    }
+            HashSet<string> actualEvidence = actual
+                .SelectMany(item => item.Hops)
+                .Select(hop => hop.EvidenceReference)
+                .ToHashSet(StringComparer.Ordinal);
 
-    public static IEnumerable<object[]> WorldsWithEvidence()
-    {
-        yield return [SyntheticAzureWorldCatalog.PublicExposureVsPrivateEndpoint()];
-        yield return [SyntheticAzureWorldCatalog.SharedManagedIdentityCutPoint()];
-        yield return [SyntheticAzureWorldCatalog.InsufficientEvidenceMustStayWeakest()];
+            foreach (string expectedEvidence in world.RequiredEvidenceReferences)
+            {
+                actualEvidence.Should().Contain(expectedEvidence);
+            }
+        }
     }
 }
