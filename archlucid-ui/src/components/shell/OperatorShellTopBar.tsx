@@ -14,7 +14,6 @@ import {
 import { TenantMastheadWordmark } from "@/components/brand/TenantMastheadWordmark";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { OperatorShellDemoWorkspaceTag } from "@/components/shell/OperatorShellDemoWorkspaceTag";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
 import { WorkingCareerRehearsalChooser } from "@/components/workspace-mode/WorkingCareerRehearsalChooser";
@@ -128,7 +127,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                 className="flex min-w-0 flex-nowrap items-center gap-2"
               >
                 <ScopeSwitcherDeferred density="compact" />
-                <OperatorShellDemoWorkspaceTag />
               </div>
             ) : null}
             <AuthPanel />
