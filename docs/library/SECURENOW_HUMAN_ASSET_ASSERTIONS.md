@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow human security asset assertion model (SA-18).
+
 # Human security asset assertions (SA-18)
 
 Decay-bound human claims for cloud resource sensitivity, regulatory class, deployment environment, and business criticality. **ProvenanceKind is always HumanAssertion** — never inferred from resource names or LLM output.
