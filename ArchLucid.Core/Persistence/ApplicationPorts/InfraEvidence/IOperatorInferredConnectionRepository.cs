@@ -37,17 +37,20 @@ public interface IOperatorInferredConnectionRepository
         OperatorInferredConnectionRecord record,
         CancellationToken cancellationToken = default);
 
-    async Task UpdateStatusInScopeAsync(
+    Task UpdateStatusInScopeAsync(
         ProjectScopeKey scope,
-        OperatorInferredConnectionRecord record,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(record);
+        OperatorInferredConnectionMutation mutation,
+        CancellationToken cancellationToken = default);
+}
 
-        if (!scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId))
-            throw new InvalidOperationException("Inferred connection scope does not match the authorized project scope.");
-
-        await UpdateStatusAsync(record, cancellationToken);
-    }
+public sealed record OperatorInferredConnectionMutation
+{
+    public required Guid ConnectionId { get; init; }
+    public required OperatorInferredConnectionStatus Status { get; init; }
+    public Guid? FromCloudResourceId { get; init; }
+    public string? ToArmId { get; init; }
+    public Guid? ToCloudResourceId { get; init; }
+    public string? ToCatalog { get; init; }
+    public string? ActorKey { get; init; }
+    public required DateTime UpdatedUtc { get; init; }
 }
