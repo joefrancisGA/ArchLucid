@@ -423,6 +423,7 @@ public sealed class SecurityAssetAssertionService(
             AssessmentId = source.AssessmentId,
             InventoryDiffId = source.InventoryDiffId,
             AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
             PayloadHashSha256 = source.PayloadHashSha256,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = utcNow,
