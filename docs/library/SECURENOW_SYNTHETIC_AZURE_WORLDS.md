@@ -54,3 +54,8 @@ Add worlds for:
 Prefer one tiny world per semantic claim. Keep expected truth obvious enough that a reviewer can verify it without reading production implementation.
 
 Do not turn this suite into another copy of the production algorithms. If a world needs a reference algorithm, add that separately as an independent brute-force oracle.
+
+
+## Metamorphic companion suite
+
+[`SECURENOW_METAMORPHIC_ASSURANCE.md`](SECURENOW_METAMORPHIC_ASSURANCE.md) transforms these fixed-truth worlds in ways that should not change their security meaning and verifies that SecureNow preserves the same semantic result.
