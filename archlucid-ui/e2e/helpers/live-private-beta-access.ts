@@ -133,6 +133,15 @@ export async function primePrivateBetaBrowserPage(
   }
 
   await primeJwtBrowserSession(page, accessToken);
+
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(appOrigin)) {
+    await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
+  }
+
+  // Init-script BFF POST can race the first navigation; issue cookies on a live document before mutating /api/proxy.
+  await writeJwtBrowserSession(page, accessToken);
 }
 
 /** Primes JwtBearer private-beta defaults when LIVE_JWT_TOKEN is configured; no-op in OIDC mode. */
