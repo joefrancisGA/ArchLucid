@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and operational controls; not buyer-facing proof or a correctness/superiority claim.
+
 # SecureNow truth kernel
 
 SecureNow's deterministic truth kernel is intentionally small. Its purpose is to establish **facts and bounded graph consequences**, not to replace architectural judgment.
