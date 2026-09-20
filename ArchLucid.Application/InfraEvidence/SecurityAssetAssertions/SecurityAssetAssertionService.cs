@@ -37,19 +37,20 @@ public sealed class SecurityAssetAssertionService(
             };
         }
 
-        SecurityAssetAssertionRecord? existingActive =
-            await assertionRepository.TryGetActiveByCloudResourceIdAsync(
-                scope.TenantId,
-                request.CloudResourceId,
-                utcNow,
-                cancellationToken);
+        IReadOnlyList<SecurityAssetAssertionRecord> tenantAssertions =
+            await assertionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
 
-        if (existingActive is not null
-            && SecureNowScopeGuard.Matches(
+        bool existingActive = tenantAssertions.Any(assertion =>
+            SecureNowScopeGuard.Matches(
                 scope,
-                existingActive.TenantId,
-                existingActive.WorkspaceId,
-                existingActive.ProjectId))
+                assertion.TenantId,
+                assertion.WorkspaceId,
+                assertion.ProjectId)
+            && assertion.CloudResourceId == request.CloudResourceId
+            && assertion.Status == SecurityAssetAssertionStatus.Active
+            && assertion.ExpirationUtc > utcNow);
+
+        if (existingActive)
         {
             return new SecurityAssetAssertionCreateResult
             {
