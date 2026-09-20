@@ -95,6 +95,57 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                 cancellationToken: cancellationToken));
     }
 
+    public async Task InsertMatchResultInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationPatternMatchResultRecord matchResult,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1 FROM dbo.OperationalSecurityFindings
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND FindingId = @FindingId
+                           )
+                               THROW 50002, 'Scoped remediation match target finding was not found.', 1;
+
+                           INSERT INTO dbo.RemediationPatternMatchResults
+                           (
+                               MatchResultId, TenantId, FindingId, PatternId, VersionId, PatternKey, PatternVersion,
+                               MatchKind, MatchSource, ExplainText, IsActive, MatchedUtc
+                           )
+                           VALUES
+                           (
+                               @MatchResultId, @TenantId, @FindingId, @PatternId, @VersionId, @PatternKey, @PatternVersion,
+                               @MatchKind, @MatchSource, @ExplainText, @IsActive, @MatchedUtc
+                           );
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    matchResult.MatchResultId,
+                    matchResult.FindingId,
+                    matchResult.PatternId,
+                    matchResult.VersionId,
+                    matchResult.PatternKey,
+                    matchResult.PatternVersion,
+                    MatchKind = (int)matchResult.MatchKind,
+                    MatchSource = (int)matchResult.MatchSource,
+                    matchResult.ExplainText,
+                    matchResult.IsActive,
+                    matchResult.MatchedUtc,
+                },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task InsertConflictAsync(
         RemediationPatternMatchConflictRecord conflict,
         CancellationToken cancellationToken = default)
@@ -117,6 +168,46 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                 {
                     conflict.ConflictId,
                     conflict.TenantId,
+                    conflict.FindingId,
+                    ConflictType = (int)conflict.ConflictType,
+                    conflict.Description,
+                    conflict.CandidatePatternIdsJson,
+                    conflict.CreatedUtc,
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task InsertConflictInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationPatternMatchConflictRecord conflict,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1 FROM dbo.OperationalSecurityFindings
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND FindingId = @FindingId
+                           )
+                               THROW 50003, 'Scoped remediation conflict target finding was not found.', 1;
+
+                           INSERT INTO dbo.RemediationPatternMatchConflicts
+                           (ConflictId, TenantId, FindingId, ConflictType, Description, CandidatePatternIdsJson, CreatedUtc)
+                           VALUES
+                           (@ConflictId, @TenantId, @FindingId, @ConflictType, @Description, @CandidatePatternIdsJson, @CreatedUtc);
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    conflict.ConflictId,
                     conflict.FindingId,
                     ConflictType = (int)conflict.ConflictType,
                     conflict.Description,
