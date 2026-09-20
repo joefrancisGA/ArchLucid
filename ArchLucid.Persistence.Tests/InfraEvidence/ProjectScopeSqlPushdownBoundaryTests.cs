@@ -39,4 +39,26 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
             implementationType,
             $"{implementationType.Name}.{methodName} must push ProjectScopeKey into its persistence query instead of inheriting the interface fallback");
     }
+
+    public static IEnumerable<object[]> ProjectScopedMutationCommands()
+    {
+        yield return [typeof(OperatorInferredConnectionMutation)];
+        yield return [typeof(RemediationInstanceMutation)];
+    }
+
+    [Theory]
+    [MemberData(nameof(ProjectScopedMutationCommands))]
+    public void Project_scoped_mutation_commands_do_not_carry_authority_dimensions(Type mutationType)
+    {
+        string[] propertyNames = mutationType
+            .GetProperties()
+            .Select(property => property.Name)
+            .ToArray();
+
+        propertyNames.Should().NotContain("TenantId");
+        propertyNames.Should().NotContain("WorkspaceId");
+        propertyNames.Should().NotContain("ProjectId");
+        propertyNames.Should().NotContain("Scope");
+        propertyNames.Should().NotContain("ProjectScopeKey");
+    }
 }
