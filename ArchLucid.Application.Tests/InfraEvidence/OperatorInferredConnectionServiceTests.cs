@@ -191,9 +191,7 @@ public sealed class OperatorInferredConnectionServiceTests
         Mock<IOperatorInferredConnectionRepository> connectionRepository = new();
         connectionRepository
             .Setup(repository => repository.TryGetByIdInScopeAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
+                Scope.ToProjectScopeKey(),
                 foreign.ConnectionId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((OperatorInferredConnectionRecord?)null);
