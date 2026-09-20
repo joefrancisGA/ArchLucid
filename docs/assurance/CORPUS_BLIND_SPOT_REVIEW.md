@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and test-program evidence; not buyer-facing proof or a correctness/superiority claim.
+
 # Corpus blind-spot review
 
 A corpus blind spot exists when two plausible implementations can disagree about an important conclusion while both still pass all current semantic cases.
