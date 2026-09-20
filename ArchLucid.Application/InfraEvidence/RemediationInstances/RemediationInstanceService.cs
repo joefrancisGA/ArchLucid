@@ -67,7 +67,7 @@ public sealed class RemediationInstanceService(
             return Blocked(rejection!);
 
         OperationalSecurityFindingRecord? finding =
-            await operationalFindingRepository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, findingId, cancellationToken);
 
         Guid? pathId = null;
         string? pathNarrativeJson = null;
@@ -557,7 +557,12 @@ public sealed class RemediationInstanceService(
         ScopeContext scope,
         Guid instanceId,
         CancellationToken cancellationToken) =>
-        await instanceRepository.TryGetByIdAsync(scope.TenantId, instanceId, cancellationToken);
+        await instanceRepository.TryGetByIdInScopeAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            instanceId,
+            cancellationToken);
 
     private async Task<RemediationInstanceOperationResult?> TryEnsureSealedManifestForFindingAsync(
         ScopeContext scope,

@@ -181,6 +181,48 @@ public sealed class OperatorInferredConnectionServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task ConfirmAsync_foreign_project_connection_returns_not_found()
+    {
+        OperatorInferredConnectionRecord foreign = CreateRecord(
+            OperatorInferredConnectionSource.Questionnaire,
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"));
+
+        Mock<IOperatorInferredConnectionRepository> connectionRepository = new();
+        connectionRepository
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                foreign.ConnectionId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((OperatorInferredConnectionRecord?)null);
+
+        OperatorInferredConnectionService sut = CreateSut(
+            connectionRepository.Object,
+            CreateSnapshotRepository(detailLoaded: true).Object,
+            Mock.Of<IInferenceQuestionnaireItemGenerator>());
+
+        OperatorInferredConnectionMutationResult result = await sut.ConfirmAsync(
+            Scope,
+            SnapshotId,
+            new OperatorInferredConnectionConfirmRequest { ConnectionId = foreign.ConnectionId },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Inferred connection was not found.");
+
+        connectionRepository.Verify(repository => repository.TryGetByIdInScopeAsync(
+            Scope.TenantId,
+            Scope.WorkspaceId,
+            Scope.ProjectId,
+            foreign.ConnectionId,
+            It.IsAny<CancellationToken>()), Times.Once);
+        connectionRepository.Verify(repository => repository.UpdateStatusAsync(
+            It.IsAny<OperatorInferredConnectionRecord>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static OperatorInferredConnectionService CreateSut(
         IOperatorInferredConnectionRepository connectionRepository,
         IAzureInventorySnapshotRepository snapshotRepository,
@@ -246,13 +288,15 @@ public sealed class OperatorInferredConnectionServiceTests
         return repository;
     }
 
-    private static OperatorInferredConnectionRecord CreateRecord(OperatorInferredConnectionSource source) =>
+    private static OperatorInferredConnectionRecord CreateRecord(
+        OperatorInferredConnectionSource source,
+        Guid? projectId = null) =>
         new()
         {
             ConnectionId = Guid.NewGuid(),
             TenantId = Scope.TenantId,
             WorkspaceId = Scope.WorkspaceId,
-            ProjectId = Scope.ProjectId,
+            ProjectId = projectId ?? Scope.ProjectId,
             SnapshotId = SnapshotId,
             Status = OperatorInferredConnectionStatus.Proposed,
             Source = source,

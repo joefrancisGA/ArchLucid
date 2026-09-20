@@ -41,7 +41,12 @@ public sealed class OperationalSecurityExceptionService(
         if (request.FindingId is Guid findingId && findingId != Guid.Empty)
         {
             OperationalSecurityFindingRecord? finding =
-                await findingRepository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+                await findingRepository.TryGetByIdInScopeAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    findingId,
+                    cancellationToken);
 
             if (finding is null)
             {
@@ -131,7 +136,12 @@ public sealed class OperationalSecurityExceptionService(
         OperationalSecurityExceptionRecord? existing =
             await exceptionRepository.TryGetByIdAsync(scope.TenantId, exceptionId, cancellationToken);
 
-        if (existing is null)
+        if (existing is null
+            || !SecureNowScopeGuard.Matches(
+                scope,
+                existing.TenantId,
+                existing.WorkspaceId,
+                existing.ProjectId))
         {
             return new OperationalSecurityExceptionRevokeResult
             {
@@ -380,6 +390,7 @@ public sealed class OperationalSecurityExceptionService(
             AssessmentId = source.AssessmentId,
             InventoryDiffId = source.InventoryDiffId,
             AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
             PayloadHashSha256 = source.PayloadHashSha256,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,

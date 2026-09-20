@@ -11,6 +11,23 @@ public interface IRemediationInstanceRepository
         Guid instanceId,
         CancellationToken cancellationToken = default);
 
+    async Task<RemediationInstanceRecord?> TryGetByIdInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        RemediationInstanceRecord? record =
+            await TryGetByIdAsync(tenantId, instanceId, cancellationToken);
+
+        return record is not null
+               && record.WorkspaceId == workspaceId
+               && record.ProjectId == projectId
+            ? record
+            : null;
+    }
+
     Task InsertEvidenceAsync(RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceAsync(

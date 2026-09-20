@@ -219,6 +219,14 @@ public sealed class RemediationInstanceQueryService(
             instances = await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
         }
 
+        instances = instances
+            .Where(instance => SecureNowScopeGuard.Matches(
+                scope,
+                instance.TenantId,
+                instance.WorkspaceId,
+                instance.ProjectId))
+            .ToList();
+
         foreach (RemediationInstanceRecord instance in instances)
         {
             await RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
@@ -245,9 +253,14 @@ public sealed class RemediationInstanceQueryService(
         ArgumentNullException.ThrowIfNull(scope);
 
         RemediationInstanceRecord? instance =
-            await instanceRepository.TryGetByIdAsync(scope.TenantId, instanceId, cancellationToken);
+            await instanceRepository.TryGetByIdInScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                instanceId,
+                cancellationToken);
 
-        if (instance is null || instance.TenantId != scope.TenantId)
+        if (instance is null)
             return null;
 
         await RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
@@ -260,7 +273,7 @@ public sealed class RemediationInstanceQueryService(
             cancellationToken);
 
         OperationalSecurityFindingRecord? finding =
-            await findingRepository.TryGetByIdAsync(scope.TenantId, instance.FindingId, cancellationToken);
+            await findingRepository.TryGetByIdInScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, instance.FindingId, cancellationToken);
 
         RemediationPatternMatchResultRecord? activeMatch =
             await matchRepository.TryGetActiveMatchAsync(scope.TenantId, instance.FindingId, cancellationToken);
