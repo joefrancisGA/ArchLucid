@@ -48,6 +48,11 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/draft-branch-compare-navigation.ts",
   // Banned-pattern registry for first-review help — literals are search patterns, not shipped copy.
   "/first-architecture-review-help-banned-copy.ts",
+  // Engineering inventories — surface labels describe routes; not rendered buyer copy.
+  "/system-not-job-compare-gate-inventory.ts",
+  "/system-not-job-nested-review-job-mint.ts",
+  "/inhabit-leak-inventories.ts",
+  "/inhabit-post-ir-leak-inventories.ts",
 ] as const;
 
 /** Buyer-facing UI roots scanned by the global terminology guard (TB-355). */

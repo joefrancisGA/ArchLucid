@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow path organizational routing design (SA-15).
+
 # SecureNow path organizational routing (SA-15)
 
 Organizational routing fields attach **who moves the org** to a path — without inventing Entra display names.

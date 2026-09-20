@@ -92,7 +92,22 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(7);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
-    expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS[0]?.href).toBe("/infrastructure/resources");
-    expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS[1]?.href).toBe("/infrastructure/declared-connections");
+    expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS.map((row) => row.href)).toEqual([
+      "/infrastructure/resources",
+      "/infrastructure/drift",
+      "/infrastructure/declared-connections",
+      "/infrastructure/diagrams",
+      "/infrastructure/diagram-reconcile",
+      "/infrastructure/ask",
+      "/infrastructure/terraform",
+    ]);
+
+    const infrastructureSection = screen.getByTestId("securenow-infrastructure-home-section");
+    const renderedHrefs = Array.from(
+      infrastructureSection.querySelectorAll<HTMLAnchorElement>("[data-testid^='securenow-infrastructure-home-link-']"),
+    ).map((link) => link.getAttribute("href"));
+
+    expect(renderedHrefs).toEqual(SECURENOW_INFRASTRUCTURE_HOME_ROWS.map((row) => row.href));
+    expect(renderedHrefs.at(-1)).toBe("/infrastructure/terraform");
   });
 });

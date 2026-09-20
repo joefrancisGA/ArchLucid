@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Azure Retail Prices unit-of-measure keep list for extractor cost hygiene (ABQ-47).
+
 # Azure week UOM keep list (ABQ-47)
 
 Authoritative inventory for ABQ-48/49 cleanup. Azure Retail Prices `unitOfMeasure`

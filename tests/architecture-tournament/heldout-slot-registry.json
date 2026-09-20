@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "kind": "sealed-holdout-slot-registry",
+  "governance": "Expected findings, rubrics, and answer keys are intentionally absent from the repository. Populate them only in an owner-controlled external grading store. Development prompts must not consume them.",
+  "slots": [
+    {
+      "caseId": "holdout-deep-01",
+      "domain": "internal-business-app",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-02",
+      "domain": "public-multitenant-saas",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-03",
+      "domain": "regulated-workload",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-04",
+      "domain": "defective-architecture",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-05",
+      "domain": "ambiguous-modernization",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-06",
+      "domain": "hybrid-connectivity",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-07",
+      "domain": "distributed-data",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-08",
+      "domain": "multi-region-resilience",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-09",
+      "domain": "identity-boundary",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-10",
+      "domain": "event-driven-workflow",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-11",
+      "domain": "cost-constrained-modernization",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-12",
+      "domain": "zero-trust-segmentation",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-13",
+      "domain": "data-residency",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-14",
+      "domain": "supply-chain-integration",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-15",
+      "domain": "operational-recovery",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-16",
+      "domain": "platform-engineering",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-17",
+      "domain": "serverless-security",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-18",
+      "domain": "kubernetes-boundaries",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-19",
+      "domain": "analytics-platform",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-20",
+      "domain": "legacy-mainframe-integration",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-21",
+      "domain": "shared-services",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-22",
+      "domain": "merger-integration",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-23",
+      "domain": "edge-workload",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-24",
+      "domain": "ai-platform-governance",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    },
+    {
+      "caseId": "holdout-deep-25",
+      "domain": "mixed-cloud-estate",
+      "answerKey": "EXTERNAL_OWNER_CONTROLLED",
+      "rubric": "EXTERNAL_OWNER_CONTROLLED"
+    }
+  ]
+}

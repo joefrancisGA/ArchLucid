@@ -29,7 +29,7 @@ export function exportVerifyBlockedRecovery(
 export function traceabilityBundleTooLargeRecovery(): ErrorRecoveryContractPresentation {
   return {
     whatFailed: "The evidence bundle exceeded the size cap for a single ZIP download.",
-    whatIsIntact: "Findings, manifest summary, and decision receipt exports remain available for this review.",
+    whatIsIntact: "Findings, architecture package summary, and decision receipt exports remain available for this review.",
     nextStep:
       "Use findings-only CSV or the decision receipt stamp export from Artifacts instead of the full evidence bundle.",
   };

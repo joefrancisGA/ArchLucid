@@ -137,9 +137,9 @@ Authoring checklist and local commands: **`tests/technology-consistency-corpus/R
 
 | Artifact | Meaning |
 |---------|---------|
-| **`docs/quality/insight-density-engine-distribution.md`** | Per-engine min/median/max scores from the sixteen-engine golden corpus harness |
+| **`docs/quality/insight-density-engine-distribution.md`** | Per-engine min/median/max scores from the current decisioning golden corpus harness |
 
-**claimBoundary:** Production gate (ADR 0070) — `DeterministicInsightDensityGate` applies the demotion predicate to typed-engine and agent findings (`typed-engine-scored` marks engine origin). The legacy `typed-engine-protected` Promote short-circuit is superseded. The table covers engines that produced ≥1 finding across case-01..case-35; the harness registers **16** engines and **23** built-in product engines are absent from that slice. `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies.
+**claimBoundary:** Production gate (ADR 0070) — `DeterministicInsightDensityGate` applies the demotion predicate to typed-engine and agent findings (`typed-engine-scored` marks engine origin). The legacy `typed-engine-protected` Promote short-circuit is superseded. The table covers engines that produced ≥1 finding across the current corpus slice; the harness registers **47** of **54** built-in product engines, with **7** listed absent-with-reason. The distribution table includes only engines that actually emit on recorded cases, so its row count is intentionally smaller than the registration denominator. `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies.
 
 Local commands:
 

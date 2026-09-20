@@ -120,7 +120,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/PromptVariantsAdminController.cs` | `/v1/admin/prompt-variants` | none | AdminAuthority |  |  |
 | `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/reference-evidence` | none | AdminAuthority |  |  |
 | `Admin/RoiBulletinAdminController.cs` | `/v1/admin/roi-bulletin-preview` | none | AdminAuthority |  |  |
-| `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | none | AdminAuthority |  |  |
+| `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | Enterprise | AdminAuthority |  |  |
 | `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
 | `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /administration/security-trust |  |
 | `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /administration/workspace-settings |  |

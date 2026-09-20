@@ -56,10 +56,9 @@ public sealed class InfraEvidenceOperatorInferredConnectionsController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         IReadOnlyList<OperatorInferredConnectionRecord> records =
-            await connectionService.ListBySnapshotAsync(scope, snapshotId, cancellationToken);
+            await connectionService.ListQuestionnaireBySnapshotAsync(scope, snapshotId, cancellationToken);
 
         IReadOnlyList<OperatorInferredConnectionResponse> questionnaireItems = records
-            .Where(record => record.Source == OperatorInferredConnectionSource.Questionnaire)
             .Select(MapResponse)
             .ToList();
 
@@ -72,6 +71,7 @@ public sealed class InfraEvidenceOperatorInferredConnectionsController(
         });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("confirm")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: OperatorInferredConnectionService logs confirm via IAuditService.")]
@@ -127,6 +127,7 @@ public sealed class InfraEvidenceOperatorInferredConnectionsController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("dismiss")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: OperatorInferredConnectionService logs dismiss via IAuditService.")]

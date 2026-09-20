@@ -18,7 +18,7 @@ export const API_KEYS_SETTINGS_BREADCRUMB_ADMINISTRATION_PATH = SETTINGS_ROOT_PA
 export const API_KEYS_SETTINGS_BREADCRUMB_TOPIC_TITLE = API_KEYS_PAGE_TITLE;
 
 export const API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER =
-  "Rotate automation credentials, review recent key events, and follow approved integration guidance." as const;
+  "Rotate automation credentials, review this session\'s key events, and follow approved integration guidance." as const;
 
 export function apiKeysSettingsPageSubtitle(buyerPolishedShell: boolean, operatorSubtitle: string): string {
   return buyerPolishedShell ? API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER : operatorSubtitle;

@@ -141,7 +141,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen:
       "Filter and export recorded decisions, then open the linked review or finding for evidence and audit context.",
     firstPilotNote:
-      "After Pilot proof when sponsors need a workspace-wide decision ledger beyond a single review package.",
+      "After Pilot proof when sponsors need a workspace-wide decision ledger beyond a single architecture package.",
     enterpriseFootnote:
       "Read-only export and filters; disposition and approval writes stay on review detail and workflow surfaces.",
     omitReviewPackageScopeHelp: true,

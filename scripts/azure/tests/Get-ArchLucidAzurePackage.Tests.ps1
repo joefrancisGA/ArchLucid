@@ -7,6 +7,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     BeforeAll {
         # Stub targets for Pester Mock when Az.* modules are installed locally.
         function Get-AzSubscription { }
+        function Get-AzContext { }
         function Set-AzContext { }
         function Get-AzResource { }
         function Get-AzPolicyDefinition { }
@@ -26,7 +27,9 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         # Pester 5 discovery can run before $PSScriptRoot is populated at script scope.
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:extractorScript = Join-Path $script:scriptRoot 'Get-ArchLucidAzurePackage.ps1'
+        [string]$script:helpersScript = Join-Path $script:scriptRoot 'ArchLucid.ExtractorQuickStart.helpers.ps1'
         [string]$script:armFixturePath = Join-Path $PSScriptRoot 'fixtures/arm-resources.sample.json'
+        . $script:helpersScript
         [string]$script:previousModuleAutoLoadingPreference = $PSModuleAutoLoadingPreference
         $PSModuleAutoLoadingPreference = 'None'
 
@@ -72,6 +75,14 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
             }
         }
 
+        Mock Get-AzContext {
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
+                Tenant = [PSCustomObject]@{ Id = '99999999-8888-7777-6666-555555555555' }
+                Account = [PSCustomObject]@{ Id = 'ci-extractor-test@contoso.com' }
+            }
+        }
+
         Mock Set-AzContext {
             param([string] $SubscriptionId, [string] $Tenant)
 
@@ -91,6 +102,15 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
         Mock Get-AzPolicyAssignment {
             return @()
+        }
+
+        Mock Ensure-ArchLucidAzureSubscriptionSession {
+            param([string] $SubscriptionId)
+
+            return $SubscriptionId
+        }
+
+        Mock Connect-ArchLucidAzureAccountForSubscription {
         }
 
         $env:ARCHLUCID_EXTRACTOR_SKIP_MODULE_PREFLIGHT = '1'
