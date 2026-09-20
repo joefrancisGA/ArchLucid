@@ -486,7 +486,7 @@
       "class_name": "ScimTokensAdminController",
       "route_template": "v{version:apiVersion}/admin/scim/tokens",
       "normalized_prefix": "/v1/admin/scim/tokens",
-      "commercial_tier": "none",
+      "commercial_tier": "Enterprise",
       "class_policy": "AdminAuthority",
       "exemption": null,
       "nav_operator_href": null

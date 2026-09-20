@@ -29,6 +29,13 @@ public static class RealCommitAgentOutputQualityGateEvaluator
 
         List<string> reasons = [];
 
+        if (latestTracesPerTask.Count == 0)
+        {
+            reasons.Add("Real PilotStrict commit has no agent execution traces to prove quality-gate evaluation.");
+
+            return reasons;
+        }
+
         foreach (AgentExecutionTrace trace in latestTracesPerTask)
         {
             AgentOutputQualityGateOutcome? outcome = trace.RecordedQualityGateOutcome;
