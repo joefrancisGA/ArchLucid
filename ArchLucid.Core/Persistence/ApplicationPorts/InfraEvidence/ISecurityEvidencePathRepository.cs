@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
@@ -19,6 +20,12 @@ public interface ISecurityEvidencePathRepository
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<SecurityEvidencePathHopRecord>> ListHopsByPathInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default) =>
+        ListHopsByPathAsync(scope.TenantId, pathId, cancellationToken);
 
     Task<SecurityEvidencePathInsertResult> InsertIfNotExistsAsync(
         SecurityEvidencePathRecord pathHeader,

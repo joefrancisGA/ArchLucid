@@ -329,6 +329,33 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         return rows.Select(MapMetadata).ToList();
     }
 
+    public async Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT m.MetadataRowId, m.FindingId, m.TenantId, m.MetadataKey, m.MetadataValue
+                           FROM dbo.OperationalSecurityFindingMetadata m
+                           INNER JOIN dbo.OperationalSecurityFindings f
+                               ON f.TenantId = m.TenantId AND f.FindingId = m.FindingId
+                           WHERE m.TenantId = @TenantId
+                             AND m.FindingId = @FindingId
+                             AND f.WorkspaceId = @WorkspaceId
+                             AND f.ProjectId = @ProjectId
+                           ORDER BY m.MetadataKey;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<MetadataRow> rows = await conn.QueryAsync<MetadataRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapMetadata).ToList();
+    }
+
     public async Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingAsync(
         Guid tenantId,
         Guid findingId,
