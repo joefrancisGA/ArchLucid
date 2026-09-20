@@ -152,7 +152,7 @@ Organizational fields (SA-15) are HumanAssertion or empty. Do not invent owners.
 
 Test-only semantic oracle: [`SECURENOW_SYNTHETIC_AZURE_WORLDS.md`](SECURENOW_SYNTHETIC_AZURE_WORLDS.md).
 
-Synthetic worlds declare expected path ordering, cut points, evidence, and confidence/provenance independently of the production ranking and cut-point implementations. They do not call Azure, add a collector, add an `IFindingEngine`, or mutate customer resources.
+Synthetic worlds declare expected path ordering, cut points, evidence, and confidence/provenance independently of the production ranking and cut-point implementations. The companion [`SECURENOW_METAMORPHIC_ASSURANCE.md`](SECURENOW_METAMORPHIC_ASSURANCE.md) suite verifies that irrelevant transformations preserve those semantics. Neither suite calls Azure, adds a collector, adds an `IFindingEngine`, or mutates customer resources.
 
 ## 9. Metrics (architecture outcomes)
 
