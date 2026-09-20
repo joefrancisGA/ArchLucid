@@ -156,10 +156,18 @@ async function captureSecureNowScreenshot(page: Page, slug: string, href: string
   }
 
   const effectiveHref = await waitForSecureNowScreenshotHydration(page, href);
+  const landedPath = new URL(page.url()).pathname;
+  const expectedPath = href.split("?", 1)[0] ?? href;
 
-  if (href !== "/" && new URL(page.url()).pathname === "/") {
+  if (href !== "/" && landedPath === "/") {
     throw new Error(
       `Route ${href} landed on home (effective ${effectiveHref}); product line gate bounced the capture.`,
+    );
+  }
+
+  if (landedPath !== expectedPath) {
+    throw new Error(
+      `Route ${href} landed on ${landedPath} (effective ${effectiveHref}); expected ${expectedPath}.`,
     );
   }
 
