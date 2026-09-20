@@ -93,7 +93,7 @@ public sealed class GoldenCorpusCrossRunDiffCoverageTests
                 ContextNode("ctx-prior"),
                 RequirementNode("req-availability-prior", "availability"),
                 RequirementNode("req-encryption-prior", "encryption"),
-                TopologyNode("sql-prior", "database", GraphTopologyCategories.Datastore),
+                TopologyNode("sql-prior", "database", GraphTopologyCategories.Data),
                 TopologyNode("network-prior", "network", GraphTopologyCategories.Network),
             ],
             Edges = [],
