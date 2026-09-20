@@ -37,10 +37,22 @@ public interface IOperatorInferredConnectionRepository
         OperatorInferredConnectionRecord record,
         CancellationToken cancellationToken = default);
 
-    Task UpdateStatusInScopeAsync(
+    async Task UpdateStatusInScopeAsync(
         ProjectScopeKey scope,
         OperatorInferredConnectionMutation mutation,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(mutation);
+
+        OperatorInferredConnectionRecord? current =
+            await TryGetByIdInScopeAsync(scope, mutation.ConnectionId, cancellationToken);
+
+        if (current is null)
+            return;
+
+        await UpdateStatusAsync(mutation.ApplyTo(current), cancellationToken);
+    }
 }
 
 public sealed record OperatorInferredConnectionMutation
@@ -53,4 +65,38 @@ public sealed record OperatorInferredConnectionMutation
     public string? ToCatalog { get; init; }
     public string? ActorKey { get; init; }
     public required DateTime UpdatedUtc { get; init; }
+
+    public OperatorInferredConnectionRecord ApplyTo(OperatorInferredConnectionRecord source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source.ConnectionId != ConnectionId)
+            throw new InvalidOperationException("Inferred connection mutation id does not match the source record.");
+
+        return new OperatorInferredConnectionRecord
+        {
+            ConnectionId = source.ConnectionId,
+            TenantId = source.TenantId,
+            WorkspaceId = source.WorkspaceId,
+            ProjectId = source.ProjectId,
+            SnapshotId = source.SnapshotId,
+            Status = Status,
+            Source = source.Source,
+            RuleName = source.RuleName,
+            QuestionText = source.QuestionText,
+            FromArmId = source.FromArmId,
+            FromLabel = source.FromLabel,
+            FromCloudResourceId = FromCloudResourceId,
+            ToHost = source.ToHost,
+            ToCatalog = ToCatalog,
+            ToArmId = ToArmId,
+            ToCloudResourceId = ToCloudResourceId,
+            SettingName = source.SettingName,
+            SourceFileFormat = source.SourceFileFormat,
+            ActorKey = ActorKey,
+            ProposalPayloadHashSha256 = source.ProposalPayloadHashSha256,
+            CreatedUtc = source.CreatedUtc,
+            UpdatedUtc = UpdatedUtc,
+        };
+    }
 }
