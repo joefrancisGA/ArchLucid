@@ -28,7 +28,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 | **Breaking-change trail** | Phase 7 rename and config surface documented in [BREAKING_CHANGES.md](../../BREAKING_CHANGES.md); integration events **canonical `com.archlucid.*` only**. |
 | **Deploy artifacts** | Dockerfiles, compose profiles, Terraform modules under `infra/` ([../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md), [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md)). |
 | **Release checklist** | Actionable boxes in [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) (scope, deploy, health, flows, exports, recovery). |
-| **Self-serve trial** | Shipped in-repo: merge-blocking [`live-api-trial-end-to-end.spec.ts`(../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) + [TRIAL_END_TO_END.md](../runbooks/TRIAL_END_TO_END.md). |
+| **Self-serve trial** | Shipped in-repo: merge-blocking [`live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) + [TRIAL_END_TO_END.md](../runbooks/TRIAL_END_TO_END.md). |
 | **Golden cohort / real-LLM evidence log** | Attempt and exemplar-path eval metrics: [REAL_LLM_GOLDEN_COHORT_GATE_EVIDENCE_2026-05-09.md](../quality/REAL_LLM_GOLDEN_COHORT_GATE_EVIDENCE_2026-05-09.md) (live Azure OpenAI session still operator-owned when credentials are available). |
 
 ---
