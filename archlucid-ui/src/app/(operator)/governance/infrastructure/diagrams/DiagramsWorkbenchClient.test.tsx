@@ -105,6 +105,12 @@ const defaultSnapshotsResponse = {
   hasMore: false,
 };
 
+async function selectDiagramsSubscription(subscriptionId: string): Promise<void> {
+  const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
+
+  fireEvent.change(subscriptionPicker, { target: { value: subscriptionId } });
+}
+
 async function openDiagramOutlineNodes(): Promise<void> {
   const disclosure = await screen.findByTestId("infra-diagrams-outline-nodes-disclosure");
 
@@ -259,7 +265,9 @@ describe("DiagramsWorkbenchClient", () => {
       fallbackArtifacts: [],
     }));
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
     render(<DiagramsWorkbenchClient />);
 
     const snapshotLabel = formatInfraEvidenceDiagramsSnapshotPickerLabel(defaultSnapshotsResponse.items[0]);
@@ -272,9 +280,58 @@ describe("DiagramsWorkbenchClient", () => {
     expect(scopeContext.textContent ?? "").not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
   });
 
+  it("defaults the subscription picker to Select a subscription and filters snapshots when a subscription is chosen", async () => {
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0],
+        {
+          snapshotId: "22222222-2222-2222-2222-222222222222",
+          subscriptionId: "sub-dev",
+          subscriptionName: "Dev",
+          architectureName: "Payments",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
+    const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
+
+    expect(subscriptionPicker).toHaveValue("");
+    expect(modePicker).toBeDisabled();
+
+    const snapshotPicker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    expect(snapshotPicker).toBeDisabled();
+
+    fireEvent.change(subscriptionPicker, { target: { value: "sub-dev" } });
+
+    expect(snapshotPicker.querySelectorAll("option")).toHaveLength(2);
+    expect(snapshotPicker).toHaveValue("");
+    expect(modePicker).toBeDisabled();
+  });
+
   it("does not auto-select a snapshot or render the Executive diagram until the user chooses one", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
+
+    const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
+
+    expect(subscriptionPicker).toHaveValue("");
+    expect(await screen.findByTestId("infra-diagrams-subscription-prompt")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
+
+    await selectDiagramsSubscription("sub-1");
 
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
 
@@ -313,9 +370,18 @@ describe("DiagramsWorkbenchClient", () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
+    await selectDiagramsSubscription("sub-1");
+
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
 
     fireEvent.change(picker, { target: { value: "11111111-1111-1111-1111-111111111111" } });
+
+    expect(await screen.findByTestId("infra-diagrams-type-prompt")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+
+    const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
+
+    fireEvent.change(modePicker, { target: { value: "executive" } });
 
     expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
@@ -376,7 +442,9 @@ describe("DiagramsWorkbenchClient", () => {
       fallbackArtifacts: [],
     }));
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
     render(<DiagramsWorkbenchClient />);
 
     await waitFor(() => {
@@ -448,6 +516,8 @@ describe("DiagramsWorkbenchClient", () => {
 
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
+
+    await selectDiagramsSubscription(subscriptionId);
 
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
     expect(picker).toHaveTextContent("889 resources");
@@ -658,16 +728,26 @@ describe("DiagramsWorkbenchClient", () => {
     const exportError = new Error("Request validation failed (HTTP 400): Snapshot missing.");
     downloadInfraEvidenceMermaidPngMock.mockRejectedValueOnce(exportError);
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
     render(<DiagramsWorkbenchClient />);
 
-    fireEvent.click(await screen.findByTestId("infra-diagrams-export-png"));
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    const exportButton = await screen.findByTestId("infra-diagrams-export-png");
+
+    await waitFor(() => {
+      expect(exportButton).not.toBeDisabled();
+    });
+
+    fireEvent.click(exportButton);
 
     expect(await screen.findByTestId("infra-diagrams-png-export-error")).toHaveTextContent(
       "Could not download diagram PNG",
     );
     expect(screen.queryByTestId("infra-diagrams-png-browser-fallback-note")).not.toBeInTheDocument();
-    expect(screen.queryByText("The governance change did not save.")).not.toBeInTheDocument();
+    expect(screen.queryAllByText("The governance change did not save.")).toHaveLength(0);
   });
 
   it("shows a browser fallback note when server PNG is unavailable but export succeeds in-browser", async () => {
@@ -690,7 +770,9 @@ describe("DiagramsWorkbenchClient", () => {
     }));
     downloadInfraEvidenceMermaidPngMock.mockResolvedValueOnce({ usedBrowserFallback: true });
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
     render(<DiagramsWorkbenchClient />);
 
     fireEvent.click(await screen.findByTestId("infra-diagrams-export-png"));
@@ -806,7 +888,9 @@ describe("DiagramsWorkbenchClient", () => {
       fallbackArtifacts: [],
     }));
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
     render(<DiagramsWorkbenchClient />);
 
     await openDiagramOutlineNodes();
@@ -883,7 +967,9 @@ describe("DiagramsWorkbenchClient", () => {
       };
     });
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
@@ -1004,7 +1090,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-empty-content")).not.toBeInTheDocument();
   });
 
-  it("shows resource group cards when Pick a Resource Group is selected", async () => {
+  it("shows the resource group dropdown when the subscription has two or more resource groups", async () => {
     fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
       const mode = query.mode ?? "executive";
       const isPicker = mode === "resourceGroup";
@@ -1056,12 +1142,103 @@ describe("DiagramsWorkbenchClient", () => {
       };
     });
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    fetchInfraEvidenceMermaidPreviewMock.mockResolvedValue({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      modes: [
+        {
+          mode: "resourceGroup",
+          status: "Succeeded",
+          nodeCount: 0,
+          edgeCount: 0,
+          mermaid: null,
+          fallbackArtifacts: [
+            {
+              key: "resourceGroup:rg-net",
+              label: "rg-net",
+              status: "Succeeded",
+              nodeCount: 4,
+              edgeCount: 2,
+            },
+            {
+              key: "resourceGroup:rg-data",
+              label: "rg-data",
+              status: "Succeeded",
+              nodeCount: 2,
+              edgeCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+
+    searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
-    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
-      target: { value: "resourceGroup" },
+    await selectDiagramsSubscription("sub-1");
+
+    const resourceGroupPicker = await screen.findByTestId("infra-diagrams-resource-group-picker");
+
+    const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    fireEvent.change(picker, { target: { value: "11111111-1111-1111-1111-111111111111" } });
+
+    fireEvent.change(resourceGroupPicker, { target: { value: "rg-net" } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     });
+    expect(screen.queryByTestId("infra-diagrams-resource-group-cards")).not.toBeInTheDocument();
+  });
+
+  it("shows resource group cards when only one resource group exists and resource group mode is requested", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      const mode = query.mode ?? "executive";
+      const isPicker = mode === "resourceGroup";
+      const isNamedGroup = typeof mode === "string" && mode.startsWith("resourceGroup:");
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode,
+        fallbackKey: null,
+        status: "Succeeded",
+        mermaid: isNamedGroup ? "flowchart TD\n    %% al-type=Microsoft.Resources/resourceGroups al-rg=rg-net\n    n1[\"rg-net\"]" : "",
+        metrics: isNamedGroup
+          ? {
+              nodeCount: 4,
+              edgeCount: 2,
+              subgraphCount: 0,
+              maxDegree: 2,
+              crossSubgraphEdgeCount: 0,
+              textSizeBytes: 200,
+              layoutEstimate: 100,
+            }
+          : {
+              nodeCount: 0,
+              edgeCount: 0,
+              subgraphCount: 0,
+              maxDegree: 0,
+              crossSubgraphEdgeCount: 0,
+              textSizeBytes: 0,
+              layoutEstimate: 0,
+            },
+        fallbackArtifacts: isPicker || isNamedGroup
+          ? [
+              {
+                key: "resourceGroup:rg-net",
+                label: "rg-net",
+                status: "Succeeded",
+                nodeCount: 4,
+                edgeCount: 2,
+              },
+            ]
+          : [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=resourceGroup",
+    );
+    render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-resource-group-cards")).toBeInTheDocument();
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE)).toBeInTheDocument();
@@ -1262,10 +1439,12 @@ describe("DiagramsWorkbenchClient", () => {
     expect(storageTier.querySelector('input[type="checkbox"]')).not.toBeChecked();
     expect(screen.getByTestId("infra-diagrams-executive-tier-workloads").querySelector('input[type="checkbox"]')).toBeChecked();
 
-    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
-      "11111111-1111-1111-1111-111111111111",
-      expect.objectContaining({ hiddenExecutiveTierKeys: ["storage"] }),
-    );
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        expect.objectContaining({ hiddenExecutiveTierKeys: ["storage"] }),
+      );
+    });
   });
 
   it("shows completeness warnings banner from preview response", async () => {

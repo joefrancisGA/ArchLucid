@@ -114,6 +114,9 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddSingleton<IInfrastructureDeclarationParser, PulumiStackJsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, CloudFormationInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, CdkSynthInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, AppSettingsJsonInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, DotenvInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, ComposeEnvInfrastructureDeclarationParser>();
 
         services.AddSingleton<IDiagramSourceParser, MermaidDiagramSourceParser>();
         services.AddSingleton<IDiagramSourceParser, ArchLucidDiagramJsonParser>();

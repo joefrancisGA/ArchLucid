@@ -20,6 +20,9 @@ public static class DiagramDataFlowHonestyLegend
     public const string PrivateNetworkPathDnsSentence =
         "Private network path requires a private DNS zone link to the application's VNet.";
 
+    public const string ObservedRuntimeTimeWindowSentence =
+        "Observed in logs edges reflect a bounded diagnostic time window, not the architecture.";
+
     public const string PipelineDirectionMissingSentence =
         "Pipeline direction was not in this package. Re-collect Azure inventory to see reads from / writes to.";
 

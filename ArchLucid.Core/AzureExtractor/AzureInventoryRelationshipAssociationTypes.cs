@@ -58,9 +58,17 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string AppAuthorizedAccess = "appAuthorizedAccess";
 
+    /// <summary>Log Analytics observed app→target dependency (SN-RT-07).</summary>
+    public const string ObservedDependency = "observedDependency";
+
+    /// <summary>Entra principal membership in SQL database (SN-RT-08).</summary>
+    public const string SqlDatabasePrincipal = "sqlDatabasePrincipal";
+
     public const string AppToKeyVaultRef = "appToKeyVaultRef";
 
     public const string HostnameInferredTarget = "hostnameInferredTarget";
+
+    public const string OperatorConfirmedConnection = "operatorConfirmedConnection";
 
     public const string ServiceConnectorLink = "serviceConnectorLink";
 
@@ -122,8 +130,11 @@ public static class AzureInventoryRelationshipAssociationTypes
         Inferred(LogicAppConnection, AzureInventoryRelationshipArmKind.LogicApp, AzureInventoryRelationshipArmKind.ServiceConnectorTarget, "CONNECTS_TO", "inventory-logic-app-connection", ProvenanceKind.DerivedFact),
         Observed(IdentityToRoleAssignment, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.Compute, "USES_IDENTITY", "inventory-identity-role-assignment"),
         Inferred(AppAuthorizedAccess, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "MAY_ACCESS", "inventory-app-authorized-access", ProvenanceKind.DerivedFact),
+        Observed(ObservedDependency, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-observed-dependency"),
+        Inferred(SqlDatabasePrincipal, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "MAY_ACCESS", "inventory-sql-database-principal", ProvenanceKind.DerivedFact),
         Inferred(AppToKeyVaultRef, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.KeyVault, "CONNECTS_TO", "inventory-app-key-vault-ref", ProvenanceKind.DerivedFact),
         Inferred(HostnameInferredTarget, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-hostname-inferred-target", ProvenanceKind.DeterministicInference),
+        Inferred(OperatorConfirmedConnection, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-operator-confirmed-connection", ProvenanceKind.HumanAssertion),
         Observed(ServiceConnectorLink, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.ServiceConnectorTarget, "CONNECTS_TO", "inventory-service-connector-link"),
         Observed(SynapseLinkedService, AzureInventoryRelationshipArmKind.SynapseWorkspace, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-synapse-linked-service"),
         Inferred(SynapseLinkedServiceInferred, AzureInventoryRelationshipArmKind.SynapseWorkspace, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-synapse-linked-service-inferred", ProvenanceKind.DeterministicInference),

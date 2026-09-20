@@ -158,4 +158,36 @@ Write-Output "fake extractor success"
         $connectParams.Subscription | Should -Be $subscriptionId
         $connectParams.UseDeviceAuthentication | Should -Be $true
     }
+
+    It "connects when Get-AzSubscription throws because no Azure session exists" {
+        [string]$subscriptionId = "0966098b-4d6c-4f09-af1b-965bc2a2ad1d"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzSubscription {
+            throw "Run Connect-AzAccount to login."
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return $null
+        }
+        Mock Disconnect-AzAccount { }
+        Mock Connect-AzAccount {
+            param($Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        { $null = Ensure-ArchLucidAzureLogin -SubscriptionId $subscriptionId } | Should -Not -Throw
+
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $true
+        Should -Invoke Connect-AzAccount -Times 1 -Exactly
+    }
 }

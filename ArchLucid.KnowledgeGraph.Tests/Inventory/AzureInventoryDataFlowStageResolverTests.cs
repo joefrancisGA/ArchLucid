@@ -19,6 +19,8 @@ public sealed class AzureInventoryDataFlowStageResolverTests
     [InlineData("Microsoft.DocumentDB/databaseAccounts", AzureInventoryDataFlowStageNames.Storage)]
     [InlineData("Microsoft.Synapse/workspaces", AzureInventoryDataFlowStageNames.Transform)]
     [InlineData("Microsoft.Databricks/workspaces", AzureInventoryDataFlowStageNames.Transform)]
+    [InlineData("Microsoft.CognitiveServices/accounts", AzureInventoryDataFlowStageNames.Transform)]
+    [InlineData("Microsoft.Search/searchServices", AzureInventoryDataFlowStageNames.Storage)]
     [InlineData("Microsoft.Network/virtualNetworks", null)]
     [InlineData("Microsoft.Compute/virtualMachines", null)]
     public void Resolve_maps_arm_types_to_stages(string armType, string? expectedStage)

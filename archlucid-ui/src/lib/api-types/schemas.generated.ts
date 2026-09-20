@@ -2104,6 +2104,7 @@ export interface components {
             summary?: components["schemas"]["AzureInventoryDiffSummaryRecord"];
         };
         AzureInventorySnapshotRecord: {
+            architectureDisplayName?: null | string;
             captureMethod?: components["schemas"]["AzureInventoryCaptureMethod"];
             captureStatus?: components["schemas"]["AzureInventoryCaptureStatus"];
             captureVersion?: null | string;
@@ -5477,6 +5478,14 @@ export interface components {
             scope?: components["schemas"]["ReReviewScope"];
             specialistResults?: components["schemas"]["SpecialistReviewResult"][];
         };
+        InferenceQuestionnaireListResponse: {
+            /** Format: int32 */
+            cap?: number;
+            capReached?: boolean;
+            items?: components["schemas"]["OperatorInferredConnectionResponse"][];
+            /** Format: int32 */
+            totalCount?: number;
+        };
         InferredTrailEntry: {
             /** Format: int32 */
             confidence?: number;
@@ -6577,6 +6586,46 @@ export interface components {
             runDetailUrl?: string;
             runId?: string;
             topFindings?: components["schemas"]["OperatorDemoReviewFindingSummary"][];
+        };
+        OperatorInferredConnectionConfirmApiRequest: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: null | string;
+            toArmId?: null | string;
+            toCatalog?: null | string;
+            /** Format: uuid */
+            toCloudResourceId?: null | string;
+        };
+        OperatorInferredConnectionDismissApiRequest: {
+            /** Format: uuid */
+            connectionId?: string;
+        };
+        OperatorInferredConnectionResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            fromArmId?: null | string;
+            /** Format: uuid */
+            fromCloudResourceId?: null | string;
+            fromLabel?: null | string;
+            provenanceKind?: string;
+            questionText?: null | string;
+            ruleName?: null | string;
+            settingName?: null | string;
+            /** Format: uuid */
+            snapshotId?: string;
+            source?: string;
+            sourceFileFormat?: null | string;
+            status?: string;
+            toArmId?: null | string;
+            toCatalog?: null | string;
+            /** Format: uuid */
+            toCloudResourceId?: null | string;
+            toHost?: null | string;
+            /** Format: date-time */
+            updatedUtc?: string;
         };
         OperatorNextBestActionResponse: {
             actionId?: string;

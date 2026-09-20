@@ -9,7 +9,9 @@ import { ArchitectureDiagramViewer } from "@/components/architecture/Architectur
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InferenceQuestionnairePanel } from "@/components/infra-evidence/InferenceQuestionnairePanel";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
+import { OperatorInferredConnectionsPanel } from "@/components/infra-evidence/OperatorInferredConnectionsPanel";
 import { InfraEvidenceDataFlowCaptionDisclosure } from "@/components/infra-evidence/InfraEvidenceDataFlowCaptionDisclosure";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
@@ -43,6 +45,7 @@ import {
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
   INFRA_DIAGRAMS_MERMAID_VIEW_PARAM,
+  INFRA_DIAGRAMS_DIAGRAM_TYPE_OPTIONS,
   INFRA_DIAGRAMS_MODE_OPTIONS,
   INFRA_DIAGRAMS_SEED_NODE_ID_PARAM,
   INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM,
@@ -53,6 +56,7 @@ import {
   parseInfraDiagramsCloudResourceIdFromSearch,
   parseInfraDiagramsHiddenExecutiveTierKeysFromSearchParam,
   parseInfraDiagramsIncludeNeverShowFromSearch,
+  isInfraDiagramsMermaidModeSelected,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
@@ -78,6 +82,16 @@ import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import {
+  buildInfraDiagramsSubscriptionFilterOptions,
+  filterInfraDiagramsSnapshotsBySubscription,
+  INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL,
+  INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_UNSELECTED,
+  isInfraDiagramsSubscriptionFilterChosen,
+  normalizeInfraEvidenceDiagramsSnapshotSummaries,
+  resolveInfraDiagramsSubscriptionFilterForSnapshot,
+  sortInfraDiagramsSnapshotsForPicker,
+} from "@/lib/infra-evidence/infra-evidence-diagrams-snapshot-catalog";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
 import { parseInfraDiagramsDataFlowCaptionPresentation } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
@@ -112,6 +126,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-diagrams-partitioned-view";
 import {
   buildInfraDiagramsResourceGroupModeToken,
+  INFRA_DIAGRAMS_RESOURCE_GROUP_MODE,
   isInfraDiagramsResourceGroupMode,
   isInfraEvidenceBackboneKeepMermaid,
   isInfraEvidenceResourceGroupMapMermaid,
@@ -149,6 +164,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
@@ -172,6 +190,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
@@ -292,6 +313,12 @@ export function DiagramsWorkbenchClient() {
   }, [diagramsResourceIdOpenParam]);
 
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
+  const [selectedSubscriptionFilter, setSelectedSubscriptionFilter] = useState<string>(
+    INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_UNSELECTED,
+  );
+  const [subscriptionResourceGroupArtifacts, setSubscriptionResourceGroupArtifacts] = useState<
+    readonly InfraEvidenceMermaidFallbackArtifactSummary[]
+  >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
@@ -376,8 +403,6 @@ export function DiagramsWorkbenchClient() {
     () => (isInfraDiagramsResourceGroupMode(selectedMode) ? parseInfraDiagramsResourceGroupName(selectedViewKey) : ""),
     [selectedMode, selectedViewKey],
   );
-  const resourceGroupPickerAwaitingSelection =
-    isInfraDiagramsResourceGroupMode(selectedMode) && selectedResourceGroupName.length === 0;
 
   const showFallbackCards = useMemo(
     () =>
@@ -398,9 +423,6 @@ export function DiagramsWorkbenchClient() {
       thematicFallbackArtifacts.length,
     ],
   );
-
-  const showResourceGroupCards =
-    isInfraDiagramsResourceGroupMode(selectedMode) && resourceGroupFallbackArtifacts.length > 0;
 
   const effectiveFallbackKey = useMemo(
     () =>
@@ -435,6 +457,19 @@ export function DiagramsWorkbenchClient() {
       scroll: false,
     });
   }, [pathname, router, searchParams]);
+  const subscriptionFilterOptions = useMemo(
+    () => buildInfraDiagramsSubscriptionFilterOptions(snapshots),
+    [snapshots],
+  );
+
+  const visibleSnapshots = useMemo(
+    () =>
+      sortInfraDiagramsSnapshotsForPicker(
+        filterInfraDiagramsSnapshotsBySubscription(snapshots, selectedSubscriptionFilter),
+      ),
+    [selectedSubscriptionFilter, snapshots],
+  );
+
   const deepLinkedSnapshotMissing = useMemo(() => {
     if (urlSnapshotId.length === 0 || loadingSnapshots || snapshots.length === 0) {
       return false;
@@ -448,11 +483,76 @@ export function DiagramsWorkbenchClient() {
     [selectedSnapshotId, snapshots],
   );
 
+  const selectedSnapshotVisibleInSubscriptionFilter = useMemo(
+    () => visibleSnapshots.some((snapshot) => snapshot.snapshotId === selectedSnapshotId),
+    [selectedSnapshotId, visibleSnapshots],
+  );
+
+  const diagramsSubscriptionChosen = isInfraDiagramsSubscriptionFilterChosen(selectedSubscriptionFilter);
+
+  const snapshotPickerEnabled =
+    diagramsSubscriptionChosen
+    && !loadingSnapshots
+    && visibleSnapshots.length > 0;
+
+  const diagramTypePickerEnabled =
+    diagramsSubscriptionChosen
+    && selectedSnapshotId.length > 0
+    && !deepLinkedSnapshotMissing
+    && selectedSnapshotVisibleInSubscriptionFilter;
+
+  const resourceGroupPickerArtifacts = useMemo(() => {
+    if (resourceGroupFallbackArtifacts.length >= 2) {
+      return resourceGroupFallbackArtifacts;
+    }
+
+    return subscriptionResourceGroupArtifacts;
+  }, [resourceGroupFallbackArtifacts, subscriptionResourceGroupArtifacts]);
+
+  const showResourceGroupDropdown =
+    diagramsSubscriptionChosen && resourceGroupPickerArtifacts.length >= 2;
+
+  const diagramTypeSelected = useMemo(() => {
+    if (isInfraDiagramsResourceGroupMode(selectedMode)) {
+      if (selectedResourceGroupName.length > 0) {
+        return true;
+      }
+
+      return !showResourceGroupDropdown;
+    }
+
+    return isInfraDiagramsMermaidModeSelected(selectedMode);
+  }, [selectedMode, selectedResourceGroupName, showResourceGroupDropdown]);
+
+  const diagramTypePickerValue =
+    diagramTypeSelected && !isInfraDiagramsResourceGroupMode(selectedMode) ? selectedMode : "";
+
+  const resourceGroupPickerAwaitingSelection =
+    !showResourceGroupDropdown
+    && isInfraDiagramsResourceGroupMode(selectedMode)
+    && selectedResourceGroupName.length === 0;
+
+  const showResourceGroupCards =
+    !showResourceGroupDropdown
+    && isInfraDiagramsResourceGroupMode(selectedMode)
+    && resourceGroupFallbackArtifacts.length > 0;
+
+  const awaitingSubscriptionSelection =
+    !loadingSnapshots
+    && !deepLinkedSnapshotMissing
+    && snapshots.length > 0
+    && !diagramsSubscriptionChosen
+    && selectedSnapshotId.length === 0;
+
   const awaitingSnapshotSelection =
     !loadingSnapshots
     && !deepLinkedSnapshotMissing
+    && diagramsSubscriptionChosen
     && selectedSnapshotId.length === 0
     && snapshots.length > 0;
+
+  const awaitingDiagramTypeSelection =
+    diagramTypePickerEnabled && !diagramTypeSelected;
 
   const formatSnapshotPickerLabel = useCallback(
     (snapshot: InfraEvidenceSnapshotSummary): string => {
@@ -473,10 +573,13 @@ export function DiagramsWorkbenchClient() {
     return null;
   }, [formatSnapshotPickerLabel, selectedSnapshot, selectedSnapshotId]);
 
-  const selectedModeLabel = useMemo(
-    () => resolveInfraDiagramsModeLabel(selectedMode, effectiveFallbackKey, selectedResourceGroupName),
-    [effectiveFallbackKey, selectedMode, selectedResourceGroupName],
-  );
+  const selectedModeLabel = useMemo(() => {
+    if (!diagramTypeSelected) {
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER;
+    }
+
+    return resolveInfraDiagramsModeLabel(selectedMode, effectiveFallbackKey, selectedResourceGroupName);
+  }, [diagramTypeSelected, effectiveFallbackKey, selectedMode, selectedResourceGroupName]);
 
   const selectionAnnouncement = useMemo(() => {
     if (deepLinkedSnapshotMissing) {
@@ -557,6 +660,8 @@ export function DiagramsWorkbenchClient() {
     || renderInFlight
     || selectedSnapshotId.length === 0
     || deepLinkedSnapshotMissing
+    || !diagramsSubscriptionChosen
+    || !diagramTypeSelected
     || dependencyNeighborhoodAwaitingSeed
     || resourceGroupPickerAwaitingSelection;
   const mermaidExportDisabled = exportsDisabled || !paintDiagramCanvas;
@@ -788,6 +893,10 @@ export function DiagramsWorkbenchClient() {
   }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
+    if (!diagramsSubscriptionChosen || !diagramTypeSelected) {
+      return null;
+    }
+
     const executiveTierQuery =
       isInfraDiagramsExecutiveMode(selectedMode) && hiddenExecutiveTierKeys.length > 0
         ? { hiddenExecutiveTierKeys }
@@ -835,6 +944,8 @@ export function DiagramsWorkbenchClient() {
     effectiveFallbackKey,
     hiddenExecutiveTierKeys,
     includeNeverShow,
+    diagramsSubscriptionChosen,
+    diagramTypeSelected,
     selectedMode,
     selectedResourceGroupName,
   ]);
@@ -861,7 +972,9 @@ export function DiagramsWorkbenchClient() {
 
       try {
         const response = await fetchInfraEvidenceSnapshots(1, 50);
-        const items = response.items ?? [];
+        const items = sortInfraDiagramsSnapshotsForPicker(
+          normalizeInfraEvidenceDiagramsSnapshotSummaries(response.items ?? []),
+        );
 
         if (!cancelled) {
           setSnapshots(items);
@@ -869,6 +982,12 @@ export function DiagramsWorkbenchClient() {
           const resolvedSnapshotId = resolveInfraDiagramsSelectedSnapshotId(urlSnapshotId, items);
 
           setSelectedSnapshotId(resolvedSnapshotId);
+
+          if (resolvedSnapshotId.length > 0) {
+            const linkedSnapshot = items.find((snapshot) => snapshot.snapshotId === resolvedSnapshotId) ?? null;
+
+            setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+          }
         }
       } catch (error: unknown) {
         if (!cancelled) {
@@ -887,6 +1006,44 @@ export function DiagramsWorkbenchClient() {
       cancelled = true;
     };
   }, [loadGeneration, urlSnapshotId]);
+
+  useEffect(() => {
+    if (urlSnapshotId.length === 0 || snapshots.length === 0) {
+      return;
+    }
+
+    const linkedSnapshot = snapshots.find((snapshot) => snapshot.snapshotId === urlSnapshotId) ?? null;
+
+    if (linkedSnapshot != null) {
+      setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+    }
+  }, [snapshots, urlSnapshotId]);
+
+  const handleSubscriptionFilterChange = useCallback(
+    (nextSubscriptionFilter: string) => {
+      setSelectedSubscriptionFilter(nextSubscriptionFilter);
+
+      const filteredSnapshots = filterInfraDiagramsSnapshotsBySubscription(snapshots, nextSubscriptionFilter);
+      const snapshotStillVisible = filteredSnapshots.some((snapshot) => snapshot.snapshotId === selectedSnapshotId);
+
+      if (
+        nextSubscriptionFilter === INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_ALL
+        || nextSubscriptionFilter === INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_UNSELECTED
+      ) {
+        setSelectedMode("");
+        setSelectedViewKey("");
+        setRenderResult(null);
+        setSubscriptionResourceGroupArtifacts([]);
+        syncUrl({ mermaidMode: "", mermaidView: "" });
+      }
+
+      if (!snapshotStillVisible) {
+        setSelectedSnapshotId("");
+        syncUrl({ snapshotId: "" });
+      }
+    },
+    [selectedSnapshotId, snapshots, syncUrl],
+  );
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
@@ -928,6 +1085,39 @@ export function DiagramsWorkbenchClient() {
       cancelled = true;
     };
   }, [deepLinkedSnapshotMissing, loadGeneration, selectedSnapshotId]);
+
+  useEffect(() => {
+    const prefetchSnapshotId = visibleSnapshots[0]?.snapshotId ?? "";
+
+    if (!diagramsSubscriptionChosen || prefetchSnapshotId.length === 0) {
+      setSubscriptionResourceGroupArtifacts([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadSubscriptionResourceGroups() {
+      try {
+        const preview = await fetchInfraEvidenceMermaidPreview(prefetchSnapshotId);
+        const previewArtifacts = (preview.modes ?? []).flatMap((modePreview) => modePreview.fallbackArtifacts ?? []);
+        const artifacts = resolveInfraDiagramsResourceGroupFallbackArtifacts(previewArtifacts);
+
+        if (!cancelled) {
+          setSubscriptionResourceGroupArtifacts(artifacts);
+        }
+      } catch {
+        if (!cancelled) {
+          setSubscriptionResourceGroupArtifacts([]);
+        }
+      }
+    }
+
+    void loadSubscriptionResourceGroups();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [diagramsSubscriptionChosen, selectedSubscriptionFilter, visibleSnapshots]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
@@ -1030,20 +1220,43 @@ export function DiagramsWorkbenchClient() {
 
   const handleModeChange = useCallback(
     (nextMode: string) => {
-      setSelectedMode(nextMode);
+      const trimmedMode = nextMode.trim();
+
+      setSelectedMode(trimmedMode);
       setSelectedViewKey("");
       setRenderResult(null);
       setDependencySeedBlockedDialog(null);
 
-      if (nextMode !== "dependencyNeighborhood") {
+      if (trimmedMode !== "dependencyNeighborhood") {
         setAppliedSeedNodeId("");
       } else if (urlSeedNodeId.trim().length === 0) {
         setAppliedSeedNodeId("");
       }
 
-      syncUrl({ mermaidMode: nextMode, mermaidView: "" });
+      syncUrl({ mermaidMode: trimmedMode, mermaidView: "" });
     },
     [syncUrl, urlSeedNodeId],
+  );
+
+  const handleResourceGroupPickerChange = useCallback(
+    (nextResourceGroupName: string) => {
+      const trimmedName = nextResourceGroupName.trim();
+
+      if (trimmedName.length === 0) {
+        setSelectedMode("");
+        setSelectedViewKey("");
+        setRenderResult(null);
+        syncUrl({ mermaidMode: "", mermaidView: "" });
+        return;
+      }
+
+      setSelectedMode(INFRA_DIAGRAMS_RESOURCE_GROUP_MODE);
+      setSelectedViewKey(trimmedName);
+      setRenderResult(null);
+      setDependencySeedBlockedDialog(null);
+      syncUrl({ mermaidMode: INFRA_DIAGRAMS_RESOURCE_GROUP_MODE, mermaidView: trimmedName });
+    },
+    [syncUrl],
   );
 
   const handleFallbackSelect = useCallback(
@@ -1230,6 +1443,14 @@ export function DiagramsWorkbenchClient() {
         <InfraEvidenceCompletenessWarningsBanner warnings={completenessWarnings} />
       ) : null}
 
+      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+        <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
+      ) : null}
+
+      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+        <InferenceQuestionnairePanel snapshotId={selectedSnapshotId} />
+      ) : null}
+
       {loadError != null
       && !(
         selectedMode === "dependencyNeighborhood"
@@ -1324,28 +1545,80 @@ export function DiagramsWorkbenchClient() {
           "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
           cnCard,
         )}
-        aria-label="Snapshot and mode selection"
+        aria-label="Subscription, snapshot, and diagram type selection"
       >
         {buyerPolishedShell ? (
           <>
+            <div
+              className={cn(
+                "col-span-full grid min-w-0 gap-2",
+                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "md:max-w-md",
+              )}
+            >
+              <div className="grid min-w-0 gap-2">
+                <Label htmlFor="infra-diagrams-subscription-picker">
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
+                </Label>
+                <select
+                  id="infra-diagrams-subscription-picker"
+                  className={cn("w-full", cnField)}
+                  data-testid="infra-diagrams-subscription-picker"
+                  disabled={loadingSnapshots || snapshots.length === 0}
+                  value={selectedSubscriptionFilter}
+                  onChange={(event) => handleSubscriptionFilterChange(event.target.value)}
+                >
+                  <option value="">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE}</option>
+                  {subscriptionFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {showResourceGroupDropdown ? (
+                <div className="grid min-w-0 gap-2">
+                  <Label htmlFor="infra-diagrams-resource-group-picker">
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE}
+                  </Label>
+                  <select
+                    id="infra-diagrams-resource-group-picker"
+                    className={cn("w-full", cnField)}
+                    data-testid="infra-diagrams-resource-group-picker"
+                    disabled={loadingPreview || resourceGroupPickerArtifacts.length === 0}
+                    value={isInfraDiagramsResourceGroupMode(selectedMode) ? selectedResourceGroupName : ""}
+                    onChange={(event) => handleResourceGroupPickerChange(event.target.value)}
+                  >
+                    <option value="">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_TITLE}</option>
+                    {resourceGroupPickerArtifacts.map((artifact) => (
+                      <option
+                        key={artifact.key}
+                        value={parseInfraDiagramsResourceGroupName(artifact.key)}
+                      >
+                        {artifact.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+            </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL}</Label>
               <select
                 id="infra-diagrams-snapshot-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
-                disabled={loadingSnapshots || snapshots.length === 0}
-                value={selectedSnapshotId}
+                disabled={!snapshotPickerEnabled}
+                value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {snapshots.length === 0 ? (
+                {visibleSnapshots.length === 0 ? (
                   <option value="">No snapshots available</option>
                 ) : (
                   <>
-                    {selectedSnapshotId.length === 0 ? (
+                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
                       <option value="">Select a snapshot</option>
                     ) : null}
-                    {snapshots.map((snapshot) => (
+                    {visibleSnapshots.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
                         {formatSnapshotPickerLabel(snapshot)}
                       </option>
@@ -1360,11 +1633,14 @@ export function DiagramsWorkbenchClient() {
                 id="infra-diagrams-mode-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
-                disabled={loadingPreview || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
-                value={selectedMode}
+                disabled={loadingPreview || !diagramTypePickerEnabled}
+                value={diagramTypePickerValue}
                 onChange={(event) => handleModeChange(event.target.value)}
               >
-                {INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => (
+                {diagramTypePickerValue.length === 0 ? (
+                  <option value="">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER}</option>
+                ) : null}
+                {INFRA_DIAGRAMS_DIAGRAM_TYPE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -1385,6 +1661,58 @@ export function DiagramsWorkbenchClient() {
           </>
         ) : (
           <>
+            <div
+              className={cn(
+                "col-span-full grid min-w-0 gap-2",
+                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "md:max-w-md",
+              )}
+            >
+              <div className="flex min-w-0 flex-col gap-1">
+                <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-subscription-picker">
+                  Subscription
+                </label>
+                <select
+                  id="infra-diagrams-subscription-picker"
+                  className={cn("w-full", cnField)}
+                  data-testid="infra-diagrams-subscription-picker"
+                  disabled={loadingSnapshots || snapshots.length === 0}
+                  value={selectedSubscriptionFilter}
+                  onChange={(event) => handleSubscriptionFilterChange(event.target.value)}
+                >
+                  <option value="">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE}</option>
+                  {subscriptionFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {showResourceGroupDropdown ? (
+                <div className="flex min-w-0 flex-col gap-1">
+                  <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-resource-group-picker">
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE}
+                  </label>
+                  <select
+                    id="infra-diagrams-resource-group-picker"
+                    className={cn("w-full", cnField)}
+                    data-testid="infra-diagrams-resource-group-picker"
+                    disabled={loadingPreview || resourceGroupPickerArtifacts.length === 0}
+                    value={isInfraDiagramsResourceGroupMode(selectedMode) ? selectedResourceGroupName : ""}
+                    onChange={(event) => handleResourceGroupPickerChange(event.target.value)}
+                  >
+                    <option value="">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_TITLE}</option>
+                    {resourceGroupPickerArtifacts.map((artifact) => (
+                      <option
+                        key={artifact.key}
+                        value={parseInfraDiagramsResourceGroupName(artifact.key)}
+                      >
+                        {artifact.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+            </div>
             <div className="flex min-w-0 flex-col gap-1">
               <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-snapshot-picker">
                 Snapshot
@@ -1393,18 +1721,18 @@ export function DiagramsWorkbenchClient() {
                 id="infra-diagrams-snapshot-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
-                disabled={loadingSnapshots || snapshots.length === 0}
-                value={selectedSnapshotId}
+                disabled={!snapshotPickerEnabled}
+                value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {snapshots.length === 0 ? (
+                {visibleSnapshots.length === 0 ? (
                   <option value="">No snapshots available</option>
                 ) : (
                   <>
-                    {selectedSnapshotId.length === 0 ? (
+                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
                       <option value="">Select a snapshot</option>
                     ) : null}
-                    {snapshots.map((snapshot) => (
+                    {visibleSnapshots.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
                         {formatSnapshotPickerLabel(snapshot)}
                       </option>
@@ -1415,17 +1743,20 @@ export function DiagramsWorkbenchClient() {
             </div>
             <div className="flex min-w-0 flex-col gap-1">
               <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-mode-picker">
-                Diagram mode
+                Diagram Type
               </label>
               <select
                 id="infra-diagrams-mode-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
-                disabled={loadingPreview || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
-                value={selectedMode}
+                disabled={loadingPreview || !diagramTypePickerEnabled}
+                value={diagramTypePickerValue}
                 onChange={(event) => handleModeChange(event.target.value)}
               >
-                {INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => (
+                {diagramTypePickerValue.length === 0 ? (
+                  <option value="">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER}</option>
+                ) : null}
+                {INFRA_DIAGRAMS_DIAGRAM_TYPE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -1660,7 +1991,19 @@ export function DiagramsWorkbenchClient() {
               Executive
             </Button>
             {resourceGroupFallbackArtifacts.length > 0 ? (
-              <Button type="button" variant="primary" data-testid="infra-diagrams-density-coach-resource-group" onClick={() => handleModeChange("resourceGroup")}>
+              <Button
+                type="button"
+                variant="primary"
+                data-testid="infra-diagrams-density-coach-resource-group"
+                onClick={() => {
+                  if (showResourceGroupDropdown) {
+                    document.getElementById("infra-diagrams-resource-group-picker")?.focus();
+                    return;
+                  }
+
+                  handleModeChange("resourceGroup");
+                }}
+              >
                 Pick a Resource Group
               </Button>
             ) : null}
@@ -1732,11 +2075,23 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {awaitingSnapshotSelection ? (
+      {awaitingSubscriptionSelection ? (
+        <EnterpriseCompactEmptyState
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE}
+          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY}
+          testId="infra-diagrams-subscription-prompt"
+        />
+      ) : awaitingSnapshotSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY}
           testId="infra-diagrams-snapshot-prompt"
+        />
+      ) : awaitingDiagramTypeSelection ? (
+        <EnterpriseCompactEmptyState
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
+          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY}
+          testId="infra-diagrams-type-prompt"
         />
       ) : dependencyNeighborhoodAwaitingSeed ? (
         <>

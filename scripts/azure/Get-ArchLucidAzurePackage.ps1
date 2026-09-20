@@ -10,6 +10,8 @@
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
     - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via **`Invoke-AzRestMethod`** (preferred; reuses **Connect-AzAccount**) or Azure CLI **`az rest`** fallback to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
     - `-IncludeAppSettingsHosts` emits `app-settings-hosts.json` via POST `config/appsettings/list` and `config/connectionstrings/list` (setting names + parsed hosts + Key Vault URI host/secret name only — never values).
+    - `-IncludeDependencyObservations` emits `dependency-observations.json` via Log Analytics query API (aggregated counts only — no query text or SQL statements).
+    - `-IncludeSqlDatabasePrincipals` emits `sql-database-principals.json` via `sys.database_principals` (Entra user/app names only — no table or permission harvest).
     - Console progress: a heartbeat line is written every 10 seconds while a step is in flight (override with ARCHLUCID_EXTRACTOR_PROGRESS_HEARTBEAT_SECONDS; 0 disables).
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
@@ -43,6 +45,12 @@ param(
 
     [Parameter(Mandatory = $false)]
     [switch] $IncludeAppSettingsHosts,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeDependencyObservations,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeSqlDatabasePrincipals,
 
     [Parameter(Mandatory = $false)]
     [switch] $DryRun
@@ -102,6 +110,7 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorTelemetry.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorProgressHeartbeat.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorJson.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
 
 function Get-ArchLucidExtractorInventoryResources
@@ -419,6 +428,8 @@ if ($IncludeCost) { $switchesUsed += "IncludeCost" }
 if ($IncludeAdvisor) { $switchesUsed += "IncludeAdvisor" }
 if ($IncludeRetailPrices) { $switchesUsed += "IncludeRetailPrices" }
 if ($IncludeAppSettingsHosts) { $switchesUsed += "IncludeAppSettingsHosts" }
+if ($IncludeDependencyObservations) { $switchesUsed += "IncludeDependencyObservations" }
+if ($IncludeSqlDatabasePrincipals) { $switchesUsed += "IncludeSqlDatabasePrincipals" }
 
 $outputDir = Split-Path -Parent $OutputPath
 if (-not (Test-Path -LiteralPath $outputDir))
@@ -720,33 +731,55 @@ try
         [object[]]$messagingAssociationRows = @(Get-ArchLucidAzureMessagingAssociationCompanionRows -InventoryResources @($resources))
         [object[]]$serviceConnectorRows = @(Get-ArchLucidAzureServiceConnectorCompanionRows -InventoryResources @($resources))
         [object[]]$appSettingHostRows = @()
+        [object[]]$dependencyObservationRows = @()
+        [object[]]$sqlDatabasePrincipalRows = @()
 
         if ($IncludeAppSettingsHosts)
         {
             $appSettingHostRows = @(Get-ArchLucidAzureAppSettingHostCompanionRows -InventoryResources @($resources))
         }
 
-        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") ($federatedCredentialRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") ($effectiveNetworkControlRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") ($policyAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") ($diagnosticSettingRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") ($defenderSummaryRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") ($adfLinkedServiceRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") ($adfDatasetRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") ($adfPipelineFlowRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") ($adfTriggerRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") ($adfIntegrationRuntimeRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") ($adfDataflowRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") ($eventGridSubscriptionRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") ($logicAppConnectionRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") ($messagingAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
-        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") ($serviceConnectorRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        if ($IncludeDependencyObservations)
+        {
+            $dependencyObservationRows = @(Get-ArchLucidAzureDependencyObservationCompanionRows -InventoryResources @($resources))
+        }
+
+        if ($IncludeSqlDatabasePrincipals)
+        {
+            $sqlDatabasePrincipalRows = @(Get-ArchLucidAzureSqlDatabasePrincipalCompanionRows -InventoryResources @($resources))
+        }
+
+        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $roleAssignmentRows)
+        Write-Utf8NoBom (Join-Path $staging "network-associations.json") (ConvertTo-ArchLucidJsonArray -Items $networkAssociationRows)
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") (ConvertTo-ArchLucidJsonArray -Items $federatedCredentialRows)
+        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") (ConvertTo-ArchLucidJsonArray -Items $effectiveNetworkControlRows)
+        Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $policyAssignmentRows)
+        Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") (ConvertTo-ArchLucidJsonArray -Items $diagnosticSettingRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") (ConvertTo-ArchLucidJsonArray -Items $defenderSummaryRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") (ConvertTo-ArchLucidJsonArray -Items $adfLinkedServiceRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") (ConvertTo-ArchLucidJsonArray -Items $adfDatasetRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") (ConvertTo-ArchLucidJsonArray -Items $adfPipelineFlowRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") (ConvertTo-ArchLucidJsonArray -Items $adfTriggerRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") (ConvertTo-ArchLucidJsonArray -Items $adfIntegrationRuntimeRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") (ConvertTo-ArchLucidJsonArray -Items $adfDataflowRows)
+        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") (ConvertTo-ArchLucidJsonArray -Items $eventGridSubscriptionRows)
+        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") (ConvertTo-ArchLucidJsonArray -Items $logicAppConnectionRows)
+        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") (ConvertTo-ArchLucidJsonArray -Items $messagingAssociationRows)
+        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") (ConvertTo-ArchLucidJsonArray -Items $serviceConnectorRows)
 
         if ($IncludeAppSettingsHosts)
         {
-            Write-Utf8NoBom (Join-Path $staging "app-settings-hosts.json") ($appSettingHostRows | ConvertTo-Json -Depth 12 -Compress:$false)
+            Write-Utf8NoBom (Join-Path $staging "app-settings-hosts.json") (ConvertTo-ArchLucidJsonArray -Items $appSettingHostRows)
+        }
+
+        if ($IncludeDependencyObservations)
+        {
+            Write-Utf8NoBom (Join-Path $staging "dependency-observations.json") ($dependencyObservationRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        }
+
+        if ($IncludeSqlDatabasePrincipals)
+        {
+            Write-Utf8NoBom (Join-Path $staging "sql-database-principals.json") ($sqlDatabasePrincipalRows | ConvertTo-Json -Depth 12 -Compress:$false)
         }
 
         Complete-ArchLucidExtractorStep `
@@ -905,7 +938,7 @@ ArchLucid Azure extractor output (read-only inventory).
 Schema version: $schemaVersion
 Collection UTC: $collectionTimestamp
 $readmeExtra
-Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Without `-IncludeAppSettingsHosts`, no `app-settings-hosts.json` companion is written. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
+Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Without `-IncludeAppSettingsHosts`, no `app-settings-hosts.json` companion is written. Without `-IncludeDependencyObservations`, no `dependency-observations.json` companion is written. Without `-IncludeSqlDatabasePrincipals`, no `sql-database-principals.json` companion is written. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
 Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/trust-center.md.
 "@
 

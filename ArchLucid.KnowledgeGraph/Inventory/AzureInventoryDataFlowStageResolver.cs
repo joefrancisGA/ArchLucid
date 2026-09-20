@@ -33,6 +33,10 @@ public static class AzureInventoryDataFlowStageResolver
 
     private const string MicrosoftFabricProviderPrefix = "Microsoft.Fabric/";
 
+    private const string MicrosoftCognitiveServicesProviderPrefix = "Microsoft.CognitiveServices/";
+
+    private const string MicrosoftSearchProviderPrefix = "Microsoft.Search/";
+
     public static string? Resolve(string? resourceType, bool isExternalSource)
     {
         if (isExternalSource)
@@ -83,9 +87,15 @@ public static class AzureInventoryDataFlowStageResolver
         }
 
         if (resourceType.StartsWith(MicrosoftSynapseProviderPrefix, StringComparison.OrdinalIgnoreCase)
-            || resourceType.StartsWith(MicrosoftDatabricksProviderPrefix, StringComparison.OrdinalIgnoreCase))
+            || resourceType.StartsWith(MicrosoftDatabricksProviderPrefix, StringComparison.OrdinalIgnoreCase)
+            || resourceType.StartsWith(MicrosoftCognitiveServicesProviderPrefix, StringComparison.OrdinalIgnoreCase))
         {
             return AzureInventoryDataFlowStageNames.Transform;
+        }
+
+        if (resourceType.StartsWith(MicrosoftSearchProviderPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDataFlowStageNames.Storage;
         }
 
         if (resourceType.StartsWith(MicrosoftPowerBiProviderPrefix, StringComparison.OrdinalIgnoreCase)

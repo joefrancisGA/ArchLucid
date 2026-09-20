@@ -43,7 +43,8 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IAzureInventorySnapshotRepository>(static sp =>
             new DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
                 sp.GetRequiredService<SqlAzureInventorySnapshotRepository>(),
-                sp.GetRequiredService<ISecurityDeclaredConnectionRepository>()));
+                sp.GetRequiredService<ISecurityDeclaredConnectionRepository>(),
+                sp.GetRequiredService<IOperatorInferredConnectionRepository>()));
         services.AddScoped<IAzureInventoryDiffRepository, SqlAzureInventoryDiffRepository>();
         services.AddScoped<IAzureInventoryBaselineRepository, SqlAzureInventoryBaselineRepository>();
         services.AddScoped<IAzureInventoryDriftApprovalRepository, SqlAzureInventoryDriftApprovalRepository>();
@@ -67,6 +68,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IOperationalSecurityExceptionRepository, SqlOperationalSecurityExceptionRepository>();
         services.AddScoped<ISecurityAssetAssertionRepository, SqlSecurityAssetAssertionRepository>();
         services.AddScoped<ISecurityDeclaredConnectionRepository, SqlSecurityDeclaredConnectionRepository>();
+        services.AddScoped<IOperatorInferredConnectionRepository, SqlOperatorInferredConnectionRepository>();
         services.AddScoped<IRemediationPatternRepository, SqlRemediationPatternRepository>();
         services.AddScoped<IRemediationPatternMatchRepository, SqlRemediationPatternMatchRepository>();
         services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();

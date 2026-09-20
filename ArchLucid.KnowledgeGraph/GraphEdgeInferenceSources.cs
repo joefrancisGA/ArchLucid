@@ -46,6 +46,10 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAppAuthorizedAccess = "inventory-app-authorized-access";
 
+    public const string InventoryObservedDependency = "inventory-observed-dependency";
+
+    public const string InventorySqlDatabasePrincipal = "inventory-sql-database-principal";
+
     public const string InventoryAppKeyVaultRef = "inventory-app-key-vault-ref";
 
     public const string InventoryHostnameInferredTarget = "inventory-hostname-inferred-target";
@@ -123,6 +127,8 @@ public static class GraphEdgeInferenceSources
     public const string InventoryEntraGroupMembership = "inventory-entra-group-membership";
 
     public const string HumanDeclaredConnection = "human-declared-connection";
+
+    public const string OperatorConfirmedConnection = "inventory-operator-confirmed-connection";
 
     public const string PimEligibilityUnknown = "pim-eligibility-unknown";
 

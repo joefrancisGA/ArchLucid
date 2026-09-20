@@ -1632,6 +1632,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "InfraEvidence/InfraEvidenceOperatorInferredConnectionsController.cs",
+      "class_name": "InfraEvidenceOperatorInferredConnectionsController",
+      "route_template": "v{version:apiVersion}/infra-evidence/snapshots/{snapshotId:guid}/operator-inferred-connections",
+      "normalized_prefix": "/v1/infra-evidence/snapshots/{snapshotId:guid}/operator-inferred-connections",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "InfraEvidence/InfraEvidenceSnapshotsController.cs",
       "class_name": "InfraEvidenceSnapshotsController",
       "route_template": "v{version:apiVersion}/infra-evidence/snapshots",

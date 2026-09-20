@@ -533,6 +533,10 @@ function Get-ArchLucidAzureAccessibleSubscriptions
         $WarningPreference = "SilentlyContinue"
         $subscriptions = @(Get-AzSubscription -ErrorAction Stop)
     }
+    catch
+    {
+        $subscriptions = @()
+    }
     finally
     {
         $WarningPreference = $previousWarningPreference
@@ -770,7 +774,11 @@ function Ensure-ArchLucidAzureSubscriptionSession
         $WarningPreference = 'SilentlyContinue'
         $subscription = Get-AzSubscription `
             -SubscriptionId $trimmedSubscriptionId `
-            -ErrorAction SilentlyContinue
+            -ErrorAction Stop
+    }
+    catch
+    {
+        $subscription = $null
     }
     finally
     {

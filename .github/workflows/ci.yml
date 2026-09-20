@@ -2249,6 +2249,10 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1'
 
+      - name: ArchLucid.ExtractorJson.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ExtractorJson.helpers.Tests.ps1'
+
       - name: ArchLucid.ExtractorProgressHeartbeat.helpers.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ExtractorProgressHeartbeat.helpers.Tests.ps1'

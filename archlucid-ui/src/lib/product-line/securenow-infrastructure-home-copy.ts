@@ -16,7 +16,11 @@ export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING = "Infrastructure" as
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
   "Explore Azure inventory snapshots, diagrams, resource evidence hubs, and grounded Ask." as const;
 
-/** SecureNow home — infrastructure evidence workbench destinations. */
+/**
+ * SecureNow home — infrastructure evidence workbench destinations.
+ * Order matches the Infrastructure navbar, with Terraform mapping last.
+ * Extract & upload stays in the navbar only (ExecuteAuthority).
+ */
 export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
     href: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
@@ -25,25 +29,20 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     recommendedFirst: true,
   },
   {
+    href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+    label: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
+    summary: "Compare inventory snapshots, classify drift, and export advisory Terraform.",
+  },
+  {
     href: SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
     summary:
       "Declare ConnectsTo or DependsOn edges between resources when config files or tribal knowledge are not ingested.",
   },
   {
-    href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
-    summary: "Compare inventory snapshots, classify drift, and export advisory Terraform.",
-  },
-  {
-    href: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
-    summary: "Review advisory Terraform mapping reconstructed from inventory evidence.",
-  },
-  {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-    summary: "Render diagrams, a resource group map for large subscriptions, and server PNG export.",
+    summary: "Render diagrams, export PNG, and export Mermaid.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
@@ -54,5 +53,10 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     href: SECURENOW_INFRASTRUCTURE_ASK_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
     summary: "Ask grounded questions about inventory evidence with citation-backed answers.",
+  },
+  {
+    href: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+    label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+    summary: "Review advisory Terraform mapping reconstructed from inventory evidence.",
   },
 ];

@@ -221,6 +221,22 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
                 yield return parsedUri.Host.ToLowerInvariant();
             }
         }
+
+        if (resourceType.Equals("Microsoft.CognitiveServices/accounts", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            string loweredName = name.ToLowerInvariant();
+
+            // SN-RT-04: OpenAI and Content Safety accounts share Cognitive Services ARM type; index both host suffixes.
+            yield return $"{loweredName}.openai.azure.com";
+            yield return $"{loweredName}.cognitiveservices.azure.com";
+        }
+
+        if (resourceType.Equals("Microsoft.Search/searchServices", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.search.windows.net";
+        }
     }
 
     private static string Normalize(string armId)

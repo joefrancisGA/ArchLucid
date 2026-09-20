@@ -51,7 +51,11 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
         bool serviceConnectorLinksFilePresent = false,
         IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
-        bool appSettingHostsFilePresent = false)
+        bool appSettingHostsFilePresent = false,
+        IReadOnlyList<AzureInventoryDependencyObservationRow>? dependencyObservations = null,
+        bool dependencyObservationsFilePresent = false,
+        IReadOnlyList<AzureInventorySqlDatabasePrincipalRow>? sqlDatabasePrincipals = null,
+        bool sqlDatabasePrincipalsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -74,6 +78,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryPaasChildAssociationRow> paasChildAssociationRows = paasChildAssociations ?? [];
         IReadOnlyList<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinkRows = serviceConnectorLinks ?? [];
         IReadOnlyList<AzureInventoryAppSettingHostRow> appSettingHostRows = appSettingHosts ?? [];
+        IReadOnlyList<AzureInventoryDependencyObservationRow> dependencyObservationRows = dependencyObservations ?? [];
+        IReadOnlyList<AzureInventorySqlDatabasePrincipalRow> sqlDatabasePrincipalRows = sqlDatabasePrincipals ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -231,6 +237,26 @@ public static class AzureInventorySecurityEdgeMaterializer
             AzureInventoryAppSettingHostEdgeMapper.MapHosts(
                 resources,
                 appSettingHostRows,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
+
+        if (dependencyObservationsFilePresent)
+        {
+            AzureInventoryDependencyObservationEdgeMapper.MapObservations(
+                resources,
+                dependencyObservationRows,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
+
+        if (sqlDatabasePrincipalsFilePresent)
+        {
+            AzureInventorySqlDatabasePrincipalEdgeMapper.MapPrincipals(
+                resources,
+                sqlDatabasePrincipalRows,
                 relationships,
                 relationshipKeys,
                 warnings);

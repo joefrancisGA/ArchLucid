@@ -129,6 +129,40 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
     }
 
     [Fact]
+    public void BuildHostIndex_maps_cognitive_services_and_search_hosts()
+    {
+        const string cognitiveArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.CognitiveServices/accounts/openai-dev";
+        const string searchArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Search/searchServices/search-dev";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = cognitiveArmId,
+                ResourceType = "Microsoft.CognitiveServices/accounts",
+                Name = "openai-dev",
+            },
+            new()
+            {
+                AzureResourceId = searchArmId,
+                ResourceType = "Microsoft.Search/searchServices",
+                Name = "search-dev",
+            },
+        ];
+
+        Dictionary<string, string> hostIndex = AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+
+        hostIndex.Should().ContainKey("openai-dev.openai.azure.com");
+        hostIndex["openai-dev.openai.azure.com"].Should().Be(ArmResourceIdNormalizer.Normalize(cognitiveArmId));
+        hostIndex.Should().ContainKey("openai-dev.cognitiveservices.azure.com");
+        hostIndex["openai-dev.cognitiveservices.azure.com"].Should().Be(ArmResourceIdNormalizer.Normalize(cognitiveArmId));
+        hostIndex.Should().ContainKey("search-dev.search.windows.net");
+        hostIndex["search-dev.search.windows.net"].Should().Be(ArmResourceIdNormalizer.Normalize(searchArmId));
+    }
+
+    [Fact]
     public void TryResolveTargetArmId_infers_cosmos_linked_service_from_unique_host()
     {
         const string factoryArmId =

@@ -7156,6 +7156,12 @@
       },
       "AzureInventorySnapshotRecord": {
         "properties": {
+          "architectureDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "captureMethod": {
             "$ref": "#/components/schemas/AzureInventoryCaptureMethod"
           },
@@ -18967,6 +18973,28 @@
         },
         "type": "object"
       },
+      "InferenceQuestionnaireListResponse": {
+        "properties": {
+          "cap": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "capReached": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OperatorInferredConnectionResponse"
+            },
+            "type": "array"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "InferredTrailEntry": {
         "properties": {
           "confidence": {
@@ -22743,6 +22771,148 @@
               "$ref": "#/components/schemas/OperatorDemoReviewFindingSummary"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "OperatorInferredConnectionConfirmApiRequest": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "fromCloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toArmId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toCatalog": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toCloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "OperatorInferredConnectionDismissApiRequest": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperatorInferredConnectionResponse": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fromArmId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fromCloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fromLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "questionText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ruleName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "settingName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "sourceFileFormat": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "toArmId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toCatalog": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toCloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toHost": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
@@ -47988,6 +48158,9 @@
     },
     {
       "name": "InfraEvidenceOperationalFindingRemediation"
+    },
+    {
+      "name": "InfraEvidenceOperatorInferredConnections"
     },
     {
       "name": "InfraEvidenceSnapshots"

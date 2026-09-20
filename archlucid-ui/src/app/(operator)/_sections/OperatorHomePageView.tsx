@@ -49,9 +49,8 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
-  OPERATOR_HOME_BUYER_OVERVIEW,
+  OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH,
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
-  OPERATOR_HOME_PAGE_LEAD,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
   OPERATOR_HOME_SKIP_TARGET_ID,
@@ -63,6 +62,9 @@ import { cn } from "@/lib/utils";
 type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;
 };
+
+/** Home lead/overview match PageHeaderClaimDiscipline — operator helper, not help-reading 15px. */
+const OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS = cn("m-0", OPERATOR_TYPOGRAPHY.helper);
 
 function HomeSectionHeading(props: { readonly id?: string; readonly children: string }) {
   return (
@@ -308,19 +310,13 @@ function OperatorHomePageBody(props: {
           >
             <div className="space-y-4" data-testid="operator-home-buyer-intro">
               <p
-                className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+                className={OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS}
                 data-testid="operator-home-intro"
               >
-                {OPERATOR_HOME_PAGE_LEAD}
+                {OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH}
               </p>
             </div>
           </div>
-          <p
-            className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
-            data-testid="operator-home-overview"
-          >
-            {OPERATOR_HOME_BUYER_OVERVIEW}
-          </p>
           <div className="space-y-4" data-testid="operator-home-workspace">
             {workspaceSections.map((section) => renderSection(section))}
           </div>

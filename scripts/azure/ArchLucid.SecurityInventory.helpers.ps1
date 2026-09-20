@@ -3755,3 +3755,335 @@ function Get-ArchLucidAzureAvdSessionHostAssociationRows
 
     return @($rows.ToArray())
 }
+
+function Get-ArchLucidAzureDependencyObservationCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        Write-Warning 'dependency-observations: Invoke-AzRestMethod unavailable; companion omitted.'
+        return @()
+    }
+
+    $workspaceCustomerIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+
+        if ($resourceType -eq 'Microsoft.OperationalInsights/workspaces')
+        {
+            try
+            {
+                [string]$customerId = "$( $resource.properties.customerId )".Trim()
+
+                if (-not [string]::IsNullOrWhiteSpace($customerId))
+                {
+                    [void]$workspaceCustomerIds.Add($customerId)
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        if ($resourceType -eq 'Microsoft.Insights/components')
+        {
+            try
+            {
+                [string]$workspaceResourceId = "$( $resource.properties.WorkspaceResourceId )".Trim()
+
+                if (-not [string]::IsNullOrWhiteSpace($workspaceResourceId))
+                {
+                    [void]$workspaceCustomerIds.Add($workspaceResourceId)
+                }
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    if ($workspaceCustomerIds.Count -eq 0)
+    {
+        Write-Warning 'dependency-observations: no Log Analytics workspace discovered in inventory; companion empty.'
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+    [DateTime]$windowEnd = (Get-Date).ToUniversalTime()
+    [DateTime]$windowStart = $windowEnd.AddDays(-7)
+    [string]$windowStartUtc = $windowStart.ToString('o')
+    [string]$windowEndUtc = $windowEnd.ToString('o')
+
+    $queries = @(
+        @{
+            observationKind = 'sqlDependency'
+            operationClass = 'unknown'
+            query = @"
+AppDependencies
+| where TimeGenerated >= ago(7d)
+| where Target has '.database.windows.net'
+| summarize eventCount = count() by sourcePrincipalId = AppRoleInstance, targetHost = tolower(Target), operationClass = 'unknown'
+| where eventCount > 0
+| take 200
+"@
+        },
+        @{
+            observationKind = 'httpDependency'
+            operationClass = 'unknown'
+            query = @"
+AppDependencies
+| where TimeGenerated >= ago(7d)
+| where Target !has '.database.windows.net'
+| summarize eventCount = count() by sourceAppRoleName = AppRoleName, targetHost = tolower(Target), operationClass = 'unknown'
+| where eventCount > 0
+| take 200
+"@
+        },
+        @{
+            observationKind = 'sqlAudit'
+            operationClass = 'unknown'
+            query = @"
+AzureDiagnostics
+| where TimeGenerated >= ago(7d)
+| where Category == 'SQLSecurityAuditEvents'
+| summarize eventCount = count() by sourcePrincipalId = tostring(identity_claim_oid_g), targetCatalog = database_name_s, operationClass = 'unknown'
+| where eventCount > 0
+| take 200
+"@
+        },
+        @{
+            observationKind = 'storageBlob'
+            operationClass = 'unknown'
+            query = @"
+StorageBlobLogs
+| where TimeGenerated >= ago(7d)
+| summarize eventCount = count() by sourcePrincipalId = tostring(identity_claim_oid_g), targetHost = tolower(AccountName), operationClass = 'unknown'
+| where eventCount > 0
+| take 200
+"@
+        },
+        @{
+            observationKind = 'storageQueue'
+            operationClass = 'unknown'
+            query = @"
+StorageQueueLogs
+| where TimeGenerated >= ago(7d)
+| summarize eventCount = count() by sourcePrincipalId = tostring(identity_claim_oid_g), targetHost = tolower(AccountName), operationClass = 'unknown'
+| where eventCount > 0
+| take 200
+"@
+        },
+        @{
+            observationKind = 'keyVault'
+            operationClass = 'unknown'
+            query = @"
+AzureDiagnostics
+| where TimeGenerated >= ago(7d)
+| where ResourceProvider == 'MICROSOFT.KEYVAULT'
+| summarize eventCount = count() by sourcePrincipalId = tostring(identity_claim_oid_g), targetHost = tolower(Resource), operationClass = 'unknown'
+| where eventCount > 0
+| take 200
+"@
+        },
+        @{
+            observationKind = 'managedIdentitySignIn'
+            operationClass = 'unknown'
+            query = @"
+AADManagedIdentitySignInLogs
+| where TimeGenerated >= ago(7d)
+| where ResourceIdentityType == 'Service'
+| summarize eventCount = count() by sourcePrincipalId = tostring(Identity), operationClass = 'unknown'
+| where eventCount > 0
+| take 200
+"@
+        }
+    )
+
+    foreach ($workspaceId in @($workspaceCustomerIds))
+    {
+        foreach ($querySpec in @($queries))
+        {
+            try
+            {
+                $body = @{
+                    query = $querySpec.query
+                    timespan = 'P7D'
+                } | ConvertTo-Json -Depth 6 -Compress
+
+                $response = Invoke-AzRestMethod `
+                    -Method POST `
+                    -Uri "https://api.loganalytics.io/v1/workspaces/$workspaceId/query" `
+                    -Payload $body `
+                    -ErrorAction Stop
+
+                if ($response.StatusCode -eq 403 -or $response.StatusCode -eq 404)
+                {
+                    Write-Warning "dependency-observations: workspace $workspaceId returned $($response.StatusCode); skipping."
+                    continue
+                }
+
+                if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+                {
+                    Write-Warning "dependency-observations: workspace $workspaceId query failed with $($response.StatusCode)."
+                    continue
+                }
+
+                $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+                $columns = @($payload.tables[0].columns | ForEach-Object { $_.name })
+                $columnIndex = @{}
+
+                for ($i = 0; $i -lt $columns.Count; $i++)
+                {
+                    $columnIndex[$columns[$i]] = $i
+                }
+
+                foreach ($tableRow in @($payload.tables[0].rows))
+                {
+                    [string]$sourcePrincipalId = ''
+                    [string]$sourceAppRoleName = ''
+                    [string]$targetHost = ''
+                    [string]$targetCatalog = ''
+                    [long]$eventCount = 0
+
+                    if ($columnIndex.ContainsKey('sourcePrincipalId'))
+                    {
+                        $sourcePrincipalId = "$( $tableRow[$columnIndex['sourcePrincipalId']] )".Trim()
+                    }
+
+                    if ($columnIndex.ContainsKey('sourceAppRoleName'))
+                    {
+                        $sourceAppRoleName = "$( $tableRow[$columnIndex['sourceAppRoleName']] )".Trim()
+                    }
+
+                    if ($columnIndex.ContainsKey('targetHost'))
+                    {
+                        $targetHost = "$( $tableRow[$columnIndex['targetHost']] )".Trim().ToLowerInvariant()
+                    }
+
+                    if ($columnIndex.ContainsKey('targetCatalog'))
+                    {
+                        $targetCatalog = "$( $tableRow[$columnIndex['targetCatalog']] )".Trim()
+                    }
+
+                    if ($columnIndex.ContainsKey('eventCount'))
+                    {
+                        [void][long]::TryParse("$( $tableRow[$columnIndex['eventCount']] )", [ref]$eventCount)
+                    }
+
+                    if ([string]::IsNullOrWhiteSpace($sourcePrincipalId) -and [string]::IsNullOrWhiteSpace($sourceAppRoleName))
+                    {
+                        continue
+                    }
+
+                    [string]$key = "$workspaceId|$($querySpec.observationKind)|$sourcePrincipalId|$sourceAppRoleName|$targetHost|$targetCatalog"
+
+                    if ($seen.ContainsKey($key)) { continue }
+                    $seen[$key] = $true
+
+                    [void]$rows.Add([ordered]@{
+                        sourcePrincipalId = $(if ([string]::IsNullOrWhiteSpace($sourcePrincipalId)) { $null } else { $sourcePrincipalId })
+                        sourceAppRoleName = $(if ([string]::IsNullOrWhiteSpace($sourceAppRoleName)) { $null } else { $sourceAppRoleName })
+                        targetHost = $(if ([string]::IsNullOrWhiteSpace($targetHost)) { $null } else { $targetHost })
+                        targetCatalog = $(if ([string]::IsNullOrWhiteSpace($targetCatalog)) { $null } else { $targetCatalog })
+                        observationKind = $querySpec.observationKind
+                        operationClass = $querySpec.operationClass
+                        eventCount = $eventCount
+                        windowStartUtc = $windowStartUtc
+                        windowEndUtc = $windowEndUtc
+                        workspaceId = $workspaceId
+                        collectionStatus = 'Succeeded'
+                    })
+                }
+            }
+            catch
+            {
+                Write-Warning "dependency-observations: query failed for workspace $workspaceId ($($querySpec.observationKind))."
+            }
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureSqlDatabasePrincipalCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    $skipDatabaseNames = @('master', 'msdb', 'tempdb')
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$databaseArmId = "$( $resource.resourceId )".Trim()
+        [string]$databaseName = "$( $resource.name )".Trim()
+
+        if ($resourceType -ne 'Microsoft.Sql/servers/databases') { continue }
+
+        if ([string]::IsNullOrWhiteSpace($databaseArmId) -or [string]::IsNullOrWhiteSpace($databaseName)) { continue }
+
+        if ($skipDatabaseNames -contains $databaseName.ToLowerInvariant()) { continue }
+
+        if (-not ($databaseArmId -match '/servers/(?<server>[^/]+)/databases/(?<database>[^/]+)$'))
+        {
+            continue
+        }
+
+        [string]$serverName = $Matches['server']
+        [string]$connectionString = "Server=tcp:$serverName.database.windows.net,1433;Database=$databaseName;Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;"
+
+        try
+        {
+            $connection = [Microsoft.Data.SqlClient.SqlConnection]::new($connectionString)
+            $connection.Open()
+            $command = $connection.CreateCommand()
+            $command.CommandText = "SELECT name, type_desc FROM sys.database_principals WHERE type IN ('E','X')"
+
+            $reader = $command.ExecuteReader()
+
+            while ($reader.Read())
+            {
+                [string]$principalName = "$( $reader.GetValue(0) )".Trim()
+                [string]$typeDesc = "$( $reader.GetValue(1) )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($principalName) -or [string]::IsNullOrWhiteSpace($typeDesc)) { continue }
+
+                [string]$key = "$databaseArmId|$principalName|$typeDesc"
+
+                if ($seen.ContainsKey($key)) { continue }
+                $seen[$key] = $true
+
+                [void]$rows.Add([ordered]@{
+                    databaseArmId = $databaseArmId
+                    principalName = $principalName
+                    typeDesc = $typeDesc
+                    collectionStatus = 'Succeeded'
+                })
+            }
+
+            $reader.Close()
+            $connection.Close()
+        }
+        catch
+        {
+            Write-Warning "sql-database-principals: connect/query failed for $databaseArmId."
+        }
+    }
+
+    return @($rows.ToArray())
+}

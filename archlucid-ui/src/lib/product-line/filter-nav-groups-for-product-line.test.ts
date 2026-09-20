@@ -4,9 +4,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
-  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -88,28 +86,22 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     ]);
     expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
-    expect(infrastructureLinks[0]?.href).toBe("/infrastructure/resources");
-    expect(infrastructureLinks[1]?.href).toBe("/infrastructure/declared-connections");
+    expect(infrastructureLinks.map((link) => link.href)).toEqual([
+      "/infrastructure/resources",
+      "/infrastructure/extract-upload",
+      "/infrastructure/drift",
+      "/infrastructure/declared-connections",
+      "/infrastructure/diagrams",
+      "/infrastructure/diagram-reconcile",
+      "/infrastructure/ask",
+      "/infrastructure/terraform",
+    ]);
+    expect(infrastructureLinks.at(-1)?.href).toBe("/infrastructure/terraform");
     expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
-
-    const diagramsIndex = infrastructureLinks.findIndex((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH);
-    const diagramReconcileIndex = infrastructureLinks.findIndex(
-      (link) => link.href === "/infrastructure/diagram-reconcile",
-    );
-    const terraformIndex = infrastructureLinks.findIndex(
-      (link) => link.href === "/infrastructure/terraform",
-    );
-
-    expect(diagramsIndex).toBeGreaterThanOrEqual(0);
-    expect(diagramReconcileIndex).toBeGreaterThan(diagramsIndex);
-    expect(terraformIndex).toBeGreaterThan(diagramReconcileIndex);
-    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/extract-upload")).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/drift")).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/drift")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/declared-connections")).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/declared-connections")).toBe(false);
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",

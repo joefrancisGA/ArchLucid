@@ -11,7 +11,7 @@ import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-h
 export const SECURENOW_SECURITY_HOME_SECTION_HEADING = "Security" as const;
 
 export const SECURENOW_SECURITY_HOME_SECTION_LEAD =
-  "Triage assigned findings, run remediation factory workflows, review remediation patterns, and track remediation instances." as const;
+  "Triage security findings, create and run remediation factory workflows, review remediation patterns, and track remediation instances." as const;
 
 /** SecureNow home — operational security destinations (integration links live under Integration nav). */
 export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [

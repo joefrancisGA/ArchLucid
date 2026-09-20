@@ -9,4 +9,10 @@ public enum AzureInventoryDataFlowEvidenceFamily
     AuthorizedAccess = 1,
     StructuralNetworkPath = 2,
     InferredHostname = 3,
+
+    /// <summary>Operator-confirmed runtime connection (SN-RT-10 / SN-RT-13).</summary>
+    HumanConfirmed = 4,
+
+    /// <summary>Time-bounded Log Analytics dependency observations (SN-RT-07).</summary>
+    ObservedRuntime = 5,
 }
