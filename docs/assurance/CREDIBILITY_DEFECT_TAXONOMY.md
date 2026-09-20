@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and test-program evidence; not buyer-facing proof or a correctness/superiority claim.
+
 # Credibility defect taxonomy
 
 A credibility defect is a product behavior that can make a technically sophisticated reviewer doubt the integrity of the analysis, even when no customer outage occurs.
