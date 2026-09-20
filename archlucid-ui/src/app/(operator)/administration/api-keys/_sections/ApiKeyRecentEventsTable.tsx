@@ -63,7 +63,7 @@ export function ApiKeyRecentEventsTable(props: ApiKeyRecentEventsTableProps): Re
   }
 
   return (
-    <EnterpriseTable ariaLabel="Recent API key events" data-testid="api-keys-recent-events-table">
+    <EnterpriseTable ariaLabel="This session\'s API key events" data-testid="api-keys-recent-events-table">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>{API_KEYS_AUDIT_COLUMN_TIME}</EnterpriseTableHeaderCell>
