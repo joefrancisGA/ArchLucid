@@ -39,6 +39,13 @@ public sealed class ProjectScopeKeyRepositoryBoundaryTests
             parameterTypes.Should().Contain(
                 typeof(ProjectScopeKey),
                 $"{repositoryType.Name}.{method.Name} must make project authority explicit");
+
+            method.GetParameters()
+                .Select(parameter => parameter.Name)
+                .Should()
+                .NotContain(
+                    name => name is "tenantId" or "workspaceId" or "projectId",
+                    $"{repositoryType.Name}.{method.Name} must not reintroduce loose authority dimensions");
         }
     }
 }
