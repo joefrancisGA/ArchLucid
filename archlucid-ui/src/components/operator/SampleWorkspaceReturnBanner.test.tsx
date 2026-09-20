@@ -26,6 +26,12 @@ vi.mock("@/lib/auth/exit-live-seat-training", () => ({
   exitLiveSeatTraining: (...args: unknown[]) => exitLiveSeatTrainingMock(...args),
 }));
 
+const setUserFirstSessionPurposeMock = vi.hoisted(() => vi.fn(async () => undefined));
+
+vi.mock("@/lib/api/user-preferences", () => ({
+  setUserFirstSessionPurpose: (...args: unknown[]) => setUserFirstSessionPurposeMock(...args),
+}));
+
 import { SampleWorkspaceReturnBanner } from "@/components/operator/SampleWorkspaceReturnBanner";
 import { BUYER_SCOPE_BACK_TO_YOUR_WORKSPACE_CTA } from "@/lib/buyer/buyer-polish-copy";
 
