@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal engineering assurance guidance and operational controls; not buyer-facing proof or a correctness/superiority claim.
+
 # Statistical bug discovery
 
 The bug-hunt program should optimize **unique meaningful defects found per unit of effort**, not raw bug count.
