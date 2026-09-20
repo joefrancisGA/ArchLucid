@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
 
+  assignedToMeFindingsHref,
   buildGovernanceAssignedToMeEmptyDescription,
 
   formatGovernanceAssignedToMeCheckedAtRelative,
@@ -159,6 +160,21 @@ describe("governance-assigned-to-me-empty-state", () => {
 
   });
 
+  it("keeps SecureNow empty states inside the SecureNow navigation", () => {
+    expect(assignedToMeFindingsHref("security")).toBe("/compliance/findings");
+
+    render(
+      <>
+        {buildGovernanceAssignedToMeEmptyDescription({
+          assigneeDisplayName: "Jordan Lee",
+          checkedAt: new Date("2026-08-14T18:05:00.000Z"),
+          productLine: "security",
+        })}
+      </>,
+    );
+
+    expect(screen.queryByRole("link", { name: "View audit trail" })).not.toBeInTheDocument();
+  });
 });
 
 
