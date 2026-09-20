@@ -71,6 +71,7 @@ public sealed class InfraEvidenceOperatorInferredConnectionsController(
         });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("confirm")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: OperatorInferredConnectionService logs confirm via IAuditService.")]
@@ -126,6 +127,7 @@ public sealed class InfraEvidenceOperatorInferredConnectionsController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("dismiss")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: OperatorInferredConnectionService logs dismiss via IAuditService.")]
