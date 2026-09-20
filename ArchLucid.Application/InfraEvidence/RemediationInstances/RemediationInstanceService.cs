@@ -46,7 +46,7 @@ public sealed class RemediationInstanceService(
             return sealedManifestFailure;
 
         RemediationPatternMatchResultRecord? activeMatch =
-            await matchRepository.TryGetActiveMatchAsync(scope.TenantId, findingId, cancellationToken);
+            await matchRepository.TryGetActiveMatchInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
 
         if (activeMatch is null)
             return Failed("No active remediation pattern match exists for the finding.");
@@ -159,7 +159,7 @@ public sealed class RemediationInstanceService(
             return Failed("Inventory snapshot was not found.");
 
         RemediationPatternMatchResultRecord? activeMatch =
-            await matchRepository.TryGetActiveMatchAsync(scope.TenantId, instance.FindingId, cancellationToken);
+            await matchRepository.TryGetActiveMatchInScopeAsync(scope.ToProjectScopeKey(), instance.FindingId, cancellationToken);
 
         bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingInScopeAsync(
             scope.ToProjectScopeKey(),
