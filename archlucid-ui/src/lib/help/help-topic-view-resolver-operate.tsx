@@ -39,6 +39,11 @@ const HelpFalseHardInfeasibilityGuideView = dynamic(() =>
     (module) => module.HelpFalseHardInfeasibilityGuideView,
   ),
 );
+const HelpFirstLoginWorkspaceGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpFirstLoginWorkspaceGuideView").then(
+    (module) => module.HelpFirstLoginWorkspaceGuideView,
+  ),
+);
 const HelpWhichModeAmIInGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpWhichModeAmIInGuideView").then(
     (module) => module.HelpWhichModeAmIInGuideView,
@@ -347,6 +352,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "extraction-fidelity") {
     return <HelpExtractionFidelityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "first-login-workspace") {
+    return <HelpFirstLoginWorkspaceGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "which-mode-am-i-in") {
     return <HelpWhichModeAmIInGuideView entry={loaded.entry} />;
