@@ -46,6 +46,9 @@ public sealed class ProjectScopeKeyRepositoryBoundaryTests
                 .NotContain(
                     name => name is "tenantId" or "workspaceId" or "projectId",
                     $"{repositoryType.Name}.{method.Name} must not reintroduce loose authority dimensions");
+
+            method.IsAbstract.Should().BeTrue(
+                $"{repositoryType.Name}.{method.Name} must be implemented by the persistence adapter so scope is pushed into the query");
         }
     }
 }
