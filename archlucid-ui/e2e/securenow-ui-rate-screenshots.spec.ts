@@ -118,8 +118,18 @@ async function primeSecureNowShellStorage(page: Page): Promise<void> {
   );
 }
 
+/**
+ * `useProductLine` resolves client-side, so the shell renders the default ArchLucid wordmark, trial banner, and
+ * demo workspace switcher for a beat after hydration reports ready. Capturing in that window rates the wrong
+ * product shell, which is worse than a blank frame because it looks plausible.
+ */
+async function waitForSecureNowBrandSettled(page: Page): Promise<void> {
+  await expect(page.getByTestId("archlucid-wordmark-link")).toHaveText(/SecureNow/, { timeout: 60_000 });
+}
+
 async function waitForSecureNowScreenshotHydration(page: Page, href: string): Promise<string> {
   await waitForLiveOperatorPageHydration(page, { timeoutMs: 90_000 });
+  await waitForSecureNowBrandSettled(page);
 
   const effectiveHref = screenshotEffectiveHref(page.url());
 
