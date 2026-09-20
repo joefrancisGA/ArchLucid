@@ -32,14 +32,17 @@ export function InferenceQuestionnairePanel(
   const [items, setItems] = useState<OperatorInferredConnectionRow[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [choice, setChoice] = useState<QuestionnaireChoice>(null);
+  const [skippedConnectionIds, setSkippedConnectionIds] = useState<ReadonlySet<string>>(() => new Set());
   const [selectedCatalog, setSelectedCatalog] = useState<string>("");
   const [panelError, setPanelError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const proposedItems = useMemo(
-    () => items.filter((item) => item.status === "Proposed"),
-    [items],
+    () => items.filter(
+      (item) => item.status === "Proposed" && !skippedConnectionIds.has(item.connectionId),
+    ),
+    [items, skippedConnectionIds],
   );
 
   const currentItem = proposedItems[currentIndex] ?? null;
@@ -85,9 +88,10 @@ export function InferenceQuestionnairePanel(
     currentItem?.ruleName === "SQL catalog missing" || currentItem?.ruleName === "Tenant catalog template";
 
   const canSubmit =
-    choice != null
-    && !submitting
-    && (choice !== "yes" || !requiresCatalogChoice || selectedCatalog.trim().length > 0 || choice === "skip");
+    !submitting
+    && (choice === "skip"
+      || choice === "no"
+      || (choice === "yes" && (!requiresCatalogChoice || selectedCatalog.trim().length > 0)));
 
   const onSubmit = useCallback(async () => {
     if (currentItem == null || choice == null) {
@@ -95,7 +99,12 @@ export function InferenceQuestionnairePanel(
     }
 
     if (choice === "skip") {
-      setCurrentIndex((index) => Math.min(index + 1, Math.max(proposedItems.length - 1, 0)));
+      setSkippedConnectionIds((current) => {
+        const next = new Set(current);
+        next.add(currentItem.connectionId);
+        return next;
+      });
+      setCurrentIndex(0);
       setChoice(null);
       setSelectedCatalog("");
       return;

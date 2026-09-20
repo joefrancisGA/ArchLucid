@@ -154,7 +154,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
               void onDownloadEvidencePackage();
             }}
           >
-            {packageDownloadBusy ? "Preparing package…" : "Download evidence package (ZIP)"}
+            {packageDownloadBusy ? "Preparing bundle…" : "Download evidence bundle (ZIP)"}
           </Button>
           {packageDownloadError != null ? (
             <OperatorMutationInlineError

@@ -63,13 +63,9 @@ public static class OrchestratorTransientDbRetry
     {
         if (ex is AggregateException aggregate)
         {
-            foreach (Exception inner in aggregate.Flatten().InnerExceptions)
-            {
-                if (SqlTransientDetector.IsTransient(inner))
-                    return true;
-            }
+            IReadOnlyCollection<Exception> inners = aggregate.Flatten().InnerExceptions;
 
-            return false;
+            return inners.Count > 0 && inners.All(SqlTransientDetector.IsTransient);
         }
 
         return SqlTransientDetector.IsTransient(ex);

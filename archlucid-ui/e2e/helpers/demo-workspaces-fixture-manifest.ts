@@ -1,4 +1,4 @@
-import demoManifest from "../../../fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json";
+import demoManifest from "../../../fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json" with { type: "json" };
 
 export type DemoWorkspaceFixtureWorkspace = {
   readonly code: string;

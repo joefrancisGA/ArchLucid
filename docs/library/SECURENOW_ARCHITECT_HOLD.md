@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow architect hold (SA-22); not buyer-facing product copy.
+
 # SecureNow architect hold (SA-22)
 
 **Status:** Active written hold — **not implementation**. Paste [`.cursor/prompts/securenow-architect-22-hold-no-apply-no-mega-graph.md`](../../.cursor/prompts/securenow-architect-22-hold-no-apply-no-mega-graph.md) only when a session starts apply, mega-graph, `IFindingEngine`, SIEM, or confidence percentages.

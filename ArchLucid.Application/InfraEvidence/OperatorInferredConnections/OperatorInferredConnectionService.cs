@@ -96,7 +96,10 @@ public sealed class OperatorInferredConnectionService(
         }
 
         OperatorInferredConnectionRecord? record =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, request.ConnectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                request.ConnectionId,
+                cancellationToken);
 
         if (record is null || record.SnapshotId != snapshotId)
         {
@@ -157,7 +160,10 @@ public sealed class OperatorInferredConnectionService(
         }
 
         OperatorInferredConnectionRecord? record =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, request.ConnectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                request.ConnectionId,
+                cancellationToken);
 
         if (record is null || record.SnapshotId != snapshotId)
         {
