@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -54,6 +55,40 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
         return row is null ? null : Map(row);
     }
 
+    public async Task<SecurityDeclaredConnectionRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid connectionId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT ConnectionId, TenantId, WorkspaceId, ProjectId, FromCloudResourceId, ToCloudResourceId,
+                                  RelationshipType, Rationale, EvidenceReference, ExpirationUtc, Status,
+                                  RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256, ExpiryProcessedUtc,
+                                  CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.SecurityDeclaredConnections
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        ConnectionRow? row = await conn.QuerySingleOrDefaultAsync<ConnectionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ConnectionId = connectionId,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default)
@@ -72,6 +107,38 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
 
         IEnumerable<ConnectionRow> rows = await conn.QueryAsync<ConnectionRow>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
+    public async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT ConnectionId, TenantId, WorkspaceId, ProjectId, FromCloudResourceId, ToCloudResourceId,
+                                  RelationshipType, Rationale, EvidenceReference, ExpirationUtc, Status,
+                                  RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256, ExpiryProcessedUtc,
+                                  CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.SecurityDeclaredConnections
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ConnectionRow> rows = await conn.QueryAsync<ConnectionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                },
+                cancellationToken: cancellationToken));
 
         return rows.Select(Map).ToList();
     }

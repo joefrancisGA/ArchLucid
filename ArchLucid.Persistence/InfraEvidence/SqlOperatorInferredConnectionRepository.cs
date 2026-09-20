@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -67,6 +68,37 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, ConnectionId = connectionId },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
+    public async Task<OperatorInferredConnectionRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid connectionId,
+        CancellationToken cancellationToken = default)
+    {
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           SELECT *
+                           FROM dbo.OperatorInferredConnections
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId;
+                           """;
+
+        ConnectionRow? row = await connection.QuerySingleOrDefaultAsync<ConnectionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ConnectionId = connectionId,
+                },
                 cancellationToken: cancellationToken));
 
         return row is null ? null : Map(row);

@@ -1,5 +1,6 @@
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -88,6 +89,42 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, InstanceId = instanceId },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : MapInstance(row);
+    }
+
+    public async Task<RemediationInstanceRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND InstanceId = @InstanceId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        InstanceRow? row = await conn.QuerySingleOrDefaultAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    InstanceId = instanceId,
+                },
                 cancellationToken: cancellationToken));
 
         return row is null ? null : MapInstance(row);
