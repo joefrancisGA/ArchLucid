@@ -40,6 +40,15 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "RevokeInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "HasActiveExceptionForFindingInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRepository), typeof(SqlSecurityEvidencePathRepository), "ListHopsByPathInScopeAsync"];
+        yield return [typeof(ISecurityEvidencePathRepository), typeof(SqlSecurityEvidencePathRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(ISecurityEvidencePathRankRepository), typeof(SqlSecurityEvidencePathRankRepository), "TryGetRankInScopeAsync"];
+        yield return [typeof(ISecurityEvidencePathRankRepository), typeof(SqlSecurityEvidencePathRankRepository), "ReplaceRanksForSnapshotInScopeAsync"];
+        yield return [typeof(ISecurityEvidenceCutPointRepository), typeof(SqlSecurityEvidenceCutPointRepository), "ListByPathIdInScopeAsync"];
+        yield return [typeof(ISecurityEvidenceCutPointRepository), typeof(SqlSecurityEvidenceCutPointRepository), "ReplaceCutPointsForSnapshotInScopeAsync"];
+        yield return [typeof(ISecurityEvidencePathRoutingRepository), typeof(SqlSecurityEvidencePathRoutingRepository), "ListByPathIdInScopeAsync"];
+        yield return [typeof(ISecurityEvidencePathRoutingRepository), typeof(SqlSecurityEvidencePathRoutingRepository), "ReplaceRoutingForPathInScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByScopeAsync"];
+        yield return [typeof(IRemediationPrioritizationRepository), typeof(SqlRemediationPrioritizationRepository), "ListScoresByScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "DeactivateMatchesForFindingInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "InsertMatchResultInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "InsertConflictInScopeAsync"];
