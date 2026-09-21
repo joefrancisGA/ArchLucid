@@ -168,7 +168,9 @@ public sealed class RemediationInstanceServiceTests
 
         Mock<IOperationalSecurityFindingRepository> findingRepository = new();
         findingRepository
-            .Setup(repository => repository.TryGetByIdInScopeAsync(TenantId, WorkspaceId, ProjectId, FindingId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                ProjectScopeKey.Create(TenantId, WorkspaceId, ProjectId),
+                FindingId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateOperationalFinding(pathId: null));
 
         RemediationInstanceService sut = CreateSut(
@@ -200,7 +202,9 @@ public sealed class RemediationInstanceServiceTests
 
         Mock<IOperationalSecurityFindingRepository> findingRepository = new();
         findingRepository
-            .Setup(repository => repository.TryGetByIdInScopeAsync(TenantId, WorkspaceId, ProjectId, FindingId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                ProjectScopeKey.Create(TenantId, WorkspaceId, ProjectId),
+                FindingId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateOperationalFinding(pathId: pathId));
 
         RemediationPathNarrative expectedNarrative = new()

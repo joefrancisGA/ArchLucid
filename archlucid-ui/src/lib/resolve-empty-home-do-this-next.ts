@@ -18,12 +18,22 @@ import {
   buildGoldenSponsorPackageWalkthroughHrefFromReviewPath,
 } from "@/lib/golden-sponsor-package-walkthrough";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import {
+  OPERATOR_HOME_LIVE_EMPTY_BRIDGE_COPY,
+  OPERATOR_HOME_TRY_TRAINING_WALKTHROUGH_CTA,
+} from "@/lib/operator/empty-live-home-copy";
+
+export type EmptyHomeDoThisNextSecondaryAction = {
+  readonly label: string;
+  readonly kind: "training-walkthrough";
+};
 
 export type EmptyHomeDoThisNextAction = {
   readonly label: string;
   readonly href: string;
   readonly bridgeCopy: string;
   readonly kind: "setup" | "sample" | "work";
+  readonly secondary?: EmptyHomeDoThisNextSecondaryAction;
 };
 
 function toSetupAction(
@@ -77,13 +87,29 @@ function resolveBlockingSetupAction(
   return toSetupAction(nextRequired, bridgeCopy);
 }
 
-function resolveWorkingModeNewReviewAction(): EmptyHomeDoThisNextAction {
-  return {
+function resolveWorkingModeNewReviewAction(
+  liveDedicatedEmpty: boolean,
+): EmptyHomeDoThisNextAction {
+  const action: EmptyHomeDoThisNextAction = {
     kind: "work",
     label: "New review",
     href: ARCHITECTURES_NEW_PATH,
-    bridgeCopy: "Open the architecture draft editor and start a new architecture review.",
+    bridgeCopy: liveDedicatedEmpty
+      ? OPERATOR_HOME_LIVE_EMPTY_BRIDGE_COPY
+      : "Open the architecture draft editor and start a new architecture review.",
   };
+
+  if (liveDedicatedEmpty) {
+    return {
+      ...action,
+      secondary: {
+        kind: "training-walkthrough",
+        label: OPERATOR_HOME_TRY_TRAINING_WALKTHROUGH_CTA,
+      },
+    };
+  }
+
+  return action;
 }
 
 function resolveSampleHref(sampleHref: string | null | undefined): string {
@@ -133,8 +159,10 @@ export function resolveEmptyHomeDoThisNext(input: {
   readonly sampleHref?: string | null;
   readonly demoSeededOverview?: boolean;
   readonly workingMode?: boolean;
+  readonly liveDedicatedEmpty?: boolean;
+  readonly firstSessionPurposeTraining?: boolean;
 }): EmptyHomeDoThisNextAction {
-  if (input.demoSeededOverview === true) {
+  if (input.demoSeededOverview === true || input.firstSessionPurposeTraining === true) {
     return resolveDemoSeededSampleAction(input.sampleHref);
   }
 
@@ -147,7 +175,7 @@ export function resolveEmptyHomeDoThisNext(input: {
   }
 
   if (input.workingMode === true) {
-    return resolveWorkingModeNewReviewAction();
+    return resolveWorkingModeNewReviewAction(input.liveDedicatedEmpty === true);
   }
 
   return resolveSampleAction(input.sampleHref);

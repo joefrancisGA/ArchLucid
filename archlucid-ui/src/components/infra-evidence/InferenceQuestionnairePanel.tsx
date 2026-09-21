@@ -88,7 +88,8 @@ export function InferenceQuestionnairePanel(
     currentItem?.ruleName === "SQL catalog missing" || currentItem?.ruleName === "Tenant catalog template";
 
   const canSubmit =
-    !submitting
+    choice != null
+    && !submitting
     && (choice === "skip"
       || choice === "no"
       || (choice === "yes" && (!requiresCatalogChoice || selectedCatalog.trim().length > 0)));
@@ -137,7 +138,13 @@ export function InferenceQuestionnairePanel(
     }
   }, [choice, currentItem, loadItems, proposedItems.length, selectedCatalog, snapshotId]);
 
-  if (proposedItems.length === 0 && !hasHumanConfirmed && panelError == null) {
+  if (
+    proposedItems.length === 0
+    && !hasHumanConfirmed
+    && panelError == null
+    && skippedConnectionIds.size === 0
+    && items.length === 0
+  ) {
     return null;
   }
 

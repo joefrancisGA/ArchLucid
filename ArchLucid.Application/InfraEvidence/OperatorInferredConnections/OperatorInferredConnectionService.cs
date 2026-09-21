@@ -97,9 +97,7 @@ public sealed class OperatorInferredConnectionService(
 
         OperatorInferredConnectionRecord? record =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 request.ConnectionId,
                 cancellationToken);
 
@@ -140,7 +138,7 @@ public sealed class OperatorInferredConnectionService(
             UpdatedUtc = utcNow,
         };
 
-        await connectionRepository.UpdateStatusAsync(updated, cancellationToken);
+        await connectionRepository.UpdateStatusInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
         await LogAuditAsync(scope, actorKey, AuditEventTypes.OperatorInferredConnectionConfirmed, updated, cancellationToken);
 
         return new OperatorInferredConnectionMutationResult { Succeeded = true };
@@ -163,9 +161,7 @@ public sealed class OperatorInferredConnectionService(
 
         OperatorInferredConnectionRecord? record =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 request.ConnectionId,
                 cancellationToken);
 
@@ -201,11 +197,24 @@ public sealed class OperatorInferredConnectionService(
             UpdatedUtc = utcNow,
         };
 
-        await connectionRepository.UpdateStatusAsync(updated, cancellationToken);
+        await connectionRepository.UpdateStatusInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
         await LogAuditAsync(scope, actorKey, AuditEventTypes.OperatorInferredConnectionDismissed, updated, cancellationToken);
 
         return new OperatorInferredConnectionMutationResult { Succeeded = true };
     }
+
+    private static OperatorInferredConnectionMutation ToMutation(OperatorInferredConnectionRecord source) =>
+        new()
+        {
+            ConnectionId = source.ConnectionId,
+            Status = source.Status,
+            FromCloudResourceId = source.FromCloudResourceId,
+            ToArmId = source.ToArmId,
+            ToCloudResourceId = source.ToCloudResourceId,
+            ToCatalog = source.ToCatalog,
+            ActorKey = source.ActorKey,
+            UpdatedUtc = source.UpdatedUtc,
+        };
 
     private async Task LogAuditAsync(
         ScopeContext scope,

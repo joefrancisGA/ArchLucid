@@ -8,12 +8,6 @@ internal static class SecureNowScopeGuard
         ScopeContext scope,
         Guid tenantId,
         Guid workspaceId,
-        Guid projectId)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        return tenantId == scope.TenantId
-               && workspaceId == scope.WorkspaceId
-               && projectId == scope.ProjectId;
-    }
+        Guid projectId) =>
+        scope.ToProjectScopeKey().Matches(tenantId, workspaceId, projectId);
 }

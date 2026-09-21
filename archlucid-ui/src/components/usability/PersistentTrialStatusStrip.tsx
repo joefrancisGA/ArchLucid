@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
@@ -23,7 +24,10 @@ type TrialNextAction = {
   readonly href: string;
 };
 
-function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): TrialNextAction {
+function resolveTrialNextAction(
+  payload: TenantTrialStatusPayload | null,
+  productLine: "architecture" | "security",
+): TrialNextAction {
   if (payload?.trialSampleRunId !== null && payload?.trialSampleRunId !== undefined && payload.trialSampleRunId.trim().length > 0) {
     return {
       label: "Explore sample review",
@@ -32,11 +36,17 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
   }
 
   if (payload?.status === "Active") {
+    if (productLine === "security") {
+      return { label: "Open compliance workspace", href: "/compliance/policy-packs" };
+    }
+
     return { label: "Commit your first review", href: "/architecture/reviews" };
   }
 
   if (payload?.status === "Expired" || payload?.status === "ReadOnly" || payload?.status === "ExportOnly") {
-    return { label: "Convert to paid", href: "/pricing#pricing-quote-request" };
+    return productLine === "security"
+      ? { label: "Open procurement guidance", href: "/help/procurement" }
+      : { label: "Convert to paid", href: "/pricing#pricing-quote-request" };
   }
 
   return {
@@ -48,6 +58,7 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
 /** Persistent trial strip with days remaining and a single primary next action (all operator routes). */
 export function PersistentTrialStatusStrip() {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: payload } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -57,6 +68,15 @@ export function PersistentTrialStatusStrip() {
   }
 
   if (pathname === "/") {
+    return null;
+  }
+
+  if (
+    payload.status === "Active"
+    && typeof payload.daysRemaining === "number"
+    && payload.daysRemaining >= 0
+    && payload.daysRemaining <= 7
+  ) {
     return null;
   }
 
@@ -84,7 +104,7 @@ export function PersistentTrialStatusStrip() {
     );
   }
 
-  const nextAction = resolveTrialNextAction(payload);
+  const nextAction = resolveTrialNextAction(payload, productLine);
   const days = payload.daysRemaining;
   const daysLabel =
     typeof days === "number" ? `${days} day${days === 1 ? "" : "s"} left on trial` : "Trial workspace";

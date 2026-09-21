@@ -36,9 +36,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         IReadOnlyList<SecurityDeclaredConnectionRecord> scopedConnections =
             await connectionRepository.ListByScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 cancellationToken);
 
         bool existingActive = scopedConnections.Any(record =>
@@ -128,9 +126,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         SecurityDeclaredConnectionRecord? existing =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 connectionId,
                 cancellationToken);
 
@@ -179,7 +175,17 @@ public sealed class SecurityDeclaredConnectionService(
             RevokedByActorKey = null,
         };
 
-        await connectionRepository.UpdateRenewalAsync(renewed, cancellationToken);
+        await connectionRepository.UpdateRenewalInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new SecurityDeclaredConnectionRenewalMutation
+            {
+                ConnectionId = renewed.ConnectionId,
+                ExpirationUtc = renewed.ExpirationUtc,
+                ApprovedByActorKey = renewed.ApprovedByActorKey,
+                PayloadHashSha256 = renewed.PayloadHashSha256,
+                UpdatedUtc = renewed.UpdatedUtc,
+            },
+            cancellationToken);
 
         await LogAuditAsync(
             scope,
@@ -223,9 +229,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         SecurityDeclaredConnectionRecord? existing =
             await connectionRepository.TryGetByIdInScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 connectionId,
                 cancellationToken);
 
@@ -248,11 +252,14 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
-        await connectionRepository.RevokeAsync(
-            scope.TenantId,
-            connectionId,
-            revokedByActorKey.Trim(),
-            utcNow,
+        await connectionRepository.RevokeInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new SecurityDeclaredConnectionRevokeMutation
+            {
+                ConnectionId = connectionId,
+                RevokedByActorKey = revokedByActorKey.Trim(),
+                RevokedUtc = utcNow,
+            },
             cancellationToken);
 
         await LogAuditAsync(
@@ -278,9 +285,7 @@ public sealed class SecurityDeclaredConnectionService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecurityDeclaredConnectionRecord> records =
             await connectionRepository.ListByScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
+                scope.ToProjectScopeKey(),
                 cancellationToken);
 
         List<SecurityDeclaredConnectionRecord> results = [];
@@ -329,7 +334,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecurityDeclaredConnectionRecord> expired =
-            await connectionRepository.MarkExpiredAsync(scope.TenantId, utcNow, cancellationToken);
+            await connectionRepository.MarkExpiredInScopeAsync(scope.ToProjectScopeKey(), utcNow, cancellationToken);
 
         foreach (SecurityDeclaredConnectionRecord record in expired)
         {
@@ -338,10 +343,13 @@ public sealed class SecurityDeclaredConnectionService(
                 continue;
             }
 
-            await connectionRepository.MarkExpiryProcessedAsync(
-                scope.TenantId,
-                record.ConnectionId,
-                utcNow,
+            await connectionRepository.MarkExpiryProcessedInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new SecurityDeclaredConnectionExpiryProcessedMutation
+                {
+                    ConnectionId = record.ConnectionId,
+                    ProcessedUtc = utcNow,
+                },
                 cancellationToken);
 
             await LogAuditAsync(

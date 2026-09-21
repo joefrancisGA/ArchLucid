@@ -191,9 +191,7 @@ public sealed class OperatorInferredConnectionServiceTests
         Mock<IOperatorInferredConnectionRepository> connectionRepository = new();
         connectionRepository
             .Setup(repository => repository.TryGetByIdInScopeAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
+                Scope.ToProjectScopeKey(),
                 foreign.ConnectionId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((OperatorInferredConnectionRecord?)null);
@@ -213,13 +211,12 @@ public sealed class OperatorInferredConnectionServiceTests
         result.ErrorMessage.Should().Be("Inferred connection was not found.");
 
         connectionRepository.Verify(repository => repository.TryGetByIdInScopeAsync(
-            Scope.TenantId,
-            Scope.WorkspaceId,
-            Scope.ProjectId,
+            Scope.ToProjectScopeKey(),
             foreign.ConnectionId,
             It.IsAny<CancellationToken>()), Times.Once);
-        connectionRepository.Verify(repository => repository.UpdateStatusAsync(
-            It.IsAny<OperatorInferredConnectionRecord>(),
+        connectionRepository.Verify(repository => repository.UpdateStatusInScopeAsync(
+            It.IsAny<ProjectScopeKey>(),
+            It.IsAny<OperatorInferredConnectionMutation>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 

@@ -28,7 +28,7 @@ public static class RemediationInstanceSealedManifestHashGuard
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
         OperationalSecurityFindingRecord? finding =
-            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, findingId, cancellationToken);
+            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
 
         if (finding?.AssessmentId is null || finding.AssessmentId == Guid.Empty)
             return;

@@ -11,6 +11,7 @@ import {
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer/buyer-polish-copy";
 import { FINISH_SETUP_SYSTEM_HEALTH_PATH } from "@/lib/finish-setup-wizard-steps";
+import { OPERATOR_HOME_TRY_TRAINING_WALKTHROUGH_CTA } from "@/lib/operator/empty-live-home-copy";
 import { resolveEmptyHomeDoThisNext } from "@/lib/resolve-empty-home-do-this-next";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 
@@ -38,6 +39,41 @@ describe("resolveEmptyHomeDoThisNext", () => {
     expect(action.kind).toBe("work");
     expect(action.label).toBe("New review");
     expect(action.href).toBe("/architecture/architectures/new");
+    expect(action.secondary).toBeUndefined();
+  });
+
+  it("returns work primary with training walkthrough secondary on live dedicated empty Home (LS-012)", () => {
+    const action = resolveEmptyHomeDoThisNext({
+      setupContext: {
+        healthReady: true,
+        healthLoadFailed: false,
+        principalAdmin: true,
+      },
+      workingMode: true,
+      liveDedicatedEmpty: true,
+    });
+
+    expect(action.kind).toBe("work");
+    expect(action.label).toBe("New review");
+    expect(action.secondary?.kind).toBe("training-walkthrough");
+    expect(action.secondary?.label).toBe(OPERATOR_HOME_TRY_TRAINING_WALKTHROUGH_CTA);
+  });
+
+  it("uses sample primary when first-session purpose is training", () => {
+    const action = resolveEmptyHomeDoThisNext({
+      setupContext: {
+        healthReady: true,
+        healthLoadFailed: false,
+        principalAdmin: true,
+      },
+      workingMode: true,
+      liveDedicatedEmpty: true,
+      firstSessionPurposeTraining: true,
+      sampleHref: "/architecture/reviews/customer-intake-modernization",
+    });
+
+    expect(action.kind).toBe("sample");
+    expect(action.label).toBe(OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA);
   });
 
   it("returns sample package action when setup readiness can begin in guided mode", () => {
