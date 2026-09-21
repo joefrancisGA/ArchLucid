@@ -53,6 +53,8 @@ internal static class DiagramNicOwnerResolver
 
     public static bool IsVmToNicEdge(GraphEdge edge)
     {
+        ArgumentNullException.ThrowIfNull(edge);
+
         if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.Label, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase))
         {
@@ -60,6 +62,20 @@ internal static class DiagramNicOwnerResolver
         }
 
         return string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVmNic, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(edge.EdgeType, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsNicToSubnetEdge(GraphEdge edge)
+    {
+        ArgumentNullException.ThrowIfNull(edge);
+
+        if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.Label, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
             && string.Equals(edge.EdgeType, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase);
     }
 

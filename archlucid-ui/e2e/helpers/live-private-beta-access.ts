@@ -3,7 +3,7 @@
  * `/me` scope assertions. CI cannot run a real IdP OIDC redirect — inject minted JWTs into
  * sessionStorage to simulate post-sign-in state and validate returnUrl / deep-link behavior.
  */
-import type { APIRequestContext, Page } from "@playwright/test";
+import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
 import {
   OIDC_DISPLAY_NAME_KEY,
@@ -721,13 +721,17 @@ export async function submitAdminInviteFromUsersUi(
   await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).waitFor({ state: "visible", timeout: 15_000 });
   await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
 
+  const submitButton = page.getByTestId("settings-roles-invite-submit");
+  await submitButton.waitFor({ state: "visible", timeout: 15_000 });
+  await expect(submitButton).toBeEnabled({ timeout: 15_000 });
+
   const inviteResponsePromise = page.waitForResponse(
     (response) =>
       response.url().includes("/api/proxy/v1/admin/users/invite") && response.request().method() === "POST",
     { timeout: 90_000 },
   );
 
-  await page.getByTestId("settings-roles-invite-submit").click();
+  await submitButton.click();
 
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";
