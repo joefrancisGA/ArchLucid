@@ -2012,6 +2012,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.mirrored"] = mirrored.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "blocked", out JsonElement blocked)
+                || TryGetPropertyIgnoreCase(res, "blocked", out blocked))
+            && (blocked.ValueKind == JsonValueKind.True || blocked.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.blocked"] = blocked.GetBoolean() ? "true" : "false";
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
