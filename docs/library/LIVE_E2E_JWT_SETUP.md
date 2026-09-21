@@ -16,6 +16,7 @@ Run Playwright **`live-api-*.spec.ts`** against **`ArchLucidAuth:Mode=JwtBearer`
 - **Non-production only:** configuration validation rejects **`JwtSigningPublicKeyPemPath`** in Production (use Entra **`Authority`** + metadata there).
 - **Claim shape:** tokens use short JWT claim names **`roles`** (array or repeated) and **`name`** aligned with **`LIVE_JWT_ACTOR_NAME`** (default **`JwtE2eAdmin`**). The API sets **`JwtBearerOptions.MapInboundClaims = false`** for this path so **`roles`** matches **`[Authorize]`** role checks.
 - **Next.js BFF:** browser calls that go through **`archlucid-ui`’s API proxy** may not send **`Authorization`**; set **`ARCHLUCID_PROXY_BEARER_TOKEN`** to the same value as **`LIVE_JWT_TOKEN`** so the server attaches **`Authorization: Bearer`** upstream.
+- **BFF Origin:** browser session-bootstrap requests must use the same host as the Next server URL (`localhost` vs `127.0.0.1`). The BFF validates `Origin` against `request.nextUrl.origin`; a browser document opened on the other loopback host is correctly rejected as cross-site. CI therefore sets `PLAYWRIGHT_BASE_URL=http://localhost:3000` for JwtBearer lanes.
 - **RSC / server `fetch`:** Run detail and other Server Components call the API **directly** (same origin as the proxy target, not via `/api/proxy`). **`getServerUpstreamAuthHeaders`** in **`archlucid-ui`** applies **`ARCHLUCID_PROXY_BEARER_TOKEN`** there too so JWT CI matches Playwright’s direct API auth.
 
 ## Constraints

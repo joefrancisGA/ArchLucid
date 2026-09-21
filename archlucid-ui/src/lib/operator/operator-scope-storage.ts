@@ -242,14 +242,14 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
   return devDefaults;
 }
 
-/** Display strings for the header when labels are missing. Dev-default UUIDs use neutral copy (no "development" leak in screenshots). */
+/** Display strings for the header when labels are missing. Local dev uses an explicit live-workspace label. */
 export function defaultLabelsForScopeIds(
   workspaceId: string,
   projectId: string,
 ): { workspace: string; project: string } {
   const ws =
     workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID
-      ? "Claims Intake Workspace"
+      ? "Development workspace"
       : workspaceId.slice(0, 8) + "…";
   const pr =
     projectId.trim() === DEV_SCOPE_PROJECT_ID ? "Primary project" : projectId.slice(0, 8) + "…";

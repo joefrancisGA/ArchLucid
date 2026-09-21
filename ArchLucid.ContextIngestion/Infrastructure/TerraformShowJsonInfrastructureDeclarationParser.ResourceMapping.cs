@@ -2005,6 +2005,122 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "sharded", out JsonElement sharded)
+                || TryGetPropertyIgnoreCase(res, "sharded", out sharded))
+            && (sharded.ValueKind == JsonValueKind.True || sharded.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.sharded"] = sharded.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "drained", out JsonElement drained)
+                || TryGetPropertyIgnoreCase(res, "drained", out drained))
+            && (drained.ValueKind == JsonValueKind.True || drained.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.drained"] = drained.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "scope", out JsonElement scope)
+                || TryGetPropertyIgnoreCase(res, "scope", out scope))
+            && scope.ValueKind == JsonValueKind.String)
+        {
+            string? scopeText = scope.GetString();
+
+            if (!string.IsNullOrWhiteSpace(scopeText))
+                properties["tf.scope"] = scopeText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "locations", out JsonElement locationsEl)
+            || TryGetPropertyIgnoreCase(res, "locations", out locationsEl))
+        {
+            List<string> locationsFields = [];
+
+            if (locationsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in locationsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        locationsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (locationsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = locationsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    locationsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (locationsFields.Count > 0)
+            {
+                string joined = string.Join('|', locationsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.locations"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
+                || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
+            && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.mirrored"] = mirrored.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "blocked", out JsonElement blocked)
+                || TryGetPropertyIgnoreCase(res, "blocked", out blocked))
+            && (blocked.ValueKind == JsonValueKind.True || blocked.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.blocked"] = blocked.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "priority", out JsonElement priority)
+                || TryGetPropertyIgnoreCase(res, "priority", out priority))
+            && priority.ValueKind == JsonValueKind.String)
+        {
+            string? priorityText = priority.GetString();
+
+            if (!string.IsNullOrWhiteSpace(priorityText))
+                properties["tf.priority"] = priorityText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "zones", out JsonElement zonesEl)
+            || TryGetPropertyIgnoreCase(res, "zones", out zonesEl))
+        {
+            List<string> zonesFields = [];
+
+            if (zonesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in zonesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        zonesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (zonesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = zonesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    zonesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (zonesFields.Count > 0)
+            {
+                string joined = string.Join('|', zonesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.zones"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);

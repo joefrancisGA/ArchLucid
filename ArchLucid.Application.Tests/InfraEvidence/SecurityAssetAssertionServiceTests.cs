@@ -183,7 +183,7 @@ public sealed class SecurityAssetAssertionServiceTests
         InMemoryOperationalSecurityFindingRepository findingRepository) =>
         new(
             repository,
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             Mock.Of<IAuditService>(),
             NullLogger<SecurityAssetAssertionService>.Instance);
 

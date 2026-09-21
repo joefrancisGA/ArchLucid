@@ -123,7 +123,7 @@ public sealed class OperationalSecurityExceptionServiceTests
         InMemoryOperationalSecurityFindingRepository findingRepository) =>
         new(
             exceptionRepository,
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             Mock.Of<IAuditService>(),
             NullLogger<OperationalSecurityExceptionService>.Instance);
 

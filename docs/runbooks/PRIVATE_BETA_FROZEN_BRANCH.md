@@ -13,6 +13,10 @@ Use this branch when `master` merge churn keeps cancelling `private-beta-access-
 
 The branch is a **snapshot** of trunk at a known SHA (see `scripts/ci/private_beta_frozen_branch.sha`). It is intentionally stale relative to `master` so CI can finish.
 
+The beta-readiness guard runs `scripts/ci/check_private_beta_frozen_branch_pin.py` when
+`origin/RC34` is available. A stale pin emits a warning only; it does not refresh or
+force-push the frozen branch while a smoke run may still be in flight.
+
 ## Cut-freeze checklist
 
 Before pushing a frozen-branch smoke:

@@ -282,6 +282,60 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         return (rows.Select(MapFinding).ToList(), totalCount);
     }
 
+    public async Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.OperationalSecurityFindings
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND CloudResourceId = @CloudResourceId;
+                                """;
+
+        const string listSql = """
+                               SELECT FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+                                      CloudResourceId, ExternalResourceId, ResourceType, SubscriptionOrAccountId,
+                                      ControlId, ControlFramework, Title, Description, Severity, RiskScore,
+                                      Exploitability, Exposure, BusinessCriticality, BlastRadius,
+                                      FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
+                                      AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
+                                      PayloadHashSha256, CreatedUtc, UpdatedUtc
+                               FROM dbo.OperationalSecurityFindings
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND CloudResourceId = @CloudResourceId
+                               ORDER BY LastObservedUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+
+        object parameters = new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            CloudResourceId = cloudResourceId,
+            Skip = skip,
+            PageSize = safePageSize,
+        };
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+        IEnumerable<FindingRow> rows = await conn.QueryAsync<FindingRow>(
+            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+        return (rows.Select(MapFinding).ToList(), totalCount);
+    }
+
     public async Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
         Guid tenantId,
         Guid pathId,
@@ -303,6 +357,29 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                 new { TenantId = tenantId, PathId = pathId },
                 cancellationToken: cancellationToken));
 
+        return rows.ToList();
+    }
+
+    public async Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT FindingId
+                           FROM dbo.OperationalSecurityFindings
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND PathId = @PathId
+                           ORDER BY LastObservedUtc DESC, FindingId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<Guid> rows = await conn.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
+                cancellationToken: cancellationToken));
         return rows.ToList();
     }
 
@@ -377,6 +454,32 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                 new { TenantId = tenantId, FindingId = findingId },
                 cancellationToken: cancellationToken));
 
+        return rows.Select(MapObservation).ToList();
+    }
+
+    public async Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT o.ObservationId, o.FindingId, o.TenantId, o.ObservedUtc, o.Status, o.Severity,
+                                  o.RiskScore, o.Summary, o.PayloadHashSha256, o.SourceSystem
+                           FROM dbo.OperationalSecurityFindingObservations o
+                           INNER JOIN dbo.OperationalSecurityFindings f
+                               ON f.TenantId = o.TenantId AND f.FindingId = o.FindingId
+                           WHERE o.TenantId = @TenantId
+                             AND o.FindingId = @FindingId
+                             AND f.WorkspaceId = @WorkspaceId
+                             AND f.ProjectId = @ProjectId
+                           ORDER BY o.ObservedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ObservationRow> rows = await conn.QueryAsync<ObservationRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
+                cancellationToken: cancellationToken));
         return rows.Select(MapObservation).ToList();
     }
 

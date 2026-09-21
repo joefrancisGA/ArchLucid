@@ -43,6 +43,7 @@ import {
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
   isEffectiveDevDefaultScope,
+  isSampleWorkspacePresentationScope,
   isScopeSwitchingAvailable,
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
@@ -126,7 +127,11 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
 
   const { workspaceLabel, projectLabel } = useMemo(() => {
     const d = defaultLabelsForScopeIds(workspaceId, projectId);
-    if (stored === null) {
+
+    if (stored === null || (
+      isEffectiveDevDefaultScope(workspaceId, projectId)
+      && !isSampleWorkspacePresentationScope(workspaceId, projectId)
+    )) {
       return { workspaceLabel: d.workspace, projectLabel: d.project };
     }
     const w = stored.workspaceLabel.length > 0 ? stored.workspaceLabel : d.workspace;
@@ -135,7 +140,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   }, [stored, workspaceId, projectId]);
 
   const polishedShell = isBuyerPolishedOperatorShellEnv();
-  const isSampleWorkspaceSession = isEffectiveDevDefaultScope(workspaceId, projectId);
+  const isSampleWorkspaceSession = isSampleWorkspacePresentationScope(workspaceId, projectId);
   const switchingAvailable = isScopeSwitchingAvailable(workspaces);
 
   const triggerLabel = formatScopeSwitcherTriggerLabel({

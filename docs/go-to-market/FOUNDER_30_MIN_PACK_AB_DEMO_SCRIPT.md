@@ -6,7 +6,7 @@
 
 **Outcome:** Prospect sees that **policy assignments change gate outcomes and sponsor headlines** on the **same review** — not generic chat critique.
 
-**Honesty:** Follow [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md). Do not claim SOC 2 certified, live agents on Workspace B, or Simulator dollars as savings.
+**Honesty:** Follow [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md). Do not claim SOC 2 certified, CPA-issued SOC 2, published third-party pen test, live agents on Workspace B, or Simulator dollars as savings.
 
 ---
 
@@ -59,7 +59,7 @@ Live rehearsal (committed run id):
 .\scripts\demo-policy-pack-delta.ps1 -RunId <committed-run-id> -ShowFindingDelta
 ```
 
-Do not claim SOC 2 certified, live agents on Workspace B, or Simulator dollars as savings.
+Do not claim SOC 2 certified, CPA-issued SOC 2, published third-party pen test, live agents on Workspace B, or Simulator dollars as savings.
 
 ---
 
@@ -68,6 +68,8 @@ Do not claim SOC 2 certified, live agents on Workspace B, or Simulator dollars a
 | Symptom | Founder line | Escalation |
 | --- | --- | --- |
 | Run stuck | “I will grab `runId` and correlation id; we have a triage card.” | [`FIRST_PILOT_TRIAGE_CARD.md`](../runbooks/FIRST_PILOT_TRIAGE_CARD.md) |
+| Expired or revoked invite | “The invite is no longer valid; I will re-issue from Users and you can Report Problem with the reference id.” | `/auth/invite` recovery + Report Problem |
+| Dead review deep link | “That review is gone; start from Review packages or Start a review — this is not a blank loop.” | branded 404 |
 | Simulator vs Real confusion | “This session is labeled Simulator; Real proof is a separate pilot step.” | [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) |
 | “This is just ChatGPT” | Repeat pack A/B gate flip + audit CSV | §10 [`LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) |
 
@@ -75,5 +77,5 @@ Do not claim SOC 2 certified, live agents on Workspace B, or Simulator dollars a
 
 ## After the call
 
-- Log funnel row: invited → signed in → saw pack delta → exported audit (see [`PRIVATE_BETA_INVITEE_WELCOME_KIT.md`](PRIVATE_BETA_INVITEE_WELCOME_KIT.md)).
+- Log funnel row: invited → signed in → saw pack delta → exported audit (see [`PRIVATE_BETA_INVITEE_WELCOME_KIT.md`](PRIVATE_BETA_INVITEE_WELCOME_KIT.md)). Record UTC, `correlationId` when the stage came from an API request, and result (`success` / `blocked` / `abandoned`). Do not log tokens or raw email.
 - If Real extractor ZIP is available, schedule **G-REAL-06** run — demo alone does not satisfy G4.

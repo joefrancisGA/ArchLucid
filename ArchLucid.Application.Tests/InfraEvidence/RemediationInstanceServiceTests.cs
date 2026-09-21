@@ -313,14 +313,15 @@ public sealed class RemediationInstanceServiceTests
         IRemediationPathNarrativeBuilder? pathNarrativeBuilder = null,
         ISecurityEvidencePathRepository? pathRepository = null) =>
         new(
-            instanceRepository,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             matchRepository,
             patternRepository,
             exceptionRepository ?? new InMemoryOperationalSecurityExceptionRepository(),
             snapshotRepository ?? new InMemorySnapshotRepository(),
             Mock.Of<IAdvisoryTerraformRepresentationService>(),
             Mock.Of<IAuditService>(),
-            findingRepository ?? Mock.Of<IOperationalSecurityFindingRepository>(),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
+                findingRepository ?? Mock.Of<IOperationalSecurityFindingRepository>()),
             pathNarrativeBuilder ?? Mock.Of<IRemediationPathNarrativeBuilder>(),
             pathRepository ?? Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),

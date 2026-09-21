@@ -34,10 +34,6 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
 import { renderWithOperatorQuery, useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import {
-  BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
-} from "@/lib/buyer/buyer-polish-copy";
-import {
   formatScopeSwitcherTriggerLabel,
   isEffectiveDevDefaultScope,
 } from "@/lib/scope-switcher-display";
@@ -57,29 +53,25 @@ describe("ScopeHelpCurrentScopePanel", () => {
     vi.clearAllMocks();
   });
 
-  it("shows sample scope labels and switching state for the dev default scope", async () => {
+  it("shows the local default as a connected workspace scope", async () => {
     renderWithOperatorQuery(<ScopeHelpCurrentScopePanel />);
 
     expect(isEffectiveDevDefaultScope(DEV_WORKSPACE, DEV_PROJECT)).toBe(true);
 
     await waitFor(() => {
-      expect(screen.getByTestId("scope-help-current-scope-status")).toHaveTextContent("Sample");
+      expect(screen.getByTestId("scope-help-current-scope-status")).toHaveTextContent("Connected");
     });
 
-    expect(screen.getByTestId("scope-help-current-workspace")).toHaveTextContent("Claims Intake Workspace");
+    expect(screen.getByTestId("scope-help-current-workspace")).toHaveTextContent("Development workspace");
     expect(screen.getByTestId("scope-help-current-project")).toHaveTextContent("Primary project");
     expect(screen.getByTestId("scope-help-current-switcher-label")).toHaveTextContent(
       formatScopeSwitcherTriggerLabel({
-        workspaceLabel: "Claims Intake Workspace",
+        workspaceLabel: "Development workspace",
         projectLabel: "Primary project",
-        isSampleWorkspaceSession: true,
-        includeProject: false,
+        isSampleWorkspaceSession: false,
+        includeProject: true,
       }),
     );
-    expect(screen.getByTestId("scope-help-current-switcher-label")).toHaveTextContent(
-      BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-    );
     expect(screen.getByTestId("scope-help-switching-state")).toHaveTextContent(/disabled for this session/i);
-    expect(screen.queryByText(BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT)).not.toBeInTheDocument();
   });
 });

@@ -3,13 +3,16 @@
 # Usage: wait-for-api-ready.sh <api_log_file>
 # Env: API_URL (default http://127.0.0.1:5128),
 #      ARCHLUCID_API_READY_WAIT_ATTEMPTS (default 180),
-#      ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS (default 2)
+#      ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS (default 2),
+#      ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER (default 5 consecutive HTTP 000
+#      after the API process has exited)
 set -euo pipefail
 
 LOG_FILE="${1:?usage: wait-for-api-ready.sh <api_log_file>}"
 API_URL="${API_URL:-http://127.0.0.1:5128}"
 READY_WAIT_ATTEMPTS="${ARCHLUCID_API_READY_WAIT_ATTEMPTS:-180}"
 READY_WAIT_SLEEP_SECONDS="${ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS:-2}"
+READY_UNREACHABLE_FAIL_AFTER="${ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER:-5}"
 
 dump_api_ready_diagnostics() {
   echo "---- GET ${API_URL}/health/live (last attempt) ----"
@@ -37,17 +40,44 @@ dump_api_ready_diagnostics() {
   fi
 }
 
+api_process_is_running() {
+  ps -ef | grep -i "[A]rchLucid.Api" >/dev/null 2>&1
+}
+
 echo "Waiting for ${API_URL}/health/ready (up to $((READY_WAIT_ATTEMPTS * READY_WAIT_SLEEP_SECONDS))s)..."
+unreachable_streak=0
 for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
-  ready_status="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/health/ready" 2>/dev/null || echo "000")"
+  # curl prints HTTP 000 before returning non-zero when it cannot connect.
+  # Do not append another 000 or fail-fast would see HTTP 000000 instead.
+  ready_status="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/health/ready" 2>/dev/null || true)"
+
+  if [ -z "${ready_status}" ]; then
+    ready_status="000"
+  fi
 
   if [ "${ready_status}" = "200" ]; then
     echo "API ready."
     exit 0
   fi
 
-  if [ "${ready_status}" != "000" ]; then
-    echo "Attempt ${i}/${READY_WAIT_ATTEMPTS}: /health/ready returned HTTP ${ready_status}"
+  echo "Attempt ${i}/${READY_WAIT_ATTEMPTS}: /health/ready returned HTTP ${ready_status}"
+
+  if [ "${ready_status}" = "000" ]; then
+    if api_process_is_running; then
+      # SQL startup and EF migrations can leave the API port closed while the
+      # launched process is healthy and still progressing toward readiness.
+      unreachable_streak=0
+    else
+      unreachable_streak=$((unreachable_streak + 1))
+    fi
+
+    if [ "${unreachable_streak}" -ge "${READY_UNREACHABLE_FAIL_AFTER}" ]; then
+      echo "::error::API process is not running and /health/ready returned HTTP 000 for ${unreachable_streak} consecutive probes. Failing fast instead of waiting for remaining attempts."
+      dump_api_ready_diagnostics
+      exit 1
+    fi
+  else
+    unreachable_streak=0
   fi
 
   if [ "$i" -eq "${READY_WAIT_ATTEMPTS}" ]; then

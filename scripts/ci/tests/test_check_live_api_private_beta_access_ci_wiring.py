@@ -126,6 +126,24 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertTrue(any("fetchAuthMeWithBearer" in error for error in errors))
 
+    def test_tb927_invitee_role_wiring_rejects_page_request_bff_post(self) -> None:
+        errors: list[str] = []
+
+        sut._require_tb927_invitee_role_wiring(
+            "fetchAuthMeWithBearer",
+            "\n".join(
+                [
+                    "export async function fetchAuthMeWithBearer() {}",
+                    "export async function writeJwtBrowserSession() {}",
+                    "await writeJwtBrowserSession(page, trimmedToken)",
+                    "await page.request.post(`${appOrigin}/api/auth/bff-session`",
+                ]
+            ),
+            errors,
+        )
+
+        self.assertTrue(any("page.request" in error for error in errors))
+
     def test_invite_flow_requires_jwt_priming_helper(self) -> None:
         errors: list[str] = []
 
@@ -161,8 +179,9 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
     def test_bff_origin_header_required_on_jwt_session_write(self) -> None:
         helper_text = (REPO_ROOT / sut._PRIVATE_BETA_HELPER_REL).read_text(encoding="utf-8")
 
-        self.assertIn("Origin: appOrigin", helper_text)
-        self.assertIn("isSameOriginBffRequest", helper_text)
+        self.assertIn('credentials: "same-origin"', helper_text)
+        self.assertNotIn("page.request.post", helper_text)
+        self.assertIn("/api/auth/bff-session", helper_text)
 
     def test_recovery_cases_required_on_access_spec(self) -> None:
         spec_text = (REPO_ROOT / "archlucid-ui" / "e2e" / sut._SPEC).read_text(encoding="utf-8")
@@ -178,6 +197,13 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
         sut._require_private_beta_recovery_cases("revoked invitation token surfaces recovery copy", errors)
 
         self.assertTrue(any("expired invite recovery" in error for error in errors))
+
+    def test_wait_for_api_ready_http_000_fail_fast_required(self) -> None:
+        errors: list[str] = []
+
+        sut._require_wait_for_api_ready_http_000_fail_fast(errors)
+
+        self.assertEqual(errors, [])
 
 
 if __name__ == "__main__":
