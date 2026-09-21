@@ -35,6 +35,15 @@ _CAVEAT_MARKERS: tuple[str, ...] = (
     "must not",
 )
 
+_FOUNDER_DEMO_REL = "docs/go-to-market/FOUNDER_30_MIN_PACK_AB_DEMO_SCRIPT.md"
+_FOUNDER_REQUIRED: tuple[str, ...] = (
+    "CPA-issued SOC 2",
+    "published third-party pen test",
+    "Expired or revoked invite",
+    "Dead review deep link",
+    "correlationId",
+)
+
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -66,11 +75,31 @@ def scan_docs(root: Path) -> list[str]:
     return violations
 
 
+def require_founder_demo_recovery(root: Path) -> list[str]:
+    path = root / _FOUNDER_DEMO_REL
+    errors: list[str] = []
+
+    if not path.is_file():
+        return [f"missing {_FOUNDER_DEMO_REL}"]
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    for marker in _FOUNDER_REQUIRED:
+        if marker not in text:
+            errors.append(
+                f"{_FOUNDER_DEMO_REL}: must keep founder recovery/honesty marker {marker!r}",
+            )
+
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args(argv)
 
-    violations = scan_docs(repo_root())
+    root = repo_root()
+    violations = scan_docs(root)
+    violations.extend(require_founder_demo_recovery(root))
 
     if violations:
         print("check_private_beta_claim_boundary: FAIL", file=sys.stderr)
