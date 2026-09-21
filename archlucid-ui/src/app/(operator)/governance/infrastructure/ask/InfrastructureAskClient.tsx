@@ -9,7 +9,6 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -106,7 +105,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_FAILED_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_READINESS_BUSY,
   GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_READINESS_EMPTY,
-  GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_SHORTCUT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_TRANSCRIPT_INDEX_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_ACTION,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
@@ -770,6 +768,7 @@ export function InfrastructureAskClient() {
   const latestSimulatorLabel = history.length > 0
     ? history[history.length - 1]?.response.simulatorLabel
     : null;
+  const displayedHistory = [...history].reverse();
 
   const headerActions = (
     <div className="flex flex-wrap items-center gap-2">
@@ -797,31 +796,38 @@ export function InfrastructureAskClient() {
       >
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{GOVERNANCE_INFRASTRUCTURE_ASK_TRANSCRIPT_INDEX_LABEL}</h2>
         <ol className="m-0 mt-2 grid list-none gap-1 p-0">
-          {history.map((turn, index) => (
-            <li key={`${turn.question}-${index}`}>
-              <a
-                href={`#${buildInfraAskTurnId(index)}`}
-                className={cn("block text-sm text-al-link hover:underline", OPERATOR_LINK)}
-              >
-                Turn {index + 1}
-              </a>
-            </li>
-          ))}
+          {displayedHistory.map((turn, displayIndex) => {
+            const historyIndex = history.length - displayIndex - 1;
+
+            return (
+              <li key={`${turn.question}-${historyIndex}`}>
+                <a
+                  href={`#${buildInfraAskTurnId(historyIndex)}`}
+                  className={cn("block text-sm text-al-link hover:underline", OPERATOR_LINK)}
+                >
+                  Turn {historyIndex + 1}
+                </a>
+              </li>
+            );
+          })}
         </ol>
       </nav>
 
       <div className="grid gap-4">
-        {history.map((turn, index) => (
-          <section
-            key={`${turn.question}-${index}`}
-            id={buildInfraAskTurnId(index)}
-            className={cn("grid gap-3 scroll-mt-24", cnCard)}
-            aria-label="Infrastructure Ask response"
-            data-testid={index === history.length - 1 ? "infra-ask-response" : undefined}
-          >
-            <p className={cn("m-0 text-sm font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Question: {turn.question}
-            </p>
+        {displayedHistory.map((turn, displayIndex) => {
+          const historyIndex = history.length - displayIndex - 1;
+
+          return (
+            <section
+              key={`${turn.question}-${historyIndex}`}
+              id={buildInfraAskTurnId(historyIndex)}
+              className={cn("grid gap-3 scroll-mt-24", cnCard)}
+              aria-label="Infrastructure Ask response"
+              data-testid={historyIndex === history.length - 1 ? "infra-ask-response" : undefined}
+            >
+              <p className={cn("m-0 text-sm font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <strong>Question:</strong> {turn.question}
+              </p>
 
             {turn.response.simulatorLabel != null ? (
               <p
@@ -898,8 +904,9 @@ export function InfrastructureAskClient() {
                 </ul>
               </div>
             ) : null}
-          </section>
-        ))}
+            </section>
+          );
+        })}
       </div>
     </div>
   ) : null;
@@ -1084,7 +1091,6 @@ export function InfrastructureAskClient() {
                 "Ask"
               )}
             </Button>
-            <ShortcutHint shortcut={GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_SHORTCUT_LABEL} />
           </div>
           {submitReadinessLine != null ? (
             <p
