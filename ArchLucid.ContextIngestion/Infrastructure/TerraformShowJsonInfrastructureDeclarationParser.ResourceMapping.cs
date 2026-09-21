@@ -2063,6 +2063,122 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "encrypted", out JsonElement encrypted)
+                || TryGetPropertyIgnoreCase(res, "encrypted", out encrypted))
+            && (encrypted.ValueKind == JsonValueKind.True || encrypted.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.encrypted"] = encrypted.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "compressed", out JsonElement compressed)
+                || TryGetPropertyIgnoreCase(res, "compressed", out compressed))
+            && (compressed.ValueKind == JsonValueKind.True || compressed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.compressed"] = compressed.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "format", out JsonElement format)
+                || TryGetPropertyIgnoreCase(res, "format", out format))
+            && format.ValueKind == JsonValueKind.String)
+        {
+            string? formatText = format.GetString();
+
+            if (!string.IsNullOrWhiteSpace(formatText))
+                properties["tf.format"] = formatText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "availability", out JsonElement availabilityEl)
+            || TryGetPropertyIgnoreCase(res, "availability", out availabilityEl))
+        {
+            List<string> availabilityFields = [];
+
+            if (availabilityEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in availabilityEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        availabilityFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (availabilityEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = availabilityEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    availabilityFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (availabilityFields.Count > 0)
+            {
+                string joined = string.Join('|', availabilityFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.availability"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "rebalanced", out JsonElement rebalanced)
+                || TryGetPropertyIgnoreCase(res, "rebalanced", out rebalanced))
+            && (rebalanced.ValueKind == JsonValueKind.True || rebalanced.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.rebalanced"] = rebalanced.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "paused", out JsonElement paused)
+                || TryGetPropertyIgnoreCase(res, "paused", out paused))
+            && (paused.ValueKind == JsonValueKind.True || paused.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.paused"] = paused.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "tier", out JsonElement tier)
+                || TryGetPropertyIgnoreCase(res, "tier", out tier))
+            && tier.ValueKind == JsonValueKind.String)
+        {
+            string? tierText = tier.GetString();
+
+            if (!string.IsNullOrWhiteSpace(tierText))
+                properties["tf.tier"] = tierText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "subregions", out JsonElement subregionsEl)
+            || TryGetPropertyIgnoreCase(res, "subregions", out subregionsEl))
+        {
+            List<string> subregionsFields = [];
+
+            if (subregionsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in subregionsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        subregionsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (subregionsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = subregionsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    subregionsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (subregionsFields.Count > 0)
+            {
+                string joined = string.Join('|', subregionsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.subregions"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "replicated", out JsonElement replicated)
                 || TryGetPropertyIgnoreCase(res, "replicated", out replicated))
             && (replicated.ValueKind == JsonValueKind.True || replicated.ValueKind == JsonValueKind.False))

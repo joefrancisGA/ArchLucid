@@ -50,9 +50,22 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
 
             foreach (string targetArmId in EnumeratePrivateLinkServiceIds(properties))
             {
-                foreach (string toNodeId in ResolveTargetNodeIds(nodeIdByArmId, targetArmId))
+                foreach (string toNodeId in AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(
+                             nodeIdByArmId,
+                             targetArmId))
                 {
-                    TryAddEdge(edges, edgeKeys, fromNodeId, toNodeId);
+                    if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    TryAddEdge(
+                        edges,
+                        edgeKeys,
+                        fromNodeId,
+                        toNodeId,
+                        AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                        GraphEdgeInferenceSources.InventoryPrivateEndpoint);
                 }
             }
         }
@@ -96,37 +109,14 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
         return ids;
     }
 
-    private static IEnumerable<string> ResolveTargetNodeIds(
-        Dictionary<string, string> nodeIdByArmId,
-        string targetArmId)
-    {
-        HashSet<string> nodeIds = new(StringComparer.Ordinal);
-
-        if (nodeIdByArmId.TryGetValue(targetArmId, out string? exactNodeId))
-        {
-            nodeIds.Add(exactNodeId);
-        }
-
-        string childPrefix = targetArmId.TrimEnd('/') + "/";
-
-        foreach (KeyValuePair<string, string> pair in nodeIdByArmId)
-        {
-            if (pair.Key.StartsWith(childPrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                nodeIds.Add(pair.Value);
-            }
-        }
-
-        return nodeIds;
-    }
-
     private static void TryAddEdge(
         List<GraphEdge> edges,
         HashSet<string> edgeKeys,
         string fromNodeId,
-        string toNodeId)
+        string toNodeId,
+        string edgeType,
+        string inferenceSource)
     {
-        string edgeType = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget;
         string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
 
         if (!edgeKeys.Add(edgeKey))
@@ -142,7 +132,7 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
             EdgeType = edgeType,
             Label = edgeType,
             Weight = 1.0d,
-            InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+            InferenceSource = inferenceSource,
         });
     }
 }

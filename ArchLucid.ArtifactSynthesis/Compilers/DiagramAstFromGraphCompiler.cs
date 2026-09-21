@@ -36,6 +36,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         {
             topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
             topologyNodes = InventoryConnectionEndpointIncluder.Include(graph, topologyNodes, mode);
+
+            if (!options.IncludePrivateEndpointNodes)
+            {
+                topologyNodes = NetworkDiagramNodeFilter.ExcludePrivateEndpoints(topologyNodes);
+            }
         }
 
         HashSet<string> includedNodeIds = topologyNodes
@@ -130,7 +135,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 graph.Nodes,
                 graph.Edges,
                 nodeIdMap);
-            DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
+
+            if (!options.IncludePrivateEndpointNodes)
+            {
+                DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
+            }
         }
 
         if (DiagramNicCollapseApplier.ShouldCollapseNetworkInterfaces(mode))
@@ -142,6 +151,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         if (!isSecureNowDataMode)
         {
+            DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
+            DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
             DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         }
 
@@ -253,8 +264,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                         IncludeInventoryConnectedVirtualMachines(
                             graph,
                             NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                                NetworkDiagramNodeFilter.ExcludePrivateEndpoints(
-                                    FilterByCategories(nodes, GraphTopologyCategories.Network))))));
+                                FilterByCategories(nodes, GraphTopologyCategories.Network)))));
             case DiagramMode.Security:
                 return ApplyNetworkInterfaceCollapse(
                     graph,
@@ -274,8 +284,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     graph,
                     mode,
                     NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        ExcludeExternalSourceNodes(
-                            NetworkDiagramNodeFilter.ExcludePrivateEndpoints(nodes))));
+                        ExcludeExternalSourceNodes(nodes)));
             case DiagramMode.ResourceGroup:
                 return FilterByResourceGroup(nodes, options.ResourceGroupName);
             case DiagramMode.SelectedResources:

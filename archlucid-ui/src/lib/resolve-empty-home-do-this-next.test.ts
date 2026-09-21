@@ -38,7 +38,7 @@ describe("resolveEmptyHomeDoThisNext", () => {
 
     expect(action.kind).toBe("work");
     expect(action.label).toBe("New review");
-    expect(action.href).toBe("/architecture/architectures/new");
+    expect(action.href).toBe("/architecture/reviews/new");
     expect(action.secondary).toBeUndefined();
   });
 

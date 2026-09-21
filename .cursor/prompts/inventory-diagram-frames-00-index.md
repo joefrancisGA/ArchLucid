@@ -114,7 +114,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-frames-<short
 
 ## Follow-on (do not implement from this file)
 
-Nested subscription → RG → VNet → subnet frames stay **IDA-HOLD**. Merging disconnected components so one RG is a single island is a later layout engine, not IDF-01 (multiple disjoint frames with the same name are honest).
+Nested subscription → RG → VNet → subnet frames stay **IDA-HOLD / IDF-HOLD** when started from those waves. Authorized nesting is **IDX-05 / IDX-06**. Merging disconnected components so one RG is a single island is a later layout engine, not IDF-01 (multiple disjoint frames with the same name are honest).
 
 ## After each prompt
 
