@@ -155,7 +155,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                   }}
                 >
                   <CircleHelp className="size-[18px]" aria-hidden />
-                  <span className="hidden sm:inline">{operatorHelpTriggerLabel}</span>
+                  <span className="sr-only">{operatorHelpTriggerLabel}</span>
                 </Button>
               </ToolbarHelpTooltip>
               {showLlmBudgetPill ? <LlmBudgetStatusPillDeferred /> : null}
