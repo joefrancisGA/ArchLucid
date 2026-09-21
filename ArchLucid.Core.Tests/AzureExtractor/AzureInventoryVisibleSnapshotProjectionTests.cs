@@ -238,6 +238,48 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
     }
 
     [Fact]
+    public void FilterVisibleRelationships_keeps_nic_to_subnet_when_vnet_parent_is_visible()
+    {
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-nic";
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/app";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet";
+        HashSet<string> visibleArmIds = new(StringComparer.OrdinalIgnoreCase)
+        {
+            nicArmId,
+            vnetArmId,
+        };
+
+        List<AzureInventoryResourceRelationshipWrite> visible =
+            AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(
+                [
+                    new AzureInventoryResourceRelationshipWrite
+                    {
+                        FromAzureResourceId = nicArmId,
+                        ToAzureResourceId = subnetArmId,
+                        RelationshipType = "CONNECTS_TO",
+                        InferenceSource = "inventory-nic-subnet",
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                    },
+                    new AzureInventoryResourceRelationshipWrite
+                    {
+                        FromAzureResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/dnszones/dns1",
+                        ToAzureResourceId = vnetArmId,
+                        RelationshipType = "dns-to-vnet",
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                    },
+                ],
+                visibleArmIds);
+
+        visible.Should().ContainSingle(relationship =>
+            relationship.InferenceSource == "inventory-nic-subnet"
+            && relationship.ToAzureResourceId == subnetArmId);
+    }
+
+    [Fact]
     public void BuildSqlAzureResourceIdVisiblePredicate_excludes_solutions_and_virtual_network_links()
     {
         string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("AzureResourceId");

@@ -68,4 +68,55 @@ public static class ArmResourceIdNormalizer
 
         return true;
     }
+    /// <summary>
+    ///     Walks nested <c>/type/name</c> pairs toward the subscription root.
+    ///     Does not yield <paramref name="azureResourceId"/> itself.
+    /// </summary>
+    public static IEnumerable<string> EnumerateAncestorResourceIds(string? azureResourceId)
+    {
+        string walker = azureResourceId ?? string.Empty;
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+
+        while (TryGetParentResourceId(walker, out string parent))
+        {
+            string normalized = Normalize(parent);
+
+            if (normalized.Length == 0 || !seen.Add(normalized))
+            {
+                yield break;
+            }
+
+            yield return normalized;
+            walker = parent;
+        }
+    }
+
+    /// <summary>
+    ///     Returns the nearest ARM ancestor that is present in <paramref name="visibleArmIds"/>.
+    ///     Used when a nested child (subnet, database) was not captured as its own inventory row.
+    /// </summary>
+    public static bool TryResolveVisibleAncestorArmId(
+        string? azureResourceId,
+        IReadOnlySet<string> visibleArmIds,
+        out string ancestorArmId)
+    {
+        ancestorArmId = string.Empty;
+
+        if (visibleArmIds is null)
+        {
+            return false;
+        }
+
+        foreach (string ancestor in EnumerateAncestorResourceIds(azureResourceId))
+        {
+            if (visibleArmIds.Contains(ancestor))
+            {
+                ancestorArmId = ancestor;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

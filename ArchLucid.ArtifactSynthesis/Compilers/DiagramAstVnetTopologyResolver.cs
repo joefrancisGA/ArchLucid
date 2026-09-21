@@ -82,6 +82,36 @@ internal static class DiagramAstVnetTopologyResolver
             }
         }
 
+        // NIC hops may already point at the VNet when the subnet was never a graph node.
+        if (!connectsTo.TryGetValue(vmNodeId, out List<string>? nicIds))
+        {
+            return vnetNodeIds;
+        }
+
+        foreach (string nicNodeId in nicIds)
+        {
+            if (!connectsTo.TryGetValue(nicNodeId, out List<string>? nicTargets))
+            {
+                continue;
+            }
+
+            foreach (string targetNodeId in nicTargets)
+            {
+                if (!nodesById.TryGetValue(targetNodeId, out GraphNode? targetNode))
+                {
+                    continue;
+                }
+
+                if (!AzureInventoryTopologyCategory.IsVirtualNetworkArmType(
+                        DiagramAstGraphNodeClassifier.ReadArmType(targetNode)))
+                {
+                    continue;
+                }
+
+                vnetNodeIds.Add(targetNodeId);
+            }
+        }
+
         return vnetNodeIds;
     }
 
