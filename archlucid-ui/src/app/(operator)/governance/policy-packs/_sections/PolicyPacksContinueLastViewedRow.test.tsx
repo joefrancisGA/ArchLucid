@@ -7,6 +7,8 @@ describe("PolicyPacksContinueLastViewedRow", () => {
   it("renders continue row with open link", () => {
     render(
       <PolicyPacksContinueLastViewedRow
+        source="recency-fallback"
+        viewedAtUtc={null}
         pack={{
           policyPackId: "pack-1",
           tenantId: "tenant-1",
@@ -27,7 +29,7 @@ describe("PolicyPacksContinueLastViewedRow", () => {
     expect(screen.getByTestId("policy-packs-continue-last-viewed-row")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-continue-last-viewed-open")).toHaveAttribute(
       "href",
-      "/governance/policy-packs?packId=pack-1",
+      "/governance/policy-packs/pack-1",
     );
   });
 });

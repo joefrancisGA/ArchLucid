@@ -242,6 +242,20 @@ const SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL: Readonly<Record<string, string>
   "operator-system-admin": "Internal",
 };
 
+export function sidebarMoreLinksAccessibleLabel(
+  groupId: string,
+  count: number,
+  expanded = false,
+): string {
+  const visible = sidebarMoreLinksLabel(groupId, count, expanded);
+  const destination =
+    SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
+
+  return expanded
+    ? `Collapse additional ${destination} links in the sidebar`
+    : `Expand ${count} additional ${destination} link${count === 1 ? "" : "s"} in the sidebar`;
+}
+
 export function sidebarMoreLinksLabel(groupId: string, count: number, expanded = false): string {
   const destination =
     SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";

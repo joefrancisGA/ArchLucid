@@ -1543,7 +1543,7 @@ export function DiagramsWorkbenchClient() {
 
       <section
         className={cn(
-          "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+          "grid items-start gap-x-4 gap-y-2 md:grid-cols-2",
           cnCard,
         )}
         aria-label="Subscription, snapshot, and diagram type selection"
@@ -1868,7 +1868,10 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      {isInfraDiagramsExecutiveMode(selectedMode) && selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+      {diagramTypeSelected
+      && isInfraDiagramsExecutiveMode(selectedMode)
+      && selectedSnapshotId.length > 0
+      && !deepLinkedSnapshotMissing ? (
         <section
           className={cn("flex flex-col gap-3", cnCard)}
           aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}

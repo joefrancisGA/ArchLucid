@@ -34,6 +34,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
     }
 
     [Fact]
+<<<<<<< HEAD
     public void Compile_full_subscription_hides_nic_and_draws_virtual_machine_in_vnet_when_subnet_node_missing()
     {
         GraphSnapshot graph = BuildVmNicVnetGraphWithoutSubnetNode();
@@ -53,6 +54,8 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
     }
 
     [Fact]
+=======
+>>>>>>> origin/master
     public void Compile_full_subscription_hides_private_endpoint_and_places_target_in_subnet()
     {
         GraphSnapshot graph = BuildPrivateEndpointSqlSubnetGraph();
@@ -156,6 +159,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         return graph;
     }
 
+<<<<<<< HEAD
     private static GraphSnapshot BuildVmNicVnetGraphWithoutSubnetNode()
     {
         const string vmArmId =
@@ -199,6 +203,8 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         };
     }
 
+=======
+>>>>>>> origin/master
     private static GraphSnapshot BuildPrivateEndpointSqlSubnetGraph()
     {
         const string peArmId =

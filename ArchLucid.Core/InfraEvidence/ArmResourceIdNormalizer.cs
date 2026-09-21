@@ -68,7 +68,6 @@ public static class ArmResourceIdNormalizer
 
         return true;
     }
-
     /// <summary>
     ///     Walks nested <c>/type/name</c> pairs toward the subscription root.
     ///     Does not yield <paramref name="azureResourceId"/> itself.

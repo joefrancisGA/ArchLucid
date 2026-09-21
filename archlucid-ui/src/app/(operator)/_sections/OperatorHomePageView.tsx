@@ -49,11 +49,11 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
-  OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH,
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
   OPERATOR_HOME_SKIP_TARGET_ID,
+  operatorHomeOrientationParagraph,
 } from "./operator-home-page-surface-copy";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
@@ -313,7 +313,7 @@ function OperatorHomePageBody(props: {
                 className={OPERATOR_HOME_SURFACE_PARAGRAPH_CLASS}
                 data-testid="operator-home-intro"
               >
-                {OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH}
+                {operatorHomeOrientationParagraph(workspaceMetrics)}
               </p>
             </div>
           </div>

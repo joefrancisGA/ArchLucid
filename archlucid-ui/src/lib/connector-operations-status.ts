@@ -77,6 +77,21 @@ export function isConnectorReady(connector: ConnectorSurfaceStatusDto | null | u
   return resolveConnectorHumanStatus(connector) === "Ready";
 }
 
+export type ConnectorPolicyLabel = "Recommended" | "Optional";
+
+export function resolveConnectorPolicyLabel(connectorKey: string): ConnectorPolicyLabel | null {
+  if (isRecommendedConnector(connectorKey)) {
+    return "Recommended";
+  }
+
+  if (isOptionalConnector(connectorKey)) {
+    return "Optional";
+  }
+
+  return null;
+}
+
+/** Configuration and validation state only — not pilot policy tier (see {@link resolveConnectorPolicyLabel}). */
 export function resolveConnectorDisplayStatus(connector: ConnectorSurfaceStatusDto): ConnectorDisplayStatus {
   const humanStatus = resolveConnectorHumanStatus(connector);
 
@@ -88,23 +103,7 @@ export function resolveConnectorDisplayStatus(connector: ConnectorSurfaceStatusD
     return "Disabled";
   }
 
-  if (humanStatus === "Needs attention") {
-    return "Needs attention";
-  }
-
-  if (isRecommendedConnector(connector.connectorKey)) {
-    return "Recommended";
-  }
-
-  if (isOptionalConnector(connector.connectorKey)) {
-    if (humanStatus === "Configuration incomplete") {
-      return "Optional";
-    }
-
-    return "Not configured";
-  }
-
-  if (humanStatus === "Configuration incomplete") {
+  if (humanStatus === "Needs attention" || humanStatus === "Configuration incomplete") {
     return "Needs attention";
   }
 

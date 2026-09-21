@@ -15,12 +15,12 @@ export const CONNECTION_STATUS_HELP_STATUS_LEGEND: readonly ConnectionStatusHelp
   },
   {
     status: "Recommended",
-    meaning: "ArchLucid recommends this connector for most pilots in this category.",
+    meaning: "Pilot policy tier — ArchLucid recommends this connector for most workspaces in this category (shown beside configuration status).",
     nextAction: "Open the connector page to finish credentials or validation.",
   },
   {
     status: "Optional",
-    meaning: "Useful for advanced workflows but not required for a first review.",
+    meaning: "Pilot policy tier — useful for advanced workflows but not required for a first review (shown beside configuration status).",
     nextAction: "Configure when your operating model needs this channel.",
   },
   {

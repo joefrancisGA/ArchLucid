@@ -33,11 +33,14 @@ export const policyPacksPageLeadReaderBuyerPolished =
 
 
 export const policyPacksOutcomeBannerLine =
-  "Versions and assigns packs for this scope; enforcement applies through approval resolution and review finalizatio — ot from this page alone.";
+  "This page versions and assigns packs for the current scope. Enforcement applies through approval resolution and review finalization — not from toggles on this page alone.";
 
+/** Working-surface honesty line — enforcement boundary without sales framing. */
+export const policyPacksEnforcementBoundaryLine =
+  "Pack assignments change which rules merge into scope; findings and finalize gates consume that merged policy elsewhere.";
 
 export const policyPacksDeltaDemoBannerLine =
-  "Demo the policy moat: same committed review, stricter pack enforcement, different pre-commit gate outcome — see the policy-pack delta demo script in product documentation.";
+  "Compare enforcement posture on the same finalized review using the impact preview below, or open the policy-pack delta demo script in product documentation.";
 
 
 export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";

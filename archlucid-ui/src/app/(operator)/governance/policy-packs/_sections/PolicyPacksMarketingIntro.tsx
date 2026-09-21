@@ -4,12 +4,16 @@ import Link from "next/link";
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   policyPacksDeltaDemoBannerLine,
+  policyPacksEnforcementBoundaryLine,
   policyPacksOutcomeBannerLine,
   policyPacksPageLeadOperator,
   policyPacksPageLeadReader,
 } from "@/lib/enterprise-controls-context-copy";
+import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 
@@ -20,6 +24,9 @@ export type PolicyPacksMarketingIntroProps = {
 
 export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps) {
   const { canMutatePacks } = props;
+  const { productLine } = useProductLine();
+  const { isWorkingMode } = useWorkspaceMode();
+  const trimDemoFraming = isSecureNowDemoChromeExcluded(productLine) || isWorkingMode;
 
   return (
     <>
@@ -31,23 +38,22 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
       </p>
       <p
         className={cn("mb-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="policy-packs-influence-honesty-line"
+        data-testid="policy-packs-enforcement-boundary-line"
       >
-        {POLICY_PACK_INFLUENCE_HONESTY_LINE}
+        {trimDemoFraming ? policyPacksEnforcementBoundaryLine : POLICY_PACK_INFLUENCE_HONESTY_LINE}
       </p>
-      <p
-        className={cn("mb-3 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}
-        data-testid="policy-packs-delta-demo-banner"
-      >
-        {policyPacksDeltaDemoBannerLine}{" "}
-        <Link
-          href={POLICY_PACK_DELTA_DEMO_HELP_PATH}
-          className={OPERATOR_LINK.inline}
+      {trimDemoFraming ? null : (
+        <p
+          className={cn("mb-3 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="policy-packs-delta-demo-banner"
         >
-          Open demo script
-        </Link>
-        .
-      </p>
+          {policyPacksDeltaDemoBannerLine}{" "}
+          <Link href={POLICY_PACK_DELTA_DEMO_HELP_PATH} className={OPERATOR_LINK.inline}>
+            Open demo script
+          </Link>
+          .
+        </p>
+      )}
       <p className={cn("mb-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-packs-bundled-defaults-note">
         New tenants receive two seeded governance bundles labeled{" "}
         <strong className="font-semibold">Bundled default (platform)</strong> in Policy packs (

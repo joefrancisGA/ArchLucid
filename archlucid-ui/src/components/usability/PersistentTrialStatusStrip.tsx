@@ -81,6 +81,13 @@ export function PersistentTrialStatusStrip() {
   }
 
   if (buyerPolishedShell && payload.status === "Active") {
+    const sampleHref =
+      productLine === "security"
+        ? "/compliance/policy-packs"
+        : `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+    const sampleCta =
+      productLine === "security" ? "Open compliance workspace" : BUYER_TRY_SAMPLE_REVIEW_CTA;
+
     return (
       <div
         className={cn(
@@ -98,7 +105,7 @@ export function PersistentTrialStatusStrip() {
           <span className="text-neutral-700 dark:text-neutral-300">{BUYER_DEMO_EVALUATION_WORKSPACE_STATUS}</span>
         </div>
         <Button asChild type="button" size="sm" variant="outline" className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}>
-          <Link href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>{BUYER_TRY_SAMPLE_REVIEW_CTA}</Link>
+          <Link href={sampleHref}>{sampleCta}</Link>
         </Button>
       </div>
     );
