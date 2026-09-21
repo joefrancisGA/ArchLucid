@@ -125,10 +125,15 @@ export function HelpSearchReviewEvidenceGuideView(
             >
               {SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE}
             </h2>
-            <Button asChild size="sm" variant="primary">
-              <Link href={SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href}>
-                {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label}
-              </Link>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled
+              aria-describedby="help-search-review-evidence-precondition"
+              data-testid="help-search-review-evidence-primary-action"
+            >
+              {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label} (requires a finalized review)
             </Button>
             <p
               className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
