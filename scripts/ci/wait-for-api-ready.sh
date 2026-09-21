@@ -4,7 +4,8 @@
 # Env: API_URL (default http://127.0.0.1:5128),
 #      ARCHLUCID_API_READY_WAIT_ATTEMPTS (default 180),
 #      ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS (default 2),
-#      ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER (default 5 consecutive HTTP 000)
+#      ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER (default 5 consecutive HTTP 000
+#      after the API process has exited)
 set -euo pipefail
 
 LOG_FILE="${1:?usage: wait-for-api-ready.sh <api_log_file>}"
@@ -39,16 +40,16 @@ dump_api_ready_diagnostics() {
   fi
 }
 
+api_process_is_running() {
+  ps -ef | grep -i "[A]rchLucid.Api" >/dev/null 2>&1
+}
+
 echo "Waiting for ${API_URL}/health/ready (up to $((READY_WAIT_ATTEMPTS * READY_WAIT_SLEEP_SECONDS))s)..."
 unreachable_streak=0
 for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
   # curl prints HTTP 000 before returning non-zero when it cannot connect.
   # Do not append another 000 or fail-fast would see HTTP 000000 instead.
   ready_status="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/health/ready" 2>/dev/null || true)"
-
-  if [ -z "${ready_status}" ]; then
-    ready_status="000"
-  fi
 
   if [ -z "${ready_status}" ]; then
     ready_status="000"
@@ -62,10 +63,16 @@ for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
   echo "Attempt ${i}/${READY_WAIT_ATTEMPTS}: /health/ready returned HTTP ${ready_status}"
 
   if [ "${ready_status}" = "000" ]; then
-    unreachable_streak=$((unreachable_streak + 1))
+    if api_process_is_running; then
+      # SQL startup and EF migrations can leave the API port closed while the
+      # launched process is healthy and still progressing toward readiness.
+      unreachable_streak=0
+    else
+      unreachable_streak=$((unreachable_streak + 1))
+    fi
 
     if [ "${unreachable_streak}" -ge "${READY_UNREACHABLE_FAIL_AFTER}" ]; then
-      echo "::error::API unreachable (HTTP 000) for ${unreachable_streak} consecutive /health/ready probes. Failing fast instead of waiting for remaining attempts."
+      echo "::error::API process is not running and /health/ready returned HTTP 000 for ${unreachable_streak} consecutive probes. Failing fast instead of waiting for remaining attempts."
       dump_api_ready_diagnostics
       exit 1
     fi

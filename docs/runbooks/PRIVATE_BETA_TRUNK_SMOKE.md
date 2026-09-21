@@ -17,7 +17,7 @@
 2. **Lockfile guard** → `npm ci` → query-core assert → **`npm run typecheck`** (fail fast before `build:live-e2e`)
 3. Mint RS256 JWT (`scripts/ci/mint_ci_jwt.py`) with Admin role + default tenant scope
 4. Shell warm (`scripts/ci/warm_private_beta_live_api_paths.sh`) — scope + invitations only when `LIVE_E2E_PRIVATE_BETA_ACCESS=1` (draft/create-run skipped; Playwright stubs draft and JIT-warms create-run)
-5. Post-warm `wait-for-api-ready.sh` (90×2s) — recovers transient **503** after warm without a single-shot `curl`
+5. Post-warm `wait-for-api-ready.sh` (90×2s) — recovers transient **503** after warm without a single-shot `curl`; while the API process is still running, transient **HTTP 000** probes remain within the normal readiness window so SQL/EF startup can finish
 6. Playwright `--workers=1` on all four private-beta specs (browser install completes **before** shell warm)
 
 ## Trunk hygiene during corset outages
@@ -55,6 +55,7 @@ Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh 
 | `Install UI deps, verify lockfile, and typecheck` fails | TypeScript drift on trunk before heavy `build:live-e2e` | Fix `npm run typecheck` locally; private-beta now typechecks before Next standalone build |
 | `Install UI deps & build Next` fails (typecheck in `build:live-e2e`) | `architectureId` → `draftId` migration drift on trunk | **Shipped #1703** — align registry consumers and draft control props; re-run push |
 | `curl: (22) … error: 503` on `/health/ready` immediately before Playwright | 300s create-run shell warm blocked API; single-shot health `curl` | **Shipped** — skip draft/create-run shell warm in invite-wave CI; use `wait-for-api-ready.sh` with retries |
+| Repeated `HTTP 000` while waiting for `/health/ready` | SQL startup or EF migrations have not opened the API port yet | `wait-for-api-ready.sh` keeps polling while the `ArchLucid.Api` process is alive; it fails fast only after the API process exits and the configured unreachable streak is reached |
 | Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
 | `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
