@@ -185,7 +185,7 @@ export function HelpServiceNowIntegrationGuideView(
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         <div data-testid="help-servicenow-integration-orientation-bottom">
