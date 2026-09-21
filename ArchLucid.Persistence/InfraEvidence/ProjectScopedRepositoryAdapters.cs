@@ -19,6 +19,15 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
     public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListMetadataByFindingInScopeAsync(scope, findingId, cancellationToken);
 
+    public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(ProjectScopeKey scope, Guid cloudResourceId, int page, int pageSize, CancellationToken cancellationToken = default) =>
+        inner.ListByCloudResourceIdPagedInScopeAsync(scope, cloudResourceId, page, pageSize, cancellationToken);
+
+    public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(ProjectScopeKey scope, Guid pathId, CancellationToken cancellationToken = default) =>
+        inner.ListFindingIdsByPathIdInScopeAsync(scope, pathId, cancellationToken);
+
+    public Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
+        inner.ListObservationsByFindingInScopeAsync(scope, findingId, cancellationToken);
+
     public Task UpdateInScopeAsync(ProjectScopeKey scope, OperationalSecurityFindingMutation mutation, IReadOnlyList<OperationalSecurityFindingMetadataMutation> metadata, OperationalSecurityFindingObservationMutation? observation, CancellationToken cancellationToken = default) =>
         inner.UpdateInScopeAsync(scope, mutation, metadata, observation, cancellationToken);
 }
@@ -26,6 +35,12 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
 public sealed class ProjectScopedRemediationInstanceRepositoryAdapter(
     IRemediationInstanceRepository inner) : IProjectScopedRemediationInstanceRepository
 {
+    public Task InsertInstanceInScopeAsync(ProjectScopeKey scope, RemediationInstanceRecord instance, CancellationToken cancellationToken = default) =>
+        inner.InsertInstanceInScopeAsync(scope, instance, cancellationToken);
+
+    public Task InsertEvidenceInScopeAsync(ProjectScopeKey scope, RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default) =>
+        inner.InsertEvidenceInScopeAsync(scope, evidence, cancellationToken);
+
     public Task UpdateInScopeAsync(ProjectScopeKey scope, RemediationInstanceMutation mutation, CancellationToken cancellationToken = default) =>
         inner.UpdateInstanceInScopeAsync(scope, mutation, cancellationToken);
 

@@ -50,6 +50,10 @@ for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
     ready_status="000"
   fi
 
+  if [ -z "${ready_status}" ]; then
+    ready_status="000"
+  fi
+
   if [ "${ready_status}" = "200" ]; then
     echo "API ready."
     exit 0

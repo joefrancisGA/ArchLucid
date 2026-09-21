@@ -3,15 +3,18 @@
 
 from __future__ import annotations
 
-import re
 import subprocess
 import sys
 from pathlib import Path
+
+from archlucid_ui_route_traffic_table import parse_rows, split_document
 
 REPO = Path(__file__).resolve().parents[2]
 WORKBOOK = REPO / ".local" / "owner" / "ui_route_traffic_estimates.md"
 
 GOVERNANCE_TO_SECURENOW: dict[str, str] = {
+    "/help/cloud-connections/azure": "/help/cloud-connections-azure",
+    "/help/policy-packs#policy-pack-delta-demo": "/help/policy-pack-delta-demo",
     "/governance/policy-packs": "/compliance/policy-packs",
     "/governance/standards-and-rules": "/compliance/standards-and-rules",
     "/governance/findings": "/compliance/findings",
@@ -38,16 +41,12 @@ def _load_workbook_rows() -> dict[str, tuple[str, int, int]]:
 
     text = WORKBOOK.read_text(encoding="utf-8", errors="replace")
     by_path: dict[str, tuple[str, int, int]] = {}
-    row_re = re.compile(
-        r"^\|\s*([A-Z0-9]{2,4})\s*\|\s*`([^`]+)`\s*\|[^|]+\|\s*([^,|]+),\s*([^|]+)\|",
-        re.MULTILINE,
-    )
-    for match in row_re.finditer(text):
-        row_id = match.group(1)
-        path = match.group(2).strip()
-        evidence = int(match.group(3).strip().split(",")[0].strip() or "0")
-        ux = int(match.group(4).strip().split(",")[0].strip() or "0")
-        by_path[path] = (row_id, evidence, ux)
+    _, table_body, _ = split_document(text, WORKBOOK)
+    for row in parse_rows(table_body):
+        score_parts = [int(part.strip() or "0") for part in row["score"].split(",")]
+        evidence = score_parts[0] if score_parts else 0
+        ux = score_parts[1] if len(score_parts) > 1 else evidence
+        by_path[row["path"]] = (row["id"], evidence, ux)
 
     return by_path
 
