@@ -132,7 +132,9 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             DesignatedUtc = DateTime.UtcNow,
         });
 
-        AuditEvidenceSnapshotQueryService queryService = new(assessmentRepository, snapshotRepository);
+        AuditEvidenceSnapshotQueryService queryService = new(
+            new ProjectScopedAuditAssessmentRepositoryAdapter(assessmentRepository),
+            new ProjectScopedAuditEvidenceSnapshotRepositoryAdapter(snapshotRepository));
 
         IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> baselineSnapshots =
             await queryService.ListSnapshotsAsync(scope, assessmentId, AuditEvidenceReadMode.Baseline, "period-open");
