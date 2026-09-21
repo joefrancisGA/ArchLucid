@@ -366,7 +366,9 @@ export function tryResolveOperateHelpTopicView(
     return <HelpSketchAChangeGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "impact-preview-vs-architecture-envelope") {
-    return <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} />;
+    return (
+      <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} markdown={loaded.markdown} />
+    );
   }
   if (loaded.entry.slug === "background-wait") {
     return <HelpBackgroundWaitGuideView entry={loaded.entry} />;

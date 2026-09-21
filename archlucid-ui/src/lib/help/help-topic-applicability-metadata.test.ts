@@ -106,6 +106,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Guide last reviewed 2026-08-13");
   });
 
+  it("formats impact preview vs architecture envelope help review provenance with governing applicability", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "impact-preview-vs-architecture-envelope",
+          lastReviewed: "2026-09-12",
+          releaseApplicability: "Cheap-exploration help (CE-020 / SN-007)",
+        }),
+      ),
+    ).toBe("Guide last reviewed 2026-09-12 · Cheap-exploration help (CE-020 / SN-007)");
+  });
+
   it("formats improvement planning help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
