@@ -18,6 +18,7 @@ import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectio
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { readActiveWorkspaceScopeLabel } from "@/lib/active-workspace-scope-label";
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
@@ -29,6 +30,8 @@ import {
   resolveConnectorDisplayStatus,
   resolveConnectorGuidance,
   resolveConnectorHumanStatus,
+  resolveConnectorPolicyLabel,
+  resolveIntegrationEventBusDisplayStatus,
   resolveIntegrationEventBusGuidance,
   resolveIntegrationEventBusHumanStatus,
 } from "@/lib/connector-operations-present";
@@ -45,7 +48,6 @@ import {
   isConnectorDisabledForDeployment,
   resolveConnectorDetailsLabel,
   resolveConnectorRowActionLabel,
-  resolveIntegrationBackgroundDeliveryLabel,
 } from "@/lib/integration-readiness-present";
 import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
@@ -71,6 +73,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
   const [loadFailureMessage, setLoadFailureMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
+  const [workspaceScopeLabel] = useState(() => readActiveWorkspaceScopeLabel());
 
   const latestRequestRef = useRef<number>(0);
   const mountedRef = useRef<boolean>(false);
@@ -173,13 +176,8 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
   const headline = resolveIntegrationReadinessHeadline(data.connectors, data.integrationEventBus);
   const recommendedFirstSetup = buildIntegrationRecommendedFirstSetup(data);
   const eventBusHumanStatus = resolveIntegrationEventBusHumanStatus(data.integrationEventBus);
-  const eventBusBackgroundLabel = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus);
-  const eventBusDisplayStatus =
-    eventBusBackgroundLabel === "Configured"
-      ? "Ready"
-      : eventBusBackgroundLabel === "Not configured"
-        ? "Needs attention"
-        : "Optional";
+  const eventBusDisplayStatus = resolveIntegrationEventBusDisplayStatus(data.integrationEventBus);
+  const inventoryPanelId = "connection-status-inventory-panels";
 
   const buildInventoryRow = (
     connectorKey: string,
@@ -189,10 +187,12 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
     configurationHref: string | null,
     technicalDetails: string,
     disabledForDeployment: boolean,
+    policyLabel: ReturnType<typeof resolveConnectorPolicyLabel>,
     testId: string,
   ): IntegrationConnectorInventoryRow => ({
     key: connectorKey,
     title,
+    policyLabel,
     displayStatus,
     guidance,
     configurationHref,
@@ -215,6 +215,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
           scroll={false}
           className={buyerFilterChipClass(activeCategory === null, false)}
           aria-current={activeCategory === null ? "page" : undefined}
+          aria-controls={inventoryPanelId}
         >
           All categories
         </FilterChip>
@@ -225,6 +226,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
             scroll={false}
             className={buyerFilterChipClass(activeCategory === group.id, false)}
             aria-current={activeCategory === group.id ? "page" : undefined}
+            aria-controls={`integration-readiness-group-${group.id}`}
           >
             {group.title}
           </FilterChip>
@@ -234,11 +236,16 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         headline={headline}
         tiles={summaryTiles}
         configurationReadAt={configurationReadAt}
+        serverAsOfUtc={data.asOfUtc ?? null}
+        workspaceScopeLabel={workspaceScopeLabel}
+        refreshing={loading || retrying}
+        onRefresh={handleRetry}
       />
       {recommendedFirstSetup && !hideRecommendedSetupActions ? (
         <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} />
       ) : null}
 
+      <div id={inventoryPanelId} className="space-y-4">
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
         if (activeCategory !== null && activeCategory !== group.id) {
           return null;
@@ -251,7 +258,12 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         }
 
         return (
-          <section key={group.id} className="space-y-4" data-testid={`integration-readiness-group-${group.id}`}>
+          <section
+            key={group.id}
+            id={`integration-readiness-group-${group.id}`}
+            className="space-y-4"
+            data-testid={`integration-readiness-group-${group.id}`}
+          >
             <div>
               <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {group.title}
@@ -274,6 +286,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
                   connector.configurationHref ?? null,
                   formatConnectorCustomerSummary(connector),
                   disabledForDeployment,
+                  resolveConnectorPolicyLabel(connector.connectorKey),
                   `connector-card-${connector.connectorKey}`,
                 );
               })}
@@ -283,7 +296,11 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
       })}
 
       {activeCategory === null || activeCategory === "technical" ? (
-      <section className="space-y-4" data-testid="integration-readiness-group-technical">
+      <section
+        id="integration-readiness-group-technical"
+        className="space-y-4"
+        data-testid="integration-readiness-group-technical"
+      >
         <div>
           <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Advanced delivery infrastructure
@@ -304,12 +321,14 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
               null,
               formatIntegrationEventBusTechnicalDetails(data.integrationEventBus),
               false,
+              null,
               "connector-card-integration-event-bus",
             ),
           ]}
         />
       </section>
       ) : null}
+      </div>
     </div>
   );
 }
