@@ -62,6 +62,12 @@ public interface IAuditEvidenceSnapshotRepository
 
     Task InsertBaselineAsync(AuditEvidenceBaselineRecord baseline, CancellationToken cancellationToken = default);
 
+    Task InsertBaselineInScopeAsync(
+        ProjectScopeKey scope,
+        AuditEvidenceBaselineRecord baseline,
+        CancellationToken cancellationToken = default) =>
+        InsertBaselineAsync(baseline, cancellationToken);
+
     Task<AuditEvidenceBaselineRecord?> TryGetBaselineByNameAsync(
         Guid tenantId,
         Guid assessmentId,
