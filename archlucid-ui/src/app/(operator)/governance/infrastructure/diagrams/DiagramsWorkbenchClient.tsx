@@ -1868,7 +1868,10 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      {isInfraDiagramsExecutiveMode(selectedMode) && selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+      {diagramTypeSelected
+      && isInfraDiagramsExecutiveMode(selectedMode)
+      && selectedSnapshotId.length > 0
+      && !deepLinkedSnapshotMissing ? (
         <section
           className={cn("flex flex-col gap-3", cnCard)}
           aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
