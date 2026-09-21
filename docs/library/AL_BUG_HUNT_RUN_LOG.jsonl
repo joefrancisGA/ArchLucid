@@ -7065,3 +7065,4 @@
 {"at":"2026-09-21T18:55:19.1020309Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-21T18:56:34.9431063Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-21T18:56:40.1494438Z","zoneId":"core-costing","outcome":"seed-only"}
+{"at":"2026-09-21T18:56:44.4890288Z","zoneId":"tenant-data-export","outcome":"seed-only"}
