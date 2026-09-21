@@ -1,4 +1,9 @@
-import { GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
+import { infrastructureTerraformPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
 import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
@@ -17,6 +22,42 @@ export type InfraTerraformWorkbenchContext = {
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
 };
+
+const INFRA_TERRAFORM_WORKBENCH_PATHS = [
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+] as const;
+
+export function isInfraTerraformWorkbenchPath(pathname: string | null | undefined): boolean {
+  if (pathname === null || pathname === undefined) {
+    return false;
+  }
+
+  const bare = pathname.split("?")[0] ?? pathname;
+
+  return INFRA_TERRAFORM_WORKBENCH_PATHS.some((path) => bare === path);
+}
+
+export function parseInfraTerraformWorkbenchPath(href: string): {
+  readonly cloudResourceId: string;
+  readonly snapshotId: string;
+} | null {
+  const [path = "", search = ""] = href.split("?");
+
+  if (!isInfraTerraformWorkbenchPath(path)) {
+    return null;
+  }
+
+  const params = new URLSearchParams(search);
+  const cloudResourceId = params.get(INFRA_TERRAFORM_CLOUD_RESOURCE_ID_PARAM)?.trim() ?? "";
+  const snapshotId = params.get(INFRA_TERRAFORM_SNAPSHOT_ID_PARAM)?.trim() ?? "";
+
+  if (cloudResourceId.length === 0) {
+    return null;
+  }
+
+  return { cloudResourceId, snapshotId };
+}
 
 export function buildTerraformWorkbenchHref(context: InfraTerraformWorkbenchContext = {}): string {
   return infraTerraformFilterHrefFromSearch("", {
@@ -39,7 +80,7 @@ export function infraTerraformFilterHrefFromSearch(
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
   },
-  pathname: string = GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  pathname: string = infrastructureTerraformPathForProductLine(resolveProductLineId()),
 ): string {
   const params = new URLSearchParams(currentSearch);
 
