@@ -1954,6 +1954,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.throttled"] = throttled.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "stalled", out JsonElement stalled)
+                || TryGetPropertyIgnoreCase(res, "stalled", out stalled))
+            && (stalled.ValueKind == JsonValueKind.True || stalled.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.stalled"] = stalled.GetBoolean() ? "true" : "false";
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
