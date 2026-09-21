@@ -12,8 +12,10 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
-/** Session-only: dismiss hides the banner until the browser tab/session ends. */
-const SESSION_DISMISS_KEY = "archlucid_trial_expiry_banner_dismissed_session";
+import {
+  isTrialExpiryBannerSnoozed,
+  snoozeTrialExpiryBanner24h,
+} from "@/lib/trial-expiry-banner-dismiss";
 
 const URGENT_TRIAL_DAYS_MAX = 7;
 
@@ -28,13 +30,7 @@ export function TrialExpiryBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    try {
-      if (typeof window !== "undefined" && window.sessionStorage.getItem(SESSION_DISMISS_KEY) === "1") {
-        setDismissed(true);
-      }
-    } catch {
-      setDismissed(false);
-    }
+    setDismissed(isTrialExpiryBannerSnoozed());
   }, []);
 
   if (!isFetched || dismissed) {
@@ -84,12 +80,7 @@ export function TrialExpiryBanner() {
         className="shrink-0"
         onDismiss={() => {
           setDismissed(true);
-
-          try {
-            window.sessionStorage.setItem(SESSION_DISMISS_KEY, "1");
-          } catch {
-            /* private mode */
-          }
+          snoozeTrialExpiryBanner24h();
         }}
       />
     </div>

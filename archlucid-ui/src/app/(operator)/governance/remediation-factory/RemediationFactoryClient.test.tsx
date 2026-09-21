@@ -1,8 +1,26 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({
+    productLine: "security",
+    assignmentOverrides: {},
+    setProductLine: () => {},
+    setHrefAssignment: () => {},
+    resetHrefAssignment: () => {},
+    resetAllAssignments: () => {},
+  }),
+}));
+
+vi.mock("@/hooks/use-operator-relative-freshness-now-ms", () => ({
+  useOperatorRelativeFreshnessNowMs: () => Date.now(),
+}));
+
 vi.mock("@/hooks/use-remediation-factory-query", () => ({
   useRemediationRankedFindingsQuery: () => ({
+    dataUpdatedAt: Date.now(),
+    isFetching: false,
+    refetch: vi.fn(),
     data: [
       {
         findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -16,6 +34,9 @@ vi.mock("@/hooks/use-remediation-factory-query", () => ({
     isError: false,
   }),
   useRemediationFactoryMetricsQuery: () => ({
+    dataUpdatedAt: Date.now(),
+    isFetching: false,
+    refetch: vi.fn(),
     data: {
       openFindings: 3,
       riskWeightedOpen: 1.2,
@@ -41,6 +62,9 @@ vi.mock("@/hooks/use-remediation-factory-query", () => ({
 
 vi.mock("@/hooks/use-security-evidence-ranked-paths-query", () => ({
   useSecurityEvidenceRankedPathsQuery: () => ({
+    dataUpdatedAt: Date.now(),
+    isFetching: false,
+    refetch: vi.fn(),
     data: {
       items: [
         {
@@ -107,6 +131,9 @@ describe("RemediationFactoryClient", () => {
     render(<RemediationFactoryClient />);
 
     expect(screen.getByTestId("remediation-factory-page")).toBeInTheDocument();
+    expect(screen.getByTestId("remediation-factory-page-title")).toHaveTextContent("Remediation factory");
+    expect(screen.getByTestId("remediation-factory-claim-discipline")).toHaveTextContent("sealed-record proof");
+    expect(screen.getByTestId("remediation-factory-last-refreshed")).toBeInTheDocument();
     expect(screen.getByText("Open findings")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_RANKED_PATHS_TITLE)).toBeInTheDocument();

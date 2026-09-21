@@ -7,10 +7,10 @@ import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-
 
 export type ProductLineRouteRedirectDecision =
   | { readonly kind: "allow" }
-  | { readonly kind: "redirect"; readonly location: string };
+  | { readonly kind: "blocked"; readonly pathname: string };
 
-/** Operator home for blocked cross-product deep links (matches ProductLineRouteGate). */
-export const PRODUCT_LINE_ROUTE_GATE_REDIRECT_PATH = "/" as const;
+/** Operator home link from the announced product-line gate (no silent replace). */
+export const PRODUCT_LINE_ROUTE_GATE_HOME_PATH = "/" as const;
 
 const PRODUCT_LINE_ROUTE_GATE_SKIP_PREFIXES: readonly string[] = ["/api/", "/_next/"];
 
@@ -44,5 +44,5 @@ export function decideProductLineRouteRedirect(input: {
     return { kind: "allow" };
   }
 
-  return { kind: "redirect", location: PRODUCT_LINE_ROUTE_GATE_REDIRECT_PATH };
+  return { kind: "blocked", pathname: input.pathname };
 }
