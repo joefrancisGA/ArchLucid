@@ -441,7 +441,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "inspect-stored-evidence") {
-    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} />;
+    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
