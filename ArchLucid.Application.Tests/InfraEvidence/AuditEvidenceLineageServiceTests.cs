@@ -140,7 +140,13 @@ public sealed class AuditEvidenceLineageServiceTests
 
         Mock<IAuditEvidenceSnapshotVerificationService> verificationService = new();
         verificationService
-            .Setup(service => service.TryVerifyAsync(scope.TenantId, auditEvidenceSnapshotId, It.IsAny<CancellationToken>()))
+            .Setup(service => service.TryVerifyInScopeAsync(
+                It.Is<ProjectScopeKey>(key =>
+                    key.TenantId == scope.TenantId
+                    && key.WorkspaceId == scope.WorkspaceId
+                    && key.ProjectId == scope.ProjectId),
+                auditEvidenceSnapshotId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AuditEvidenceSnapshotVerificationResult { IsValid = true });
 
         AuditEvidenceLineageService sut = CreateLineageService(
@@ -269,7 +275,13 @@ public sealed class AuditEvidenceLineageServiceTests
 
         Mock<IAuditEvidenceSnapshotVerificationService> verificationService = new();
         verificationService
-            .Setup(service => service.TryVerifyAsync(scope.TenantId, auditEvidenceSnapshotId, It.IsAny<CancellationToken>()))
+            .Setup(service => service.TryVerifyInScopeAsync(
+                It.Is<ProjectScopeKey>(key =>
+                    key.TenantId == scope.TenantId
+                    && key.WorkspaceId == scope.WorkspaceId
+                    && key.ProjectId == scope.ProjectId),
+                auditEvidenceSnapshotId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AuditEvidenceSnapshotVerificationResult
             {
                 IsValid = false,

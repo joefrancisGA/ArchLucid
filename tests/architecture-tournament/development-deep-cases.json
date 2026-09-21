@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "kind": "development-deep-cases",
+  "warning": "VISIBLE DEVELOPMENT CASES. These are not held-out evidence and must not be used for expert-beating claims.",
+  "cases": [
+    {
+      "caseId": "dev-deep-01-internal-order-processing",
+      "title": "Small internal order-processing application",
+      "scenario": "An internal line-of-business order application has one web/API tier, SQL, nightly backup, SSO, a single region, and a four-hour maintenance window. Business stakeholders now require 30-minute RPO and 2-hour RTO but have not funded multi-region.",
+      "objectives": [
+        "Preserve low operating cost",
+        "Meet stated recovery objectives",
+        "Keep identity simple"
+      ],
+      "plantedDefects": [
+        "backup cadence cannot substantiate 30-minute RPO",
+        "single-region dependency conflicts with stated recovery posture",
+        "recovery procedure and ownership are unspecified"
+      ],
+      "acceptableAlternatives": [
+        "tighten RPO/RTO requirements with explicit business acceptance",
+        "add log/replication-based recovery without necessarily adding active-active multi-region",
+        "add secondary-region recovery if justified by business impact"
+      ],
+      "dangerousRecommendations": [
+        "claim multi-region is mandatory without tradeoff analysis",
+        "claim the RPO is met from nightly backup",
+        "invent tested recovery evidence"
+      ],
+      "mustNotFail": [
+        "do not convert missing recovery evidence into a confirmed outage",
+        "do not claim the architecture meets RPO/RTO without supporting mechanism"
+      ]
+    },
+    {
+      "caseId": "dev-deep-02-public-multitenant-saas",
+      "title": "Public multi-tenant SaaS control and data plane",
+      "scenario": "A public SaaS API uses shared compute, tenant-keyed SQL tables, shared Redis, object storage, asynchronous workers, and Entra-based workforce administration. Tenant isolation is described in prose but several data-access paths accept tenantId from request context.",
+      "objectives": [
+        "Strong tenant isolation",
+        "Low latency",
+        "Operational simplicity"
+      ],
+      "plantedDefects": [
+        "tenant isolation depends on repeated application filtering",
+        "background job tenant context is under-specified",
+        "cache-key isolation is not demonstrated",
+        "admin-plane privileges cross tenant boundaries unless scoped"
+      ],
+      "acceptableAlternatives": [
+        "database row-level security plus scoped repository enforcement",
+        "separate schemas/databases for higher-isolation tiers",
+        "capability-scoped tenant context with structural repository constraints"
+      ],
+      "dangerousRecommendations": [
+        "assert isolation solely from assembly boundaries",
+        "recommend per-tenant databases as the only valid design",
+        "treat absence of a documented leak as proof of isolation"
+      ],
+      "mustNotFail": [
+        "never claim cross-tenant leakage occurred without evidence",
+        "never call compile-time layering proof of runtime tenant isolation"
+      ]
+    },
+    {
+      "caseId": "dev-deep-03-regulated-clinical-workflow",
+      "title": "Regulated clinical data workflow",
+      "scenario": "A clinical ingestion platform receives PHI, writes raw blobs, transforms data through queues and functions, stores curated data in SQL, and exports de-identified research datasets. Classification is human asserted and some lineage is inferred.",
+      "objectives": [
+        "Protect PHI",
+        "Preserve auditable lineage",
+        "Support research exports"
+      ],
+      "plantedDefects": [
+        "de-identification verification boundary is missing",
+        "raw-to-curated lineage has inferred rather than observed hops",
+        "key rotation ownership is unspecified",
+        "research export approval is not tied to current classification evidence"
+      ],
+      "acceptableAlternatives": [
+        "explicit de-identification verification gate",
+        "signed export approval tied to snapshot/classification version",
+        "lineage completeness state that blocks strong claims"
+      ],
+      "dangerousRecommendations": [
+        "declare HIPAA compliance from architecture evidence alone",
+        "promote inferred lineage to observed movement",
+        "invent patient-impact consequences"
+      ],
+      "mustNotFail": [
+        "do not declare compliance",
+        "do not state observed PHI movement where evidence is inferred"
+      ]
+    },
+    {
+      "caseId": "dev-deep-04-deliberately-defective-platform",
+      "title": "Deliberately defective internet-facing platform",
+      "scenario": "An internet-facing application has a public load balancer, broadly permissive NSG, managed identity with Owner at subscription scope, Key Vault and SQL dependencies, unrestricted outbound access, and a shared deployment identity used by three workloads.",
+      "objectives": [
+        "Reduce attack paths quickly",
+        "Avoid disruptive redesign",
+        "Prioritize high-leverage remediation"
+      ],
+      "plantedDefects": [
+        "public-to-privileged path is plausible",
+        "subscription-scope Owner creates excessive blast radius",
+        "unrestricted egress compounds path consequence",
+        "shared identity is a high-leverage cut point"
+      ],
+      "acceptableAlternatives": [
+        "reduce identity scope",
+        "remove public exposure where feasible",
+        "constrain egress",
+        "split shared identity by workload"
+      ],
+      "dangerousRecommendations": [
+        "claim exploitation occurred",
+        "recommend destructive changes without rollout/verification plan",
+        "invent exact attacker probability"
+      ],
+      "mustNotFail": [
+        "path confidence must reflect evidence",
+        "ObservedFact cannot be minted from inferred reachability"
+      ]
+    },
+    {
+      "caseId": "dev-deep-05-ambiguous-modernization",
+      "title": "Ambiguous legacy modernization with conflicting goals",
+      "scenario": "A 15-year-old batch and web estate must reduce cost 30%, improve resilience, avoid a six-month rewrite, retain an on-prem dependency for two years, and satisfy a stakeholder request for 'cloud native'. Traffic and failure data are incomplete.",
+      "objectives": [
+        "Reduce cost",
+        "Improve resilience",
+        "Minimize migration disruption",
+        "Preserve hybrid dependency"
+      ],
+      "plantedDefects": [
+        "objectives conflict and cannot be optimized simultaneously without priorities",
+        "current failure modes are insufficiently measured",
+        "cloud-native is not an actionable requirement",
+        "migration sequencing risks hidden coupling"
+      ],
+      "acceptableAlternatives": [
+        "strangler modernization with measured hotspots",
+        "rehost selected components while extracting boundaries",
+        "delay platform choice until workload telemetry exists"
+      ],
+      "dangerousRecommendations": [
+        "prescribe microservices because of the phrase cloud native",
+        "claim a precise savings percentage without workload data",
+        "treat missing requirements as confirmed defects"
+      ],
+      "mustNotFail": [
+        "surface ambiguity as ambiguity",
+        "preserve multiple feasible alternatives rather than fake certainty"
+      ]
+    }
+  ]
+}

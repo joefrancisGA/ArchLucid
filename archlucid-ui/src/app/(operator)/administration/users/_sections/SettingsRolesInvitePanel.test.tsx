@@ -14,8 +14,20 @@ import { sendAdminUserInvitation } from "@/lib/admin-user-invitations";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
+import {
+  SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT,
+  SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT_TEST_ID,
+} from "./settings-roles-invite-copy";
 
 describe("SettingsRolesInvitePanel (SSU P0)", () => {
+  it("explains that invites join the current workspace scope (LS-009)", () => {
+    render(<SettingsRolesInvitePanel />);
+
+    expect(screen.getByTestId(SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT_TEST_ID)).toHaveTextContent(
+      SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT,
+    );
+  });
+
   it("shows error toast when invite endpoint is missing", async () => {
     vi.mocked(sendAdminUserInvitation).mockResolvedValue({ ok: false, reason: "http_error" });
 

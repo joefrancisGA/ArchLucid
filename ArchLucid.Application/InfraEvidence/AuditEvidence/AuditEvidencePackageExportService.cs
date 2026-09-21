@@ -37,9 +37,10 @@ public sealed class AuditEvidencePackageExportService(
         try
         {
             Guid tenantId = scope.TenantId;
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
 
             AuditAssessmentRecord? assessment =
-                await assessmentRepository.TryGetByIdAsync(tenantId, assessmentId, cancellationToken);
+                await assessmentRepository.TryGetByIdInScopeAsync(projectScope, assessmentId, cancellationToken);
 
             if (assessment is null)
             {
@@ -51,7 +52,7 @@ public sealed class AuditEvidencePackageExportService(
             }
 
             AuditEvidenceSnapshotVerificationResult verification =
-                await verificationService.TryVerifyAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+                await verificationService.TryVerifyInScopeAsync(projectScope, auditEvidenceSnapshotId, cancellationToken);
 
             if (!verification.IsValid)
             {
@@ -63,7 +64,7 @@ public sealed class AuditEvidencePackageExportService(
             }
 
             AuditEvidenceSnapshotHeaderRecord? snapshotHeader =
-                await snapshotRepository.TryGetHeaderAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+                await snapshotRepository.TryGetHeaderInScopeAsync(projectScope, auditEvidenceSnapshotId, cancellationToken);
 
             if (snapshotHeader is null || snapshotHeader.AssessmentId != assessmentId)
             {
@@ -93,14 +94,14 @@ public sealed class AuditEvidencePackageExportService(
                 await requirementRepository.ListByFrameworkIdAsync(tenantId, assessment.FrameworkId, cancellationToken);
 
             IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
-                await snapshotRepository.ListItemsAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+                await snapshotRepository.ListItemsInScopeAsync(projectScope, auditEvidenceSnapshotId, cancellationToken);
 
             IReadOnlyList<AuditManualEvidenceSubmissionRecord> manualSubmissions =
-                await manualEvidenceRepository.ListByAssessmentAsync(tenantId, assessmentId, cancellationToken);
+                await manualEvidenceRepository.ListByAssessmentInScopeAsync(projectScope, assessmentId, cancellationToken);
 
             IReadOnlyList<AuditArchitectureEvidenceLinkRecord> architectureLinks =
-                await manualEvidenceRepository.ListArchitectureLinksByAssessmentAsync(
-                    tenantId,
+                await manualEvidenceRepository.ListArchitectureLinksByAssessmentInScopeAsync(
+                    projectScope,
                     assessmentId,
                     cancellationToken);
 
@@ -115,8 +116,8 @@ public sealed class AuditEvidencePackageExportService(
             }
 
             AuditAssessmentReadinessSummaryRecord? readinessSummary =
-                await readinessService.TryBuildAssessmentReadinessAsync(
-                    tenantId,
+                await readinessService.TryBuildAssessmentReadinessInScopeAsync(
+                    projectScope,
                     assessmentId,
                     auditEvidenceSnapshotId,
                     cancellationToken: cancellationToken);
@@ -135,8 +136,8 @@ public sealed class AuditEvidencePackageExportService(
             foreach (AuditControlRecord control in controls)
             {
                 AuditControlEvaluationRecord? evaluation =
-                    await evaluationRepository.TryGetLatestByControlAsync(
-                        tenantId,
+                    await evaluationRepository.TryGetLatestByControlInScopeAsync(
+                        projectScope,
                         control.ControlId,
                         auditEvidenceSnapshotId,
                         cancellationToken);

@@ -417,6 +417,26 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "private-beta proxy ESM boundary",
+        ("python", "scripts/ci/check_private_beta_proxy_esm_boundary.py"),
+        None,
+    ),
+    GuardCommand(
+        "Quick Scan sample-only marketing copy",
+        ("python", "scripts/ci/check_quick_scan_sample_only.py"),
+        None,
+    ),
+    GuardCommand(
+        "private-beta claim boundary",
+        ("python", "scripts/ci/check_private_beta_claim_boundary.py"),
+        None,
+    ),
+    GuardCommand(
+        "Azure extractor Pester isolation",
+        ("python", "scripts/ci/check_azure_extractor_pester_isolation.py"),
+        None,
+    ),
+    GuardCommand(
         "auth beta-readiness invite callout surfaces",
         ("python", "scripts/ci/check_auth_beta_readiness_invite_callout_surfaces.py"),
         None,

@@ -1,3 +1,5 @@
+using System.IO;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Findings;
 
@@ -14,9 +16,7 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData("  ", FindingSeverity.Info)]
     [InlineData("  critical  ", FindingSeverity.Critical)]
     [InlineData("critical", FindingSeverity.Critical)]
-    [InlineData("UNKNOWN", FindingSeverity.Info)]
-    [InlineData("999", FindingSeverity.Info)]
-    public void ParseFindingSeverity_maps_or_defaults(string? raw, FindingSeverity expected)
+    public void ParseFindingSeverity_maps_valid_or_blank_values(string? raw, FindingSeverity expected)
     {
         FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity(raw);
 
@@ -28,10 +28,7 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData("   ", FindingHumanReviewStatus.NotRequired)]
     [InlineData("  Pending  ", FindingHumanReviewStatus.Pending)]
     [InlineData("Pending", FindingHumanReviewStatus.Pending)]
-    [InlineData("bad", FindingHumanReviewStatus.NotRequired)]
-    [InlineData("99", FindingHumanReviewStatus.NotRequired)]
-    [InlineData("999", FindingHumanReviewStatus.NotRequired)]
-    public void ParseHumanReview_maps_or_defaults(string? raw, FindingHumanReviewStatus expected)
+    public void ParseHumanReview_maps_valid_or_blank_values(string? raw, FindingHumanReviewStatus expected)
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview(raw);
 
@@ -252,15 +249,19 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
-    public void ParseFindingSeverity_maps_negative_numeric_string_to_info_default()
+    public void ParseFindingSeverity_rejects_negative_numeric_string()
     {
-        FindingInspectReadModelMapper.ParseFindingSeverity("-1").Should().Be(FindingSeverity.Info);
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("-1");
+
+        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
-    public void ParseFindingSeverity_maps_positive_undefined_numeric_string_to_info_default()
+    public void ParseFindingSeverity_rejects_positive_undefined_numeric_string()
     {
-        FindingInspectReadModelMapper.ParseFindingSeverity("4").Should().Be(FindingSeverity.Info);
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("4");
+
+        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
@@ -270,9 +271,11 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
-    public void ParseHumanReview_maps_positive_undefined_numeric_string_to_not_required_default()
+    public void ParseHumanReview_rejects_positive_undefined_numeric_string()
     {
-        FindingInspectReadModelMapper.ParseHumanReview("5").Should().Be(FindingHumanReviewStatus.NotRequired);
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("5");
+
+        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
@@ -384,9 +387,11 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
-    public void ParseHumanReview_maps_negative_numeric_string_to_not_required_default()
+    public void ParseHumanReview_rejects_negative_numeric_string()
     {
-        FindingInspectReadModelMapper.ParseHumanReview("-1").Should().Be(FindingHumanReviewStatus.NotRequired);
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("-1");
+
+        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
@@ -396,15 +401,19 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
-    public void ParseFindingSeverity_maps_fractional_numeric_string_to_info_default()
+    public void ParseFindingSeverity_rejects_fractional_numeric_string()
     {
-        FindingInspectReadModelMapper.ParseFindingSeverity("1.5").Should().Be(FindingSeverity.Info);
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("1.5");
+
+        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
-    public void ParseHumanReview_maps_fractional_numeric_string_to_not_required_default()
+    public void ParseHumanReview_rejects_fractional_numeric_string()
     {
-        FindingInspectReadModelMapper.ParseHumanReview("2.5").Should().Be(FindingHumanReviewStatus.NotRequired);
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("2.5");
+
+        act.Should().Throw<InvalidDataException>();
     }
 
     [Fact]
@@ -439,33 +448,9 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
-    public void ParseFindingSeverity_trims_whitespace_from_negative_numeric_string_before_defaulting_to_info()
-    {
-        FindingInspectReadModelMapper.ParseFindingSeverity("  -1  ").Should().Be(FindingSeverity.Info);
-    }
-
-    [Fact]
-    public void ParseHumanReview_trims_whitespace_from_negative_numeric_string_before_defaulting_to_not_required()
-    {
-        FindingInspectReadModelMapper.ParseHumanReview("  -1  ").Should().Be(FindingHumanReviewStatus.NotRequired);
-    }
-
-    [Fact]
     public void ParseDisposition_trims_whitespace_from_negative_numeric_string_before_rejecting()
     {
         FindingInspectReadModelMapper.ParseDisposition("  -1  ").Should().BeNull();
-    }
-
-    [Fact]
-    public void ParseFindingSeverity_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_info()
-    {
-        FindingInspectReadModelMapper.ParseFindingSeverity("  1.5  ").Should().Be(FindingSeverity.Info);
-    }
-
-    [Fact]
-    public void ParseHumanReview_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_not_required()
-    {
-        FindingInspectReadModelMapper.ParseHumanReview("  2.5  ").Should().Be(FindingHumanReviewStatus.NotRequired);
     }
 
     [Fact]
@@ -488,12 +473,6 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
-    public void ParseFindingSeverity_trims_whitespace_from_positive_undefined_numeric_string_before_defaulting_to_info()
-    {
-        FindingInspectReadModelMapper.ParseFindingSeverity("  4  ").Should().Be(FindingSeverity.Info);
-    }
-
-    [Fact]
     public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
     {
         FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  3  ").Should().BeNull();
@@ -502,7 +481,6 @@ public sealed class FindingInspectReadModelMapperTests
     [Theory]
     [InlineData("+0", FindingSeverity.Info)]
     [InlineData("+1", FindingSeverity.Warning)]
-    [InlineData("+999", FindingSeverity.Info)]
     public void ParseFindingSeverity_maps_plus_sign_prefixed_numeric_strings(string raw, FindingSeverity expected)
     {
         FindingInspectReadModelMapper.ParseFindingSeverity(raw).Should().Be(expected);
@@ -511,7 +489,6 @@ public sealed class FindingInspectReadModelMapperTests
     [Theory]
     [InlineData("+0", FindingHumanReviewStatus.NotRequired)]
     [InlineData("+1", FindingHumanReviewStatus.Pending)]
-    [InlineData("+999", FindingHumanReviewStatus.NotRequired)]
     public void ParseHumanReview_maps_plus_sign_prefixed_numeric_strings(string raw, FindingHumanReviewStatus expected)
     {
         FindingInspectReadModelMapper.ParseHumanReview(raw).Should().Be(expected);
@@ -534,4 +511,28 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseDisposition(raw).Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData("UNKNOWN")]
+    [InlineData("999")]
+    [InlineData("+999")]
+    public void ParseFindingSeverity_rejects_unrecognized_or_undefined_values(string raw)
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity(raw);
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Theory]
+    [InlineData("bad")]
+    [InlineData("99")]
+    [InlineData("999")]
+    [InlineData("+999")]
+    public void ParseHumanReview_rejects_unrecognized_or_undefined_values(string raw)
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview(raw);
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
 }

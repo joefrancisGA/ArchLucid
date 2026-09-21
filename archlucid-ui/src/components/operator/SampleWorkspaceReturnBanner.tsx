@@ -1,18 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, type ReactElement } from "react";
+import { type ReactElement } from "react";
 
-import { Button } from "@/components/ui/button";
+import { SampleWorkspaceExitTrainingButton } from "@/components/operator/SampleWorkspaceExitTrainingButton";
 import { useIsSampleWorkspaceSession } from "@/hooks/use-effective-operator-scope";
 import {
-  BUYER_SCOPE_BACK_TO_YOUR_WORKSPACE_CTA,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isSampleWorkspaceVisitActive } from "@/lib/operator/operator-sample-workspace-visit";
-import { returnToDedicatedWorkspaceFromSample } from "@/lib/operator/operator-scope-bootstrap";
 import { cn } from "@/lib/utils";
 
 export type SampleWorkspaceReturnBannerProps = {
@@ -21,20 +18,8 @@ export type SampleWorkspaceReturnBannerProps = {
 
 /** Persistent sample-data chrome with one-click return to the operator's dedicated workspace. */
 export function SampleWorkspaceReturnBanner(props: SampleWorkspaceReturnBannerProps): ReactElement | null {
-  const router = useRouter();
   const isSampleWorkspace = useIsSampleWorkspaceSession();
   const showBanner = isSampleWorkspace && isSampleWorkspaceVisitActive();
-
-  const onReturn = useCallback(() => {
-    const returned = returnToDedicatedWorkspaceFromSample();
-
-    if (!returned) {
-      return;
-    }
-
-    router.replace("/");
-    router.refresh();
-  }, [router]);
 
   if (!showBanner) {
     return null;
@@ -59,16 +44,7 @@ export function SampleWorkspaceReturnBanner(props: SampleWorkspaceReturnBannerPr
             {BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}
           </p>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="shrink-0"
-          data-testid="sample-workspace-return-button"
-          onClick={onReturn}
-        >
-          {BUYER_SCOPE_BACK_TO_YOUR_WORKSPACE_CTA}
-        </Button>
+        <SampleWorkspaceExitTrainingButton className="shrink-0" />
       </div>
     </div>
   );

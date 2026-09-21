@@ -34,16 +34,19 @@ public sealed class SecurityDeclaredConnectionService(
             };
         }
 
-        SecurityDeclaredConnectionRecord? existingActive =
-            await connectionRepository.TryGetActiveDuplicateAsync(
-                scope.TenantId,
-                request.FromCloudResourceId,
-                request.ToCloudResourceId,
-                request.RelationshipType,
-                utcNow,
+        IReadOnlyList<SecurityDeclaredConnectionRecord> scopedConnections =
+            await connectionRepository.ListByScopeAsync(
+                scope.ToProjectScopeKey(),
                 cancellationToken);
 
-        if (existingActive is not null)
+        bool existingActive = scopedConnections.Any(record =>
+            record.FromCloudResourceId == request.FromCloudResourceId
+            && record.ToCloudResourceId == request.ToCloudResourceId
+            && record.RelationshipType == request.RelationshipType
+            && record.Status == SecurityDeclaredConnectionStatus.Active
+            && record.ExpirationUtc > utcNow);
+
+        if (existingActive)
         {
             return new SecurityDeclaredConnectionCreateResult
             {
@@ -122,7 +125,10 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         SecurityDeclaredConnectionRecord? existing =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                connectionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -169,7 +175,17 @@ public sealed class SecurityDeclaredConnectionService(
             RevokedByActorKey = null,
         };
 
-        await connectionRepository.UpdateRenewalAsync(renewed, cancellationToken);
+        await connectionRepository.UpdateRenewalInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new SecurityDeclaredConnectionRenewalMutation
+            {
+                ConnectionId = renewed.ConnectionId,
+                ExpirationUtc = renewed.ExpirationUtc,
+                ApprovedByActorKey = renewed.ApprovedByActorKey,
+                PayloadHashSha256 = renewed.PayloadHashSha256,
+                UpdatedUtc = renewed.UpdatedUtc,
+            },
+            cancellationToken);
 
         await LogAuditAsync(
             scope,
@@ -212,7 +228,10 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         SecurityDeclaredConnectionRecord? existing =
-            await connectionRepository.TryGetByIdAsync(scope.TenantId, connectionId, cancellationToken);
+            await connectionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                connectionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -233,11 +252,14 @@ public sealed class SecurityDeclaredConnectionService(
         }
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
-        await connectionRepository.RevokeAsync(
-            scope.TenantId,
-            connectionId,
-            revokedByActorKey.Trim(),
-            utcNow,
+        await connectionRepository.RevokeInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new SecurityDeclaredConnectionRevokeMutation
+            {
+                ConnectionId = connectionId,
+                RevokedByActorKey = revokedByActorKey.Trim(),
+                RevokedUtc = utcNow,
+            },
             cancellationToken);
 
         await LogAuditAsync(
@@ -262,7 +284,9 @@ public sealed class SecurityDeclaredConnectionService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecurityDeclaredConnectionRecord> records =
-            await connectionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+            await connectionRepository.ListByScopeAsync(
+                scope.ToProjectScopeKey(),
+                cancellationToken);
 
         List<SecurityDeclaredConnectionRecord> results = [];
 
@@ -310,7 +334,7 @@ public sealed class SecurityDeclaredConnectionService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecurityDeclaredConnectionRecord> expired =
-            await connectionRepository.MarkExpiredAsync(scope.TenantId, utcNow, cancellationToken);
+            await connectionRepository.MarkExpiredInScopeAsync(scope.ToProjectScopeKey(), utcNow, cancellationToken);
 
         foreach (SecurityDeclaredConnectionRecord record in expired)
         {
@@ -319,10 +343,13 @@ public sealed class SecurityDeclaredConnectionService(
                 continue;
             }
 
-            await connectionRepository.MarkExpiryProcessedAsync(
-                scope.TenantId,
-                record.ConnectionId,
-                utcNow,
+            await connectionRepository.MarkExpiryProcessedInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new SecurityDeclaredConnectionExpiryProcessedMutation
+                {
+                    ConnectionId = record.ConnectionId,
+                    ProcessedUtc = utcNow,
+                },
                 cancellationToken);
 
             await LogAuditAsync(

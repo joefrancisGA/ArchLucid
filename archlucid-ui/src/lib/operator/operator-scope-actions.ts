@@ -8,6 +8,7 @@ import {
   writeOperatorScopeToStorage,
   type OperatorScopeRecord,
 } from "@/lib/operator/operator-scope-storage";
+import { recordLiveSeatScopeLandingOnce } from "@/lib/live-seat-funnel-telemetry";
 import {
   buildCustomerIntakeDemoScopeRecord,
   isSampleWorkspaceScope,
@@ -43,6 +44,7 @@ export function visitSampleWorkspaceScope(): OperatorScopeRecord {
   markSampleWorkspaceVisitActive();
   const sample = buildCustomerIntakeDemoScopeRecord();
   writeOperatorScopeToStorage(sample);
+  recordLiveSeatScopeLandingOnce(true);
 
   return sample;
 }

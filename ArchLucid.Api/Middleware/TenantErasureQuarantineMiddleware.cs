@@ -52,7 +52,29 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
         TimeProvider timeProvider = context.RequestServices.GetRequiredService<TimeProvider>();
         DateTimeOffset utcNow = timeProvider.GetUtcNow();
 
-        if (tenant is null || !TenantErasureEligibility.IsTenantLoginBlocked(tenant, utcNow))
+        if (tenant is null)
+        {
+            Microsoft.AspNetCore.Mvc.ProblemDetails missingTenantProblem = new()
+            {
+                Type = ProblemTypes.ResourceNotFound,
+                Title = "Tenant not found",
+                Status = StatusCodes.Status404NotFound,
+                Detail = "The tenant for the authenticated scope was not found.",
+                Instance = context.Request.Path.Value
+            };
+
+            ProblemErrorCodes.AttachErrorCode(missingTenantProblem, ProblemTypes.ResourceNotFound);
+            ProblemSupportHints.AttachForProblemType(missingTenantProblem);
+            ProblemCorrelation.Attach(missingTenantProblem, context);
+
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            context.Response.ContentType = ApplicationProblemMapper.ProblemJsonMediaType;
+            await context.Response.WriteAsJsonAsync(missingTenantProblem, context.RequestAborted);
+
+            return;
+        }
+
+        if (!TenantErasureEligibility.IsTenantLoginBlocked(tenant, utcNow))
         {
             await next(context);
 

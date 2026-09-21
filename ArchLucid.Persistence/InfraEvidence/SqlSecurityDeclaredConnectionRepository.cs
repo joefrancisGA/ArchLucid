@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -54,6 +55,40 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
         return row is null ? null : Map(row);
     }
 
+    public async Task<SecurityDeclaredConnectionRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid connectionId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT ConnectionId, TenantId, WorkspaceId, ProjectId, FromCloudResourceId, ToCloudResourceId,
+                                  RelationshipType, Rationale, EvidenceReference, ExpirationUtc, Status,
+                                  RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256, ExpiryProcessedUtc,
+                                  CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.SecurityDeclaredConnections
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        ConnectionRow? row = await conn.QuerySingleOrDefaultAsync<ConnectionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ConnectionId = connectionId,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default)
@@ -72,6 +107,38 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
 
         IEnumerable<ConnectionRow> rows = await conn.QueryAsync<ConnectionRow>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
+    public async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT ConnectionId, TenantId, WorkspaceId, ProjectId, FromCloudResourceId, ToCloudResourceId,
+                                  RelationshipType, Rationale, EvidenceReference, ExpirationUtc, Status,
+                                  RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256, ExpiryProcessedUtc,
+                                  CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.SecurityDeclaredConnections
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ConnectionRow> rows = await conn.QueryAsync<ConnectionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                },
+                cancellationToken: cancellationToken));
 
         return rows.Select(Map).ToList();
     }
@@ -189,6 +256,48 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
         return rows.Select(Map).ToList();
     }
 
+
+    public async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> MarkExpiredInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityDeclaredConnections
+                           SET Status = @ExpiredStatus, UpdatedUtc = @AsOfUtc
+                           OUTPUT
+                               INSERTED.ConnectionId, INSERTED.TenantId, INSERTED.WorkspaceId, INSERTED.ProjectId,
+                               INSERTED.FromCloudResourceId, INSERTED.ToCloudResourceId, INSERTED.RelationshipType,
+                               INSERTED.Rationale, INSERTED.EvidenceReference, INSERTED.ExpirationUtc, INSERTED.Status,
+                               INSERTED.RequestedByActorKey, INSERTED.ApprovedByActorKey, INSERTED.PayloadHashSha256,
+                               INSERTED.ExpiryProcessedUtc, INSERTED.CreatedUtc, INSERTED.UpdatedUtc,
+                               INSERTED.RevokedUtc, INSERTED.RevokedByActorKey
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status = @ActiveStatus
+                             AND ExpirationUtc < @AsOfUtc;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ConnectionRow> rows = await conn.QueryAsync<ConnectionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    AsOfUtc = asOfUtc,
+                    ActiveStatus = (int)SecurityDeclaredConnectionStatus.Active,
+                    ExpiredStatus = (int)SecurityDeclaredConnectionStatus.Expired,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
     public async Task MarkExpiryProcessedAsync(
         Guid tenantId,
         Guid connectionId,
@@ -208,6 +317,40 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
                 sql,
                 new { TenantId = tenantId, ConnectionId = connectionId, ProcessedUtc = processedUtc },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task MarkExpiryProcessedInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityDeclaredConnectionExpiryProcessedMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityDeclaredConnections
+                           SET ExpiryProcessedUtc = @ProcessedUtc, UpdatedUtc = @ProcessedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId
+                             AND ExpiryProcessedUtc IS NULL;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.ConnectionId,
+                    mutation.ProcessedUtc,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped declared connection expiry mutation did not update exactly one record.");
     }
 
     public async Task RevokeAsync(
@@ -243,6 +386,46 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
                 cancellationToken: cancellationToken));
     }
 
+    public async Task RevokeInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityDeclaredConnectionRevokeMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityDeclaredConnections
+                           SET Status = @RevokedStatus,
+                               RevokedUtc = @RevokedUtc,
+                               RevokedByActorKey = @RevokedByActorKey,
+                               UpdatedUtc = @RevokedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId
+                             AND Status = @ActiveStatus;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.ConnectionId,
+                    RevokedStatus = (int)SecurityDeclaredConnectionStatus.Revoked,
+                    ActiveStatus = (int)SecurityDeclaredConnectionStatus.Active,
+                    mutation.RevokedUtc,
+                    mutation.RevokedByActorKey,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped declared connection revoke did not update exactly one record.");
+    }
+
     public async Task UpdateRenewalAsync(
         SecurityDeclaredConnectionRecord record,
         CancellationToken cancellationToken = default)
@@ -275,6 +458,48 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
                     ActiveStatus = (int)SecurityDeclaredConnectionStatus.Active,
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task UpdateRenewalInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityDeclaredConnectionRenewalMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityDeclaredConnections
+                           SET ExpirationUtc = @ExpirationUtc,
+                               ApprovedByActorKey = @ApprovedByActorKey,
+                               PayloadHashSha256 = @PayloadHashSha256,
+                               ExpiryProcessedUtc = NULL,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId
+                             AND Status = @ActiveStatus;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.ConnectionId,
+                    mutation.ExpirationUtc,
+                    mutation.ApprovedByActorKey,
+                    mutation.PayloadHashSha256,
+                    mutation.UpdatedUtc,
+                    ActiveStatus = (int)SecurityDeclaredConnectionStatus.Active,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped declared connection renewal did not update exactly one record.");
     }
 
     private static object MapParameters(SecurityDeclaredConnectionRecord record) =>

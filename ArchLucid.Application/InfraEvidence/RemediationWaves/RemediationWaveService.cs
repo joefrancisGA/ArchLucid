@@ -127,48 +127,50 @@ public sealed class RemediationWaveService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         Guid waveId = Guid.NewGuid();
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
 
-        RemediationWaveRecord wave = new()
-        {
-            WaveId = waveId,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            Name = name.Trim(),
-            TargetSize = hasTargetSize ? targetSize : selected.Count,
-            Status = RemediationWaveStatus.Active,
-            CreatedByActorKey = actorKey.Trim(),
-            CreatedUtc = utcNow,
-            UpdatedUtc = utcNow,
-        };
+        await waveRepository.InsertWaveInScopeAsync(
+            projectScope,
+            new RemediationWaveCreateMutation
+            {
+                WaveId = waveId,
+                Name = name.Trim(),
+                TargetSize = hasTargetSize ? targetSize : selected.Count,
+                Status = RemediationWaveStatus.Active,
+                CreatedByActorKey = actorKey.Trim(),
+                CreatedUtc = utcNow,
+                UpdatedUtc = utcNow,
+            },
+            cancellationToken);
 
-        await waveRepository.InsertWaveAsync(wave, cancellationToken);
+        IReadOnlyList<RemediationInstanceRecord> scopedInstances =
+            await instanceRepository.ListByScopeAsync(projectScope, cancellationToken);
 
         int rank = 1;
 
         foreach (RemediationPrioritizedFinding finding in selected)
         {
-            RemediationInstanceRecord? approvedInstance = (await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken))
+            RemediationInstanceRecord? approvedInstance = scopedInstances
                 .Where(item =>
                     item.FindingId == finding.FindingId
                     && item.Status == RemediationInstanceStatus.Approved)
                 .OrderByDescending(item => item.UpdatedUtc)
                 .FirstOrDefault();
 
-            RemediationWaveMemberRecord member = new()
-            {
-                MemberId = Guid.NewGuid(),
-                WaveId = waveId,
-                TenantId = scope.TenantId,
-                FindingId = finding.FindingId,
-                InstanceId = approvedInstance?.InstanceId,
-                CloudResourceId = finding.CloudResourceId,
-                PriorityRank = rank++,
-                PriorityScore = finding.TotalScore,
-                CreatedUtc = utcNow,
-            };
-
-            await waveRepository.InsertMemberAsync(member, cancellationToken);
+            await waveRepository.InsertMemberInScopeAsync(
+                projectScope,
+                new RemediationWaveMemberMutation
+                {
+                    MemberId = Guid.NewGuid(),
+                    WaveId = waveId,
+                    FindingId = finding.FindingId,
+                    InstanceId = approvedInstance?.InstanceId,
+                    CloudResourceId = finding.CloudResourceId,
+                    PriorityRank = rank++,
+                    PriorityScore = finding.TotalScore,
+                    CreatedUtc = utcNow,
+                },
+                cancellationToken);
 
             if (approvedInstance is not null)
             {
@@ -191,13 +193,17 @@ public sealed class RemediationWaveService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        RemediationWaveRecord? wave = await waveRepository.TryGetByIdAsync(scope.TenantId, waveId, cancellationToken);
+        RemediationWaveRecord? wave =
+            await waveRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), waveId, cancellationToken);
 
         if (wave is null)
             return null;
 
         IReadOnlyList<RemediationWaveMemberRecord> members =
-            await waveRepository.ListMembersByWaveAsync(scope.TenantId, waveId, cancellationToken);
+            await waveRepository.ListMembersByWaveInScopeAsync(
+                scope.ToProjectScopeKey(),
+                waveId,
+                cancellationToken);
 
         return new RemediationWaveDetail
         {
@@ -212,7 +218,7 @@ public sealed class RemediationWaveService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return await waveRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        return await waveRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
     }
 
     private static RemediationWaveOperationResult Failed(string message) =>

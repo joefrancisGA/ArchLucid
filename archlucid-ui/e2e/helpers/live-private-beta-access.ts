@@ -16,6 +16,7 @@ import {
 } from "./jwt-token-provider";
 import { collectArchLucidRoleClaimValues } from "@/lib/nav-authority";
 import { liveApiBase, liveE2eHarnessHeaders, liveJsonHeaders, resolveLiveJwtMode } from "./live-api-client";
+import { throwIfNotOk } from "./live-api-response";
 
 /** Matches {@link ScopeIds.DefaultTenant} when JWT omits scope claims. */
 export const LIVE_E2E_DEFAULT_TENANT_ID = "11111111-1111-1111-1111-111111111111";
@@ -103,7 +104,10 @@ export async function primeJwtBrowserSession(page: Page, accessToken: string): P
       await fetch(bffPath, {
         method: "POST",
         credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Origin: window.location.origin,
+        },
         body: JSON.stringify({ access_token: token, expires_in: 3600 }),
       });
     },
@@ -161,26 +165,41 @@ export async function primePrivateBetaBrowserSessionIfJwtMode(
 /** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(appOrigin)) {
+    await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
+  }
 
   await page.evaluate(
-    async ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
+    ({ expiresKey, expiresAt, displayKey }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
       sessionStorage.setItem(displayKey, "e2e-user");
-      await fetch(bffPath, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_token: token, expires_in: 3600 }),
-      });
     },
     {
       expiresKey: OIDC_EXPIRES_AT_MS_KEY,
       displayKey: OIDC_DISPLAY_NAME_KEY,
-      bffPath: "/api/auth/bff-session",
-      token: accessToken,
       expiresAt: expiresAtMs,
     },
   );
+
+  // page.request shares the browser cookie jar; Origin is required by isSameOriginBffRequest.
+  const response = await page.request.post(`${appOrigin}/api/auth/bff-session`, {
+    headers: {
+      "Content-Type": "application/json",
+      Origin: appOrigin,
+    },
+    data: {
+      access_token: accessToken,
+      expires_in: 3600,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = (await response.text()).slice(0, 400);
+
+    throw new Error(`POST /api/auth/bff-session failed ${response.status()}: ${body}`);
+  }
 }
 
 /** Clears OIDC session hints to simulate expiry / signed-out state. */
@@ -331,9 +350,7 @@ export async function createAdminUserInvite(
   });
 
   if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`POST /v1/admin/users/invite failed ${res.status()}: ${body.slice(0, 400)}`);
+    await throwIfNotOk(res, "POST /v1/admin/users/invite");
   }
 
   const created = (await res.json()) as {
@@ -538,11 +555,7 @@ export async function listPendingInvitations(request: APIRequestContext): Promis
     headers: liveJsonHeaders(),
   });
 
-  if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`GET /v1/admin/users/invitations failed ${res.status()}: ${body.slice(0, 400)}`);
-  }
+  await throwIfNotOk(res, "GET /v1/admin/users/invitations");
 
   const body = (await res.json()) as { invitations?: unknown[] };
 
@@ -629,9 +642,7 @@ export async function createScimAdminToken(request: APIRequestContext): Promise<
   });
 
   if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`POST /v1/admin/scim/tokens failed ${res.status()}: ${body.slice(0, 400)}`);
+    await throwIfNotOk(res, "POST /v1/admin/scim/tokens");
   }
 
   const created = (await res.json()) as { id?: string; plaintextToken?: string };

@@ -19,11 +19,11 @@ function countActiveKeys(slot: ApiKeySlotStatusDto | undefined): number {
   return 1;
 }
 
-function latestRotationUtc(events: readonly ApiKeyAuditEvent[]): string | null {
+function latestRotationMaterialUtc(events: readonly ApiKeyAuditEvent[]): string | null {
   const rotationEvents = events.filter(
     (event) =>
       event.outcome === "success"
-      && (event.action === "key_rotated" || event.action === "overlap_key_issued" || event.action === "key_created"),
+      && (event.action === "rotation_material_issued" || event.action === "overlap_key_issued"),
   );
 
   if (rotationEvents.length === 0) {
@@ -41,7 +41,7 @@ export function buildApiKeysSummary(
     accessEnabled: settings.enabled === true,
     activeAdminKeys: countActiveKeys(settings.admin),
     activeReadOnlyKeys: countActiveKeys(settings.readOnly),
-    lastRotationUtc: latestRotationUtc(events),
+    lastRotationUtc: latestRotationMaterialUtc(events),
     lastUsedUtc: null,
   };
 }

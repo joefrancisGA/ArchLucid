@@ -148,6 +148,12 @@ Reuse IE-10–IE-15. Path-aware narrative (SA-14) adds:
 
 Organizational fields (SA-15) are HumanAssertion or empty. Do not invent owners.
 
+## 8.1 Synthetic-world assurance
+
+Test-only semantic oracle: [`SECURENOW_SYNTHETIC_AZURE_WORLDS.md`](SECURENOW_SYNTHETIC_AZURE_WORLDS.md).
+
+Synthetic worlds declare expected path ordering, cut points, evidence, and confidence/provenance independently of the production ranking and cut-point implementations. The companion [`SECURENOW_METAMORPHIC_ASSURANCE.md`](SECURENOW_METAMORPHIC_ASSURANCE.md) suite verifies that irrelevant transformations preserve those semantics. Neither suite calls Azure, adds a collector, adds an `IFindingEngine`, or mutates customer resources.
+
 ## 9. Metrics (architecture outcomes)
 
 Headline metrics are **not** “findings closed”:

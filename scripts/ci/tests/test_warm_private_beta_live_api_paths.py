@@ -11,12 +11,17 @@ WARM_SCRIPT = REPO_ROOT / "scripts" / "ci" / "warm_private_beta_live_api_paths.s
 
 
 class TestWarmPrivateBetaLiveApiPaths(unittest.TestCase):
-    def test_invite_wave_mode_skips_draft_and_create_run_warm(self) -> None:
+    def test_invite_wave_mode_skips_draft_and_gates_create_run_warm(self) -> None:
         script_text = WARM_SCRIPT.read_text(encoding="utf-8")
 
         self.assertIn("LIVE_E2E_PRIVATE_BETA_ACCESS=1", script_text)
-        self.assertIn("Skipping draft inventory and create-run shell warm", script_text)
-        self.assertNotIn("warm_path_post_optional \\", script_text)
+        self.assertIn("Skipping draft inventory shell warm", script_text)
+        self.assertIn("health/ready", script_text)
+        self.assertIn("warm_path_post_optional \\", script_text)
+        self.assertIn("HTTP 000", script_text)
+        self.assertIn("Skipping remaining warms", script_text)
+        self.assertIn("refresh_private_beta_ci_jwt.sh", script_text)
+        self.assertNotIn("Skipping draft inventory and create-run shell warm", script_text)
 
     def test_script_syntax_is_valid(self) -> None:
         result = subprocess.run(

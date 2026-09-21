@@ -423,6 +423,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Livelihood-grade-no help (LN-034 / ADR 0082)",
   },
   {
+    "slug": "first-login-workspace",
+    "title": "Your workspace after sign-in",
+    "summary": "First login lands on your live tenant workspace; Training is explicit sample scope. Record and Practice are separate from Training.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-20",
+    "releaseApplicability": "Live-seat first login (ADR 0102 / LS-015)",
+  },
+  {
     "slug": "which-mode-am-i-in",
     "title": "Which mode am I in?",
     "summary": "Working vs Guided, then Career vs Rehearsal — demo and trial builds are eval, not Working Career gravity.",

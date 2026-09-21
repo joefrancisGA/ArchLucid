@@ -128,8 +128,9 @@ public sealed class RemediationPrioritizationService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        IReadOnlyList<OperationalSecurityFindingRecord> findings = await findingRepository.ListByTenantAsync(
-            scope.TenantId,
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        IReadOnlyList<OperationalSecurityFindingRecord> findings = await findingRepository.ListByScopeAsync(
+            projectScope,
             OperationalSecurityFindingStatus.Open,
             cancellationToken);
 
@@ -140,17 +141,17 @@ public sealed class RemediationPrioritizationService(
         foreach (OperationalSecurityFindingRecord finding in findings)
         {
             RemediationRiskScoreResult score = await ComputeScoreAsync(
-                scope.TenantId,
+                projectScope,
                 finding,
                 utcNow,
                 weights,
                 cancellationToken);
 
-            await prioritizationRepository.UpsertScoreAsync(
-                new RemediationPrioritizationScoreRecord
+            await prioritizationRepository.UpsertScoreInScopeAsync(
+                projectScope,
+                new RemediationPrioritizationScoreMutation
                 {
                     FindingId = finding.FindingId,
-                    TenantId = scope.TenantId,
                     TotalScore = score.TotalScore,
                     BreakdownJson = score.BreakdownJson,
                     ExplanationSummary = score.ExplanationSummary,
@@ -160,7 +161,7 @@ public sealed class RemediationPrioritizationService(
                 cancellationToken);
 
             RemediationPatternMatchResultRecord? match =
-                await matchRepository.TryGetActiveMatchAsync(scope.TenantId, finding.FindingId, cancellationToken);
+                await matchRepository.TryGetActiveMatchInScopeAsync(projectScope, finding.FindingId, cancellationToken);
 
             ranked.Add(new RemediationPrioritizedFinding
             {
@@ -188,7 +189,7 @@ public sealed class RemediationPrioritizationService(
         ArgumentNullException.ThrowIfNull(scope);
 
         OperationalSecurityFindingRecord? finding =
-            await findingRepository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+            await findingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
 
         if (finding is null)
             return null;
@@ -196,7 +197,7 @@ public sealed class RemediationPrioritizationService(
         IReadOnlyDictionary<RemediationRiskFactor, decimal> weights = await GetWeightsAsync(scope, cancellationToken);
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         RemediationRiskScoreResult score = await ComputeScoreAsync(
-            scope.TenantId,
+            scope.ToProjectScopeKey(),
             finding,
             utcNow,
             weights,
@@ -270,17 +271,17 @@ public sealed class RemediationPrioritizationService(
     }
 
     private async Task<RemediationRiskScoreResult> ComputeScoreAsync(
-        Guid tenantId,
+        ProjectScopeKey scope,
         OperationalSecurityFindingRecord finding,
         DateTime asOfUtc,
         IReadOnlyDictionary<RemediationRiskFactor, decimal> weights,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadata =
-            await findingRepository.ListMetadataByFindingAsync(tenantId, finding.FindingId, cancellationToken);
+            await findingRepository.ListMetadataByFindingInScopeAsync(scope, finding.FindingId, cancellationToken);
 
-        bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingAsync(
-            tenantId,
+        bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingInScopeAsync(
+            scope,
             finding.FindingId,
             asOfUtc,
             cancellationToken);
@@ -290,12 +291,12 @@ public sealed class RemediationPrioritizationService(
         bool patternHasRollback = false;
 
         RemediationPatternMatchResultRecord? match =
-            await matchRepository.TryGetActiveMatchAsync(tenantId, finding.FindingId, cancellationToken);
+            await matchRepository.TryGetActiveMatchInScopeAsync(scope, finding.FindingId, cancellationToken);
 
         if (match is not null)
         {
             RemediationPatternVersionRecord? version = await patternRepository.TryGetVersionAsync(
-                tenantId,
+                scope.TenantId,
                 match.PatternId,
                 match.PatternVersion,
                 cancellationToken);
@@ -312,10 +313,13 @@ public sealed class RemediationPrioritizationService(
         if (hasActiveException)
         {
             IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
-                await exceptionRepository.ListByTenantAsync(tenantId, cancellationToken);
+                await exceptionRepository.ListByScopeAsync(scope, cancellationToken);
 
             compensatingControls = exceptions
-                .FirstOrDefault(item => item.FindingId == finding.FindingId && item.Status == OperationalSecurityExceptionStatus.Active)
+                .FirstOrDefault(item =>
+                    item.FindingId == finding.FindingId
+                    && item.Status == OperationalSecurityExceptionStatus.Active
+                    && item.ExpirationUtc > asOfUtc)
                 ?.CompensatingControls;
         }
 

@@ -50,7 +50,7 @@ If you see **root-level** files such as `testresults.txt`, `commit2-log.txt`, or
 
 1. Run **`run-readiness-check`** (or CI-equivalent) before pushing when you touch API, CLI, or UI.  
 2. After **`package-release`**, hand off **`artifacts/release/`** per [RELEASE_LOCAL.md](RELEASE_LOCAL.md); do not commit that folder.  
-3. Regenerate **`ArchLucid.Api.Client`** when OpenAPI changes and **commit** the updated `Generated` file so consumers stay in sync.
+3. When OpenAPI changes, commit the updated **OpenAPI contract snapshot** and generated **TypeScript API types** that are tracked by the repository. Rebuild **`ArchLucid.Api.Client`** to verify NSwag generation, but **do not commit `ArchLucid.Api.Client/Generated/*.g.cs`**; those files are regenerated locally on build.
 
 For first-time orientation, start at [START_HERE.md](../START_HERE.md) and the repository overview ([REPOSITORY_README.md](../REPOSITORY_README.md)).
 
