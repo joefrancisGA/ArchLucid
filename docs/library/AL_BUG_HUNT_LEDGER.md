@@ -144,6 +144,46 @@
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 
+2026-09-18 seed hunt #6451 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_aty` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_aty_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6446 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_asx` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_asx_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6441 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_arw` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_arw_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6436 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_aqv` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_aqv_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6431 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_apu` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_apu_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6426 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_aot` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_aot_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6421 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_ans` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_ans_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6416 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_amr` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_amr_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6411 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_alq` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_alq_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6406 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_akp` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_akp_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6401 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_ajo` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_ajo_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6396 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_ain` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_ain_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6391 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_ahm` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_ahm_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6386 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_agl` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_agl_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6381 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_afk` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_afk_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6376 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_aej` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_aej_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6371 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_adi` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_adi_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6366 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_ach` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_ach_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6361 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_abg` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_abg_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-18 seed hunt #6356 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_aaf` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_aaf_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-18 seed hunt #6351 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_zty` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_zty_node_has_compute_category_but_synthetic_datastore_id_used`.
 
 2026-09-18 seed hunt #6346 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_zsx` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_zsx_node_has_compute_category_but_synthetic_datastore_id_used`.
@@ -1650,11 +1690,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 896
-- **bugs-found:** 848
+- **hunts:** 916
+- **bugs-found:** 868
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-18 — hunt #6351: azurerm_zty Compute-category ds- alias gap
+- **last-bug:** 2026-09-18 — hunt #6451: azurerm_aty Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5900,6 +5940,46 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-18 seed hunt #6454 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6449 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6444 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6439 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6434 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6429 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6424 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6419 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6414 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6409 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6404 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6399 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6394 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6389 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6384 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6379 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6374 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6369 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6364 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6359 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
 2026-09-18 seed hunt #6354 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6349 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -7444,7 +7524,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 806
+- **hunts:** 826
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
@@ -8284,6 +8364,46 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-14 seed hunt #2802 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 - **id:** persistence-identity
+
+2026-09-18 seed hunt #6455 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6450 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6445 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6440 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6435 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6430 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6425 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6420 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6415 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6410 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6405 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6400 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6395 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6390 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6385 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6380 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6375 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6370 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6365 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6360 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6355 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
@@ -9827,7 +9947,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 794
+- **hunts:** 814
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
@@ -15341,6 +15461,46 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-18 seed hunt #6453 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6448 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6443 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6438 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6433 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6428 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6423 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6418 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6413 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6408 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6403 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6398 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6393 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6388 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6383 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6378 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6373 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6368 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6363 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6358 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
 2026-09-18 seed hunt #6353 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6348 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
@@ -16896,7 +17056,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 815
+- **hunts:** 835
 - **bugs-found:** 223
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
@@ -17216,6 +17376,46 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-14 seed hunt #2804 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container port `protocol` projection gap; regression `ParseAsync_snake_case_container_port_protocol_projects_port_protocol_exposure`.
 
 - **id:** context-ingestion
+
+2026-09-18 seed hunt #6452 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6447 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6442 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6437 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6432 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `locations` property gap; regression `ParseAsync_locations_maps_tf_locations_property`.
+
+2026-09-18 seed hunt #6427 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6422 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6417 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6412 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6407 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `scope` property gap; regression `ParseAsync_scope_maps_tf_scope_property`.
+
+2026-09-18 seed hunt #6402 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6397 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6392 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6387 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6382 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `drained` property gap; regression `ParseAsync_drained_maps_tf_drained_property`.
+
+2026-09-18 seed hunt #6377 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6372 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6367 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6362 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-18 seed hunt #6357 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `sharded` property gap; regression `ParseAsync_sharded_maps_tf_sharded_property`.
 
 2026-09-18 seed hunt #6352 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
@@ -18789,11 +18989,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 920
-- **bugs-found:** 399
+- **hunts:** 940
+- **bugs-found:** 403
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-18 — hunt #6332: terraform-show-json zones property gap
+- **last-bug:** 2026-09-18 — hunt #6432: terraform-show-json locations property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
