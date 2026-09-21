@@ -113,6 +113,9 @@ jobs:
           python3 scripts/ci/check_quick_scan_sample_only.py
           python3 scripts/ci/check_private_beta_claim_boundary.py
           python3 scripts/ci/check_azure_extractor_pester_isolation.py
+          python3 scripts/ci/check_no_legacy_peer_deps.py
+          python3 scripts/ci/assert_prompt_injection_guard.py
+          python3 scripts/ci/check_demo_anonymous_read_plane_honesty.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -140,6 +143,10 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_quick_scan_sample_only.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_private_beta_claim_boundary.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_azure_extractor_pester_isolation.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_no_legacy_peer_deps.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_wait_for_api_ready.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1252_1372.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_tb325_327.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_warm_private_beta_live_api_paths.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_retrigger_private_beta_access_on_push.py"
 

@@ -91,6 +91,29 @@ Without replica observations, `-Apply` still records k6 p95 / error rate from su
 | --- | --- | ---: | --- | ---: | ---: | --- | ---: | --- | --- |
 | _pending_ | staging | — | — | — | — | — | — | — | Harness shipped **TB-946**; owner staging run pending **G-SCALE-01** |
 
+### Owner capture worksheet (do not invent numbers)
+
+Cursor formats this table; the owner fills it after a real staging drill. Leave `_pending_` until measured.
+
+| Field | Value |
+| --- | --- |
+| UTC start | |
+| UTC end | |
+| Operator | |
+| Staging revision / image | |
+| k6 summary JSON path | |
+| Drill A replicas observed | |
+| Drill A dominant rule | |
+| Drill A p95 (ms) | |
+| Drill B replicas observed | |
+| Drill B dominant rule | |
+| Drill B p95 (ms) | |
+| Drill C | pass / N/A + rationale |
+| Interaction smoke | pass / fail |
+| Notes | |
+
+Append with `scripts/ops/append-scale-micro-drill-results.ps1` after the owner run. Do not treat an empty worksheet as a passed **G-SCALE-01**.
+
 ## Gate before TB-905 launch load
 
 Do **not** start **TB-905** Phase C (`run_launch_load_drill.sh`) until:
