@@ -273,7 +273,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
             />
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         <div data-testid="help-troubleshooting-orientation-bottom">

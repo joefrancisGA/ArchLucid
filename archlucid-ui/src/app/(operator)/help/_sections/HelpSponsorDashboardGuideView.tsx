@@ -178,7 +178,7 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
           <SponsorSendPathHonestyPanel testIdPrefix="help-sponsor-dashboard" showSsoOptional={false} />
         </div>
 
-        <HelpTopicTableOfContents headings={SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS} />
+          <HelpTopicTableOfContents headings={SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );
