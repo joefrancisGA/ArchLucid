@@ -5,6 +5,10 @@ import {
   REVIEWS_LIST_PATH,
 } from "@/lib/architecture/architecture-routes";
 import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE } from "@/lib/golden-sponsor-package-walkthrough";
+import {
+  GETTING_STARTED_HELP_PATH,
+  LEGACY_GETTING_STARTED_PATH,
+} from "@/lib/getting-started-help-guide-route";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
@@ -18,6 +22,8 @@ import {
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+
+export { GETTING_STARTED_HELP_PATH, LEGACY_GETTING_STARTED_PATH };
 
 export const GETTING_STARTED_HELP_SUBTITLE =
   "Learn how ArchLucid turns architecture evidence into review findings, decisions, and approval-ready outputs.";
@@ -92,11 +98,6 @@ export const GETTING_STARTED_HELP_WORKING_SOURCES: readonly GettingStartedHelpSo
   { label: "Record and Practice", href: inAppHelpHref("career-rehearsal-doors") },
   { label: "Security & Trust", href: "/assurance-status" },
 ] as const;
-
-export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;
-
-/** Retired operator bookmark — no App Router page; help lives at GETTING_STARTED_HELP_PATH. */
-export const LEGACY_GETTING_STARTED_PATH = "/getting-started" as const;
 
 export const GETTING_STARTED_HELP_TOPIC_LABEL = "How to get started" as const;
 

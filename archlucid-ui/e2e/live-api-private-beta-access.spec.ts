@@ -80,11 +80,11 @@ test.describe(
       return;
     }
 
-    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list for minutes.
+    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list past the 60s UI proxy budget.
 
     const draftListRes = await request.get(
       `${liveApiBase}/v1/architecture/draft?mine=true&page=1&pageSize=1`,
-      { headers: liveJsonHeaders(), timeout: 120_000 },
+      { headers: liveJsonHeaders(), timeout: 20_000 },
     );
 
     if (!draftListRes.ok()) {
@@ -283,6 +283,23 @@ test.describe(
     });
     await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("invitation-recovery-sign-in")).toBeVisible({ timeout: 30_000 });
+    });
+
+    test("signed-in dead review deep-link surfaces branded 404 recovery (not a blank loop)", async ({
+      page,
+    }) => {
+      test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
+      const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+      await primePrivateBetaBrowserPage(page, accessToken);
+
+      const fakeRunId = "00000000-0000-4000-8000-000000000000";
+
+      await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+
+      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 30_000 });
     });
 
   test.describe("browser journeys", () => {

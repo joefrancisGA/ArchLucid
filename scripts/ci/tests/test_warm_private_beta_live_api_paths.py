@@ -18,6 +18,9 @@ class TestWarmPrivateBetaLiveApiPaths(unittest.TestCase):
         self.assertIn("Skipping draft inventory shell warm", script_text)
         self.assertIn("health/ready", script_text)
         self.assertIn("warm_path_post_optional \\", script_text)
+        self.assertIn("HTTP 000", script_text)
+        self.assertIn("Skipping remaining warms", script_text)
+        self.assertIn("refresh_private_beta_ci_jwt.sh", script_text)
         self.assertNotIn("Skipping draft inventory and create-run shell warm", script_text)
 
     def test_script_syntax_is_valid(self) -> None:
