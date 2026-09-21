@@ -132,10 +132,10 @@ public interface IRemediationFactoryMetricsService
 }
 
 public sealed class RemediationFactoryMetricsService(
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     IOperationalSecurityExceptionRepository exceptionRepository,
     IRemediationPatternMatchRepository matchRepository,
-    IRemediationInstanceRepository instanceRepository,
+    IProjectScopedRemediationInstanceRepository instanceRepository,
     IRemediationPrioritizationRepository prioritizationRepository) : IRemediationFactoryMetricsService
 {
     private static readonly TimeSpan ExpiringSoonWindow = TimeSpan.FromDays(14);
