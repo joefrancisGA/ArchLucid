@@ -79,6 +79,13 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "ListByAssessmentInScopeAsync"];
         yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "TryGetBaselineByNameInScopeAsync"];
         yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "UpdateItemFreshnessInScopeAsync"];
+        yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "InsertBaselineInScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "InsertArchitectureLinkInScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "ListArchitectureLinksByAssessmentInScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "ListArchitectureLinksByControlInScopeAsync"];
+        yield return [typeof(IAuditControlEvaluationRepository), typeof(SqlAuditControlEvaluationRepository), "InsertInScopeAsync"];
+        yield return [typeof(IAuditControlEvaluationRepository), typeof(SqlAuditControlEvaluationRepository), "TryGetLatestByControlInScopeAsync"];
+        yield return [typeof(IAuditControlEvaluationRepository), typeof(SqlAuditControlEvaluationRepository), "ListEvidenceItemsByEvaluationInScopeAsync"];
     }
 
     [Theory]
