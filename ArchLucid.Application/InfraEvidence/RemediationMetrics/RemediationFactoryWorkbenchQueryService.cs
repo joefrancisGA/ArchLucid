@@ -68,7 +68,7 @@ public interface IRemediationFactoryWorkbenchQueryService
 
 public sealed class RemediationFactoryWorkbenchQueryService(
     IRemediationFactoryMetricsService metricsService,
-    IRemediationInstanceRepository instanceRepository,
+    IProjectScopedRemediationInstanceRepository instanceRepository,
     IRemediationWaveService waveService) : IRemediationFactoryWorkbenchQueryService
 {
     public async Task<RemediationFactoryWorkbenchSummary> GetSummaryAsync(
