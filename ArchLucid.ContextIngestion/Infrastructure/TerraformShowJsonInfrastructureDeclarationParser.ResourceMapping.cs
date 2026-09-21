@@ -2077,6 +2077,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.compressed"] = compressed.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "format", out JsonElement format)
+                || TryGetPropertyIgnoreCase(res, "format", out format))
+            && format.ValueKind == JsonValueKind.String)
+        {
+            string? formatText = format.GetString();
+
+            if (!string.IsNullOrWhiteSpace(formatText))
+                properties["tf.format"] = formatText.Trim();
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "rebalanced", out JsonElement rebalanced)
                 || TryGetPropertyIgnoreCase(res, "rebalanced", out rebalanced))
             && (rebalanced.ValueKind == JsonValueKind.True || rebalanced.ValueKind == JsonValueKind.False))
