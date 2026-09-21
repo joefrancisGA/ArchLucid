@@ -84,10 +84,10 @@ describe("ScopeSwitcher — operator shell", () => {
     render(<ScopeSwitcher density="compact" />);
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent("Workspace: Development — Primary project");
+    expect(trigger).toHaveTextContent("Development — Primary project");
     expect(trigger).not.toHaveTextContent("Sample workspace:");
-    expect(trigger).toHaveAttribute("aria-label", "Active workspace: Workspace: Development — Primary project");
-    expect(trigger).toHaveAttribute("title", "Active workspace: Workspace: Development — Primary project");
+    expect(trigger).toHaveAttribute("aria-label", "Active workspace: Development — Primary project");
+    expect(trigger).toHaveAttribute("title", "Active workspace: Development — Primary project");
     expect(trigger.className).toMatch(/max-w-/);
   });
 
@@ -315,9 +315,9 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
 
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent("Workspace: Development — Primary project");
+    expect(trigger).toHaveTextContent("Development — Primary project");
     expect(trigger).not.toHaveTextContent("Sample workspace:");
-    expect(trigger).toHaveAttribute("aria-label", "Active workspace: Workspace: Development — Primary project");
+    expect(trigger).toHaveAttribute("aria-label", "Active workspace: Development — Primary project");
     expect(trigger.className).toMatch(/overflow-hidden/);
     expect(trigger.querySelector("svg")).not.toBeNull();
 

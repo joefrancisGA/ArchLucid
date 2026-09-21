@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import {
-  ANALYSIS_MODE_RULE_BASED_LABEL,
   ANALYSIS_MODE_WORKSPACE_LABEL,
 } from "@/lib/simulator-mode-chrome-copy";
 
@@ -87,9 +86,7 @@ describe("SimulatorModeTopBarChip", () => {
 
     render(<SimulatorModeTopBarChip />);
 
-    expect(screen.getByTestId("simulator-mode-top-bar-chip-toggle")).toHaveTextContent(
-      `Analysis: ${ANALYSIS_MODE_RULE_BASED_LABEL}`,
-    );
+    expect(screen.getByTestId("simulator-mode-top-bar-chip-toggle")).toHaveTextContent("Analysis");
     expect(screen.getByTestId("simulator-mode-top-bar-chip-toggle")).not.toHaveAttribute("aria-pressed");
   });
 
