@@ -10,7 +10,7 @@ public sealed class SecureNowArchitectMetricsQueryService(
     IAzureInventorySnapshotRepository snapshotRepository,
     ISecurityEvidencePathRepository pathRepository,
     IOperationalSecurityExceptionRepository exceptionRepository,
-    IOperationalSecurityFindingRepository findingRepository) : ISecureNowArchitectMetricsQueryService
+    IProjectScopedOperationalSecurityFindingRepository findingRepository) : ISecureNowArchitectMetricsQueryService
 {
     public async Task<SecureNowArchitectOutcomeMetricsResponse?> TryGetOutcomeMetricsAsync(
         ScopeContext scope,
