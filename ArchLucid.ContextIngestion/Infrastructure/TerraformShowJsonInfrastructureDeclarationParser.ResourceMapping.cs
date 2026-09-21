@@ -2029,6 +2029,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.scope"] = scopeText.Trim();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "locations", out JsonElement locationsEl)
+            || TryGetPropertyIgnoreCase(res, "locations", out locationsEl))
+        {
+            List<string> locationsFields = [];
+
+            if (locationsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in locationsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        locationsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (locationsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = locationsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    locationsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (locationsFields.Count > 0)
+            {
+                string joined = string.Join('|', locationsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.locations"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
                 || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
             && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
