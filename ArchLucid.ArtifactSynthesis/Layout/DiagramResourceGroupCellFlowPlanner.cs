@@ -20,6 +20,75 @@ public static class DiagramResourceGroupCellFlowPlanner
             return cells;
         }
 
+        return GroupByLayers(cells, visibleEdges)
+            .SelectMany(layer => layer)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Each inner list is one left-to-right rank. Inter-group edges hop from
+    /// layer n to layer n+1 so Visio-style frames stack in columns.
+    /// </summary>
+    public static IReadOnlyList<IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>> GroupByLayers(
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
+        IReadOnlyList<DiagramEdge> visibleEdges)
+    {
+        ArgumentNullException.ThrowIfNull(cells);
+        ArgumentNullException.ThrowIfNull(visibleEdges);
+
+        if (cells.Count == 0)
+        {
+            return [];
+        }
+
+        if (cells.Count == 1)
+        {
+            return [[cells[0]]];
+        }
+
+        CellRank rank = RankCells(cells, visibleEdges);
+        List<List<DiagramResourceGroupPacker.ResourceGroupCell>> layers = [];
+
+        for (int layer = 0; layer <= rank.MaxLayer; layer++)
+        {
+            List<DiagramResourceGroupPacker.ResourceGroupCell> members = [];
+
+            for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
+            {
+                if (rank.Visited[cellIndex] && rank.LayerByCell[cellIndex] == layer)
+                {
+                    members.Add(cells[cellIndex]);
+                }
+            }
+
+            if (members.Count > 0)
+            {
+                layers.Add(members);
+            }
+        }
+
+        List<DiagramResourceGroupPacker.ResourceGroupCell> unranked = [];
+
+        for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
+        {
+            if (!rank.Visited[cellIndex])
+            {
+                unranked.Add(cells[cellIndex]);
+            }
+        }
+
+        if (unranked.Count > 0)
+        {
+            layers.Add(unranked);
+        }
+
+        return layers;
+    }
+
+    private static CellRank RankCells(
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
+        IReadOnlyList<DiagramEdge> visibleEdges)
+    {
         Dictionary<string, int> cellIndexByNodeId = BuildNodeCellIndex(cells);
         int[] inDegree = new int[cells.Count];
         List<int>[] outgoing = Enumerable.Range(0, cells.Count)
@@ -103,30 +172,9 @@ public static class DiagramResourceGroupCellFlowPlanner
             }
         }
 
-        List<DiagramResourceGroupPacker.ResourceGroupCell> ordered = [];
-        int maxLayer = layerByCell.Max();
+        int maxLayer = layerByCell.Length == 0 ? 0 : layerByCell.Max();
 
-        for (int layer = 0; layer <= maxLayer; layer++)
-        {
-            for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
-            {
-                if (visited[cellIndex] && layerByCell[cellIndex] == layer)
-                {
-                    ordered.Add(cells[cellIndex]);
-                }
-            }
-        }
-
-        // Cycles never reach in-degree 0; keep the packer's original order for those cells.
-        for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
-        {
-            if (!visited[cellIndex])
-            {
-                ordered.Add(cells[cellIndex]);
-            }
-        }
-
-        return ordered;
+        return new CellRank(layerByCell, visited, maxLayer);
     }
 
     private static Dictionary<string, int> BuildNodeCellIndex(
@@ -156,4 +204,6 @@ public static class DiagramResourceGroupCellFlowPlanner
 
         return cellIndexByNodeId;
     }
+
+    private sealed record CellRank(int[] LayerByCell, bool[] Visited, int MaxLayer);
 }

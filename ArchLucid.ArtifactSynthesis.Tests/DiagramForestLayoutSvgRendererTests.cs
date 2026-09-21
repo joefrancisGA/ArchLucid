@@ -79,6 +79,11 @@ public sealed class DiagramForestLayoutSvgRendererTests
             && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal));
         nodeCount.Should().Be(11);
 
+        int frameCount = root.Descendants().Count(element =>
+            string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+            && string.Equals((string?)element.Attribute("class"), "rg-frame", StringComparison.Ordinal));
+        frameCount.Should().Be(11);
+
         int edgePathCount = root.Descendants()
             .Where(element =>
                 string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
@@ -291,7 +296,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
-    public void Render_prints_muted_resource_group_lines_for_distinct_groups()
+    public void Render_frames_each_named_resource_group_including_singletons()
     {
         DiagramAst ast = new()
         {
@@ -320,13 +325,23 @@ public sealed class DiagramForestLayoutSvgRendererTests
         };
 
         DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
+        XElement root = document.Root!;
+
         result.Succeeded.Should().BeTrue();
+        root.Descendants()
+            .Count(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "rg-frame", StringComparison.Ordinal))
+            .Should()
+            .Be(2);
         result.Svg.Should().Contain("rg-app-prod");
         result.Svg.Should().Contain("rg-data-prod");
-        result.Svg.Should().Contain("font-weight=\"400\"");
-        result.Svg.Should().Contain($"fill=\"{ArchitectureDiagramMermaidPalette.LightNodeCaption}\"");
+        result.Svg.Should().Contain("font-weight=\"700\"");
         result.Svg.Should().Contain("<title>vm-app (Virtual machine) · rg-app-prod</title>");
         result.Svg.Should().Contain("<title>sqldb-app (SQL database) · rg-data-prod</title>");
+        CountRgCaptionTexts(root, "rg-app-prod").Should().Be(0);
+        CountRgCaptionTexts(root, "rg-data-prod").Should().Be(0);
     }
 
     [Fact]
@@ -380,12 +395,12 @@ public sealed class DiagramForestLayoutSvgRendererTests
                 string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
                 && string.Equals((string?)element.Attribute("class"), "rg-frame", StringComparison.Ordinal))
             .Should()
-            .Be(1);
+            .Be(2);
         result.Svg.Should().Contain("rg-app-prod");
         result.Svg.Should().Contain("rg-data-prod");
         result.Svg.Should().Contain("font-weight=\"700\"");
         CountRgCaptionTexts(root, "rg-app-prod").Should().Be(0);
-        CountRgCaptionTexts(root, "rg-data-prod").Should().Be(1);
+        CountRgCaptionTexts(root, "rg-data-prod").Should().Be(0);
         root.Descendants()
             .Where(element =>
                 string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
