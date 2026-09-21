@@ -7,6 +7,12 @@ public interface IRemediationInstanceRepository
 {
     Task InsertInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
 
+    Task InsertInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceRecord instance,
+        CancellationToken cancellationToken = default) =>
+        InsertInstanceAsync(instance, cancellationToken);
+
     Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
 
     async Task UpdateInstanceInScopeAsync(
@@ -46,6 +52,12 @@ public interface IRemediationInstanceRepository
     }
 
     Task InsertEvidenceAsync(RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default);
+
+    Task InsertEvidenceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default) =>
+        InsertEvidenceAsync(evidence, cancellationToken);
 
     Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceAsync(
         Guid tenantId,
