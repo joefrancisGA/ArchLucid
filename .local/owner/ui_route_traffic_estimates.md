@@ -112,7 +112,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HSY | `/help/system-gravity` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEH | `/help/which-mode-am-i-in` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | IN | `/infrastructure` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
-| INS | `/infrastructure/ask` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| INS | `/infrastructure/ask` | 0.02% | 82,81 | 0 | 2 | Marketing | No | SecureNow Ask Phase 2: transcript/draft persistence, simulator provenance, snapshot freshness, explicit canned prompt insertion, semantic blocked errors, Working claim discipline, keyboard submit/readiness, neutral topic labels, unscoped corpus/resource explorer, and transcript indexing; 2026-09-21 al-ui-rate: shipped safe backlog |
 | IND | `/infrastructure/declared-connections` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IDI | `/infrastructure/diagram-reconcile` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | NDI | `/infrastructure/diagrams` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
