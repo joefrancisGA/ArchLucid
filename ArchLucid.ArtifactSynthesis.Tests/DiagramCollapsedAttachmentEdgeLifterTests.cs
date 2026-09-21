@@ -34,6 +34,25 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
     }
 
     [Fact]
+    public void Compile_full_subscription_hides_nic_and_draws_virtual_machine_in_vnet_when_subnet_node_missing()
+    {
+        GraphSnapshot graph = BuildVmNicVnetGraphWithoutSubnetNode();
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node =>
+            string.Equals(node.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase));
+
+        DiagramEdge? inVnet = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
+            .SingleOrDefault(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
+        inVnet.Should().NotBeNull();
+        ast.Nodes.Should().Contain(node =>
+            node.NodeId == inVnet!.FromNodeId && string.Equals(node.Label, "vm-app", StringComparison.Ordinal));
+        ast.Nodes.Should().Contain(node =>
+            node.NodeId == inVnet!.ToNodeId && string.Equals(node.Label, "vnet-app", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Compile_full_subscription_hides_private_endpoint_and_places_target_in_subnet()
     {
         GraphSnapshot graph = BuildPrivateEndpointSqlSubnetGraph();
@@ -135,6 +154,49 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         };
 
         return graph;
+    }
+
+    private static GraphSnapshot BuildVmNicVnetGraphWithoutSubnetNode()
+    {
+        const string vmArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app";
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-app-nic";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app";
+
+        return new GraphSnapshot
+        {
+            Nodes =
+            [
+                BuildTopologyNode("vm-1", vmArmId, "Microsoft.Compute/virtualMachines", "vm-app"),
+                BuildTopologyNode("nic-1", nicArmId, "Microsoft.Network/networkInterfaces", "vm-app-nic"),
+                BuildTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "vnet-app"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-vm-nic",
+                    FromNodeId = "vm-1",
+                    ToNodeId = "nic-1",
+                    EdgeType = AzureInventoryRelationshipAssociationTypes.VmToNic,
+                    Label = AzureInventoryRelationshipAssociationTypes.VmToNic,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryVmNic,
+                    Weight = 1.0d,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "edge-nic-vnet",
+                    FromNodeId = "nic-1",
+                    ToNodeId = "vnet-1",
+                    EdgeType = AzureInventoryRelationshipAssociationTypes.NicToSubnet,
+                    Label = AzureInventoryRelationshipAssociationTypes.NicToSubnet,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+                    Weight = 1.0d,
+                },
+            ],
+        };
     }
 
     private static GraphSnapshot BuildPrivateEndpointSqlSubnetGraph()
