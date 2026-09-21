@@ -2087,6 +2087,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.tier"] = tierText.Trim();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "subregions", out JsonElement subregionsEl)
+            || TryGetPropertyIgnoreCase(res, "subregions", out subregionsEl))
+        {
+            List<string> subregionsFields = [];
+
+            if (subregionsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in subregionsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        subregionsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (subregionsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = subregionsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    subregionsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (subregionsFields.Count > 0)
+            {
+                string joined = string.Join('|', subregionsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.subregions"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "replicated", out JsonElement replicated)
                 || TryGetPropertyIgnoreCase(res, "replicated", out replicated))
             && (replicated.ValueKind == JsonValueKind.True || replicated.ValueKind == JsonValueKind.False))
