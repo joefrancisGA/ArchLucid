@@ -2077,6 +2077,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.paused"] = paused.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "tier", out JsonElement tier)
+                || TryGetPropertyIgnoreCase(res, "tier", out tier))
+            && tier.ValueKind == JsonValueKind.String)
+        {
+            string? tierText = tier.GetString();
+
+            if (!string.IsNullOrWhiteSpace(tierText))
+                properties["tf.tier"] = tierText.Trim();
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "replicated", out JsonElement replicated)
                 || TryGetPropertyIgnoreCase(res, "replicated", out replicated))
             && (replicated.ValueKind == JsonValueKind.True || replicated.ValueKind == JsonValueKind.False))
