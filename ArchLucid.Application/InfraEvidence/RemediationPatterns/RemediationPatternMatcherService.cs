@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.InfraEvidence.RemediationPatterns;
 
 public sealed class RemediationPatternMatcherService(
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     IRemediationPatternRepository patternRepository,
     IRemediationPatternMatchRepository matchRepository,
     ILogger<RemediationPatternMatcherService> logger) : IRemediationPatternMatcherService
