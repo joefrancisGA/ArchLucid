@@ -97,7 +97,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HCA | `/help/career-rehearsal-doors` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | ECX | `/help/career-vs-rehearsal` | 0.02% | 82,84 | 0 | 2 | Help topic | No | SecureNow career-vs-rehearsal help Phase 2: provenance, Record/Practice mapping, shortcut and consequence guidance, anchored comparison table, related topics, search registration, Working navigation and safety hierarchy; 2026-09-21 al-ui-rate: shipped safe backlog |
 | EEX | `/help/extraction-fidelity` | 0.02% | 83,80 | 0 | 2 | Help topic | No | SecureNow extraction fidelity help Phase 2: provenance, enforcement surfaces, NotVerifiable/ESI safety rules, provenance-gap table, anchors, related topics, seat applicability, and constrained reading; 2026-09-21 al-ui-rate: shipped safe backlog |
-| HEF | `/help/false-hard-infeasibility` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEF | `/help/false-hard-infeasibility` | 0.02% | 82,84 | 0 | 2 | Help topic | No | SecureNow false-hard-infeasibility help Phase 2: citation remediation, verdict vocabulary bridge, LN-034/ADR 0093 provenance, enforcement-surface inventory, seat applicability, anchors/TOC, related/help links, and corrected envelope claims; 2026-09-21 al-ui-rate: shipped safe backlog |
 | HFI | `/help/first-login-workspace` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEG | `/help/governance-infrastructure-drift` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EIM | `/help/impact-preview-vs-architecture-envelope` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
