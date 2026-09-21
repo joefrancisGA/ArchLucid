@@ -10,10 +10,10 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.InfraEvidence.AuditEvidence;
 
 public sealed class AuditEvidencePackageExportService(
-    IAuditAssessmentRepository assessmentRepository,
+    IProjectScopedAuditAssessmentRepository assessmentRepository,
     IAuditFrameworkRepository frameworkRepository,
     IAuditEvidenceRequirementRepository requirementRepository,
-    IAuditEvidenceSnapshotRepository snapshotRepository,
+    IProjectScopedAuditEvidenceSnapshotRepository snapshotRepository,
     IAuditControlEvaluationRepository evaluationRepository,
     IAuditManualEvidenceRepository manualEvidenceRepository,
     IAuditEvidenceSnapshotVerificationService verificationService,
