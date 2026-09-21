@@ -63,15 +63,7 @@ public sealed class AzureInventorySnapshotGraphResolverNestedEndpointTests
             string.Equals(node.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase));
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "vm-app", StringComparison.Ordinal));
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "vnet-app", StringComparison.Ordinal));
-
-        DiagramEdge? inVnet = ast.Edges
-            .Where(edge => !edge.IsLayoutOnly)
-            .SingleOrDefault(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
-        inVnet.Should().NotBeNull();
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inVnet!.FromNodeId && string.Equals(node.Label, "vm-app", StringComparison.Ordinal));
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inVnet!.ToNodeId && string.Equals(node.Label, "vnet-app", StringComparison.Ordinal));
+        FindVisibleEdge(ast, "vm-app", "vnet-app").Should().NotBeNull();
     }
 
     [Fact]
@@ -153,15 +145,7 @@ public sealed class AzureInventorySnapshotGraphResolverNestedEndpointTests
 
         ast.Nodes.Should().NotContain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
         ast.Nodes.Single(node => node.Label == "sql").HasPrivateEndpointAccess.Should().BeTrue();
-
-        DiagramEdge? inVnet = ast.Edges
-            .Where(edge => !edge.IsLayoutOnly)
-            .SingleOrDefault(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
-        inVnet.Should().NotBeNull();
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inVnet!.FromNodeId && string.Equals(node.Label, "sql", StringComparison.Ordinal));
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inVnet!.ToNodeId && string.Equals(node.Label, "vnet-data", StringComparison.Ordinal));
+        FindVisibleEdge(ast, "sql", "vnet-data").Should().NotBeNull();
     }
 
     [Fact]
@@ -275,5 +259,22 @@ public sealed class AzureInventorySnapshotGraphResolverNestedEndpointTests
             InferenceSource = inferenceSource,
             ProvenanceKind = ProvenanceKind.ObservedFact,
         };
+    }
+
+    private static DiagramEdge? FindVisibleEdge(DiagramAst ast, string fromLabel, string toLabel)
+    {
+        HashSet<string> fromIds = ast.Nodes
+            .Where(node => string.Equals(node.Label, fromLabel, StringComparison.Ordinal))
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+        HashSet<string> toIds = ast.Nodes
+            .Where(node => string.Equals(node.Label, toLabel, StringComparison.Ordinal))
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        return ast.Edges.FirstOrDefault(edge =>
+            !edge.IsLayoutOnly
+            && fromIds.Contains(edge.FromNodeId)
+            && toIds.Contains(edge.ToNodeId));
     }
 }

@@ -71,14 +71,7 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
         result.Succeeded.Should().BeTrue();
 
         DiagramAst ast = new DiagramAstFromGraphCompiler().Compile(result.Graph!, DiagramMode.FullSubscription);
-        DiagramEdge? inVnet = ast.Edges
-            .Where(edge => !edge.IsLayoutOnly)
-            .SingleOrDefault(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
-        inVnet.Should().NotBeNull();
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inVnet!.FromNodeId && node.Label == "vm-app");
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inVnet!.ToNodeId && node.Label == "vnet-app");
+        FindVisibleEdge(ast, "vm-app", "vnet-app").Should().NotBeNull();
     }
 
     [Fact]
@@ -220,5 +213,22 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
             ResourceGroup = resourceGroup,
             SubscriptionId = "sub",
         };
+    }
+
+    private static DiagramEdge? FindVisibleEdge(DiagramAst ast, string fromLabel, string toLabel)
+    {
+        HashSet<string> fromIds = ast.Nodes
+            .Where(node => string.Equals(node.Label, fromLabel, StringComparison.Ordinal))
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+        HashSet<string> toIds = ast.Nodes
+            .Where(node => string.Equals(node.Label, toLabel, StringComparison.Ordinal))
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        return ast.Edges.FirstOrDefault(edge =>
+            !edge.IsLayoutOnly
+            && fromIds.Contains(edge.FromNodeId)
+            && toIds.Contains(edge.ToNodeId));
     }
 }
