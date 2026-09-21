@@ -76,6 +76,12 @@ internal static class DiagramAstLayoutEdgeBuilder
                     continue;
                 }
 
+                if (visibleEdgeKeys.Contains($"{vmMermaidId}|{subnetMermaidId}"))
+                {
+                    addedSubnetPlacement = true;
+                    continue;
+                }
+
                 if (!TryAddDerivedPlacementEdge(ast, visibleEdgeKeys, vmMermaidId, subnetMermaidId))
                 {
                     continue;

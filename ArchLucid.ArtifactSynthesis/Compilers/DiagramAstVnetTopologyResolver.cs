@@ -12,9 +12,7 @@ internal static class DiagramAstVnetTopologyResolver
         GraphSnapshot graph)
     {
         HashSet<string> subnetNodeIds = new(StringComparer.Ordinal);
-        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
-            candidate => candidate.NodeId,
-            StringComparer.Ordinal);
+        Dictionary<string, GraphNode> nodesById = IndexNodesById(graph);
 
         if (!connectsTo.TryGetValue(vmNodeId, out List<string>? nicIds))
         {
@@ -53,9 +51,7 @@ internal static class DiagramAstVnetTopologyResolver
         GraphSnapshot graph)
     {
         HashSet<string> vnetNodeIds = new(StringComparer.Ordinal);
-        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
-            candidate => candidate.NodeId,
-            StringComparer.Ordinal);
+        Dictionary<string, GraphNode> nodesById = IndexNodesById(graph);
 
         foreach (string subnetNodeId in ResolveSubnetNodeIdsForVirtualMachine(vmNodeId, connectsTo, graph))
         {
@@ -102,6 +98,13 @@ internal static class DiagramAstVnetTopologyResolver
         }
 
         return armId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static Dictionary<string, GraphNode> IndexNodesById(GraphSnapshot graph)
+    {
+        return graph.Nodes
+            .GroupBy(candidate => candidate.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
     }
 
     public static string? TryResolveVnetIdFromSubnetArmId(string subnetArmId)
