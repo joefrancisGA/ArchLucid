@@ -12,14 +12,14 @@ using ArchLucid.Persistence.Serialization;
 namespace ArchLucid.Application.InfraEvidence.RemediationInstances;
 
 public sealed class RemediationInstanceService(
-    IRemediationInstanceRepository instanceRepository,
+    IProjectScopedRemediationInstanceRepository instanceRepository,
     IRemediationPatternMatchRepository matchRepository,
     IRemediationPatternRepository patternRepository,
     IOperationalSecurityExceptionRepository exceptionRepository,
     IAzureInventorySnapshotRepository snapshotRepository,
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
     IAuditService auditService,
-    IOperationalSecurityFindingRepository operationalFindingRepository,
+    IProjectScopedOperationalSecurityFindingRepository operationalFindingRepository,
     IRemediationPathNarrativeBuilder pathNarrativeBuilder,
     ISecurityEvidencePathRepository pathRepository,
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
@@ -119,7 +119,7 @@ public sealed class RemediationInstanceService(
             UpdatedUtc = utcNow,
         };
 
-        await instanceRepository.InsertInstanceAsync(instance, cancellationToken);
+        await instanceRepository.InsertInstanceInScopeAsync(scope.ToProjectScopeKey(), instance, cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceCreated, instanceId, cancellationToken);
 
@@ -190,7 +190,7 @@ public sealed class RemediationInstanceService(
             preflightResultJson: preflight.ResultJson,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         if (!preflight.Passed)
             return Blocked(preflight.Blockers.ToArray());
@@ -241,7 +241,7 @@ public sealed class RemediationInstanceService(
             approvedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.Approved);
     }
@@ -286,7 +286,7 @@ public sealed class RemediationInstanceService(
             waveId: waveId,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.WaveAssigned);
     }
@@ -327,7 +327,7 @@ public sealed class RemediationInstanceService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.Before,
             JsonSerializer.Serialize(new { inventorySnapshotId, instance.Status }),
@@ -345,7 +345,7 @@ public sealed class RemediationInstanceService(
         };
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.ExecuteRequest,
             JsonSerializer.Serialize(executeRequest),
@@ -386,7 +386,7 @@ public sealed class RemediationInstanceService(
         }
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.ExecuteResult,
             executeResultPayload,
@@ -405,7 +405,7 @@ public sealed class RemediationInstanceService(
             executedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceExecuted, instanceId, cancellationToken);
 
@@ -483,7 +483,7 @@ public sealed class RemediationInstanceService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.Verify,
             verification.ResultJson,
@@ -507,7 +507,7 @@ public sealed class RemediationInstanceService(
             verifiedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         if (!verification.Passed)
             return Blocked(verification.Failures.ToArray());
@@ -546,7 +546,7 @@ public sealed class RemediationInstanceService(
             closedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceClosed, instanceId, cancellationToken);
 
@@ -597,7 +597,7 @@ public sealed class RemediationInstanceService(
             cancellationToken);
 
     private async Task AppendEvidenceAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid instanceId,
         RemediationEvidencePhase phase,
         string payloadJson,
@@ -610,7 +610,7 @@ public sealed class RemediationInstanceService(
         {
             EvidenceId = Guid.NewGuid(),
             InstanceId = instanceId,
-            TenantId = tenantId,
+            TenantId = scope.TenantId,
             Phase = phase,
             PayloadJson = payloadJson,
             ActorKey = actorKey.Trim(),
@@ -618,7 +618,10 @@ public sealed class RemediationInstanceService(
             CreatedUtc = utcNow,
         };
 
-        await instanceRepository.InsertEvidenceAsync(evidence, cancellationToken);
+        await instanceRepository.InsertEvidenceInScopeAsync(
+            scope.ToProjectScopeKey(),
+            evidence,
+            cancellationToken);
     }
 
     private async Task LogAuditAsync(
