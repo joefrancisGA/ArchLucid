@@ -53,14 +53,19 @@ export function formatCiBuildNumberLabel(ciBuildNumber: string): string | null {
 }
 
 /** Full operator-footer line: CI number (when known), short SHA, timestamp, env, API host. */
-export function formatDeploymentBuildFingerprintLine(fingerprint: ClientDeploymentFingerprint): string {
-  const hasBuildIdentity =
+export function clientHasDeploymentBuildIdentity(
+  fingerprint: ClientDeploymentFingerprint = readClientDeploymentFingerprint(),
+): boolean {
+  return (
     isKnownFingerprintValue(fingerprint.ciBuildNumber)
     || isKnownFingerprintValue(fingerprint.frontendCommitSha)
     || isKnownFingerprintValue(fingerprint.buildTimestamp)
-    || isKnownFingerprintValue(fingerprint.apiUpstreamHost);
+    || isKnownFingerprintValue(fingerprint.apiUpstreamHost)
+  );
+}
 
-  if (!hasBuildIdentity) {
+export function formatDeploymentBuildFingerprintLine(fingerprint: ClientDeploymentFingerprint): string {
+  if (!clientHasDeploymentBuildIdentity(fingerprint)) {
     return "Build identity unavailable in this environment";
   }
 

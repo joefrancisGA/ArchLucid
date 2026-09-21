@@ -27,6 +27,7 @@ import {
 } from "@/lib/sidebar-nav-link-filters";
 import {
   sidebarMoreLinksCollapseLabel,
+  sidebarMoreLinksAccessibleLabel,
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
@@ -244,6 +245,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 )}
                 data-testid={`sidebar-group-more-${group.id}`}
                 aria-expanded={moreOpen}
+                aria-label={sidebarMoreLinksAccessibleLabel(group.id, more.length, moreOpen)}
                 onClick={() => {
                   replaceSidebarMoreGroupInUrl(urlMoreGroupOpen ? null : group.id);
                 }}

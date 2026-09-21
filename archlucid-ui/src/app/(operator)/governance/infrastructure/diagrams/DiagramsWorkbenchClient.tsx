@@ -192,7 +192,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
@@ -535,13 +534,6 @@ export function DiagramsWorkbenchClient() {
     isInfraDiagramsResourceGroupMode(selectedMode)
     && selectedResourceGroupName.length === 0
     && resourceGroupPickerArtifacts.length > 0;
-
-  const awaitingSubscriptionSelection =
-    !loadingSnapshots
-    && !deepLinkedSnapshotMissing
-    && snapshots.length > 0
-    && !diagramsSubscriptionChosen
-    && selectedSnapshotId.length === 0;
 
   const awaitingSnapshotSelection =
     !loadingSnapshots
@@ -1543,7 +1535,7 @@ export function DiagramsWorkbenchClient() {
 
       <section
         className={cn(
-          "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+          "grid items-start gap-x-4 gap-y-2 md:grid-cols-2",
           cnCard,
         )}
         aria-label="Subscription, snapshot, and diagram type selection"
@@ -1868,7 +1860,10 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      {isInfraDiagramsExecutiveMode(selectedMode) && selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+      {diagramTypeSelected
+      && isInfraDiagramsExecutiveMode(selectedMode)
+      && selectedSnapshotId.length > 0
+      && !deepLinkedSnapshotMissing ? (
         <section
           className={cn("flex flex-col gap-3", cnCard)}
           aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
@@ -2076,13 +2071,7 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {awaitingSubscriptionSelection ? (
-        <EnterpriseCompactEmptyState
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY}
-          testId="infra-diagrams-subscription-prompt"
-        />
-      ) : awaitingSnapshotSelection ? (
+      {awaitingSnapshotSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY}

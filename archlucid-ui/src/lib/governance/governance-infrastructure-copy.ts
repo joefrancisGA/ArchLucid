@@ -166,9 +166,6 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL = "Subscripti
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE = "Select a subscription" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY =
-  "Choose a subscription before selecting a diagram type." as const;
-
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE = "Select a snapshot" as const;
@@ -518,6 +515,49 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL = "C
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL = "ARM resource path" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL = "Terraform address" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureTerraform;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID = "infra-terraform-primary-content" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SKIP_LINK_LABEL = "Skip to Terraform mapping" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PAGE_LEAD =
+  "Review advisory Terraform addresses reconstructed from inventory snapshots for a scoped cloud resource before exporting from drift." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLAIM_DISCIPLINE =
+  "Advisory mapping is reconstructed from inventory evidence — not original Terraform and must not be applied without human review." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_LABEL = "Scoped to resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_TITLE = "Open a resource to review mapping" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_BODY =
+  "Browse the resource explorer or open drift to pick a snapshot, then open Terraform mapping from a resource hub row." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT =
+  "Terraform mapping is not scoped to a cloud resource." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION = "Browse resource explorer" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION = "Open drift workbench" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_KEYBOARD_AFFORDANCE =
+  "F1 opens page help; Ctrl+K opens search." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION =
+  "Provenance limitation: build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTINUE_LAST_TITLE = "Resume recent scoped mapping" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTINUE_LAST_ACTION = "Open mapping" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SNAPSHOT_DEEP_LINK_RECOVERY =
+  "Pick a snapshot from drift or clear the linked snapshot to use the resource hub default." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_RESOURCE_SCOPE_ACTION = "Clear resource scope" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_SNAPSHOT_SCOPE_ACTION = "Clear linked snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
 

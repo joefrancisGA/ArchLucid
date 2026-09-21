@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
@@ -19,6 +19,8 @@ import { buildPolicyPacksHrefWithReviewId, buildPolicyPacksImpactPreviewHref } f
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import type { components } from "@/lib/openapi-schemas";
 import {
   buildAfterAssignmentComplianceRuleKeys,
@@ -63,8 +65,21 @@ function packComparisonGateLabel(packLabel: string): string {
 /**
  * Prominent policy impact preview — rule-key diff plus pre-commit simulate for the same committed review.
  */
-export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanelProps): React.JSX.Element {
+function resolveRunPreviewBlockedReason(input: {
+  readonly requiresReviewPick: boolean;
+  readonly scopedReviewFilterActive: boolean;
+}): string | null {
+  if (input.requiresReviewPick && !input.scopedReviewFilterActive) {
+    return "Pick a finalized review to run policy impact preview.";
+  }
+
+  return null;
+}
+
+export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanelProps): ReactElement {
   const router = useRouter();
+  const { productLine } = useProductLine();
+  const hideDemoWalkthroughLink = isSecureNowDemoChromeExcluded(productLine);
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
   const requiresReviewPick = props.onPickReview !== undefined;
@@ -95,6 +110,8 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
   const [packBResult, setPackBResult] = useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(
     null,
   );
+  const [previewRunComplete, setPreviewRunComplete] = useState(false);
+  const [committedReviewListEmpty, setCommittedReviewListEmpty] = useState(false);
 
   const packAVersionsQuery = usePolicyPackVersionsQuery(packAId);
   const packBVersionsQuery = usePolicyPackVersionsQuery(packBId);
@@ -186,6 +203,11 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
         }
       : null;
 
+  const runPreviewBlockedReason = resolveRunPreviewBlockedReason({
+    requiresReviewPick,
+    scopedReviewFilterActive,
+  });
+
   const onRunPreview = useCallback(async () => {
     if (scopedReviewId.length === 0) {
       setFailure(uiFailureFromMessage("Pick a finalized review to preview policy impact."));
@@ -246,6 +268,8 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
         setPackAResult(results[2] ?? null);
         setPackBResult(results[3] ?? null);
       }
+
+      setPreviewRunComplete(true);
     } catch (error: unknown) {
       const loadFailure = toApiLoadFailure(error);
       setFailure(
@@ -253,6 +277,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
           ? { ...loadFailure, message: policyPackSimulateBlockedReason(loadFailure) ?? loadFailure.message }
           : loadFailure,
       );
+      setPreviewRunComplete(false);
     } finally {
       setBusy(false);
     }
@@ -273,6 +298,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
       setStricterResult(null);
       setPackAResult(null);
       setPackBResult(null);
+      setPreviewRunComplete(false);
     }
   }, [scopedReviewFilterActive]);
 
@@ -315,7 +341,10 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
                   autoSelectSyntheticSample={false}
                   label="Architecture package"
                   fieldId="policy-impact-preview-run-picker"
-                  hideFieldHelper
+                  hideFieldHelper={false}
+                  onListAvailabilityChange={(state) => {
+                    setCommittedReviewListEmpty(!state.loading && !state.loadError && state.packageCount === 0);
+                  }}
                 />
               </div>
             </>
@@ -365,15 +394,32 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             </p>
           )}
         </div>
-        <Button
-          type="button"
-          onClick={() => void onRunPreview()}
-          disabled={busy || (requiresReviewPick && !scopedReviewFilterActive)}
-          data-testid="policy-impact-preview-run"
-        >
-          {busy ? "Running preview…" : "Run policy impact preview"}
-        </Button>
+        <div className="flex flex-col items-stretch gap-1 sm:items-end">
+          <Button
+            type="button"
+            onClick={() => void onRunPreview()}
+            disabled={busy || runPreviewBlockedReason !== null}
+            data-testid="policy-impact-preview-run"
+          >
+            {busy ? "Running preview…" : "Run policy impact preview"}
+          </Button>
+          {runPreviewBlockedReason !== null ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)} data-testid="policy-impact-preview-run-blocked-reason">
+              {runPreviewBlockedReason}
+            </p>
+          ) : null}
+        </div>
       </div>
+
+      {committedReviewListEmpty ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-impact-preview-no-reviews-onward">
+          No completed reviews yet.{" "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/architecture/reviews/new">
+            Start a review
+          </Link>{" "}
+          to run impact preview against finalized evidence.
+        </p>
+      ) : null}
 
       <div
         className="mt-4 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/50"
@@ -453,7 +499,11 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
       ) : null}
 
       <div className="mt-5 space-y-4">
-        <PolicyPackComplianceRuleKeyDiffView beforeKeys={beforeKeys} afterKeys={afterKeys} />
+        <PolicyPackComplianceRuleKeyDiffView
+          beforeKeys={beforeKeys}
+          afterKeys={afterKeys}
+          visible={previewRunComplete}
+        />
 
         {baselineSummary !== null && stricterSummary !== null ? (
           <div
@@ -489,8 +539,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
             data-testid="policy-impact-preview-gate-changed"
           >
-            Approval check outcome changes for this review under stricter enforcement — this is the policy-pack moat moment for
-            demos.
+            Approval check outcome changes for this review under stricter enforcement.
           </p>
         ) : null}
 
@@ -501,6 +550,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
               afterKeys={packBKeys}
               beforeLabel={`Pack A — ${packALabel}`}
               afterLabel={`Pack B — ${packBLabel}`}
+              visible={previewRunComplete}
             />
             <div
               className="grid gap-3 md:grid-cols-2"
@@ -540,13 +590,15 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
         ) : null}
       </div>
 
-      <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Full scripted walkthrough:{" "}
-        <Link href={POLICY_PACK_DELTA_DEMO_HELP_PATH} className={OPERATOR_LINK.inline}>
-          Policy-pack delta demo
-        </Link>
-        .
-      </p>
+      {hideDemoWalkthroughLink ? null : (
+        <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Full scripted walkthrough:{" "}
+          <Link href={POLICY_PACK_DELTA_DEMO_HELP_PATH} className={OPERATOR_LINK.inline}>
+            Policy-pack delta demo
+          </Link>
+          .
+        </p>
+      )}
     </section>
   );
 }

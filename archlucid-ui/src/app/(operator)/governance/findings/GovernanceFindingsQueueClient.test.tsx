@@ -169,6 +169,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => null,
 }));
 
@@ -491,7 +492,8 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.getByText("No findings assigned to you")).toBeInTheDocument();
     expect(within(empty).getByText(/Jordan Lee \(Architect\)/)).toBeInTheDocument();
     expect(within(empty).getByText(new RegExp(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL))).toBeInTheDocument();
-    expect(screen.getByTestId("governance-assigned-to-me-empty-checked-at")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-assigned-to-me-empty-checked-at")).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
@@ -507,24 +509,21 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
 
     const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
     const workspace = await screen.findByTestId("governance-assigned-to-me-workspace");
-    const checkedAt = await screen.findByTestId("governance-assigned-to-me-empty-checked-at");
+    const lastChecked = await screen.findByTestId("governance-assigned-to-me-last-checked");
 
     expect(workspace.textContent ?? "").not.toMatch(uuidPattern);
-    expect(checkedAt.textContent ?? "").not.toMatch(uuidPattern);
+    expect(lastChecked.textContent ?? "").not.toMatch(uuidPattern);
     expect(workspace).toHaveTextContent(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
   });
 
   it("renders related queues disclosure, breadcrumb, and queue status after the work object", async () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
-    expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
-    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
     expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent(
       BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
     );
     expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
-      "0 open findings assigned",
+      "register-only check",
     );
     expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
 
@@ -582,12 +581,9 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   });
 
   it("shows job view filter chip when the filter bar is visible and job view is non-default", async () => {
-    vi.spyOn(facetsStorage, "readGovernanceFindingsQueueFacets").mockReturnValue({
-      registerFilter: "all",
-      jobView: "ready-for-sponsor-packet",
-      nlFacets: { severity: null, status: null, titleKeywords: [] },
-      searchQuery: "",
-    });
+    searchParamsState.query = "findingJobView=ready-for-sponsor-packet";
+    cachedSearchParams.query = searchParamsState.query;
+    cachedSearchParams.params = new URLSearchParams(searchParamsState.query);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
     renderGovernanceFindingsQueue("assigned-to-me");
@@ -616,7 +612,6 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       "href",
       `#${GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("governance-findings-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-risk-register-page-title")).toHaveTextContent(
       BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
     );

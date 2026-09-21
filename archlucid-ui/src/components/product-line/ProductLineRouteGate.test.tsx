@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const replace = vi.fn();
 const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews" }));
+const setProductLine = vi.fn();
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -18,7 +19,7 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({
     productLine: "security",
     assignmentOverrides: {},
-    setProductLine: () => {},
+    setProductLine,
     setHrefAssignment: () => {},
     resetHrefAssignment: () => {},
     resetAllAssignments: () => {},
@@ -30,9 +31,10 @@ import { ProductLineRouteGate } from "@/components/product-line/ProductLineRoute
 describe("ProductLineRouteGate", () => {
   beforeEach(() => {
     replace.mockClear();
+    setProductLine.mockClear();
   });
 
-  it("blocks Architecture destinations in the Security product and returns to home", async () => {
+  it("blocks Architecture destinations in the Security product with announced destination", async () => {
     pathnameMock.value = "/architecture/reviews";
 
     render(
@@ -42,9 +44,13 @@ describe("ProductLineRouteGate", () => {
     );
 
     expect(screen.queryByText("secret reviews")).not.toBeInTheDocument();
-    expect(screen.getByTestId("product-line-route-gate")).toHaveTextContent("SecureNow product");
+    expect(screen.getByTestId("product-line-route-gate-blocked")).toBeInTheDocument();
+    expect(screen.getByTestId("product-line-route-gate-blocked-destination")).toHaveTextContent(
+      "/architecture/reviews",
+    );
+    expect(screen.getByTestId("product-line-route-gate-blocked-reason")).toHaveTextContent("SecureNow");
     await waitFor(() => {
-      expect(replace).toHaveBeenCalledWith("/");
+      expect(replace).not.toHaveBeenCalled();
     });
   });
 
@@ -58,7 +64,7 @@ describe("ProductLineRouteGate", () => {
     );
 
     expect(screen.getByText("help topic")).toBeInTheDocument();
-    expect(screen.queryByTestId("product-line-route-gate")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("product-line-route-gate-blocked")).not.toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
   });
 
@@ -72,7 +78,21 @@ describe("ProductLineRouteGate", () => {
     );
 
     expect(screen.getByText("resource hub")).toBeInTheDocument();
-    expect(screen.queryByTestId("product-line-route-gate")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("product-line-route-gate-blocked")).not.toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("offers switch-to-Architecture when Security shell blocks architecture reviews", () => {
+    pathnameMock.value = "/architecture/reviews";
+
+    render(
+      <ProductLineRouteGate>
+        <p>secret reviews</p>
+      </ProductLineRouteGate>,
+    );
+
+    fireEvent.click(screen.getByTestId("product-line-route-gate-switch-product-line"));
+
+    expect(setProductLine).toHaveBeenCalledWith("architecture");
   });
 });

@@ -5,10 +5,12 @@ import { policyPackTypeBuyerDisplayLabel } from "@/lib/policy/policy-pack-type-l
 import { isStandardBaselinePolicyPackName } from "@/lib/policy/policy-pack-standard-baseline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
+import { resolvePolicyPacksWorkspaceAssignmentsEmptyLine } from "@/lib/policy/policy-packs-workspace-status-copy";
 import type { PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
 
 export type PolicyPacksWorkspaceSelectionSectionProps = {
   readonly canMutatePacks: boolean;
+  readonly registeredPackCount: number;
   readonly items: PolicyPackWorkspaceSelectionItem[];
   readonly loading: boolean;
   readonly togglingAssignmentId: string | null;
@@ -20,6 +22,7 @@ export type PolicyPacksWorkspaceSelectionSectionProps = {
 export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspaceSelectionSectionProps) {
   const {
     canMutatePacks,
+    registeredPackCount,
     items,
     loading,
     togglingAssignmentId,
@@ -43,11 +46,15 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
       ) : null}
 
       {!loading && items.length === 0 ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          No policy packs are available for this workspace.
+        <p
+          className={cn("max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="policy-packs-workspace-selection-empty"
+        >
+          {resolvePolicyPacksWorkspaceAssignmentsEmptyLine(registeredPackCount)}
         </p>
       ) : null}
 
+      {items.length > 0 ? (
       <ul className="divide-y rounded-md border" data-testid="policy-packs-workspace-selection-list">
         {items.map((item) => {
           const inputId = `policy-pack-selection-${item.assignmentId}`;
@@ -110,6 +117,7 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
           );
         })}
       </ul>
+      ) : null}
     </section>
   );
 }

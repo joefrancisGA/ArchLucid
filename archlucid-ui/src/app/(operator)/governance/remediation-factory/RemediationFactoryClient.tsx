@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import { SecureNowArchitectOutcomeMetricsPanel } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
+import { RefreshButton } from "@/components/ui/refresh-button";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -20,7 +25,17 @@ import {
   useRemediationRankedFindingsQuery,
 } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
+import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
+import {
+  REMEDIATION_FACTORY_LAST_REFRESHED_PREFIX,
+  REMEDIATION_FACTORY_REFRESHING_LABEL,
+  remediationFactoryDataStaleCue,
+  resolveRemediationFactoryLastRefreshedAt,
+} from "./remediation-factory-freshness";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
   securityEvidencePathConfidenceBandStatusKind,
@@ -83,6 +98,7 @@ function PriorityTable(props: {
             data-testid={`remediation-priority-row-${row.findingId}`}
             onClick={() => props.onSelect(row.findingId)}
             className={props.selectedFindingId === row.findingId ? "bg-muted/40" : undefined}
+            aria-selected={props.selectedFindingId === row.findingId}
           >
             <EnterpriseTableCell>{index + 1}</EnterpriseTableCell>
             <EnterpriseTableCell>{row.totalScore.toFixed(4)}</EnterpriseTableCell>
@@ -119,6 +135,7 @@ function RankedPathsTable(props: {
             data-testid={`security-evidence-ranked-path-row-${row.pathId}`}
             onClick={() => props.onSelect(row.pathId)}
             className={props.selectedPathId === row.pathId ? "bg-muted/40" : undefined}
+            aria-selected={props.selectedPathId === row.pathId}
           >
             <EnterpriseTableCell>{row.rankOrder}</EnterpriseTableCell>
             <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
@@ -138,6 +155,9 @@ function RankedPathsTable(props: {
 }
 
 export function RemediationFactoryClient() {
+  const { productLine } = useProductLine();
+  const navHref = remediationFactoryPathForProductLine(productLine);
+  const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
   const metricsQuery = useRemediationFactoryMetricsQuery();
@@ -149,6 +169,37 @@ export function RemediationFactoryClient() {
 
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
+
+  const refreshing =
+    rankedQuery.isFetching || metricsQuery.isFetching || rankedPathsQuery.isFetching;
+
+  const lastRefreshedAt = useMemo(
+    () =>
+      resolveRemediationFactoryLastRefreshedAt({
+        metricsUpdatedAt: metricsQuery.dataUpdatedAt,
+        rankedUpdatedAt: rankedQuery.dataUpdatedAt,
+        rankedPathsUpdatedAt: rankedPathsQuery.dataUpdatedAt,
+      }),
+    [
+      metricsQuery.dataUpdatedAt,
+      rankedQuery.dataUpdatedAt,
+      rankedPathsQuery.dataUpdatedAt,
+    ],
+  );
+
+  const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
+    prefix: REMEDIATION_FACTORY_LAST_REFRESHED_PREFIX,
+    lastRefreshedAt: refreshing ? null : lastRefreshedAt,
+    refreshingLabel: REMEDIATION_FACTORY_REFRESHING_LABEL,
+  });
+
+  const staleCue = remediationFactoryDataStaleCue(lastRefreshedAt, nowMs);
+
+  const refreshAll = useCallback(() => {
+    void rankedQuery.refetch();
+    void metricsQuery.refetch();
+    void rankedPathsQuery.refetch();
+  }, [metricsQuery, rankedPathsQuery, rankedQuery]);
 
   useEffect(() => {
     if (selectedFindingId != null || selectedPathId != null) {
@@ -170,12 +221,41 @@ export function RemediationFactoryClient() {
 
   return (
     <div className="space-y-6 p-4" data-testid="remediation-factory-page">
-      <header className="space-y-2">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Remediation factory</h1>
-        <p className={OPERATOR_TYPOGRAPHY.helper}>
-          Explainable prioritization, wave planning, and executive metrics. Advisory only — no cloud apply.
-        </p>
-      </header>
+      <OperatorPageHeader
+        navHref={navHref}
+        title={OPERATOR_NAV_LINK_LABELS.remediationFactory}
+        titleTestId="remediation-factory-page-title"
+        subtitle="Explainable prioritization, wave planning, and executive metrics. Advisory only — no cloud apply."
+        subtitleTestId="remediation-factory-page-lead"
+        claimDiscipline="Simulator and ranked scores are advisory — not sealed-record proof or live scanner output."
+        claimDisciplineTestId="remediation-factory-claim-discipline"
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            <RefreshButton
+              busy={refreshing}
+              label="Refresh"
+              data-testid="remediation-factory-refresh-button"
+              onClick={refreshAll}
+            />
+          </div>
+        }
+        metadata={
+          <div className="flex flex-wrap items-center gap-3">
+            <OperatorPageFreshnessMetadata
+              testId="remediation-factory-last-refreshed"
+              lastRefreshedAt={lastRefreshedAt}
+            >
+              {freshnessLabel}
+            </OperatorPageFreshnessMetadata>
+            {staleCue !== null ? (
+              <span data-testid="remediation-factory-stale-cue">
+                <StatusTag kind="needs-attention" label={staleCue} />
+              </span>
+            ) : null}
+          </div>
+        }
+      />
 
       {metricsQuery.isError ? (
         <StatusTag kind="needs-attention" label="Executive metrics unavailable" />

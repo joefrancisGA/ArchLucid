@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   decideProductLineRouteRedirect,
-  PRODUCT_LINE_ROUTE_GATE_REDIRECT_PATH,
   resolveProductLineIdFromRequest,
   shouldSkipProductLineRouteGate,
 } from "@/lib/product-line/product-line-route-gate";
@@ -17,20 +16,38 @@ describe("product-line-route-gate", () => {
     ).toEqual({ kind: "allow" });
   });
 
-  it("redirects Architecture-only operator paths in the Security product", () => {
+  it("blocks Architecture-only operator paths in the Security product without home redirect", () => {
     expect(
       decideProductLineRouteRedirect({
         pathname: "/architecture/reviews",
         productLine: "security",
       }),
-    ).toEqual({ kind: "redirect", location: PRODUCT_LINE_ROUTE_GATE_REDIRECT_PATH });
+    ).toEqual({ kind: "blocked", pathname: "/architecture/reviews" });
 
     expect(
       decideProductLineRouteRedirect({
         pathname: "/insights/evidence-graph",
         productLine: "security",
       }),
-    ).toEqual({ kind: "redirect", location: PRODUCT_LINE_ROUTE_GATE_REDIRECT_PATH });
+    ).toEqual({ kind: "blocked", pathname: "/insights/evidence-graph" });
+  });
+
+  it("blocks SecureNow remediation factory in the Architecture shell", () => {
+    expect(
+      decideProductLineRouteRedirect({
+        pathname: "/security/remediation-factory",
+        productLine: "architecture",
+      }),
+    ).toEqual({ kind: "blocked", pathname: "/security/remediation-factory" });
+  });
+
+  it("blocks SecureNow remediation patterns in the Architecture shell", () => {
+    expect(
+      decideProductLineRouteRedirect({
+        pathname: "/security/remediation-patterns",
+        productLine: "architecture",
+      }),
+    ).toEqual({ kind: "blocked", pathname: "/security/remediation-patterns" });
   });
 
   it("skips API and framework paths", () => {

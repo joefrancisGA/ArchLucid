@@ -5,7 +5,7 @@
 #      ARCHLUCID_API_READY_WAIT_ATTEMPTS (default 180),
 #      ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS (default 2),
 #      ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER (default 5 consecutive HTTP 000
-#      after the API process has exited)
+#      after the API has started listening or exited)
 set -euo pipefail
 
 LOG_FILE="${1:?usage: wait-for-api-ready.sh <api_log_file>}"
@@ -44,6 +44,10 @@ api_process_is_running() {
   ps -ef | grep -i "[A]rchLucid.Api" >/dev/null 2>&1
 }
 
+api_process_has_started_listening() {
+  grep -E -q "Now listening (on|to):" "${LOG_FILE}" 2>/dev/null
+}
+
 echo "Waiting for ${API_URL}/health/ready (up to $((READY_WAIT_ATTEMPTS * READY_WAIT_SLEEP_SECONDS))s)..."
 unreachable_streak=0
 for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
@@ -63,7 +67,7 @@ for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
   echo "Attempt ${i}/${READY_WAIT_ATTEMPTS}: /health/ready returned HTTP ${ready_status}"
 
   if [ "${ready_status}" = "000" ]; then
-    if api_process_is_running; then
+    if api_process_is_running && ! api_process_has_started_listening; then
       # SQL startup and EF migrations can leave the API port closed while the
       # launched process is healthy and still progressing toward readiness.
       unreachable_streak=0
@@ -72,7 +76,7 @@ for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
     fi
 
     if [ "${unreachable_streak}" -ge "${READY_UNREACHABLE_FAIL_AFTER}" ]; then
-      echo "::error::API process is not running and /health/ready returned HTTP 000 for ${unreachable_streak} consecutive probes. Failing fast instead of waiting for remaining attempts."
+      echo "::error::API was unreachable after startup or process exit, with HTTP 000 for ${unreachable_streak} consecutive probes. Failing fast instead of waiting for remaining attempts."
       dump_api_ready_diagnostics
       exit 1
     fi

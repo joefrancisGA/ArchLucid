@@ -157,8 +157,14 @@ export function resolveContinueLastFindingTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
   findingsQueueRunId?: string | null,
   inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
+  options?: { readonly allowRecentWithoutLoadedRow?: boolean },
 ) {
-  return resolveContinueLastGovernanceFinding(displayedRows, findingsQueueRunId, inspectHrefOptions);
+  return resolveContinueLastGovernanceFinding(
+    displayedRows,
+    findingsQueueRunId,
+    inspectHrefOptions,
+    options,
+  );
 }
 
 export type AssignedToMeOldestFindingTarget = {

@@ -35,6 +35,25 @@ def main() -> int:
         digest = hashlib.md5(data).hexdigest()
         by_hash.setdefault(digest, []).append(png)
 
+    home_path = SHOT_DIR / "home.png"
+    if home_path.is_file():
+        home_hash = hashlib.md5(home_path.read_bytes()).hexdigest()
+        home_collisions = [
+            path.name
+            for path in by_hash.get(home_hash, [])
+            if path.name != home_path.name
+        ]
+
+        if home_collisions:
+            print(
+                "FAIL: non-home route capture(s) are byte-identical to home.png:",
+                file=sys.stderr,
+            )
+            for name in home_collisions:
+                print(f"  {name}", file=sys.stderr)
+
+            return 1
+
     if small:
         print(f"FAIL: {len(small)} PNG(s) under {MIN_BYTES} bytes (skeleton-sized):", file=sys.stderr)
         for path in small[:10]:
@@ -45,12 +64,14 @@ def main() -> int:
     unique = len(by_hash)
 
     if unique < MIN_UNIQUE_HASHES:
-        dominant = max(by_hash.values(), key=len)
         print(
             f"FAIL: only {unique} unique PNG hash(es) across {len(pngs)} files "
-            f"(need at least {MIN_UNIQUE_HASHES}). Example cluster size: {len(dominant)}",
+            f"(need at least {MIN_UNIQUE_HASHES}). Duplicate clusters:",
             file=sys.stderr,
         )
+        for digest, members in sorted(by_hash.items(), key=lambda item: (-len(item[1]), item[0])):
+            if len(members) > 1:
+                print(f"  {digest}: {', '.join(path.name for path in members)}", file=sys.stderr)
 
         return 1
 

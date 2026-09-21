@@ -49,6 +49,15 @@ export function GovernanceFindingsQueueResultsSection(
         />
       ) : null}
 
+      {!props.loading && props.isAssignedToMe && props.rows.length === 0 ? (
+        <div className="space-y-3" data-testid="governance-assigned-to-me-zero-row-resume">
+          {props.continueLastFinding !== null ? (
+            <GovernanceFindingsContinueLastViewedRow target={props.continueLastFinding} />
+          ) : null}
+          <WorkingFindingsKeyboardHint />
+        </div>
+      ) : null}
+
       {!props.loading && props.displayedRows.length > 0 ? (
         <>
           <SponsorStorySynopsisFromCounts

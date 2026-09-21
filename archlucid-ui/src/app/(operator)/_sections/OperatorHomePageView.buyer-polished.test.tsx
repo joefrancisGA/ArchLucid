@@ -71,6 +71,7 @@ import {
 } from "@/lib/operator/operator-home-page-copy";
 import {
   OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH,
+  OPERATOR_HOME_COMPLETED_ORIENTATION_PARAGRAPH,
   OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
   OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID,
@@ -199,6 +200,10 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
     const intro = screen.getByTestId("operator-home-intro");
     const orientationBottom = screen.getByTestId(OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("operator-home-settings-sources");
+
+    expect(intro).toHaveTextContent(OPERATOR_HOME_COMPLETED_ORIENTATION_PARAGRAPH);
+    expect(intro).not.toHaveTextContent("resume");
+    expect(intro).not.toHaveTextContent("in-progress");
 
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
