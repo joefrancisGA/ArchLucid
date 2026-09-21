@@ -109,7 +109,7 @@ const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTEXTUAL_HELP = {
 const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP = {
   whatIsThisPage: `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE} — ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}`,
   whatToDoNext:
-    "Choose a snapshot first. The Executive diagram then renders automatically. To inspect one resource and its neighbors, choose Focus neighborhood on a Nodes row, then export PNG when procurement needs a shareable image.",
+    "Choose a snapshot, then choose a diagram type to render it. To inspect one resource and its neighbors, choose Focus neighborhood on a Nodes row, then export PNG when procurement needs a shareable image.",
   whyEmpty: "Diagram renders appear after inventory snapshots exist for your scope.",
   whereToConfigurePrerequisite:
     "Connect Azure or upload inventory with extract and upload before diagram renders are available.",
@@ -122,7 +122,7 @@ const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP = {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   },
   taskSteps: [
-    "Choose an inventory snapshot. The Executive diagram then renders automatically.",
+    "Choose an inventory snapshot, then choose a diagram type to render it.",
     "Choose Focus neighborhood on a Nodes row to start Dependency neighborhood from that resource.",
     "Export server PNG only after confirming the snapshot scope matches buyer questions.",
   ],
