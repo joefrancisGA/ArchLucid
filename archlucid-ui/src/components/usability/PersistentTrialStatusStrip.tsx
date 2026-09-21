@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import { isGovernanceInfrastructureAskRoutePath } from "@/lib/governance/governance-infrastructure-route-paths";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 import {
@@ -59,6 +61,7 @@ function resolveTrialNextAction(
 export function PersistentTrialStatusStrip() {
   const pathname = usePathname();
   const { productLine } = useProductLine();
+  const { isWorkingMode } = useWorkspaceMode();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: payload } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -68,6 +71,10 @@ export function PersistentTrialStatusStrip() {
   }
 
   if (pathname === "/") {
+    return null;
+  }
+
+  if (isWorkingMode && isGovernanceInfrastructureAskRoutePath(pathname)) {
     return null;
   }
 
