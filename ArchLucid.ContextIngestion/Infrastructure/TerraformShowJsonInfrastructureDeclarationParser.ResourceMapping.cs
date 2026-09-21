@@ -2063,6 +2063,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "indexed", out JsonElement indexed)
+                || TryGetPropertyIgnoreCase(res, "indexed", out indexed))
+            && (indexed.ValueKind == JsonValueKind.True || indexed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.indexed"] = indexed.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "hardened", out JsonElement hardened)
                 || TryGetPropertyIgnoreCase(res, "hardened", out hardened))
             && (hardened.ValueKind == JsonValueKind.True || hardened.ValueKind == JsonValueKind.False))
