@@ -15,6 +15,9 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "UpdateInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListByScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListMetadataByFindingInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListByCloudResourceIdPagedInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListFindingIdsByPathIdInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListObservationsByFindingInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "ListByScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "UpdateRenewalInScopeAsync"];
@@ -51,6 +54,8 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListEvidenceByInstanceInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByCloudResourceIdPagedInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByFindingIdInScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "InsertInstanceInScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "InsertEvidenceInScopeAsync"];
         yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "InsertWaveInScopeAsync"];
         yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "UpdateWaveInScopeAsync"];
         yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "TryGetByIdInScopeAsync"];
