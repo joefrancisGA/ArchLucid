@@ -2019,6 +2019,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.blocked"] = blocked.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "priority", out JsonElement priority)
+                || TryGetPropertyIgnoreCase(res, "priority", out priority))
+            && priority.ValueKind == JsonValueKind.String)
+        {
+            string? priorityText = priority.GetString();
+
+            if (!string.IsNullOrWhiteSpace(priorityText))
+                properties["tf.priority"] = priorityText.Trim();
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
