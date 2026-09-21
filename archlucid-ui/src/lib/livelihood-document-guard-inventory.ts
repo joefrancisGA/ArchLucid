@@ -125,7 +125,7 @@ export const LIVELIHOOD_DOCUMENT_GUARD_SURFACES: readonly ErrorRecoveryContractG
 
 /**
  * Surfaces that intentionally compose the lower-level guard primitives directly (architecture
- * draft editor lock + custom dialog). Do not add new entries without product review.
+ * architecture draft editor lock + custom dialog). Do not add new entries without product review.
  */
 export const LIVELIHOOD_DOCUMENT_GUARD_PRIMITIVE_SURFACES: readonly ErrorRecoveryContractGuardedSurface[] = [
   {

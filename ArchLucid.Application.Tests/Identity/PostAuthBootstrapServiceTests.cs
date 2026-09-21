@@ -5,6 +5,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Identity;
@@ -411,6 +412,69 @@ public sealed class PostAuthBootstrapServiceTests
         PostAuthBootstrapService sut = new(memberships, invitationBootstrap, workspaceBootstrap);
 
         return (sut, userId, memberships, invitations);
+    }
+
+    [Fact]
+    public async Task LiveSeatLs004_single_membership_resolves_complete_destination()
+    {
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, _) = CreateSut();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Role = ArchLucidRoles.Reader,
+                Status = WorkspaceMembershipStatus.Active
+            },
+            DateTimeOffset.UtcNow,
+            CancellationToken.None);
+
+        PostAuthBootstrapStatusResult status =
+            await sut.ResolveStatusAsync(userId, "member@example.com", "/", null, CancellationToken.None);
+
+        Assert.Equal(PostAuthBootstrapDestination.Complete, status.Destination);
+        Assert.Single(status.Workspaces);
+        Assert.Equal(workspaceId, status.Workspaces[0].WorkspaceId);
+        Assert.False(status.CanCreateWorkspace);
+    }
+
+    [Fact]
+    public async Task LiveSeatLs019_accept_invitation_session_workspace_is_not_dev_default_scope()
+    {
+        (PostAuthBootstrapService sut, Guid userId, _, InMemoryUserInvitationRepository invitations) = CreateSut();
+        const string token = "live-seat-invite-scope";
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+
+        UserInvitationRecord row = await invitations.InsertAsync(
+            tenantId,
+            workspaceId,
+            "invited@example.com",
+            ArchLucidRoles.Reader,
+            "admin@test",
+            null,
+            EmailOtpInvitationTokenHasher.Hash(token),
+            DateTimeOffset.UtcNow.AddDays(7),
+            CancellationToken.None);
+
+        PostAuthBootstrapSessionResult? accepted = await sut.AcceptInvitationAsync(
+            userId,
+            "invited@example.com",
+            new PostAuthAcceptInvitationRequest
+            {
+                InvitationId = row.Id,
+                InvitationToken = token
+            },
+            "/",
+            CancellationToken.None);
+
+        Assert.NotNull(accepted);
+        Assert.Equal(workspaceId, accepted.WorkspaceId);
+        Assert.NotEqual(ScopeIds.DefaultWorkspace, accepted.WorkspaceId);
     }
 
     [Fact]

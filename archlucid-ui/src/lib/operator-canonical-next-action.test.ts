@@ -75,13 +75,13 @@ describe("operator-canonical-next-action (TB-2232)", () => {
       toOperatorCanonicalNextActionFromLatestDraft(
         {
           href: "/architecture/architectures/draft-1",
-          ctaLabel: "Resume latest draft",
+          ctaLabel: "Resume latest architecture draft",
           kind: "resume-draft",
         },
         "1 draft saved — refine the brief before you start a review.",
       ),
     ).toEqual({
-      label: "Resume latest draft",
+      label: "Resume latest architecture draft",
       href: "/architecture/architectures/draft-1",
       bridgeCopy: "1 draft saved — refine the brief before you start a review.",
     });

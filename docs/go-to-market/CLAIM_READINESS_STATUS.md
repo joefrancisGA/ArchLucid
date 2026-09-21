@@ -48,6 +48,16 @@
 3. Run `.\scripts\Emit-ReleaseReadinessEvidence.ps1`; the bundle manifest reports `realModeAiEvidence.status`.
 4. Keep `G5` as **HOLD** for `MISSING`, `STALE`, or `HOLD`. Use partial-real wording for `WARN`. Advance `G5` only when the release bundle reports `PASS` and the proof run log references the same artifact.
 
+### G-REAL-08 RC attach (Cursor formats; owner regenerates)
+
+On cut **`RC34`** (`f37771635f` and later), attach a **current** G5 artifact — the 2026-06-25 file is stale.
+
+1. Owner: `pwsh ./scripts/Invoke-RealLlmEvidenceGate.ps1` with approved Real credentials (Cursor cannot mint live AOAI).
+2. Copy `real-llm-evidence-gate.json` and `.md` into `artifacts/release-readiness/` for this cut.
+3. Owner: `pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1` (add `-StrictRc` for buyer-facing RC).
+4. Confirm the bundle manifest `realModeAiEvidence.status` is `PASS` and the run log references the same SHA.
+5. Do not treat Simulator packets or the 2026-06-25 attach as this cut's G5.
+
 **Cross-refs:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout · tech **TB-886** / **TB-925** / **TB-948**–**TB-951** in [`../library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md)
 
 ---

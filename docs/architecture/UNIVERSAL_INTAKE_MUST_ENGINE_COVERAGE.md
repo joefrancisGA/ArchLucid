@@ -2,7 +2,7 @@
 
 Maps each L0 MUST question to deterministic engines in `GoldenCorpusHarness.CreateEngines()`.
 
-Harness registers **16** engines; no 40th coverage engine is added.
+Harness registers **47** of **54** catalog engine ids; no coverage-shaped engine is added by this measurement work.
 
 | MUST question key | Harness engines | In harness |
 | --- | --- | --- |

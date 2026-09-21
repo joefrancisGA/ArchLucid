@@ -41,6 +41,15 @@ describe("help-center-catalog-security", () => {
     expect(slugs).toContain("findings");
   });
 
+  it("uses cloud evidence wording on the SecureNow data-handling hub card", () => {
+    const topics = listHelpCenterTopics({ showAdvanced: false, isAdmin: false, productLineId: "security" });
+    const dataHandling = topics.find((entry) => entry.slug === "data-handling");
+
+    expect(dataHandling).not.toBeUndefined();
+    expect(getHelpCenterDisplay(dataHandling!, "security").summary).toContain("cloud inventory evidence");
+    expect(getHelpCenterDisplay(dataHandling!, "security").summary).not.toContain("review");
+  });
+
   it("keeps ArchLucid company wording in subprocessors security summary", () => {
     const entry = getProductDocumentationEntry("subprocessors");
 

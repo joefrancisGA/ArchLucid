@@ -1,6 +1,7 @@
 "use client";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   PageContextualHelpButton,
@@ -17,7 +18,6 @@ import {
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
-  EXTRACT_UPLOAD_REVIEW_BINDING_NONE,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
   EXTRACT_UPLOAD_SETTINGS_NAV_HREF,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
@@ -54,11 +54,11 @@ function inventoryStatusPresentation(
   return null;
 }
 
-function reviewBindingLabel(associateRunId: string | null): string {
+function reviewBindingLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return EXTRACT_UPLOAD_REVIEW_BINDING_NONE;
+    return null;
   }
 
   return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
@@ -67,8 +67,10 @@ function reviewBindingLabel(associateRunId: string | null): string {
 export function ExtractUploadSettingsPageHeader(
   props: ExtractUploadSettingsPageHeaderProps,
 ): React.JSX.Element {
+  const { productLine } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
+  const reviewBinding = reviewBindingLabel(props.associateRunId);
 
   return (
     <OperatorPageHeader
@@ -77,7 +79,7 @@ export function ExtractUploadSettingsPageHeader(
       navHref={EXTRACT_UPLOAD_SETTINGS_NAV_HREF}
       headingLevel="h1"
       breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
-      subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell)}
+      subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell, productLine)}
       subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
         inventoryStatus !== null ? (
@@ -107,9 +109,11 @@ export function ExtractUploadSettingsPageHeader(
                 {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
               </span>
             ) : null}
-            <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
-              {reviewBindingLabel(props.associateRunId)}
-            </span>
+            {reviewBinding !== null ? (
+              <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
+                {reviewBinding}
+              </span>
+            ) : null}
           </div>
         )
       }

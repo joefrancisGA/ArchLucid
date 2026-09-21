@@ -36,6 +36,9 @@ import {
   TrialLimitModalHostDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
 import { AppShellLivelihoodMutationResumeHost } from "@/components/shell/AppShellLivelihoodMutationResumeHost";
+import { OperatorSampleWorkspaceDoorPinHost } from "@/components/shell/OperatorSampleWorkspaceDoorPinHost";
+import { FirstSessionPurposeChooserHost } from "@/components/auth/FirstSessionPurposeChooserHost";
+import { OperatorWorkspaceScopeBootstrapHost } from "@/components/shell/OperatorWorkspaceScopeBootstrapHost";
 import { AppShellSyncCommandPaletteHost } from "@/components/shell/AppShellSyncCommandPaletteHost";
 import { AppShellSyncKeyboardShortcutListener } from "@/components/shell/AppShellSyncKeyboardShortcutListener";
 import { AppShellSyncSessionIdleGuard } from "@/components/shell/AppShellSyncSessionIdleGuard";
@@ -237,6 +240,9 @@ function AppShellInner({ children }: AppShellClientProps) {
           <AppShellTelemetryBundleDeferred />
           <AppShellSyncSessionIdleGuard />
           <AppShellLivelihoodMutationResumeHost />
+          <OperatorWorkspaceScopeBootstrapHost />
+          <FirstSessionPurposeChooserHost />
+          <OperatorSampleWorkspaceDoorPinHost />
           <CommandPaletteWorkActionBridge />
           <AppShellSyncCommandPaletteHost />
           <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />
@@ -346,6 +352,9 @@ function AppShellInner({ children }: AppShellClientProps) {
       <DevTestingQuickSwitchPanelDeferred />
       <AppShellSyncSessionIdleGuard />
       <AppShellLivelihoodMutationResumeHost />
+      <OperatorWorkspaceScopeBootstrapHost />
+      <FirstSessionPurposeChooserHost />
+      <OperatorSampleWorkspaceDoorPinHost />
       <CommandPaletteWorkActionBridge />
       <AppShellSyncCommandPaletteHost />
       <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />

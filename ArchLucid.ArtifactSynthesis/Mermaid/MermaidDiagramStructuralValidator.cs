@@ -43,7 +43,7 @@ public sealed class MermaidDiagramStructuralValidator : IMermaidDiagramStructura
                 continue;
             }
 
-            if (line.Contains("-->", StringComparison.Ordinal))
+            if (IsDirectedEdge(line) || IsInvisibleLayoutLink(line))
             {
                 continue;
             }
@@ -68,5 +68,20 @@ public sealed class MermaidDiagramStructuralValidator : IMermaidDiagramStructura
 
         errors = validationErrors;
         return validationErrors.Count == 0;
+    }
+
+    private static bool IsDirectedEdge(string line)
+    {
+        return line.Contains("-->", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Peer-grid packing emits Mermaid invisible links (<c>A ~~~ B</c>). Those are valid
+    /// flowchart syntax; rejecting them marks an 11-node Executive plate Failed and strips
+    /// the source so the workbench has nothing to paint.
+    /// </summary>
+    private static bool IsInvisibleLayoutLink(string line)
+    {
+        return line.Contains("~~~", StringComparison.Ordinal);
     }
 }

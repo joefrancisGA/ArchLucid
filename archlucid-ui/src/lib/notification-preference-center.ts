@@ -11,7 +11,9 @@ export {
   NOTIFICATION_PREFERENCE_STATUS_HINTS,
   NOTIFICATIONS_HELP_TOPIC_LABEL,
   notificationPreferenceCenterPageSubtitle,
+  notificationPreferenceCenterRelationsDisclosureSummary,
   pathMatchesNotificationPreferenceCenter,
+  resolveNotificationPreferenceRelations,
 } from "./notification-preference-center-copy";
 export type {
   NotificationPreferenceCenterRelationLink,

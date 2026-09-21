@@ -1,4 +1,5 @@
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
@@ -38,7 +39,12 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
         services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
-        services.AddScoped<IAzureInventorySnapshotRepository, SqlAzureInventorySnapshotRepository>();
+        services.AddScoped<SqlAzureInventorySnapshotRepository>();
+        services.AddScoped<IAzureInventorySnapshotRepository>(static sp =>
+            new DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
+                sp.GetRequiredService<SqlAzureInventorySnapshotRepository>(),
+                sp.GetRequiredService<ISecurityDeclaredConnectionRepository>(),
+                sp.GetRequiredService<IOperatorInferredConnectionRepository>()));
         services.AddScoped<IAzureInventoryDiffRepository, SqlAzureInventoryDiffRepository>();
         services.AddScoped<IAzureInventoryBaselineRepository, SqlAzureInventoryBaselineRepository>();
         services.AddScoped<IAzureInventoryDriftApprovalRepository, SqlAzureInventoryDriftApprovalRepository>();
@@ -49,11 +55,17 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IAuditEvidenceRequirementRepository, SqlAuditEvidenceRequirementRepository>();
         services.AddScoped<IAuditControlEvaluationRepository, SqlAuditControlEvaluationRepository>();
         services.AddScoped<IAuditAssessmentRepository, SqlAuditAssessmentRepository>();
+        services.AddScoped<IProjectScopedAuditAssessmentRepository>(static sp =>
+            new ProjectScopedAuditAssessmentRepositoryAdapter(sp.GetRequiredService<IAuditAssessmentRepository>()));
         services.AddScoped<IAuditEvidenceSnapshotRepository, SqlAuditEvidenceSnapshotRepository>();
+        services.AddScoped<IProjectScopedAuditEvidenceSnapshotRepository>(static sp =>
+            new ProjectScopedAuditEvidenceSnapshotRepositoryAdapter(sp.GetRequiredService<IAuditEvidenceSnapshotRepository>()));
         services.AddScoped<IAuditManualEvidenceRepository, SqlAuditManualEvidenceRepository>();
         services.AddScoped<IAuditControlTimelineRepository, SqlAuditControlTimelineRepository>();
         services.AddScoped<ISecurityCrosswalkRepository, SqlSecurityCrosswalkRepository>();
         services.AddScoped<IOperationalSecurityFindingRepository, SqlOperationalSecurityFindingRepository>();
+        services.AddScoped<IProjectScopedOperationalSecurityFindingRepository>(static sp =>
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(sp.GetRequiredService<IOperationalSecurityFindingRepository>()));
         services.AddScoped<ISecurityEvidencePathRepository, SqlSecurityEvidencePathRepository>();
         services.AddScoped<ISecurityEvidencePathRankRepository, SqlSecurityEvidencePathRankRepository>();
         services.AddScoped<ISecurityEvidenceCutPointRepository, SqlSecurityEvidenceCutPointRepository>();
@@ -61,9 +73,13 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<ISecurityEvidencePathExplanationRepository, SqlSecurityEvidencePathExplanationRepository>();
         services.AddScoped<IOperationalSecurityExceptionRepository, SqlOperationalSecurityExceptionRepository>();
         services.AddScoped<ISecurityAssetAssertionRepository, SqlSecurityAssetAssertionRepository>();
+        services.AddScoped<ISecurityDeclaredConnectionRepository, SqlSecurityDeclaredConnectionRepository>();
+        services.AddScoped<IOperatorInferredConnectionRepository, SqlOperatorInferredConnectionRepository>();
         services.AddScoped<IRemediationPatternRepository, SqlRemediationPatternRepository>();
         services.AddScoped<IRemediationPatternMatchRepository, SqlRemediationPatternMatchRepository>();
         services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();
+        services.AddScoped<IProjectScopedRemediationInstanceRepository>(static sp =>
+            new ProjectScopedRemediationInstanceRepositoryAdapter(sp.GetRequiredService<IRemediationInstanceRepository>()));
         services.AddScoped<IRemediationPrioritizationRepository, SqlRemediationPrioritizationRepository>();
         services.AddScoped<IRemediationWaveRepository, SqlRemediationWaveRepository>();
         services.AddScoped<IRunStoredEvidenceFileRepository, SqlRunStoredEvidenceFileRepository>();

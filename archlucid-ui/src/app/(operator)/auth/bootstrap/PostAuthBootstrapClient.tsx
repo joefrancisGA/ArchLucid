@@ -13,7 +13,7 @@ import { PostAuthBootstrapStepErrorRecovery } from "@/app/(operator)/auth/bootst
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
-import { readInvitationToken } from "@/lib/auth/email-otp-session";
+import { readInvitationToken, storeInvitationToken } from "@/lib/auth/email-otp-session";
 import { resolveBootstrapCompletePath } from "@/lib/auth/email-otp-post-auth";
 import { restoreIdleDeskScopeAfterSignIn } from "@/lib/auth/idle-desk-restore";
 import {
@@ -31,7 +31,19 @@ import {
   POST_AUTH_BOOTSTRAP_COPY,
   resolvePostAuthBootstrapDenialMessage,
 } from "@/lib/auth/post-auth-bootstrap-denial-copy";
+import { applyDedicatedWorkspaceScopeFromAccessToken } from "@/lib/auth/post-auth-dedicated-scope";
 import { POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE, POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE } from "@/lib/auth/post-auth-bootstrap-exit-copy";
+
+function resolveBootstrapInvitationToken(invitationTokenFromQuery: string): string | null {
+  const storedToken = readInvitationToken();
+
+  if (storedToken !== null) {
+    return storedToken;
+  }
+
+  return invitationTokenFromQuery.length > 0 ? invitationTokenFromQuery : null;
+}
+
 function applyBootstrapSession(session: {
   accessToken: string;
   tokenType: string;
@@ -43,6 +55,7 @@ function applyBootstrapSession(session: {
     token_type: session.tokenType,
     expires_in: session.expiresInSeconds,
   });
+  applyDedicatedWorkspaceScopeFromAccessToken(session.accessToken);
   restoreIdleDeskScopeAfterSignIn();
 
   const destination = isSafeReturnPath(session.redirectPath) ? session.redirectPath : "/";
@@ -54,14 +67,17 @@ export function PostAuthBootstrapClient() {
   const returnUrl = searchParams.get("returnUrl") ?? undefined;
   const invitationTokenFromQuery = searchParams.get("invitationToken")?.trim() ?? "";
   const safeReturnUrl = useMemo(() => resolveSafeReturnPath(returnUrl, "/"), [returnUrl]);
-  const bootstrapInvitationToken = useMemo(() => {
-    const storedToken = readInvitationToken();
+  const bootstrapInvitationToken = useMemo(
+    () => resolveBootstrapInvitationToken(invitationTokenFromQuery),
+    [invitationTokenFromQuery],
+  );
 
-    if (storedToken !== null) {
-      return storedToken;
+  useEffect(() => {
+    // Invite links carry the token on the query string. Copy it into session storage so later steps can read it.
+
+    if (invitationTokenFromQuery.length > 0) {
+      storeInvitationToken(invitationTokenFromQuery);
     }
-
-    return invitationTokenFromQuery.length > 0 ? invitationTokenFromQuery : null;
   }, [invitationTokenFromQuery]);
 
   const [status, setStatus] = useState<PostAuthBootstrapStatusResponse | null>(null);
@@ -113,7 +129,7 @@ export function PostAuthBootstrapClient() {
       industryVerticalOther: values.industryVerticalOther,
       termsAccepted: values.termsAccepted,
       includeDemoSeed: values.includeDemoSeed,
-      invitationToken: readInvitationToken(),
+      invitationToken: bootstrapInvitationToken,
     });
 
     setPending(false);
@@ -133,7 +149,7 @@ export function PostAuthBootstrapClient() {
 
     const session = await acceptPostAuthInvitation(
       invitationId,
-      readInvitationToken(),
+      bootstrapInvitationToken,
       safeReturnUrl !== "/" ? safeReturnUrl : undefined,
       confirmEmailMismatch,
     );

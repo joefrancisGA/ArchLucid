@@ -6,6 +6,14 @@ import type { PolicyPack } from "@/types/policy-packs";
 
 const POLICY_PACKS_DETAIL_PREFIX = `${GOVERNANCE_POLICY_PACKS_PATH}/`;
 
+export type ContinueLastPolicyPackSource = "recent-view" | "recency-fallback";
+
+export type ResolvedContinueLastPolicyPack = {
+  readonly pack: PolicyPack;
+  readonly source: ContinueLastPolicyPackSource;
+  readonly viewedAtUtc: string | null;
+};
+
 function policyPackIdFromRecentHref(href: string): string | null {
   const queryIndex = href.indexOf("?");
 
@@ -34,7 +42,7 @@ function policyPackIdFromRecentHref(href: string): string | null {
   return remainder;
 }
 
-function readRecentPolicyPackId(): string | null {
+function readRecentPolicyPackView(): { readonly policyPackId: string; readonly viewedAtUtc: string } | null {
   if (typeof window === "undefined") {
     return null;
   }
@@ -47,7 +55,7 @@ function readRecentPolicyPackId(): string | null {
       const policyPackId = policyPackIdFromRecentHref(entry.href);
 
       if (policyPackId !== null) {
-        return policyPackId;
+        return { policyPackId, viewedAtUtc: entry.visitedAtUtc };
       }
     }
   } catch {
@@ -62,26 +70,43 @@ function policyPackRecencyUtc(pack: PolicyPack): string {
 }
 
 /** Resolves the policy pack to pin as Continue last viewed on the packs hub. */
-export function resolveContinueLastPolicyPack(packs: unknown): PolicyPack | null {
+export function resolveContinueLastPolicyPackDetail(packs: unknown): ResolvedContinueLastPolicyPack | null {
   const normalizedPacks = asNonemptyReadonlyArray<PolicyPack>(packs);
 
   if (normalizedPacks === null) {
     return null;
   }
 
-  const recentPolicyPackId = readRecentPolicyPackId();
+  const recentView = readRecentPolicyPackView();
 
-  if (recentPolicyPackId !== null) {
-    const recentMatch = normalizedPacks.find((pack) => pack.policyPackId === recentPolicyPackId);
+  if (recentView !== null) {
+    const recentMatch = normalizedPacks.find((pack) => pack.policyPackId === recentView.policyPackId);
 
     if (recentMatch !== undefined) {
-      return recentMatch;
+      return {
+        pack: recentMatch,
+        source: "recent-view",
+        viewedAtUtc: recentView.viewedAtUtc,
+      };
     }
   }
 
-  return (
+  const fallbackPack =
     normalizedPacks
       .slice()
-      .sort((left, right) => policyPackRecencyUtc(right).localeCompare(policyPackRecencyUtc(left)))[0] ?? null
-  );
+      .sort((left, right) => policyPackRecencyUtc(right).localeCompare(policyPackRecencyUtc(left)))[0] ?? null;
+
+  if (fallbackPack === null) {
+    return null;
+  }
+
+  return {
+    pack: fallbackPack,
+    source: "recency-fallback",
+    viewedAtUtc: null,
+  };
+}
+
+export function resolveContinueLastPolicyPack(packs: unknown): PolicyPack | null {
+  return resolveContinueLastPolicyPackDetail(packs)?.pack ?? null;
 }

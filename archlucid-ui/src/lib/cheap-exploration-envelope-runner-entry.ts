@@ -16,7 +16,7 @@ export const CHEAP_EXPLORATION_ENVELOPE_RUNNER_DOM_TEST_ID =
   SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_SPAWN_LOCK_DOM_TEST_ID;
 
 export const CHEAP_EXPLORATION_ENVELOPE_RUNNER_HELPER =
-  "Clone from the sealed snapshot into a new editable draft — Rehearsal-stamped architecture sketch until you explicitly execute a Record review." as const;
+  "Clone from the sealed snapshot into a new editable architecture draft — Rehearsal-stamped architecture sketch until you explicitly execute a Record review." as const;
 
 export function cheapExplorationArchitectureDeskHref(architectureId: string): string {
   return architectureIdentityPath(architectureId.trim());

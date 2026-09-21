@@ -4,7 +4,7 @@ import { ARCHITECTURES_HUB_LIST_SKELETON_STATUS } from "@/lib/architectures-hub-
 
 const SKELETON_BLOCK_CLASS = "h-4 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800";
 
-/** Preserves toolbar + table layout while the draft registry hydrates. */
+/** Preserves toolbar + table layout while the architecture draft registry hydrates. */
 export function ArchitecturesHubListSkeleton(): React.JSX.Element {
   return (
     <div className="mt-4 space-y-4" data-testid="architecture-draft-list-skeleton" aria-busy="true">

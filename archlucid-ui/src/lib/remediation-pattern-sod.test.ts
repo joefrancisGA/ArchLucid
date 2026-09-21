@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { canApproveRemediationPatternVersion } from "@/lib/remediation-pattern-sod";
+import {
+  canApproveRemediationPatternVersion,
+  remediationPatternSubmitBlockedReason,
+} from "@/lib/remediation-pattern-sod";
 import { REMEDIATION_PATTERN_STATUS } from "@/lib/remediation-pattern-status";
 import type { CurrentPrincipal } from "@/lib/current-principal";
 
@@ -40,5 +43,23 @@ describe("remediation-pattern-sod", () => {
     );
 
     expect(allowed).toBe(false);
+  });
+
+  it("explains why Draft submit is blocked without execute authority", () => {
+    const reason = remediationPatternSubmitBlockedReason(
+      {
+        versionId: "v1",
+        patternId: "p1",
+        version: "1.0.0",
+        status: REMEDIATION_PATTERN_STATUS.draft,
+        controlObjective: "test",
+        authorActorKey: "jwt:tenant:same-oid",
+        createdUtc: new Date().toISOString(),
+        updatedUtc: new Date().toISOString(),
+      },
+      false,
+    );
+
+    expect(reason).toMatch(/execute authority/i);
   });
 });

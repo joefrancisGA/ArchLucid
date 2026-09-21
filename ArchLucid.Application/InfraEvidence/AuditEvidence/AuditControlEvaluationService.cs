@@ -45,8 +45,8 @@ public sealed class AuditControlEvaluationService(
             }
 
             IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
-                await auditEvidenceSnapshotRepository.ListItemsAsync(
-                    scope.TenantId,
+                await auditEvidenceSnapshotRepository.ListItemsInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     auditEvidenceSnapshotId,
                     cancellationToken);
 
@@ -81,7 +81,8 @@ public sealed class AuditControlEvaluationService(
                     CreatedUtc = createdUtc,
                 };
 
-                await evaluationRepository.InsertAsync(
+                await evaluationRepository.InsertInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     new AuditControlEvaluationPersistRequest
                     {
                         Evaluation = evaluation,
@@ -98,8 +99,8 @@ public sealed class AuditControlEvaluationService(
             }
 
             AuditEvidenceSnapshotHeaderRecord? auditSnapshotHeader =
-                await auditEvidenceSnapshotRepository.TryGetHeaderAsync(
-                    scope.TenantId,
+                await auditEvidenceSnapshotRepository.TryGetHeaderInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     auditEvidenceSnapshotId,
                     cancellationToken);
 
@@ -112,9 +113,10 @@ public sealed class AuditControlEvaluationService(
                 };
             }
 
-            return await TryEvaluateControlAsync(
+            return await TryEvaluateCurrentAssessmentControlCoreAsync(
                 scope,
                 auditSnapshotHeader.InventorySnapshotIds[0],
+                auditEvidenceSnapshotId,
                 frameworkId,
                 controlId,
                 approvedExceptionIds,
@@ -135,6 +137,84 @@ public sealed class AuditControlEvaluationService(
                 ErrorMessage = ex.Message,
             };
         }
+    }
+
+    private async Task<AuditControlEvaluationResult> TryEvaluateCurrentAssessmentControlCoreAsync(
+        ScopeContext scope,
+        Guid inventorySnapshotId,
+        Guid auditEvidenceSnapshotId,
+        Guid frameworkId,
+        Guid controlId,
+        IReadOnlyList<string> approvedExceptionIds,
+        IReadOnlyList<string> failingAzureResourceIds,
+        CancellationToken cancellationToken)
+    {
+        AzureInventorySnapshotDetailReadModel? snapshot =
+            await snapshotRepository.TryGetSnapshotDetailAsync(scope, inventorySnapshotId, cancellationToken);
+
+        if (snapshot is null)
+        {
+            return new AuditControlEvaluationResult
+            {
+                Succeeded = false,
+                ErrorMessage = "Inventory snapshot was not found in the current scope.",
+            };
+        }
+
+        IReadOnlyList<AuditEvidenceRequirementRecord> requirements =
+            await requirementRepository.ListByControlIdAsync(scope.TenantId, controlId, cancellationToken);
+
+        if (requirements.Count == 0)
+        {
+            return new AuditControlEvaluationResult
+            {
+                Succeeded = false,
+                ErrorMessage = "Control has no evidence requirements in the imported catalog.",
+            };
+        }
+
+        List<AuditEvidenceRequirementSelectionRecord> selections = [];
+        foreach (AuditEvidenceRequirementRecord requirement in requirements)
+        {
+            if (!selectorRegistry.TryGetSelector(requirement.EvidenceType, out IAuditEvidenceSelector? selector)
+                || selector is null)
+            {
+                selections.Add(AuditEvidenceSelectorSupport.Unsupported(
+                    requirement,
+                    $"No snapshot selector is registered for evidence type '{requirement.EvidenceType}'."));
+                continue;
+            }
+
+            selections.Add(selector.Select(snapshot, requirement));
+        }
+
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+
+        AuditControlEvaluationBuildResult build = AuditControlEvaluationBuilder.Build(
+            controlId,
+            frameworkId,
+            auditEvidenceSnapshotId,
+            scope.TenantId,
+            selections,
+            approvedExceptionIds,
+            failingAzureResourceIds,
+            createdUtc);
+
+        await evaluationRepository.InsertInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new AuditControlEvaluationPersistRequest
+            {
+                Evaluation = build.Evaluation,
+                EvidenceItems = build.EvidenceItems,
+            },
+            cancellationToken);
+
+        return new AuditControlEvaluationResult
+        {
+            Succeeded = true,
+            Evaluation = build.Evaluation,
+            EvidenceItems = build.EvidenceItems,
+        };
     }
 
     public async Task<AuditControlEvaluationResult> TryEvaluateControlAsync(

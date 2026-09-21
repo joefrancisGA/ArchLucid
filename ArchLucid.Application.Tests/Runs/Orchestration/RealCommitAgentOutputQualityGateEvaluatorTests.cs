@@ -1810,4 +1810,22 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             .Should().BeEmpty(
                 "CommitOutputIntegrityService still fetches traces; non-Real bypass is intentional in the evaluator");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, []);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("no agent execution traces");
+    }
+
 }

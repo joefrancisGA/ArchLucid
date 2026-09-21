@@ -1,9 +1,28 @@
 import { Home } from "lucide-react";
 
-import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
+  SECURENOW_AUDIT_EVIDENCE_PATH,
+} from "@/lib/audit-evidence-lineage-route";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_REMEDIATION_INSTANCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
@@ -13,8 +32,11 @@ import {
   GOVERNANCE_REMEDIATION_PATTERNS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_PATTERNS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_JIRA_PATH, INTEGRATIONS_SERVICENOW_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -59,6 +81,7 @@ export const SECURENOW_SECURITY_NAV_HREFS: readonly string[] = [
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_REMEDIATION_FACTORY_PATH,
   GOVERNANCE_REMEDIATION_PATTERNS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
 ];
 
 /** SecureNow sidebar — Azure inventory and outbound ticketing integrations in display order. */
@@ -67,6 +90,18 @@ export const SECURENOW_INTEGRATION_NAV_HREFS: readonly string[] = [
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_TEAMS_PATH,
+];
+
+/** SecureNow sidebar — infrastructure evidence destinations in display order. Terraform mapping is last. */
+export const SECURENOW_INFRASTRUCTURE_NAV_HREFS: readonly string[] = [
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
 ];
 
 function collectNavLinks(rows: readonly ProductLineNavGroupRow[]): Map<string, NavLinkItem> {
@@ -112,15 +147,43 @@ function applySecureNowIntegrationNavLinkLabels(links: readonly NavLinkItem[]): 
   });
 }
 
+const SECURENOW_COMPLIANCE_NAV_HREF_BY_GOVERNANCE_HREF: Readonly<Record<string, string>> = {
+  [GOVERNANCE_POLICY_PACKS_PATH]: SECURENOW_POLICY_PACKS_PATH,
+  [GOVERNANCE_STANDARDS_AND_RULES_PATH]: SECURENOW_STANDARDS_AND_RULES_PATH,
+  [GOVERNANCE_FINDINGS_PATH]: SECURENOW_FINDINGS_PATH,
+  [AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH]: SECURENOW_AUDIT_EVIDENCE_PATH,
+};
+
 const SECURENOW_SECURITY_NAV_HREF_BY_GOVERNANCE_HREF: Readonly<Record<string, string>> = {
   [GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH]: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   [GOVERNANCE_REMEDIATION_FACTORY_PATH]: SECURENOW_REMEDIATION_FACTORY_PATH,
   [GOVERNANCE_REMEDIATION_PATTERNS_PATH]: SECURENOW_REMEDIATION_PATTERNS_PATH,
+  [GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH]: SECURENOW_REMEDIATION_INSTANCES_PATH,
 };
 
 const SECURENOW_INFRASTRUCTURE_NAV_HREF_BY_GOVERNANCE_HREF: Readonly<Record<string, string>> = {
+  [GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH]: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  [GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH]: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
   [GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH]: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  [GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  [GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH]: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  [GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH]: SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+  [GOVERNANCE_INFRASTRUCTURE_ASK_PATH]: SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  [GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
 };
+
+function remapSecureNowComplianceNavLink(link: NavLinkItem): NavLinkItem {
+  const remappedHref = SECURENOW_COMPLIANCE_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
+
+  if (remappedHref === undefined) {
+    return link;
+  }
+
+  return {
+    ...link,
+    href: remappedHref,
+  };
+}
 
 function remapSecureNowSecurityNavLink(link: NavLinkItem): NavLinkItem {
   const remappedHref = SECURENOW_SECURITY_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
@@ -188,7 +251,9 @@ export function reshapeNavGroupsForSecureNow(
     return [...rows];
   }
 
-  const complianceLinks = pickNavLinks(linksByHref, SECURENOW_COMPLIANCE_NAV_HREFS);
+  const complianceLinks = pickNavLinks(linksByHref, SECURENOW_COMPLIANCE_NAV_HREFS).map(
+    remapSecureNowComplianceNavLink,
+  );
   const securityLinks = [
     SECURENOW_SECURITY_HOME_LINK,
     ...pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS).map(remapSecureNowSecurityNavLink),
@@ -204,7 +269,7 @@ export function reshapeNavGroupsForSecureNow(
       buildSecureNowNavGroup(
         SECURENOW_SECURITY_NAV_GROUP_ID,
         OPERATOR_NAV_GROUP_LABELS.security,
-        "Remediate assigned findings, run factory workflows, and review remediation patterns.",
+        "Remediate assigned findings, run factory workflows, review remediation patterns, and track remediation instances.",
         securityLinks,
         sourceGroup,
       ),
@@ -223,13 +288,19 @@ export function reshapeNavGroupsForSecureNow(
     );
   }
 
+  const infrastructureLinks = pickNavLinks(linksByHref, SECURENOW_INFRASTRUCTURE_NAV_HREFS).map(
+    remapSecureNowInfrastructureNavLink,
+  );
+
   reshaped.push({
     ...infrastructureRow,
     group: {
       ...infrastructureRow.group,
-      links: infrastructureRow.group.links.map(remapSecureNowInfrastructureNavLink),
+      caption:
+        "Explore Azure inventory snapshots, diagrams, resource evidence, and grounded Ask.",
+      links: infrastructureLinks,
     },
-    visibleLinks: infrastructureRow.visibleLinks.map(remapSecureNowInfrastructureNavLink),
+    visibleLinks: infrastructureLinks,
   });
 
   if (integrationLinks.length > 0) {

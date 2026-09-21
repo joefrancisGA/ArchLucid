@@ -67,7 +67,7 @@ export function buildEmailRunToSponsorMailtoHref(input: {
   const rehearsalLines = input.requiresRehearsalBodyDisclaimer
     ? `${SIMULATOR_REHEARSAL_HEADER_TITLE}\n${SIMULATOR_REHEARSAL_HEADER_BODY}\n\n`
     : "";
-  const body = `${rehearsalLines}Hello,\n\nAttached is our ArchLucid architecture review package for this pilot run. Please treat rehearsal-labeled output as practice only unless we confirm Real execution separately.\n\nThank you.`;
+  const body = `${rehearsalLines}Hello,\n\nAttached is our ArchLucid architecture package for this pilot review. Please treat rehearsal-labeled output as practice only unless we confirm Real execution separately.\n\nThank you.`;
 
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

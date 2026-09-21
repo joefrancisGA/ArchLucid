@@ -1,6 +1,13 @@
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+
+import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
+import {
+  isMarketingRouteBlockedForProductLine,
+  secureNowMarketingRedirectPath,
+} from "@/lib/product-line/securenow-marketing-route-policy";
 
 import { MarketingJsonLd } from "@/components/MarketingJsonLd";
 import { MarketingTooltipProvider } from "@/components/marketing/MarketingTooltipProvider";
@@ -25,7 +32,13 @@ export const metadata: Metadata = {
 /**
  * Public marketing chrome (no operator sidebar). Root `layout.tsx` still supplies global styles and color script.
  */
-export default function MarketingLayout({ children }: { children: ReactNode }) {
+export default async function MarketingLayout({ children }: { children: ReactNode }) {
+  const productLine = await resolveProductLineIdForServer();
+
+  if (isMarketingRouteBlockedForProductLine(productLine)) {
+    redirect(secureNowMarketingRedirectPath());
+  }
+
   const seeItLinked = isMarketingSeeItLinkEnabled() && resolveSeeItDemoApiBase().length > 0;
   const clarityProjectId = getMarketingClarityProjectId();
 

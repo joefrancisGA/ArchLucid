@@ -1,3 +1,4 @@
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
 
@@ -141,9 +142,11 @@ export function operatorLastRefreshedClockLabel(
     return null;
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  // Explicit Eastern zone keeps SSR/client text aligned and avoids UTC on headless VMs (TB-1678).
+  return new Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "2-digit",
+    timeZone: DEFAULT_IANA_TIME_ZONE_ID,
     timeZoneName: "short",
   }).format(lastRefreshedAt);
 }

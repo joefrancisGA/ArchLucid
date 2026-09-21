@@ -112,7 +112,12 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
             aria-describedby={`${inputId}-helper`}
             aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
             autoComplete="off"
-            className="h-8 border-neutral-300 bg-white pr-14 text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"
+            className={cn(
+              "h-8 border-neutral-300 bg-white pr-14 text-al-text-primary",
+              // Placeholder uses helper scale (same as home detailed copy); typed query keeps Input body scale.
+              "placeholder:text-xs placeholder:font-normal placeholder:leading-[18px] placeholder:text-neutral-600",
+              "dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400",
+            )}
           />
           <div
             className="absolute inset-y-0 right-2 flex items-center"

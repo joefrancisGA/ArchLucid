@@ -14,6 +14,13 @@ export type GovernanceFindingsContinueLastTarget = {
   readonly href: string;
 };
 
+export type ResolveContinueLastGovernanceFindingOptions = {
+  /** When true, resume from recent views even if the queue returned zero rows (assigned-to-me zero state). */
+  readonly allowRecentWithoutLoadedRow?: boolean;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
+  readonly findingsQueueRunId?: string | null;
+};
+
 function findingKeyFromRecentHref(href: string): { readonly runId: string; readonly findingId: string } | null {
   const path = href.split("?")[0] ?? "";
   const match = REVIEW_FINDING_HREF_PATTERN.exec(path);
@@ -70,11 +77,31 @@ function toTarget(
   };
 }
 
+function resolveContinueLastFromRecentViewOnly(
+  options?: ResolveContinueLastGovernanceFindingOptions,
+): GovernanceFindingsContinueLastTarget | null {
+  const recentKey = readRecentFindingKey();
+
+  if (recentKey === null) {
+    return null;
+  }
+
+  return {
+    findingId: recentKey.findingId,
+    title: "Last viewed finding",
+    href: resolveGovernanceQueueAuxiliaryFindingHref(recentKey.runId, recentKey.findingId, {
+      inspectHrefOptions: options?.inspectHrefOptions,
+      findingsQueueRunId: options?.findingsQueueRunId,
+    }),
+  };
+}
+
 /** Resolves the finding to pin as Continue last viewed on the findings queue. */
 export function resolveContinueLastGovernanceFinding(
   rows: unknown,
   findingsQueueRunId?: string | null,
   inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
+  options?: ResolveContinueLastGovernanceFindingOptions,
 ): GovernanceFindingsContinueLastTarget | null {
   const normalizedRows = asReadonlyArray<GovernanceFindingQueueRow>(rows);
 
@@ -85,6 +112,14 @@ export function resolveContinueLastGovernanceFinding(
   const findingRows = normalizedRows.filter((row) => row.recordKind === "finding");
 
   if (findingRows.length === 0) {
+    if (options?.allowRecentWithoutLoadedRow === true) {
+      return resolveContinueLastFromRecentViewOnly({
+        allowRecentWithoutLoadedRow: true,
+        inspectHrefOptions: options.inspectHrefOptions ?? inspectHrefOptions,
+        findingsQueueRunId: options.findingsQueueRunId ?? findingsQueueRunId,
+      });
+    }
+
     return null;
   }
 

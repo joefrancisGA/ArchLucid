@@ -38,6 +38,19 @@ export const AUDIT_EVIDENCE_CONTROL_ID_HINT =
 
 export const AUDIT_EVIDENCE_LINEAGE_URL_LABEL = "Paste lineage link" as const;
 
+/** Namespace-aware paste hint for the active product-line lookup path. */
+export function auditEvidenceLineageUrlHintForLookupPath(lookupPath: string): string {
+  return `Paste a full ${lookupPath}/…/controls/… URL from email, ITSM, or an export, then choose Apply link.`;
+}
+
+export const AUDIT_EVIDENCE_LINEAGE_URL_APPLY_ACTION = "Apply link" as const;
+
+export const AUDIT_EVIDENCE_LINEAGE_URL_UNDO_ACTION = "Undo paste" as const;
+
+export const AUDIT_EVIDENCE_LINEAGE_URL_APPLIED_LIVE_MESSAGE =
+  "Lineage link applied to the identifier fields." as const;
+
+/** @deprecated Prefer {@link auditEvidenceLineageUrlHintForLookupPath}. */
 export const AUDIT_EVIDENCE_LINEAGE_URL_HINT =
   "Paste a full /governance/audit-evidence/…/controls/… URL from email, ITSM, or an export to fill the fields below." as const;
 
@@ -52,8 +65,47 @@ export const AUDIT_EVIDENCE_START_FROM_INVENTORY_ACTION = "Browse resource inven
 
 export const AUDIT_EVIDENCE_FIELD_REQUIRED = "Required." as const;
 
+export const AUDIT_EVIDENCE_ASSESSMENT_ID_SHAPE_ERROR =
+  "Enter a UUID-shaped assessment ID from your export." as const;
+
+export const AUDIT_EVIDENCE_SNAPSHOT_ID_SHAPE_ERROR =
+  "Enter a UUID-shaped snapshot ID from the same export bundle." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_ID_SHAPE_ERROR =
+  "Enter a control UUID or stable control key (for example AC-2)." as const;
+
+export function auditEvidenceLineageUrlParseErrorForLookupPath(lookupPath: string): string {
+  return `Paste an audit-evidence control URL that starts with ${lookupPath}/ and includes assessment, snapshot, and control segments.`;
+}
+
+/** @deprecated Prefer {@link auditEvidenceLineageUrlParseErrorForLookupPath}. */
 export const AUDIT_EVIDENCE_LINEAGE_URL_PARSE_ERROR =
   "Paste a governance audit-evidence control URL with assessment, snapshot, and control segments." as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_SCOPE_BANNER_PREFIX = "Resolved scope:" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_READINESS_READY =
+  "Identifiers are ready — open the read-only chain of custody for this control." as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_READINESS_BLOCKED =
+  "Enter assessment, snapshot, and control IDs in the expected shape to enable Open chain of custody." as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_ERROR_SUMMARY_TITLE =
+  "Fix these fields before opening the chain:" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_KEYBOARD_AFFORDANCE =
+  "F1 opens page help; Ctrl+K opens search." as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_BUILD_PROVENANCE_LIMITATION =
+  "Provenance limitation: build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_CONTINUE_LAST_TITLE = "Continue last viewed chain" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_CONTINUE_LAST_ACTION = "Open chain" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_CONTINUE_LAST_PREFILL_ACTION = "Fill lookup fields" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_FORM_SECTION_TITLE = "Enter control identifiers" as const;
 
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE = "Control chain of custody" as const;
 
@@ -88,4 +140,4 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION = "Hide chain of cus
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL = "Loading chain of custody…" as const;
 
 export const AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE =
-  "Audit evidence package download failed" as const;
+  "Audit evidence bundle download failed" as const;

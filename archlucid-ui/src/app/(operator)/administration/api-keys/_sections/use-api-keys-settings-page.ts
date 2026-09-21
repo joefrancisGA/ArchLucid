@@ -227,7 +227,7 @@ export function useApiKeysSettingsPage() {
         setStatusBanner(resolveSuccessBanner(slot, invalidatePrevious));
         setAuditEvents((current) => [
           createAuditEvent(
-            slot === "Admin" && !invalidatePrevious ? "overlap_key_issued" : "key_rotated",
+            slot === "Admin" && !invalidatePrevious ? "overlap_key_issued" : "rotation_material_issued",
             keyName,
             "success",
           ),

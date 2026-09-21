@@ -314,6 +314,25 @@ export const FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = 
   },
 ] as const;
 
+export const SECURENOW_FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = [
+  {
+    role: "Security operator",
+    guidance: "Triages findings, inspects inventory evidence, assigns owners, and tracks remediation.",
+  },
+  {
+    role: "Compliance lead",
+    guidance: "Validates severity, business impact, policy context, and audit lineage readiness.",
+  },
+  {
+    role: "Platform admin",
+    guidance: "Maintains connectors, policy pack assignments, and workspace access controls.",
+  },
+  {
+    role: "Executive sponsor",
+    guidance: "Reviews material risk, remediation backlog, and disposition status.",
+  },
+] as const;
+
 export const FINDINGS_HELP_WHAT_IS_BODY =
   "During a review, ArchLucid compares architecture evidence against active policies and standards. When a gap or risk is detected, the product records a finding with severity, impact, and recommended action. Findings stay linked to the review so teams can investigate, track, and report on them consistently.";
 
@@ -352,6 +371,15 @@ export const SECURENOW_FINDINGS_HELP_OVERVIEW =
 
 export const SECURENOW_FINDINGS_HELP_WHAT_IS_BODY =
   "When ARC-AMPE policy packs run against connected cloud inventory, SecureNow records findings with severity, impact, and recommended action. Findings stay linked to inventory evidence so operators can investigate, assign owners, and trace audit lineage consistently.";
+
+export const SECURENOW_FINDINGS_HELP_PROVENANCE_INTRO =
+  "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. Deterministic-fallback findings appear when the live model path failed and a fallback path produced the row — verify independently. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
+
+export const SECURENOW_FINDINGS_HELP_SEMANTIC_SUPPORT_COPY =
+  "Semantic support chips say whether cited excerpts back the claim. They are not legal truth and do not replace disposition accountability or sealed audit exports.";
+
+export const SECURENOW_FINDINGS_HELP_PROVENANCE_NON_CLAIM =
+  "Provenance labeling describes how a finding was produced and whether evidence is attached. It does not claim accuracy rates, production validation, or that AI-generated findings are independently verified. Operators remain accountable for disposition decisions.";
 
 export const SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS = {
   openFindings: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings,
@@ -441,13 +469,49 @@ export function findingsHelpAnatomyFields(productLineId: ProductLineId = "archit
     return FINDINGS_HELP_ANATOMY_FIELDS;
   }
 
-  return FINDINGS_HELP_ANATOMY_FIELDS.map((field) =>
-    field.label === "Title"
-      ? { ...field, description: "Short statement of the cloud security or configuration concern." }
-      : field.label === "Affected domain"
-        ? { ...field, description: "The cloud resource, service, or inventory area involved." }
-        : field,
-  );
+  return FINDINGS_HELP_ANATOMY_FIELDS.map((field) => {
+    if (field.label === "Title") {
+      return { ...field, description: "Short statement of the cloud security or configuration concern." };
+    }
+
+    if (field.label === "Severity") {
+      return { ...field, description: "How urgent or material the risk is for the workspace." };
+    }
+
+    if (field.label === "Affected domain") {
+      return { ...field, description: "The cloud resource, service, or inventory area involved." };
+    }
+
+    if (field.label === "Semantic support") {
+      return {
+        ...field,
+        description:
+          "Whether cited excerpts back the claim (Supported, Unchecked, Unsupported, or not scored). This is not legal truth and does not replace disposition accountability.",
+      };
+    }
+
+    return field;
+  });
+}
+
+export function findingsHelpRoleGuidance(productLineId: ProductLineId = "architecture"): readonly FindingsHelpRoleGuidance[] {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_ROLE_GUIDANCE : FINDINGS_HELP_ROLE_GUIDANCE;
+}
+
+export function findingsHelpProvenanceIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_PROVENANCE_INTRO : FINDINGS_HELP_PROVENANCE_INTRO;
+}
+
+export function findingsHelpSemanticSupportCopy(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_SEMANTIC_SUPPORT_COPY
+    : FINDINGS_HELP_SEMANTIC_SUPPORT_COPY;
+}
+
+export function findingsHelpProvenanceNonClaim(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_PROVENANCE_NON_CLAIM
+    : FINDINGS_HELP_PROVENANCE_NON_CLAIM;
 }
 
 export function findingsHelpRelatedLinks(productLineId: ProductLineId = "architecture") {

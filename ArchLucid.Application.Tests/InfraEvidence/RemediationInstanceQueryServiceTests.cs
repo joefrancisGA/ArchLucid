@@ -26,11 +26,16 @@ public sealed class RemediationInstanceQueryServiceTests
     private static readonly Guid FindingId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
     [Fact]
-    public async Task ListInstancesAsync_without_filter_uses_tenant_list()
+    public async Task ListInstancesAsync_without_filter_uses_project_scope()
     {
         Mock<IRemediationInstanceRepository> repository = new();
         repository
-            .Setup(repo => repo.ListByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .Setup(repo => repo.ListByScopeAsync(
+                It.Is<ProjectScopeKey>(scope =>
+                    scope.TenantId == Scope.TenantId
+                    && scope.WorkspaceId == Scope.WorkspaceId
+                    && scope.ProjectId == Scope.ProjectId),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([CreateInstance(Guid.Parse("11111111-1111-1111-1111-111111111111"), null)]);
 
         RemediationInstanceQueryService service = CreateService(repository.Object);
@@ -40,11 +45,16 @@ public sealed class RemediationInstanceQueryServiceTests
 
         instances.Should().ContainSingle();
         repository.Verify(
-            repo => repo.ListByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()),
+            repo => repo.ListByScopeAsync(
+                It.Is<ProjectScopeKey>(scope =>
+                    scope.TenantId == Scope.TenantId
+                    && scope.WorkspaceId == Scope.WorkspaceId
+                    && scope.ProjectId == Scope.ProjectId),
+                It.IsAny<CancellationToken>()),
             Times.Once);
         repository.Verify(
-            repo => repo.ListByCloudResourceIdPagedAsync(
-                It.IsAny<Guid>(),
+            repo => repo.ListByCloudResourceIdPagedInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
                 It.IsAny<Guid>(),
                 It.IsAny<int>(),
                 It.IsAny<int>(),
@@ -57,8 +67,8 @@ public sealed class RemediationInstanceQueryServiceTests
     {
         Mock<IRemediationInstanceRepository> repository = new();
         repository
-            .Setup(repo => repo.ListByCloudResourceIdPagedAsync(
-                Scope.TenantId,
+            .Setup(repo => repo.ListByCloudResourceIdPagedInScopeAsync(
+                It.Is<ProjectScopeKey>(scope => scope.TenantId == Scope.TenantId && scope.WorkspaceId == Scope.WorkspaceId && scope.ProjectId == Scope.ProjectId),
                 CloudResourceId,
                 It.IsAny<int>(),
                 It.IsAny<int>(),
@@ -73,7 +83,7 @@ public sealed class RemediationInstanceQueryServiceTests
         instances.Should().ContainSingle();
         instances[0].CloudResourceId.Should().Be(CloudResourceId);
         repository.Verify(
-            repo => repo.ListByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            repo => repo.ListByScopeAsync(It.IsAny<ProjectScopeKey>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -82,7 +92,7 @@ public sealed class RemediationInstanceQueryServiceTests
     {
         Mock<IRemediationInstanceRepository> repository = new();
         repository
-            .Setup(repo => repo.ListByFindingIdAsync(Scope.TenantId, FindingId, It.IsAny<CancellationToken>()))
+            .Setup(repo => repo.ListByFindingIdInScopeAsync(It.Is<ProjectScopeKey>(scope => scope.TenantId == Scope.TenantId && scope.WorkspaceId == Scope.WorkspaceId && scope.ProjectId == Scope.ProjectId), FindingId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([CreateInstance(Guid.Parse("33333333-3333-3333-3333-333333333333"), CloudResourceId, FindingId)]);
 
         RemediationInstanceQueryService service = CreateService(repository.Object);
@@ -93,11 +103,11 @@ public sealed class RemediationInstanceQueryServiceTests
         instances.Should().ContainSingle();
         instances[0].FindingId.Should().Be(FindingId);
         repository.Verify(
-            repo => repo.ListByFindingIdAsync(Scope.TenantId, FindingId, It.IsAny<CancellationToken>()),
+            repo => repo.ListByFindingIdInScopeAsync(It.Is<ProjectScopeKey>(scope => scope.TenantId == Scope.TenantId && scope.WorkspaceId == Scope.WorkspaceId && scope.ProjectId == Scope.ProjectId), FindingId, It.IsAny<CancellationToken>()),
             Times.Once);
         repository.Verify(
-            repo => repo.ListByCloudResourceIdPagedAsync(
-                It.IsAny<Guid>(),
+            repo => repo.ListByCloudResourceIdPagedInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
                 It.IsAny<Guid>(),
                 It.IsAny<int>(),
                 It.IsAny<int>(),
@@ -111,7 +121,7 @@ public sealed class RemediationInstanceQueryServiceTests
         Guid otherResourceId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
         Mock<IRemediationInstanceRepository> repository = new();
         repository
-            .Setup(repo => repo.ListByFindingIdAsync(Scope.TenantId, FindingId, It.IsAny<CancellationToken>()))
+            .Setup(repo => repo.ListByFindingIdInScopeAsync(It.Is<ProjectScopeKey>(scope => scope.TenantId == Scope.TenantId && scope.WorkspaceId == Scope.WorkspaceId && scope.ProjectId == Scope.ProjectId), FindingId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([CreateInstance(Guid.Parse("33333333-3333-3333-3333-333333333333"), otherResourceId, FindingId)]);
 
         RemediationInstanceQueryService service = CreateService(repository.Object);
@@ -124,8 +134,9 @@ public sealed class RemediationInstanceQueryServiceTests
 
     private static RemediationInstanceQueryService CreateService(IRemediationInstanceRepository repository) =>
         new(
-            repository,
-            new Mock<IOperationalSecurityFindingRepository>().Object,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(repository),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
+                new Mock<IOperationalSecurityFindingRepository>().Object),
             new Mock<IRemediationPatternMatchRepository>().Object,
             new Mock<IAuditManualEvidenceRepository>().Object,
             new Mock<IAuthorityQueryService>().Object,

@@ -1,4 +1,5 @@
 import type { ConnectorDisplayStatus } from "@/lib/connector-operations-present";
+import { formatRelativeTime } from "@/lib/relative-time";
 import {
   isDisabledConnector,
   resolveConnectorHumanStatus,
@@ -59,8 +60,56 @@ export function isConnectorDisabledForDeployment(connector: ConnectorSurfaceStat
   return isDisabledConnector(connector) || resolveConnectorHumanStatus(connector) === "Disabled";
 }
 
+/** After this age, connection status should prompt a manual refresh. */
+export const INTEGRATION_READINESS_STALE_AFTER_MS = 5 * 60 * 1000;
+
+export type IntegrationReadinessFreshness = {
+  readonly absoluteLine: string;
+  readonly relativeLine: string;
+  readonly stale: boolean;
+};
+
+export function isIntegrationReadinessSnapshotStale(
+  configurationReadAt: Date,
+  nowMs: number = Date.now(),
+): boolean {
+  return nowMs - configurationReadAt.getTime() > INTEGRATION_READINESS_STALE_AFTER_MS;
+}
+
+export function resolveIntegrationReadinessSnapshotIso(
+  configurationReadAt: Date,
+  serverAsOfUtc: string | null | undefined,
+): string {
+  const explicit = serverAsOfUtc?.trim() ?? "";
+
+  if (explicit.length > 0) {
+    return explicit;
+  }
+
+  return configurationReadAt.toISOString();
+}
+
+export function formatIntegrationReadinessFreshness(
+  configurationReadAt: Date,
+  serverAsOfUtc: string | null | undefined,
+  nowMs: number = Date.now(),
+): IntegrationReadinessFreshness {
+  const snapshotIso = resolveIntegrationReadinessSnapshotIso(configurationReadAt, serverAsOfUtc);
+  const stale = isIntegrationReadinessSnapshotStale(configurationReadAt, nowMs);
+
+  return {
+    absoluteLine: `Configuration read at ${formatInstantForLocale(snapshotIso)}`,
+    relativeLine: formatRelativeTime(snapshotIso, nowMs),
+    stale,
+  };
+}
+
 export function formatIntegrationReadinessLastChecked(configurationReadAt: Date): string {
-  return `Configuration read at ${formatInstantForLocale(configurationReadAt.toISOString())}`;
+  return formatIntegrationReadinessFreshness(configurationReadAt, null).absoluteLine;
+}
+
+export function formatIntegrationReadinessWorkspaceScopeLine(workspaceScopeLabel: string): string {
+  return `Workspace scope: ${workspaceScopeLabel}`;
 }
 
 export function resolveConnectorRowActionLabel(

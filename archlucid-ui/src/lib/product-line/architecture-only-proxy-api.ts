@@ -4,7 +4,8 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 
 /**
  * Architecture-only API controllers return 403 from `ProductLineRouteGateMiddleware` when the
- * effective product line is Security (OP-04). Shared shell hooks must not call them.
+ * effective product line is Security (OP-04). ArchLucid may call any route; only SecureNow is gated.
+ * Shared shell hooks must not call architecture-only endpoints from the Security shell.
  */
 export function isArchitectureOnlyProxyApiBlocked(productLineId: ProductLineId): boolean {
   return isSecureNowProductLine(productLineId);

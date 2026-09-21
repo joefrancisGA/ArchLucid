@@ -10,7 +10,6 @@ import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
-  expectWhereToGoNextFollowUpLinks,
 } from "@/lib/claim-discipline-test-helpers";
 import {
   NOTIFICATIONS_HELP_GUIDE_HEADINGS,
@@ -25,7 +24,6 @@ import {
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE,
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING,
   NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
-  NOTIFICATIONS_HELP_SOURCES,
   NOTIFICATIONS_HELP_TOPIC_LABEL,
 } from "@/lib/notifications-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -112,7 +110,18 @@ describe("HelpNotificationsGuideView", () => {
 
     const sourcesStrip = screen.getByTestId("help-notifications-sources");
 
-    expectWhereToGoNextFollowUpLinks(within(sourcesStrip), NOTIFICATIONS_HELP_SOURCES);
+    expect(within(sourcesStrip).getByRole("link", { name: "Read How ArchLucid works" })).toHaveAttribute(
+      "href",
+      "/help/getting-started#how-archlucid-works",
+    );
+    expect(within(sourcesStrip).getByRole("link", { name: "Open Alerts inbox" })).toHaveAttribute(
+      "href",
+      "/governance/alerts",
+    );
+    expect(within(sourcesStrip).getByRole("link", { name: "Open Alert rules" })).toHaveAttribute(
+      "href",
+      "/governance/alert-rules",
+    );
 
     expect(screen.queryByRole("link", { name: "Read alerts help →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Read Slack integration help →" })).not.toBeInTheDocument();

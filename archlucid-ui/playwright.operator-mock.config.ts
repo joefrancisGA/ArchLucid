@@ -66,6 +66,7 @@ export default defineConfig({
       NEXT_PUBLIC_DEMO_MODE: "false",
       NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false",
       NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1",
+      VITE_USE_SANDBOX_MOCKS: "true",
       MOCK_AUTH_ME_ROLE: "Operator",
     },
   },

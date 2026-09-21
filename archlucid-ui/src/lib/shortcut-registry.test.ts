@@ -98,7 +98,7 @@ describe("shortcut-registry", () => {
     expect(ARCHITECTURE_DESK_PAGE_SHORTCUTS[0]?.description).toBe(WORKING_ALT_N_SHORTCUT_DESCRIPTION);
   });
 
-  it("LI-06: Alt+N descriptions distinguish Working draft editor from Guided wizard", () => {
+  it("LI-06: Alt+N descriptions distinguish Working architecture draft editor from Guided wizard", () => {
     const altN = SHORTCUTS.find((entry) => entry.key === "alt+n");
 
     expect(altN).toBeDefined();

@@ -62,9 +62,6 @@ describe("effectiveNavDisclosureForPathname", () => {
     "/administration/extract-upload",
     "/governance/infrastructure/extract-upload",
     "/insights/evidence-graph",
-    "/help",
-    "/help/first-architecture-review",
-    "/help/troubleshooting",
     "/administration",
     "/administration/workspace-settings",
     "/administration/extract-upload",
@@ -79,8 +76,12 @@ describe("effectiveNavDisclosureForPathname", () => {
     },
   );
 
-  it("passes through flags on review detail and operate routes", () => {
+  it("passes through flags on review detail, help, and operate routes", () => {
     expect(effectiveNavDisclosureForPathname("/architecture/reviews/abc-123", true, true)).toEqual({
+      showExtended: true,
+      showAdvanced: true,
+    });
+    expect(effectiveNavDisclosureForPathname("/help/career-vs-rehearsal", true, true)).toEqual({
       showExtended: true,
       showAdvanced: true,
     });

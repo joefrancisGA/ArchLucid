@@ -44,7 +44,6 @@ export function useExtractUploadSettings() {
   const extractUploadSteps = useMemo(
     () =>
       resolveExtractUploadPackageSteps({
-        providerSelected: true,
         packageAccepted: packageId !== null,
         inventoryParsed: hasBaselineArtifacts === true,
       }),
@@ -53,7 +52,6 @@ export function useExtractUploadSettings() {
   const extractUploadEmphasizedStepId = useMemo(
     () =>
       resolveExtractUploadPackageEmphasizedStepId({
-        providerSelected: true,
         packageAccepted: packageId !== null,
         inventoryParsed: hasBaselineArtifacts === true,
       }),

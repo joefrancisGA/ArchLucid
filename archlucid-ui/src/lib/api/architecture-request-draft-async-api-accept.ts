@@ -17,7 +17,7 @@ function parseDraftOperationGuid(operationId: string): string {
   const trimmed = operationId.trim();
 
   if (!trimmed.startsWith("draft:")) {
-    throw new Error("Expected a draft: operation id.");
+    throw new Error("Expected an architecture draft: operation id.");
   }
 
   const guid = trimmed.slice("draft:".length).trim();

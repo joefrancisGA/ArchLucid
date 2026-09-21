@@ -26,6 +26,7 @@ export type PolicyPacksPageHeaderProps = {
   readonly lastRefreshedAt: Date | null;
   readonly onRefresh: () => void;
   readonly breadcrumb?: React.ReactNode;
+  readonly staleCue?: string | null;
 };
 
 /** Shared `/governance/policy-packs` hero — title, lead, contextual help, refresh, and resolution shortcut. */
@@ -48,13 +49,15 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
       claimDisciplineTestId="policy-packs-claim-discipline"
       breadcrumb={props.breadcrumb}
       actions={
-        <div className="flex flex-wrap items-center gap-2" data-testid="policy-packs-header-actions">
-          <PageContextualHelpButton />
-          <RefreshButton
-            data-testid="policy-packs-refresh-button"
-            busy={props.refreshing}
-            onClick={() => void props.onRefresh()}
-          />
+        <div className="flex flex-wrap items-center gap-3" data-testid="policy-packs-header-actions">
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Help and refresh">
+            <PageContextualHelpButton />
+            <RefreshButton
+              data-testid="policy-packs-refresh-button"
+              busy={props.refreshing}
+              onClick={() => void props.onRefresh()}
+            />
+          </div>
           <Link
             href={POLICY_PACKS_RESOLUTION_LINK_HREF}
             className={OPERATOR_LINK.optional}
@@ -70,6 +73,9 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
           lastRefreshedAt={props.refreshing ? null : props.lastRefreshedAt}
         >
           {freshnessLabel}
+          {props.staleCue !== null && props.staleCue !== undefined && props.staleCue.length > 0 ? (
+            <span className="block text-al-text-secondary" data-testid="policy-packs-stale-cue">{props.staleCue}</span>
+          ) : null}
         </OperatorPageFreshnessMetadata>
       }
     />

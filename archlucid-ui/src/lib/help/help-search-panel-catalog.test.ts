@@ -113,14 +113,28 @@ describe("help-search-panel-catalog", () => {
     expect(hits.map((topic) => topic.id)).toContain("review-artifacts");
   });
 
+  it("finds first-login workspace topic from training and not-live aliases (LS-015)", () => {
+    const topics = listHelpSearchPanelTopics(false);
+
+    for (const query of ["training mode", "not live data", "first login"]) {
+      const hits = filterHelpSearchPanelTopics(topics, query);
+
+      expect(hits.map((topic) => topic.id), query).toContain("first-login-workspace");
+    }
+  });
+
   it("finds Career/Rehearsal door topic from Working search terms (CG-097)", () => {
     const topics = listHelpSearchPanelTopics(false);
 
     for (const query of ["simulator", "career door", "rehearsal", "career-complete"]) {
       const hits = filterHelpSearchPanelTopics(topics, query);
 
-      expect(hits.map((topic) => topic.id), query).toContain("career-rehearsal-doors");
+      expect(hits.map((topic) => topic.id), query).toContain("career-vs-rehearsal");
     }
+
+    expect(filterHelpSearchPanelTopics(topics, "record vs practice").map((topic) => topic.id)).toContain(
+      "career-vs-rehearsal",
+    );
   });
 
   it("hides admin-only topics for non-admin callers", () => {

@@ -21,7 +21,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_BUYER_OVERVIEW,
   AUTHENTICATION_SIGN_IN_HELP_FIRST_VIEWPORT_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD,
+  authenticationSignInHelpPageLead,
   AUTHENTICATION_SIGN_IN_HELP_PAGE_SUBTITLE_BUYER,
   AUTHENTICATION_SIGN_IN_HELP_PRIMARY_CONTENT_ID,
   AUTHENTICATION_SIGN_IN_HELP_SKIP_LINK_LABEL,
@@ -31,6 +31,7 @@ import {
 } from "@/lib/authentication-sign-in-help-page-copy";
 import { splitAuthenticationSignInHelpMarkdown } from "@/lib/authentication-sign-in-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -92,6 +93,7 @@ export function HelpAuthenticationSignInGuideView(
 ): React.ReactElement {
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const productLineId = resolveProductLineIdFromEnv();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
@@ -136,7 +138,7 @@ export function HelpAuthenticationSignInGuideView(
         >
           <div className="space-y-4" data-testid="help-authentication-sign-in-buyer-intro">
             <p className={readingBodyClass} data-testid="help-authentication-sign-in-intro">
-              {AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD}
+              {authenticationSignInHelpPageLead(productLineId)}
             </p>
           </div>
           <HelpAuthenticationSignInActionPanel />

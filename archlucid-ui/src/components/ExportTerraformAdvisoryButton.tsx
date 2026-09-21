@@ -129,7 +129,7 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
           <AlertDialogHeader>
             <AlertDialogTitle>Export advisory Terraform</AlertDialogTitle>
             <AlertDialogDescription>
-              Downloads a ZIP of advisory Terraform reconstructed from evidence for this run.
+              Downloads a ZIP of advisory Terraform reconstructed from evidence for this review.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

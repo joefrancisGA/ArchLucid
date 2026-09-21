@@ -15,7 +15,7 @@ export type SystemNotJobOutOfWaveResidualRow = {
 /** SN-038+ — explicit skips recorded for SN-040 close audit; do not pretend shipped. */
 export const SYSTEM_NOT_JOB_OUT_OF_WAVE_RESIDUAL_ROWS: readonly SystemNotJobOutOfWaveResidualRow[] = [
   {
-    item: "Draft-to-draft Compare",
+    item: "Compare architecture drafts",
     tracking: "R12 rejected alternative",
     ownerPrompt: "SN-038",
     status: "not-shipped",

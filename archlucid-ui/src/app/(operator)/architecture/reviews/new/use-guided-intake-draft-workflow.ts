@@ -82,7 +82,7 @@ export type GuidedIntakeDraftCoreState = {
  * question set those calls return.
  *
  * Separated from the brief form because this half is a request pipeline with its own busy/error
- * state, and the ordering rules that matter here (a draft is immutable once admitted, so the brief
+ * state, and the ordering rules that matter here (an architecture draft is immutable once admitted, so the brief
  * must be patched before admission) live entirely inside these actions.
  */
 export type GuidedIntakeDraftWorkflow = ReturnType<typeof useGuidedIntakeDraftWorkflow>;

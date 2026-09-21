@@ -7546,7 +7546,11 @@ BEGIN
                 N'first_finding_viewed',
                 N'first_finalization_attempted',
                 N'first_export_opened',
-                N'thirty_minute_milestone'
+                N'thirty_minute_milestone',
+                N'first_session_purpose_live',
+                N'first_session_purpose_training',
+                N'post_auth_landed_dedicated_scope',
+                N'post_auth_landed_sample_scope'
             )),
         CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
@@ -11187,6 +11191,7 @@ BEGIN
         DurationMs            INT               NULL,
         CompletenessScore     DECIMAL(5, 4)     NULL,
         WarningCount          INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_WarningCount DEFAULT (0),
+        CompletenessWarningsJson NVARCHAR(MAX)     NULL,
         ErrorCount            INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_ErrorCount DEFAULT (0),
         ContentHashSha256     VARBINARY(32)     NULL,
         CreatedUtc            DATETIME2         NOT NULL,
@@ -11200,6 +11205,13 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AzureInventorySnapshots_Scope_Created
         ON dbo.AzureInventorySnapshots (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.AzureInventorySnapshots', N'CompletenessWarningsJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.AzureInventorySnapshots
+        ADD CompletenessWarningsJson NVARCHAR(MAX) NULL;
 END;
 GO
 
@@ -12255,7 +12267,7 @@ BEGIN
     CREATE TABLE dbo.ArchitectureShares
     (
         ArchitectureId UNIQUEIDENTIFIER NOT NULL,
-        UserId           UNIQUEIDENTIFIER NOT NULL,
+        ActorOid         NVARCHAR(256)    NOT NULL,
         TenantId         UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
         ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
@@ -12264,16 +12276,14 @@ BEGIN
         GrantedUtc         DATETIME2(7)     NOT NULL
             CONSTRAINT DF_ArchitectureShares_GrantedUtc DEFAULT SYSUTCDATETIME(),
         RowVersion         ROWVERSION       NOT NULL,
-        CONSTRAINT PK_ArchitectureShares PRIMARY KEY CLUSTERED (ArchitectureId, UserId),
+        CONSTRAINT PK_ArchitectureShares PRIMARY KEY CLUSTERED (ArchitectureId, ActorOid),
         CONSTRAINT FK_ArchitectureShares_Architectures
             FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
-        CONSTRAINT FK_ArchitectureShares_PlatformUsers
-            FOREIGN KEY (UserId) REFERENCES dbo.PlatformUsers (Id),
         CONSTRAINT CK_ArchitectureShares_Role CHECK (Role IN (N'View', N'Decide', N'Admin'))
     );
 
-    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_Tenant_User_Architecture
-        ON dbo.ArchitectureShares (TenantId, UserId, ArchitectureId);
+    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_ActorOid
+        ON dbo.ArchitectureShares (ActorOid);
 
     CREATE NONCLUSTERED INDEX IX_ArchitectureShares_Scope_Architecture
         ON dbo.ArchitectureShares (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
@@ -12826,5 +12836,67 @@ IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
 BEGIN
     DELETE FROM dbo.DiagramPeelCatalogVersion;
     INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (3);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+BEGIN
+    MERGE dbo.DiagramPeelCatalogEntry AS target
+    USING (VALUES
+        (N'Microsoft.DataFactory/factories', N'Backbone — never peel'),
+        (N'Microsoft.Synapse/workspaces', N'Backbone — never peel')
+    ) AS source (ArmResourceType, Notes)
+        ON target.ArmResourceType = source.ArmResourceType
+    WHEN NOT MATCHED THEN
+        INSERT (ArmResourceType, PeelRank, AlwaysDispose, IsEnabled, Notes)
+        VALUES (source.ArmResourceType, NULL, 0, 1, source.Notes);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogVersion WHERE CatalogVersion < 4)
+BEGIN
+    DELETE FROM dbo.DiagramPeelCatalogVersion;
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (4);
+END;
+GO
+
+/*
+  399: Operator inferred connection proposals and confirmations (SN-RT-10).
+*/
+
+IF OBJECT_ID(N'dbo.OperatorInferredConnections', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.OperatorInferredConnections
+    (
+        ConnectionId                UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_OperatorInferredConnections PRIMARY KEY CLUSTERED,
+        TenantId                    UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId                 UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                   UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                  UNIQUEIDENTIFIER NOT NULL,
+        Status                      INT               NOT NULL,
+        Source                      INT               NOT NULL,
+        RuleName                    NVARCHAR(128)     NULL,
+        QuestionText                NVARCHAR(2000)    NULL,
+        FromArmId                   NVARCHAR(1024)    NULL,
+        FromLabel                   NVARCHAR(512)     NULL,
+        FromCloudResourceId         UNIQUEIDENTIFIER  NULL,
+        ToHost                      NVARCHAR(512)     NULL,
+        ToCatalog                   NVARCHAR(256)     NULL,
+        ToArmId                     NVARCHAR(1024)    NULL,
+        ToCloudResourceId           UNIQUEIDENTIFIER  NULL,
+        SettingName                 NVARCHAR(512)     NULL,
+        SourceFileFormat            NVARCHAR(64)      NULL,
+        ActorKey                    NVARCHAR(256)     NULL,
+        ProposalPayloadHashSha256   VARBINARY(32)     NOT NULL,
+        CreatedUtc                  DATETIME2         NOT NULL,
+        UpdatedUtc                  DATETIME2         NOT NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_OperatorInferredConnections_Tenant_Snapshot_Status
+        ON dbo.OperatorInferredConnections (TenantId, SnapshotId, Status);
+
+    CREATE NONCLUSTERED INDEX IX_OperatorInferredConnections_Tenant_Snapshot_Hash
+        ON dbo.OperatorInferredConnections (TenantId, SnapshotId, ProposalPayloadHashSha256);
 END;
 GO

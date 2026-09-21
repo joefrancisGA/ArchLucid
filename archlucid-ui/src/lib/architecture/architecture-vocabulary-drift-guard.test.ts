@@ -61,7 +61,7 @@ describe("architecture vocabulary drift guard (CA-48)", () => {
     expect(working.title.toLowerCase()).not.toContain("saved architecture drafts");
   });
 
-  it("fails Working hub identity subtitle if it reads as a draft inventory list", () => {
+  it("fails Working hub identity subtitle if it reads as an architecture draft inventory list", () => {
     const workingSubtitle = ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE.toLowerCase();
 
     expect(workingSubtitle).toContain("identit");

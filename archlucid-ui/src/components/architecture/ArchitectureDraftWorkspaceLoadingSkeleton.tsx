@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Loading placeholder for `/architectures/[architectureId]` while the draft hydrates (TB-1453). */
+/** Loading placeholder for `/architectures/[architectureId]` while the architecture draft hydrates (TB-1453). */
 export function ArchitectureDraftWorkspaceLoadingSkeleton(): React.JSX.Element {
   return (
     <div

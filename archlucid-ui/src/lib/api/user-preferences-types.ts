@@ -13,6 +13,8 @@ export type CloudPlatformScopeDto = {
   readonly gcp: boolean;
 };
 
+export type FirstSessionPurposeId = "live" | "training";
+
 export type UserPreferencesResponse = {
   appearancePreference: ColorModePreference;
   appearancePreferenceIsExplicit: boolean;
@@ -28,6 +30,8 @@ export type UserPreferencesResponse = {
   workspaceModeIsExplicit: boolean;
   workspaceModeGraduationOffer: WorkspaceModeGraduationOfferState;
   workspaceModeGraduationOfferIsExplicit: boolean;
+  firstSessionPurpose: FirstSessionPurposeId | null;
+  firstSessionPurposeIsExplicit: boolean;
   workingCareerRehearsalDoor: WorkingCareerRehearsalDoorId;
   workingCareerRehearsalDoorIsExplicit: boolean;
   professionalWorkbenchEnabled: boolean;
@@ -93,6 +97,10 @@ export type SetSampleReviewsOnOverviewVisibilityRequest = {
 
 export type SetIanaTimeZonePreferenceRequest = {
   ianaTimeZoneId: string;
+};
+
+export type SetFirstSessionPurposeRequest = {
+  purpose: FirstSessionPurposeId;
 };
 
 export type SetWorkspaceModeRequest = {
@@ -163,6 +171,8 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     workspaceModeIsExplicit: false,
     workspaceModeGraduationOffer: "pending",
     workspaceModeGraduationOfferIsExplicit: false,
+    firstSessionPurpose: null,
+    firstSessionPurposeIsExplicit: false,
     workingCareerRehearsalDoor: "career",
     workingCareerRehearsalDoorIsExplicit: false,
     professionalWorkbenchEnabled: true,

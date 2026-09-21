@@ -4,6 +4,7 @@ import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/
 import type {
   ConnectorDisplayStatus,
   ConnectorHumanStatus,
+  ConnectorPolicyLabel,
 } from "@/lib/connector-operations-status";
 import {
   CONFLUENCE_PUBLISHING_DISABLED_CUSTOMER_SUMMARY,
@@ -32,8 +33,10 @@ export {
   isRecommendedConnector,
   resolveConnectorDisplayStatus,
   resolveConnectorHumanStatus,
+  resolveConnectorPolicyLabel,
   resolveIntegrationEventBusDisplayStatus,
   resolveIntegrationEventBusHumanStatus,
+  type ConnectorPolicyLabel,
 } from "@/lib/connector-operations-status";
 
 export type ConnectorPurposeGroupId = "notifications" | "ticketing" | "publishing" | "technical";
@@ -127,7 +130,7 @@ export function resolveConnectorGuidance(connector: ConnectorSurfaceStatusDto, h
   switch (connector.connectorKey) {
     case "teams":
       if (humanStatus === "Ready") {
-        return "Teams notifications are configured for this tenant.";
+        return "Teams notifications are configured for this workspace scope.";
       }
 
       return "Set up a Teams incoming webhook to deliver review notifications to a channel.";
@@ -231,6 +234,21 @@ export type ConnectorDisplayStatusTag = {
   readonly label: string;
 };
 
+export function resolveConnectorPolicyLabelTag(label: ConnectorPolicyLabel): ConnectorDisplayStatusTag {
+  switch (label) {
+    case "Recommended":
+      return { kind: "in-progress", label: "Recommended" };
+
+    case "Optional":
+      return { kind: "neutral", label: "Optional" };
+
+    default: {
+      const exhaustive: never = label;
+      return exhaustive;
+    }
+  }
+}
+
 export function resolveConnectorDisplayStatusTag(status: ConnectorDisplayStatus): ConnectorDisplayStatusTag {
   switch (status) {
     case "Ready":
@@ -243,10 +261,10 @@ export function resolveConnectorDisplayStatusTag(status: ConnectorDisplayStatus)
       return { kind: "neutral", label: "Optional" };
 
     case "Not configured":
-      return { kind: "draft", label: "Not configured" };
+      return { kind: "neutral", label: "Not configured" };
 
     case "Disabled":
-      return { kind: "blocked", label: "Disabled" };
+      return { kind: "draft", label: "Disabled" };
 
     case "Needs attention":
       return { kind: "needs-attention", label: "Needs attention" };

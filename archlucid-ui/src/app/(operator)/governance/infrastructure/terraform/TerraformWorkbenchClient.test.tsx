@@ -9,14 +9,29 @@ let searchParams = new URLSearchParams(
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  usePathname: () => "/governance/infrastructure/terraform",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" }),
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   downloadInfraEvidenceTerraformAdvisoryZip: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
-  fetchCloudResourceEvidenceHub: vi.fn(async () => ({
+vi.mock("@/lib/infra-evidence/infra-evidence-resource-hub-cache", () => ({
+  fetchCachedInfraEvidenceResourceHub: vi.fn(async () => ({
     cloudResourceId: "11111111-1111-1111-1111-111111111111",
     externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
     terraformAddress: "azurerm_public_ip.gateway",
@@ -47,6 +62,9 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     recentChanges: [],
     evidencePointers: [],
   })),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
   formatInfraEvidenceHubApiError: (error: unknown) => String(error),
 }));
 
@@ -71,8 +89,8 @@ describe("TerraformWorkbenchClient", () => {
   });
 
   it("shows empty state when terraform address is missing", async () => {
-    const { fetchCloudResourceEvidenceHub } = await import("@/lib/infra-evidence/infra-evidence-hub-api");
-    vi.mocked(fetchCloudResourceEvidenceHub).mockResolvedValueOnce({
+    const { fetchCachedInfraEvidenceResourceHub } = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    vi.mocked(fetchCachedInfraEvidenceResourceHub).mockResolvedValueOnce({
       cloudResourceId: "11111111-1111-1111-1111-111111111111",
       externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
       terraformAddress: null,

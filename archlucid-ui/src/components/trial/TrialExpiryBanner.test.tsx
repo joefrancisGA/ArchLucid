@@ -31,6 +31,7 @@ import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-cli
 describe("TrialExpiryBanner", () => {
   beforeEach(async () => {
     buyerPolishedShellVitestOverride.value = false;
+    localStorage.removeItem("archlucid_trial_expiry_banner_snooze_until_ms");
     resetOperatorQueryClientForTests();
     await invalidateTenantTrialStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
@@ -80,8 +81,8 @@ describe("TrialExpiryBanner", () => {
     expect(screen.getByRole("link", { name: /talk to us/i })).toHaveAttribute("href", "/pricing#pricing-quote-request");
   });
 
-  it("does not render when session dismissed", async () => {
-    sessionStorage.setItem("archlucid_trial_expiry_banner_dismissed_session", "1");
+  it("does not render when snoozed for 24h", async () => {
+    localStorage.setItem("archlucid_trial_expiry_banner_snooze_until_ms", String(Date.now() + 60_000));
     renderWithOperatorQuery(<TrialExpiryBanner />);
 
     await waitFor(() => {
@@ -91,20 +92,20 @@ describe("TrialExpiryBanner", () => {
     expect(screen.queryByTestId("trial-expiry-banner")).not.toBeInTheDocument();
   });
 
-  it("dismiss sets session flag and hides banner", async () => {
+  it("dismiss snoozes for 24h and hides banner", async () => {
     renderWithOperatorQuery(<TrialExpiryBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("trial-expiry-banner")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /dismiss trial countdown for this session/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^dismiss$/i }));
 
     await waitFor(() => {
       expect(screen.queryByTestId("trial-expiry-banner")).not.toBeInTheDocument();
     });
 
-    expect(sessionStorage.getItem("archlucid_trial_expiry_banner_dismissed_session")).toBe("1");
+    expect(localStorage.getItem("archlucid_trial_expiry_banner_snooze_until_ms")).not.toBeNull();
   });
 
   it("does not render when more than 7 days remain", async () => {

@@ -39,7 +39,7 @@ describe("trackAdvisoryDraftInFlight", () => {
     resetInFlightOperationsForTests();
   });
 
-  it("registers Suggest from overview so leaving the draft does not hide queued work", () => {
+  it("registers Suggest from overview so leaving the architecture draft does not hide queued work", () => {
     const trackedId = trackAdvisoryDraftInFlight({
       operationId,
       draftId: "arch-001",
@@ -57,7 +57,7 @@ describe("trackAdvisoryDraftInFlight", () => {
     expect(rows[0]?.stepLabel).toBe("Queued");
   });
 
-  it("points unsaved drafts at the create-architecture route", () => {
+  it("points unsaved architecture drafts at the create-architecture route", () => {
     expect(advisoryDraftDetailHref("new")).toBe("/architecture/architectures/new");
     expect(advisoryDraftDetailHref("")).toBe("/architecture/architectures/new");
     expect(isAdvisoryDraftOperationId(operationId)).toBe(true);
@@ -88,7 +88,7 @@ describe("trackAdvisoryDraftInFlight", () => {
     expect(findTrackedAdvisoryDraftForArchitecture("other")).toBeNull();
   });
 
-  it("drops a consumed row after the draft applies suggestions", () => {
+  it("drops a consumed row after the architecture draft applies suggestions", () => {
     trackAdvisoryDraftInFlight({
       operationId,
       draftId: "arch-001",

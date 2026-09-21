@@ -14,15 +14,7 @@ export const ANALYSIS_MODE_WORKSPACE_SWITCH_PROMPT =
   "Workspace analysis uses your tenant-configured AI path. Confirm before changing how reviews run in this session.";
 
 export function resolveAnalysisModeTopBarButtonLabel(isSimulator: boolean, notReady: boolean): string {
-  if (isSimulator) {
-    return `Analysis: ${ANALYSIS_MODE_RULE_BASED_LABEL}`;
-  }
-
-  if (notReady) {
-    return "Analysis: Workspace (not ready)";
-  }
-
-  return `Analysis: ${ANALYSIS_MODE_WORKSPACE_LABEL}`;
+  return "Analysis";
 }
 
 /** @deprecated Dev-only — prefer analysis mode button labels. */

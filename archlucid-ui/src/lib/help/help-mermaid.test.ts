@@ -13,6 +13,8 @@ import {
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
   removeMermaidRenderBindElement,
+  queryInventoryDiagramInkElements,
+  queryInventoryDiagramResourceGroupFrameElements,
   resolveMermaidInkViewBox,
   resolveMermaidNodeUnionViewBox,
   sanitizeMermaidRenderId,
@@ -573,6 +575,118 @@ describe("help-mermaid", () => {
     expect(svg.getAttribute("width")).toBe(String(baseFit!.baseWidthPx * 2));
     expect(svg.getAttribute("height")).toBe(String(baseFit!.baseHeightPx * 2));
     expect(svg.style.maxWidth).toBe("none");
+
+    svg.remove();
+  });
+
+  it("includes resource-group frames in inventory ink queries", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    node.setAttribute("class", "node");
+    const nodeRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    nodeRect.setAttribute("x", "100");
+    nodeRect.setAttribute("y", "80");
+    nodeRect.setAttribute("width", "120");
+    nodeRect.setAttribute("height", "48");
+    node.appendChild(nodeRect);
+    svg.appendChild(node);
+
+    const frame = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    frame.setAttribute("class", "rg-frame");
+    const frameRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    frameRect.setAttribute("class", "rg-frame-plate");
+    frameRect.setAttribute("x", "80");
+    frameRect.setAttribute("y", "60");
+    frameRect.setAttribute("width", "180");
+    frameRect.setAttribute("height", "90");
+    frame.appendChild(frameRect);
+    svg.appendChild(frame);
+
+    expect(queryInventoryDiagramResourceGroupFrameElements(svg)).toHaveLength(1);
+    expect(queryInventoryDiagramInkElements(svg)).toHaveLength(2);
+  });
+
+  it("viewport fit crop includes resource-group frame ink outside node cards", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 400 300");
+    svg.setAttribute("data-al-source-viewbox", "0 0 400 300");
+
+    const identityMatrix = {
+      a: 1,
+      b: 0,
+      c: 0,
+      d: 1,
+      e: 0,
+      f: 0,
+      inverse: () => identityMatrix,
+      multiply: () => identityMatrix,
+    };
+
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    node.setAttribute("class", "node");
+    const nodeRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    nodeRect.setAttribute("x", "120");
+    nodeRect.setAttribute("y", "100");
+    nodeRect.setAttribute("width", "120");
+    nodeRect.setAttribute("height", "48");
+    node.appendChild(nodeRect);
+    svg.appendChild(node);
+
+    const frame = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    frame.setAttribute("class", "rg-frame");
+    const frameRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    frameRect.setAttribute("class", "rg-frame-plate");
+    frameRect.setAttribute("x", "80");
+    frameRect.setAttribute("y", "70");
+    frameRect.setAttribute("width", "200");
+    frameRect.setAttribute("height", "110");
+    frame.appendChild(frameRect);
+    svg.appendChild(frame);
+
+    const bindBBox = (element: SVGGraphicsElement, box: DOMRect) => {
+      element.getScreenCTM = () => identityMatrix as DOMMatrix;
+      element.getBBox = () => box;
+    };
+
+    bindBBox(node as SVGGraphicsElement, {
+      x: 120,
+      y: 100,
+      width: 120,
+      height: 48,
+      top: 100,
+      right: 240,
+      bottom: 148,
+      left: 120,
+      toJSON: () => ({}),
+    } as DOMRect);
+    bindBBox(frame as SVGGraphicsElement, {
+      x: 80,
+      y: 70,
+      width: 200,
+      height: 110,
+      top: 70,
+      right: 280,
+      bottom: 180,
+      left: 80,
+      toJSON: () => ({}),
+    } as DOMRect);
+
+    document.body.appendChild(svg);
+    svg.getScreenCTM = () => identityMatrix as DOMMatrix;
+    svg.createSVGPoint = () =>
+      ({
+        x: 0,
+        y: 0,
+        matrixTransform() {
+          return { x: this.x, y: this.y };
+        },
+      }) as SVGPoint;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 360, 240, 12);
+
+    expect(baseFit).not.toBeNull();
+    expect(svg.getAttribute("viewBox")).not.toBe("0 0 400 300");
+    expect(svg.getAttribute("viewBox")?.startsWith("68 ")).toBe(true);
 
     svg.remove();
   });

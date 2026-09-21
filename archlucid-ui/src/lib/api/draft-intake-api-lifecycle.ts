@@ -66,7 +66,7 @@ export async function reopenDraftRequest(draftId: string): Promise<DraftRequestR
   }
 }
 
-/** Permanently abandons a draft in Drafting or Admitted — not reversible. */
+/** Permanently abandons an architecture draft in Drafting or Admitted — not reversible. */
 export async function abandonDraftRequest(draftId: string): Promise<DraftRequestResponse> {
   try {
     return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/abandon`, {});
@@ -96,7 +96,7 @@ export async function reasonDraftRequest(
   }
 }
 
-/** Branch quota and estimated run cost for an admitted parent draft (R12). */
+/** Branch quota and estimated run cost for an admitted parent architecture draft (R12). */
 export async function getDraftBranchQuota(draftId: string): Promise<DraftBranchQuotaResponse> {
   return apiGetSealedManifestAware<DraftBranchQuotaResponse>(
     `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch-quota`,

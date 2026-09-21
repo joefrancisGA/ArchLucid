@@ -4,9 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const fetchPostAuthBootstrapStatus = vi.fn();
 const acceptPostAuthInvitation = vi.fn();
 const selectPostAuthWorkspace = vi.fn();
+const navigationState = vi.hoisted(() => ({
+  search: "returnUrl=%2Farchitecture%2Freviews",
+}));
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams("returnUrl=%2Farchitecture%2Freviews"),
+  useSearchParams: () => new URLSearchParams(navigationState.search),
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
   usePathname: () => "/auth/bootstrap",
 }));
@@ -195,5 +198,45 @@ describe("PostAuthBootstrapClient (TB-1469 mid-flow recovery)", () => {
 
     expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-use-different-account")).toBeInTheDocument();
+  });
+});
+
+describe("PostAuthBootstrapClient (TB-927 invitation query token)", () => {
+  beforeEach(() => {
+    fetchPostAuthBootstrapStatus.mockReset();
+    acceptPostAuthInvitation.mockReset();
+    navigationState.search = "invitationToken=query-invite-token";
+    sessionStorage.clear();
+  });
+
+  it("posts the query invitationToken when session storage is empty", async () => {
+    fetchPostAuthBootstrapStatus.mockResolvedValue({
+      destination: "AcceptInvitation",
+      pendingInvitations: [
+        {
+          invitationId: "inv-1",
+          label: "Northwind",
+          maskedInvitedEmail: "a***@example.com",
+          requiresEmailMismatchConfirmation: false,
+        },
+      ],
+      workspaces: [],
+      canCreateWorkspace: false,
+    });
+    acceptPostAuthInvitation.mockResolvedValue(null);
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-accept-invitation-inv-1")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("bootstrap-accept-invitation-inv-1"));
+
+    await waitFor(() => {
+      expect(acceptPostAuthInvitation).toHaveBeenCalledWith("inv-1", "query-invite-token", undefined, false);
+    });
+
+    expect(sessionStorage.getItem("archlucid_email_otp_invitation_token")).toBe("query-invite-token");
   });
 });

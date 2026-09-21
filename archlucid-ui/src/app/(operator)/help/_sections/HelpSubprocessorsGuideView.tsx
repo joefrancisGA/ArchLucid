@@ -247,7 +247,7 @@ export function HelpSubprocessorsGuideView(
           ) : null}
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
     </article>
   );

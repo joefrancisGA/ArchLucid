@@ -26,14 +26,15 @@ import {
   PATH_CHOOSER_HELP_SOURCES,
 } from "@/lib/path-chooser-help-evidence-copy";
 import {
-  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE_HEADING,
   DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_HEADING_ID,
   DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_ORIENTATION_SOURCES,
   DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_HEADING_ID,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO,
+  resolveDataHandlingTenantIsolationHelpClaimDiscipline,
+  resolveDataHandlingTenantIsolationHelpOrientationSources,
+  resolveDataHandlingTenantIsolationHelpSourcesIntro,
 } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID } from "@/lib/architecture-drafts-help-guide-content";
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
@@ -147,15 +148,17 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
 export function DataHandlingTenantIsolationHelpEvidenceOrientationStrip(
   props: { readonly readingBodyClassName?: string } = {},
 ): React.JSX.Element {
+  const productLineId = resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-data-handling"
-      claim={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE}
+      claim={resolveDataHandlingTenantIsolationHelpClaimDiscipline(productLineId)}
       claimHeading={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_HEADING_ID}
       sourcesTitle={DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
-      sources={DATA_HANDLING_TENANT_ISOLATION_HELP_ORIENTATION_SOURCES}
+      sourcesIntro={resolveDataHandlingTenantIsolationHelpSourcesIntro(productLineId)}
+      sources={resolveDataHandlingTenantIsolationHelpOrientationSources(productLineId)}
       sourcesHeadingId={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_HEADING_ID}
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

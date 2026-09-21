@@ -224,6 +224,21 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_keeps_distinct_evidence_ref_when_chosen_provider_family_matches()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.EvidenceRef = "inventory:chosen";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
     public void Resolve_skips_when_evidence_ref_matches_case_insensitively()
     {
         TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);

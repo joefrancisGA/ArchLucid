@@ -1,7 +1,9 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
-
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import { localizeEvidenceSourceLinks } from "@/lib/product-line/securenow-evidence-navigation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 export const AZURE_PERMISSIONS_HELP_CANONICAL_PATH = "/help/azure-permissions" as const;
 
 export const AZURE_PERMISSIONS_HELP_TOPIC_LABEL = "How Azure permissions work" as const;
@@ -42,8 +44,24 @@ export const AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES: readonly EvidenceSource
     (source) => !AZURE_PERMISSIONS_HELP_EXCLUDED_ORIENTATION_HREFS.has(source.href),
   );
 
-export const AZURE_PERMISSIONS_HELP_PAGE_LEAD =
-  "Assign the minimum read-only Azure roles ArchLucid needs to collect architecture evidence from your subscription. Cost Management Reader is optional unless cost analysis is enabled for the connection.";
+export function azurePermissionsHelpSourcesForProductLine(
+  productLineId: ProductLineId,
+): readonly EvidenceSourceLink[] {
+  return localizeEvidenceSourceLinks(productLineId, AZURE_PERMISSIONS_HELP_SOURCES);
+}
+
+export function azurePermissionsHelpOrientationSourcesForProductLine(
+  productLineId: ProductLineId,
+): readonly EvidenceSourceLink[] {
+  return localizeEvidenceSourceLinks(productLineId, AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES);
+}
+
+export function azurePermissionsHelpPageLead(productLineId: ProductLineId): string {
+  return `Assign the minimum read-only Azure roles ${productLineDisplayName(productLineId)} needs to collect architecture evidence from your subscription. Cost Management Reader is optional unless cost analysis is enabled for the connection.`;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const AZURE_PERMISSIONS_HELP_PAGE_LEAD = azurePermissionsHelpPageLead("architecture");
 
 export const AZURE_PERMISSIONS_HELP_START_HERE_HELPER =
   "Use Open Azure connection setup below to assign roles and verify the connection, then expand the permission matrix when procurement needs full IAM detail.";

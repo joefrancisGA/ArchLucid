@@ -6,12 +6,15 @@ import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { PolicyPackWorkspaceAttachPreviewDialog } from "@/components/policy/PolicyPackWorkspaceAttachPreviewDialog";
 import { PolicyPacksWorkspaceSelectionSection } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksWorkspaceSelectionSection";
 import type { PolicyPacksWorkspaceSelectionSectionProps } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksWorkspaceSelectionSection";
+import { Button } from "@/components/ui/button";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parsePolicyPackToggleAssignmentIdFromSearch,
   parsePolicyPackToggleNextFromSearch,
   policyPackWorkspaceToggleConfirmHrefFromSearch,
 } from "@/lib/policy/policy-pack-workspace-toggle-confirm-url";
+import { cn } from "@/lib/utils";
 import type { PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
 
 type PendingToggle = {
@@ -29,6 +32,7 @@ export function PolicyPacksWorkspaceSelectionWithPreview(props: PolicyPacksWorks
   const packToggleAssignmentIdParam = searchParams.get("packToggleAssignmentId");
   const packToggleNextParam = searchParams.get("packToggleNext");
   const [pendingToggle, setPendingToggleState] = useState<PendingToggle | null>(null);
+  const [undoToggle, setUndoToggle] = useState<PendingToggle | null>(null);
 
   const syncToggleConfirmToUrl = useCallback(
     (toggle: PendingToggle | null) => {
@@ -109,12 +113,39 @@ export function PolicyPacksWorkspaceSelectionWithPreview(props: PolicyPacksWorks
     }
 
     await props.onToggle(pendingToggle.item.assignmentId, pendingToggle.nextEnabled);
+    setUndoToggle({
+      item: pendingToggle.item,
+      nextEnabled: !pendingToggle.nextEnabled,
+    });
     setPendingToggle(null);
   }, [pendingToggle, props, setPendingToggle]);
+
+  const onUndo = useCallback(async () => {
+    if (undoToggle === null) {
+      return;
+    }
+
+    await props.onToggle(undoToggle.item.assignmentId, undoToggle.nextEnabled);
+    setUndoToggle(null);
+  }, [props, undoToggle]);
 
   return (
     <>
       <PolicyPacksWorkspaceSelectionSection {...props} onToggle={onToggle} />
+      {undoToggle !== null ? (
+        <div
+          className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
+          data-testid="policy-packs-workspace-toggle-undo"
+          role="status"
+        >
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {undoToggle.nextEnabled ? "Re-enabled" : "Disabled"} <strong>{undoToggle.item.name}</strong> for this workspace.
+          </p>
+          <Button type="button" variant="outline" size="sm" onClick={() => void onUndo()}>
+            Undo
+          </Button>
+        </div>
+      ) : null}
       <PolicyPackWorkspaceAttachPreviewDialog
         open={pendingToggle !== null}
         item={pendingToggle?.item ?? null}

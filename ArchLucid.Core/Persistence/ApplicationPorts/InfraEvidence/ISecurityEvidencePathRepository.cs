@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
@@ -8,6 +9,20 @@ public interface ISecurityEvidencePathRepository
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default);
+
+    async Task<SecurityEvidencePathRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        SecurityEvidencePathRecord? record =
+            await TryGetByIdAsync(scope.TenantId, pathId, cancellationToken);
+
+        return record is not null
+               && scope.Matches(record.TenantId, record.WorkspaceId, record.ProjectId)
+            ? record
+            : null;
+    }
 
     Task<SecurityEvidencePathRecord?> TryGetByCanonicalHashAsync(
         Guid tenantId,
@@ -19,6 +34,12 @@ public interface ISecurityEvidencePathRepository
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<SecurityEvidencePathHopRecord>> ListHopsByPathInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default) =>
+        ListHopsByPathAsync(scope.TenantId, pathId, cancellationToken);
 
     Task<SecurityEvidencePathInsertResult> InsertIfNotExistsAsync(
         SecurityEvidencePathRecord pathHeader,

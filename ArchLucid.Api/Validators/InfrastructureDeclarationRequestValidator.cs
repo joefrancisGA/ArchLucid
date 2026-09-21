@@ -17,7 +17,10 @@ public sealed class InfrastructureDeclarationRequestValidator : AbstractValidato
         "kubernetes-yaml",
         "helm",
         "kustomize",
-        "bicep-param"
+        "bicep-param",
+        "appsettings-json",
+        "dotenv",
+        "compose-env"
     ];
 
     public InfrastructureDeclarationRequestValidator()

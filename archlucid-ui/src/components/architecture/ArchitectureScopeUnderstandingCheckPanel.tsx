@@ -43,9 +43,9 @@ export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly showReadyHint?: boolean;
   /** Draft persistence on architecture draft surfaces — suppresses the ready line while save is in flight. */
   readonly draftSaveState?: ArchitectureDraftSaveState;
-  /** Fingerprint of scope lines already saved on the draft — restores confirmation when unchanged. */
+  /** Fingerprint of scope lines already saved on the architecture draft — restores confirmation when unchanged. */
   readonly persistedScopeFingerprint?: string | null;
-  /** Persists confirmed scope to the draft before opening the gate. */
+  /** Persists confirmed scope to the architecture draft before opening the gate. */
   readonly onConfirm?: (bullets: ScopeUnderstandingBullet[]) => void | Promise<boolean>;
   /** Same-page anchor for the next workflow step after scope is confirmed (e.g. start review CTA). */
   readonly nextStepAnchorId?: string;

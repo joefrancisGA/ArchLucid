@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.User;
+
 namespace ArchLucid.Api.Models.Tenancy;
 
 public sealed class WeeklyDigestHealthResponse
@@ -84,7 +86,7 @@ public sealed class WeeklyDigestHealthResponse
     {
         get;
         set;
-    } = "UTC";
+    } = IanaTimeZonePreferenceValues.Default;
 
     public int ExecutiveDigestDayOfWeek
     {
@@ -120,7 +122,7 @@ public sealed class WeeklyDigestHealthResponse
     {
         get;
         set;
-    } = "UTC";
+    } = IanaTimeZonePreferenceValues.Default;
 
     public int SponsorDigestDayOfWeek
     {
