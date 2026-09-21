@@ -138,7 +138,7 @@ describe("ADR 0067 — Create architecture / Review peer parity", () => {
   });
 
   it("keeps artifact standing distinct — parity of entry points, not of artifacts", () => {
-    // ADR 0067 decision point 5: a draft is mutable and unsealed; only review yields a sealed record.
+    // ADR 0067 decision point 5: an architecture draft is mutable and unsealed; only review yields a sealed record.
     expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY).toMatch(/draft/i);
     expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY).not.toMatch(/signed/i);
     expect(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY).toMatch(/sealed review record/i);
@@ -208,7 +208,7 @@ describe("ADR 0069 — Working one work object (IS-01/02)", () => {
     expect(sections.some((section) => section.id === "start-something")).toBe(true);
   });
 
-  it("exposes Working single-start label for dense draft editor entry", () => {
+  it("exposes Working single-start label for dense architecture draft editor entry", () => {
     expect(WORKING_NEW_REVIEW_LABEL).toBe("New review");
   });
 });

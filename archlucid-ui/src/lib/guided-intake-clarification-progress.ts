@@ -1,7 +1,7 @@
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export type GuidedIntakeClarificationProgressInput = {
-  /** MUST keys captured at admission on the draft document (stable total baseline). */
+  /** MUST keys captured at admission on the architecture draft document (stable total baseline). */
   readonly admittedRequiredMustQuestionKeys: readonly string[];
   /** Pending-only keys from the latest question-selection refresh. */
   readonly pendingSelectionRequiredKeys: readonly string[];

@@ -59,6 +59,8 @@ type ResponsibleAiPolicyPackDetailProps = {
   readonly packContent: PolicyPackContentDocument | null;
   readonly isEnabled: boolean;
   readonly isGloballyActive: boolean;
+  readonly packsHubHref?: string;
+  readonly findingsHref?: string;
 };
 
 type SummaryMetricValue = {
@@ -190,6 +192,8 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null, policyPackId:
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const findingsHref = props.findingsHref ?? GOVERNANCE_FINDINGS_PATH;
   const versionMetric = resolveVersionMetric(packRecord);
   const lastUpdatedMetric = resolveLastUpdatedMetric(packRecord);
   const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
@@ -209,7 +213,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         <Link href={reviewsNewWithPackHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
       </Button>
       <Button asChild variant="outline" size="sm">
-        <Link href={GOVERNANCE_POLICY_PACKS_PATH}>{RESPONSIBLE_AI_ACTION_OPEN_LIBRARY}</Link>
+        <Link href={packsHubHref}>{RESPONSIBLE_AI_ACTION_OPEN_LIBRARY}</Link>
       </Button>
       <Button asChild variant="outline" size="sm">
         <Link href="/governance/approval-queue">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
@@ -220,13 +224,18 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
   return (
     <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="responsible-ai-policy-pack-detail">
       <OperatorPageHeader
-        navHref={GOVERNANCE_POLICY_PACKS_PATH}
+        navHref={packsHubHref}
         title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}
         subtitle={RESPONSIBLE_AI_POLICY_PACK_SUBTITLE}
         claimDiscipline={POLICY_PACK_DETAIL_CLAIM_DISCIPLINE}
         claimDisciplineTestId="policy-pack-detail-claim-discipline"
         titleTestId="policy-pack-detail-title"
-        breadcrumb={<GovernancePolicyPackBreadcrumb packLabel={RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL} />}
+        breadcrumb={
+          <GovernancePolicyPackBreadcrumb
+            packLabel={RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL}
+            packsHubHref={packsHubHref}
+          />
+        }
         statusBadge={
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag
@@ -263,7 +272,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
               <dl className="m-0">
                 <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Open findings</dt>
                 <dd className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  <Link className={OPERATOR_LINK.nav} href={GOVERNANCE_FINDINGS_PATH} data-testid="policy-pack-open-findings-link">
+                  <Link className={OPERATOR_LINK.nav} href={findingsHref} data-testid="policy-pack-open-findings-link">
                     View queue
                   </Link>
                 </dd>

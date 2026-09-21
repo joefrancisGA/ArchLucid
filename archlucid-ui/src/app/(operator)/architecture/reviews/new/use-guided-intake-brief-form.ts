@@ -34,7 +34,7 @@ type GuidedIntakeBriefFormOptions = {
 /**
  * The brief the operator writes on step 0, plus everything derived from it.
  *
- * Kept apart from the draft workflow because these fields are pure local editing state: they exist
+ * Kept apart from the architecture draft workflow because these fields are pure local editing state: they exist
  * before any draft does, and the workflow only reads them (or replaces them wholesale when it loads
  * a saved architecture or forks a what-if branch).
  */
@@ -115,7 +115,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     }
 
     // Confirmed scope is merged into the brief by the patch that precedes admission, so it has to be
-    // settled before the wizard leaves this step — the draft is immutable once it is admitted.
+    // settled before the wizard leaves this step — the architecture draft is immutable once it is admitted.
     const scopeConfirmed = scopeGateOpen && scopeBullets.length > 0;
 
     if (!scopeConfirmed) {

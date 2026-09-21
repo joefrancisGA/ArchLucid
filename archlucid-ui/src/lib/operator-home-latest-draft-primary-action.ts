@@ -29,7 +29,7 @@ export function isArchitectureDraftPastDraftingOnRegistryEntry(
     return true;
   }
 
-  // Legacy rows: Start a review from the draft workspace marks ready-for-review before intake opens.
+  // Legacy rows: Start a review from the architecture draft workspace marks ready-for-review before intake opens.
   if (entry.customerStatus === "ready-for-review" && entry.serverDraftStatus !== "Submitted") {
     return true;
   }

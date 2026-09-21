@@ -133,7 +133,7 @@ export function resolveCorePilotHelpWorkflowSteps(
       stepNumber: 2,
       title: "Add evidence",
       description:
-        "Attach briefs, diagrams, documents, IaC, or optional cloud inventory on the architecture desk or nested draft editor.",
+        "Attach briefs, diagrams, documents, IaC, or optional cloud inventory on the architecture desk or nested architecture draft editor.",
       expectedOutput: "Evidence linked before analysis runs.",
       href: ARCHITECTURES_NEW_PATH,
       ctaLabel: "New review",

@@ -104,6 +104,8 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
             Nodes = repairedNodes,
             Edges = repairedEdges,
             Subgraphs = repairedSubgraphs,
+            FlowchartDirection = ast.FlowchartDirection,
+            CaptionLines = ast.CaptionLines.ToList(),
         };
     }
 

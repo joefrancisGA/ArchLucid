@@ -2168,11 +2168,14 @@ jobs:
   azure-extractor-pester:
     name: "Azure extractor: Get-ArchLucidAzurePackage Pester (mock ARM)"
     # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    # Companion Pester + AlBug lints live in azure-extractor-pester-extended so this job name tracks Get- only.
     continue-on-error: true
     needs:
       - doc-markdown-links
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC: "1"
     steps:
       - uses: actions/checkout@v7
 
@@ -2221,9 +2224,48 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
 
+  azure-extractor-pester-extended:
+    name: "Azure extractor: companion Pester + AlBug lints (isolated)"
+    # Warn-only. Isolated from Get-ArchLucidAzurePackage so extra suite failures do not paint the named Get- job red.
+    continue-on-error: true
+    needs:
+      - doc-markdown-links
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Pester and PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          $gallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
+          if ($gallery) {
+            Set-PSRepository PSGallery -InstallationPolicy Trusted
+          }
+          else {
+            try {
+              Register-PSRepository -Default -InstallationPolicy Trusted
+            }
+            catch {
+              if ($_.Exception.Message -notmatch 'already exists') {
+                throw
+              }
+            }
+          }
+
+          Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0 -MaximumVersion 5.99.99 -Repository PSGallery
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser -MinimumVersion 1.21.0 -Repository PSGallery
+
       - name: Run-ArchLucidAzureExtractor.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Run-ArchLucidAzureExtractor.Tests.ps1'
+
+      - name: ArchLucid.ScheduledExtractor.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ScheduledExtractor.helpers.Tests.ps1'
 
       - name: Get-ArchLucidAwsPackage.Tests.ps1
         shell: pwsh
@@ -2244,6 +2286,14 @@ jobs:
       - name: ArchLucid.CostManagement.helpers.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1'
+
+      - name: ArchLucid.ExtractorJson.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ExtractorJson.helpers.Tests.ps1'
+
+      - name: ArchLucid.ExtractorProgressHeartbeat.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.ExtractorProgressHeartbeat.helpers.Tests.ps1'
 
       - name: ApiIntegrationTestShardSupport.Tests.ps1
         shell: pwsh

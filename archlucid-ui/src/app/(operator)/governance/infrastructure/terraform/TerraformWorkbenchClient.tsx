@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -201,13 +200,10 @@ export function TerraformWorkbenchClient() {
       data-testid="infra-terraform-workbench"
     >
       <LayerHeader pageKey="infrastructure-terraform" />
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Review advisory Terraform mapping reconstructed from inventory evidence. This is not original Terraform and must
-          not be applied without human review.
-        </p>
-        <CopyScopedOperatorLinkButton testId="infra-terraform-copy-scoped-link" />
-      </div>
+      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+        Review advisory Terraform mapping reconstructed from inventory evidence. This is not original Terraform and must
+        not be applied without human review.
+      </p>
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-terraform-selection-announcer" />
 
       {deepLinkedSnapshotMissing ? (

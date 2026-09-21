@@ -23,7 +23,7 @@ import {
   SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_SPAWN_LOCK_DOM_TEST_ID,
 } from "@/lib/system-not-job-clone-from-snapshot-entry";
 
-export const ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL = "Start a new draft from this snapshot";
+export const ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL = "Start a new architecture draft from this snapshot";
 
 type ArchitectureDraftCloneSnapshotControlProps = {
   readonly draftId: string;
@@ -37,7 +37,7 @@ type ArchitectureDraftCloneSnapshotControlProps = {
   readonly spawnLockedDeskAction?: boolean;
 };
 
-/** Creates a new editable draft under the same architecture identity when parentArchitectureId is set (CA-28). */
+/** Creates a new editable architecture draft under the same architecture identity when parentArchitectureId is set (CA-28). */
 export function ArchitectureDraftCloneSnapshotControl(
   props: ArchitectureDraftCloneSnapshotControlProps,
 ): React.JSX.Element {
@@ -72,7 +72,7 @@ export function ArchitectureDraftCloneSnapshotControl(
       const blocked = architectureDraftIntakeMutationBlockedReason(failure);
       setInlineError(
         blocked
-          ?? formatVerboseApiFailureMessage(error, "Could not start a new draft from this snapshot."),
+          ?? formatVerboseApiFailureMessage(error, "Could not start a new architecture draft from this snapshot."),
       );
     } finally {
       setBusy(false);
@@ -114,7 +114,7 @@ export function ArchitectureDraftCloneSnapshotControl(
         data-spawn-lock-clone-action={props.spawnLockedDeskAction === true ? "true" : undefined}
         onClick={openCloneFlow}
       >
-        {busy ? "Starting new draft…" : buttonLabel}
+        {busy ? "Starting new architecture draft…" : buttonLabel}
       </Button>
       {inlineError !== null ? (
         <OperatorMutationInlineError message={inlineError} testId={`${testId}-inline-error`} />

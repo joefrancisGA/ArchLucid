@@ -24,5 +24,14 @@ public interface IInfraEvidenceDriftWorkbenchQueryService
         int page,
         int pageSize,
         Guid? cloudResourceId = null,
+        bool includeUnchanged = false,
+        CancellationToken cancellationToken = default);
+
+    Task<PagedResponse<AzureInventoryChangeRecord>?> ListInventoryRowsForSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        int page,
+        int pageSize,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default);
 }

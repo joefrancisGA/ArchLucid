@@ -19,7 +19,7 @@ export const SYSTEM_NOT_JOB_DESK_CHILD_LIST_SURFACES: readonly SystemNotJobDeskC
   {
     relativePath:
       "archlucid-ui/src/components/architecture/ArchitectureIdentityDeskCurrentDraft.tsx",
-    surface: "current draft child slot",
+    surface: "current architecture draft child slot",
     ownerPrompt: "SN-017",
   },
   {

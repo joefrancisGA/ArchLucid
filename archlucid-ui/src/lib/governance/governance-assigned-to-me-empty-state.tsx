@@ -12,7 +12,11 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_SEARCH_EXCLUSIONS,
   governanceAssignedToMeFetchBasisLabel,
 } from "@/lib/governance/governance-assigned-to-me-fetch-basis";
-import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -23,6 +27,7 @@ export type GovernanceAssignedToMeEmptyAttestationArgs = {
   readonly assigneeRoleLabel?: string | null;
   readonly checkedAt: Date | null;
   readonly fetchBasis?: GovernanceAssignedToMeFetchBasis | null;
+  readonly productLine?: "architecture" | "security";
 };
 
 /** Workspace label for assigned-to-me attestation — same precedence as the scope switcher. */
@@ -99,6 +104,7 @@ export function buildGovernanceAssignedToMeEmptyDescription(
   );
   const workspace = readActiveWorkspaceScopeLabel();
   const basis = args.fetchBasis ?? "register-only";
+  const showAuditTrail = args.productLine !== "security";
 
   return (
     <div className="max-w-3xl space-y-1">
@@ -112,9 +118,11 @@ export function buildGovernanceAssignedToMeEmptyDescription(
         data-testid="governance-assigned-to-me-empty-basis"
       >
         {governanceAssignedToMeFetchBasisLabel(basis)} {GOVERNANCE_ASSIGNED_TO_ME_SEARCH_EXCLUSIONS}{" "}
-        <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.inline}>
-          View audit trail
-        </Link>
+        {showAuditTrail ? (
+          <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.inline}>
+            View audit trail
+          </Link>
+        ) : null}
       </p>
       <p className="m-0" data-testid="governance-assigned-to-me-empty-checked-at">
         <GovernanceAssignedToMeCheckedAtLine checkedAt={args.checkedAt} nowMs={options?.nowMs} />
@@ -123,7 +131,9 @@ export function buildGovernanceAssignedToMeEmptyDescription(
   );
 }
 
-export const GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF = GOVERNANCE_FINDINGS_PATH;
+export function assignedToMeFindingsHref(productLine: "architecture" | "security"): string {
+  return productLine === "security" ? SECURENOW_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+}
 
 export const GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL = "Open findings queue";
 

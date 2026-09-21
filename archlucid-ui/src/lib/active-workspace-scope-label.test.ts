@@ -5,7 +5,6 @@ import {
   readActiveWorkspaceScopeLabel,
 } from "@/lib/active-workspace-scope-label";
 import {
-  BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_WORKSPACE_DISPLAY_NAME,
   BUYER_WORKSPACE_SHORT_NAME,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -24,9 +23,9 @@ function record(overrides: Partial<OperatorScopeRecord> = {}): OperatorScopeReco
 }
 
 describe("resolveWorkspaceScopeLabelFromRecord", () => {
-  it("prefers the sample-workspace compact label for the dev-default scope even when storage has a label", () => {
+  it("uses the local workspace label for the dev-default scope even when old sample text is stored", () => {
     expect(resolveWorkspaceScopeLabelFromRecord(record({ workspaceLabel: BUYER_WORKSPACE_SHORT_NAME }))).toBe(
-      BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
+      "Development",
     );
   });
 
@@ -41,13 +40,13 @@ describe("resolveWorkspaceScopeLabelFromRecord", () => {
     ).toBe(BUYER_WORKSPACE_SHORT_NAME);
   });
 
-  it("falls back to the sample-workspace compact label for the dev-default scope", () => {
-    expect(resolveWorkspaceScopeLabelFromRecord(record())).toBe(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
+  it("falls back to the local workspace label for the dev-default scope", () => {
+    expect(resolveWorkspaceScopeLabelFromRecord(record())).toBe("Development");
   });
 
   it("treats a whitespace-only stored label as missing", () => {
     expect(resolveWorkspaceScopeLabelFromRecord(record({ workspaceLabel: "   " }))).toBe(
-      BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
+      "Development",
     );
   });
 
@@ -60,7 +59,7 @@ describe("resolveWorkspaceScopeLabelFromRecord", () => {
   });
 
   it("resolves a label with no record present", () => {
-    expect(resolveWorkspaceScopeLabelFromRecord(null)).toBe(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
+    expect(resolveWorkspaceScopeLabelFromRecord(null)).toBe("Development");
   });
 });
 

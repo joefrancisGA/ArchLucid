@@ -53,7 +53,7 @@ public sealed class SecurityEvidencePathRoutingSyncService(
         foreach (SecurityEvidencePathRecord path in paths)
         {
             IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, path.PathId, cancellationToken);
+                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), path.PathId, cancellationToken);
 
             IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
                 SecurityEvidencePathRoutingMaterializer.MaterializeFromSnapshotTags(
@@ -63,8 +63,8 @@ public sealed class SecurityEvidencePathRoutingSyncService(
                     snapshot,
                     utcNow);
 
-            await routingRepository.ReplaceRoutingForPathAsync(
-                scope.TenantId,
+            await routingRepository.ReplaceRoutingForPathInScopeAsync(
+                scope.ToProjectScopeKey(),
                 path.PathId,
                 routingRows,
                 cancellationToken);

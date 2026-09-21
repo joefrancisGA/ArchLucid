@@ -1,5 +1,6 @@
 using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 
@@ -107,7 +108,16 @@ public sealed class WeeklySponsorReportEmailDispatcher(
             (ex, mailbox) =>
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Weekly Sponsor report email send failed for tenant {TenantId}, mailbox {Mailbox}.", tenantId, mailbox);
+                {
+                    // Mailbox is reduced to domain inside Core (EmailDomainForLogs).
+                    // codeql[cs/exposure-of-sensitive-information]
+                    SanitizedLoggerEmailDispatchExtensions.LogErrorTemplatedEmailSendFailed(
+                        _logger,
+                        ex,
+                        tenantId,
+                        "Weekly Sponsor report",
+                        mailbox);
+                }
             },
             cancellationToken);
     }

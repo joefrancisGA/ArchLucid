@@ -1,3 +1,4 @@
+import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
@@ -10,7 +11,7 @@ import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-h
 export const SECURENOW_SECURITY_HOME_SECTION_HEADING = "Security" as const;
 
 export const SECURENOW_SECURITY_HOME_SECTION_LEAD =
-  "Triage assigned findings, run remediation factory workflows, and review remediation patterns." as const;
+  "Triage security findings, create and run remediation factory workflows, review remediation patterns, and track remediation instances." as const;
 
 /** SecureNow home — operational security destinations (integration links live under Integration nav). */
 export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
@@ -29,5 +30,10 @@ export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     href: SECURENOW_REMEDIATION_PATTERNS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.remediationPatterns,
     summary: "Create, review, approve, and import remediation patterns for repeatable fixes.",
+  },
+  {
+    href: SECURENOW_REMEDIATION_INSTANCES_PATH,
+    label: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
+    summary: "Track remediation instances and waves with advisory-only execute honesty.",
   },
 ];

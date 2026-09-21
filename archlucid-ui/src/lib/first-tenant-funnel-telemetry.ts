@@ -20,7 +20,11 @@ export type FirstTenantFunnelEvent =
   | "first_finding_viewed"
   | "first_finalization_attempted"
   | "first_export_opened"
-  | "thirty_minute_milestone";
+  | "thirty_minute_milestone"
+  | "first_session_purpose_live"
+  | "first_session_purpose_training"
+  | "post_auth_landed_dedicated_scope"
+  | "post_auth_landed_sample_scope";
 
 const ALLOWED_EVENTS: ReadonlySet<FirstTenantFunnelEvent> = new Set<FirstTenantFunnelEvent>([
   "signup",
@@ -31,6 +35,10 @@ const ALLOWED_EVENTS: ReadonlySet<FirstTenantFunnelEvent> = new Set<FirstTenantF
   "first_finalization_attempted",
   "first_export_opened",
   "thirty_minute_milestone",
+  "first_session_purpose_live",
+  "first_session_purpose_training",
+  "post_auth_landed_dedicated_scope",
+  "post_auth_landed_sample_scope",
 ]);
 
 const SIGNUP_TIMESTAMP_KEY = "archlucid.firstTenantFunnel.signupUtc";

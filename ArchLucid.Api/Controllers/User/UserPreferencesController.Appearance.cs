@@ -44,6 +44,10 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.WorkspaceModeGraduationOffer,
             cancellationToken);
+        string? firstSessionPurposeStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.FirstSessionPurpose,
+            cancellationToken);
         string? workingCareerRehearsalDoorStored = await _userSettingsRepository.TryGetAsync(
             userId,
             UserSettingKeys.WorkingCareerRehearsalDoor,
@@ -85,6 +89,7 @@ public sealed partial class UserPreferencesController
         string ianaTimeZoneId = IanaTimeZonePreferenceValues.NormalizeOrDefault(ianaTimeZoneStored);
         string workspaceMode = WorkspaceModeValues.ParseOrDefault(workspaceModeStored);
         string workspaceModeGraduationOffer = WorkspaceModeGraduationOfferValues.ParseOrDefault(workspaceModeGraduationOfferStored);
+        string? firstSessionPurpose = FirstSessionPurposeValues.NormalizeOrNull(firstSessionPurposeStored);
         string workingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.ParseOrDefault(workingCareerRehearsalDoorStored);
         bool professionalWorkbenchEnabled = ProfessionalWorkbenchEnabledValues.ParseOrDefault(professionalWorkbenchStored);
         decimal roiLoadedHourlyCostUsd = RoiLoadedHourlyCostUsdValues.ParseOrDefault(roiLoadedHourlyCostStored);
@@ -120,6 +125,8 @@ public sealed partial class UserPreferencesController
             WorkspaceModeIsExplicit = WorkspaceModeValues.IsExplicitValue(workspaceModeStored),
             WorkspaceModeGraduationOffer = workspaceModeGraduationOffer,
             WorkspaceModeGraduationOfferIsExplicit = WorkspaceModeGraduationOfferValues.IsExplicitValue(workspaceModeGraduationOfferStored),
+            FirstSessionPurpose = firstSessionPurpose,
+            FirstSessionPurposeIsExplicit = FirstSessionPurposeValues.IsExplicitValue(firstSessionPurposeStored),
             WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,
             WorkingCareerRehearsalDoorIsExplicit = WorkingCareerRehearsalDoorValues.IsExplicitValue(workingCareerRehearsalDoorStored),
             ProfessionalWorkbenchEnabled = professionalWorkbenchEnabled,

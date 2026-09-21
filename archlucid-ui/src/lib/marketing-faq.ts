@@ -248,7 +248,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "governance-audit",
     question: "Does ArchLucid integrate with Jira or ServiceNow?",
     answer:
-      "Yes. First-party Jira and ServiceNow connectors are part of the V1 GA buyer contract. You can correlate findings, export ITSM-ready payloads, and create outbound issues or incidents when your workspace enables native ITSM actions. See the integration catalog and product pages for connector setup.",
+      "Yes. First-party Jira and ServiceNow connectors ship with the production buyer contract. You can correlate findings, export ITSM-ready payloads, and create outbound issues or incidents when your workspace enables native ITSM actions. See the integration catalog and product pages for connector setup.",
     relatedLinks: [
       { label: "Integration catalog", href: inAppHelpHref("integrations") },
       { label: "Jira integration", href: "/integrations/jira" },

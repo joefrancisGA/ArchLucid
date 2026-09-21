@@ -1,3 +1,5 @@
+using ArchLucid.Core.AzureExtractor;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
@@ -67,6 +69,19 @@ internal static class HostedAzureArmNetworkResourceEnricher
             merged = HostedAzureArmResourceRecordMerger.MergeByResourceId(merged, privateDnsLinks).ToList();
         }
 
+        IReadOnlyList<HostedAzureArmResourceRecord> peeringResources = await TryListVirtualNetworkPeeringsAsync(
+            armReadClient,
+            accessToken,
+            subscriptionId,
+            merged,
+            logger,
+            cancellationToken).ConfigureAwait(false);
+
+        if (peeringResources.Count > 0)
+        {
+            merged = HostedAzureArmResourceRecordMerger.MergeByResourceId(merged, peeringResources).ToList();
+        }
+
         return new HostedAzureArmNetworkResourceEnrichResult(merged, warnings);
     }
 
@@ -109,6 +124,72 @@ internal static class HostedAzureArmNetworkResourceEnricher
         }
 
         return linkResources;
+    }
+
+    private static async Task<IReadOnlyList<HostedAzureArmResourceRecord>> TryListVirtualNetworkPeeringsAsync(
+        IHostedAzureArmReadClient armReadClient,
+        string accessToken,
+        string subscriptionId,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmResourceRecord> peeringResources = [];
+
+        foreach (HostedAzureArmResourceRecord vnet in resources.Where(resource =>
+                     AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(resource.ResourceType)))
+        {
+            if (HasNestedPeeringRemoteVnets(vnet))
+            {
+                continue;
+            }
+
+            try
+            {
+                IReadOnlyList<HostedAzureArmResourceRecord>? listed = await armReadClient
+                    .ListVirtualNetworkPeeringsAsync(
+                        accessToken,
+                        subscriptionId,
+                        vnet.ResourceId,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (listed is null || listed.Count == 0)
+                {
+                    continue;
+                }
+
+                peeringResources.AddRange(listed);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                {
+                    logger.LogDebug(
+                        ex,
+                        "Hosted Azure extractor VNet peering list failed for {VnetId}.",
+                        vnet.ResourceId);
+                }
+            }
+        }
+
+        return peeringResources;
+    }
+
+    private static bool HasNestedPeeringRemoteVnets(HostedAzureArmResourceRecord vnet)
+    {
+        if (vnet.Properties is null)
+        {
+            return false;
+        }
+
+        if (!vnet.Properties.TryGetValue(AzureInventoryVnetPeeringParser.PeeringsPropertyKey, out object? value)
+            || value is null)
+        {
+            return false;
+        }
+
+        return AzureInventoryVnetPeeringParser.HasRemoteVnetIds(value.ToString());
     }
 }
 

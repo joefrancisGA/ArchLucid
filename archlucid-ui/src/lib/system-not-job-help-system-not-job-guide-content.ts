@@ -23,7 +23,7 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_PAGE_SUBTITLE =
   "Working help for named architectures, nested review jobs, and inbox triage — one desk object, not peer start forks.";
 
 export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_OVERVIEW =
-  "On Working seats, the named architecture is your durable object. Drafts and reviews are jobs on that desk — not peer products you pick from a flat evaluator list. Open Architectures to resume Monday-morning work; use Inbox only when you need cross-architecture triage.";
+  "On Working seats, the named architecture is your durable object. architecture drafts and reviews are jobs on that desk — not peer products you pick from a flat evaluator list. Open Architectures to resume Monday-morning work; use Inbox only when you need cross-architecture triage.";
 
 export type SystemNotJobHelpArchitectureDeskConceptTile = {
   readonly id:
@@ -44,7 +44,7 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES: readonly Syste
       id: "identity",
       title: "Architecture identity is the object",
       body:
-        "Each named system under Architectures is the durable parent. Portfolio lists open drafts; the desk shows current draft, child reviews, sealed versions, and desk tools bound to that identity.",
+        "Each named system under Architectures is the durable parent. Portfolio lists open drafts; the desk shows current architecture draft, child reviews, sealed versions, and desk tools bound to that identity.",
     },
     {
       id: "nested-jobs",
@@ -61,7 +61,7 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES: readonly Syste
       id: "clone-after-spawn",
       title: `${SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL} after spawn lock`,
       body:
-        "When a draft spawns a linked review, the parent snapshot stays sealed. Use Sketch a change on the desk to open the next editable draft under the same architecture — the legal successor, not a second desk product.",
+        "When an architecture draft spawns a linked review, the parent snapshot stays sealed. Use Sketch a change on the desk to open the next editable architecture draft under the same architecture — the legal successor, not a second desk product.",
     },
     {
       id: "practice-sketch",
@@ -73,13 +73,13 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES: readonly Syste
       id: "record-what-if",
       title: "Record what-if is a capped full run",
       body:
-        "A full-pipeline Record what-if counts against the branch cap on the parent draft (R12 / SN-009). It is not the shell AI budget pill and not the policy Impact preview envelope on the desk.",
+        "A full-pipeline Record what-if counts against the branch cap on the parent architecture draft (R12 / SN-009). It is not the shell AI budget pill and not the policy Impact preview envelope on the desk.",
     },
     {
       id: "impact-preview-vs-sketch",
       title: "Impact preview is not Sketch a change",
       body:
-        "Policy cheap envelope re-simulates packs on a finalized baseline — review-time policy analysis. Sketch a change is the architecture desk rehearsal sketch; use the desk clone CTA, not Impact preview, when you need the next editable draft.",
+        "Policy cheap envelope re-simulates packs on a finalized baseline — review-time policy analysis. Sketch a change is the architecture desk rehearsal sketch; use the desk clone CTA, not Impact preview, when you need the next editable architecture draft.",
     },
   ] as const;
 

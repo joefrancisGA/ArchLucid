@@ -14,7 +14,7 @@ type NestedArchitectureDraftPageProps = {
   readonly params: Promise<{ architectureId: string; draftId: string }>;
 };
 
-/** Working nested draft editor — spawn-locked drafts hand off to the architecture desk (AO-05 / AO-07). */
+/** Working nested architecture draft editor — spawn-locked architecture drafts hand off to the architecture desk (AO-05 / AO-07). */
 export default async function NestedArchitectureDraftPage(
   props: NestedArchitectureDraftPageProps,
 ): Promise<React.JSX.Element> {

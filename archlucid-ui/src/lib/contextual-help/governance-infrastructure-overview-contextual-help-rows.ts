@@ -29,7 +29,7 @@ const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_CONTEXTUAL_HELP = {
   taskSteps: [
     GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY,
     "Open drift, diagrams, diagram reconciliation, Ask, or remediation instances from the workbench directory.",
-    "Return here when you need the recommended first step or a directory of all six destinations.",
+    "Return here when you need the recommended first step or a directory of all seven destinations.",
   ],
 } as const;
 

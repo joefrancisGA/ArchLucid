@@ -101,7 +101,7 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
               ? ` Wait about ${waitSec} second${waitSec === 1 ? "" : "s"}, then retry.`
               : " Wait a short time, then retry.";
 
-          setLoadError(`Too many requests while loading this draft.${waitHint}`);
+          setLoadError(`Too many requests while loading this architecture draft.${waitHint}`);
         } else {
           setLoadError("Could not load this architecture draft.");
         }

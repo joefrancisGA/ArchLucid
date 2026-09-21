@@ -125,13 +125,13 @@ vi.mock("@/hooks/use-working-career-door-gate", () => ({
     isCareerExecuteBlocked: false,
     blockReason: null,
     blockedDetail: null,
-    platformSettingsHref: "/administration/connection-status",
+    platformSettingsHref: "/administration/model-governance",
   }),
   useEvaluateWorkingCareerDoorGate: () => () => ({
     isCareerExecuteBlocked: false,
     blockReason: null,
     blockedDetail: null,
-    platformSettingsHref: "/administration/connection-status",
+    platformSettingsHref: "/administration/model-governance",
   }),
 }));
 
@@ -254,6 +254,8 @@ describe("OperatorShellTopBar", () => {
       "aria-label",
       PRODUCT_LINE_WORDMARK_ARIA_LABEL.security,
     );
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveTextContent("Help");
   });
 
   it("hides dev and analysis top bar chrome in the Security product shell", async () => {

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow Entra group membership adapter design (SA-20).
+
 # Entra group membership adapter (SA-20)
 
 Optional ZIP sibling evidence and optional Microsoft Graph reads for Entra group `memberOf` relationships mapped to Azure RBAC principals.

@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -58,6 +59,41 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
         return row is null ? null : Map(row);
     }
 
+    public async Task<SecurityAssetAssertionRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assertionId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT AssertionId, TenantId, WorkspaceId, ProjectId, CloudResourceId,
+                                  DataSensitivity, RegulatoryClass, DeploymentEnvironment, BusinessCriticality,
+                                  IsRevenueImpact, IsPatientImpact, Rationale, EvidenceReference, ExpirationUtc,
+                                  Status, RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256,
+                                  ExpiryProcessedUtc, CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.SecurityAssetAssertions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND AssertionId = @AssertionId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        AssertionRow? row = await conn.QuerySingleOrDefaultAsync<AssertionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    AssertionId = assertionId,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task<IReadOnlyList<SecurityAssetAssertionRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default)
@@ -77,6 +113,33 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
 
         IEnumerable<AssertionRow> rows = await conn.QueryAsync<AssertionRow>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
+    public async Task<IReadOnlyList<SecurityAssetAssertionRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT AssertionId, TenantId, WorkspaceId, ProjectId, CloudResourceId,
+                                  DataSensitivity, RegulatoryClass, DeploymentEnvironment, BusinessCriticality,
+                                  IsRevenueImpact, IsPatientImpact, Rationale, EvidenceReference, ExpirationUtc,
+                                  Status, RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256,
+                                  ExpiryProcessedUtc, CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.SecurityAssetAssertions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<AssertionRow> rows = await conn.QueryAsync<AssertionRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
 
         return rows.Select(Map).ToList();
     }
@@ -119,6 +182,48 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
         return row is null ? null : Map(row);
     }
 
+    public async Task<SecurityAssetAssertionRecord?> TryGetActiveByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT TOP (1)
+                                  AssertionId, TenantId, WorkspaceId, ProjectId, CloudResourceId,
+                                  DataSensitivity, RegulatoryClass, DeploymentEnvironment, BusinessCriticality,
+                                  IsRevenueImpact, IsPatientImpact, Rationale, EvidenceReference, ExpirationUtc,
+                                  Status, RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256,
+                                  ExpiryProcessedUtc, CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.SecurityAssetAssertions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND CloudResourceId = @CloudResourceId
+                             AND Status = @ActiveStatus
+                             AND ExpirationUtc > @AsOfUtc
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        AssertionRow? row = await conn.QuerySingleOrDefaultAsync<AssertionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    CloudResourceId = cloudResourceId,
+                    AsOfUtc = asOfUtc,
+                    ActiveStatus = (int)SecurityAssetAssertionStatus.Active,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task<IReadOnlyList<Guid>> ListActiveAssertionIdsAsync(
         Guid tenantId,
         DateTime asOfUtc,
@@ -140,6 +245,39 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
                 new
                 {
                     TenantId = tenantId,
+                    AsOfUtc = asOfUtc,
+                    ActiveStatus = (int)SecurityAssetAssertionStatus.Active,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
+
+    public async Task<IReadOnlyList<Guid>> ListActiveAssertionIdsInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT AssertionId
+                           FROM dbo.SecurityAssetAssertions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status = @ActiveStatus
+                             AND ExpirationUtc > @AsOfUtc;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<Guid> rows = await conn.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
                     AsOfUtc = asOfUtc,
                     ActiveStatus = (int)SecurityAssetAssertionStatus.Active,
                 },
@@ -186,6 +324,47 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
         return rows.Select(Map).ToList();
     }
 
+    public async Task<IReadOnlyList<SecurityAssetAssertionRecord>> MarkExpiredInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityAssetAssertions
+                           SET Status = @ExpiredStatus, UpdatedUtc = @AsOfUtc
+                           OUTPUT
+                               INSERTED.AssertionId, INSERTED.TenantId, INSERTED.WorkspaceId, INSERTED.ProjectId,
+                               INSERTED.CloudResourceId, INSERTED.DataSensitivity, INSERTED.RegulatoryClass,
+                               INSERTED.DeploymentEnvironment, INSERTED.BusinessCriticality, INSERTED.IsRevenueImpact,
+                               INSERTED.IsPatientImpact, INSERTED.Rationale, INSERTED.EvidenceReference,
+                               INSERTED.ExpirationUtc, INSERTED.Status, INSERTED.RequestedByActorKey,
+                               INSERTED.ApprovedByActorKey, INSERTED.PayloadHashSha256, INSERTED.ExpiryProcessedUtc,
+                               INSERTED.CreatedUtc, INSERTED.UpdatedUtc, INSERTED.RevokedUtc, INSERTED.RevokedByActorKey
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status = @ActiveStatus
+                             AND ExpirationUtc < @AsOfUtc;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<AssertionRow> rows = await conn.QueryAsync<AssertionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    AsOfUtc = asOfUtc,
+                    ActiveStatus = (int)SecurityAssetAssertionStatus.Active,
+                    ExpiredStatus = (int)SecurityAssetAssertionStatus.Expired,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
     public async Task MarkExpiryProcessedAsync(
         Guid tenantId,
         Guid assertionId,
@@ -205,6 +384,39 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
                 sql,
                 new { TenantId = tenantId, AssertionId = assertionId, ProcessedUtc = processedUtc },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task MarkExpiryProcessedInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityAssetAssertionExpiryProcessedMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityAssetAssertions
+                           SET ExpiryProcessedUtc = @ProcessedUtc, UpdatedUtc = @ProcessedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND AssertionId = @AssertionId
+                             AND ExpiryProcessedUtc IS NULL;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.AssertionId,
+                    mutation.ProcessedUtc,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped asset assertion expiry mutation did not update exactly one record.");
     }
 
     public async Task RevokeAsync(
@@ -238,6 +450,45 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
                     RevokedByActorKey = revokedByActorKey,
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task RevokeInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityAssetAssertionRevokeMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityAssetAssertions
+                           SET Status = @RevokedStatus,
+                               RevokedUtc = @RevokedUtc,
+                               RevokedByActorKey = @RevokedByActorKey,
+                               UpdatedUtc = @RevokedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND AssertionId = @AssertionId
+                             AND Status = @ActiveStatus;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.AssertionId,
+                    mutation.RevokedUtc,
+                    mutation.RevokedByActorKey,
+                    ActiveStatus = (int)SecurityAssetAssertionStatus.Active,
+                    RevokedStatus = (int)SecurityAssetAssertionStatus.Revoked,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped asset assertion revoke did not update exactly one record.");
     }
 
     public async Task UpdateRenewalAsync(
@@ -274,6 +525,49 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
                     ActiveStatus = (int)SecurityAssetAssertionStatus.Active,
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task UpdateRenewalInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityAssetAssertionRenewalMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.SecurityAssetAssertions
+                           SET ExpirationUtc = @ExpirationUtc,
+                               RequestedByActorKey = @RequestedByActorKey,
+                               ApprovedByActorKey = @ApprovedByActorKey,
+                               PayloadHashSha256 = @PayloadHashSha256,
+                               ExpiryProcessedUtc = NULL,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND AssertionId = @AssertionId
+                             AND Status = @ActiveStatus;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.AssertionId,
+                    mutation.ExpirationUtc,
+                    mutation.RequestedByActorKey,
+                    mutation.ApprovedByActorKey,
+                    mutation.PayloadHashSha256,
+                    mutation.UpdatedUtc,
+                    ActiveStatus = (int)SecurityAssetAssertionStatus.Active,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped asset assertion renewal did not update exactly one record.");
     }
 
     private static object MapParameters(SecurityAssetAssertionRecord record) =>

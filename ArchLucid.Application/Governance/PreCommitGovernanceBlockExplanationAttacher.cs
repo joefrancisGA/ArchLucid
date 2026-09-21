@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -76,7 +77,10 @@ public static class PreCommitGovernanceBlockExplanationAttacher
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Failed to generate governance block explanation for RunId={RunId}", runId);
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Failed to generate governance block explanation for RunId={RunId}",
+                runId);
             return null;
         }
     }

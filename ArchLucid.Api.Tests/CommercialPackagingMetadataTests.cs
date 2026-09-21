@@ -127,4 +127,16 @@ public sealed class CommercialPackagingMetadataTests
         attr.Arguments.Should().HaveCount(1);
         attr.Arguments[0].Should().Be(TenantTier.Enterprise);
     }
+
+    [SkippableFact]
+    public void Scim_token_admin_controller_declares_enterprise_commercial_tier()
+    {
+        RequiresCommercialTenantTierAttribute? attr =
+            typeof(ScimTokensAdminController).GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);
+
+        attr.Should().NotBeNull($"{nameof(ScimTokensAdminController)} must stay Enterprise-gated.");
+        attr.Arguments.Should().HaveCount(1);
+        attr.Arguments[0].Should().Be(TenantTier.Enterprise);
+    }
+
 }

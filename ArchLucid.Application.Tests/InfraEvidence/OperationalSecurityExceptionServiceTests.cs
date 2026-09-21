@@ -91,6 +91,7 @@ public sealed class OperationalSecurityExceptionServiceTests
 
         OperationalSecurityFindingRecord? finding = findingRepository.Findings.Single();
         finding.Status.Should().Be(OperationalSecurityFindingStatus.Open);
+        finding.PathId.Should().Be(Guid.Parse("14141414-1414-1414-1414-141414141414"));
 
         findingRepository.Observations.Should().ContainSingle(observation =>
             observation.SourceSystem == OperationalSecurityExceptionConstants.ExceptionExpirySourceSystem);
@@ -122,7 +123,7 @@ public sealed class OperationalSecurityExceptionServiceTests
         InMemoryOperationalSecurityFindingRepository findingRepository) =>
         new(
             exceptionRepository,
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             Mock.Of<IAuditService>(),
             NullLogger<OperationalSecurityExceptionService>.Instance);
 
@@ -152,6 +153,7 @@ public sealed class OperationalSecurityExceptionServiceTests
             FirstObservedUtc = utcNow,
             LastObservedUtc = utcNow,
             Status = status,
+            PathId = Guid.Parse("14141414-1414-1414-1414-141414141414"),
             PayloadHashSha256 = [1, 2, 3],
             CreatedUtc = utcNow,
             UpdatedUtc = utcNow,

@@ -51,6 +51,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "system-gravity",
   "false-hard-infeasibility",
   "extraction-fidelity",
+  "first-login-workspace",
   "which-mode-am-i-in",
   "sealed-record-vs-decision-register",
   "sketch-a-change",

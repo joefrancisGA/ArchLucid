@@ -19,8 +19,8 @@ public sealed class CloudResourceEvidenceHubService(
     IAzureInventoryDiffRepository diffRepository,
     IAdvisoryTerraformRepresentationRepository terraformRepository,
     IDiagramInfrastructureReconciliationService diagramReconciliationService,
-    IOperationalSecurityFindingRepository operationalFindingRepository,
-    IRemediationInstanceRepository remediationInstanceRepository,
+    IProjectScopedOperationalSecurityFindingRepository operationalFindingRepository,
+    IProjectScopedRemediationInstanceRepository remediationInstanceRepository,
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     ICloudResourceAuditLineageResolver auditLineageResolver,
@@ -106,8 +106,8 @@ public sealed class CloudResourceEvidenceHubService(
         IReadOnlyList<OperationalSecurityFindingRecord> operationalPage;
         int operationalTotal;
         (operationalPage, operationalTotal) =
-            await operationalFindingRepository.ListByCloudResourceIdPagedAsync(
-                scope.TenantId,
+            await operationalFindingRepository.ListByCloudResourceIdPagedInScopeAsync(
+                scope.ToProjectScopeKey(),
                 cloudResourceId,
                 page,
                 pageSize,
@@ -124,8 +124,8 @@ public sealed class CloudResourceEvidenceHubService(
         IReadOnlyList<RemediationInstanceRecord> remediationPage;
         int remediationTotal;
         (remediationPage, remediationTotal) =
-            await remediationInstanceRepository.ListByCloudResourceIdPagedAsync(
-                scope.TenantId,
+            await remediationInstanceRepository.ListByCloudResourceIdPagedInScopeAsync(
+                scope.ToProjectScopeKey(),
                 cloudResourceId,
                 page,
                 pageSize,

@@ -22,7 +22,6 @@ type WorkbenchAuditLineageStatusProps = {
   readonly hasStaleAuditUrlParams?: boolean;
   readonly auditControlOptions?: readonly CloudResourceAuditLineageMatch[];
   readonly onAuditControlChange?: (match: CloudResourceAuditLineageMatch) => void;
-  readonly showCopyLink?: boolean;
 };
 
 export function WorkbenchAuditLineageStatus(
@@ -43,7 +42,6 @@ export function WorkbenchAuditLineageStatus(
     hasStaleAuditUrlParams = false,
     auditControlOptions,
     onAuditControlChange,
-    showCopyLink = false,
   } = props;
 
   const trimmedCloudResourceId = cloudResourceId?.trim() ?? "";
@@ -73,7 +71,6 @@ export function WorkbenchAuditLineageStatus(
           auditControlOptions={auditControlOptions}
           onAuditControlChange={onAuditControlChange}
           testId={provenanceTestId}
-          showCopyLink={showCopyLink}
         />
       </div>
     );

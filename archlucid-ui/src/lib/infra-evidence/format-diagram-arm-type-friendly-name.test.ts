@@ -5,6 +5,7 @@ import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-di
 describe("formatDiagramArmTypeFriendlyName", () => {
   it("maps known ARM types to title-cased friendly phrases", () => {
     expect(formatDiagramArmTypeFriendlyName("Microsoft.Network/virtualNetworks")).toBe("Virtual Network");
+    expect(formatDiagramArmTypeFriendlyName("Microsoft.Network/privateEndpoints")).toBe("Private Endpoint");
     expect(formatDiagramArmTypeFriendlyName("Microsoft.Compute/virtualMachines")).toBe("Virtual Machine");
     expect(formatDiagramArmTypeFriendlyName("Microsoft.Storage/storageAccounts")).toBe("Storage Account");
     expect(formatDiagramArmTypeFriendlyName("Microsoft.Sql/servers/databases")).toBe("SQL Database");

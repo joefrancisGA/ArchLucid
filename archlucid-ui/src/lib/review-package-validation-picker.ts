@@ -100,7 +100,7 @@ export function lookupArchitectureDraftOwnerLabel(
   return null;
 }
 
-/** Parent architecture identity for a linked review when the draft registry knows it (AO-26 / AO-08). */
+/** Parent architecture identity for a linked review when the architecture draft registry knows it (AO-26 / AO-08). */
 export function lookupArchitectureDraftParentArchitectureId(
   runId: string,
   entries: readonly ArchitectureDraftRegistryEntry[] | undefined,

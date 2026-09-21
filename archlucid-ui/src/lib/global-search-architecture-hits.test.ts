@@ -129,7 +129,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
     expect(filterGlobalSearchArchitectureDraftHits([], "", new Map())).toEqual([]);
   });
 
-  it("excludes draft hits when the draft parent architecture is not share-visible (AS-094)", () => {
+  it("excludes draft hits when the architecture draft parent architecture is not share-visible (AS-094)", () => {
     const restrictedDraft = draftEntry({
       draftId: "draft-restricted-1",
       displayName: "Secret platform",

@@ -37,6 +37,7 @@ import { SPONSOR_DASHBOARD_HELP_CANONICAL_PATH } from "@/lib/sponsor-dashboard-h
 import { SPONSOR_DASHBOARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { useSponsorDashboardHelpWorkspaceReadiness } from "@/lib/use-sponsor-dashboard-help-workspace-readiness";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -59,6 +60,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readiness = useSponsorDashboardHelpWorkspaceReadiness();
   const contentGridClass = resolveHelpPageContentGridClass(SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -86,11 +88,24 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
           <div className="flex flex-col items-start gap-2" data-testid="help-sponsor-dashboard-header-actions">
-            <Button asChild size="sm" variant="primary">
-              <Link href={SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION.href}>
-                {SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION.label}
-              </Link>
-            </Button>
+            {readiness.baselineStatusLabel === "Baseline anchors set" ? (
+              <Button asChild size="sm" variant="primary">
+                <Link href={SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION.href}>
+                  {SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled
+                aria-describedby="help-sponsor-dashboard-scope-precondition"
+                data-testid="help-sponsor-dashboard-primary-action"
+              >
+                {SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION.label} (set baseline anchors first)
+              </Button>
+            )}
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="help-sponsor-dashboard-scope-precondition"
@@ -178,7 +193,7 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
           <SponsorSendPathHonestyPanel testIdPrefix="help-sponsor-dashboard" showSsoOptional={false} />
         </div>
 
-        <HelpTopicTableOfContents headings={SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS} />
+          <HelpTopicTableOfContents headings={SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );

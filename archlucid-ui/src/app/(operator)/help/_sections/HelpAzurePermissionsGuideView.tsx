@@ -72,7 +72,7 @@ import {
   AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID,
   AZURE_PERMISSIONS_HELP_HEADER_TEST_ID,
   AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID,
-  AZURE_PERMISSIONS_HELP_PAGE_LEAD,
+  azurePermissionsHelpPageLead,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE,
@@ -87,6 +87,7 @@ import {
   AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID,
 } from "@/lib/azure-permissions-help-page-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -233,7 +234,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
                     className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
                     data-testid="help-azure-permissions-intro"
                   >
-                    {AZURE_PERMISSIONS_HELP_PAGE_LEAD}
+                    {azurePermissionsHelpPageLead(resolveProductLineIdFromEnv())}
                   </p>
                   <p
                     className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -450,7 +451,9 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             </section>
           </div>
 
-          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />}
+          {buyerPolishedShell ? null : (
+            <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} enableScrollSpy />
+          )}
         </div>
 
         <div data-testid={AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID}>

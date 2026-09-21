@@ -160,6 +160,38 @@ public sealed partial class UserPreferencesController
         return NoContent();
     }
 
+    /// <summary>Persists the authenticated user's first-login Training vs live-workspace choice.</summary>
+    [HttpPut("first-session-purpose")]
+    [MutatingAuditExcluded("Personal first-session purpose stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetFirstSessionPurpose(
+        [FromBody] SetFirstSessionPurposeRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string? normalized = FirstSessionPurposeValues.NormalizeOrNull(body.Purpose);
+
+        if (normalized is null)
+        {
+            return this.BadRequestProblem("purpose must be 'live' or 'training'.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.FirstSessionPurpose,
+            normalized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
     /// <summary>Persists the authenticated user's workspace-mode graduation-offer preference.</summary>
     [HttpPut("workspace-mode-graduation-offer")]
     [MutatingAuditExcluded("Personal workspace-mode graduation offer stored in dbo.UserSettings; no durable tenant audit row required.")]
