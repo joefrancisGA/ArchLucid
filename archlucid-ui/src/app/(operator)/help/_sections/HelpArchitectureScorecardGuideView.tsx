@@ -273,7 +273,7 @@ export function HelpArchitectureScorecardGuideView(
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         {buyerPolishedShell ? <HelpArchitectureScorecardSourcesOrientationStrip /> : null}

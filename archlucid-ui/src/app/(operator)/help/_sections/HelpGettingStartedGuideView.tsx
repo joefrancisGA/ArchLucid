@@ -463,7 +463,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           </HelpLazyDetails>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
       </div>
     </article>
   );

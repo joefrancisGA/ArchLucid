@@ -226,7 +226,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
 
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );
