@@ -251,6 +251,31 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return rows.Select(MapEvidence).ToList();
     }
 
+    public async Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        Guid instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT e.EvidenceId, e.InstanceId, e.TenantId, e.Phase, e.PayloadJson, e.ActorKey, e.CorrelationId, e.CreatedUtc
+                           FROM dbo.RemediationEvidence e
+                           INNER JOIN dbo.RemediationInstances i
+                               ON i.TenantId = e.TenantId AND i.InstanceId = e.InstanceId
+                           WHERE e.TenantId = @TenantId
+                             AND e.InstanceId = @InstanceId
+                             AND i.WorkspaceId = @WorkspaceId
+                             AND i.ProjectId = @ProjectId
+                           ORDER BY e.CreatedUtc;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<EvidenceRow> rows = await conn.QueryAsync<EvidenceRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, InstanceId = instanceId },
+                cancellationToken: cancellationToken));
+        return rows.Select(MapEvidence).ToList();
+    }
+
     public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default)
@@ -352,6 +377,51 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return (rows.Select(MapInstance).ToList(), totalCount);
     }
 
+    public async Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.RemediationInstances
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND CloudResourceId = @CloudResourceId;
+                                """;
+        const string listSql = """
+                               SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                      PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                      PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                      VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                      CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                      ExecutedUtc, VerifiedUtc, ClosedUtc
+                               FROM dbo.RemediationInstances
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND CloudResourceId = @CloudResourceId
+                               ORDER BY UpdatedUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+        object parameters = new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            CloudResourceId = cloudResourceId, Skip = skip, PageSize = safePageSize,
+        };
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+        return (rows.Select(MapInstance).ToList(), totalCount);
+    }
+
     public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
         Guid tenantId,
         Guid findingId,
@@ -378,6 +448,34 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                 new { TenantId = tenantId, FindingId = findingId },
                 cancellationToken: cancellationToken));
 
+        return rows.Select(MapInstance).ToList();
+    }
+
+    public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND FindingId = @FindingId
+                           ORDER BY UpdatedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
+                cancellationToken: cancellationToken));
         return rows.Select(MapInstance).ToList();
     }
 
