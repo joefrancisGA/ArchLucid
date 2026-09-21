@@ -167,9 +167,11 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/security/assigned-to-me", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/security/remediation-factory", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/security/remediation-instances", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/security/remediation-patterns", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/security/assigned-to-me", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/security/remediation-factory", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/security/remediation-instances", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/security/remediation-patterns", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/infrastructure/diagrams", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/diagrams", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/infrastructure/resources", "security")).toBe(true);

@@ -41,6 +41,15 @@ describe("product-line-route-gate", () => {
     ).toEqual({ kind: "blocked", pathname: "/security/remediation-factory" });
   });
 
+  it("blocks SecureNow remediation patterns in the Architecture shell", () => {
+    expect(
+      decideProductLineRouteRedirect({
+        pathname: "/security/remediation-patterns",
+        productLine: "architecture",
+      }),
+    ).toEqual({ kind: "blocked", pathname: "/security/remediation-patterns" });
+  });
+
   it("skips API and framework paths", () => {
     expect(shouldSkipProductLineRouteGate("/api/proxy/v1/architectures")).toBe(true);
     expect(shouldSkipProductLineRouteGate("/_next/static/chunk.js")).toBe(true);
