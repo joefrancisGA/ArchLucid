@@ -2087,6 +2087,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.kind"] = kindText.Trim();
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "multi_region", out JsonElement multiRegion)
+                || TryGetPropertyIgnoreCase(res, "multiRegion", out multiRegion))
+            && (multiRegion.ValueKind == JsonValueKind.True || multiRegion.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.multi_region"] = multiRegion.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "encrypted", out JsonElement encrypted)
                 || TryGetPropertyIgnoreCase(res, "encrypted", out encrypted))
             && (encrypted.ValueKind == JsonValueKind.True || encrypted.ValueKind == JsonValueKind.False))

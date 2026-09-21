@@ -17979,6 +17979,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-18 seed hunt #6832 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `multi_region` property gap; regression `ParseAsync_multi_region_maps_tf_multi_region_property`.
+
 2026-09-18 seed hunt #6827 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6822 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -19741,11 +19743,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1015
-- **bugs-found:** 418
+- **hunts:** 1016
+- **bugs-found:** 419
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-18 — hunt #6807: terraform-show-json kind property gap
+- **last-bug:** 2026-09-18 — hunt #6832: terraform-show-json multi_region property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
