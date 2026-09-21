@@ -321,6 +321,7 @@ export function DiagramsWorkbenchClient() {
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
+  const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(false);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
   const [seedNodeDraft, setSeedNodeDraft] = useState<string>(urlSeedNodeId);
   const [appliedSeedNodeId, setAppliedSeedNodeId] = useState<string>(() =>
@@ -663,6 +664,7 @@ export function DiagramsWorkbenchClient() {
     () => renderResult?.completenessWarnings ?? snapshotCompletenessWarnings,
     [renderResult?.completenessWarnings, snapshotCompletenessWarnings],
   );
+  const completenessSummary = renderResult?.completenessSummary ?? null;
 
   const renderStatusPresentation = useMemo(() => {
     if (renderStatus.length === 0 || renderStatus !== "Failed") {
@@ -895,18 +897,29 @@ export function DiagramsWorkbenchClient() {
 
     if (isInfraDiagramsResourceGroupMode(selectedMode)) {
       if (selectedResourceGroupName.length === 0) {
-        return { mode: "resourceGroup", includeNeverShow, ...executiveTierQuery };
+        return {
+          mode: "resourceGroup",
+          includeNeverShow,
+          includePrivateEndpointNodes: showPrivateEndpoints,
+          ...executiveTierQuery,
+        };
       }
 
       return {
         mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName),
         includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
         ...executiveTierQuery,
       };
     }
 
     if (effectiveFallbackKey.length > 0) {
-      return { fallbackKey: effectiveFallbackKey, includeNeverShow, ...executiveTierQuery };
+      return {
+        fallbackKey: effectiveFallbackKey,
+        includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
+        ...executiveTierQuery,
+      };
     }
 
     if (selectedMode === "dependencyNeighborhood") {
@@ -920,6 +933,23 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         seedNodeId: trimmedSeed,
         includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
+        ...executiveTierQuery,
+      };
+    }
+
+    if (selectedMode === "selectedResources") {
+      const trimmedSelection = appliedSeedNodeId.trim();
+
+      if (trimmedSelection.length === 0) {
+        return null;
+      }
+
+      return {
+        mode: selectedMode,
+        seedNodeId: trimmedSelection,
+        includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
         ...executiveTierQuery,
       };
     }
@@ -928,6 +958,7 @@ export function DiagramsWorkbenchClient() {
       mode: selectedMode,
       seedNodeId: null,
       includeNeverShow,
+      includePrivateEndpointNodes: showPrivateEndpoints,
       ...executiveTierQuery,
     };
   }, [
@@ -939,6 +970,7 @@ export function DiagramsWorkbenchClient() {
     diagramTypeSelected,
     selectedMode,
     selectedResourceGroupName,
+    showPrivateEndpoints,
   ]);
 
   const retryLoad = useCallback(() => {
@@ -1433,7 +1465,10 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-        <InfraEvidenceCompletenessWarningsBanner warnings={completenessWarnings} />
+        <InfraEvidenceCompletenessWarningsBanner
+          warnings={completenessWarnings}
+          summary={completenessSummary}
+        />
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
@@ -1769,6 +1804,24 @@ export function DiagramsWorkbenchClient() {
             ) : null}
           </>
         )}
+      </section>
+
+      <section className={cn("flex items-center justify-between gap-3", cnCard)} aria-label="Diagram display options">
+        <div>
+          <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Private endpoints remain available for relationship analysis but are hidden from the canvas by default.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant={showPrivateEndpoints ? "default" : "outline"}
+          data-testid="infra-diagrams-show-private-endpoints"
+          aria-pressed={showPrivateEndpoints}
+          onClick={() => setShowPrivateEndpoints((current) => !current)}
+        >
+          {showPrivateEndpoints ? "Hide private endpoints" : "Show private endpoints"}
+        </Button>
       </section>
 
       {selectedMode === "dependencyNeighborhood" ? (

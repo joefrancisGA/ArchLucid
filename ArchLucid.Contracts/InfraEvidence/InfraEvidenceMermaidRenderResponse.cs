@@ -73,4 +73,10 @@ public sealed class InfraEvidenceMermaidRenderResponse
         get;
         set;
     } = [];
+
+    public InfraEvidenceMermaidCompletenessSummary? CompletenessSummary
+    {
+        get;
+        set;
+    }
 }
