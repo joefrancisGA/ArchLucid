@@ -45,4 +45,51 @@ public sealed class ArmResourceIdNormalizerTests
 
         ArmResourceIdNormalizer.IsDescendantOf(siblingB, siblingA).Should().BeFalse();
     }
+
+    [Fact]
+    public void TryGetParentResourceId_returns_vnet_for_subnet()
+    {
+        const string subnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/app";
+        const string vnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+
+        bool found = ArmResourceIdNormalizer.TryGetParentResourceId(subnet, out string parent);
+
+        found.Should().BeTrue();
+        parent.Should().Be(vnet);
+    }
+
+    [Fact]
+    public void TryGetParentResourceId_returns_sql_server_for_database()
+    {
+        const string database =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql/databases/app";
+        const string server =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql";
+
+        bool found = ArmResourceIdNormalizer.TryGetParentResourceId(database, out string parent);
+
+        found.Should().BeTrue();
+        parent.Should().Be(server);
+    }
+
+    [Fact]
+    public void TryGetParentResourceId_returns_false_for_top_level_virtual_machine()
+    {
+        const string virtualMachine =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        bool found = ArmResourceIdNormalizer.TryGetParentResourceId(virtualMachine, out string parent);
+
+        found.Should().BeFalse();
+        parent.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryGetParentResourceId_returns_false_for_blank_id()
+    {
+        ArmResourceIdNormalizer.TryGetParentResourceId(null, out string parent).Should().BeFalse();
+        parent.Should().BeEmpty();
+    }
 }

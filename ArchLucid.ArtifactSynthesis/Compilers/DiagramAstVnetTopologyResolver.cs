@@ -1,10 +1,52 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 internal static class DiagramAstVnetTopologyResolver
 {
+    public static HashSet<string> ResolveSubnetNodeIdsForVirtualMachine(
+        string vmNodeId,
+        IReadOnlyDictionary<string, List<string>> connectsTo,
+        GraphSnapshot graph)
+    {
+        HashSet<string> subnetNodeIds = new(StringComparer.Ordinal);
+        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
+            candidate => candidate.NodeId,
+            StringComparer.Ordinal);
+
+        if (!connectsTo.TryGetValue(vmNodeId, out List<string>? nicIds))
+        {
+            return subnetNodeIds;
+        }
+
+        foreach (string nicNodeId in nicIds)
+        {
+            if (!connectsTo.TryGetValue(nicNodeId, out List<string>? nicTargets))
+            {
+                continue;
+            }
+
+            foreach (string subnetNodeId in nicTargets)
+            {
+                if (!nodesById.TryGetValue(subnetNodeId, out GraphNode? subnetNode))
+                {
+                    continue;
+                }
+
+                if (!IsSubnetNode(subnetNode))
+                {
+                    continue;
+                }
+
+                subnetNodeIds.Add(subnetNodeId);
+            }
+        }
+
+        return subnetNodeIds;
+    }
+
     public static HashSet<string> ResolveVnetNodeIdsForVirtualMachine(
         string vmNodeId,
         IReadOnlyDictionary<string, List<string>> connectsTo,
@@ -15,49 +57,51 @@ internal static class DiagramAstVnetTopologyResolver
             candidate => candidate.NodeId,
             StringComparer.Ordinal);
 
-        if (!connectsTo.TryGetValue(vmNodeId, out List<string>? nicIds))
+        foreach (string subnetNodeId in ResolveSubnetNodeIdsForVirtualMachine(vmNodeId, connectsTo, graph))
         {
-            return vnetNodeIds;
-        }
-
-        foreach (string nicNodeId in nicIds)
-        {
-            if (!connectsTo.TryGetValue(nicNodeId, out List<string>? subnetNodeIds))
+            if (!nodesById.TryGetValue(subnetNodeId, out GraphNode? subnetNode))
             {
                 continue;
             }
 
-            foreach (string subnetNodeId in subnetNodeIds)
+            string subnetArmId = DiagramAstGraphNodeClassifier.ReadArmId(subnetNode);
+            string? vnetArmId = TryResolveVnetIdFromSubnetArmId(subnetArmId);
+
+            if (string.IsNullOrWhiteSpace(vnetArmId))
             {
-                if (!nodesById.TryGetValue(subnetNodeId, out GraphNode? subnetNode))
+                continue;
+            }
+
+            foreach (GraphNode candidate in graph.Nodes)
+            {
+                if (!string.Equals(
+                        DiagramAstGraphNodeClassifier.ReadArmId(candidate),
+                        vnetArmId,
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                string subnetArmId = DiagramAstGraphNodeClassifier.ReadArmId(subnetNode);
-                string? vnetArmId = TryResolveVnetIdFromSubnetArmId(subnetArmId);
-
-                if (string.IsNullOrWhiteSpace(vnetArmId))
-                {
-                    continue;
-                }
-
-                foreach (GraphNode candidate in graph.Nodes)
-                {
-                    if (!string.Equals(
-                            DiagramAstGraphNodeClassifier.ReadArmId(candidate),
-                            vnetArmId,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    vnetNodeIds.Add(candidate.NodeId);
-                }
+                vnetNodeIds.Add(candidate.NodeId);
             }
         }
 
         return vnetNodeIds;
+    }
+
+    public static bool IsSubnetNode(GraphNode node)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+
+        string armType = DiagramAstGraphNodeClassifier.ReadArmType(node);
+        string armId = DiagramAstGraphNodeClassifier.ReadArmId(node);
+
+        if (AzureInventoryTopologyCategory.IsSubnetArmType(armType))
+        {
+            return true;
+        }
+
+        return armId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase);
     }
 
     public static string? TryResolveVnetIdFromSubnetArmId(string subnetArmId)

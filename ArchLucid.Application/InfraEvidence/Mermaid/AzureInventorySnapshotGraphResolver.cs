@@ -210,6 +210,10 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotParentChildEdgeHydrator.AddMissingContainsEdges(
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
 
         DateTime createdUtc = graphSnapshot.Header.CapturedUtc ?? graphSnapshot.Header.CreatedUtc;
 

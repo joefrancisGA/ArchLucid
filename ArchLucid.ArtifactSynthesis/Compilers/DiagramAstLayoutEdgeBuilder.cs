@@ -34,13 +34,19 @@ internal static class DiagramAstLayoutEdgeBuilder
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(nodeIdMap);
 
-        if (mode is not DiagramMode.Network and not DiagramMode.Executive)
+        if (!DiagramNicCollapseApplier.ShouldCollapseNetworkInterfaces(mode))
         {
             return;
         }
 
-        Dictionary<string, List<string>> connectsTo = BuildConnectsToAdjacency(graph);
-        HashSet<string> derivedEdgeKeys = new(StringComparer.Ordinal);
+        Dictionary<string, List<string>> placementHops = BuildPlacementAdjacency(graph);
+        HashSet<string> visibleDiagramIds = ast.Nodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+        HashSet<string> visibleEdgeKeys = ast.Edges
+            .Where(edge => !edge.IsLayoutOnly)
+            .Select(edge => $"{edge.FromNodeId}|{edge.ToNodeId}")
+            .ToHashSet(StringComparer.Ordinal);
 
         foreach (GraphNode node in graph.Nodes)
         {
@@ -51,38 +57,76 @@ internal static class DiagramAstLayoutEdgeBuilder
                 continue;
             }
 
-            if (!nodeIdMap.TryGetValue(node.NodeId, out string? vmMermaidId))
+            if (!nodeIdMap.TryGetValue(node.NodeId, out string? vmMermaidId)
+                || !visibleDiagramIds.Contains(vmMermaidId))
             {
                 continue;
             }
 
-            HashSet<string> vnetNodeIds = DiagramAstVnetTopologyResolver.ResolveVnetNodeIdsForVirtualMachine(
-                node.NodeId,
-                connectsTo,
-                graph);
+            bool addedSubnetPlacement = false;
 
-            foreach (string vnetNodeId in vnetNodeIds)
+            foreach (string subnetNodeId in DiagramAstVnetTopologyResolver.ResolveSubnetNodeIdsForVirtualMachine(
+                         node.NodeId,
+                         placementHops,
+                         graph))
             {
-                if (!nodeIdMap.TryGetValue(vnetNodeId, out string? vnetMermaidId))
+                if (!nodeIdMap.TryGetValue(subnetNodeId, out string? subnetMermaidId)
+                    || !visibleDiagramIds.Contains(subnetMermaidId))
                 {
                     continue;
                 }
 
-                string edgeKey = $"{vmMermaidId}|{vnetMermaidId}";
-
-                if (!derivedEdgeKeys.Add(edgeKey))
+                if (!TryAddDerivedPlacementEdge(ast, visibleEdgeKeys, vmMermaidId, subnetMermaidId))
                 {
                     continue;
                 }
 
-                ast.Edges.Add(new DiagramEdge
+                addedSubnetPlacement = true;
+            }
+
+            if (addedSubnetPlacement)
+            {
+                continue;
+            }
+
+            foreach (string vnetNodeId in DiagramAstVnetTopologyResolver.ResolveVnetNodeIdsForVirtualMachine(
+                         node.NodeId,
+                         placementHops,
+                         graph))
+            {
+                if (!nodeIdMap.TryGetValue(vnetNodeId, out string? vnetMermaidId)
+                    || !visibleDiagramIds.Contains(vnetMermaidId))
                 {
-                    FromNodeId = vmMermaidId,
-                    ToNodeId = vnetMermaidId,
-                    Label = "in",
-                });
+                    continue;
+                }
+
+                TryAddDerivedPlacementEdge(ast, visibleEdgeKeys, vmMermaidId, vnetMermaidId);
             }
         }
+    }
+
+    private static bool TryAddDerivedPlacementEdge(
+        DiagramAst ast,
+        HashSet<string> visibleEdgeKeys,
+        string fromDiagramId,
+        string toDiagramId)
+    {
+        string edgeKey = $"{fromDiagramId}|{toDiagramId}";
+
+        if (!visibleEdgeKeys.Add(edgeKey))
+        {
+            return false;
+        }
+
+        ast.Edges.Add(new DiagramEdge
+        {
+            FromNodeId = fromDiagramId,
+            ToNodeId = toDiagramId,
+            Label = "in",
+            InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
+        });
+
+        return true;
     }
 
     private static void EnsureSubgraphGridLinks(DiagramAst ast)
@@ -145,7 +189,7 @@ internal static class DiagramAstLayoutEdgeBuilder
         }
     }
 
-    private static Dictionary<string, List<string>> BuildConnectsToAdjacency(GraphSnapshot graph)
+    private static Dictionary<string, List<string>> BuildPlacementAdjacency(GraphSnapshot graph)
     {
         Dictionary<string, List<string>> adjacency = new(StringComparer.Ordinal);
 
@@ -156,7 +200,7 @@ internal static class DiagramAstLayoutEdgeBuilder
                 continue;
             }
 
-            if (!edge.EdgeType.Equals(GraphEdgeTypes.ConnectsTo, StringComparison.Ordinal))
+            if (!IsPlacementHopEdge(edge))
             {
                 continue;
             }
@@ -171,5 +215,16 @@ internal static class DiagramAstLayoutEdgeBuilder
         }
 
         return adjacency;
+    }
+
+    private static bool IsPlacementHopEdge(GraphEdge edge)
+    {
+        if (edge.EdgeType.Equals(GraphEdgeTypes.ConnectsTo, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return DiagramNicOwnerResolver.IsVmToNicEdge(edge)
+            || DiagramNicOwnerResolver.IsNicToSubnetEdge(edge);
     }
 }
