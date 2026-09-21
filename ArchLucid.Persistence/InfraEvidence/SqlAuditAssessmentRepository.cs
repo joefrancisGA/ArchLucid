@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -49,6 +50,33 @@ public sealed class SqlAuditAssessmentRepository(ISqlConnectionFactory connectio
                 cancellationToken: cancellationToken));
     }
 
+    public async Task InsertInScopeAsync(
+        ProjectScopeKey scope,
+        AuditAssessmentCreateMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           INSERT INTO dbo.AuditAssessments
+                           (
+                               AssessmentId, TenantId, WorkspaceId, ProjectId, FrameworkId, FrameworkVersion,
+                               ScopeJson, PeriodStartUtc, PeriodEndUtc, Status, RequestedBy, CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @AssessmentId, @TenantId, @WorkspaceId, @ProjectId, @FrameworkId, @FrameworkVersion,
+                               @ScopeJson, @PeriodStartUtc, @PeriodEndUtc, @Status, @RequestedBy, @CreatedUtc
+                           );
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            mutation.AssessmentId, mutation.FrameworkId, mutation.FrameworkVersion, mutation.ScopeJson,
+            mutation.PeriodStartUtc, mutation.PeriodEndUtc, Status = (int)mutation.Status,
+            mutation.RequestedBy, mutation.CreatedUtc,
+        }, cancellationToken: cancellationToken));
+    }
+
     public async Task<AuditAssessmentRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid assessmentId,
@@ -69,6 +97,26 @@ public sealed class SqlAuditAssessmentRepository(ISqlConnectionFactory connectio
                 new { TenantId = tenantId, AssessmentId = assessmentId },
                 cancellationToken: cancellationToken));
 
+        return row is null ? null : Map(row);
+    }
+
+    public async Task<AuditAssessmentRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT AssessmentId, TenantId, WorkspaceId, ProjectId, FrameworkId, FrameworkVersion,
+                                  ScopeJson, PeriodStartUtc, PeriodEndUtc, Status, RequestedBy, CreatedUtc
+                           FROM dbo.AuditAssessments
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND AssessmentId = @AssessmentId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        AssessmentRow? row = await conn.QuerySingleOrDefaultAsync<AssessmentRow>(
+            new CommandDefinition(sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, AssessmentId = assessmentId }, cancellationToken: cancellationToken));
         return row is null ? null : Map(row);
     }
 
@@ -95,6 +143,29 @@ public sealed class SqlAuditAssessmentRepository(ISqlConnectionFactory connectio
         return rows.Select(Map).ToList();
     }
 
+    public async Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT AssessmentId, TenantId, WorkspaceId, ProjectId, FrameworkId, FrameworkVersion,
+                                  ScopeJson, PeriodStartUtc, PeriodEndUtc, Status, RequestedBy, CreatedUtc
+                           FROM dbo.AuditAssessments
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status <> @ArchivedStatus;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<AssessmentRow> rows = await conn.QueryAsync<AssessmentRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                ArchivedStatus = (int)AuditAssessmentStatus.Archived,
+            }, cancellationToken: cancellationToken));
+        return rows.Select(Map).ToList();
+    }
+
     public async Task UpdateStatusAsync(
         Guid tenantId,
         Guid assessmentId,
@@ -114,6 +185,29 @@ public sealed class SqlAuditAssessmentRepository(ISqlConnectionFactory connectio
                 sql,
                 new { TenantId = tenantId, AssessmentId = assessmentId, Status = (int)status },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task UpdateStatusInScopeAsync(
+        ProjectScopeKey scope,
+        AuditAssessmentStatusMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.AuditAssessments
+                           SET Status = @Status
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND AssessmentId = @AssessmentId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int affected = await conn.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            mutation.AssessmentId, Status = (int)mutation.Status,
+        }, cancellationToken: cancellationToken));
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped audit assessment status mutation did not update exactly one record.");
     }
 
     private static AuditAssessmentRecord Map(AssessmentRow row) =>
