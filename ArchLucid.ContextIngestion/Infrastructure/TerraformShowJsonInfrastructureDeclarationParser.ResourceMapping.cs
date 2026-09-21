@@ -2087,6 +2087,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.format"] = formatText.Trim();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "availability", out JsonElement availabilityEl)
+            || TryGetPropertyIgnoreCase(res, "availability", out availabilityEl))
+        {
+            List<string> availabilityFields = [];
+
+            if (availabilityEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in availabilityEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        availabilityFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (availabilityEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = availabilityEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    availabilityFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (availabilityFields.Count > 0)
+            {
+                string joined = string.Join('|', availabilityFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.availability"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "rebalanced", out JsonElement rebalanced)
                 || TryGetPropertyIgnoreCase(res, "rebalanced", out rebalanced))
             && (rebalanced.ValueKind == JsonValueKind.True || rebalanced.ValueKind == JsonValueKind.False))
