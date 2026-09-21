@@ -329,7 +329,7 @@ describe("DiagramsWorkbenchClient", () => {
     const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
 
     expect(subscriptionPicker).toHaveValue("");
-    expect(await screen.findByTestId("infra-diagrams-subscription-prompt")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-subscription-prompt")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
 
     await selectDiagramsSubscription("sub-1");
