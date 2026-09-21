@@ -2070,6 +2070,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.replicated"] = replicated.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "degraded", out JsonElement degraded)
+                || TryGetPropertyIgnoreCase(res, "degraded", out degraded))
+            && (degraded.ValueKind == JsonValueKind.True || degraded.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.degraded"] = degraded.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
                 || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
             && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
