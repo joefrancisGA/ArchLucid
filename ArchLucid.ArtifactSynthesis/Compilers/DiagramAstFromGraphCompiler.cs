@@ -155,6 +155,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
 
+        DiagramInventoryConnectionRollupApplier.Apply(ast);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);

@@ -35,13 +35,17 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             return DiagramForestLayoutResult.Failed("Diagram AST contained no renderable nodes.");
         }
 
-        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
-            renderableNodes,
-            resolvedOptions);
-
         IReadOnlyList<DiagramEdge> visibleEdges = DiagramExecutiveOverflowCanvasExclusion
             .CanvasVisibleEdges(ast.Nodes, ast.Edges)
             .ToList();
+        DiagramForestSingletonTailPlanner.Result singletonResult =
+            DiagramForestSingletonTailPlanner.Apply(ast.Title, renderableNodes, visibleEdges);
+        renderableNodes = singletonResult.Nodes.ToList();
+        visibleEdges = singletonResult.Edges;
+
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
+            renderableNodes,
+            resolvedOptions);
         // Visio-style: resource groups are the canvas containers. Peering and
         // other edges still route between boxes after placement.
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> resourceGroupCells =
@@ -61,7 +65,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         List<NodePlacement> placements = PlaceNodes(componentLayouts, resolvedOptions);
-        string svg = EmitSvg(placements, visibleEdges, renderableNodes, resolvedOptions);
+        string svg = EmitSvg(placements, visibleEdges, renderableNodes, ast.Title, resolvedOptions);
 
         if (string.IsNullOrWhiteSpace(svg))
         {
@@ -324,6 +328,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestLayoutOptions options,
         DiagramForestCanvasLabelContext labelContext)
     {
+        if (ShouldUseRoleColumns(cellNodes))
+        {
+            return LayoutRoleColumns(cellNodes, options, labelContext);
+        }
+
         if (DiagramHubSpokeLayerPlanner.ShouldLayoutHubSpoke(cellNodes, visibleEdges))
         {
             return LayoutHubSpoke(cellNodes, visibleEdges, options, labelContext);
@@ -335,6 +344,51 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return LayoutTopDown(cellNodes, visibleEdges, options, labelContext);
+    }
+
+    private static bool ShouldUseRoleColumns(IReadOnlyList<DiagramNode> nodes)
+    {
+        return nodes.Count >= 4
+            && nodes.All(node => string.IsNullOrWhiteSpace(node.SubgraphId));
+    }
+
+    private static List<NodePlacement> LayoutRoleColumns(
+        IReadOnlyList<DiagramNode> nodes,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        List<NodePlacement> placements = [];
+        double columnX = 0.0d;
+
+        foreach (IGrouping<int, DiagramNode> role in DiagramForestRoleClassifier
+                     .Order(nodes)
+                     .GroupBy(DiagramForestRoleClassifier.ResolveOrder)
+                     .OrderBy(group => group.Key))
+        {
+            List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = role
+                .Select(node => (
+                    Node: node,
+                    Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext)))
+                .ToList();
+            double columnWidth = sized.Max(item => item.Metrics.Width);
+            double nodeY = 0.0d;
+
+            foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
+            {
+                placements.Add(new NodePlacement(
+                    node,
+                    columnX + ((columnWidth - metrics.Width) / 2.0d),
+                    nodeY,
+                    metrics.Width,
+                    metrics.Height,
+                    metrics));
+                nodeY += metrics.Height + options.NodeVerticalGap;
+            }
+
+            columnX += columnWidth + options.NodeHorizontalGap;
+        }
+
+        return placements;
     }
 
     private static List<NodePlacement> LayoutHubSpoke(
@@ -376,7 +430,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestLayoutOptions options,
         DiagramForestCanvasLabelContext labelContext)
     {
-        List<DiagramNode> orderedNodes = OrderNodesAlongFlow(component, visibleEdges);
+        List<DiagramNode> orderedNodes = DiagramForestRoleClassifier
+            .Order(OrderNodesAlongFlow(component, visibleEdges))
+            .ToList();
         List<NodePlacement> placements = [];
         double nodeY = 0;
 
@@ -478,6 +534,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<NodePlacement> placements,
         IReadOnlyList<DiagramEdge> visibleEdges,
         IReadOnlyList<DiagramNode> renderableNodes,
+        string title,
         DiagramForestLayoutOptions options)
     {
         if (placements.Count == 0)
@@ -499,6 +556,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             .ToList();
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frameBounds =
             DiagramResourceGroupPacker.ResolveFrameBounds(placementBounds);
+        IReadOnlyList<DiagramForestNestedFrameBounds> nestedFrameBounds =
+            DiagramForestNestedFrameResolver.Resolve(renderableNodes, placementBounds, visibleEdges);
+        DiagramForestNestedFrameBounds? subscriptionFrame =
+            DiagramForestSubscriptionFrameResolver.Resolve(title, placementBounds);
         double minX = placements.Min(placement => placement.X) - options.Padding;
         double minY = placements.Min(placement => placement.Y) - options.Padding;
         double maxX = placements.Max(placement => placement.X + placement.Width) + options.Padding;
@@ -510,6 +571,22 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             minY = Math.Min(minY, frameBounds.Min(frame => frame.Y) - options.Padding);
             maxX = Math.Max(maxX, frameBounds.Max(frame => frame.X + frame.Width) + options.Padding);
             maxY = Math.Max(maxY, frameBounds.Max(frame => frame.Y + frame.Height) + options.Padding);
+        }
+
+        if (nestedFrameBounds.Count > 0)
+        {
+            minX = Math.Min(minX, nestedFrameBounds.Min(frame => frame.X) - options.Padding);
+            minY = Math.Min(minY, nestedFrameBounds.Min(frame => frame.Y) - options.Padding);
+            maxX = Math.Max(maxX, nestedFrameBounds.Max(frame => frame.X + frame.Width) + options.Padding);
+            maxY = Math.Max(maxY, nestedFrameBounds.Max(frame => frame.Y + frame.Height) + options.Padding);
+        }
+
+        if (subscriptionFrame is not null)
+        {
+            minX = Math.Min(minX, subscriptionFrame.X - options.Padding);
+            minY = Math.Min(minY, subscriptionFrame.Y - options.Padding);
+            maxX = Math.Max(maxX, subscriptionFrame.X + subscriptionFrame.Width + options.Padding);
+            maxY = Math.Max(maxY, subscriptionFrame.Y + subscriptionFrame.Height + options.Padding);
         }
 
         HashSet<string> suppressedEdgeKeys = DiagramForestEdgeLabelCollapse.ResolveSuppressedEdgeKeys(
@@ -535,6 +612,19 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         if (frameBounds.Count > 0)
         {
             root.Add(DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(svgNamespace, frameBounds));
+        }
+
+        if (subscriptionFrame is not null || nestedFrameBounds.Count > 0)
+        {
+            List<DiagramForestNestedFrameBounds> containerFrames = [];
+
+            if (subscriptionFrame is not null)
+            {
+                containerFrames.Add(subscriptionFrame);
+            }
+
+            containerFrames.AddRange(nestedFrameBounds);
+            root.Add(DiagramForestNestedFrameSvgEmitter.EmitLayer(svgNamespace, containerFrames));
         }
 
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));

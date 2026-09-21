@@ -36,9 +36,26 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine(
             $"    edge [color=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\"];");
 
+        bool emitSubscriptionCluster = DiagramForestSubscriptionFrameResolver.ShouldDraw(ast.Title)
+            && resourceGroupClusters.Count > 0;
+
+        if (emitSubscriptionCluster)
+        {
+            builder.AppendLine("    subgraph cluster_subscription {");
+            builder.AppendLine("        label=\"Subscription\";");
+            builder.AppendLine("        style=\"rounded\";");
+            builder.AppendLine("        color=\"#475569\";");
+            builder.AppendLine("        penwidth=2.5;");
+        }
+
         foreach (DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster in resourceGroupClusters)
         {
-            EmitResourceGroupCluster(builder, cluster, indent: 1);
+            EmitResourceGroupCluster(builder, cluster, emitSubscriptionCluster ? 2 : 1, ast);
+        }
+
+        if (emitSubscriptionCluster)
+        {
+            builder.AppendLine("    }");
         }
 
         if (renderableSubgraphs.Count == 0)
@@ -192,7 +209,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
     private static void EmitResourceGroupCluster(
         StringBuilder builder,
         DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster,
-        int indent)
+        int indent,
+        DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(cluster);
@@ -211,8 +229,30 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}    fillcolor=\"{DiagramForestResourceGroupFrameStyle.Fill}\";");
         builder.AppendLine($"{indentText}    fontcolor=\"{DiagramForestResourceGroupFrameStyle.LabelFill}\";");
 
+        List<DiagramNode> nestedNodes = cluster.Nodes
+            .Where(candidate => candidate is not null)
+            .Where(candidate => IsNestedVnetOrSubnet(candidate, ast))
+            .ToList();
+
+        if (nestedNodes.Count > 0)
+        {
+            string nestedClusterId = "cluster_vnet_" + GraphvizIdEscaper.SanitizeClusterId(cluster.ClusterId);
+            builder.AppendLine($"{indentText}    subgraph {nestedClusterId} {{");
+            builder.AppendLine($"{indentText}        label=\"VNet / subnet\";");
+            builder.AppendLine($"{indentText}        style=\"rounded,dashed\";");
+            builder.AppendLine($"{indentText}        color=\"#94a3b8\";");
+
+            foreach (DiagramNode node in nestedNodes.OrderBy(candidate => candidate.OrderKey))
+            {
+                AppendNodeStatement(builder, indentText + "        ", node);
+            }
+
+            builder.AppendLine($"{indentText}    }}");
+        }
+
         foreach (DiagramNode node in cluster.Nodes
                      .Where(candidate => candidate is not null)
+                     .Where(candidate => !nestedNodes.Any(nested => nested.NodeId == candidate.NodeId))
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {
@@ -220,6 +260,17 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         }
 
         builder.AppendLine($"{indentText}}}");
+    }
+
+    private static bool IsNestedVnetOrSubnet(DiagramNode node, DiagramAst ast)
+    {
+        string type = node.ArmResourceType ?? string.Empty;
+
+        return type.Equals("Microsoft.Network/virtualNetworks", StringComparison.OrdinalIgnoreCase)
+            || type.Contains("Microsoft.Network/virtualNetworks/subnets", StringComparison.OrdinalIgnoreCase)
+            || ast.Edges.Any(edge =>
+                string.Equals(edge.ToNodeId, node.NodeId, StringComparison.Ordinal)
+                && string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
     }
 
     private static void AppendNodeStatement(StringBuilder builder, string indentText, DiagramNode node)
