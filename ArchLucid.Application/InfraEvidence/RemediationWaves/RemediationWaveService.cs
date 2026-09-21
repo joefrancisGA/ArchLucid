@@ -71,7 +71,7 @@ public sealed class RemediationWaveService(
     IRemediationWaveRepository waveRepository,
     IRemediationPrioritizationService prioritizationService,
     IRemediationInstanceService instanceService,
-    IRemediationInstanceRepository instanceRepository) : IRemediationWaveService
+    IProjectScopedRemediationInstanceRepository instanceRepository) : IRemediationWaveService
 {
     public async Task<RemediationWaveOperationResult> CreateWaveAsync(
         ScopeContext scope,

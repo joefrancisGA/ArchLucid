@@ -29,6 +29,23 @@
 
 Do **not** disable SQL or auth to stop spend; that takes the invite path down with it.
 
+### Verification checklist
+
+Record the UTC time and operator for each action. The freeze is complete only when all
+four checks pass:
+
+- API and worker configuration both report `Simulator`; checking only the API is
+  insufficient because queued work may execute in the worker.
+- `AnonymousExecutionEnabled` remains `false`, and the public Quick Scan response is
+  still sample-only.
+- A named tenant cannot reserve a Real-model budget after the change; a zero budget
+  is a tenant-specific backstop, not a substitute for the global mode switch.
+- A controlled execute/Ask request returns the documented mode/correlation response
+  within the normal request timeout, rather than hanging or silently succeeding.
+
+If any check fails, keep the invite wave paused and escalate with the `correlationId`,
+`runId` (when available), configuration revision, and UTC timestamps.
+
 ---
 
 ## Email and storage spend

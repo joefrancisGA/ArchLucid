@@ -115,7 +115,7 @@ public interface IRemediationPrioritizationService
 }
 
 public sealed class RemediationPrioritizationService(
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     IOperationalSecurityExceptionRepository exceptionRepository,
     IRemediationPatternMatchRepository matchRepository,
     IRemediationPatternRepository patternRepository,
