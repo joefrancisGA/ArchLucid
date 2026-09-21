@@ -7,7 +7,7 @@ import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
 import type { DraftRequestResponse } from "@/types/draft-intake";
 
 /**
- * Per-request memo so `generateMetadata` and route loaders share one draft fetch.
+ * Per-request memo so `generateMetadata` and route loaders share one architecture draft fetch.
  * Keep this module server-only (do not import from Client Components).
  */
 export const loadArchitectureDraftForRouteCached = cache(

@@ -18,6 +18,9 @@ import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
+import {
+  REVIEWS_NEW_GUIDED_INTAKE_HREF,
+} from "@/lib/architecture/architecture-routes";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
@@ -176,7 +179,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
   const startReviewArchitecture = () => {
     setSelectedPath("review-architecture");
     trackOperatorHomeLifecyclePathClick("review-architecture");
-    reviewNavigation.navigate({ href: "/architecture/reviews/new" });
+    reviewNavigation.navigate({ href: REVIEWS_NEW_GUIDED_INTAKE_HREF });
   };
 
   return (

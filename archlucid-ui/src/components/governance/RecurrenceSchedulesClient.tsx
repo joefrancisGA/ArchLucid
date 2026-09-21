@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -30,7 +31,7 @@ import {
   RECURRENCE_SCHEDULES_BUYER_START_HERE_HELPER,
   RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID,
   RECURRENCE_SCHEDULES_LOAD_ERROR,
-  RECURRENCE_SCHEDULES_PAGE_LEAD,
+  recurrenceSchedulesPageLead,
   RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID,
   RECURRENCE_SCHEDULES_SKIP_LINK_LABEL,
   RECURRENCE_SCHEDULES_SKIP_TARGET_ID,
@@ -208,7 +209,7 @@ export default function RecurrenceSchedulesClient() {
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
                 data-testid="governance-recurrence-schedules-intro"
               >
-                {RECURRENCE_SCHEDULES_PAGE_LEAD}
+                {recurrenceSchedulesPageLead(resolveProductLineIdFromEnv())}
               </p>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

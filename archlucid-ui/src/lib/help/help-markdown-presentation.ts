@@ -31,6 +31,7 @@ export {
 
 export {
   isDocumentationMaintenanceMetadataLine,
+  normalizeSponsorReportMarkdownArtifacts,
   stripDocumentationMaintenanceMetadata,
   prepareHelpMarkdownForPresentation,
   type PrepareHelpMarkdownPresentationOptions,

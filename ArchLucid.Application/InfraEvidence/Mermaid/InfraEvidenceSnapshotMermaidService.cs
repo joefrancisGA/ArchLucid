@@ -13,6 +13,9 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.KnowledgeGraph.Inventory;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
@@ -37,6 +40,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         ("network", DiagramMode.Network),
         ("identity", DiagramMode.Identity),
         ("data", DiagramMode.Data),
+        ("dataFlow", DiagramMode.DataFlow),
+        ("dataArchitecture", DiagramMode.DataArchitecture),
         ("full", DiagramMode.FullSubscription),
     ];
 
@@ -79,7 +84,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     public async Task<InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse>> TryGetPreviewAsync(
         ScopeContext scope,
         Guid snapshotId,
-        CancellationToken cancellationToken = default)
+        bool includeNeverShowArmTypes = false,
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -91,24 +98,51 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             _manifestHashService,
             cancellationToken);
 
-        AzureInventorySnapshotGraphResolveResult graphResult =
-            await _graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotGraphResolveResult defaultGraphResult =
+            await _graphResolver.TryResolveGraphAsync(
+                scope,
+                snapshotId,
+                includeNeverShowArmTypes,
+                retainIdentityDiagramArmTypes: false,
+                cancellationToken);
 
-        if (!graphResult.Succeeded || graphResult.Graph is null)
+        if (!defaultGraphResult.Succeeded || defaultGraphResult.Graph is null)
         {
             return NotFound<InfraEvidenceMermaidPreviewResponse>(
-                graphResult.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.");
+                defaultGraphResult.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.");
         }
 
         List<InfraEvidenceMermaidModePreview> modePreviews = [];
 
         foreach ((string modeKey, DiagramMode diagramMode) in PreviewModes)
         {
+            GraphSnapshot graph = defaultGraphResult.Graph;
+
+            if (ShouldRetainIdentityDiagramArmTypes(diagramMode, includeNeverShowArmTypes))
+            {
+                AzureInventorySnapshotGraphResolveResult identityGraphResult =
+                    await _graphResolver.TryResolveGraphAsync(
+                        scope,
+                        snapshotId,
+                        includeNeverShowArmTypes,
+                        retainIdentityDiagramArmTypes: true,
+                        cancellationToken);
+
+                if (identityGraphResult.Succeeded && identityGraphResult.Graph is not null)
+                {
+                    graph = identityGraphResult.Graph;
+                }
+            }
+
             InfraEvidenceMermaidModePreview modePreview = await TryRenderModePreviewAsync(
-                graphResult.Graph,
+                graph,
                 modeKey,
                 diagramMode,
                 null,
+                includeNeverShowArmTypes,
+                includePrivateEndpointNodes
+                    ? new DiagramAstCompileOptions { IncludePrivateEndpointNodes = true }
+                    : null,
                 cancellationToken);
 
             modePreviews.Add(modePreview);
@@ -121,6 +155,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             {
                 SnapshotId = snapshotId,
                 Modes = modePreviews,
+                CompletenessWarnings = ResolveCompletenessWarnings(defaultGraphResult.Snapshot),
             },
         };
     }
@@ -131,7 +166,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
-        CancellationToken cancellationToken = default)
+        bool includeNeverShowArmTypes = false,
+        string? hiddenExecutiveTierKeys = null,
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -143,27 +181,56 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             _manifestHashService,
             cancellationToken);
 
+        if (!string.IsNullOrWhiteSpace(fallbackKey))
+        {
+            AzureInventorySnapshotGraphResolveResult fallbackGraphResult =
+                await _graphResolver.TryResolveGraphAsync(
+                    scope,
+                    snapshotId,
+                    includeNeverShowArmTypes,
+                    retainIdentityDiagramArmTypes: false,
+                    cancellationToken);
+
+            if (!fallbackGraphResult.Succeeded || fallbackGraphResult.Graph is null)
+            {
+                return NotFound<InfraEvidenceMermaidRenderResponse>(
+                    fallbackGraphResult.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.");
+            }
+
+            return await RenderFallbackAsync(
+                snapshotId,
+                fallbackGraphResult.Graph,
+                fallbackKey,
+                includeNeverShowArmTypes,
+                cancellationToken);
+        }
+
+        if (!InfraEvidenceMermaidModeParser.TryParse(
+                mode,
+                seedNodeId,
+                hiddenExecutiveTierKeys,
+                out InfraEvidenceMermaidModeParseResult parsedMode,
+                includePrivateEndpointNodes))
+        {
+            return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
+        }
+
+        bool retainIdentityDiagramArmTypes = ShouldRetainIdentityDiagramArmTypes(
+            parsedMode.DiagramMode,
+            includeNeverShowArmTypes);
+
         AzureInventorySnapshotGraphResolveResult graphResult =
-            await _graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken);
+            await _graphResolver.TryResolveGraphAsync(
+                scope,
+                snapshotId,
+                includeNeverShowArmTypes,
+                retainIdentityDiagramArmTypes,
+                cancellationToken);
 
         if (!graphResult.Succeeded || graphResult.Graph is null)
         {
             return NotFound<InfraEvidenceMermaidRenderResponse>(
                 graphResult.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.");
-        }
-
-        if (!string.IsNullOrWhiteSpace(fallbackKey))
-        {
-            return await RenderFallbackAsync(
-                snapshotId,
-                graphResult.Graph,
-                fallbackKey,
-                cancellationToken);
-        }
-
-        if (!InfraEvidenceMermaidModeParser.TryParse(mode, seedNodeId, out InfraEvidenceMermaidModeParseResult parsedMode))
-        {
-            return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
 
         if (parsedMode.DiagramMode == DiagramMode.ResourceGroup
@@ -179,6 +246,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             graphResult.Graph,
             parsedMode.DiagramMode,
             parsedMode.CompileOptions,
+            includeNeverShowArmTypes,
+            graphResult.Snapshot,
             cancellationToken);
 
         return new InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse>
@@ -194,12 +263,24 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
-        CancellationToken cancellationToken = default)
+        bool includeNeverShowArmTypes = false,
+        string? hiddenExecutiveTierKeys = null,
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> mermaidResult =
-            await TryGetMermaidAsync(scope, snapshotId, mode, fallbackKey, seedNodeId, cancellationToken);
+            await TryGetMermaidAsync(
+                scope,
+                snapshotId,
+                mode,
+                fallbackKey,
+                seedNodeId,
+                includeNeverShowArmTypes,
+                hiddenExecutiveTierKeys,
+                cancellationToken,
+                includePrivateEndpointNodes);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
         {
@@ -229,6 +310,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             mode,
             fallbackKey,
             seedNodeId,
+            includeNeverShowArmTypes,
+            hiddenExecutiveTierKeys,
             mermaidResult.Value,
             brandedMermaid,
             cancellationToken);
@@ -259,12 +342,14 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         Guid snapshotId,
         GraphSnapshot graph,
         string fallbackKey,
+        bool includeNeverShowArmTypes,
         CancellationToken cancellationToken)
     {
         MermaidDiagramRenderResult fullRender = await RenderModeAsync(
             graph,
             DiagramMode.FullSubscription,
             null,
+            includeNeverShowArmTypes,
             cancellationToken);
 
         MermaidDiagramRenderArtifact? artifact = fullRender.FallbackArtifacts
@@ -307,6 +392,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string modeKey,
         DiagramMode diagramMode,
         DiagramAstCompileOptions? compileOptions,
+        bool includeNeverShowArmTypes,
+        DiagramAstCompileOptions? displayOptions,
         CancellationToken cancellationToken)
     {
         try
@@ -314,7 +401,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             MermaidDiagramRenderResult renderResult = await RenderModeAsync(
                 graph,
                 diagramMode,
-                compileOptions,
+                displayOptions ?? compileOptions,
+                includeNeverShowArmTypes,
                 cancellationToken);
 
             return MapModePreview(modeKey, renderResult);
@@ -332,6 +420,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         GraphSnapshot graph,
         DiagramMode diagramMode,
         DiagramAstCompileOptions? compileOptions,
+        bool includeNeverShowArmTypes,
+        AzureInventorySnapshotDetailReadModel? snapshot,
         CancellationToken cancellationToken)
     {
         try
@@ -340,13 +430,21 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 graph,
                 diagramMode,
                 compileOptions,
+                includeNeverShowArmTypes,
                 cancellationToken);
 
             InfraEvidenceInventoryLayoutResult layoutResult = await TryRenderInventoryLayoutAsync(
                 renderResult,
                 cancellationToken);
 
-            return MapRenderResponse(snapshotId, modeKey, fallbackKey, renderResult, graph, layoutResult);
+            return MapRenderResponse(
+                snapshotId,
+                modeKey,
+                fallbackKey,
+                renderResult,
+                graph,
+                layoutResult,
+                snapshot);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -358,6 +456,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         GraphSnapshot graph,
         DiagramMode diagramMode,
         DiagramAstCompileOptions? compileOptions,
+        bool includeNeverShowArmTypes,
         CancellationToken cancellationToken)
     {
         return _inventoryRenderOrchestrator.RenderFromGraphAsync(
@@ -365,6 +464,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             diagramMode,
             compileOptions,
             _thresholds,
+            includeNeverShowArmTypes,
             cancellationToken);
     }
 
@@ -445,6 +545,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
+        bool includeNeverShowArmTypes,
+        string? hiddenExecutiveTierKeys,
         InfraEvidenceMermaidRenderResponse renderResponse,
         string brandedMermaid,
         CancellationToken cancellationToken)
@@ -458,6 +560,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 mode,
                 fallbackKey,
                 seedNodeId,
+                includeNeverShowArmTypes,
+                hiddenExecutiveTierKeys,
                 cancellationToken);
 
             if (renderResult?.RepairedAst is not null)
@@ -481,22 +585,37 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
+        bool includeNeverShowArmTypes,
+        string? hiddenExecutiveTierKeys,
         CancellationToken cancellationToken)
     {
-        AzureInventorySnapshotGraphResolveResult graphResult =
-            await _graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken);
-
-        if (!graphResult.Succeeded || graphResult.Graph is null)
-        {
-            return null;
-        }
-
         if (!string.IsNullOrWhiteSpace(fallbackKey))
         {
             return null;
         }
 
-        if (!InfraEvidenceMermaidModeParser.TryParse(mode, seedNodeId, out InfraEvidenceMermaidModeParseResult parsedMode))
+        if (!InfraEvidenceMermaidModeParser.TryParse(
+                mode,
+                seedNodeId,
+                hiddenExecutiveTierKeys,
+                out InfraEvidenceMermaidModeParseResult parsedMode))
+        {
+            return null;
+        }
+
+        bool retainIdentityDiagramArmTypes = ShouldRetainIdentityDiagramArmTypes(
+            parsedMode.DiagramMode,
+            includeNeverShowArmTypes);
+
+        AzureInventorySnapshotGraphResolveResult graphResult =
+            await _graphResolver.TryResolveGraphAsync(
+                scope,
+                snapshotId,
+                includeNeverShowArmTypes,
+                retainIdentityDiagramArmTypes,
+                cancellationToken);
+
+        if (!graphResult.Succeeded || graphResult.Graph is null)
         {
             return null;
         }
@@ -505,6 +624,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             graphResult.Graph,
             parsedMode.DiagramMode,
             parsedMode.CompileOptions,
+            includeNeverShowArmTypes,
             cancellationToken);
     }
 
@@ -556,13 +676,49 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         };
     }
 
+    private static bool ShouldRetainIdentityDiagramArmTypes(DiagramMode diagramMode, bool includeNeverShowArmTypes)
+    {
+        return diagramMode == DiagramMode.Identity && !includeNeverShowArmTypes;
+    }
+
+    private static InfraEvidenceMermaidIdentityDiagramHints? MapIdentityDiagramHints(
+        string modeKey,
+        AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        if (!string.Equals(modeKey, InventoryDiagramFallbackArtifactKeys.Identity, StringComparison.OrdinalIgnoreCase)
+            || snapshot is null)
+        {
+            return null;
+        }
+
+        IReadOnlyList<AzureInventoryIdentityDiagramSuppressedArmTypeSummary> suppressedArmTypes =
+            AzureInventoryIdentityDiagramVisibility.ListInventoryFilteredIdentityArmTypes(snapshot.Resources);
+
+        if (suppressedArmTypes.Count == 0)
+        {
+            return null;
+        }
+
+        return new InfraEvidenceMermaidIdentityDiagramHints
+        {
+            InventoryFilteredIdentityArmTypes = suppressedArmTypes
+                .Select(summary => new InfraEvidenceMermaidIdentityDiagramSuppressedArmType
+                {
+                    ArmResourceType = summary.ArmResourceType,
+                    ResourceCount = summary.ResourceCount,
+                })
+                .ToList(),
+        };
+    }
+
     private InfraEvidenceMermaidRenderResponse MapRenderResponse(
         Guid snapshotId,
         string modeKey,
         string? fallbackKey,
         MermaidDiagramRenderResult renderResult,
         GraphSnapshot? sourceGraph = null,
-        InfraEvidenceInventoryLayoutResult? layoutResult = null)
+        InfraEvidenceInventoryLayoutResult? layoutResult = null,
+        AzureInventorySnapshotDetailReadModel? snapshot = null)
     {
         bool includeMermaid = renderResult.Status == MermaidDiagramRenderStatus.Succeeded
             || renderResult.Status == MermaidDiagramRenderStatus.Partitioned;
@@ -594,7 +750,140 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             FallbackArtifacts = fallbackArtifacts,
             LayoutSvg = resolvedLayout.LayoutSvg,
             LayoutEngine = resolvedLayout.LayoutEngine,
+            CollapseReport = MapCollapseReport(renderResult.CollapseReport),
+            IdentityDiagramHints = MapIdentityDiagramHints(modeKey, snapshot),
+            CompletenessWarnings = ResolveCompletenessWarnings(snapshot),
+            CompletenessSummary = BuildCompletenessSummary(modeKey, sourceGraph, snapshot),
         };
+    }
+
+    private static InfraEvidenceMermaidCompletenessSummary? BuildCompletenessSummary(
+        string modeKey,
+        GraphSnapshot? graph,
+        AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        if (graph is null)
+        {
+            return null;
+        }
+
+        List<GraphEdge> visibleEdges = graph.Edges
+            .Where(edge => edge.Weight >= 0.5d)
+            .ToList();
+        HashSet<string> collectedClasses = visibleEdges
+            .Select(edge => edge.InferenceSource ?? edge.EdgeType)
+            .Where(source => !string.IsNullOrWhiteSpace(source))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int hiddenHopCount = visibleEdges.Count(edge =>
+            edge.InferenceSource is not null
+            && (edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
+                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase)));
+        int collocationCount = visibleEdges.Count(edge =>
+            string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                StringComparison.OrdinalIgnoreCase));
+
+        return new InfraEvidenceMermaidCompletenessSummary
+        {
+            Mode = modeKey,
+            VisibleNodeCount = graph.Nodes.Count,
+            VisibleEdgeCount = visibleEdges.Count,
+            ConnectedComponentCount = CountConnectedComponents(graph.Nodes, visibleEdges),
+            HiddenHopsUsedCount = hiddenHopCount,
+            LikelyInCollocationEdgeCount = collocationCount,
+            CollectedClasses = collectedClasses.Order(StringComparer.Ordinal).ToList(),
+            MissingClasses = ResolveCompletenessWarnings(snapshot)
+                .Where(warning => warning.Contains("missing", StringComparison.OrdinalIgnoreCase))
+                .ToList(),
+        };
+    }
+
+    private static int CountConnectedComponents(
+        IReadOnlyList<GraphNode> nodes,
+        IReadOnlyList<GraphEdge> edges)
+    {
+        Dictionary<string, List<string>> adjacency = nodes.ToDictionary(
+            node => node.NodeId,
+            _ => new List<string>(),
+            StringComparer.Ordinal);
+
+        foreach (GraphEdge edge in edges)
+        {
+            if (adjacency.TryGetValue(edge.FromNodeId, out List<string>? from)
+                && adjacency.TryGetValue(edge.ToNodeId, out List<string>? to))
+            {
+                from.Add(edge.ToNodeId);
+                to.Add(edge.FromNodeId);
+            }
+        }
+
+        HashSet<string> visited = new(StringComparer.Ordinal);
+        int components = 0;
+
+        foreach (string nodeId in adjacency.Keys)
+        {
+            if (!visited.Add(nodeId))
+            {
+                continue;
+            }
+
+            components++;
+            Queue<string> queue = new();
+            queue.Enqueue(nodeId);
+
+            while (queue.Count > 0)
+            {
+                string current = queue.Dequeue();
+
+                foreach (string neighbor in adjacency[current])
+                {
+                    if (visited.Add(neighbor))
+                    {
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+
+        return components;
+    }
+
+    private static List<string> ResolveCompletenessWarnings(AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        if (snapshot?.Header is null)
+        {
+            return [];
+        }
+
+        return AzureInventorySnapshotCompletenessWarningsJson
+            .Deserialize(snapshot.Header.CompletenessWarningsJson)
+            .ToList();
+    }
+
+    private static InfraEvidenceMermaidCollapseReport? MapCollapseReport(
+        MermaidDiagramCollapseReport? collapseReport)
+    {
+        if (collapseReport is null || collapseReport.Entries.Count == 0)
+        {
+            return null;
+        }
+
+        List<InfraEvidenceMermaidCollapseEntry> entries = [];
+
+        foreach (MermaidDiagramCollapseEntry entry in collapseReport.Entries)
+        {
+            entries.Add(new InfraEvidenceMermaidCollapseEntry
+            {
+                Kind = entry.Kind,
+                CloudResourceId = entry.CloudResourceId,
+                NodeId = entry.NodeId,
+                Reason = entry.Reason,
+            });
+        }
+
+        return new InfraEvidenceMermaidCollapseReport { Entries = entries };
     }
 
     private static List<InfraEvidenceMermaidFallbackArtifactSummary> MapFallbackSummaries(

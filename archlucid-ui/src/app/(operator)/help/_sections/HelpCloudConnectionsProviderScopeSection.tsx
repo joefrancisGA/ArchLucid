@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import {
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
   CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
-  CLOUD_CONNECTIONS_HELP_TIER_1,
+  cloudConnectionsHelpScheduledAgent,
+  cloudConnectionsHelpTier1,
   cloudConnectionsHelpProviderScopeRows,
   cloudConnectionsHelpTier2,
 } from "@/lib/cloud-connections-help-guide-content";
@@ -38,6 +39,8 @@ function TierCardEyebrow(props: { readonly children: string }): React.ReactEleme
 export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const productLine = resolveProductLineIdFromEnv();
+  const scheduledAgent = cloudConnectionsHelpScheduledAgent(productLine);
+  const tier1 = cloudConnectionsHelpTier1(productLine);
   const tier2 = cloudConnectionsHelpTier2(productLine);
   const providerRows = cloudConnectionsHelpProviderScopeRows(productLine);
 
@@ -58,15 +61,26 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
         {CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE}
       </h2>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="help-cloud-connections-tier-decision">
+      <div className="mt-4 grid gap-4 lg:grid-cols-3" data-testid="help-cloud-connections-tier-decision">
         <div
           className={cn(DESIGN_TOKENS.surface.card, HELP_PAGE_LAYOUT.tierEmphasisPanel, "space-y-3 p-4")}
+          data-testid="help-cloud-connections-scheduled-agent-card"
+        >
+          <TierCardEyebrow>{scheduledAgent.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{scheduledAgent.title}</h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {scheduledAgent.useWhen}
+          </p>
+        </div>
+
+        <div
+          className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
           data-testid="help-cloud-connections-tier-1-card"
         >
-          <TierCardEyebrow>{CLOUD_CONNECTIONS_HELP_TIER_1.eyebrow}</TierCardEyebrow>
-          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_1.title}</h3>
+          <TierCardEyebrow>{tier1.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{tier1.title}</h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {CLOUD_CONNECTIONS_HELP_TIER_1.useWhen}
+            {tier1.useWhen}
           </p>
           <HelpCloudConnectionsPackagingScriptsDisclosure />
           {buyerPolishedShell ? null : (

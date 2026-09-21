@@ -74,7 +74,7 @@ Focus a finding card or row (`data-finding-id`, typically `role="article"` / `ta
 | **Alt+K** | Focus previous finding (stays on first) |
 
 
-## Page-specific: Inventory diagrams (`/governance/infrastructure/diagrams`)
+## Page-specific: Diagrams (`/governance/infrastructure/diagrams`)
 
 Focus the diagram viewport (`data-testid="architecture-diagram-viewport"`, `tabIndex={0}`) before using zoom shortcuts. The same actions are also labeled buttons above the canvas: **Zoom in**, **Zoom out**, **Reset to 100%**, and **Fit in view**. Implemented in [`ArchitectureDiagramViewer`](../src/components/architecture/ArchitectureDiagramViewer.tsx).
 
@@ -119,6 +119,17 @@ Implemented in [`use-extract-upload-shortcuts.ts`](../src/app/(operator)/adminis
 |-------|--------|
 | **Ctrl+U** | Focus the inventory upload surface, or activate **Replace inventory** when a package is already accepted |
 | **Ctrl+Shift+C** | Copy the quick-start packager command for the selected cloud provider |
+
+## Page-specific: Remediation factory (`/governance/remediation-factory`, `/security/remediation-factory`)
+
+Implemented in [`useRemediationFactoryShortcuts.ts`](../src/hooks/useRemediationFactoryShortcuts.ts) on [`RemediationFactoryClient.tsx`](../src/app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx). The command palette lists row navigation, inspect focus, and score explanation on the same routes.
+
+| Combo | Action |
+|-------|--------|
+| **Alt+J** | Select next row in the priority queue or ranked paths table |
+| **Alt+K** | Select previous row |
+| **Alt+I** | Focus the path inspect panel |
+| **Alt+E** | Explain the selected finding score (simulator) |
 
 ## Discoverability
 

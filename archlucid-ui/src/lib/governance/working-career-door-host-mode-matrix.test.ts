@@ -94,7 +94,7 @@ describe("working-career-door-host-mode-matrix (CG-020 / AS-084)", () => {
 
     expect(presentation.cellId).toBe("rehearsal-simulator");
     expect(presentation.labelAsRehearsal).toBe(true);
-    expect(presentation.showStatusTag).toBe(true);
+    expect(presentation.showStatusTag).toBe(false);
     expect(presentation.statusTagKind).toBe("needs-attention");
     expect(presentation.detail).toBe(WORKING_CAREER_DOOR_HOST_MODE_MATRIX_REHEARSAL_SIMULATOR_DETAIL);
   });
@@ -118,7 +118,7 @@ describe("working-career-door-host-mode-matrix (CG-020 / AS-084)", () => {
 
     expect(presentation.cellId).toBe("rehearsal-real-practice");
     expect(presentation.labelAsRehearsal).toBe(true);
-    expect(presentation.showStatusTag).toBe(true);
+    expect(presentation.showStatusTag).toBe(false);
     expect(presentation.statusTagKind).toBe("needs-attention");
     expect(presentation.effectiveDoor).toBe("rehearsal");
     expect(presentation.detail).toBe(WORKING_CAREER_DOOR_HOST_MODE_MATRIX_REHEARSAL_REAL_PRACTICE_DETAIL);

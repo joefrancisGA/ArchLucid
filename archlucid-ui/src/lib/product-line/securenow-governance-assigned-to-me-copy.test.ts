@@ -46,6 +46,7 @@ describe("securenow-governance-assigned-to-me-copy", () => {
     );
     expect(SECURENOW_GOVERNANCE_JOB_RECORD_DECISIONS_WHEN_TO_USE).toContain("security decisions");
     expect(SECURENOW_GOVERNANCE_JOB_RECORD_DECISIONS_WHEN_TO_USE).not.toContain("architecture decisions");
+    expect(SECURENOW_GOVERNANCE_JOB_RECORD_DECISIONS_WHEN_TO_USE).not.toContain("review");
   });
 
   it("hides the assigned-to-me workspace label on SecureNow only", () => {

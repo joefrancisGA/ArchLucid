@@ -413,10 +413,16 @@ describe("InfrastructureAskClient", () => {
     await waitFor(() => {
       expect(screen.getAllByText(/Question:/)).toHaveLength(2);
     });
+    const transcriptResponses = screen.getAllByRole("region", { name: "Infrastructure Ask response" });
+
+    expect(transcriptResponses[0]).toHaveTextContent("Question: Second question");
+    expect(transcriptResponses[1]).toHaveTextContent("Question: First question");
+    expect(screen.getAllByText("Question:")).toHaveLength(2);
+    expect(screen.getAllByText("Question:").every((label) => label.tagName === "STRONG")).toBe(true);
     expect(vi.mocked(submitInfraEvidenceAsk)).toHaveBeenCalledTimes(2);
   });
 
-  it("inserts canned prompts into the draft without auto-submitting", async () => {
+  it("inserts canned prompts into the architecture draft without auto-submitting", async () => {
     searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 
@@ -429,11 +435,11 @@ describe("InfrastructureAskClient", () => {
     expect(vi.mocked(submitInfraEvidenceAsk)).not.toHaveBeenCalled();
   });
 
-  it("submits on Ctrl+Enter and shows shortcut affordance", async () => {
+  it("submits on Ctrl+Enter without a shortcut chip", async () => {
     searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 
-    expect(screen.getByText("Ctrl+Enter")).toBeInTheDocument();
+    expect(screen.queryByText("Ctrl+Enter")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {
       target: { value: "Keyboard submit?" },
@@ -527,7 +533,11 @@ describe("InfrastructureAskClient", () => {
     );
     render(<InfrastructureAskClient />);
 
-    expect(await screen.findByText("Question: Persisted question")).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        (_content, element) => element?.textContent === "Question: Persisted question",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-question")).toHaveValue("Saved draft");
   });
 });

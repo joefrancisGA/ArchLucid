@@ -16,7 +16,7 @@ export const OPERATOR_HOME_START_OR_RESUME_REVIEW_HEADING = "Start or resume a r
 /** Outline CTA beside resume when desk work already exists. */
 export const OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA = "Start a new architecture review";
 
-/** Collapsed lifecycle entry when a draft/resume primary already owns the first viewport. */
+/** Collapsed lifecycle entry when an architecture draft/resume primary already owns the first viewport. */
 export const OPERATOR_HOME_LIFECYCLE_ALTERNATIVES_DISCLOSURE_TITLE = "Start something else";
 
 export const OPERATOR_HOME_LIFECYCLE_ALTERNATIVES_COLLAPSED_SUMMARY =

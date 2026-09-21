@@ -40,12 +40,12 @@ const ARCHITECTURE_HOME_WORKING_ENTRY: PageContextualHelpEntry = {
 
 const ARCHITECTURE_IDENTITIES_WORKING_ENTRY: PageContextualHelpEntry = {
   whatIsThisPage:
-    `${ARCHITECTURE_IDENTITIES_NAV_LABEL} hub — browse named architecture identities with child drafts and reviews for the current scope.`,
+    `${ARCHITECTURE_IDENTITIES_NAV_LABEL} hub — browse named architecture identities with child architecture drafts and reviews for the current scope.`,
   whatToDoNext: "Open an architecture identity desk, resume a child draft, or start a new review from the identity.",
-  whyEmpty: "Identities appear after you create an architecture or save a draft linked to an identity.",
+  whyEmpty: "Identities appear after you create an architecture or save an architecture draft linked to an identity.",
   whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
   taskSteps: [
-    "Open an architecture identity to see child drafts and reviews on one desk.",
+    "Open an architecture identity to see child architecture drafts and reviews on one desk.",
     "Resume a child draft when the brief still needs refinement.",
     "Start a review from the identity when evidence is ready.",
   ],
@@ -87,7 +87,7 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whatIsThisPage:
         `${OPERATOR_NAV_LINK_LABELS.home} — create or review an architecture and see recent workspace activity from one command center.`,
       whatToDoNext:
-        "Create architecture, start a review, resume a draft, or explore a completed sample.",
+        "Create architecture, start a review, resume an architecture draft, or explore a completed sample.",
       whyEmpty: "Recent reviews appear after you create or finalize architecture reviews.",
       whereToConfigurePrerequisite:
         "Switch workspace or project scope from the header switcher when you work across teams.",
@@ -102,7 +102,7 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       taskSteps: [
         "Create architecture from a description, briefs, or connected cloud inventory.",
         "Start a review when you already have diagrams, documents, or inventory to evaluate.",
-        "Resume a draft or open a sample review from the cards below.",
+        "Resume an architecture draft or open a sample review from the cards below.",
       ],
     },
   },
@@ -112,7 +112,7 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whatIsThisPage:
         "Architecture packages hub — start, resume, and manage active and finalized architecture reviews.",
       whatToDoNext:
-        "Start a review, create architecture when you need a draft first, resume a draft, or explore a sample workspace.",
+        "Start a review, create architecture when you need an architecture draft first, resume an architecture draft, or explore a sample workspace.",
       whyEmpty: "Summary metrics populate after you start or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
       taskSteps: [
@@ -145,15 +145,15 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whatIsThisPage:
         "Create architecture — start a new architecture draft or continue a saved draft before filing evidence for review.",
       whatToDoNext:
-        "Describe the system and save a draft, or start a review separately when you already have architecture evidence.",
+        "Describe the system and save an architecture draft, or start a review separately when you already have architecture evidence.",
       whyEmpty:
         "Recent drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
       whereToConfigurePrerequisite:
-        "Drafting uses the workspace and project selected in the header switcher; saving a draft does not start a review.",
+        "Architecture drafting uses the workspace and project selected in the header switcher; saving an architecture draft does not start a review.",
       taskSteps: [
-        "Start a new draft or resume a recent saved brief.",
+        "Start a new architecture draft or resume a recent saved brief.",
         "Complete required architecture fields before saving.",
-        "Optionally start a review when the brief is ready, or review existing evidence without a draft.",
+        "Optionally start a review when the brief is ready, or review existing evidence without an architecture draft.",
       ],
     },
   },
@@ -178,7 +178,7 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       },
       taskSteps: [
         "Clear required setup blockers on the checklist.",
-        "Create architecture when you need a draft before filing evidence.",
+        "Create architecture when you need an architecture draft before filing evidence.",
         "Start a review when you already have architecture evidence to evaluate.",
       ],
     },

@@ -8,7 +8,7 @@ import { EnterpriseTableHeaderCell } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import type { DriftTableSortDir, DriftTableSortKey } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
+import type { DriftTableSortDir } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -39,9 +39,9 @@ export type DriftChangesTableHeaderFilterConfig =
     };
 
 export type DriftChangesTableHeaderCellProps = {
-  readonly column: DriftTableSortKey;
+  readonly column: string;
   readonly label: string;
-  readonly sortBy: DriftTableSortKey;
+  readonly sortBy: string;
   readonly sortDir: DriftTableSortDir;
   readonly sortDirection: "ascending" | "descending" | "none";
   readonly onSort: () => void;
@@ -154,11 +154,15 @@ export function DriftChangesTableHeaderCell(props: DriftChangesTableHeaderCellPr
 
   return (
     <EnterpriseTableHeaderCell sortDirection={props.sortDirection}>
-      <div className="flex min-w-0 items-center gap-1">
+      {/* inline-flex (not flex-1) keeps the filter icon beside this column label instead of the cell's far edge. */}
+      <div
+        className="inline-flex max-w-full items-center gap-0.5"
+        data-testid={`infra-drift-header-cluster-${props.column}`}
+      >
         <button
           type="button"
           className={cn(
-            "inline-flex min-w-0 flex-1 items-center gap-1 text-left font-inherit hover:text-al-text-primary",
+            "inline-flex min-w-0 items-center gap-1 text-left font-inherit hover:text-al-text-primary",
             isActiveSort ? "text-al-text-primary" : "text-al-text-secondary",
             OPERATOR_TYPOGRAPHY.body,
           )}

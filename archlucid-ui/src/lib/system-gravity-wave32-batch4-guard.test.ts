@@ -7,6 +7,7 @@ import {
   CHEAP_EXPLORATION_ENVELOPE_COMPLETE_NOT_READY_COPY,
 } from "@/lib/cheap-exploration-envelope-not-career-complete";
 import {
+  CHEAP_EXPLORATION_HELP_IMPACT_PREVIEW_VS_ENVELOPE_COMPARISON_ROWS,
   CHEAP_EXPLORATION_HELP_IMPACT_PREVIEW_VS_ENVELOPE_OVERVIEW,
 } from "@/lib/cheap-exploration-help-impact-preview-vs-envelope-guide-content";
 import {
@@ -97,9 +98,9 @@ describe("system-gravity wave 32 batch 4 ratchets (ADR 0098)", () => {
       new RegExp(SYSTEM_NOT_JOB_IMPACT_PREVIEW_POLICY_ENVELOPE_HEADING, "i"),
     );
     expect(CHEAP_EXPLORATION_HELP_IMPACT_PREVIEW_VS_ENVELOPE_OVERVIEW).toMatch(/Sketch a change/i);
-    expect(CHEAP_EXPLORATION_HELP_IMPACT_PREVIEW_VS_ENVELOPE_OVERVIEW).toMatch(
-      /Neither path is draft-to-draft Compare/i,
-    );
+    expect(CHEAP_EXPLORATION_HELP_IMPACT_PREVIEW_VS_ENVELOPE_COMPARISON_ROWS.some((row) =>
+      /Neither path is draft-to-draft Compare/i.test(row.impactPreview),
+    )).toBe(true);
   });
 
   it("SG-076: Sketch a change stays on desk modules, not reviews hub", () => {

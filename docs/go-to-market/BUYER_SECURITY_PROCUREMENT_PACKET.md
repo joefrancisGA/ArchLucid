@@ -4826,9 +4826,9 @@ CI validates references with `--dry-run`.
 
 ## Azure extractor — InfoSec pre-read
 
-**Audience:** Customer security, cloud platform, and procurement reviewers who must approve running `Get-ArchLucidAzurePackage.ps1` or uploading its ZIP output to ArchLucid.  
+**Audience:** Customer security, cloud platform, and procurement reviewers who must approve collecting Azure inventory (scheduled agent or one-time script) and uploading the ZIP to ArchLucid.  
 **Status:** V1 GA — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) Â§2.16 and [`trust-center.md`](trust-center.md) Azure connectivity posture.  
-**Related:** [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) Â· [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md) Â· [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase B Â· [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
+**Related:** [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) Â· [`AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](../runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md) Â· [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md) Â· [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase B Â· [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
 
 Not legal attestation.
 
@@ -4836,12 +4836,17 @@ Not legal attestation.
 
 | Question | Answer |
 | --- | --- |
-| Does ArchLucid need credentials in our Azure tenant for Tier 1? | **No.** The script runs **in your environment** under **your** operator identity. |
-| What Azure permissions does the script need? | **Read-only** ARM access to list resources in the scoped subscription or resource group; optional **Cost Management Reader** when `-IncludeCost` is used. |
-| What leaves our tenant? | A **schema-versioned ZIP** the operator chooses to upload — not live API keys or Key Vault secrets. |
-| What if we cannot approve the script? | Use an **evidence-only** architecture review (`CloudProvider.None`) — upload briefs, diagrams, and documents without extractor output. |
+| Does ArchLucid need credentials in our Azure tenant for Tier 1? | **No.** Collection runs **in your environment** under **your** identity (managed identity or operator). |
+| Must operators pull inventory from a command line or vendor UI? | **No.** The preferred production path is a **customer-owned scheduled agent** (Automation runbook or Function timer). Workstation CLI remains a **pilot** option. |
+| What Azure permissions does the collector need? | **Read-only** ARM access to list resources in the scoped subscription or resource group; optional **Cost Management Reader** when `-IncludeCost` is used. |
+| What leaves our tenant? | A **schema-versioned ZIP** you choose to upload — not live API keys or Key Vault secrets. |
+| What if we cannot approve the collector? | Use an **evidence-only** architecture review (`CloudProvider.None`) — upload briefs, diagrams, and documents without extractor output. |
 
-### Tier 1 — customer-run collector (default V1 path)
+### Tier 1 — customer-owned collector (default V1 path)
+
+**Preferred production cadence:** deploy the Terraform Automation runbook (or Function timer) shipped with the ArchLucid distribution as the scheduled-agent template. A system-assigned managed identity with **Reader** + **Cost Management Reader** runs the same collector on a schedule and **POST**s the ZIP. ArchLucid never receives a client secret. Operators do not pull from a command line or UI after apply.
+
+**One-time pilot path:**
 
 1. Your team downloads and reviews **`scripts/azure/Get-ArchLucidAzurePackage.ps1`** from the ArchLucid distribution you received (or repository tag aligned to your pilot build).
 2. An authorized operator runs the script **inside your Azure context** (Azure PowerShell / Cloud Shell / approved automation runner).
@@ -4884,11 +4889,12 @@ Scope the run to the **smallest** subscription or resource group that represents
 
 Tier 2 is **opt-in** and **not required** for V1 pilots. If enabled later: customer provisions a dedicated read-only service principal with **`Reader`** + **`Cost Management Reader`** only; federated workload identity preferred; ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` — **never** customer client secrets. Detail: [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) Tier 2 section.
 
-### Alternative when the script is blocked
+### Alternative when workstation collection is blocked
 
-1. Run an **evidence-only** review (`CloudProvider.None`).
-2. Use **demo evidence** for internal evaluator dry-runs only (label **demo-derived**; do not quote externally).
-3. Revisit Tier 1 after sandbox approval or use a **narrow resource-group scope** on a non-production subscription.
+1. Prefer the **scheduled agent** (customer Automation / Function) so collection stays in-tenant without a laptop CLI.
+2. Run an **evidence-only** review (`CloudProvider.None`).
+3. Use **demo evidence** for internal evaluator dry-runs only (label **demo-derived**; do not quote externally).
+4. Revisit one-time collection after sandbox approval or use a **narrow resource-group scope** on a non-production subscription.
 
 First-pilot path: [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase B step B2.
 

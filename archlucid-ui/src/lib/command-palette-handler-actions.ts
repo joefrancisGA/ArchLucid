@@ -12,6 +12,13 @@ import {
   isCommandPaletteTenantCostSettingsSaveAvailable,
 } from "@/lib/command-palette-work-action-dom";
 import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
+import { isRemediationFactoryRoutePath } from "@/lib/product-line/securenow-remediation-factory-route";
+import {
+  COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_NEXT_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_PREV_EVENT,
+} from "@/lib/remediation-factory/remediation-factory-command-palette-events";
 
 export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-draft";
 export const COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT = "archlucid-command-palette-save-tenant-cost-settings";
@@ -55,7 +62,11 @@ export type CommandPaletteHandlerActionId =
   | "action-alert-prev"
   | "action-alert-acknowledge"
   | "action-alert-resolve"
-  | "action-alert-suppress";
+  | "action-alert-suppress"
+  | "action-remediation-factory-next"
+  | "action-remediation-factory-prev"
+  | "action-remediation-factory-inspect"
+  | "action-remediation-factory-explain";
 
 export type CommandPaletteHandlerAvailabilityContext = {
   readonly reversibleUndoAvailable?: boolean;
@@ -73,7 +84,7 @@ const reviewDetailPathPattern = /^\/architecture\/reviews\/[^/]+/;
 const nestedReviewDetailPathPattern = /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+/;
 const nestedArchitectureFindingsPathPattern =
   /^\/architecture\/architectures\/[^/]+\/findings(\/|$)/;
-const findingsQueuePathPattern = /^\/governance\/findings(\/|$)/;
+const findingsQueuePathPattern = /^\/(?:governance|compliance)\/findings(\/|$)/;
 const alertsPathPattern = /^\/governance\/alerts(\/|$)/;
 const workspaceSettingsPathPattern = /^\/administration\/workspace-settings(\/|$)/;
 
@@ -115,7 +126,7 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
   {
     id: "action-save-draft",
     label: "Save changes",
-    searchValue: "action save draft architecture workspace review disposition remediation",
+    searchValue: "action save architecture draft workspace review disposition remediation",
     isAvailable: (pathname) =>
       isArchitectureDraftWorkPath(pathname)
       || (isReviewDetailWorkPath(pathname) && isCommandPaletteReviewSaveAvailable()),
@@ -235,6 +246,30 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     searchValue: "action alert suppress alt+3 triage",
     isAvailable: (pathname) => isAlertsWorkPath(pathname),
   },
+  {
+    id: "action-remediation-factory-next",
+    label: "Select next remediation row",
+    searchValue: "action remediation factory next alt+j ranked queue",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-prev",
+    label: "Select previous remediation row",
+    searchValue: "action remediation factory previous alt+k ranked queue",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-inspect",
+    label: "Focus path inspect",
+    searchValue: "action remediation factory inspect alt+i path panel",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-explain",
+    label: "Explain selected finding score",
+    searchValue: "action remediation factory explain alt+e simulator score",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
 ];
 
 const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
@@ -257,6 +292,10 @@ const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-alert-acknowledge": COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT,
   "action-alert-resolve": COMMAND_PALETTE_ALERT_RESOLVE_EVENT,
   "action-alert-suppress": COMMAND_PALETTE_ALERT_SUPPRESS_EVENT,
+  "action-remediation-factory-next": COMMAND_PALETTE_REMEDIATION_FACTORY_NEXT_EVENT,
+  "action-remediation-factory-prev": COMMAND_PALETTE_REMEDIATION_FACTORY_PREV_EVENT,
+  "action-remediation-factory-inspect": COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT,
+  "action-remediation-factory-explain": COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
 };
 
 export function dispatchCommandPaletteHandlerAction(actionId: CommandPaletteHandlerActionId): void {

@@ -27,6 +27,9 @@ public static class UserSettingKeys
     /// <summary>Post-seal Working-mode graduation offer: <c>pending</c>, <c>dismissed</c>, or <c>remind-next</c>.</summary>
     public const string WorkspaceModeGraduationOffer = "WorkspaceModeGraduationOffer";
 
+    /// <summary>First-login seat purpose: <c>live</c> (tenant workspace) or <c>training</c> (sample teaching).</summary>
+    public const string FirstSessionPurpose = "FirstSessionPurpose";
+
     /// <summary>Whether Working-mode review-detail uses the split workbench layout: <c>true</c> or <c>false</c>.</summary>
     public const string ProfessionalWorkbenchEnabled = "ProfessionalWorkbenchEnabled";
 

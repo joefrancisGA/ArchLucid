@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow path-aware remediation narrative design (SA-14).
+
 # SecureNow path-aware remediation narrative (SA-14)
 
 When a remediation instance (IE-13) is created from a finding that cites a `PathId`, ArchLucid persists a **structured architect narrative** on the instance — not a single LLM blob.

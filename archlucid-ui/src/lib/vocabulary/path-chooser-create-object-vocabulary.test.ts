@@ -80,7 +80,7 @@ describe("path-chooser-create-object-vocabulary (TB-2260)", () => {
     expect(links[1]?.tooltip).toBeUndefined();
   });
 
-  it("points Working-mode Start review peer at the draft editor (WA-02)", () => {
+  it("points Working-mode Start review peer at the architecture draft editor (WA-02)", () => {
     const model = buildPathChooserCreateObjectVocabulary(true);
     const peers = resolvePathChooserCreateObjectPeerLinks("architecture-drafts", true);
     const reviewsPeer = peers.find((peer) => peer.id === "reviews-new");

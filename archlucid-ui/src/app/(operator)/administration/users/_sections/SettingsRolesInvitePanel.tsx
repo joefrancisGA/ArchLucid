@@ -28,6 +28,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { resolveAdminUserInvitationAcceptLink } from "./settings-roles-pending-invitations";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
+import {
+  SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT,
+  SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT_TEST_ID,
+} from "./settings-roles-invite-copy";
 import { resolveInviteReviewerReviewHref } from "@/lib/resolve-invite-reviewer-review-href";
 import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -210,6 +214,13 @@ export function SettingsRolesInvitePanel({
           data-testid="settings-roles-invite-message"
         />
       </div>
+
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid={SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT_TEST_ID}
+      >
+        {SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT}
+      </p>
 
       <div className="space-y-2">
         <MutatingInWorkspaceChip />

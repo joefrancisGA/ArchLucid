@@ -21,7 +21,6 @@ import {
 import {
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE,
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE_HEADING,
-  SEARCH_REVIEW_EVIDENCE_HELP_SOURCES,
 } from "@/lib/search-review-evidence-help-evidence-copy";
 import {
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID,
@@ -39,9 +38,7 @@ import {
 } from "@/lib/search-review-evidence-help-guide-content";
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 describe("HelpSearchReviewEvidenceGuideView", () => {
   const entry = getProductDocumentationEntry("search-review-evidence");
@@ -86,11 +83,10 @@ describe("HelpSearchReviewEvidenceGuideView", () => {
     for (const phrase of SEARCH_REVIEW_EVIDENCE_HELP_NEGATION_DRIFT_MARKERS.overviewMustNotContain) {
       expect(screen.getByTestId("help-search-review-evidence-overview").textContent).not.toContain(phrase);
     }
-    expect(screen.getByRole("link", { name: SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
-      "href",
-      SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href,
-    );
-    expect(screen.getAllByRole("link", { name: SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
+    const primaryAction = screen.getByTestId("help-search-review-evidence-primary-action");
+
+    expect(primaryAction).toBeDisabled();
+    expect(primaryAction).toHaveTextContent(`${SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label} (requires a finalized review)`);
     expect(screen.getByTestId("help-search-review-evidence-action-panel")).toHaveTextContent(
       SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE,
     );
@@ -134,24 +130,23 @@ describe("HelpSearchReviewEvidenceGuideView", () => {
 
     const sourcesRegion = within(screen.getByTestId("help-search-review-evidence-sources"));
 
-    for (const source of SEARCH_REVIEW_EVIDENCE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-
-      if (source.when !== undefined) {
-        expect(sourcesRegion.getByText(source.when)).toBeInTheDocument();
-      }
-    }
+    expect(sourcesRegion.getByRole("link", { name: "Open Architecture reviews" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews",
+    );
+    expect(sourcesRegion.getByRole("link", { name: "Open Findings queue" })).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
+    expect(sourcesRegion.getByRole("link", { name: "Open Audit trail" })).toHaveAttribute(
+      "href",
+      "/governance/audit",
+    );
 
     expect(screen.queryByRole("link", { name: "Open evidence graph →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Ask review questions →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open findings queue →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Search review evidence", hidden: true })).not.toBeInTheDocument();
-    expect(sourcesRegion.getByRole("link", { name: "Read Evidence trail help" })).toHaveAttribute(
-      "href",
-      inAppHelpHref("evidence-trail"),
-    );
-
     for (const heading of SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
     }

@@ -9,7 +9,7 @@ export const FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE =
   "This guide is onboarding checklist orientation — completing steps here does not create a full audit export. Start a review and Evidence intake when you are ready to file evidence.";
 
 export const FIRST_REVIEW_GUIDE_SOURCES_INTRO =
-  "Use these when you are ready to create a draft, start review intake, or need first-architecture-review help.";
+  "Use these when you are ready to create an architecture draft, start review intake, or need first-architecture-review help.";
 
 /** Compact evaluation scope + duration expectation on `/architecture/first-review-guide` (ARF P0-6). */
 export const FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER =

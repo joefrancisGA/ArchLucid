@@ -47,8 +47,9 @@ public sealed class ArchitectureSpineAs082CareerRehearsalHelpArchitectureTests
                 "_sections",
                 "HelpCareerRehearsalGuideView.tsx"));
 
-        view.Should().Contain("help-career-rehearsal-door-${door.doorId}");
-        view.Should().Contain("help-career-rehearsal-simulator-honesty");
+        view.Should().Contain("CAREER_REHEARSAL_HELP_GUIDE_TEST_ID");
+        view.Should().Contain("help-career-vs-rehearsal-comparison-table");
+        view.Should().Contain("help-career-vs-rehearsal-simulator-honesty");
     }
 
     private static string FindRepoRoot()

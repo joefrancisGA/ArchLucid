@@ -58,7 +58,21 @@ public interface IHostedAzureArmReadClient
         string managementGroupId,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsAsync(
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListSubscriptionPolicyDefinitionDocumentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListBuiltInPolicyDefinitionDocumentsAsync(
+        string accessToken,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListSubscriptionPolicyAssignmentDocumentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
+
+    Task<HostedAzureDiagnosticSettingsCollectResult> ListDiagnosticSettingsAsync(
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         CancellationToken cancellationToken);
@@ -84,10 +98,59 @@ public interface IHostedAzureArmReadClient
         CancellationToken cancellationToken);
 
     /// <summary>
+    ///     GET child peerings for one VNet. ARM VNet list often returns an empty nested
+    ///     <c>virtualNetworkPeerings</c> array even when peerings exist.
+    /// </summary>
+    Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListVirtualNetworkPeeringsAsync(
+        string accessToken,
+        string subscriptionId,
+        string virtualNetworkResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     ///     GET NIC effective NSG and route table (IE-RF-10). Fail-soft per control kind.
     /// </summary>
     Task<IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>> ListEffectiveNetworkControlsForNicAsync(
         string accessToken,
         string nicResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET linked services for one Data Factory (ADF platform wiring).
+    /// </summary>
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryLinkedServicesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET datasets for one Data Factory (ADF pipeline direction wiring).
+    /// </summary>
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryDatasetsAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET pipelines for one Data Factory (ADF pipeline direction wiring).
+    /// </summary>
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryPipelinesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryTriggersAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryIntegrationRuntimesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryDataflowsAsync(
+        string accessToken,
+        string factoryResourceId,
         CancellationToken cancellationToken);
 }

@@ -281,7 +281,7 @@ export function HelpComparisonReplayGuideView(
             </section>
           </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
         </div>
 
         <SponsorSendPathHonestyPanel testIdPrefix="help-comparison-replay" showSsoOptional={false} />

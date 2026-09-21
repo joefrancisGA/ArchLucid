@@ -32,10 +32,15 @@ describe("DriftChangesTableHeaderCell", () => {
     );
 
     const sortButton = screen.getByTestId("infra-drift-sort-resource");
+    const cluster = screen.getByTestId("infra-drift-header-cluster-resource");
+    const filterTrigger = screen.getByTestId("infra-drift-resource-filter-trigger");
 
     expect(sortButton).toHaveTextContent("Resource");
     expect(sortButton).toHaveTextContent("↑");
-    expect(screen.getByTestId("infra-drift-resource-filter-trigger")).toBeInTheDocument();
+    expect(sortButton.className).not.toMatch(/\bflex-1\b/);
+    expect(cluster).toHaveClass("inline-flex");
+    expect(cluster).toContainElement(sortButton);
+    expect(cluster).toContainElement(filterTrigger);
 
     fireEvent.click(sortButton);
 

@@ -14,17 +14,17 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.Contains, "contains")]
     [InlineData(GraphEdgeTypes.ContainsResource, "contains")]
     [InlineData(GraphEdgeTypes.Protects, "protects")]
-    [InlineData(GraphEdgeTypes.AppliesTo, "applies to")]
+    [InlineData(GraphEdgeTypes.AppliesTo, "applies")]
     [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
     [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
     [InlineData(GraphEdgeTypes.Exposes, "exposes")]
     [InlineData(GraphEdgeTypes.HasRole, "has role")]
-    [InlineData(GraphEdgeTypes.UsesIdentity, "uses identity")]
-    [InlineData(GraphEdgeTypes.CanRead, "can read")]
-    [InlineData(GraphEdgeTypes.CanWrite, "can write")]
+    [InlineData(GraphEdgeTypes.UsesIdentity, "uses")]
+    [InlineData(GraphEdgeTypes.CanRead, "reads")]
+    [InlineData(GraphEdgeTypes.CanWrite, "writes")]
     [InlineData(GraphEdgeTypes.CanAssume, "can assume")]
     [InlineData(GraphEdgeTypes.RoutesTo, "routes to")]
-    [InlineData(GraphEdgeTypes.FederatesAs, "federates as")]
+    [InlineData(GraphEdgeTypes.FederatesAs, "federates")]
     [InlineData(GraphEdgeTypes.MemberOf, "member of")]
     public void ResolveDisplayLabel_humanizes_known_graph_edge_types(string edgeType, string expected)
     {
@@ -35,8 +35,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [Theory]
     [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, "peering")]
     [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, "peering")]
-    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "connects")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "connects")]
+    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "in")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "uses")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "Likely connected to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -58,5 +64,21 @@ public sealed class DiagramEdgeLabelHumanizerTests
     public void HumanizeLabel_preserves_custom_non_canonical_labels()
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
+    }
+
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Sends diagnostics to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Sends diagnostics to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
+    [InlineData(GraphEdgeTypes.MayAccess, "May access")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Triggers")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Runs on")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, "Captures to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
+    public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
     }
 }

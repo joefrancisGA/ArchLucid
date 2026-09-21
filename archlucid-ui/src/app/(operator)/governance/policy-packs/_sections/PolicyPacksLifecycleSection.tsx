@@ -24,6 +24,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksHubPathFromPathname } from "@/lib/product-line/securenow-compliance-routes";
 import {
   parsePolicyPackPublishConfirmOpenFromSearch,
   policyPackPublishConfirmHrefFromSearch,
@@ -182,7 +183,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 disabled={verticalImportSlug !== null || !canMutatePacks}
                 onClick={() => void onImportVertical(row.slug, row.label)}
               >
-                {verticalImportSlug === row.slug ? "Loadingâ€¦" : row.label}
+                {verticalImportSlug === row.slug ? "Loading…" : row.label}
               </Button>
             ))}
           </div>
@@ -343,7 +344,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               {"Assigning for review "}
               <span className="font-mono text-al-text-primary">{scopedReviewId}</span>
               {" · "}
-              <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_POLICY_PACKS_PATH}>
+              <Link className={OPERATOR_LINK.inline} href={policyPacksHubPathFromPathname(pathname)}>
                 Clear review scope
               </Link>
               {" · "}

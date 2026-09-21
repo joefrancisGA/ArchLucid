@@ -1,5 +1,5 @@
 import {
-  ARCHITECTURES_NEW_PATH,
+  REVIEWS_NEW_PATH,
   startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
 
@@ -48,7 +48,7 @@ export function resolveWorkingCreateStartHref(
   }
 
   return {
-    href: ARCHITECTURES_NEW_PATH,
+    href: REVIEWS_NEW_PATH,
     reason: "portfolio-new",
   };
 }

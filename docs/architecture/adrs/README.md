@@ -97,6 +97,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0099](0099-semantic-support-llm-judge-default-on-finalize.md) | Semantic support Premium LLM judge **default-on for Real finalize** — emit stays heuristic; warn-not-block; Simulator skip (**Status: Accepted** 2026-09-13; LY wave; supersedes LN-025 skip for finalize only; **not** G-REAL-06) |
 | [0100](0100-working-inhabit-architecture-findings-document.md) | Working **inhabits** the architecture — pre-seal afternoon is document-grade findings work on that identity; nested review-detail stays a job inspector (**Status: Proposed**; IH wave; **not** G-REAL-06; does not rewrite 0068/0098) |
 | [0101](0101-ai-diagram-assist-compiles-to-existing-controls.md) | AI diagram assist **compiles into existing controls** — view plans, model patches, narration, camera/path over compiled AST; not LLM Mermaid SoT (**Status: Proposed** 2026-09-13; DAU wave) |
+| [0102](0102-first-login-live-workspace-explicit-training.md) | First login lands on **live tenant workspace**; **Training** is an explicit once-per-user choice; silent Customer Intake Demo scope is not the signed-in default (**Status: Proposed** 2026-09-20; live-seat wave) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, and Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

@@ -156,7 +156,7 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
-// Stubbed so header placement is asserted independently of help-topic resolution for the draft route.
+// Stubbed so header placement is asserted independently of help-topic resolution for the architecture draft route.
 vi.mock("@/components/usability/PageContextualHelpButton", async () => {
   const actual = await vi.importActual<typeof import("@/components/usability/PageContextualHelpButton")>(
     "@/components/usability/PageContextualHelpButton",
@@ -276,7 +276,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("page-contextual-help-stub")).toBeInTheDocument();
   });
 
-  it("opens the empty workspace immediately on /new without fetching a draft", async () => {
+  it("opens the empty workspace immediately on /new without fetching an architecture draft", async () => {
     vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
       saveState: "idle",
       lastSavedUtc: null,
@@ -467,7 +467,7 @@ describe("ArchitectureDraftWorkspace", () => {
     render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(/Too many requests while loading this draft/i);
+      expect(screen.getByRole("alert")).toHaveTextContent(/Too many requests while loading this architecture draft/i);
     });
 
     expect(screen.getByRole("alert")).toHaveTextContent(/Wait about 12 seconds/i);
@@ -563,7 +563,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
   });
 
-  it("locks the editor and promotes the linked review when a draft already spawned a review", async () => {
+  it("locks the editor and promotes the linked review when an architecture draft already spawned a review", async () => {
     render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
@@ -647,7 +647,7 @@ describe("ArchitectureDraftWorkspace", () => {
     );
   });
 
-  it("AO-24: nested Working draft editor shows identity chrome and desk back link while drafting", async () => {
+  it("AO-24: nested Working architecture draft editor shows identity chrome and desk back link while drafting", async () => {
     workspaceModeMock.mockReturnValue({
       mode: "working",
       isWorkingMode: true,
@@ -679,7 +679,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
   });
 
-  it("warns at the top and freezes the form when the draft is already in review intake", async () => {
+  it("warns at the top and freezes the form when the architecture draft is already in review intake", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,
       status: "Admitted",
@@ -929,7 +929,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 
-  it("shows staged progress while Start review prepares the draft, before any navigation", async () => {
+  it("shows staged progress while Start review prepares the architecture draft, before any navigation", async () => {
     const longOverview =
       "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
 

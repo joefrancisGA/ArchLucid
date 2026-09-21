@@ -102,12 +102,14 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
   const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
   const compactRegisterFilterVisible = buyerPolishedShell && !loading && !isAssignedToMe;
   const advancedFiltersDisclosureVisible = buyerPolishedShell && findingsAdvancedFiltersAvailable;
+  const assignedToMeScopeFiltersVisible = isAssignedToMe && !loading;
   const effectiveJobView = resolveEffectiveFindingJobView(
     jobView,
-    filterBarVisible || advancedFiltersDisclosureVisible,
+    filterBarVisible || advancedFiltersDisclosureVisible || assignedToMeScopeFiltersVisible,
   );
   const jobViewFilterActive =
-    (filterBarVisible || advancedFiltersDisclosureVisible) && jobView !== DEFAULT_FINDING_JOB_VIEW;
+    (filterBarVisible || advancedFiltersDisclosureVisible || assignedToMeScopeFiltersVisible)
+    && jobView !== DEFAULT_FINDING_JOB_VIEW;
 
   const architectureScopedRows = useMemo(
     () => filterGovernanceFindingsArchitectureScopedRows(rows, architectureRunIdSet),
@@ -172,8 +174,9 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
         displayedRows,
         scopedRunFilterActive ? scopedRunId : null,
         inhabitedFindingsInspectHrefOptions,
+        { allowRecentWithoutLoadedRow: isAssignedToMe },
       ),
-    [displayedRows, inhabitedFindingsInspectHrefOptions, scopedRunFilterActive, scopedRunId],
+    [displayedRows, inhabitedFindingsInspectHrefOptions, isAssignedToMe, scopedRunFilterActive, scopedRunId],
   );
   const dispositionRecorded = useMemo(
     () =>
@@ -244,6 +247,7 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     filterBarVisible,
     compactRegisterFilterVisible,
     advancedFiltersDisclosureVisible,
+    assignedToMeScopeFiltersVisible,
     effectiveJobView,
     jobViewFilterActive,
     scopedRows,

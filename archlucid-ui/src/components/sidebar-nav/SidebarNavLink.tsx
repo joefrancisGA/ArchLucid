@@ -14,22 +14,6 @@ import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { pilotNavLinkTestId } from "@/lib/pilot-nav-link-test-ids";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { SIDEBAR_DAILY_HREFS_BY_GROUP } from "@/lib/sidebar-nav-daily-links";
-import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
-
-/** High-traffic hubs — explicit prefetch for faster soft-nav (default is already on; pin intent). */
-const HIGH_TRAFFIC_HUB_HREFS: ReadonlySet<string> = new Set([
-  "/",
-  "/architecture/reviews",
-  "/architecture/reviews/new",
-  "/governance/approval-queue",
-  "/governance/findings",
-  "/governance/alerts",
-  "/governance/alert-rules",
-  "/governance/policy-packs",
-  SIGNED_RECORDS_LIST_PATH,
-  "/architecture/sponsor-dashboard",
-]);
-
 type SidebarNavLinkProps = {
   readonly presented: NavLinkItem;
   readonly active: boolean;
@@ -110,7 +94,8 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
     <>
       <Link
         href={presented.href}
-        prefetch={HIGH_TRAFFIC_HUB_HREFS.has(presented.href) ? true : undefined}
+        // Next.js 16 segment-cache aborts in-flight prefetch when navigation starts — dev-only "Failed to fetch".
+        prefetch={false}
         {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
         {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
         className={cn(sharedClassName, "hover:bg-neutral-100 dark:hover:bg-neutral-800")}

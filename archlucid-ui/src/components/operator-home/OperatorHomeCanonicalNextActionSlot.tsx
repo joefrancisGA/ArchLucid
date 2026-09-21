@@ -19,6 +19,9 @@ type OperatorHomeCanonicalNextActionSlotProps = {
   readonly slotTestId?: string;
   readonly bridgeTestId: string;
   readonly primaryTestId: string;
+  readonly secondaryLabel?: string;
+  readonly secondaryTestId?: string;
+  readonly onSecondaryAction?: () => void;
   readonly layout?: "stacked" | "inline";
 };
 
@@ -64,11 +67,28 @@ export function OperatorHomeCanonicalNextActionSlot(
           Loading completed sample…
         </p>
       ) : (
-        <Button asChild variant="primary" size="sm" className="h-8 w-fit shrink-0">
-          <Link href={resolvedAction.href} data-testid={props.primaryTestId}>
-            {resolvedAction.label}
-          </Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="primary" size="sm" className="h-8 w-fit shrink-0">
+            <Link href={resolvedAction.href} data-testid={props.primaryTestId}>
+              {resolvedAction.label}
+            </Link>
+          </Button>
+          {props.onSecondaryAction !== undefined
+          && props.secondaryTestId !== undefined
+          && props.secondaryLabel !== undefined
+          && props.secondaryLabel.trim().length > 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 w-fit shrink-0"
+              data-testid={props.secondaryTestId}
+              onClick={props.onSecondaryAction}
+            >
+              {props.secondaryLabel}
+            </Button>
+          ) : null}
+        </div>
       )}
     </>
   );

@@ -53,6 +53,37 @@ It is **not** a full browser regression suite. Authoritative detail: **[archluci
 
 ---
 
+## Linux / Cloud Agent (Gate 1 witness)
+
+Cursor Cloud VMs and Linux CI agents are **Linux**. The canonical script remains **`scripts/release-smoke.ps1`** (PowerShell 7).
+
+**One-time:** install `pwsh` per [`docs/engineering/AGENTS.md`](../engineering/AGENTS.md) (Cloud Agent section).
+
+**Full smoke (preferred on Linux):**
+
+```bash
+export ARCHLUCID_SMOKE_SQL='Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=...;TrustServerCertificate=True;'
+./scripts/release-smoke.sh
+```
+
+Equivalent:
+
+```bash
+pwsh -NoProfile -File scripts/release-smoke.ps1
+```
+
+**Partial substitute (compile + fast core only — not Gate 1):**
+
+```bash
+bash scripts/ci/run_push_corset_dotnet.sh
+```
+
+**Access-path witness without local SQL:** rely on CI **`private-beta-access-on-push.yml`** (`Operator UI: private-beta access-path (JwtBearer)`). Triage: [`docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md`](../runbooks/PRIVATE_BETA_TRUNK_SMOKE.md).
+
+Attach success artifacts to RC per [`docs/runbooks/GATE_1_SHIP_GATE_EVIDENCE.md`](../runbooks/GATE_1_SHIP_GATE_EVIDENCE.md).
+
+---
+
 ## Prerequisites (full smoke)
 
 - **.NET 10 SDK**

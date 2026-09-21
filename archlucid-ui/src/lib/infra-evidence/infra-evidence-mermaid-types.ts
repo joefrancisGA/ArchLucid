@@ -30,6 +30,27 @@ export type InfraEvidenceMermaidModePreview = {
 export type InfraEvidenceMermaidPreviewResponse = {
   snapshotId: string;
   modes: InfraEvidenceMermaidModePreview[];
+  completenessWarnings?: string[];
+};
+
+export type InfraEvidenceMermaidCollapseEntry = {
+  kind: string;
+  cloudResourceId: string | null;
+  nodeId: string | null;
+  reason: string;
+};
+
+export type InfraEvidenceMermaidCollapseReport = {
+  entries: InfraEvidenceMermaidCollapseEntry[];
+};
+
+export type InfraEvidenceMermaidIdentityDiagramSuppressedArmType = {
+  armResourceType: string;
+  resourceCount: number;
+};
+
+export type InfraEvidenceMermaidIdentityDiagramHints = {
+  inventoryFilteredIdentityArmTypes: InfraEvidenceMermaidIdentityDiagramSuppressedArmType[];
 };
 
 export type InfraEvidenceMermaidRenderResponse = {
@@ -42,6 +63,21 @@ export type InfraEvidenceMermaidRenderResponse = {
   layoutEngine: string | null;
   metrics: InfraEvidenceMermaidComplexityMetrics | null;
   fallbackArtifacts: InfraEvidenceMermaidFallbackArtifactSummary[];
+  collapseReport: InfraEvidenceMermaidCollapseReport | null;
+  identityDiagramHints?: InfraEvidenceMermaidIdentityDiagramHints | null;
+  completenessWarnings?: string[];
+  completenessSummary?: InfraEvidenceMermaidCompletenessSummary | null;
+};
+
+export type InfraEvidenceMermaidCompletenessSummary = {
+  mode: string;
+  visibleNodeCount: number;
+  visibleEdgeCount: number;
+  connectedComponentCount: number;
+  hiddenHopsUsedCount: number;
+  likelyInCollocationEdgeCount: number;
+  missingClasses: string[];
+  collectedClasses: string[];
 };
 
 export type InfraEvidenceMermaidRenderStatus = "Succeeded" | "Partitioned" | "Failed";

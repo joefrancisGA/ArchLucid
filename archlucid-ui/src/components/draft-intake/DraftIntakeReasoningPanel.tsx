@@ -240,7 +240,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
               rows={4}
               value={message}
               disabled={panelDisabled}
-              placeholder="Ask ArchLucid to clarify a gap or risk in your draft answer…"
+              placeholder="Ask ArchLucid to clarify a gap or risk in your architecture draft answer…"
               data-testid="draft-intake-reason-input"
               onChange={(event) => {
                 setMessage(event.target.value);

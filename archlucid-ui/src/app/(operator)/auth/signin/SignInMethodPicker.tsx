@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordEmailOtpAuthAnalytics } from "@/lib/auth/email-otp-analytics";
-import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
+import { SIGN_IN_PAGE_COPY, signInOptionsTitle } from "@/lib/auth/sign-in-page-copy";
 import type { SignInMethodOptions } from "@/lib/auth/sign-in-method-options";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 export type SignInMethodPickerProps = {
   readonly options: SignInMethodOptions;
@@ -21,9 +22,11 @@ export function SignInMethodPicker({
   onEmailCode,
   onSupplemental,
 }: SignInMethodPickerProps) {
+  const { productLine } = useLocalizedProductCopy();
+
   return (
     <div data-testid="sign-in-method-picker">
-      <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SIGN_IN_PAGE_COPY.optionsTitle}</h1>
+      <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{signInOptionsTitle(productLine)}</h1>
       <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {SIGN_IN_PAGE_COPY.optionsLead}
       </p>

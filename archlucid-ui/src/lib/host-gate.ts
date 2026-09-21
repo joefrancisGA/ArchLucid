@@ -32,7 +32,7 @@ import {
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
 } from "@/lib/ui-route-traffic-retired-redirect-shims";
 import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
-import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-content";
+import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-route";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 

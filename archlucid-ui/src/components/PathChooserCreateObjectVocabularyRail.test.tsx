@@ -116,7 +116,7 @@ describe("PathChooserCreateObjectVocabularyRail (TB-2260)", () => {
     ).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK.label);
   });
 
-  it("uses the draft editor href for Working-mode Start review peers (WA-02)", () => {
+  it("uses the architecture draft editor href for Working-mode Start review peers (WA-02)", () => {
     workspaceModeMock.isWorkingMode = true;
 
     render(<PathChooserCreateObjectVocabularyRail currentSurfaceId="path-chooser" />);

@@ -41,9 +41,18 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
           {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
         </p>
       ) : (
-        <ul>
+        <ul className="m-0 list-none space-y-2 p-0" data-testid="policy-packs-registered-inventory-list">
           {packs.map((p) => (
-            <li key={p.policyPackId}>
+            <li
+              key={p.policyPackId}
+              className={cn(
+                "rounded-md border px-3 py-2",
+                selectedPackId === p.policyPackId
+                  ? "border-neutral-400 bg-muted/30 dark:border-neutral-600"
+                  : "border-neutral-200 dark:border-neutral-800",
+              )}
+              data-testid={`policy-packs-inventory-row-${p.policyPackId}`}
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <strong>{p.name}</strong>
                 {isStandardBaselinePolicyPackName(p.name) ? (
@@ -68,7 +77,7 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <code className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{p.policyPackId}</code>
-                <CopyIdButton value={p.policyPackId} aria-label="Copy policy pack ID" />
+                <CopyIdButton value={p.policyPackId} aria-label={`Copy policy pack ID for ${p.name}`} />
               </div>
               <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {" "}

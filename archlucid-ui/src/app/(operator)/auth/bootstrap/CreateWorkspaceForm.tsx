@@ -204,29 +204,6 @@ export function CreateWorkspaceForm({
             {formState.errors.termsAccepted.message}
           </p>
         ) : null}
-        <div className="flex items-start gap-2">
-          <Controller
-            control={control}
-            name="includeDemoSeed"
-            render={({ field }) => (
-              <Checkbox
-                id="create-workspace-demo-seed"
-                checked={field.value}
-                onCheckedChange={(checked) => {
-                  field.onChange(checked === true);
-                }}
-                disabled={pending}
-                data-testid="create-workspace-demo-seed"
-              />
-            )}
-          />
-          <label
-            className={cn("text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            htmlFor="create-workspace-demo-seed"
-          >
-            {CREATE_WORKSPACE_COPY.includeDemoSeedLabel}
-          </label>
-        </div>
         {errorMessage ? (
           <>
             <p role="alert" className="text-sm text-red-700 dark:text-red-300">

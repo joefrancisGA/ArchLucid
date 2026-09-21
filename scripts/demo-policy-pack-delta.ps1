@@ -2,6 +2,7 @@
 <#
 .SYNOPSIS
   Repeatable policy-pack delta demo — baseline vs strict pre-commit dry-run on one committed run.
+  Use with docs/go-to-market/FOUNDER_30_MIN_PACK_AB_DEMO_SCRIPT.md (30-minute WK-21 talk track).
 
 .DESCRIPTION
   Implements improvement #2 (assessment LATEST_GPT55): same run, different enforcement overrides,

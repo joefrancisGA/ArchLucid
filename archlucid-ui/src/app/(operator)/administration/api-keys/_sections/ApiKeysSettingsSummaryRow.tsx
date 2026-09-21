@@ -4,7 +4,6 @@ import {
   API_KEYS_SUMMARY_ACCESS_LABEL,
   API_KEYS_SUMMARY_ADMIN_KEYS_LABEL,
   API_KEYS_SUMMARY_LAST_ROTATION_LABEL,
-  API_KEYS_SUMMARY_LAST_USED_LABEL,
   API_KEYS_SUMMARY_READONLY_KEYS_LABEL,
   API_KEYS_ACCESS_DISABLED_LABEL,
   API_KEYS_ACCESS_ENABLED_LABEL,
@@ -49,7 +48,7 @@ export function ApiKeysSettingsSummaryRow(props: ApiKeysSettingsSummaryRowProps)
 
   return (
     <section
-      className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
+      className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
       data-testid="api-keys-summary-row"
       aria-label="API key summary"
     >
@@ -59,10 +58,6 @@ export function ApiKeysSettingsSummaryRow(props: ApiKeysSettingsSummaryRowProps)
       <SummaryMetric
         label={API_KEYS_SUMMARY_LAST_ROTATION_LABEL}
         value={formatOptionalTimestamp(summary.lastRotationUtc, loading)}
-      />
-      <SummaryMetric
-        label={API_KEYS_SUMMARY_LAST_USED_LABEL}
-        value={formatOptionalTimestamp(summary.lastUsedUtc, loading)}
       />
     </section>
   );

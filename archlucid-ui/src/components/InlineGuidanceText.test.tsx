@@ -36,7 +36,7 @@ describe("InlineGuidanceText", () => {
 
   it("emphasizes the required before review scan label", () => {
     render(
-      <InlineGuidanceText text="Required before review: complete the system name, architecture overview, business outcome, and at least one confirmed person or system in this draft." />,
+      <InlineGuidanceText text="Required before review: complete the system name, architecture overview, business outcome, and at least one confirmed person or system in this architecture draft." />,
     );
 
     expect(screen.getByText("Required before review:").tagName).toBe("STRONG");

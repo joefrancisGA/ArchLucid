@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { SecureNowArchitectOutcomeMetricsPanel } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
@@ -121,5 +121,135 @@ describe("SecureNowArchitectOutcomeMetricsPanel", () => {
     expect(screen.getByText(SECURENOW_ARCHITECT_METRICS_CRITICAL_PATHS_REMOVED)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-metric-Critical/high paths removed")).toHaveTextContent("3");
     expect(screen.getByText(/SA11-metrics-v1/)).toBeInTheDocument();
+  });
+
+  it("auto-requests compare when a complete snapshot pair is restored from URL state", () => {
+    const metricsMock = vi.mocked(useSecureNowArchitectOutcomeMetricsQuery);
+
+    vi.mocked(useInfraEvidenceSnapshotsQuery).mockReturnValue({
+      data: {
+        items: [
+          {
+            snapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            subscriptionId: "sub-1",
+            subscriptionName: "Contoso",
+            capturedUtc: "2026-01-02T00:00:00Z",
+            captureStatus: 1,
+            resourceCount: 12,
+            relationshipCount: 6,
+          },
+          {
+            snapshotId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            subscriptionId: "sub-1",
+            subscriptionName: "Contoso",
+            capturedUtc: "2026-01-01T00:00:00Z",
+            captureStatus: 1,
+            resourceCount: 10,
+            relationshipCount: 5,
+          },
+        ],
+        totalCount: 2,
+        page: 1,
+        pageSize: 25,
+        hasMore: false,
+      },
+      isError: false,
+      isLoading: false,
+    } as ReturnType<typeof useInfraEvidenceSnapshotsQuery>);
+
+    metricsMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: true,
+    } as ReturnType<typeof useSecureNowArchitectOutcomeMetricsQuery>);
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SecureNowArchitectOutcomeMetricsPanel
+          fromSnapshotId="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+          toSnapshotId="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+          onSnapshotPairChange={vi.fn()}
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(metricsMock).toHaveBeenCalledWith(
+      "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      true,
+    );
+  });
+
+  it("does not auto-compare after the operator changes a snapshot until Compare is pressed", () => {
+    const metricsMock = vi.mocked(useSecureNowArchitectOutcomeMetricsQuery);
+
+    vi.mocked(useInfraEvidenceSnapshotsQuery).mockReturnValue({
+      data: {
+        items: [
+          {
+            snapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            subscriptionId: "sub-1",
+            subscriptionName: "Contoso",
+            capturedUtc: "2026-01-02T00:00:00Z",
+            captureStatus: 1,
+            resourceCount: 12,
+            relationshipCount: 6,
+          },
+          {
+            snapshotId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            subscriptionId: "sub-1",
+            subscriptionName: "Contoso",
+            capturedUtc: "2026-01-01T00:00:00Z",
+            captureStatus: 1,
+            resourceCount: 10,
+            relationshipCount: 5,
+          },
+        ],
+        totalCount: 2,
+        page: 1,
+        pageSize: 25,
+        hasMore: false,
+      },
+      isError: false,
+      isLoading: false,
+    } as ReturnType<typeof useInfraEvidenceSnapshotsQuery>);
+
+    metricsMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
+    } as ReturnType<typeof useSecureNowArchitectOutcomeMetricsQuery>);
+
+    const onSnapshotPairChange = vi.fn();
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SecureNowArchitectOutcomeMetricsPanel
+          fromSnapshotId="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+          toSnapshotId="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+          onSnapshotPairChange={onSnapshotPairChange}
+        />
+      </QueryClientProvider>,
+    );
+
+    metricsMock.mockClear();
+
+    fireEvent.change(screen.getByTestId("securenow-architect-metrics-from-snapshot"), {
+      target: { value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
+    });
+
+    expect(onSnapshotPairChange).toHaveBeenCalled();
+    expect(metricsMock).toHaveBeenLastCalledWith(
+      "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      false,
+    );
   });
 });

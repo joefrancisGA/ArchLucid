@@ -92,11 +92,15 @@ export function GovernanceFindingsQueueToolbarSection(
     setMoreFiltersOpenState(parseGovernanceFindingsMoreFiltersOpenFromSearch(governanceFindingsMoreFiltersOpenParam));
   }, [governanceFindingsMoreFiltersOpenParam]);
 
+  const showAssignedToMeActiveScope =
+    props.isAssignedToMe && !props.loading && props.activeFiltersSummary !== null;
+
   if (
     props.rows.length === 0 &&
     !props.compactRegisterFilterVisible &&
     !props.filterBarVisible &&
-    !props.advancedFiltersDisclosureVisible
+    !props.advancedFiltersDisclosureVisible &&
+    !showAssignedToMeActiveScope
   ) {
     return null;
   }
@@ -147,6 +151,17 @@ export function GovernanceFindingsQueueToolbarSection(
       ) : null}
 
       {props.filterBarVisible ? advancedFiltersEl : null}
+
+      {showAssignedToMeActiveScope ? (
+        <GovernanceFindingsQueueActiveFilterChips
+          registerFilter={props.registerFilter}
+          jobView={props.jobView}
+          nlFacets={props.nlFacets}
+          jobViewFilterActive={props.jobViewFilterActive}
+          findingsSearchQuery={props.findingsSearchQuery}
+          onClearAll={props.onClearAllFilters}
+        />
+      ) : null}
     </>
   );
 }

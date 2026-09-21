@@ -75,6 +75,10 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
 });
 
 describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
+  it("returns no outcome parts when the workspace has no reviews (empty state owns copy)", () => {
+    expect(buildOperatorHomeRecentReviewsOutcomeParts(emptyMetrics)).toEqual([]);
+  });
+
   it("routes sealed record counts to the reviews list instead of a hidden approved tab", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,

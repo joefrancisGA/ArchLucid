@@ -14,5 +14,10 @@ describe("page-help-topic-map — policy packs", () => {
     expect(pageHelpTopicForPathname("/governance/standards-and-rules")?.label).toBe("How standards & rules work");
     // Legacy /policy-packs bookmark canonicalizes to /governance/policy-packs (same help topic).
     expect(pageHelpTopicForPathname("/policy-packs")?.slug).toBe("policy-packs");
+    expect(pageHelpTopicForPathname("/compliance/policy-packs", "security")?.slug).toBe("policy-packs");
+    expect(pageHelpTopicForPathname("/compliance/standards-and-rules", "security")?.slug).toBe(
+      "standards-and-rules",
+    );
+    expect(pageHelpTopicForPathname("/compliance/findings", "security")?.slug).toBe("findings");
   });
 });

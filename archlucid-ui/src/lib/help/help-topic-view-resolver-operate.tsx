@@ -39,6 +39,11 @@ const HelpFalseHardInfeasibilityGuideView = dynamic(() =>
     (module) => module.HelpFalseHardInfeasibilityGuideView,
   ),
 );
+const HelpFirstLoginWorkspaceGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpFirstLoginWorkspaceGuideView").then(
+    (module) => module.HelpFirstLoginWorkspaceGuideView,
+  ),
+);
 const HelpWhichModeAmIInGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpWhichModeAmIInGuideView").then(
     (module) => module.HelpWhichModeAmIInGuideView,
@@ -348,6 +353,9 @@ export function tryResolveOperateHelpTopicView(
   if (loaded.entry.slug === "extraction-fidelity") {
     return <HelpExtractionFidelityGuideView entry={loaded.entry} />;
   }
+  if (loaded.entry.slug === "first-login-workspace") {
+    return <HelpFirstLoginWorkspaceGuideView entry={loaded.entry} />;
+  }
   if (loaded.entry.slug === "which-mode-am-i-in") {
     return <HelpWhichModeAmIInGuideView entry={loaded.entry} />;
   }
@@ -358,7 +366,9 @@ export function tryResolveOperateHelpTopicView(
     return <HelpSketchAChangeGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "impact-preview-vs-architecture-envelope") {
-    return <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} />;
+    return (
+      <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} markdown={loaded.markdown} />
+    );
   }
   if (loaded.entry.slug === "background-wait") {
     return <HelpBackgroundWaitGuideView entry={loaded.entry} />;
@@ -433,7 +443,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "inspect-stored-evidence") {
-    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} />;
+    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;

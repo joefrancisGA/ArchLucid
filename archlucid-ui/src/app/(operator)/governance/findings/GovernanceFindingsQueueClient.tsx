@@ -253,6 +253,7 @@ export default function GovernanceFindingsQueueClient({
           isAssignedToMe ? (
             <GovernanceFindingsAssignedToMeStatusBadge
               assignedToMeCount={assignedToMeCount}
+              assignedToMeFetchBasis={assignedToMeFetchBasis}
               loading={loading}
               loadFailed={loadFailed}
             />
@@ -264,6 +265,8 @@ export default function GovernanceFindingsQueueClient({
               assignedToMeWorkspaceLabel={assignedToMeWorkspaceLabel}
               assignedToMeCheckedAt={assignedToMeCheckedAt}
               assignedToMeRefreshing={assignedToMeQuery.refreshing}
+              principalDisplayName={currentPrincipal.name ?? "you"}
+              principalRoleLabel={currentPrincipal.primaryAppRole ?? "Operator"}
             />
           ) : undefined
         }

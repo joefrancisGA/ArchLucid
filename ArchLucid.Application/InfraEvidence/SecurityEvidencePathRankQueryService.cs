@@ -66,11 +66,9 @@ public sealed class SecurityEvidencePathRankQueryService(
             }
 
             SecurityEvidencePathRecord? path =
-                await pathRepository.TryGetByIdAsync(scope.TenantId, rank.PathId, cancellationToken);
+                await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
 
-            if (path is not null
-                && path.WorkspaceId == scope.WorkspaceId
-                && path.ProjectId == scope.ProjectId)
+            if (path is not null)
             {
                 pathHeaders[rank.PathId] = path;
             }
@@ -87,7 +85,7 @@ public sealed class SecurityEvidencePathRankQueryService(
             }
 
             IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints =
-                await cutPointRepository.ListByPathIdAsync(scope.TenantId, rank.PathId, cancellationToken);
+                await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
 
             summaries.Add(MapSummary(rank, path, relatedCutPoints));
         }
@@ -117,17 +115,15 @@ public sealed class SecurityEvidencePathRankQueryService(
             return null;
         }
 
-        SecurityEvidencePathRecord? path = await pathRepository.TryGetByIdAsync(scope.TenantId, pathId, cancellationToken);
+        SecurityEvidencePathRecord? path = await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        if (path is null
-            || path.WorkspaceId != scope.WorkspaceId
-            || path.ProjectId != scope.ProjectId)
+        if (path is null)
         {
             return null;
         }
 
         SecurityEvidencePathRankRecord? rank =
-            await rankRepository.TryGetRankAsync(scope.TenantId, pathId, cancellationToken);
+            await rankRepository.TryGetRankInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         if (rank is null)
         {
