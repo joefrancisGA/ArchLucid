@@ -54,16 +54,35 @@ public interface IAuditManualEvidenceRepository
         AuditArchitectureEvidenceLinkRecord link,
         CancellationToken cancellationToken = default);
 
+    Task InsertArchitectureLinkInScopeAsync(
+        ProjectScopeKey scope,
+        AuditArchitectureEvidenceLinkRecord link,
+        CancellationToken cancellationToken = default) =>
+        InsertArchitectureLinkAsync(link, cancellationToken);
+
     Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentAsync(
         Guid tenantId,
         Guid assessmentId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        CancellationToken cancellationToken = default) =>
+        ListArchitectureLinksByAssessmentAsync(scope.TenantId, assessmentId, cancellationToken);
 
     Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlAsync(
         Guid tenantId,
         Guid assessmentId,
         Guid controlId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        Guid controlId,
+        CancellationToken cancellationToken = default) =>
+        ListArchitectureLinksByControlAsync(scope.TenantId, assessmentId, controlId, cancellationToken);
 }
 
 
