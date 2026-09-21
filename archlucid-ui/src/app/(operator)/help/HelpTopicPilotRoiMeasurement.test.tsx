@@ -2,7 +2,10 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpSponsorReportGuideView } from "@/app/(operator)/help/_sections/HelpSponsorReportGuideView";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import {
+  normalizeSponsorReportMarkdownArtifacts,
+  prepareHelpMarkdownForPresentation,
+} from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   PILOT_ROI_MEASUREMENT_HELP_PRIMARY_ACTIONS,
@@ -92,6 +95,22 @@ describe("HelpTopicPilotRoiMeasurement (TB-1391–TB-1393)", () => {
     }
 
     expect(screen.getByTestId("help-pilot-roi-measurement-lifecycle")).toHaveTextContent(/request → finalize → review exports/i);
+  });
+
+  it("does not expose unsupported Markdown syntax or empty headings", () => {
+    if (loaded === null) {
+      throw new Error("Expected sponsor-report documentation to load.");
+    }
+
+    const preparedMarkdown = normalizeSponsorReportMarkdownArtifacts(
+      prepareHelpMarkdownForPresentation(loaded.markdown, loaded.entry.sourcePaths[0] ?? "", {
+        helpTopicSlug: loaded.entry.slug,
+      }),
+    );
+
+    expect(preparedMarkdown).not.toMatch(/^####\s/m);
+    expect(preparedMarkdown).not.toMatch(/^\s*<\/details>\s*$/m);
+    expect(preparedMarkdown).not.toContain("_demo tenant — replace before publishing._");
   });
 
   it("keeps sponsor report sponsor CTAs above the ROI methodology section", () => {
