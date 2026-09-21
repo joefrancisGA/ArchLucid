@@ -156,3 +156,39 @@ export function prepareHelpMarkdownForPresentation(
 
   return applyHelpProductBrandRewrite(finalBody, options?.productLineId ?? resolveProductLineIdFromEnv());
 }
+
+/**
+ * The sponsor brief contains repository Markdown features that the trusted help renderer intentionally does not
+ * interpret. Normalize those features at the presentation boundary so source syntax cannot leak into operator UI.
+ */
+export function normalizeSponsorReportMarkdownArtifacts(markdown: string): string {
+  const lines = markdown
+    .replace(/^#{4,}\s+/gm, "### ")
+    .replace(/^\s*<\/details>\s*$/gim, "")
+    .replace(/(^|[\s(])_([^_\n]+)_([\s.,;:!?)]|$)/g, "$1$2$3")
+    .split("\n");
+  const output: string[] = [];
+
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index] ?? "";
+
+    if (/^#{2,3}\s+/.test(line)) {
+      let nextContentIndex = index + 1;
+
+      while (nextContentIndex < lines.length && lines[nextContentIndex]?.trim() === "") {
+        nextContentIndex++;
+      }
+
+      if (
+        nextContentIndex >= lines.length
+        || /^#{2,3}\s+/.test(lines[nextContentIndex] ?? "")
+      ) {
+        continue;
+      }
+    }
+
+    output.push(line);
+  }
+
+  return output.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
