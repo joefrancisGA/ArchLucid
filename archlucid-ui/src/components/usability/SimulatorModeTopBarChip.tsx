@@ -15,7 +15,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
@@ -113,12 +112,6 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
 
   return (
     <>
-      <StatusTag
-        kind="neutral"
-        label="Dev"
-        className="shrink-0"
-        data-testid="dev-environment-top-bar-tag"
-      />
       <Button
         type="button"
         variant="outline"

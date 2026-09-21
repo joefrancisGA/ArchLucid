@@ -55,7 +55,7 @@ describe("scope-switcher-display", () => {
         isSampleWorkspaceSession: false,
         includeProject: true,
       }),
-    ).toBe(`Workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
+    ).toBe(`${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
 
     expect(
       formatScopeSwitcherTriggerAccessibleLabel({
@@ -64,7 +64,7 @@ describe("scope-switcher-display", () => {
         isSampleWorkspaceSession: false,
         includeProject: true,
       }),
-    ).toBe(`Active workspace: Workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
+    ).toBe(`Active workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
   });
 
   it("derives short workspace names from display labels", () => {

@@ -63,10 +63,10 @@ export function formatScopeSwitcherTriggerLabel(args: {
   }
 
   if (!args.includeProject) {
-    return `Workspace: ${shortName}`;
+    return shortName;
   }
 
-  return `Workspace: ${shortName} — ${args.projectLabel}`;
+  return `${shortName} — ${args.projectLabel}`;
 }
 
 /** Screen-reader and tooltip text — includes sample metadata not shown in the compact button. */
