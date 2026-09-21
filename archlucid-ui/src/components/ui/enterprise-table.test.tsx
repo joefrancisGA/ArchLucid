@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   EnterpriseTable,
@@ -8,6 +8,7 @@ import {
   EnterpriseTableHead,
   EnterpriseTableHeadRow,
   EnterpriseTableHeaderCell,
+  EnterpriseTableInteractiveRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
@@ -51,6 +52,33 @@ describe("EnterpriseTable", () => {
 
     expect(row.className).not.toContain("content-visibility-auto");
     expect(row.className).not.toMatch(/content-visibility/);
+  });
+
+  it("activates interactive rows on Enter and exposes aria-selected", () => {
+    const onActivate = vi.fn();
+
+    render(
+      <EnterpriseTable ariaLabel="Selectable rows" role="grid">
+        <EnterpriseTableBody>
+          <EnterpriseTableInteractiveRow
+            data-testid="enterprise-table-interactive-row"
+            selected={true}
+            onActivate={onActivate}
+          >
+            <EnterpriseTableCell>Row A</EnterpriseTableCell>
+          </EnterpriseTableInteractiveRow>
+        </EnterpriseTableBody>
+      </EnterpriseTable>,
+    );
+
+    const row = screen.getByTestId("enterprise-table-interactive-row");
+
+    expect(row).toHaveAttribute("tabindex", "0");
+    expect(row).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(row, { key: "Enter" });
+
+    expect(onActivate).toHaveBeenCalledTimes(1);
   });
 
   it("keeps a sticky header row token for long inventory tables (IE-DT-02)", () => {
