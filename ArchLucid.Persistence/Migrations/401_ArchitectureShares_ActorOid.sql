@@ -19,9 +19,16 @@ IF OBJECT_ID(N'dbo.ArchitectureShares', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.ArchitectureShares', N'ActorOid') IS NOT NULL
    AND COL_LENGTH(N'dbo.ArchitectureShares', N'UserId') IS NOT NULL
 BEGIN
-    UPDATE dbo.ArchitectureShares
-    SET ActorOid = CONCAT(N'platform-user:', CONVERT(NVARCHAR(36), UserId))
-    WHERE ActorOid IS NULL;
+    /*
+      SQL Server binds column names when it compiles the batch, even when the
+      statement is behind an IF that checks COL_LENGTH. Execute the legacy
+      UserId reference dynamically so this migration also runs on databases
+      created from the ActorOid schema.
+    */
+    EXEC sys.sp_executesql N'
+        UPDATE dbo.ArchitectureShares
+        SET ActorOid = CONCAT(N''platform-user:'', CONVERT(NVARCHAR(36), UserId))
+        WHERE ActorOid IS NULL;';
 END;
 GO
 
@@ -69,8 +76,9 @@ GO
 IF OBJECT_ID(N'dbo.ArchitectureShares', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.ArchitectureShares', N'UserId') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.ArchitectureShares
-        DROP COLUMN UserId;
+    EXEC sys.sp_executesql N'
+        ALTER TABLE dbo.ArchitectureShares
+            DROP COLUMN UserId;';
 END;
 GO
 
