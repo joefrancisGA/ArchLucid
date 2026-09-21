@@ -49,6 +49,8 @@ export default defineConfig({
         process.env.ARCHLUCID_PROXY_BEARER_TOKEN ?? process.env.LIVE_JWT_TOKEN ?? "",
       ARCHLUCID_BFF_SESSION_SIGNING_SECRET:
         process.env.ARCHLUCID_BFF_SESSION_SIGNING_SECRET ?? "",
+      // CI may serve the browser on localhost while Next derives its request origin from loopback binding.
+      ARCHLUCID_BFF_ALLOWED_ORIGINS: process.env.PLAYWRIGHT_BASE_URL ?? "",
       ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS: "true",
       NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1",
     },
