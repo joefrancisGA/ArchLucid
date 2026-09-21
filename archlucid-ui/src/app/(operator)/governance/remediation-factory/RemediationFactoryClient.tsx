@@ -22,7 +22,10 @@ import {
 } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
 import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
-import { useRemediationFactoryShortcuts } from "@/hooks/useRemediationFactoryShortcuts";
+import {
+  REMEDIATION_FACTORY_ROW_ATTR,
+  useRemediationFactoryShortcuts,
+} from "@/hooks/useRemediationFactoryShortcuts";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
@@ -137,6 +140,7 @@ export function RemediationFactoryClient() {
   }, [metricsQuery, rankedPathsQuery, rankedQuery]);
 
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
+  const focusInspectOnSelectionRef = useRef(true);
   const [simulatorSummary, setSimulatorSummary] = useState<string | null>(null);
   const [simulatorRuleVersion, setSimulatorRuleVersion] = useState<string | null>(null);
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
@@ -146,32 +150,36 @@ export function RemediationFactoryClient() {
   const selectedPathRow = rankedPaths.find((row) => row.pathId === selectedPathId) ?? null;
 
   const selectFinding = useCallback(
-    (findingId: string) => {
+    (findingId: string, options?: { readonly focusInspect?: boolean }) => {
+      focusInspectOnSelectionRef.current = options?.focusInspect ?? true;
       replaceUrlState({ selectedFindingId: findingId, selectedPathId: null });
     },
     [replaceUrlState],
   );
 
   const selectPath = useCallback(
-    (pathId: string) => {
+    (pathId: string, options?: { readonly focusInspect?: boolean }) => {
+      focusInspectOnSelectionRef.current = options?.focusInspect ?? true;
       replaceUrlState({ selectedPathId: pathId, selectedFindingId: null });
     },
     [replaceUrlState],
   );
 
   const selectRowById = useCallback(
-    (rowId: string) => {
+    (rowId: string, options?: { readonly focusInspect?: boolean }) => {
       if (ranked.some((row) => row.findingId === rowId)) {
-        selectFinding(rowId);
+        selectFinding(rowId, options);
         return;
       }
 
       if (rankedPaths.some((row) => row.pathId === rowId)) {
-        selectPath(rowId);
+        selectPath(rowId, options);
       }
     },
     [ranked, rankedPaths, selectFinding, selectPath],
   );
+
+  const navigationAnchorRowId = selectedPathId ?? selectedFindingId;
 
   const runSimulator = useCallback(async (findingId: string) => {
     setSimulatorError(null);
@@ -189,8 +197,16 @@ export function RemediationFactoryClient() {
     }
   }, []);
 
+  useEffect(() => {
+    setSimulatorSummary(null);
+    setSimulatorRuleVersion(null);
+    setSimulatorGeneratedAt(null);
+    setSimulatorError(null);
+  }, [selectedFindingId, selectedPathId]);
+
   useRemediationFactoryShortcuts({
-    onSelectRowId: selectRowById,
+    getNavigationAnchorRowId: () => navigationAnchorRowId,
+    onSelectRowId: (rowId) => selectRowById(rowId, { focusInspect: false }),
     onFocusInspect: () => {
       pathInspectPanelRef.current?.focus();
     },
@@ -203,9 +219,22 @@ export function RemediationFactoryClient() {
   });
 
   useEffect(() => {
-    if (selectedFindingId != null || selectedPathId != null) {
-      pathInspectPanelRef.current?.focus();
+    const activeRowId = selectedPathId ?? selectedFindingId;
+
+    if (activeRowId == null) {
+      return;
     }
+
+    if (focusInspectOnSelectionRef.current) {
+      pathInspectPanelRef.current?.focus();
+      return;
+    }
+
+    const row = document.querySelector<HTMLElement>(
+      `[${REMEDIATION_FACTORY_ROW_ATTR}="${CSS.escape(activeRowId)}"]`,
+    );
+
+    row?.focus();
   }, [selectedFindingId, selectedPathId]);
 
   const hasQueueRows = ranked.length > 0;

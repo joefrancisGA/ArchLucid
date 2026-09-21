@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -170,6 +170,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
   const [internalFromSnapshotId, setInternalFromSnapshotId] = useState<string>("");
   const [internalToSnapshotId, setInternalToSnapshotId] = useState<string>("");
   const [compareRequested, setCompareRequested] = useState(false);
+  const awaitingManualCompareRef = useRef(false);
 
   const controlled = props.onSnapshotPairChange !== undefined;
   const fromSnapshotId = controlled ? (props.fromSnapshotId ?? "") : internalFromSnapshotId;
@@ -190,14 +191,30 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
       return;
     }
 
-    if ((props.fromSnapshotId ?? "").length === 0 && (props.toSnapshotId ?? "").length === 0) {
+    const from = (props.fromSnapshotId ?? "").trim();
+    const to = (props.toSnapshotId ?? "").trim();
+
+    if (from.length === 0 && to.length === 0) {
+      awaitingManualCompareRef.current = false;
       props.onSnapshotPairChange?.({
         fromSnapshotId: sortedSnapshots[1]?.snapshotId ?? "",
         toSnapshotId: sortedSnapshots[0]?.snapshotId ?? "",
       });
       setCompareRequested(true);
+      return;
     }
-  }, [controlled, props, sortedSnapshots]);
+
+    const pairIsValid =
+      from.length > 0
+      && to.length > 0
+      && from !== to
+      && sortedSnapshots.some((snapshot) => snapshot.snapshotId === from)
+      && sortedSnapshots.some((snapshot) => snapshot.snapshotId === to);
+
+    if (pairIsValid && !awaitingManualCompareRef.current) {
+      setCompareRequested(true);
+    }
+  }, [controlled, props.fromSnapshotId, props.toSnapshotId, props.onSnapshotPairChange, sortedSnapshots]);
 
   const metricsQuery = useSecureNowArchitectOutcomeMetricsQuery(
     fromSnapshotId.length > 0 ? fromSnapshotId : null,
@@ -209,6 +226,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
   const toSnapshot = sortedSnapshots.find((snapshot) => snapshot.snapshotId === toSnapshotId);
 
   function updateFrom(id: string) {
+    awaitingManualCompareRef.current = true;
     if (controlled) {
       props.onSnapshotPairChange?.({ fromSnapshotId: id, toSnapshotId });
     } else {
@@ -219,6 +237,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
   }
 
   function updateTo(id: string) {
+    awaitingManualCompareRef.current = true;
     if (controlled) {
       props.onSnapshotPairChange?.({ fromSnapshotId, toSnapshotId: id });
     } else {
@@ -226,6 +245,11 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
     }
 
     setCompareRequested(false);
+  }
+
+  function requestCompare() {
+    awaitingManualCompareRef.current = false;
+    setCompareRequested(true);
   }
 
   return (
@@ -277,7 +301,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
               variant="default"
               size="sm"
               disabled={fromSnapshotId.length === 0 || toSnapshotId.length === 0 || fromSnapshotId === toSnapshotId}
-              onClick={() => setCompareRequested(true)}
+              onClick={requestCompare}
               data-testid="securenow-architect-metrics-compare-button"
             >
               {SECURENOW_ARCHITECT_METRICS_COMPARE_BUTTON}

@@ -13,6 +13,7 @@ import {
 export const REMEDIATION_FACTORY_ROW_ATTR = "data-remediation-factory-row-id";
 
 export type UseRemediationFactoryShortcutsOptions = {
+  readonly getNavigationAnchorRowId: () => string | null;
   readonly onSelectRowId: (rowId: string) => void;
   readonly onFocusInspect: () => void;
   readonly onExplainScore: () => void;
@@ -29,23 +30,46 @@ function getFocusedRemediationRow(): HTMLElement | null {
   return active.closest<HTMLElement>(`[${REMEDIATION_FACTORY_ROW_ATTR}]`);
 }
 
-export function focusAdjacentRemediationFactoryRow(delta: number): string | null {
+/** Move row focus/selection using DOM focus when present, otherwise the navigation anchor row id. */
+export function focusAdjacentRemediationFactoryRow(
+  delta: number,
+  navigationAnchorRowId?: string | null,
+): string | null {
   const nodes = Array.from(document.querySelectorAll<HTMLElement>(`[${REMEDIATION_FACTORY_ROW_ATTR}]`));
 
   if (nodes.length === 0) {
     return null;
   }
 
-  const current = getFocusedRemediationRow();
-  const idx = current !== null ? nodes.indexOf(current) : -1;
-  const startIdx = idx < 0 ? (delta > 0 ? 0 : nodes.length - 1) : idx + delta;
-  const wrapped =
-    startIdx < 0 ? nodes.length - 1 : startIdx >= nodes.length ? 0 : startIdx;
-  const next = nodes[wrapped];
+  const focused = getFocusedRemediationRow();
+  let idx = focused !== null ? nodes.indexOf(focused) : -1;
+
+  if (idx < 0 && navigationAnchorRowId != null && navigationAnchorRowId.length > 0) {
+    idx = nodes.findIndex(
+      (node) => node.getAttribute(REMEDIATION_FACTORY_ROW_ATTR) === navigationAnchorRowId,
+    );
+  }
+
+  if (idx < 0) {
+    const fallbackIdx = delta > 0 ? 0 : nodes.length - 1;
+    nodes[fallbackIdx]?.focus();
+
+    return nodes[fallbackIdx]?.getAttribute(REMEDIATION_FACTORY_ROW_ATTR) ?? null;
+  }
+
+  let nextIdx = idx + delta;
+
+  if (nextIdx < 0) {
+    nextIdx = nodes.length - 1;
+  } else if (nextIdx >= nodes.length) {
+    nextIdx = 0;
+  }
+
+  const next = nodes[nextIdx];
 
   next?.focus();
 
-  return next?.getAttribute(REMEDIATION_FACTORY_ROW_ATTR);
+  return next?.getAttribute(REMEDIATION_FACTORY_ROW_ATTR) ?? null;
 }
 
 export function useRemediationFactoryShortcuts(options: UseRemediationFactoryShortcutsOptions): void {
@@ -54,7 +78,7 @@ export function useRemediationFactoryShortcuts(options: UseRemediationFactorySho
       "alt+j": {
         description: "Select next remediation factory row",
         handler: () => {
-          const rowId = focusAdjacentRemediationFactoryRow(1);
+          const rowId = focusAdjacentRemediationFactoryRow(1, options.getNavigationAnchorRowId());
 
           if (rowId !== null) {
             options.onSelectRowId(rowId);
@@ -64,7 +88,7 @@ export function useRemediationFactoryShortcuts(options: UseRemediationFactorySho
       "alt+k": {
         description: "Select previous remediation factory row",
         handler: () => {
-          const rowId = focusAdjacentRemediationFactoryRow(-1);
+          const rowId = focusAdjacentRemediationFactoryRow(-1, options.getNavigationAnchorRowId());
 
           if (rowId !== null) {
             options.onSelectRowId(rowId);
@@ -95,7 +119,7 @@ export function useRemediationFactoryShortcuts(options: UseRemediationFactorySho
 
   useEffect(() => {
     const onNext = () => {
-      const rowId = focusAdjacentRemediationFactoryRow(1);
+      const rowId = focusAdjacentRemediationFactoryRow(1, options.getNavigationAnchorRowId());
 
       if (rowId !== null) {
         options.onSelectRowId(rowId);
@@ -103,7 +127,7 @@ export function useRemediationFactoryShortcuts(options: UseRemediationFactorySho
     };
 
     const onPrev = () => {
-      const rowId = focusAdjacentRemediationFactoryRow(-1);
+      const rowId = focusAdjacentRemediationFactoryRow(-1, options.getNavigationAnchorRowId());
 
       if (rowId !== null) {
         options.onSelectRowId(rowId);

@@ -1,7 +1,33 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { useCallback, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { RemediationFactoryUrlState } from "@/lib/remediation-factory/remediation-factory-url-state";
+
 const replaceMock = vi.fn();
+
+const initialUrlState: RemediationFactoryUrlState = {
+  selectedFindingId: null,
+  selectedPathId: null,
+  fromSnapshotId: null,
+  toSnapshotId: null,
+  metricsSummaryOpen: false,
+};
+
+vi.mock("./useRemediationFactoryUrlState", () => ({
+  useRemediationFactoryUrlState: () => {
+    const [state, setState] = useState<RemediationFactoryUrlState>(initialUrlState);
+    const replaceState = useCallback((patch: Partial<RemediationFactoryUrlState>) => {
+      setState((current) => {
+        const next = { ...current, ...patch };
+        replaceMock(next);
+        return next;
+      });
+    }, []);
+
+    return { state, replaceState };
+  },
+}));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/security/remediation-factory",
@@ -24,9 +50,14 @@ vi.mock("@/hooks/use-operator-relative-freshness-now-ms", () => ({
   useOperatorRelativeFreshnessNowMs: () => Date.now(),
 }));
 
-vi.mock("@/hooks/useRemediationFactoryShortcuts", () => ({
-  useRemediationFactoryShortcuts: vi.fn(),
-}));
+vi.mock("@/hooks/useRemediationFactoryShortcuts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/useRemediationFactoryShortcuts")>();
+
+  return {
+    ...actual,
+    useRemediationFactoryShortcuts: vi.fn(actual.useRemediationFactoryShortcuts),
+  };
+});
 
 const rankedRefetch = vi.fn();
 const metricsRefetch = vi.fn();
@@ -67,6 +98,11 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
   fetchRemediationInstances: vi.fn(async () => []),
 }));
 
+vi.mock("@/lib/remediation-factory-api", () => ({
+  fetchRemediationScoreExplanation: vi.fn(),
+}));
+
+import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
 import { useRemediationFactoryMetricsQuery, useRemediationRankedFindingsQuery } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
 import { RemediationFactoryClient } from "./RemediationFactoryClient";
@@ -178,7 +214,9 @@ describe("RemediationFactoryClient", () => {
       key: "Enter",
     });
 
-    expect(replaceMock).toHaveBeenCalled();
+    expect(replaceMock).toHaveBeenCalledWith(
+      expect.objectContaining({ selectedFindingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
+    );
   });
 
   it("shows refreshing label only while fetches are in flight", () => {
@@ -198,5 +236,77 @@ describe("RemediationFactoryClient", () => {
     });
 
     expect(idleLabel).toContain("Last refreshed:");
+  });
+
+  it("clears simulator output when the selected finding changes", async () => {
+    mockHappyQueries();
+    vi.mocked(fetchRemediationScoreExplanation).mockResolvedValue({
+      findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      totalScore: 0.42,
+      explanationSummary: "Prior target explanation",
+      breakdownJson: "[]",
+      ruleVersion: "IE15-priority-v1",
+      weights: {},
+    });
+
+    render(<RemediationFactoryClient />);
+
+    fireEvent.click(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+    fireEvent.click(screen.getByTestId("remediation-simulator-explain-button"));
+
+    expect(await screen.findByTestId("remediation-simulator-output")).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+    );
+
+    expect(screen.queryByTestId("remediation-simulator-output")).not.toBeInTheDocument();
+  });
+
+  it("keeps Alt+J anchored on the selected row when inspect holds focus", () => {
+    mockHappyQueries();
+    const now = Date.now();
+
+    vi.mocked(useRemediationRankedFindingsQuery).mockReturnValue({
+      dataUpdatedAt: now,
+      isFetching: false,
+      refetch: rankedRefetch,
+      data: [
+        {
+          findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          rankOrder: 1,
+          totalScore: 0.42,
+          explanationSummary: "First",
+          breakdownJson: "[]",
+          controlId: "AC-2",
+          patternKey: "storage.encrypt",
+        },
+        {
+          findingId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          rankOrder: 2,
+          totalScore: 0.31,
+          explanationSummary: "Second",
+          breakdownJson: "[]",
+          controlId: "AC-3",
+          patternKey: "network.segment",
+        },
+      ],
+      isError: false,
+    } as ReturnType<typeof useRemediationRankedFindingsQuery>);
+
+    render(<RemediationFactoryClient />);
+
+    const firstRow = screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    const inspectPanel = screen.getByTestId("security-evidence-path-inspect-panel");
+
+    fireEvent.click(firstRow);
+    inspectPanel.focus();
+    expect(document.activeElement).toBe(inspectPanel);
+
+    fireEvent.keyDown(window, { key: "j", altKey: true });
+
+    expect(replaceMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ selectedFindingId: "dddddddd-dddd-dddd-dddd-dddddddddddd" }),
+    );
   });
 });
