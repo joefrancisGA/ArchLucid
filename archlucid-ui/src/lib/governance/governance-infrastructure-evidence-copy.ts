@@ -136,6 +136,33 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES_INTRO =
   "Use these surfaces when buyers need diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
 
 /** Operator Sources for drift workbench (GOR). */
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SOURCES_INTRO =
+  "Use these surfaces when buyers need drift comparison, resource context, or grounded Ask beyond advisory mapping.";
+
+/** Operator Sources for advisory Terraform mapping (ITE). */
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub Terraform tab when mapping is resource-specific",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots and export advisory Terraform after reviewing property drift",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same resource scope",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for diagrams or remediation",
+  },
+] as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
     label: "Resource explorer",
