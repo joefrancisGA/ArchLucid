@@ -5,6 +5,7 @@ import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/Operat
 import { ARCHITECTURES_NEW_PATH, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH } from "@/app/(operator)/_sections/operator-home-page-surface-copy";
 
 const { useArchitectureDraftRegistryEntries, resolveContinueLastArchitectureIdentityTarget } = vi.hoisted(() => ({
   useArchitectureDraftRegistryEntries: vi.fn<() => ArchitectureDraftRegistryEntry[]>(() => []),
@@ -48,6 +49,8 @@ describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
 
     expect(link).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
     expect(link).toHaveTextContent("New review");
+    expect(screen.getByText(OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH)).toBeInTheDocument();
+    expect(OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH.toLowerCase()).not.toContain("resume");
   });
 
   it("prefers the last-open architecture identity desk over draft resume", () => {
