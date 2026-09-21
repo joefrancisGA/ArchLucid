@@ -43,6 +43,28 @@ _SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
 _SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
 _FETCH_AUTH_ME_WITH_BEARER = "fetchAuthMeWithBearer"
 _WRITE_JWT_BROWSER_SESSION = "writeJwtBrowserSession"
+_RECOVERY_SPEC_MARKERS: tuple[tuple[str, str], ...] = (
+    (
+        "expired invitation token surfaces recovery copy",
+        "expired invite recovery",
+    ),
+    (
+        "revoked invitation token surfaces recovery copy",
+        "revoked invite recovery",
+    ),
+    (
+        "signed-in dead review deep-link surfaces branded 404 recovery",
+        "dead deep-link 404 recovery",
+    ),
+    (
+        "session-expired-heading",
+        "expired session recovery",
+    ),
+    (
+        "signed-in /403 access-denied surfaces recovery CTAs (missing role / wrong tenant)",
+        "missing-role / wrong-tenant recovery",
+    ),
+)
 
 
 def repo_root() -> Path:
@@ -308,6 +330,15 @@ def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str
         )
 
 
+def _require_private_beta_recovery_cases(spec_text: str, errors: list[str]) -> None:
+    for marker, label in _RECOVERY_SPEC_MARKERS:
+
+        if marker not in spec_text:
+            errors.append(
+                f"archlucid-ui/e2e/{_SPEC}: missing {label} case ({marker!r})",
+            )
+
+
 def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors: list[str]) -> None:
     if _FETCH_AUTH_ME_WITH_BEARER not in helper_text:
         errors.append(
@@ -436,6 +467,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_playwright_timeout_wiring(spec_text, client_text, errors)
         _require_private_beta_create_run_wiring(spec_text, client_text, errors)
         _require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
+        _require_private_beta_recovery_cases(spec_text, errors)
 
     if invite_flow_path.is_file():
         invite_flow_text = invite_flow_path.read_text(encoding="utf-8", errors="replace")

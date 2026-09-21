@@ -394,6 +394,11 @@ jobs:
           # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
           Billing__Provider: Noop
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
