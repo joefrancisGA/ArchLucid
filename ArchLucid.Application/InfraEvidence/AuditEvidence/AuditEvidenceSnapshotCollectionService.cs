@@ -55,23 +55,21 @@ public sealed class AuditEvidenceSnapshotCollectionService(
             Guid assessmentId = Guid.NewGuid();
             DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
 
-            AuditAssessmentRecord assessment = new()
-            {
-                AssessmentId = assessmentId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                FrameworkId = frameworkId,
-                FrameworkVersion = framework.Version,
-                ScopeJson = JsonSerializer.Serialize(subscriptionIds),
-                PeriodStartUtc = periodStartUtc,
-                PeriodEndUtc = periodEndUtc,
-                Status = AuditAssessmentStatus.Draft,
-                RequestedBy = requestedBy.Trim(),
-                CreatedUtc = createdUtc,
-            };
-
-            await assessmentRepository.InsertAsync(assessment, cancellationToken);
+            await assessmentRepository.InsertInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new AuditAssessmentCreateMutation
+                {
+                    AssessmentId = assessmentId,
+                    FrameworkId = frameworkId,
+                    FrameworkVersion = framework.Version,
+                    ScopeJson = JsonSerializer.Serialize(subscriptionIds),
+                    PeriodStartUtc = periodStartUtc,
+                    PeriodEndUtc = periodEndUtc,
+                    Status = AuditAssessmentStatus.Draft,
+                    RequestedBy = requestedBy.Trim(),
+                    CreatedUtc = createdUtc,
+                },
+                cancellationToken);
 
             return new AuditAssessmentCreateResult
             {
@@ -112,7 +110,10 @@ public sealed class AuditEvidenceSnapshotCollectionService(
         try
         {
             AuditAssessmentRecord? assessment =
-                await assessmentRepository.TryGetByIdAsync(scope.TenantId, assessmentId, cancellationToken);
+                await assessmentRepository.TryGetByIdInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    assessmentId,
+                    cancellationToken);
 
             if (assessment is null)
             {
@@ -135,10 +136,13 @@ public sealed class AuditEvidenceSnapshotCollectionService(
                 };
             }
 
-            await assessmentRepository.UpdateStatusAsync(
-                scope.TenantId,
-                assessmentId,
-                AuditAssessmentStatus.Collecting,
+            await assessmentRepository.UpdateStatusInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new AuditAssessmentStatusMutation
+                {
+                    AssessmentId = assessmentId,
+                    Status = AuditAssessmentStatus.Collecting,
+                },
                 cancellationToken);
 
             DateTime collectionStartedUtc = TimeProvider.System.UtcNowDateTime();
@@ -261,7 +265,8 @@ public sealed class AuditEvidenceSnapshotCollectionService(
                 CreatedUtc = collectionCompletedUtc,
             };
 
-            await auditEvidenceSnapshotRepository.InsertSnapshotAsync(
+            await auditEvidenceSnapshotRepository.InsertSnapshotInScopeAsync(
+                scope.ToProjectScopeKey(),
                 new AuditEvidenceSnapshotPersistRequest
                 {
                     Header = header,
@@ -269,10 +274,13 @@ public sealed class AuditEvidenceSnapshotCollectionService(
                 },
                 cancellationToken);
 
-            await assessmentRepository.UpdateStatusAsync(
-                scope.TenantId,
-                assessmentId,
-                AuditAssessmentStatus.Complete,
+            await assessmentRepository.UpdateStatusInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new AuditAssessmentStatusMutation
+                {
+                    AssessmentId = assessmentId,
+                    Status = AuditAssessmentStatus.Complete,
+                },
                 cancellationToken);
 
             return new AuditEvidenceSnapshotCollectionResult
