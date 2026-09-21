@@ -249,6 +249,10 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotHiddenHopComposer.AddComposedEdges(
+            nodes,
+            edges,
+            edgeKeys);
 
         DateTime createdUtc = graphSnapshot.Header.CapturedUtc ?? graphSnapshot.Header.CreatedUtc;
 
