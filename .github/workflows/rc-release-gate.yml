@@ -436,6 +436,7 @@ jobs:
         working-directory: archlucid-ui
         env:
           CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
           API_URL: http://127.0.0.1:5128
           ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-rc.log
           LIVE_API_URL: http://127.0.0.1:5128
