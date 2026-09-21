@@ -2063,6 +2063,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "replicated", out JsonElement replicated)
+                || TryGetPropertyIgnoreCase(res, "replicated", out replicated))
+            && (replicated.ValueKind == JsonValueKind.True || replicated.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.replicated"] = replicated.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
                 || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
             && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
