@@ -164,6 +164,21 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
         self.assertIn("Origin: appOrigin", helper_text)
         self.assertIn("isSameOriginBffRequest", helper_text)
 
+    def test_recovery_cases_required_on_access_spec(self) -> None:
+        spec_text = (REPO_ROOT / "archlucid-ui" / "e2e" / sut._SPEC).read_text(encoding="utf-8")
+        errors: list[str] = []
+
+        sut._require_private_beta_recovery_cases(spec_text, errors)
+
+        self.assertEqual(errors, [])
+
+    def test_recovery_cases_reject_missing_expired_invite(self) -> None:
+        errors: list[str] = []
+
+        sut._require_private_beta_recovery_cases("revoked invitation token surfaces recovery copy", errors)
+
+        self.assertTrue(any("expired invite recovery" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
