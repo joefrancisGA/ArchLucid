@@ -2005,6 +2005,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "sharded", out JsonElement sharded)
+                || TryGetPropertyIgnoreCase(res, "sharded", out sharded))
+            && (sharded.ValueKind == JsonValueKind.True || sharded.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.sharded"] = sharded.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
                 || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
             && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
