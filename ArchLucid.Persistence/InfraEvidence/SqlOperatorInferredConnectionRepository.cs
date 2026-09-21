@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -72,6 +73,37 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
         return row is null ? null : Map(row);
     }
 
+    public async Task<OperatorInferredConnectionRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid connectionId,
+        CancellationToken cancellationToken = default)
+    {
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           SELECT *
+                           FROM dbo.OperatorInferredConnections
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId;
+                           """;
+
+        ConnectionRow? row = await connection.QuerySingleOrDefaultAsync<ConnectionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ConnectionId = connectionId,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task<IReadOnlyList<OperatorInferredConnectionRecord>> ListBySnapshotAsync(
         Guid tenantId,
         Guid snapshotId,
@@ -119,6 +151,54 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
 
         await connection.ExecuteAsync(
             new CommandDefinition(sql, MapParameters(record), cancellationToken: cancellationToken));
+    }
+
+    public async Task UpdateStatusInScopeAsync(
+        ProjectScopeKey scope,
+        OperatorInferredConnectionMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(mutation);
+
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           UPDATE dbo.OperatorInferredConnections
+                           SET Status = @Status,
+                               FromCloudResourceId = @FromCloudResourceId,
+                               ToArmId = @ToArmId,
+                               ToCloudResourceId = @ToCloudResourceId,
+                               ToCatalog = @ToCatalog,
+                               ActorKey = @ActorKey,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ConnectionId = @ConnectionId;
+                           """;
+
+        int affected = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.ConnectionId,
+                    Status = (int)mutation.Status,
+                    mutation.FromCloudResourceId,
+                    mutation.ToArmId,
+                    mutation.ToCloudResourceId,
+                    mutation.ToCatalog,
+                    mutation.ActorKey,
+                    mutation.UpdatedUtc,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped inferred connection mutation did not update exactly one record.");
     }
 
     private static object MapParameters(OperatorInferredConnectionRecord record) =>

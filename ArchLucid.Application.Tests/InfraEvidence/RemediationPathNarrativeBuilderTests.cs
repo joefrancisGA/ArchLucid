@@ -32,7 +32,13 @@ public sealed class RemediationPathNarrativeBuilderTests
             .ReturnsAsync(CreateReachabilityPath());
 
         pathRepository
-            .Setup(repository => repository.ListHopsByPathAsync(TenantId, PathId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListHopsByPathInScopeAsync(
+                It.Is<ProjectScopeKey>(scopeKey =>
+                    scopeKey.TenantId == TenantId
+                    && scopeKey.WorkspaceId == WorkspaceId
+                    && scopeKey.ProjectId == ProjectId),
+                PathId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreatePublicReachabilityHops());
 
         Mock<ISecurityEvidenceCutPointRepository> cutPointRepository = new();

@@ -21,6 +21,11 @@
 | Workspace B | Sample / seed-backed; not live agents. |
 | Quick Scan (public site) | Sample-only; AI off until owner decision (**M-110**). |
 | SOC 2 / pen test | Self-assessment and owner-conducted materials only — not CPA SOC 2 or third-party pen-test publication. |
+| Invite 401 after a long wait | CI/JWT mint expired or API `/health/ready` was unreachable (HTTP 000). Founder: re-issue invite; engineering: `scripts/ci/refresh_private_beta_ci_jwt.sh` and skip remaining warms on HTTP 000. |
+
+## Kill switch and spend freeze
+
+If a named tenant starts Real execute unexpectedly, freeze spend with [`PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md`](../runbooks/PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md) (`AgentExecution__Mode=Simulator` in under five minutes). Do **not** take auth down to stop LLM spend.
 
 ## Five canned replies
 
@@ -42,6 +47,12 @@
 | Created run | `/reviews/new` → row in `/reviews` |
 | Finalized | Commit + manifest id |
 | Exported | Audit CSV or sponsor package |
+
+Record one row per invitee with `tenantId` redacted to an internal reference, the
+UTC timestamp, `correlationId` when the stage came from an API request, and the
+result (`success`, `blocked`, or `abandoned`). Do not put evidence contents, access
+tokens, or raw email addresses in this log. A missing stage is a follow-up signal,
+not evidence that the user completed the next stage.
 
 ## Operator onboarding
 

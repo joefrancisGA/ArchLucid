@@ -66,6 +66,19 @@ public interface ISecurityDeclaredConnectionRepository
         DateTime processedUtc,
         CancellationToken cancellationToken = default);
 
+    async Task MarkExpiryProcessedInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityDeclaredConnectionExpiryProcessedMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        SecurityDeclaredConnectionRecord? current =
+            await TryGetByIdInScopeAsync(scope, mutation.ConnectionId, cancellationToken);
+        if (current is null)
+            return;
+
+        await MarkExpiryProcessedAsync(scope.TenantId, mutation.ConnectionId, mutation.ProcessedUtc, cancellationToken);
+    }
+
     Task RevokeAsync(
         Guid tenantId,
         Guid connectionId,
@@ -73,7 +86,87 @@ public interface ISecurityDeclaredConnectionRepository
         DateTime revokedUtc,
         CancellationToken cancellationToken = default);
 
+    async Task RevokeInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityDeclaredConnectionRevokeMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        SecurityDeclaredConnectionRecord? current =
+            await TryGetByIdInScopeAsync(scope, mutation.ConnectionId, cancellationToken);
+        if (current is null)
+            return;
+
+        await RevokeAsync(scope.TenantId, mutation.ConnectionId, mutation.RevokedByActorKey, mutation.RevokedUtc, cancellationToken);
+    }
+
     Task UpdateRenewalAsync(
         SecurityDeclaredConnectionRecord record,
         CancellationToken cancellationToken = default);
+
+    async Task UpdateRenewalInScopeAsync(
+        ProjectScopeKey scope,
+        SecurityDeclaredConnectionRenewalMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        SecurityDeclaredConnectionRecord? current =
+            await TryGetByIdInScopeAsync(scope, mutation.ConnectionId, cancellationToken);
+        if (current is null)
+            return;
+
+        await UpdateRenewalAsync(new SecurityDeclaredConnectionRecord
+        {
+            ConnectionId = current.ConnectionId,
+            TenantId = current.TenantId,
+            WorkspaceId = current.WorkspaceId,
+            ProjectId = current.ProjectId,
+            FromCloudResourceId = current.FromCloudResourceId,
+            ToCloudResourceId = current.ToCloudResourceId,
+            RelationshipType = current.RelationshipType,
+            Rationale = current.Rationale,
+            EvidenceReference = current.EvidenceReference,
+            ExpirationUtc = mutation.ExpirationUtc,
+            Status = current.Status,
+            RequestedByActorKey = current.RequestedByActorKey,
+            ApprovedByActorKey = mutation.ApprovedByActorKey,
+            PayloadHashSha256 = mutation.PayloadHashSha256,
+            ExpiryProcessedUtc = null,
+            CreatedUtc = current.CreatedUtc,
+            UpdatedUtc = mutation.UpdatedUtc,
+            RevokedUtc = current.RevokedUtc,
+            RevokedByActorKey = current.RevokedByActorKey,
+        }, cancellationToken);
+    }
+
+    async Task<IReadOnlyList<SecurityDeclaredConnectionRecord>> MarkExpiredInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<SecurityDeclaredConnectionRecord> rows =
+            await MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
+
+        return rows.Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)).ToList();
+    }
+}
+
+public sealed record SecurityDeclaredConnectionRevokeMutation
+{
+    public required Guid ConnectionId { get; init; }
+    public required string RevokedByActorKey { get; init; }
+    public required DateTime RevokedUtc { get; init; }
+}
+
+public sealed record SecurityDeclaredConnectionRenewalMutation
+{
+    public required Guid ConnectionId { get; init; }
+    public required DateTime ExpirationUtc { get; init; }
+    public required string ApprovedByActorKey { get; init; }
+    public required byte[] PayloadHashSha256 { get; init; }
+    public required DateTime UpdatedUtc { get; init; }
+}
+
+public sealed record SecurityDeclaredConnectionExpiryProcessedMutation
+{
+    public required Guid ConnectionId { get; init; }
+    public required DateTime ProcessedUtc { get; init; }
 }

@@ -10,6 +10,11 @@ public interface IAuditEvidenceSnapshotVerificationService
         Guid tenantId,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default);
+
+    Task<AuditEvidenceSnapshotVerificationResult> TryVerifyInScopeAsync(
+        ProjectScopeKey scope,
+        Guid auditEvidenceSnapshotId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AuditEvidenceSnapshotVerificationResult

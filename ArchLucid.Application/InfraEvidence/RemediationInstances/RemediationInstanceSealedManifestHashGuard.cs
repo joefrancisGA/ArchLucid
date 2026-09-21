@@ -12,6 +12,51 @@ public static class RemediationInstanceSealedManifestHashGuard
     public static async Task EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
         Guid findingId,
         ScopeContext scope,
+        IProjectScopedOperationalSecurityFindingRepository operationalFindingRepository,
+        IAuditManualEvidenceRepository auditManualEvidenceRepository,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        CancellationToken cancellationToken)
+    {
+        if (findingId == Guid.Empty)
+            return;
+
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(operationalFindingRepository);
+        ArgumentNullException.ThrowIfNull(auditManualEvidenceRepository);
+        ArgumentNullException.ThrowIfNull(authorityQueryService);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
+
+        OperationalSecurityFindingRecord? finding =
+            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
+
+        if (finding?.AssessmentId is null || finding.AssessmentId == Guid.Empty)
+            return;
+
+        IReadOnlyList<AuditArchitectureEvidenceLinkRecord> links =
+            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentAsync(
+                scope.TenantId,
+                finding.AssessmentId.Value,
+                cancellationToken);
+
+        Guid runId = links
+            .Select(link => link.RunId)
+            .FirstOrDefault(candidate => candidate != Guid.Empty);
+
+        if (runId == Guid.Empty)
+            return;
+
+        await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            authorityQueryService,
+            manifestHashService,
+            cancellationToken);
+    }
+
+    public static async Task EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
+        Guid findingId,
+        ScopeContext scope,
         IOperationalSecurityFindingRepository operationalFindingRepository,
         IAuditManualEvidenceRepository auditManualEvidenceRepository,
         IAuthorityQueryService authorityQueryService,
