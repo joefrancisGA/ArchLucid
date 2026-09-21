@@ -45,8 +45,8 @@ public sealed class AuditControlEvaluationService(
             }
 
             IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
-                await auditEvidenceSnapshotRepository.ListItemsAsync(
-                    scope.TenantId,
+                await auditEvidenceSnapshotRepository.ListItemsInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     auditEvidenceSnapshotId,
                     cancellationToken);
 
@@ -81,7 +81,8 @@ public sealed class AuditControlEvaluationService(
                     CreatedUtc = createdUtc,
                 };
 
-                await evaluationRepository.InsertAsync(
+                await evaluationRepository.InsertInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     new AuditControlEvaluationPersistRequest
                     {
                         Evaluation = evaluation,
@@ -98,8 +99,8 @@ public sealed class AuditControlEvaluationService(
             }
 
             AuditEvidenceSnapshotHeaderRecord? auditSnapshotHeader =
-                await auditEvidenceSnapshotRepository.TryGetHeaderAsync(
-                    scope.TenantId,
+                await auditEvidenceSnapshotRepository.TryGetHeaderInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     auditEvidenceSnapshotId,
                     cancellationToken);
 
