@@ -201,7 +201,7 @@ export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProp
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         <SponsorSendPathHonestyPanel testIdPrefix="help-impact-preview" showSsoOptional={false} />
