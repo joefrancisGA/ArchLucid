@@ -16,10 +16,12 @@ public static class DevelopmentDefaultScopeTenantBootstrap
     /// Idempotent inserts for empty greenfield / integration catalogs (tenant plane under
     /// <c>SystemWithPerTenantCatalogs</c>, including hosted Container Apps that bind ApiKey to DefaultTenant).
     /// </summary>
-    public static void TryEnsure(string connectionString, ILogger logger)
+    public static void TryEnsure(string connectionString, ILogger logger, bool grantDefaultTenantEnterprise = false)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             return;
+
+        string bootstrapTier = grantDefaultTenantEnterprise ? "Enterprise" : "Standard";
 
         using SqlConnection connection = new(connectionString);
         connection.Open();
@@ -38,10 +40,27 @@ public static class DevelopmentDefaultScopeTenantBootstrap
         {
             _ = connection.Execute(
                 """
-                INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
-                VALUES (@TenantId, @TenantName, @TenantSlug, N'Standard', NULL);
+                INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId, TrialStatus)
+                VALUES (@TenantId, @TenantName, @TenantSlug, @Tier, NULL, NULL);
                 """,
-                new { TenantId = ScopeIds.DefaultTenant, TenantName = "Development default tenant", TenantSlug = "archlucid-dev-default-scope", });
+                new
+                {
+                    TenantId = ScopeIds.DefaultTenant,
+                    TenantName = "Development default tenant",
+                    TenantSlug = "archlucid-dev-default-scope",
+                    Tier = bootstrapTier,
+                });
+        }
+        else if (grantDefaultTenantEnterprise)
+        {
+            _ = connection.Execute(
+                """
+                UPDATE dbo.Tenants
+                SET Tier = N'Enterprise', TrialStatus = NULL
+                WHERE Id = @TenantId
+                  AND (Tier <> N'Enterprise' OR TrialStatus IS NOT NULL);
+                """,
+                new { TenantId = ScopeIds.DefaultTenant, });
         }
 
         int workspacesTableExists = connection.QuerySingle<int>(

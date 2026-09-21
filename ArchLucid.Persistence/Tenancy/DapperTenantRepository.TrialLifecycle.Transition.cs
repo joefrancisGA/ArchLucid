@@ -150,4 +150,28 @@ public sealed partial class DapperTenantRepository
                 ExpiresUtc = expiresUtc
             }, cancellationToken: ct)).ConfigureAwait(false);
     }
+
+    /// <inheritdoc />
+    public async Task E2eHarnessGrantEnterpriseCommercialAsync(Guid tenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection =
+            await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        const string sql = """
+                           IF EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @TenantId)
+                           BEGIN
+                               UPDATE dbo.Tenants
+                               SET Tier = N'Enterprise', TrialStatus = NULL
+                               WHERE Id = @TenantId;
+                           END
+                           ELSE
+                           BEGIN
+                               INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId, TrialStatus)
+                               VALUES (@TenantId, N'CI live E2E tenant', N'ci-live-e2e', N'Enterprise', NULL, NULL);
+                           END
+                           """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct)).ConfigureAwait(false);
+    }
 }

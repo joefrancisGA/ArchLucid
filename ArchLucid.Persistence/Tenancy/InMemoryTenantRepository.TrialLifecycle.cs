@@ -209,6 +209,41 @@ public sealed partial class InMemoryTenantRepository
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task E2eHarnessGrantEnterpriseCommercialAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (_byId.TryGetValue(tenantId, out TenantRecord? existing))
+            {
+                _byId[tenantId] = TenantRepositoryCore.CopyTenant(
+                    existing,
+                    commercialTier: TenantTier.Enterprise,
+                    trialStatus: null);
+
+                return Task.CompletedTask;
+            }
+
+            DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+            _byId[tenantId] = new TenantRecord
+            {
+                Id = tenantId,
+                Name = "CI live E2E tenant",
+                Slug = "ci-live-e2e-" + tenantId.ToString("N")[..12],
+                Tier = TenantTier.Enterprise,
+                EntraTenantId = null,
+                DataRegion = TenantDataRegions.Default,
+                CreatedUtc = now,
+                TrialStatus = null,
+            };
+        }
+
+        return Task.CompletedTask;
+    }
+
 
     /// <inheritdoc />
 }
