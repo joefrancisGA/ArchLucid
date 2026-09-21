@@ -17403,6 +17403,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-18 seed hunt #6472 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
 2026-09-18 seed hunt #6467 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6462 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -19021,7 +19023,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 943
+- **hunts:** 944
 - **bugs-found:** 404
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
