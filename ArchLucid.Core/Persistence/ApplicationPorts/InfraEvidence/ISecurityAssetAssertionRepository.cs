@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;

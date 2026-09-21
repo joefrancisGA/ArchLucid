@@ -44,7 +44,9 @@ public sealed class ProjectScopeKeyRepositoryBoundaryTests
                 .Select(parameter => parameter.Name)
                 .Should()
                 .NotContain(
-                    name => name is "tenantId" or "workspaceId" or "projectId",
+                    name => name == "tenantId"
+                        || name == "workspaceId"
+                        || name == "projectId",
                     $"{repositoryType.Name}.{method.Name} must not reintroduce loose authority dimensions");
         }
     }

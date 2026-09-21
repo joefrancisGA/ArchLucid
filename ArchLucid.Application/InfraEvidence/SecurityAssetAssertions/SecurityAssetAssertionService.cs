@@ -466,7 +466,7 @@ public sealed class SecurityAssetAssertionService(
             Status = source.Status,
             Severity = source.Severity,
             RiskScore = source.RiskScore,
-            Summary = source.Summary,
+            Summary = source.Summary ?? string.Empty,
             PayloadHashSha256 = source.PayloadHashSha256,
             SourceSystem = source.SourceSystem,
         };
