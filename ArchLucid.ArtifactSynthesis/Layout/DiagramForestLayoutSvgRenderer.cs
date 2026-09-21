@@ -98,6 +98,14 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     {
         ArgumentNullException.ThrowIfNull(cells);
 
+        IReadOnlyList<IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>> layers =
+            DiagramResourceGroupCellFlowPlanner.GroupByLayers(cells, visibleEdges);
+
+        if (layers.Count > 1)
+        {
+            return BuildLayeredResourceGroupCellLayouts(layers, visibleEdges, options, labelContext);
+        }
+
         List<ComponentLayout> layouts = [];
         int columnCount = DiagramComponentRowPlanner.ResolveColumnCount(cells.Count);
 
@@ -112,25 +120,83 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
             int rowIndex = cellIndex / columnCount;
             int columnIndex = cellIndex % columnCount;
-            string componentKey = $"{rowIndex}_{columnIndex}";
-            List<NodePlacement> relativePlacements = LayoutResourceGroupCell(
+            layouts.Add(BuildSingleCellLayout(
                 cell,
-                componentKey,
-                cellIndex: 0,
+                rowIndex,
+                columnIndex,
                 visibleEdges,
                 options,
-                labelContext);
-            (double width, double height) = ResolveCellOuterSize(relativePlacements, options);
-
-            layouts.Add(new ComponentLayout(
-                RowIndex: rowIndex,
-                ColumnIndex: columnIndex,
-                RelativePlacements: relativePlacements,
-                Width: width,
-                Height: height));
+                labelContext));
         }
 
         return layouts;
+    }
+
+    private static List<ComponentLayout> BuildLayeredResourceGroupCellLayouts(
+        IReadOnlyList<IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>> layers,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        ArgumentNullException.ThrowIfNull(layers);
+
+        List<ComponentLayout> layouts = [];
+
+        for (int columnIndex = 0; columnIndex < layers.Count; columnIndex++)
+        {
+            IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> layer = layers[columnIndex];
+
+            if (layer is null)
+            {
+                continue;
+            }
+
+            for (int rowIndex = 0; rowIndex < layer.Count; rowIndex++)
+            {
+                DiagramResourceGroupPacker.ResourceGroupCell cell = layer[rowIndex];
+
+                if (cell is null || cell.Nodes is null || cell.Nodes.Count == 0)
+                {
+                    continue;
+                }
+
+                layouts.Add(BuildSingleCellLayout(
+                    cell,
+                    rowIndex,
+                    columnIndex,
+                    visibleEdges,
+                    options,
+                    labelContext));
+            }
+        }
+
+        return layouts;
+    }
+
+    private static ComponentLayout BuildSingleCellLayout(
+        DiagramResourceGroupPacker.ResourceGroupCell cell,
+        int rowIndex,
+        int columnIndex,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        string componentKey = $"{rowIndex}_{columnIndex}";
+        List<NodePlacement> relativePlacements = LayoutResourceGroupCell(
+            cell,
+            componentKey,
+            cellIndex: 0,
+            visibleEdges,
+            options,
+            labelContext);
+        (double width, double height) = ResolveCellOuterSize(relativePlacements, options);
+
+        return new ComponentLayout(
+            RowIndex: rowIndex,
+            ColumnIndex: columnIndex,
+            RelativePlacements: relativePlacements,
+            Width: width,
+            Height: height);
     }
 
     private static List<NodePlacement> PackIslandPlacements(
