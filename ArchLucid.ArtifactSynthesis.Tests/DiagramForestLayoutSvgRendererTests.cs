@@ -19,6 +19,77 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
+    public void Render_network_inventory_adds_subscription_and_vnet_frames()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (Network)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vnet",
+                    Label = "vnet-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Network/virtualNetworks",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "vm",
+                    Label = "vm-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 1,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "vm",
+                    ToNodeId = "vnet",
+                    Label = "in",
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("class=\"subscription-frame\"");
+        result.Svg.Should().Contain("class=\"vnet-frame\"");
+    }
+
+    [Fact]
+    public void Render_resource_group_inventory_does_not_add_subscription_frame()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (ResourceGroup) — rg-app",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm",
+                    Label = "vm-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 0,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().NotContain("class=\"subscription-frame\"");
+    }
+
+    [Fact]
     public void Render_owner_shape_executive_vnets_use_content_sized_node_widths()
     {
         GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
