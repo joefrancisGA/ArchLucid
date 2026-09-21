@@ -118,6 +118,12 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryLayoutVmVnet = "inventory-layout-vm-vnet";
 
+    /// <summary>
+    ///     Same-resource-group collocation (Logic App ↔ API connection, single VNet placement)
+    ///     when a cited ARM association row is missing from the snapshot.
+    /// </summary>
+    public const string InventoryResourceGroupCollocation = "inventory-rg-collocation";
+
     public const string InventoryEffectiveNsg = "inventory-effective-nsg";
 
     public const string InventoryEffectiveRoutes = "inventory-effective-routes";

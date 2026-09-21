@@ -1524,6 +1524,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
         Dictionary<string, object?> properties = BuildProperties(item, resourceType!);
 
+        if (TryGetString(item, "kind", out string? kind) && !string.IsNullOrWhiteSpace(kind))
+        {
+            properties["kind"] = kind;
+        }
+
         HostedAzureArmSystemDataPropertyCapture.Capture(item, properties);
 
         if (item.TryGetProperty("properties", out JsonElement propertiesElement)

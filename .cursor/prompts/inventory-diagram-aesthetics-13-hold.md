@@ -17,7 +17,7 @@ Keep IDA as **Carbon-like forest chrome** on the existing `DiagramAst` → inven
 | Temptation | Hold |
 |-----------|------|
 | Microsoft Azure product icons / `IMG` from a static Azure icon pack | Licensing; IDA-02 accents are the allowed color cue |
-| Nested VNet / subnet / NIC frames inside RG boxes | Recursive cluster packer; out of IDA-08 |
+| Nested VNet / subnet / NIC frames inside RG boxes **from an IDA chat** | Recursive cluster packer; out of IDA-08. Authorized nesting is **IDX-05 / IDX-06** |
 | Draw RG rects on the **current** connected-component grid without packing | Overlap; that is why IDR-HOLD exists. Visibility follow-on after IDA-08 is **IDF**, not a drive-by here |
 | Undo `FlattenSparseSubgraphs` so Mermaid “shows RGs” | Empty-box regression |
 | Restore `alpack_*` | Mermaid 11 LR flip |
@@ -31,7 +31,7 @@ Keep IDA as **Carbon-like forest chrome** on the existing `DiagramAst` → inven
 
 ## If a session is already implementing a hold item
 
-Stop. Revert uncommitted hold-item code. Point at **IDA-01–IDA-12**. For icons, write a one-paragraph owner question (license source, dark-mode variants, PNG export) — do not download icon SVGs.
+Stop. Revert uncommitted hold-item code. Point at **IDA-01–IDA-12**. For icons, write a one-paragraph owner question (license source, dark-mode variants, PNG export) — do not download icon SVGs. For nested VNet/subnet/subscription frames, point at **IDX-05 / IDX-06** — do not start a packer from an IDA chat.
 
 ## Done when
 

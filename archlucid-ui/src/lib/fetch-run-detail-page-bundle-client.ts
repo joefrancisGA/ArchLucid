@@ -1,7 +1,7 @@
 import type { ApiResponseWithTrace } from "@/lib/api";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { apiGet } from "@/lib/api/http";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { runDetailPageBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
 import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
 import { workspaceContextBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
@@ -56,6 +56,11 @@ async function fetchRunDetailCriticalPageBundleSealedManifestAware<T>(
     return await apiGet<T>(path, options);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
+
+    if (isApiNotFoundFailure(failure)) {
+      throw error;
+    }
+
     const blockedReason = runDetailPageBundleBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));

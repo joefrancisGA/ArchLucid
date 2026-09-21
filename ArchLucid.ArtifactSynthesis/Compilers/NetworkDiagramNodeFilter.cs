@@ -3,9 +3,8 @@ using ArchLucid.Contracts.Persistence.Graph;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Network and Full subscription diagrams omit private-endpoint cards.
-///     Full subscription still annotates PaaS targets with the lock; Network skips annotation
-///     because data-plane nodes are off-canvas.
+///     Network and Full subscription diagrams omit private-endpoint cards unless the caller opts in.
+///     Hidden private endpoints still feed edge analysis (target lock + placement hops).
 /// </summary>
 internal static class NetworkDiagramNodeFilter
 {

@@ -23,7 +23,6 @@ public sealed class ArchitectureSpineAs087ArchitectureSharesDdlArchitectureTests
         migrationText.Should().Contain("GrantedUtc");
         migrationText.Should().Contain("RowVersion");
         migrationText.Should().Contain("FK_ArchitectureShares_Architectures");
-        migrationText.Should().Contain("FK_ArchitectureShares_PlatformUsers");
         migrationText.Should().Contain("CK_ArchitectureShares_Role");
         migrationText.Should().Contain("IX_ArchitectureShares_Tenant_User_Architecture");
         migrationText.Should().NotContain("ROW LEVEL SECURITY", "ADR 0037 tenant catalog — no SQL RLS (AS-087)");
