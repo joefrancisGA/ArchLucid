@@ -36,11 +36,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         {
             topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
             topologyNodes = InventoryConnectionEndpointIncluder.Include(graph, topologyNodes, mode);
+        }
 
-            if (!options.IncludePrivateEndpointNodes)
-            {
-                topologyNodes = NetworkDiagramNodeFilter.ExcludePrivateEndpoints(topologyNodes);
-            }
+        if (!options.IncludePrivateEndpointNodes)
+        {
+            topologyNodes = NetworkDiagramNodeFilter.ExcludePrivateEndpoints(topologyNodes);
         }
 
         HashSet<string> includedNodeIds = topologyNodes
@@ -117,6 +117,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             });
         }
 
+
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
         if (mode == DiagramMode.Executive)
@@ -128,7 +129,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
 
-        if (mode is not DiagramMode.Network && !isSecureNowDataMode)
+        if (!options.IncludePrivateEndpointNodes)
         {
             HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
                 ast,
@@ -140,6 +141,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             {
                 DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
             }
+
         }
 
         if (DiagramNicCollapseApplier.ShouldCollapseNetworkInterfaces(mode))
@@ -149,12 +151,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
-        if (!isSecureNowDataMode)
-        {
-            DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
-            DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
-            DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
-        }
+        DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
+        DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
+        DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
 
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);

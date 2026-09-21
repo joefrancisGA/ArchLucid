@@ -69,6 +69,14 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
                 continue;
             }
 
+            if (AzureInventorySnapshotCitedEdgePolicy.HasCitedEdgeFrom(
+                    edges,
+                    fromNodeId,
+                    vnetNodeId))
+            {
+                continue;
+            }
+
             AzureInventorySnapshotGraphEdgeAppender.TryAdd(
                 edges,
                 edgeKeys,
@@ -107,7 +115,7 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
         List<AzureInventoryResourceRecord> factories = members.Where(member => IsDataFactory(member.ResourceType)).ToList();
         List<AzureInventoryResourceRecord> stores = members.Where(member => IsDataStore(member.ResourceType)).ToList();
 
-        if (factories.Count == 0 || stores.Count == 0)
+        if (factories.Count == 0 || stores.Count != 1)
         {
             return;
         }
@@ -147,7 +155,7 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
         List<AzureInventoryResourceRecord> apps = members.Where(member => IsKeyVaultConsumer(member.ResourceType)).ToList();
         List<AzureInventoryResourceRecord> vaults = members.Where(member => IsKeyVault(member.ResourceType)).ToList();
 
-        if (apps.Count == 0 || vaults.Count == 0)
+        if (apps.Count == 0 || vaults.Count != 1)
         {
             return;
         }

@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
@@ -30,10 +31,24 @@ internal static class AzureInventorySnapshotPropertyArmIdEdgeHydrator
         Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
             .GroupBy(resource => resource.ResourceRowId)
             .ToDictionary(group => group.Key, group => group.First());
+        Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId = snapshot.Resources
+            .Where(resource => !string.IsNullOrWhiteSpace(resource.AzureResourceId))
+            .GroupBy(
+                resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
+                StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
 
         foreach (AzureInventoryResourcePropertyReadModel property in snapshot.Properties)
         {
             if (property.IsRedacted || string.IsNullOrWhiteSpace(property.PropertyValue))
+            {
+                continue;
+            }
+
+            if (string.Equals(
+                    property.PropertyKey,
+                    AzureInventoryVnetPeeringParser.PeeringsPropertyKey,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -63,17 +78,47 @@ internal static class AzureInventorySnapshotPropertyArmIdEdgeHydrator
                              nodeIdByArmId,
                              citedArmId))
                 {
+                    string edgeType = GraphEdgeTypes.ConnectsTo;
+                    string inferenceSource = GraphEdgeInferenceSources.InventoryPropertyArmId;
+
+                    if (IsLogicAppConnectionReference(owner, citedArmId, resourcesByArmId))
+                    {
+                        edgeType = AzureInventoryRelationshipAssociationTypes.LogicAppConnection;
+                        inferenceSource = GraphEdgeInferenceSources.InventoryLogicAppConnection;
+                    }
+
                     AzureInventorySnapshotGraphEdgeAppender.TryAdd(
                         edges,
                         edgeKeys,
                         fromNodeId,
                         toNodeId,
-                        GraphEdgeTypes.ConnectsTo,
-                        GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                        edgeType,
+                        inferenceSource,
                         provenanceKind: ProvenanceKind.DeterministicInference.ToString());
                 }
             }
         }
+    }
+
+    private static bool IsLogicAppConnectionReference(
+        AzureInventoryResourceRecord owner,
+        string citedArmId,
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId)
+    {
+        bool isLogicApp = string.Equals(
+            owner.ResourceType,
+            "Microsoft.Logic/workflows",
+            StringComparison.OrdinalIgnoreCase)
+            || string.Equals(owner.ResourceType, "Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase);
+
+        return isLogicApp
+            && resourcesByArmId.TryGetValue(
+                ArmResourceIdNormalizer.Normalize(citedArmId),
+                out AzureInventoryResourceRecord? target)
+            && string.Equals(
+                target.ResourceType,
+                "Microsoft.Web/connections",
+                StringComparison.OrdinalIgnoreCase);
     }
 
     private static IEnumerable<string> EnumerateCitedArmIds(string propertyValue)

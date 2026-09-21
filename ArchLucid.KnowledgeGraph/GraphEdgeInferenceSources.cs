@@ -52,6 +52,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAppKeyVaultRef = "inventory-app-key-vault-ref";
 
+    public const string InventoryPropertyArmId = "inventory-property-arm-id";
+
     public const string InventoryHostnameInferredTarget = "inventory-hostname-inferred-target";
 
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
