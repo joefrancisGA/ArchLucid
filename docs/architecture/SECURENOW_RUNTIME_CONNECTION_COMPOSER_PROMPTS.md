@@ -1,11 +1,11 @@
 > **Scope:** Contributor-reference — copy-paste Composer/Cloud Agent prompts that close the ArchLucid DEV (and similar Container Apps) **Data flow** gap: Reader-declared env/RBAC/hostname wiring, optional observed overlay, optional SQL principal probe, optional uploaded-config confirmation, optional inference questionnaire. Internal engineering only. **Prompts only** in this PR — do not implement from the tables.
 > **Index:** [`INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS.md). **Design:** [`../securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](../securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md). **Hold:** [`../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md).
 > **DEV picture:** [`../securenow/ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERENCE.md`](../securenow/ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERENCE.md).
-> **Paste files:** [`.cursor/prompts/securenow-runtime-connection-00-index.md`](../../.cursor/prompts/securenow-runtime-connection-00-index.md) (one numbered file per session).
+> **Paste files:** [`.cursor/prompts/securenow-runtime-connection-00-index.md`](../../.cursor/prompts/securenow-runtime-connection-00-index.md) (one numbered file per session). **SN-RT-14** is the OP-01 map follow-on when Diagrams shows `Unmapped API controller` on uploaded-config / questionnaire panels.
 >
 > **Do not** re-run **AX-DE-01–18**, **AX-DC-01–08**, **SN-DF-01–08**, or **SN-PE-01–07** as greenfield. Do not persist secret **values**. Do not merge observed arrows into **May access**. Hosted stays GET-only.
 
-# SN-RT-01–SN-RT-10 / SN-RT-12–13 — Runtime declared and observed Data Flow connections
+# SN-RT-01–SN-RT-10 / SN-RT-12–14 — Runtime declared and observed Data Flow connections
 
 **Observed:** Owner (2026-09-18) on an empty ArchLucid DEV Data flow canvas (**19 nodes, 0 relationships**). Prefer **not** requiring Terraform. Willing to query logs, SQL, or ask the operator to upload config and **confirm** inferred edges. Owner also accepted an **inference → questionnaire** close for A’s gaps.
 
@@ -27,6 +27,7 @@
 | Silent upload inference | **SN-RT-10** | `{0}` catalogs and unresolved hosts auto-paint from files |
 | `{0}` / unresolved never asked | **SN-RT-12** | Tenant DBs stay server-level |
 | Questionnaire looks like auto-declared | **SN-RT-13** | Same-RG guesses paint as architecture |
+| SN-RT-10/12/13 controller missing from OP-01 map | **SN-RT-14** | Diagrams 500 `Unmapped API controller` on both panels |
 | Secret harvest / Kudu / hosted POST / ER | **SN-RT-HOLD** | Written hold |
 
 ## Sequencing
@@ -45,6 +46,7 @@
 | **SN-RT-10** Confirm HumanAssertion | After 09; prefer 03 | Proposed-edge DTO |
 | **SN-RT-12** Questionnaire items | **E** after 03 | SN-RT-03 warnings; reuse 10 DTO if present |
 | **SN-RT-13** Questionnaire UI | After 12 | SN-RT-12 items; prefer 10 API |
+| **SN-RT-14** Capability map row | After 10/13 when Diagrams 500s unmapped | OP-01 JSON only |
 | **SN-RT-HOLD** | Not implementation | — |
 
 **Run A first, then E on top.** B is an overlay. C is only if a buyer needs membership proof without SQL auditing. D is the escape hatch. E does not collect Azure.
@@ -292,6 +294,24 @@ Do not implement the ask UI (SN-RT-13). Working-tree script. No git add -A.
 You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: walk the operator through SN-RT-12 items as Yes / No / Skip questions. Yes becomes ProvenanceKind.HumanAssertion Confirmed connection (HumanConfirmed). No dismissed. Skip stays proposed and does not paint. Reuse SN-RT-10 confirm API if landed. Disable the primary until a choice exists. Sentence case. Visible-boundary buttons. Do not hide desktop review workspace tabs behind More. Do not auto-answer. Do not bulk-confirm.
 
 Read first: .cursor/prompts/securenow-runtime-connection-13-inference-questionnaire-ui.md
+
+Working-tree script. No git add -A. Heartbeat every 8s if >15s.
+```
+
+---
+
+# SN-RT-14 — Operator-inferred controller on the OP-01 capability map
+
+**Depends on:** SN-RT-10 / SN-RT-12 / SN-RT-13 controller already on trunk · **Branch:** `cursor/sn-rt-operator-inferred-capability-map-a7c1`
+
+**Paste file:** [`.cursor/prompts/securenow-runtime-connection-14-operator-inferred-capability-map.md`](../../.cursor/prompts/securenow-runtime-connection-14-operator-inferred-capability-map.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: stop the SecureNow Diagrams 500 "Unmapped API controller" on Uploaded config proposals and Inference questionnaire. Both GETs hit InfraEvidenceOperatorInferredConnectionsController, which is missing from docs/architecture/data/product-capability-map.json. OP-04 fails closed (500), not a product-line 403. Extend the existing OP-01 map — do not invent a second file. Prefer python3 scripts/ci/build_product_capability_map.py. The new row must be capability=infra-evidence, productLine=both, status=assigned. If regen reclassifies existing assigned rows, revert those and hand-insert only the missing controller. Do not change the middleware, controller, or Diagrams UI. Do not hide desktop review workspace tabs behind More.
+
+Read first: .cursor/prompts/securenow-runtime-connection-14-operator-inferred-capability-map.md
 
 Working-tree script. No git add -A. Heartbeat every 8s if >15s.
 ```

@@ -26,7 +26,7 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-DD-01–IE-DD-04** Data mode Render failed (38 nodes / 70 edges / 38 subgraphs): SQL/Cosmos/DBfor category slash-bug, mermaid contract, owner Failed ratchet, honest validation errors |
 | [`SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) | **SN-DF-01–SN-DF-08** + hold — Data flow (movement) and Data architecture (repositories) modes; ADF declared wiring; not Data-mode category leftover |
 | [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) | **SN-PE-01–SN-PE-07** + hold — evidence-based probable families on Data Flow (May access, Event Grid, DNS-joined PE hop); ordinal bands; **no new collection**; **prompts only** |
-| [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) | **SN-RT-01–SN-RT-10**, **SN-RT-12–13** + hold — runtime declared / observed Data Flow: Container Apps env GET, catalog/HTTPS parse, SQL grain, PaaS stages, RBAC allowlist, opt-in LAW overlay, SQL principals, upload+confirm, inference questionnaire; **prompts only** |
+| [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) | **SN-RT-01–SN-RT-10**, **SN-RT-12–14** + hold — runtime declared / observed Data Flow: Container Apps env GET, catalog/HTTPS parse, SQL grain, PaaS stages, RBAC allowlist, opt-in LAW overlay, SQL principals, upload+confirm, inference questionnaire, OP-01 map row for the operator-inferred controller; **prompts only** |
 | [`SECURENOW_INVENTORY_TERMINOLOGY_COMPOSER_PROMPTS.md`](SECURENOW_INVENTORY_TERMINOLOGY_COMPOSER_PROMPTS.md) | **SN-IT-01–SN-IT-06** + hold — SecureNow buyer copy: Azure inventory capture vs bare snapshot / Snapshot A|B; drift nav; architect metrics; help + CI ratchet; **no API/type rename**; **prompts only** |
 | [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) | **AX-DE-01–AX-DE-18** + hold — extractor collection to enhance diagrams (**shipped** — **do not re-run**) |
 | [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md) | **AX-DC-01–AX-DC-08** + hold — diagram consumption: authorization endpoint inclusion, confidence strokes, completeness warnings UI, Identity overlay, Executive e2e; **no new collection**; **prompts only** |
@@ -168,6 +168,7 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **SN-RT-10** | Confirm proposed edges → HumanAssertion | SN-RT-09 (prefer SN-RT-03) |
 | **SN-RT-12** | Inference questionnaire items (`{0}` / unresolved / same-CAE UI→API) | SN-RT-03 |
 | **SN-RT-13** | Inference questionnaire UI (Yes / No / Skip) | SN-RT-12 (prefer SN-RT-10 API) |
+| **SN-RT-14** | OP-01 map row for `InfraEvidenceOperatorInferredConnectionsController` | SN-RT-10 / SN-RT-13 |
 | **SN-RT-HOLD** | Hold — not implementation | — |
 | **AX-DE-01** | Diagram-enrichment association catalog | IE-RF-01, ADF Prompt 7 |
 | **AX-DE-02–04** | Join existing ZIP (diagnostics labels, MI+RBAC May access, ADF hosts) | AX-DE-01 |
@@ -352,3 +353,4 @@ Attack-path / capability-to-flow engines over **live inventory** are **SA-01–S
 | SN-RT-10 | `ArchLucid.Api.Tests` + `ArchLucid.Application.Tests` + `archlucid-ui` Vitest named in the prompt |
 | SN-RT-12 | `ArchLucid.Application.Tests` (`QuestionnaireItem` / `InferenceQuestionnaire`) |
 | SN-RT-13 | `ArchLucid.Api.Tests` + `archlucid-ui` Vitest named in the prompt |
+| SN-RT-14 | `ArchLucid.Architecture.Tests` (`FullyQualifiedName~ProductCapabilityMap`) |

@@ -2,7 +2,7 @@
      Origin: 2026-09-18 owner (ArchLucid DEV 19 nodes / 0 edges; prefer no Terraform;
      logs/SQL/upload+confirm OK). Do not implement from this index. -->
 
-# SecureNow runtime connections — Composer prompt set (SN-RT-01–SN-RT-10, SN-RT-12–13 + hold)
+# SecureNow runtime connections — Composer prompt set (SN-RT-01–SN-RT-10, SN-RT-12–14 + hold)
 
 The ArchLucid DEV Data flow canvas is empty because **Container Apps env is not collected**, SQL catalogs are not parsed, and several RBAC/PaaS types never become Data Flow nodes. Five options: **A** Reader-only ARM, **B** Log Analytics overlay, **C** SQL principal probe, **D** upload + confirm, **E** inference questionnaire.
 
@@ -40,6 +40,7 @@ DEV expected picture: [`docs/securenow/ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERE
 | **D** | Confirm | Silent inference | Operator confirm → HumanAssertion | **SN-RT-10** |
 | **E** | Candidates | `{0}` / unresolved stay blank | Named-rule questionnaire items | **SN-RT-12** |
 | **E** | Ask | Silent same-RG guesses | Yes / No / Skip → HumanAssertion | **SN-RT-13** |
+| **D/E** | OP-01 map | SN-RT-10/12/13 controller unmapped | Controller row `infra-evidence` / `both` | **SN-RT-14** |
 
 ## What this set does *not* change
 
@@ -49,7 +50,7 @@ Do **not** hide desktop review workspace tabs behind **More**. Do **not** persis
 
 ## Run order
 
-**A first:** **01 → 02 → 03.** **04** and **05** after 03 (may parallel each other). **E on top of A:** **12** then **13** (after 03; reuse 10 persist if landed). **B:** **06** then **07** (after A if you want join keys). **C:** **08** anytime after 01 (needs compute principal ids). **D:** **09** then **10** (independent of A; better after 03 so confirm UI can show inventory matches). **11** is a written hold.
+**A first:** **01 → 02 → 03.** **04** and **05** after 03 (may parallel each other). **E on top of A:** **12** then **13** (after 03; reuse 10 persist if landed). **B:** **06** then **07** (after A if you want join keys). **C:** **08** anytime after 01 (needs compute principal ids). **D:** **09** then **10** (independent of A; better after 03 so confirm UI can show inventory matches). **14** after 10/13 when Diagrams shows `Unmapped API controller` on the upload/questionnaire panels. **11** is a written hold.
 
 Suggested Cloud Agent branch per prompt: `cursor/sn-rt-<short-name>-a7c1`. Implementation sessions use a **new** feature branch per prompt. This prompt-set PR may live on `cursor/runtime-connection-prompts-30fc`.
 
@@ -71,6 +72,7 @@ Suggested Cloud Agent branch per prompt: `cursor/sn-rt-<short-name>-a7c1`. Imple
 | 11 | `securenow-runtime-connection-11-hold.md` | — | Written hold |
 | 12 | `securenow-runtime-connection-12-inference-questionnaire-items.md` | E | `{0}` / unresolved never asked |
 | 13 | `securenow-runtime-connection-13-inference-questionnaire-ui.md` | E | Questionnaire looks like auto-declared |
+| 14 | `securenow-runtime-connection-14-operator-inferred-capability-map.md` | D/E | OP-01 map missing the SN-RT-10/12/13 controller |
 
 ## After each prompt
 
