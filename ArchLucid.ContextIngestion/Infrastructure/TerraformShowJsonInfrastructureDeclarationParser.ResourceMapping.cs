@@ -2077,6 +2077,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.degraded"] = degraded.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "environment", out JsonElement environment)
+                || TryGetPropertyIgnoreCase(res, "environment", out environment))
+            && environment.ValueKind == JsonValueKind.String)
+        {
+            string? environmentText = environment.GetString();
+
+            if (!string.IsNullOrWhiteSpace(environmentText))
+                properties["tf.environment"] = environmentText.Trim();
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
                 || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
             && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
