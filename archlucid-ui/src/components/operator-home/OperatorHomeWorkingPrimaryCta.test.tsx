@@ -2,7 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
-import { REVIEWS_NEW_PATH, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import {
+  REVIEWS_NEW_GUIDED_INTAKE_HREF,
+  startReviewFromArchitectureHref,
+} from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH } from "@/app/(operator)/_sections/operator-home-page-surface-copy";
@@ -47,7 +50,7 @@ describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
 
     const link = screen.getByTestId("operator-home-working-new-review-primary");
 
-    expect(link).toHaveAttribute("href", REVIEWS_NEW_PATH);
+    expect(link).toHaveAttribute("href", REVIEWS_NEW_GUIDED_INTAKE_HREF);
     expect(link).toHaveTextContent("New review");
     expect(screen.getByText(OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH)).toBeInTheDocument();
     expect(OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH.toLowerCase()).not.toContain("resume");
