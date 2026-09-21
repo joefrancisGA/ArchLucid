@@ -135,10 +135,10 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationPrioritizationRepository prioritizationRepository = new();
 
         RemediationFactoryMetricsService metricsService = new(
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             exceptionRepository,
             matchRepository,
-            instanceRepository,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             prioritizationRepository);
 
         RemediationFactoryMetrics tenantAMetrics =
@@ -178,7 +178,7 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationPatternRepository patternRepository,
         InMemoryRemediationPrioritizationRepository prioritizationRepository) =>
         new(
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             exceptionRepository,
             matchRepository,
             patternRepository,
@@ -208,7 +208,7 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             waveRepository,
             prioritizationService,
             instanceService,
-            instanceRepository);
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository));
     }
 
     private static ScopeContext CreateScope(Guid tenantId) =>
