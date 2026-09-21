@@ -10,6 +10,7 @@ export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "ai-usage",
   "baseline-settings",
   "background-wait",
+  "career-vs-rehearsal",
   "connection-status",
   "contact-support",
   "decision-register",

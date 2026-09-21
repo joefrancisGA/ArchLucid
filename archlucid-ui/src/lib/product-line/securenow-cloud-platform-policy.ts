@@ -22,6 +22,7 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "architecture-draft-editing",
   "architecture-sharing",
   "career-rehearsal-doors",
+  "career-vs-rehearsal",
   "slack-integration",
 ];
 
@@ -48,6 +49,7 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "billing-and-plans",
   "architecture-desk",
   "career-rehearsal-doors",
+  "career-vs-rehearsal",
 ];
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
