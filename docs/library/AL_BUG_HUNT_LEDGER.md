@@ -17995,6 +17995,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-18 seed hunt #6842 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
 2026-09-18 seed hunt #6837 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6832 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `multi_region` property gap; regression `ParseAsync_multi_region_maps_tf_multi_region_property`.
@@ -19761,7 +19763,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1017
+- **hunts:** 1018
 - **bugs-found:** 419
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
