@@ -4,6 +4,8 @@ using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
 using ArchLucid.Application.InfraEvidence.RemediationWaves;
+using ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
+using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -57,6 +59,12 @@ public sealed class ProjectScopedCapabilityBoundaryTests
         yield return [typeof(AuditManualEvidenceSubmissionService)];
         yield return [typeof(AuditEvidencePackageExportService)];
         yield return [typeof(AuditEvidenceSnapshotCollectionService)];
+        yield return [typeof(SecureNowArchitectMetricsQueryService)];
+        yield return [typeof(SecurityEvidencePathInspectorQueryService)];
+        yield return [typeof(SecurityAssetAssertionService)];
+        yield return [typeof(OperationalSecurityExceptionService)];
+        yield return [typeof(RemediationInstanceService)];
+        yield return [typeof(CloudResourceEvidenceHubService)];
     }
 
     [Theory]
