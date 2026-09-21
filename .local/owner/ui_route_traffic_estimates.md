@@ -66,7 +66,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | RER | `/architecture/architectures/[architectureId]/reviews/[reviewId]` | 0.02% | 0 | 0 | 2 | Core review | No | None |
 | RAX | `/architecture/architectures/[architectureId]/reviews/new` | 0.02% | 0 | 0 | 2 | Core review | No | None |
 | ASE | `/architecture/architectures/[architectureId]/search` | 0.02% | 0 | 0 | 2 | Core review | No | None |
-| COA | `/compliance/audit-evidence` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| COA | `/compliance/audit-evidence` | 0.02% | 82,80 | 0 | 2 | Marketing | No | SecureNow audit evidence Phase 2: draft continuity, explicit reversible paste apply, validation/error summary, scope/readiness cues, UUID shape checks, monospaced inputs, single main landmark, namespace-correct copy, and build provenance limitation; 2026-09-21 al-ui-rate: shipped safe backlog; recent lookup resume partial |
 | COO | `/compliance/audit-evidence/[assessmentId]/snapshots/[snapshotId]/controls/[controlId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | COF | `/compliance/findings` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | COP | `/compliance/policy-packs` | 0.02% | 84,83 | 0 | 2 | Marketing | No | SecureNow policy packs Phase 2: corrected boundary copy, reconciled scope status, gated preview diff, honest resume fallback, scope banner, enforcement confirmation/undo, freshness, status tags, and working-mode copy; 2026-09-21 al-ui-rate: shipped safe backlog |
