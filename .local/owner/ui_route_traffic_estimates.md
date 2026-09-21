@@ -45,9 +45,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 85.63%
+**OVERALL WEIGHT SCORE:** 85.61%
 
-**OVERALL EVIDENCE SCORE:** 78.12%
+**OVERALL EVIDENCE SCORE:** 78.10%
 
 ## Master table (UX score 0 first; then Deficit desc; ties A→Z by path)
 
@@ -103,6 +103,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | EIM | `/help/impact-preview-vs-architecture-envelope` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HIN | `/help/inhabit-the-architecture` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EIN | `/help/inspect-stored-evidence` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HPO | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EPX | `/help/proxy-timeout-real-execute` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | SEX | `/help/sealed-record-vs-decision-register` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HE2 | `/help/security-evidence-paths` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
