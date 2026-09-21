@@ -435,7 +435,7 @@ export function HelpAcceleratorChooserGuideView(
           </div>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
       </div>
     </article>
   );
