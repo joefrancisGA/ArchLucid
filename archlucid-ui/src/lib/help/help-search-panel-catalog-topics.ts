@@ -161,6 +161,27 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/extraction-fidelity", helpSlug: "extraction-fidelity" },
   },
   {
+    id: "impact-preview-vs-architecture-envelope",
+    title: "Impact preview vs architecture envelope",
+    description:
+      "Working help — policy cheap envelope vs architecture desk sketch; neither path is draft-to-draft Compare (CE-020 / SN-007).",
+    keywords: [
+      "policy cheap envelope",
+      "architecture sketch envelope",
+      "impact preview vs sketch",
+      "cheap envelope",
+      "architecture envelope",
+      "sn-007",
+      "r12",
+      "sketch a change",
+    ],
+    action: {
+      kind: "route",
+      href: "/help/impact-preview-vs-architecture-envelope",
+      helpSlug: "impact-preview-vs-architecture-envelope",
+    },
+  },
+  {
     id: "which-mode-am-i-in",
     title: "Which mode am I in?",
     description:
@@ -614,6 +635,10 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "hard infeasible": ["false-hard-infeasibility"],
   "false hard": ["false-hard-infeasibility"],
   "extraction fidelity": ["extraction-fidelity"],
+  "policy cheap envelope": ["impact-preview-vs-architecture-envelope"],
+  "architecture sketch envelope": ["impact-preview-vs-architecture-envelope", "sketch-a-change"],
+  "impact preview vs sketch": ["impact-preview-vs-architecture-envelope"],
+  "cheap envelope": ["impact-preview-vs-architecture-envelope"],
   "which mode": ["which-mode-am-i-in"],
   "am i in working": ["which-mode-am-i-in"],
   inbox: ["architecture-desk"],

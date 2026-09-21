@@ -19,6 +19,7 @@ export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "false-hard-infeasibility",
   "inspect-stored-evidence",
   "impact-preview",
+  "impact-preview-vs-architecture-envelope",
   "improvement-planning",
   "jira-integration",
   "servicenow-integration",
