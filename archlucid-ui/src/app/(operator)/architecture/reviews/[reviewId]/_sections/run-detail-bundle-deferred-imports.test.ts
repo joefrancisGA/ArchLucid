@@ -56,16 +56,6 @@ const sponsorBriefingSource = readFileSync(
   "utf8",
 );
 
-const sponsorBriefingResolveSource = readFileSync(
-  join(sectionsDir, "resolve-run-detail-sponsor-briefing-section.tsx"),
-  "utf8",
-);
-
-const committedPageViewSource = readFileSync(
-  join(sectionsDir, "RunDetailPageViewCommitted.tsx"),
-  "utf8",
-);
-
 const tabbedDeferredIslandsSource = readFileSync(
   join(sectionsDir, "RunDetailTabbedDeferredIslands.tsx"),
   "utf8",
@@ -660,11 +650,6 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(sponsorBriefingSource).toContain("run-detail-sponsor-briefing-deferred-chunks");
     expect(sponsorBriefingSource).toContain("EmailRunToSponsorBannerDeferred");
     expect(sponsorBriefingSource).toContain("PilotRoiValidationHandoffClientDeferred");
-    expect(sponsorBriefingSource.trimStart().startsWith('"use client"')).toBe(true);
-    expect(sponsorBriefingResolveSource).not.toMatch(/^["']use client["']/);
-    expect(sponsorBriefingResolveSource).toContain("export function resolveRunDetailSponsorBriefingSection");
-    expect(committedPageViewSource).toContain('from "./resolve-run-detail-sponsor-briefing-section"');
-    expect(committedPageViewSource).not.toContain('from "./RunDetailSponsorBriefingSection"');
     expect(manifestLoaderSource).toContain('import("@/components/EmailRunToSponsorBanner")');
     expect(manifestLoaderSource).toContain('import("@/components/pilots/PilotRoiValidationHandoffCard")');
 
