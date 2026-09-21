@@ -51,9 +51,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const [advancedCommandOpen, setAdvancedCommandOpenState] = useState(() =>
     parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
   );
-  const [selectedPlatform, setSelectedPlatform] = useState<CloudInventoryPlatform>("azure");
-  const [baselineOverwriteOpen, setBaselineOverwriteOpen] = useState(false);
-  const [pendingUpload, setPendingUpload] = useState<PendingUploadRequest | null>(null);
+  const selectedPlatform: CloudInventoryPlatform = "azure";
   const [replaceInventoryMode, setReplaceInventoryMode] = useState(false);
   const [sessionAcceptedPackage, setSessionAcceptedPackage] = useState<ExtractUploadAcceptedPackageRecord | null>(
     null,
@@ -111,18 +109,9 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
         return;
       }
 
-      const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
-
-      if (hasBaselineArtifacts === true && !replaceInventoryMode) {
-        setPendingUpload(request);
-        setBaselineOverwriteOpen(true);
-
-        return;
-      }
-
       void executeUpload(request);
     },
-    [baselineQuery.data?.hasBaselineArtifacts, baselineQuery.isPending, executeUpload, replaceInventoryMode, upload],
+    [baselineQuery.isPending, executeUpload, upload],
   );
 
   const folderZip = useExtractUploadFolderZip({
@@ -146,24 +135,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     setSelectedFileLabel: folderZip.setSelectedFileLabel,
   });
 
-  const confirmBaselineOverwrite = useCallback(() => {
-    setBaselineOverwriteOpen(false);
-
-    if (pendingUpload === null) {
-      return;
-    }
-
-    const request = pendingUpload;
-    setPendingUpload(null);
-    void executeUpload(request);
-  }, [executeUpload, pendingUpload]);
-
-  const cancelBaselineOverwrite = useCallback(() => {
-    setBaselineOverwriteOpen(false);
-    setPendingUpload(null);
-    folderZip.clearSelectionState();
-  }, [folderZip]);
-
   const baselineLoading = baselineQuery.isPending;
   const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
   const hasInventoryOnFile = resolveExtractUploadHasInventoryOnFile({
@@ -172,7 +143,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   });
   const extractorScriptVersion = baselineQuery.data?.extractorScriptVersion ?? null;
   const extractorUpdateBanner = baselineQuery.data?.extractorUpdateBanner ?? null;
-  const extractorScriptSha256 = baselineQuery.data?.extractorScriptSha256 ?? null;
   const lastAcceptedPackage =
     sessionAcceptedPackage ?? baselineQuery.data?.lastAcceptedPackage ?? null;
   const packageAccepted = upload.packageId !== null;
@@ -181,20 +151,20 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const extractUploadSteps = useMemo(
     () =>
       resolveExtractUploadPackageSteps({
-        providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
+        replacingInventory: replaceInventoryMode,
       }),
-    [hasBaselineArtifacts, packageAccepted],
+    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
   );
   const extractUploadEmphasizedStepId = useMemo(
     () =>
       resolveExtractUploadPackageEmphasizedStepId({
-        providerSelected: true,
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
+        replacingInventory: replaceInventoryMode,
       }),
-    [hasBaselineArtifacts, packageAccepted],
+    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
   );
 
   const syncAdvancedCommandOpenToUrl = useCallback(
@@ -240,21 +210,15 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     hasInventoryOnFile,
     extractorScriptVersion,
     extractorUpdateBanner,
-    extractorScriptSha256,
     lastAcceptedPackage,
     associateRunId,
     selectedPlatform,
-    setSelectedPlatform,
     maxMb,
     extractUploadSteps,
     extractUploadEmphasizedStepId,
     upload,
     folderZip,
     demo,
-    baselineOverwriteOpen,
-    setBaselineOverwriteOpen,
-    confirmBaselineOverwrite,
-    cancelBaselineOverwrite,
     showAcceptedDropZone,
     beginReplaceInventory,
     replaceInventoryMode,

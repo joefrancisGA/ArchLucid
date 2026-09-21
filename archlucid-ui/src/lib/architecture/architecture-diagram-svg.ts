@@ -1,6 +1,12 @@
 import DOMPurify from "dompurify";
 
-import { ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH } from "@/lib/architecture/architecture-diagram-mermaid-config";
+import {
+  ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE,
+  ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
+  ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
+} from "@/lib/architecture/architecture-diagram-mermaid-config";
+import { enhanceInventoryClusterLabels } from "@/lib/architecture/enhance-inventory-cluster-labels";
+import { fitInventoryDiagramClusterFrames } from "@/lib/architecture/fit-inventory-diagram-cluster-frames";
 import {
   ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX,
   architectureDiagramLabelLineHeightPx,
@@ -9,7 +15,17 @@ import {
   wrapWidthInsideNodeRectPx,
 } from "@/lib/architecture/wrap-architecture-diagram-label";
 
+export type ArchitectureDiagramSvgPaletteOptions = {
+  readonly dark?: boolean;
+};
+
 const SVG_NS = "http://www.w3.org/2000/svg";
+
+const CLUSTER_LABEL_INSET_PX = 4;
+const CLUSTER_TITLE_BAND_EXTRA_INSET_PX = 4;
+const CLUSTER_LABEL_OVERLAP_TOLERANCE_PX = 1;
+
+type ForeignObjectLabelKind = "node" | "cluster" | "edge";
 
 function collapseLabelWhitespace(raw: string): string {
   return raw.replace(/\s+/g, " ").trim();
@@ -41,39 +57,139 @@ function paintUnfilledSvgText(svg: Element): void {
   }
 }
 
-function paintUnfilledMermaidShapes(svg: Element): void {
-  const nodeShapes = svg.querySelectorAll("g.node rect, g.node polygon, g.node circle, g.cluster rect");
+function resolveArchitectureDiagramNodePalette(dark: boolean): {
+  fill: string;
+  border: string;
+  text: string;
+  edge: string;
+} {
+  if (dark) {
+    return ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE;
+  }
 
-  for (const shape of nodeShapes) {
-    if (paintAttributeMissingOrNone(shape.getAttribute("stroke"))) {
-      shape.setAttribute("stroke", "currentColor");
+  return ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE;
+}
 
-      if (paintAttributeMissingOrNone(shape.getAttribute("stroke-width"))) {
-        shape.setAttribute("stroke-width", "1.5");
-      }
-    }
+function isInsidePictogram(element: Element): boolean {
+  return element.closest("g.pictogram") !== null;
+}
 
-    if (shape.getAttribute("fill") === "none") {
-      shape.setAttribute("fill", "currentColor");
-      shape.setAttribute("fill-opacity", "0.12");
+function isForestCardBodyRect(rect: Element): boolean {
+  if (rect.classList.contains("node-accent")) {
+    return false;
+  }
+
+  if (rect.classList.contains("node-card")) {
+    return true;
+  }
+
+  if (isInsidePictogram(rect)) {
+    return false;
+  }
+
+  const parent = rect.parentElement;
+
+  return parent !== null && parent.classList.contains("node");
+}
+
+/** Bakes node, edge, and label colors into the SVG so raster export does not depend on page CSS. */
+function paintArchitectureDiagramNodePalette(svg: Element, dark: boolean): void {
+  // Forest SVG has accent bars; client-dagre Mermaid fallback is neutral cards only (no accent bar).
+  const palette = resolveArchitectureDiagramNodePalette(dark);
+  const nodeGroups = svg.querySelectorAll("g.node");
+
+  for (const nodeGroup of nodeGroups) {
+    const cardRects = [...nodeGroup.children].filter(
+      (child): child is Element =>
+        child instanceof Element
+        && child.tagName.toLowerCase() === "rect"
+        && isForestCardBodyRect(child),
+    );
+
+    for (const shape of cardRects) {
+      shape.setAttribute("fill", palette.fill);
+      shape.setAttribute("stroke", palette.border);
+      shape.setAttribute("stroke-width", "1.5");
+      shape.removeAttribute("fill-opacity");
     }
   }
 
-  const edgePaths = svg.querySelectorAll("g.edgePaths path, g.edgePath path, path.flowchart-link");
+  const labels = svg.querySelectorAll("g.node text, g.node .nodeLabel");
+
+  for (const label of labels) {
+    if (label.closest("g.pictogram") !== null) {
+      continue;
+    }
+
+    label.setAttribute("fill", palette.text);
+
+    for (const tspan of label.querySelectorAll("tspan")) {
+      tspan.setAttribute("fill", palette.text);
+    }
+  }
+
+  const edgePaths = svg.querySelectorAll(
+    "g.edgePaths path, g.edgePath path, path.flowchart-link, g.edge path.edge-path",
+  );
 
   for (const path of edgePaths) {
-    if (paintAttributeMissingOrNone(path.getAttribute("stroke"))) {
-      path.setAttribute("stroke", "currentColor");
-    }
-
-    if (paintAttributeMissingOrNone(path.getAttribute("fill"))) {
-      path.setAttribute("fill", "none");
-    }
+    path.setAttribute("stroke", palette.edge);
+    path.setAttribute("fill", "none");
   }
 }
 
 function closestNodeGroup(element: Element): Element | null {
   return element.closest("g.node");
+}
+
+function closestClusterGroup(element: Element): Element | null {
+  const cluster = element.closest("g.cluster");
+
+  if (cluster === null) {
+    return null;
+  }
+
+  if (element.closest("g.node") !== null) {
+    return null;
+  }
+
+  return cluster;
+}
+
+function resolveForeignObjectLabelKind(foreignObject: Element): ForeignObjectLabelKind {
+  if (closestNodeGroup(foreignObject) !== null) {
+    return "node";
+  }
+
+  if (closestClusterGroup(foreignObject) !== null) {
+    return "cluster";
+  }
+
+  if (foreignObject.closest("g.edgeLabel, g.edge") !== null) {
+    return "edge";
+  }
+
+  return "node";
+}
+
+function readClusterLabelText(cluster: Element): string {
+  const existing = cluster.querySelector("text.cluster-label");
+
+  if (existing === null) {
+    return "";
+  }
+
+  return collapseLabelWhitespace(existing.textContent ?? "");
+}
+
+function clusterAlreadyHasMatchingLabel(cluster: Element, label: string): boolean {
+  const existingLabel = readClusterLabelText(cluster);
+
+  if (existingLabel.length === 0) {
+    return false;
+  }
+
+  return existingLabel === collapseLabelWhitespace(label);
 }
 
 function resolveLabelWrapWidthPx(foreignObject: Element): number {
@@ -156,6 +272,37 @@ function appendCenteredLabelTspans(
   }
 }
 
+function appendTopStartLabelTspans(
+  text: Element,
+  document: Document,
+  lines: readonly string[],
+  startX: number,
+  startY: number,
+  fontSizePx: number,
+): void {
+  const lineHeight = architectureDiagramLabelLineHeightPx(fontSizePx);
+
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
+
+    if (line === undefined) {
+      continue;
+    }
+
+    const tspan = document.createElementNS(SVG_NS, "tspan");
+    tspan.setAttribute("x", String(startX));
+    tspan.setAttribute("dy", index === 0 ? "0" : String(lineHeight));
+    tspan.textContent = line;
+
+    if (index === 0) {
+      text.setAttribute("x", String(startX));
+      text.setAttribute("y", String(startY));
+    }
+
+    text.appendChild(tspan);
+  }
+}
+
 function growNodeRectToFitLabelLines(nodeGroup: Element, lineCount: number, fontSizePx: number): void {
   const rect = nodeGroup.querySelector("rect");
 
@@ -191,6 +338,15 @@ function replaceForeignObjectWithSvgText(foreignObject: Element, document: Docum
     return;
   }
 
+  const fullLabel = lines.join(" ");
+  const labelKind = resolveForeignObjectLabelKind(foreignObject);
+  const clusterGroup = labelKind === "cluster" ? closestClusterGroup(foreignObject) : null;
+
+  if (clusterGroup !== null && clusterAlreadyHasMatchingLabel(clusterGroup, fullLabel)) {
+    parent.removeChild(foreignObject);
+    return;
+  }
+
   const x = readFiniteAttribute(foreignObject, "x", 0);
   const y = readFiniteAttribute(foreignObject, "y", 0);
   const width = readFiniteAttribute(foreignObject, "width", 0);
@@ -198,28 +354,58 @@ function replaceForeignObjectWithSvgText(foreignObject: Element, document: Docum
   const centerX = x + width / 2;
   const centerY = y + height / 2;
   const text = document.createElementNS(SVG_NS, "text");
-  const fullLabel = lines.join(" ");
   const title = document.createElementNS(SVG_NS, "title");
 
-  // Mermaid sizes the foreignObject around the wrapped HTML label; SVG text is
-  // anchored at that box's center. tspans restore wrapping that DOMPurify would
-  // otherwise flatten into one overflowing line.
-  text.setAttribute("class", "nodeLabel");
-  text.setAttribute("x", String(centerX));
-  text.setAttribute("y", String(centerY));
-  text.setAttribute("text-anchor", "middle");
-  text.setAttribute("dominant-baseline", "middle");
-  text.setAttribute("fill", "currentColor");
-  text.setAttribute("font-size", String(ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX));
   title.textContent = fullLabel;
   text.appendChild(title);
-  appendCenteredLabelTspans(text, document, lines, centerX, ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX);
+  text.setAttribute("fill", "currentColor");
+  text.setAttribute("font-size", String(ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX));
+
+  switch (labelKind) {
+    case "cluster": {
+      const startX = x + CLUSTER_LABEL_INSET_PX;
+      const startY = y + CLUSTER_LABEL_INSET_PX;
+      text.setAttribute("class", "cluster-label");
+      text.setAttribute("text-anchor", "start");
+      text.setAttribute("dominant-baseline", "hanging");
+      appendTopStartLabelTspans(text, document, lines, startX, startY, ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX);
+      break;
+    }
+    case "edge": {
+      text.setAttribute("class", "edgeLabel");
+      text.setAttribute("x", String(centerX));
+      text.setAttribute("y", String(centerY));
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dominant-baseline", "middle");
+      appendCenteredLabelTspans(text, document, lines, centerX, ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX);
+      break;
+    }
+    case "node": {
+      // Mermaid sizes the foreignObject around the wrapped HTML label; SVG text is
+      // anchored at that box's center. tspans restore wrapping that DOMPurify would
+      // otherwise flatten into one overflowing line.
+      text.setAttribute("class", "nodeLabel");
+      text.setAttribute("x", String(centerX));
+      text.setAttribute("y", String(centerY));
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dominant-baseline", "middle");
+      appendCenteredLabelTspans(text, document, lines, centerX, ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX);
+      break;
+    }
+    default: {
+      const exhaustive: never = labelKind;
+      throw new Error(`Unhandled foreignObject label kind: ${String(exhaustive)}`);
+    }
+  }
+
   parent.replaceChild(text, foreignObject);
 
-  const nodeGroup = closestNodeGroup(text);
+  if (labelKind === "node") {
+    const nodeGroup = closestNodeGroup(text);
 
-  if (nodeGroup !== null) {
-    growNodeRectToFitLabelLines(nodeGroup, lines.length, ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX);
+    if (nodeGroup !== null) {
+      growNodeRectToFitLabelLines(nodeGroup, lines.length, ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX);
+    }
   }
 }
 
@@ -246,14 +432,36 @@ function readSvgTextLabel(text: Element): string {
   return collapseLabelWhitespace(clone.textContent ?? "");
 }
 
+function shouldSkipNodeLabelWrap(node: Element, text: Element): boolean {
+  if (text.classList.contains("cluster-label")) {
+    return true;
+  }
+
+  if (node.querySelector("g.pictogram") !== null) {
+    return true;
+  }
+
+  const textElements = node.querySelectorAll("text");
+
+  if (textElements.length >= 2) {
+    return true;
+  }
+
+  return false;
+}
+
 function wrapExistingNodeSvgLabels(svg: Element, document: Document): void {
   const nodes = svg.querySelectorAll("g.node");
 
   for (const node of nodes) {
     const rect = node.querySelector("rect");
-    const text = node.querySelector("text.nodeLabel, text");
+    const text = node.querySelector("text.nodeLabel");
 
     if (rect === null || text === null) {
+      continue;
+    }
+
+    if (shouldSkipNodeLabelWrap(node, text)) {
       continue;
     }
 
@@ -298,11 +506,131 @@ function wrapExistingNodeSvgLabels(svg: Element, document: Document): void {
   }
 }
 
+function readClusterChromeRect(cluster: Element): Element | null {
+  return cluster.querySelector("rect, polygon");
+}
+
+function readFirstNodeRectInCluster(cluster: Element): Element | null {
+  const nodes = cluster.querySelectorAll("g.node");
+
+  for (const node of nodes) {
+    const rect = node.querySelector("rect");
+
+    if (rect !== null) {
+      return rect;
+    }
+  }
+
+  return null;
+}
+
+function estimateClusterLabelBottomY(label: Element): number {
+  const labelY = readFiniteAttribute(label, "y", 0);
+  const fontSize = readFiniteAttribute(label, "font-size", ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX);
+  const lineCount = Math.max(1, label.querySelectorAll("tspan").length);
+  const lineHeight = architectureDiagramLabelLineHeightPx(fontSize);
+
+  return labelY + lineCount * lineHeight;
+}
+
+function labelsOverlapOnYAxis(labelBottomY: number, nodeTopY: number): boolean {
+  return labelBottomY > nodeTopY + CLUSTER_LABEL_OVERLAP_TOLERANCE_PX;
+}
+
+function expandViewBoxUpward(svg: Element, extraHeight: number): void {
+  const viewBox = svg.getAttribute("viewBox");
+
+  if (viewBox === null || extraHeight <= 0) {
+    return;
+  }
+
+  const parts = viewBox.split(/\s+/u).map((part) => Number.parseFloat(part));
+
+  if (parts.length !== 4 || parts.some((part) => !Number.isFinite(part))) {
+    return;
+  }
+
+  const minX = parts[0] ?? 0;
+  const minY = parts[1] ?? 0;
+  const width = parts[2] ?? 0;
+  const height = parts[3] ?? 0;
+  const newMinY = minY - extraHeight;
+
+  svg.setAttribute("viewBox", `${minX} ${newMinY} ${width} ${height + extraHeight}`);
+}
+
+function reserveClusterTitleBands(svg: Element): void {
+  const clusters = svg.querySelectorAll("g.cluster");
+  const titleBandHeight =
+    architectureDiagramLabelLineHeightPx(ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX)
+    + CLUSTER_TITLE_BAND_EXTRA_INSET_PX;
+
+  for (const cluster of clusters) {
+    const label = cluster.querySelector("text.cluster-label");
+
+    if (label === null) {
+      continue;
+    }
+
+    const labelText = collapseLabelWhitespace(label.textContent ?? "");
+
+    if (labelText.length === 0) {
+      continue;
+    }
+
+    const clusterChrome = readClusterChromeRect(cluster);
+    const firstNodeRect = readFirstNodeRectInCluster(cluster);
+
+    if (clusterChrome === null || firstNodeRect === null) {
+      continue;
+    }
+
+    const labelBottomY = estimateClusterLabelBottomY(label);
+    const nodeTopY = readFiniteAttribute(firstNodeRect, "y", 0);
+
+    if (!labelsOverlapOnYAxis(labelBottomY, nodeTopY)) {
+      continue;
+    }
+
+    const targetLabelY = nodeTopY - titleBandHeight;
+    const currentLabelY = readFiniteAttribute(label, "y", 0);
+    const labelShift = currentLabelY - targetLabelY;
+
+    if (labelShift > 0) {
+      label.setAttribute("y", String(targetLabelY));
+
+      for (const tspan of label.querySelectorAll("tspan")) {
+        const tspanY = readFiniteAttribute(tspan, "y", currentLabelY);
+        tspan.setAttribute("y", String(tspanY - labelShift));
+      }
+    }
+
+    const clusterY = readFiniteAttribute(clusterChrome, "y", 0);
+    const clusterHeight = readFiniteAttribute(clusterChrome, "height", 0);
+    const neededTopY = Math.min(clusterY, targetLabelY - CLUSTER_LABEL_INSET_PX);
+    const bottomY = clusterY + clusterHeight;
+    const newHeight = bottomY - neededTopY;
+
+    if (neededTopY < clusterY) {
+      clusterChrome.setAttribute("y", String(neededTopY));
+      clusterChrome.setAttribute("height", String(newHeight));
+    }
+
+    if (neededTopY < 0) {
+      expandViewBoxUpward(svg, -neededTopY);
+    }
+  }
+}
+
 /**
  * Mermaid 11 still emits HTML labels inside foreignObject even when htmlLabels is false.
  * SVG-only DOMPurify then drops those nodes and leaves empty grey boxes.
  */
-export function replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup: string): string {
+export function replaceMermaidForeignObjectLabelsWithSvgText(
+  svgMarkup: string,
+  options: ArchitectureDiagramSvgPaletteOptions = {},
+): string {
+  const dark = options.dark ?? false;
   if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
     return svgMarkup;
   }
@@ -325,17 +653,23 @@ export function replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup: string):
     replaceForeignObjectWithSvgText(foreignObject, parsed);
   }
 
+  reserveClusterTitleBands(svg);
   wrapExistingNodeSvgLabels(svg, parsed);
+  fitInventoryDiagramClusterFrames(svg);
+  enhanceInventoryClusterLabels(svg);
   paintUnfilledSvgText(svg);
-  paintUnfilledMermaidShapes(svg);
+  paintArchitectureDiagramNodePalette(svg, dark);
   svg.setAttribute("overflow", "visible");
 
   return new XMLSerializer().serializeToString(svg);
 }
 
 /** Keeps node names visible while still stripping script and leftover foreignObject. */
-export function sanitizeArchitectureDiagramSvg(svgMarkup: string): string {
-  const withVisibleLabels = replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup);
+export function sanitizeArchitectureDiagramSvg(
+  svgMarkup: string,
+  options: ArchitectureDiagramSvgPaletteOptions = {},
+): string {
+  const withVisibleLabels = replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup, options);
 
   return DOMPurify.sanitize(withVisibleLabels, {
     USE_PROFILES: { svg: true, svgFilters: true },

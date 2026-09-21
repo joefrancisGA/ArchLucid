@@ -28,9 +28,6 @@ import {
   GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
   GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
-import {
-  GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
 import {
   resolveInhabitedFindingsDocumentPresentation,
@@ -41,6 +38,7 @@ import {
   resolveSystemNotJobGovernanceFindingsPageSubtitle,
 } from "@/lib/system-not-job-findings-are-verbs-on-the-system";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import {
   type GovernanceFindingInspectHrefOptions,
   resolveGovernanceQueueAuxiliaryFindingHref,
@@ -159,8 +157,14 @@ export function resolveContinueLastFindingTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
   findingsQueueRunId?: string | null,
   inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
+  options?: { readonly allowRecentWithoutLoadedRow?: boolean },
 ) {
-  return resolveContinueLastGovernanceFinding(displayedRows, findingsQueueRunId, inspectHrefOptions);
+  return resolveContinueLastGovernanceFinding(
+    displayedRows,
+    findingsQueueRunId,
+    inspectHrefOptions,
+    options,
+  );
 }
 
 export type AssignedToMeOldestFindingTarget = {
@@ -350,7 +354,7 @@ export function resolveGovernanceFindingsNavHref(
     return assignedToMeFindingsPathForProductLine(productLineId);
   }
 
-  return GOVERNANCE_FINDINGS_PATH;
+  return findingsPathForProductLine(productLineId);
 }
 
 export function resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe: boolean) {

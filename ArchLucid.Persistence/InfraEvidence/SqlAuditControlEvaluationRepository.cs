@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.InfraEvidence;
@@ -130,6 +131,41 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
         }
     }
 
+    public async Task InsertInScopeAsync(
+        ProjectScopeKey scope,
+        AuditControlEvaluationPersistRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Evaluation);
+
+        const string ownershipSql = """
+                                    SELECT COUNT(1)
+                                    FROM dbo.AuditEvidenceSnapshots s
+                                    INNER JOIN dbo.AuditAssessments a
+                                        ON a.TenantId = s.TenantId AND a.AssessmentId = s.AssessmentId
+                                    WHERE s.TenantId = @TenantId
+                                      AND s.AuditEvidenceSnapshotId = @SnapshotId
+                                      AND a.WorkspaceId = @WorkspaceId
+                                      AND a.ProjectId = @ProjectId;
+                                    """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int count = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(ownershipSql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                SnapshotId = request.Evaluation.SnapshotId,
+            }, cancellationToken: cancellationToken));
+        if (count != 1)
+            throw new InvalidOperationException("Scoped audit evaluation snapshot was not found.");
+
+        if (request.Evaluation.TenantId != scope.TenantId
+            || request.EvidenceItems.Any(item => item.TenantId != scope.TenantId))
+            throw new InvalidOperationException("Scoped audit evaluation payload contains foreign tenant authority.");
+
+        await InsertAsync(request, cancellationToken);
+    }
+
     public async Task<AuditControlEvaluationRecord?> TryGetLatestByControlAsync(
         Guid tenantId,
         Guid controlId,
@@ -154,6 +190,39 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
                 new { TenantId = tenantId, ControlId = controlId, SnapshotId = snapshotId },
                 cancellationToken: cancellationToken));
 
+        return row is null ? null : Map(row);
+    }
+
+    public async Task<AuditControlEvaluationRecord?> TryGetLatestByControlInScopeAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT TOP (1)
+                               e.EvaluationId, e.ControlId, e.FrameworkId, e.SnapshotId, e.TenantId, e.Outcome,
+                               e.PassCount, e.ApplicableCount, e.Confidence, e.EvaluationText, e.Formula,
+                               e.RequirementIdsJson, e.ExceptionIdsJson, e.ProvenanceKind, e.HumanDisposition, e.Notes, e.CreatedUtc
+                           FROM dbo.AuditControlEvaluations e
+                           INNER JOIN dbo.AuditEvidenceSnapshots s
+                               ON s.TenantId = e.TenantId AND s.AuditEvidenceSnapshotId = e.SnapshotId
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = s.TenantId AND a.AssessmentId = s.AssessmentId
+                           WHERE e.TenantId = @TenantId
+                             AND e.ControlId = @ControlId
+                             AND e.SnapshotId = @SnapshotId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId
+                           ORDER BY e.CreatedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        EvaluationRow? row = await conn.QuerySingleOrDefaultAsync<EvaluationRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                ControlId = controlId, SnapshotId = snapshotId,
+            }, cancellationToken: cancellationToken));
         return row is null ? null : Map(row);
     }
 
@@ -193,6 +262,42 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
                 CreatedUtc = row.CreatedUtc,
             })
             .ToList();
+    }
+
+    public async Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationInScopeAsync(
+        ProjectScopeKey scope,
+        Guid evaluationId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT i.EvidenceItemId, i.EvaluationId, i.RequirementId, i.TenantId, i.CloudResourceId,
+                                  i.AzureResourceId, i.EvidenceType, i.Summary, i.CollectionStatus, i.ProvenanceKind, i.CreatedUtc
+                           FROM dbo.AuditEvidenceItems i
+                           INNER JOIN dbo.AuditControlEvaluations e
+                               ON e.TenantId = i.TenantId AND e.EvaluationId = i.EvaluationId
+                           INNER JOIN dbo.AuditEvidenceSnapshots s
+                               ON s.TenantId = e.TenantId AND s.AuditEvidenceSnapshotId = e.SnapshotId
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = s.TenantId AND a.AssessmentId = s.AssessmentId
+                           WHERE i.TenantId = @TenantId
+                             AND i.EvaluationId = @EvaluationId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<EvidenceItemRow> rows = await conn.QueryAsync<EvidenceItemRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, EvaluationId = evaluationId,
+            }, cancellationToken: cancellationToken));
+        return rows.Select(row => new AuditEvidenceItemRecord
+        {
+            EvidenceItemId = row.EvidenceItemId, EvaluationId = row.EvaluationId, RequirementId = row.RequirementId,
+            TenantId = row.TenantId, CloudResourceId = row.CloudResourceId, AzureResourceId = row.AzureResourceId,
+            EvidenceType = row.EvidenceType, Summary = row.Summary,
+            CollectionStatus = (AuditEvidenceCollectionStatus)row.CollectionStatus,
+            ProvenanceKind = (ProvenanceKind)row.ProvenanceKind, CreatedUtc = row.CreatedUtc,
+        }).ToList();
     }
 
     private static AuditControlEvaluationRecord Map(EvaluationRow row)

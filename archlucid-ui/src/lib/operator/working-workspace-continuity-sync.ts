@@ -182,7 +182,9 @@ export async function persistWorkingWorkspaceContinuityToServer(): Promise<void>
 
   await setUserWorkingWorkspaceContinuity(continuity);
 
-  if (continuity.updatedAtUtc !== undefined) {
-    writeLocalSyncedAtUtc(continuity.updatedAtUtc);
+  const updatedAtUtc = continuity.updatedAtUtc?.trim();
+
+  if (updatedAtUtc !== undefined && updatedAtUtc.length > 0) {
+    writeLocalSyncedAtUtc(updatedAtUtc);
   }
 }

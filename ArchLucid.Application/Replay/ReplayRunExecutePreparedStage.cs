@@ -153,7 +153,9 @@ public sealed class ReplayRunExecutePreparedStage(
             cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!commitReplay)
+        // commitReplay selects the already-authorized replay outcome; it is not an auth bypass.
+        // codeql[cs/user-controlled-bypass]
+        if (ReplayCommitRequestGate.ShouldSkipCommit(commitReplay))
         {
             return new ReplayRunResult
             {
@@ -202,7 +204,9 @@ public sealed class ReplayRunExecutePreparedStage(
             .CompleteQueuedAuthorityPipelineAsync(ingestionRequest, cancellationToken)
             .ConfigureAwait(false);
 
-        if (!commitReplay)
+        // commitReplay selects the already-authorized replay outcome; it is not an auth bypass.
+        // codeql[cs/user-controlled-bypass]
+        if (ReplayCommitRequestGate.ShouldSkipCommit(commitReplay))
         {
             return new ReplayRunResult
             {

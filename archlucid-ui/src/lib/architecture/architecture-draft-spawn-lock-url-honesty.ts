@@ -4,10 +4,10 @@ export const ARCHITECTURE_DRAFT_SPAWN_LOCK_SNAPSHOT_SENTENCE =
   "This URL opens a read-only snapshot from when the review started — not the live editor.";
 
 export const ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE =
-  "To change the architecture, start a new draft from this snapshot. That is the legal new version; edits here do not update the linked review.";
+  "To change the architecture, start a new architecture draft from this snapshot. That is the legal new version; edits here do not update the linked review.";
 
 export const ARCHITECTURE_DRAFT_SPAWN_LOCK_WORKSPACE_LEAD =
-  "Snapshot handoff — this draft is read-only after review spawn. Continue in the linked review or clone a new draft.";
+  "Snapshot handoff — this architecture draft is read-only after review spawn. Continue in the linked review or clone a new architecture draft.";
 
 export const ARCHITECTURE_DRAFT_SPAWN_LOCK_PANEL_TITLE = "Snapshot handoff";
 

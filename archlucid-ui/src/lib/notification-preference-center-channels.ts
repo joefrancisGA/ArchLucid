@@ -1,5 +1,6 @@
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
 import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import { isIntegrationConnectorExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { ALERT_ROUTING_TAB_PATH } from "@/lib/alert-routing-evidence-copy";
 import { INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
@@ -64,7 +65,9 @@ export const NOTIFICATION_PREFERENCE_CHANNELS: readonly NotificationPreferenceCh
 export function resolveNotificationPreferenceChannels(
   productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
 ): readonly NotificationPreferenceChannel[] {
-  return NOTIFICATION_PREFERENCE_CHANNELS.map((channel) => {
+  return NOTIFICATION_PREFERENCE_CHANNELS
+    .filter((channel) => !isIntegrationConnectorExcludedForProductLine(channel.id, productLine))
+    .map((channel) => {
     if (channel.id !== "teams") {
       return channel;
     }
@@ -73,7 +76,7 @@ export function resolveNotificationPreferenceChannels(
       ...channel,
       title: productLineMicrosoftTeamsLabel(productLine),
     };
-  });
+    });
 }
 
 export function statusHintForNotificationChannel(

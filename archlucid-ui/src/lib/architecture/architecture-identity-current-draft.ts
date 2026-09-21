@@ -24,7 +24,7 @@ function isSpawnLockedStatus(status: DraftRequestStatus): boolean {
   return status === "RunSpawned";
 }
 
-/** Prefer an editable drafting child; otherwise surface spawn-locked handoff state (CA-28). */
+/** Prefer an editable architecture drafting child; otherwise surface spawn-locked handoff state (CA-28). */
 export function resolveArchitectureIdentityCurrentDraftState(
   drafts: readonly ArchitectureIdentityChildDraftSummary[],
   currentDraftId: string | null | undefined,

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { decideHostGateRedirect, isMarketingOnlyPath, isOperatorPath } from "@/lib/host-gate";
 import { LEGACY_SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
-import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-content";
+import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-route";
 import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
 import {
   LEGACY_ALERT_ROUTING_PATH,

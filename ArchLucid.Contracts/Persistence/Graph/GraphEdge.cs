@@ -56,6 +56,24 @@ public class GraphEdge
         set;
     }
 
+    /// <summary>
+    ///     Additive SchemaVersion 1 field. Missing JSON deserializes as null (see <c>HumanAssertion</c>, <c>ObservedFact</c>).
+    /// </summary>
+    public string? ProvenanceKind
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Additive SchemaVersion 1 field. Merge-time declared-connection id; missing JSON deserializes as null.
+    /// </summary>
+    public string? DeclaredConnectionId
+    {
+        get;
+        set;
+    }
+
     public Dictionary<string, string> Properties
     {
         get;

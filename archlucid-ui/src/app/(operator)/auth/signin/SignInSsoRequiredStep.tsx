@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
+import { SIGN_IN_PAGE_COPY, signInSsoLead } from "@/lib/auth/sign-in-page-copy";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 export type SignInSsoRequiredStepProps = {
   readonly message?: string | null;
@@ -17,7 +18,8 @@ export function SignInSsoRequiredStep({
   onContinueOrganizationSignIn,
   onUseAnotherEmail,
 }: SignInSsoRequiredStepProps) {
-  const lead = message?.trim() || SIGN_IN_PAGE_COPY.ssoLead;
+  const { productLine } = useLocalizedProductCopy();
+  const lead = message?.trim() || signInSsoLead(productLine);
 
   return (
     <div data-testid="sign-in-sso-required-step">

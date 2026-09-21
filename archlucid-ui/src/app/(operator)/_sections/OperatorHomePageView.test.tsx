@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const evalChromeShellState = vi.hoisted(() => ({ current: false }));
+const workingModeState = vi.hoisted(() => ({ current: false }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => evalChromeShellState.current,
@@ -15,8 +16,8 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
-    mode: "guided",
-    isWorkingMode: false,
+    mode: workingModeState.current ? "working" : "guided",
+    isWorkingMode: workingModeState.current,
     setAndPersist: vi.fn(),
   }),
 }));
@@ -114,6 +115,11 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { OperatorHomePageView } from "./OperatorHomePageView";
 import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
+import {
+  OPERATOR_HOME_WORKING_EMPTY_PAGE_SUBTITLE,
+  OPERATOR_HOME_WORKING_PAGE_SUBTITLE,
+} from "@/lib/operator/operator-home-page-copy";
+import { OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH } from "./operator-home-page-surface-copy";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 const mockRunsDashboard: OperatorHomePageViewModel["runsDashboard"] = {
@@ -152,6 +158,48 @@ function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
 }
 
 describe("OperatorHomePageView", () => {
+  beforeEach(() => {
+    workingModeState.current = false;
+    evalChromeShellState.current = false;
+  });
+
+  it("uses start language on empty working Home instead of resume", () => {
+    workingModeState.current = true;
+    evalChromeShellState.current = false;
+
+    render(
+      <OperatorHomePageView
+        model={{
+          buyerPolishedShell: false,
+          runsDashboard: {
+            ...mockRunsDashboard,
+            items: [],
+            totalCount: 0,
+          },
+        }}
+      />,
+    );
+
+    const subtitle = screen.getByTestId("operator-home-page-subtitle");
+
+    expect(subtitle).toHaveTextContent(OPERATOR_HOME_WORKING_EMPTY_PAGE_SUBTITLE);
+    expect(subtitle).not.toHaveTextContent("Resume");
+    expect(screen.getByText(OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH)).toBeInTheDocument();
+    expect(OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH.toLowerCase()).not.toContain("resume");
+  });
+
+  it("uses resume language on working Home when reviews are already in progress", () => {
+    workingModeState.current = true;
+    evalChromeShellState.current = false;
+
+    render(<OperatorHomePageView model={mockHomeModel(false)} />);
+
+    const subtitle = screen.getByTestId("operator-home-page-subtitle");
+
+    expect(subtitle).toHaveTextContent(OPERATOR_HOME_WORKING_PAGE_SUBTITLE);
+    expect(subtitle).toHaveTextContent("1 active review");
+  });
+
   it("mounts Home header chrome with PageContextualHelp (HOM / TB-1667)", () => {
     render(<OperatorHomePageView model={mockHomeModel(false)} />);
 

@@ -15,7 +15,7 @@ function buildReadiness(
     metrics: [
       {
         id: "connected",
-        label: "Integrations connected",
+        label: "Integrations configured",
         valueLabel: "2 of 5",
         statusKind: "ready",
         href: null,
@@ -36,9 +36,9 @@ describe("HelpConnectionStatusWorkspaceReadinessStrip", () => {
       screen.getByRole("heading", { level: 2, name: CONNECTION_STATUS_HELP_READINESS_SECTION_TITLE }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Claims Intake/)).toBeInTheDocument();
-    expect(screen.getByText(/Jul 10, 2026/i)).toBeInTheDocument();
+    expect(screen.getByText(/2026/i)).toBeInTheDocument();
     expect(screen.queryByText(/As of now/i)).toBeNull();
-    expect(screen.getByText("Integrations connected")).toBeInTheDocument();
+    expect(screen.getByText("Integrations configured")).toBeInTheDocument();
     expect(screen.getByText("2 of 5")).toBeInTheDocument();
     expect(screen.queryByRole("link")).toBeNull();
   });

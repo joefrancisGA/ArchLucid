@@ -14,8 +14,10 @@ import {
   NOTIFICATION_PREFERENCE_STATUS_HINT_KEYS,
   NOTIFICATION_PREFERENCE_STATUS_HINTS,
   notificationPreferenceCenterPageSubtitle,
+  notificationPreferenceCenterRelationsDisclosureSummary,
   pathMatchesNotificationPreferenceCenter,
   resolveNotificationChannelDeliveryStatus,
+  resolveNotificationPreferenceRelations,
   resolveNotificationPreferenceChannels,
   statusHintForNotificationChannel,
   type NotificationChannelDeliveryStatusInput,
@@ -69,6 +71,18 @@ describe("notification-preference-center (TB-2203)", () => {
       "Configure which events post to Teams on the Teams integration page.",
     );
     expect(NOTIFICATION_PREFERENCE_STATUS_HINTS.configureInTeams).toContain("Microsoft Teams");
+  });
+
+  it("removes Slack from SecureNow notification channels and relations", () => {
+    const securityChannels = resolveNotificationPreferenceChannels("security");
+
+    expect(securityChannels.map((channel) => channel.id)).not.toContain("slack");
+    expect(securityChannels.map((channel) => channel.id)).toContain("teams");
+    expect(notificationPreferenceCenterRelationsDisclosureSummary("security")).not.toContain("Slack");
+    expect(resolveNotificationPreferenceRelations("security").map((section) => section.id)).not.toContain(
+      "teams-slack",
+    );
+    expect(resolveNotificationPreferenceChannels("architecture").map((channel) => channel.id)).toContain("slack");
   });
 
   it("lists digests, alerts inbox/rules, Teams, and Slack with honest configure CTAs", () => {

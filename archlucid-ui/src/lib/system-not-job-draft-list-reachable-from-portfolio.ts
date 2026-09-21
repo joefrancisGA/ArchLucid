@@ -16,7 +16,7 @@ export const SYSTEM_NOT_JOB_DRAFT_LIST_REACHABLE_FROM_PORTFOLIO_OWNER = "SN-029"
 export const SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_SECTION_ID =
   "working-portfolio-open-drafts" as const;
 
-/** SN-029 surfaces — Working portfolio draft inventory beside identity list. */
+/** SN-029 surfaces — Working portfolio architecture draft inventory beside identity list. */
 export const SYSTEM_NOT_JOB_WORKING_PORTFOLIO_DRAFT_SURFACES: readonly string[] = [
   "archlucid-ui/src/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSection.tsx",
   "archlucid-ui/src/components/architecture/ArchitectureWorkingPortfolioDraftsSection.tsx",
@@ -25,13 +25,13 @@ export const SYSTEM_NOT_JOB_WORKING_PORTFOLIO_DRAFT_SURFACES: readonly string[] 
   "archlucid-ui/src/lib/operator/operator-nav-labels.ts",
 ];
 
-export const SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_TITLE = "Open drafts" as const;
+export const SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_TITLE = "Open architecture drafts" as const;
 
 export const SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_SUBTITLE =
   "Saved architecture drafts in this workspace — resume editing from the portfolio, not a deep-link orphan." as const;
 
 export const SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_EMPTY_BODY =
-  "No open drafts yet. Use Create architecture in the page header when you are ready to start a new brief." as const;
+  "No open architecture drafts yet. Use Create architecture in the page header when you are ready to start a new brief." as const;
 
 /** Working save-and-exit lands on the open-drafts band so resume is one click away. */
 export function resolveSystemNotJobWorkingPortfolioSaveAndExitHref(): string {

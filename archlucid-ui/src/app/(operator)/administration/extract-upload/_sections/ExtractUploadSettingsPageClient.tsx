@@ -37,12 +37,15 @@ import {
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
   EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND,
-  EXTRACT_UPLOAD_REVIEW_BINDING_NONE,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
   EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
-  EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX,
   EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_TITLE,
+  EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE,
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
   EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
@@ -51,25 +54,20 @@ import {
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
   EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
-} from "@/lib/extract-upload-settings-page-copy";
-import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-package-record";
-import { truncateExtractorScriptSha256Digest } from "@/lib/extract-upload-script-hash";
-import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
-import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
-import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import {
   EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
   EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/extract-upload-settings-page-copy";
+import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-package-record";
+import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
+import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
-import { ExtractUploadBaselineOverwriteConfirmDialog } from "./ExtractUploadBaselineOverwriteConfirmDialog";
-import { ExtractUploadProviderSelector } from "./ExtractUploadProviderSelector";
 
 function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
   switch (platform) {
@@ -87,11 +85,11 @@ function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
   }
 }
 
-function reviewBindingStepLabel(associateRunId: string | null): string {
+function reviewBindingStepLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return EXTRACT_UPLOAD_REVIEW_BINDING_NONE;
+    return null;
   }
 
   return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
@@ -128,20 +126,14 @@ function ExtractUploadSettingsPageClientInner() {
     hasInventoryOnFile,
     extractorScriptVersion,
     extractorUpdateBanner,
-    extractorScriptSha256,
     lastAcceptedPackage,
     associateRunId,
     selectedPlatform,
-    setSelectedPlatform,
     extractUploadSteps,
     extractUploadEmphasizedStepId,
     upload,
     folderZip,
     demo,
-    baselineOverwriteOpen,
-    setBaselineOverwriteOpen,
-    confirmBaselineOverwrite,
-    cancelBaselineOverwrite,
     showAcceptedDropZone,
     beginReplaceInventory,
   } = viewModel;
@@ -175,6 +167,7 @@ function ExtractUploadSettingsPageClientInner() {
   const validateCommand = validateCommandForPlatform(selectedPlatform);
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
+  const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
 
   return (
     <div
@@ -256,20 +249,44 @@ function ExtractUploadSettingsPageClientInner() {
                   <CardDescription>{EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <ExtractUploadProviderSelector
-                    value={selectedPlatform}
-                    onValueChange={setSelectedPlatform}
-                  />
-                  <CloudInventoryExtractorCommandPanel
-                    platform={selectedPlatform}
-                    testIdPrefix="extract-upload-quick-start"
-                  />
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    <span className="font-medium text-al-text-primary">Process scope:</span>{" "}
-                    <code className="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800">
-                      {EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND}
-                    </code>
-                  </p>
+                  <div
+                    className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80"
+                    data-testid="extract-upload-scheduled-agent-panel"
+                  >
+                    <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+                      {EXTRACT_UPLOAD_SCHEDULED_AGENT_TITLE}
+                    </p>
+                    <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                      {EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION}
+                    </p>
+                    <Link
+                      href={EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF}
+                      className={cn("mt-3 inline-block", OPERATOR_LINK.nav)}
+                      data-testid="extract-upload-scheduled-agent-help"
+                    >
+                      {EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL}
+                    </Link>
+                  </div>
+                  <details
+                    className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="extract-upload-one-time-local-disclosure"
+                  >
+                    <summary
+                      className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
+                    >
+                      {EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE}
+                    </summary>
+                    <div className="mt-3 space-y-4">
+                      <CloudInventoryExtractorCommandPanel
+                        platform={selectedPlatform}
+                        testIdPrefix="extract-upload-quick-start"
+                      />
+                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        <span className="font-medium text-al-text-primary">Process scope:</span>{" "}
+                        <code className="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800">
+                          {EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND}
+                        </code>
+                      </p>
                   <details
                     className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
                     open={advancedCommandOpen}
@@ -299,28 +316,22 @@ function ExtractUploadSettingsPageClientInner() {
                     </pre>
                   </details>
                   {showScriptDownload ? (
-                    <div className="space-y-1">
-                      <a
-                        href={extractorScriptDownloadUrl}
-                        className={cn("inline-block", OPERATOR_LINK.nav)}
-                        target="_blank"
-                        rel="noreferrer"
-                        data-testid="extract-upload-script-download"
-                      >
-                        {EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL}
-                      </a>
-                      {extractorScriptSha256 !== null ? (
-                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="extract-upload-script-hash">
-                          {EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX}:{" "}
-                          <span className="font-mono">{truncateExtractorScriptSha256Digest(extractorScriptSha256)}</span>
-                        </p>
-                      ) : null}
-                    </div>
+                    <a
+                      href={extractorScriptDownloadUrl}
+                      className={cn("inline-block", OPERATOR_LINK.nav)}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-testid="extract-upload-script-download"
+                    >
+                      {EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL}
+                    </a>
                   ) : (
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                       Download {platformLabel} packager scripts from your ArchLucid checkout under <code>scripts/</code>.
                     </p>
                   )}
+                    </div>
+                  </details>
                 </CardContent>
               </Card>
 
@@ -330,12 +341,14 @@ function ExtractUploadSettingsPageClientInner() {
                   <CardDescription>
                     {EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION}
                   </CardDescription>
-                  <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="extract-upload-step-review-binding"
-                  >
-                    {reviewBindingStepLabel(associateRunId)}
-                  </p>
+                  {reviewBindingLabel !== null ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="extract-upload-step-review-binding"
+                    >
+                      {reviewBindingLabel}
+                    </p>
+                  ) : null}
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {upload.uploadSuccessMessage !== null ? (
@@ -489,17 +502,6 @@ function ExtractUploadSettingsPageClientInner() {
         </div>
       </div>
 
-      <ExtractUploadBaselineOverwriteConfirmDialog
-        open={baselineOverwriteOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            cancelBaselineOverwrite();
-          } else {
-            setBaselineOverwriteOpen(true);
-          }
-        }}
-        onConfirm={confirmBaselineOverwrite}
-      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { proxyJsonGet } from "@/lib/proxy-json-client";
+import { proxyJsonDelete, proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { infraEvidenceDriftMutationBlockedReason } from "@/lib/infra-evidence/infra-evidence-drift-mutation-blocked-reason";
 import { infraEvidenceSnapshotsLoadBlockedReason } from "@/lib/infra-evidence/infra-evidence-snapshots-load-blocked-reason";
@@ -27,6 +27,16 @@ const SNAPSHOTS_PATH = "/api/proxy/v1/infra-evidence/snapshots";
 const DIFFS_PATH = "/api/proxy/v1/infra-evidence/diffs";
 const BASELINES_PATH = "/api/proxy/v1/infra-evidence/azure-inventory/baselines";
 
+export async function deleteInfraEvidenceSnapshot(snapshotId: string): Promise<void> {
+  const trimmed = snapshotId.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error("snapshotId is required.");
+  }
+
+  await proxyJsonDelete(`${SNAPSHOTS_PATH}/${encodeURIComponent(trimmed)}`);
+}
+
 export async function fetchInfraEvidenceSnapshots(
   page = 1,
   pageSize = 50,
@@ -49,8 +59,8 @@ export async function fetchInfraEvidenceDiffsForSnapshot(
   return proxyJsonGet<InfraEvidenceDiffSummary[]>(`${SNAPSHOTS_PATH}/${snapshotId}/diffs`);
 }
 
-export async function fetchInfraEvidenceDiffChanges(
-  diffId: string,
+export async function fetchInfraEvidenceSnapshotInventoryRows(
+  snapshotId: string,
   page = 1,
   pageSize = 50,
   options: { readonly cloudResourceId?: string | null } = {},
@@ -59,6 +69,27 @@ export async function fetchInfraEvidenceDiffChanges(
 
   if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
     params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
+
+  return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
+    `${SNAPSHOTS_PATH}/${snapshotId}/inventory-rows?${params.toString()}`,
+  );
+}
+
+export async function fetchInfraEvidenceDiffChanges(
+  diffId: string,
+  page = 1,
+  pageSize = 50,
+  options: { readonly cloudResourceId?: string | null; readonly includeUnchanged?: boolean } = {},
+): Promise<InfraEvidencePagedResponse<InfraEvidenceDiffChange>> {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+
+  if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
+    params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
+
+  if (options.includeUnchanged === true) {
+    params.set("includeUnchanged", "true");
   }
 
   return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(

@@ -3,6 +3,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { ARCHITECTURE_SHARE_ROLES } from "@/lib/architecture/architecture-share-validation";
 import { ARCHITECTURE_SHARE_RESTRICT_HELP_PATH } from "@/lib/architecture/architecture-share-restrict-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { PRODUCT_LINE_DISPLAY_NAME } from "@/lib/product-line/product-line-display-name";
 
 export const ARCHITECTURE_SHARE_RESTRICT_HELP_PAGE_TITLE = "Architecture sharing";
 
@@ -50,7 +51,7 @@ export const ARCHITECTURE_SHARE_RESTRICT_HELP_ONE_TENANT_COPY =
 export const ARCHITECTURE_SHARE_RESTRICT_HELP_BOUNDARY_TITLE = "Not chat or live presence";
 
 export const ARCHITECTURE_SHARE_RESTRICT_HELP_BOUNDARY_COPY =
-  "Architecture shares are access control — not Slack-style finding comments, @mentions, or live presence avatars on the review desk. If you need threaded discussion on a finding, export or use your ITSM integration; ArchLucid does not ship in-finding chat in this release.";
+  `Architecture shares are access control — not Slack-style finding comments, @mentions, or live presence avatars on the review desk. If you need threaded discussion on a finding, export or use your ITSM integration; ${PRODUCT_LINE_DISPLAY_NAME.architecture} does not ship in-finding chat in this release.`;
 
 export const ARCHITECTURE_SHARE_RESTRICT_HELP_PRIMARY_ACTION = {
   label: "Users and roles",

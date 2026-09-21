@@ -1,5 +1,22 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+const productLineState = vi.hoisted(() => ({ current: "architecture" as "architecture" | "security" }));
+
+vi.mock("@/hooks/use-localized-product-copy", () => ({
+  useLocalizedProductCopy: () => ({
+    productLine: productLineState.current,
+    localize: (text: string) => {
+      if (productLineState.current === "security") {
+        return text
+          .replaceAll("Architecture reviews", "Security reviews")
+          .replaceAll("architecture reviews", "security reviews");
+      }
+
+      return text;
+    },
+  }),
+}));
 
 import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import {
@@ -41,7 +58,23 @@ describe("ExtractUploadCloudConnectionsVocabularyRail (TB-2281)", () => {
     expect(peer).toHaveAttribute("href", EXTRACT_UPLOAD_CLOUD_CONNECTIONS_EXTRACT_LINK.href);
   });
 
+  it("localizes architecture reviews to security reviews on SecureNow", () => {
+    productLineState.current = "security";
+
+    render(
+      <ExtractUploadCloudConnectionsVocabularyRail
+        currentSurfaceId="extract-upload"
+        variant="full"
+      />,
+    );
+
+    expect(screen.getByText(EXTRACT_UPLOAD_CLOUD_CONNECTIONS_WHY_TWO.replaceAll("architecture reviews", "security reviews"))).toBeInTheDocument();
+    expect(screen.queryByText(EXTRACT_UPLOAD_CLOUD_CONNECTIONS_WHY_TWO)).not.toBeInTheDocument();
+  });
+
   it("renders full variant with why-two explanation", () => {
+    productLineState.current = "architecture";
+
     render(
       <ExtractUploadCloudConnectionsVocabularyRail
         currentSurfaceId="extract-upload"

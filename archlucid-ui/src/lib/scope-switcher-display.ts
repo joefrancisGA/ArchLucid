@@ -4,6 +4,7 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME,
   BUYER_WORKSPACE_SHORT_NAME,
 } from "@/lib/buyer/buyer-polish-copy";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
 export type ScopeSwitcherWorkspaceOption = {
@@ -17,6 +18,18 @@ export function isEffectiveDevDefaultScope(workspaceId: string, projectId: strin
     workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
     projectId.trim() === DEV_SCOPE_PROJECT_ID
   );
+}
+
+/**
+ * The well-known local scope is a live developer workspace in normal `next dev`.
+ * It is presented as sample only when the operator explicitly opted into demo chrome.
+ */
+export function isSampleWorkspacePresentationScope(
+  workspaceId: string,
+  projectId: string,
+  explicitDemoBuild: boolean = isExplicitStaticDemoMarketingBuild(),
+): boolean {
+  return explicitDemoBuild && isEffectiveDevDefaultScope(workspaceId, projectId);
 }
 
 export function workspaceShortNameFromLabel(workspaceLabel: string): string {
@@ -50,10 +63,10 @@ export function formatScopeSwitcherTriggerLabel(args: {
   }
 
   if (!args.includeProject) {
-    return `Workspace: ${shortName}`;
+    return shortName;
   }
 
-  return `Workspace: ${shortName} — ${args.projectLabel}`;
+  return `${shortName} — ${args.projectLabel}`;
 }
 
 /** Screen-reader and tooltip text — includes sample metadata not shown in the compact button. */

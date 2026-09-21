@@ -148,6 +148,12 @@ Reuse IE-10–IE-15. Path-aware narrative (SA-14) adds:
 
 Organizational fields (SA-15) are HumanAssertion or empty. Do not invent owners.
 
+## 8.1 Synthetic-world assurance
+
+Test-only semantic oracle: [`SECURENOW_SYNTHETIC_AZURE_WORLDS.md`](SECURENOW_SYNTHETIC_AZURE_WORLDS.md).
+
+Synthetic worlds declare expected path ordering, cut points, evidence, and confidence/provenance independently of the production ranking and cut-point implementations. The companion [`SECURENOW_METAMORPHIC_ASSURANCE.md`](SECURENOW_METAMORPHIC_ASSURANCE.md) suite verifies that irrelevant transformations preserve those semantics. Neither suite calls Azure, adds a collector, adds an `IFindingEngine`, or mutates customer resources.
+
 ## 9. Metrics (architecture outcomes)
 
 Headline metrics are **not** “findings closed”:
@@ -211,3 +217,4 @@ Pattern: deterministic evidence → graph projection → engines → AI interpre
 - [`KNOWLEDGE_GRAPH.md`](KNOWLEDGE_GRAPH.md)
 - [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
 - [`SECURENOW_ARCHITECT_HOLD.md`](SECURENOW_ARCHITECT_HOLD.md) — **SA-22** written hold (no apply, no mega-graph, not `IFindingEngine`)
+- [`../securenow/DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](../securenow/DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) — infrastructure vs data architecture vs data flow diagrams (declared wiring, not observed traffic)

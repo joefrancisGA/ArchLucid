@@ -11,6 +11,16 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCheckPushCorsetOpenapiSnapshot(unittest.TestCase):
+    def test_api_tests_project_references_application_tests(self) -> None:
+        csproj = (
+            REPO_ROOT / "ArchLucid.Api.Tests" / "ArchLucid.Api.Tests.csproj"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn(
+            r"..\ArchLucid.Application.Tests\ArchLucid.Application.Tests.csproj",
+            csproj,
+        )
+
     def test_guard_passes_on_repo(self) -> None:
         result = subprocess.run(
             [

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
@@ -32,11 +33,11 @@ public static class HeldCheckSecondPassIngestCoordinator
         {
             if (logger is not null && logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(
+                logger.LogWarningWithExceptionAndTwoSanitizedUserStrings(
                     ex,
                     "Held-check second pass failed after inventory ingest for RunId={RunId} InputCode={InputCode}.",
-                    runId,
-                    inputCode);
+                    runId.Value.ToString(),
+                    inputCode.ToString());
             }
         }
     }

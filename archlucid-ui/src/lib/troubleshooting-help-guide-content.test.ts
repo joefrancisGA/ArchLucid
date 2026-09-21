@@ -6,6 +6,7 @@ import {
   TROUBLESHOOTING_DECISION_TREE_STEPS,
   TROUBLESHOOTING_PRIMARY_ACTIONS,
   TROUBLESHOOTING_REPORT_PROBLEM_LINK,
+  troubleshootingDecisionTreeSteps,
 } from "@/lib/troubleshooting-help-guide-content";
 import {
   ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF,
@@ -85,5 +86,19 @@ describe("troubleshooting-help-guide-content", () => {
     expect(reportsBranch).toBeDefined();
     expect(reportsBranch!.href).toBe(SPONSOR_REPORT_PATH);
     expect(reportsBranch!.href).not.toBe("/value-report");
+  });
+
+  it("keeps architecture decision tree unchanged for architecture product line", () => {
+    expect(troubleshootingDecisionTreeSteps("architecture")).toEqual(TROUBLESHOOTING_DECISION_TREE_STEPS);
+  });
+
+  it("never deep-links architecture reviews from SecureNow troubleshooting decision tree", () => {
+    const hrefs = troubleshootingDecisionTreeSteps("security").flatMap((step) =>
+      step.branches.map((branch) => branch.href),
+    );
+
+    for (const href of hrefs) {
+      expect(href).not.toContain("/architecture/reviews");
+    }
   });
 });

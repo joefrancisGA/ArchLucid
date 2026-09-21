@@ -11,6 +11,7 @@ import {
   CLOUD_CONNECTIONS_HELP_PATH,
   CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
   CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS,
+  CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT,
   CLOUD_CONNECTIONS_HELP_TIER_1,
   CLOUD_CONNECTIONS_HELP_TIER_2,
 } from "@/lib/cloud-connections-help-guide-content";
@@ -32,7 +33,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     const entry = getProductDocumentationEntry("cloud-connections");
 
     expect(entry?.slug).toBe("cloud-connections");
-    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.lastReviewed).toBe("2026-09-18");
     expect(entry?.pdfStatus).toBe("customer");
     expect(entry?.sectionAnchors).toEqual(["choose-your-cloud-platform", "related-topics"]);
 
@@ -97,9 +98,11 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(actionPanel.compareDocumentPosition(relatedContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_1.title)).toBeInTheDocument();
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_2.title)).toBeInTheDocument();
+    expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT.title)).toBeInTheDocument();
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_1.eyebrow)).toBeInTheDocument();
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_2.eyebrow)).toBeInTheDocument();
-    expect(within(providerScope).getByTestId("help-cloud-connections-tier-1-card")).toHaveClass("border-l-neutral-700");
+    expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT.eyebrow)).toBeInTheDocument();
+    expect(within(providerScope).getByTestId("help-cloud-connections-scheduled-agent-card")).toHaveClass("border-l-neutral-700");
     expect(within(providerScope).getByTestId("help-cloud-connections-tier-1-card").className).not.toMatch(/teal/);
     expect(
       within(providerScope).getAllByRole("link", {

@@ -16,7 +16,7 @@ export const CUSTOMER_ARCHITECTURE_ACCEPTANCE_UI_FORBIDDEN_PATTERNS = [
   /\beffectiveArchitectureId\b/,
 ] as const;
 
-/** Working hub must branch on workspace mode before mounting draft inventory (CA-25 / CA-50). */
+/** Working hub must branch on workspace mode before mounting architecture draft inventory (CA-25 / CA-50). */
 export const CUSTOMER_ARCHITECTURE_WORKING_HUB_LIST_MODULE =
   "app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSection.tsx";
 

@@ -8,7 +8,7 @@ import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHo
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,7 +69,7 @@ export function OperatorHomeCompactStartingActionsSection(
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild variant="primary" size="sm" className="h-8 w-fit">
-              <Link href={ARCHITECTURES_NEW_PATH} data-testid="operator-home-start-new-review">
+              <Link href={REVIEWS_NEW_PATH} data-testid="operator-home-start-new-review">
                 {START_REVIEW_LABEL}
               </Link>
             </Button>

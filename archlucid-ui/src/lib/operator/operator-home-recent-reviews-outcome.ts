@@ -106,7 +106,7 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
   }
 
   if (!metrics.hasReviews) {
-    return [{ key: "empty", text: "No reviews in this workspace yet." }];
+    return [];
   }
 
   const parts: OperatorHomeRecentReviewsOutcomePart[] = [];

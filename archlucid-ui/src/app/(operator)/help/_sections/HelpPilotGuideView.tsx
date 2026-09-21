@@ -143,7 +143,7 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
             </div>
           </div>
 
-          <HelpTopicTableOfContents headings={headings} />
+          <HelpTopicTableOfContents headings={headings} enableScrollSpy />
         </div>
 
         <div data-testid="help-pilot-guide-orientation-bottom">

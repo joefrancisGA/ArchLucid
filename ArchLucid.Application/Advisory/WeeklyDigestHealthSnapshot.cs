@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.User;
+
 namespace ArchLucid.Application.Advisory;
 
 /// <summary>Weekly operating loop coverage derived from schedules, digest subscriptions, and sponsor email prefs.</summary>
@@ -85,7 +87,7 @@ public sealed class WeeklyDigestHealthSnapshot
     {
         get;
         init;
-    } = "UTC";
+    } = IanaTimeZonePreferenceValues.Default;
 
     public int ExecutiveDigestDayOfWeek
     {
@@ -121,7 +123,7 @@ public sealed class WeeklyDigestHealthSnapshot
     {
         get;
         init;
-    } = "UTC";
+    } = IanaTimeZonePreferenceValues.Default;
 
     public int SponsorDigestDayOfWeek
     {

@@ -61,6 +61,10 @@ GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **int
 
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
 
+**RC34 witness (2026-09-21):** run `35552946125` on SHA `f37771635f` produced a **green** `CI: beta-readiness wiring guards` job (gitleaks and typecheck also green). The live ruleset still targets `master`/`main`, so apply the fifth check after the same job is green on the default branch (GitHub autocomplete already knows the check name). **Do not** apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](rulesets/golden-cohort-gate-private-beta-addon.json) until JwtBearer has a green `master` run.
+
+Dry-run (does not mutate GitHub): inspect the JSON, then run the script only as an owner with `gh` admin. Confirm the payload still lists exactly the five contexts in `golden-cohort-gate-required-check.json` before PATCHing.
+
 ### Full `ci.yml` matrix triage (QR-13)
 
 Last completed **`workflow_dispatch`** on `master` failed on 2026-08-28 (run `33193938737`). Push corset and typecheck paths have moved since then. See [`docs/quality/ci-yml-matrix-triage-2026-09-09.md`](../docs/quality/ci-yml-matrix-triage-2026-09-09.md) for per-job pass/fail, fixes, and known-red backlog. **Do not** add required checks beyond [`golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) when triaging.

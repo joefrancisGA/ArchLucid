@@ -3,7 +3,7 @@ export const ARCHITECTURE_INTELLIGENCE_REFINE_NEXT_STEPS_HEADING = "What to do n
 export const ARCHITECTURE_INTELLIGENCE_REFINE_START_REVIEW_LABEL = "Start architecture review";
 
 export const ARCHITECTURE_INTELLIGENCE_REFINE_START_REVIEW_HINT =
-  "Capture these findings on a product review when the draft is ready.";
+  "Capture these findings on a product review when the architecture draft is ready.";
 
 export const ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_LINKED_REVIEW_LABEL = "Open linked review";
 

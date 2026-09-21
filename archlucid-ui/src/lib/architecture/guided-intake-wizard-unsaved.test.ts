@@ -17,7 +17,7 @@ describe("guidedIntakeWizardHasUnsavedEdits (LW-075)", () => {
     expect(guidedIntakeWizardHasUnsavedEdits(emptyInput)).toBe(false);
   });
 
-  it("returns false when the draft is already submitted", () => {
+  it("returns false when the architecture draft is already submitted", () => {
     expect(
       guidedIntakeWizardHasUnsavedEdits({
         ...emptyInput,

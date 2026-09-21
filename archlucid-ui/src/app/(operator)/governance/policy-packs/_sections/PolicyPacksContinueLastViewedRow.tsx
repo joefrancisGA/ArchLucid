@@ -1,23 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { policyPackDetailHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPacksHubPathFromPathname } from "@/lib/product-line/securenow-compliance-routes";
 import { cn } from "@/lib/utils";
+import type { ContinueLastPolicyPackSource } from "@/lib/resolve-continue-last-policy-pack";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksContinueLastViewedRowProps = {
   readonly pack: PolicyPack;
   readonly scopedReviewId?: string;
+  readonly source: ContinueLastPolicyPackSource;
+  readonly viewedAtUtc: string | null;
 };
 
 /** Pinned continue row for the most recently viewed policy pack. */
 export function PolicyPacksContinueLastViewedRow(
   props: PolicyPacksContinueLastViewedRowProps,
 ): React.JSX.Element {
-  const href = policyPackDetailHref(props.pack.policyPackId, props.scopedReviewId);
+  const hubPath = policyPacksHubPathFromPathname(usePathname());
+  const href = policyPackDetailHref(props.pack.policyPackId, props.scopedReviewId, hubPath);
 
   return (
     <section
@@ -35,6 +42,13 @@ export function PolicyPacksContinueLastViewedRow(
           </h2>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium text-al-text-primary">{props.pack.name}</span>
+          </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)} data-testid="policy-packs-continue-last-viewed-source">
+            {props.source === "recent-view"
+              ? props.viewedAtUtc !== null
+                ? `Last opened ${formatInstantForLocale(props.viewedAtUtc)}`
+                : "Last opened pack from your recent views"
+              : "Suggested from most recently activated pack in this workspace (not from recent views)"}
           </p>
         </div>
         <Button type="button" variant="primary" size="sm" asChild data-testid="policy-packs-continue-last-viewed-open">

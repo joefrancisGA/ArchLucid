@@ -51,11 +51,18 @@ export const CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING = "Related topics" as
 
 export const CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE = "Choose your cloud platform" as const;
 
-export const CLOUD_CONNECTIONS_HELP_TIER_1 = {
-  title: "Tier 1 · Upload inventory",
+export const CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT = {
+  title: "Scheduled agent",
   eyebrow: "Recommended",
   useWhen:
-    "Run packaging scripts from your ArchLucid distribution, then upload the inventory ZIP from the New architecture review wizard. ArchLucid never receives long-lived credentials in your cloud account.",
+    "Deploy an Azure Automation runbook or Function timer in your subscription. It collects read-only inventory and uploads the ZIP on a cadence — no command line or UI pull. ArchLucid never receives long-lived credentials in your cloud account.",
+} as const;
+
+export const CLOUD_CONNECTIONS_HELP_TIER_1 = {
+  title: "Tier 1 · Upload inventory",
+  eyebrow: "Pilot",
+  useWhen:
+    "Run packaging scripts from your ArchLucid distribution, then upload the inventory ZIP from the New architecture review wizard when you need a one-time package.",
 } as const;
 
 export const CLOUD_CONNECTIONS_HELP_TIER_2 = {
@@ -196,11 +203,18 @@ export const SECURENOW_CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE =
 export const SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD =
   "This guide explains optional read-only Azure connectors and how to pick an evidence tier for cloud inventory scans.";
 
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT = {
+  title: CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT.title,
+  eyebrow: CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT.eyebrow,
+  useWhen:
+    "Deploy an Azure Automation runbook or Function timer in your subscription. It collects read-only inventory and uploads the ZIP on a cadence — no command line or UI pull. SecureNow never receives long-lived credentials in your cloud account.",
+} as const;
+
 export const SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1 = {
   title: "Tier 1 · Upload inventory",
-  eyebrow: "Recommended",
+  eyebrow: "Pilot",
   useWhen:
-    "Run packaging scripts from your SecureNow distribution, then upload the inventory ZIP from Extract and upload. SecureNow never receives long-lived credentials in your cloud account.",
+    "Run packaging scripts from your SecureNow distribution, then upload the inventory ZIP from Extract and upload when you need a one-time package.",
 } as const;
 
 export const SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
@@ -233,6 +247,14 @@ export function cloudConnectionsHelpOrientationLead(productLineId: ProductLineId
   return isSecureNowProductLine(productLineId)
     ? SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD
     : CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD;
+}
+
+export function cloudConnectionsHelpScheduledAgent(productLineId: ProductLineId = "architecture") {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT;
 }
 
 export function cloudConnectionsHelpTier1(productLineId: ProductLineId = "architecture") {

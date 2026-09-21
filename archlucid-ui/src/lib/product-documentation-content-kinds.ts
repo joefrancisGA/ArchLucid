@@ -52,6 +52,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "system-gravity": "product-help",
   "false-hard-infeasibility": "product-help",
   "extraction-fidelity": "product-help",
+  "first-login-workspace": "product-help",
   "which-mode-am-i-in": "product-help",
   "sealed-record-vs-decision-register": "product-help",
   "sketch-a-change": "product-help",

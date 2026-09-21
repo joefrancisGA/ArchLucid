@@ -73,7 +73,13 @@ public sealed class PathRankingEngineTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([path]);
         pathRepository
-            .Setup(repository => repository.ListHopsByPathAsync(TenantId, PathId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListHopsByPathInScopeAsync(
+                It.Is<ProjectScopeKey>(scopeKey =>
+                    scopeKey.TenantId == TenantId
+                    && scopeKey.WorkspaceId == WorkspaceId
+                    && scopeKey.ProjectId == ProjectId),
+                PathId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(hops);
 
         List<SecurityEvidencePathRankRecord> persistedRanks = [];
@@ -82,19 +88,25 @@ public sealed class PathRankingEngineTests
             .Setup(repository => repository.TryGetWeightsAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((SecurityEvidencePathRankWeightsRecord?)null);
         rankRepository
-            .Setup(repository => repository.ReplaceRanksForSnapshotAsync(
-                TenantId,
+            .Setup(repository => repository.ReplaceRanksForSnapshotInScopeAsync(
+                It.Is<ProjectScopeKey>(scopeKey =>
+                    scopeKey.TenantId == TenantId
+                    && scopeKey.WorkspaceId == WorkspaceId
+                    && scopeKey.ProjectId == ProjectId),
                 SnapshotId,
                 It.IsAny<IReadOnlyList<SecurityEvidencePathRankRecord>>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<Guid, Guid, IReadOnlyList<SecurityEvidencePathRankRecord>, CancellationToken>(
+            .Callback<ProjectScopeKey, Guid, IReadOnlyList<SecurityEvidencePathRankRecord>, CancellationToken>(
                 (_, _, ranks, _) => persistedRanks.AddRange(ranks))
             .Returns(Task.CompletedTask);
 
         Mock<ISecurityAssetAssertionResolver> assertionResolver = new();
         assertionResolver
             .Setup(resolver => resolver.GetActiveCrownJewelAssertionIdsAsync(
-                TenantId,
+                It.Is<ProjectScopeKey>(scopeKey =>
+                    scopeKey.TenantId == TenantId
+                    && scopeKey.WorkspaceId == WorkspaceId
+                    && scopeKey.ProjectId == ProjectId),
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<Guid>());

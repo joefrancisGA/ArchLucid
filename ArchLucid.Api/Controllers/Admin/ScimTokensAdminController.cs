@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Audit;
@@ -8,6 +9,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -20,6 +22,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/scim/tokens")]
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[RequiresCommercialTenantTier(TenantTier.Enterprise)]
 public sealed class ScimTokensAdminController(
     IScimTokenIssuer tokenIssuer,
     IScimTenantTokenRepository tokens,

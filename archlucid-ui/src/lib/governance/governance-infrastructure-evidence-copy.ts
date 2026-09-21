@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -12,7 +13,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE =
-  "These workbenches surface inventory evidence and advisory outputs — not sealed review records or official assurance materials. Confirm cloud connections and snapshot capture before trusting exports.";
+  "These workbenches surface inventory evidence and advisory outputs — not official compliance materials.";
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SOURCES_INTRO =
   "Use these surfaces when procurement asks for activity context, connector readiness, or assurance posture beyond inventory evidence.";
@@ -132,9 +133,36 @@ export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES: readonly EvidenceSou
 ] as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES_INTRO =
-  "Use these surfaces when buyers need inventory diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
+  "Use these surfaces when buyers need diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
 
 /** Operator Sources for drift workbench (GOR). */
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SOURCES_INTRO =
+  "Use these surfaces when buyers need drift comparison, resource context, or grounded Ask beyond advisory mapping.";
+
+/** Operator Sources for advisory Terraform mapping (ITE). */
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub Terraform tab when mapping is resource-specific",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots and export advisory Terraform after reviewing property drift",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same resource scope",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for diagrams or remediation",
+  },
+] as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
     label: "Resource explorer",
@@ -142,7 +170,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES: readonly EvidenceSourceLin
     when: "Open a resource hub to scope drift comparison to one cloud resource",
   },
   {
-    label: "Inventory diagrams",
+    label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     when: "Inspect diagram views for the same snapshot before reviewing property drift",
   },
@@ -187,7 +215,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SOURCES: readonly EvidenceSource
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
-    label: "Inventory diagrams",
+    label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     when: "Export or inspect diagram views before uploading Mermaid for reconciliation",
   },

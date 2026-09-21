@@ -6448,7 +6448,11 @@ BEGIN
                 N'first_finding_viewed',
                 N'first_finalization_attempted',
                 N'first_export_opened',
-                N'thirty_minute_milestone'
+                N'thirty_minute_milestone',
+                N'first_session_purpose_live',
+                N'first_session_purpose_training',
+                N'post_auth_landed_dedicated_scope',
+                N'post_auth_landed_sample_scope'
             )),
         CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
@@ -10554,7 +10558,7 @@ BEGIN
     CREATE TABLE dbo.ArchitectureShares
     (
         ArchitectureId UNIQUEIDENTIFIER NOT NULL,
-        UserId           UNIQUEIDENTIFIER NOT NULL,
+        ActorOid         NVARCHAR(256)    NOT NULL,
         TenantId         UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
         ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
@@ -10563,16 +10567,14 @@ BEGIN
         GrantedUtc         DATETIME2(7)     NOT NULL
             CONSTRAINT DF_ArchitectureShares_GrantedUtc DEFAULT SYSUTCDATETIME(),
         RowVersion         ROWVERSION       NOT NULL,
-        CONSTRAINT PK_ArchitectureShares PRIMARY KEY CLUSTERED (ArchitectureId, UserId),
+        CONSTRAINT PK_ArchitectureShares PRIMARY KEY CLUSTERED (ArchitectureId, ActorOid),
         CONSTRAINT FK_ArchitectureShares_Architectures
             FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
-        CONSTRAINT FK_ArchitectureShares_PlatformUsers
-            FOREIGN KEY (UserId) REFERENCES dbo.PlatformUsers (Id),
         CONSTRAINT CK_ArchitectureShares_Role CHECK (Role IN (N'View', N'Decide', N'Admin'))
     );
 
-    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_Tenant_User_Architecture
-        ON dbo.ArchitectureShares (TenantId, UserId, ArchitectureId);
+    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_ActorOid
+        ON dbo.ArchitectureShares (ActorOid);
 
     CREATE NONCLUSTERED INDEX IX_ArchitectureShares_Scope_Architecture
         ON dbo.ArchitectureShares (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);

@@ -14,6 +14,8 @@ export type AzureExtractorUploadSemanticCode =
   | "AZURE_EXTRACTOR_MISSING_MANIFEST"
   | "AZURE_EXTRACTOR_INVALID_MANIFEST_JSON"
   | "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION"
+  | "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY"
+  | "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID"
   | "AZURE_EXTRACTOR_MISSING_RESOURCES_JSON"
   | "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE"
   | "AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH"
@@ -64,6 +66,10 @@ function resolveSemanticCode(detail: string, failureKind: AzureExtractorUploadFa
     return "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION";
   }
 
+  if (normalized.includes("root must be a json array")) {
+    return "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY";
+  }
+
   if (normalized.includes("no manifest.json found") || normalized.includes("does not contain manifest.json")) {
     return "AZURE_EXTRACTOR_MISSING_MANIFEST";
   }
@@ -105,7 +111,7 @@ function resolveSemanticCode(detail: string, failureKind: AzureExtractorUploadFa
   }
 
   if (failureKind === "schema") {
-    return "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION";
+    return "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID";
   }
 
   if (failureKind === "archive") {
@@ -130,6 +136,10 @@ function guidanceForSemanticCode(
       return "manifest.json is not valid JSON. Re-run the extractor locally and confirm the file opens cleanly before uploading.";
     case "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION":
       return "manifest.json must include a supported schemaVersion (1–2). Download the latest extractor script and regenerate the ZIP.";
+    case "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY":
+      return "A companion inventory file must be a JSON array. PowerShell ConvertTo-Json writes a single row as an object. Re-run the latest extractor script so files such as diagnostic-settings.json are arrays.";
+    case "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID":
+      return "The inventory ZIP failed package schema checks. Review the error detail, re-run the latest extractor script, and upload the new ZIP.";
     case "AZURE_EXTRACTOR_MISSING_RESOURCES_JSON":
       return `The ZIP must include resources.json from ${packagerScript}. Do not upload a manifest-only archive.`;
     case "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE":
@@ -140,9 +150,24 @@ function guidanceForSemanticCode(
       return "Reduce extractor scope (subscription or resource group) or use chunked upload when enabled. Confirm the ZIP is within the server size limit.";
     case "AZURE_EXTRACTOR_NO_FILE_UPLOADED":
       return "Select a .zip file in the upload control. The multipart form field must be named file.";
-    default:
+    case "AZURE_EXTRACTOR_UPLOAD_UNKNOWN":
       return "Review the error detail, fix the extractor package, and retry. Include the copied error details when opening a support ticket.";
+    default: {
+      const exhaustive: never = code;
+      return exhaustive;
+    }
   }
+}
+
+function headingForSemanticCode(
+  code: AzureExtractorUploadSemanticCode,
+  failureKind: AzureExtractorUploadFailureKind,
+): string {
+  if (code === "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY" || code === "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID") {
+    return "Extractor package rejected";
+  }
+
+  return headingForFailureKind(failureKind);
 }
 
 function headingForFailureKind(failureKind: AzureExtractorUploadFailureKind): string {
@@ -182,7 +207,7 @@ export function resolveAzureExtractorUploadError(
   return {
     semanticCode,
     failureKind,
-    heading: headingForFailureKind(failureKind),
+    heading: headingForSemanticCode(semanticCode, failureKind),
     guidance: guidanceForSemanticCode(semanticCode, productLineId),
     docPath: docPathForSemanticCode(semanticCode),
   };

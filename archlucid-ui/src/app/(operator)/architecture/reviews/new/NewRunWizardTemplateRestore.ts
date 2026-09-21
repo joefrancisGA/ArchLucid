@@ -73,9 +73,9 @@ export function useNewRunWizardTemplateRestore(
         stepIndex,
         state: getValues(),
       });
-      setDraftSaveFeedback({ kind: "ok", message: "Draft saved in this browser." });
+      setDraftSaveFeedback({ kind: "ok", message: "Architecture draft saved in this browser." });
     } catch {
-      setDraftSaveFeedback({ kind: "err", message: "Could not save draft." });
+      setDraftSaveFeedback({ kind: "err", message: "Could not save architecture draft." });
     }
   }, [getValues, stepIndex]);
 

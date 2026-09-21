@@ -16,11 +16,12 @@ const blockedGate = {
 describe("WorkingCareerDoorBlockedDialog", () => {
   it("offers Rehearsal and platform settings actions", () => {
     const onSwitchToRehearsal = vi.fn();
+    const onOpenChange = vi.fn();
 
     renderWithOperatorQuery(
       <WorkingCareerDoorBlockedDialog
         open
-        onOpenChange={vi.fn()}
+        onOpenChange={onOpenChange}
         gate={blockedGate}
         onSwitchToRehearsal={onSwitchToRehearsal}
       />,
@@ -30,10 +31,32 @@ describe("WorkingCareerDoorBlockedDialog", () => {
 
     fireEvent.click(screen.getByTestId("working-career-door-switch-to-rehearsal"));
     expect(onSwitchToRehearsal).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
 
     expect(screen.getByTestId("working-career-door-platform-settings")).toHaveAttribute(
       "href",
       WORKING_CAREER_DOOR_PLATFORM_SETTINGS_HREF,
     );
+
+    fireEvent.click(screen.getByTestId("working-career-door-platform-settings"));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("places Close as the rightmost footer action", () => {
+    renderWithOperatorQuery(
+      <WorkingCareerDoorBlockedDialog
+        open
+        onOpenChange={vi.fn()}
+        gate={blockedGate}
+        onSwitchToRehearsal={vi.fn()}
+      />,
+    );
+
+    const switchToPractice = screen.getByTestId("working-career-door-switch-to-rehearsal");
+    const platformSettings = screen.getByTestId("working-career-door-platform-settings");
+    const close = screen.getByRole("button", { name: "Close" });
+
+    expect(switchToPractice.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(platformSettings.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

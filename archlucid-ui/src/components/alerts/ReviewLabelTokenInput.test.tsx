@@ -21,7 +21,7 @@ describe("ReviewLabelTokenInput", () => {
     expect(onChange).toHaveBeenCalledWith(["Production", "PHI"]);
   });
 
-  it("removes the last label on Backspace when the draft is empty", () => {
+  it("removes the last label on Backspace when the architecture draft is empty", () => {
     const onChange = vi.fn();
 
     render(<ReviewLabelTokenInput labels={["Production", "PHI"]} onChange={onChange} />);

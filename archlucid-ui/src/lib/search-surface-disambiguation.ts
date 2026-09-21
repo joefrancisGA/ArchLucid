@@ -15,7 +15,7 @@ export const GLOBAL_FIND_PAGE_SEARCH = {
   ariaLabel: "Find pages, architectures, and reviews",
   /** Helper clarifying this is navigation/lookup, not evidence retrieval. */
   helper:
-    "Jump to pages, architecture identities, drafts, and reviews. Press Ctrl+K for the command palette. To search the evidence trail, use Search review evidence.",
+    "Jump to pages, architecture identities, architecture drafts, and reviews. Press Ctrl+K for the command palette. To search the evidence trail, use Search review evidence.",
 } as const;
 
 /** `/insights/search-review-evidence` — retrieve across the evidence trail. */

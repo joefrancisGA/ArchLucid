@@ -32,7 +32,7 @@ import {
   RunDetailTechnologyBaselineSection,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
-import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
+import { resolveRunDetailSponsorBriefingSection } from "./resolve-run-detail-sponsor-briefing-section";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,

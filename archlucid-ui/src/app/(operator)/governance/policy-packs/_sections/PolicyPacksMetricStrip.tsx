@@ -6,17 +6,25 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { policyPackTypeDisplayLabel } from "@/lib/policy/policy-pack-type-label";
+import { resolvePolicyPacksEffectiveLayersHelper } from "@/lib/policy/policy-packs-workspace-status-copy";
 import type { EffectivePolicyPackSet, PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksMetricStripProps = {
   buyerPolishedShell: boolean;
   packCount: number;
+  workspaceAssignmentCount: number;
   effective: EffectivePolicyPackSet | null;
   selectedPackSummary: PolicyPack | undefined;
 };
 
 export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
-  const { buyerPolishedShell, packCount, effective, selectedPackSummary } = props;
+  const { buyerPolishedShell, packCount, workspaceAssignmentCount, effective, selectedPackSummary } = props;
+  const effectiveLayerCount = effective?.packs.length ?? 0;
+  const effectiveLayersHelper = resolvePolicyPacksEffectiveLayersHelper({
+    effectiveLayerCount,
+    registeredPackCount: packCount,
+    workspaceAssignmentCount,
+  });
 
   return (
     <div className="mb-6 grid gap-3 sm:grid-cols-3">
@@ -37,10 +45,13 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
         </CardHeader>
         <CardContent className="pt-0">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{effective?.packs.length ?? 0}</p>
-          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
+          <p
+            className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}
+            data-testid="policy-packs-effective-layers-helper"
+          >
             {buyerPolishedShell
               ? "Checks enforced for your scope (merged policy layers)"
-              : "Resolved for current scope"}
+              : effectiveLayersHelper}
           </p>
         </CardContent>
       </Card>

@@ -671,15 +671,15 @@
     },
     {
       "typeName": "ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController",
-      "capability": "authority",
-      "productLine": "architecture",
+      "capability": "infra-evidence",
+      "productLine": "both",
       "status": "assigned",
       "ownerNote": null
     },
     {
       "typeName": "ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController",
-      "capability": "authority",
-      "productLine": "architecture",
+      "capability": "infra-evidence",
+      "productLine": "both",
       "status": "assigned",
       "ownerNote": null
     },
@@ -1153,6 +1153,13 @@
       "ownerNote": null
     },
     {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceOperatorInferredConnectionsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
       "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceSnapshotsController",
       "capability": "infra-evidence",
       "productLine": "both",
@@ -1370,7 +1377,35 @@
       "ownerNote": null
     },
     {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityArchitectMetricsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityAssetAssertionsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityDeclaredConnectionsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
       "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityFindingsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityPathsController",
       "capability": "infra-evidence",
       "productLine": "both",
       "status": "assigned",

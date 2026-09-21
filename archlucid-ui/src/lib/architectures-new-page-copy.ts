@@ -13,17 +13,17 @@ export const ARCHITECTURES_NEW_SKIP_TARGET_ID = ARCHITECTURES_NEW_FIRST_VIEWPORT
 export const ARCHITECTURES_NEW_SKIP_LINK_LABEL = "Skip to create architecture workspace" as const;
 
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER =
-  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Describe the system, outcome, and scope below. When you save, your draft is stored to your account and syncs across browsers where you sign in.`;
+  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Describe the system, outcome, and scope below. When you save, your architecture draft is stored to your account and syncs across browsers where you sign in.`;
 
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER_WITH_DRAFTS =
-  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Saved drafts sync where you sign in.`;
+  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Saved architecture drafts sync where you sign in.`;
 
 /** Operator `/architectures/new` subtitles — not shared with other create-path surfaces. */
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR =
-  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Describe the system, the outcome it must deliver, and the people and systems it touches. Start a new draft below. Saved drafts sync where you sign in.`;
+  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Describe the system, the outcome it must deliver, and the people and systems it touches. Start a new architecture draft below. Saved architecture drafts sync where you sign in.`;
 
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR_WITH_DRAFTS =
-  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Saved drafts sync where you sign in.`;
+  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Saved architecture drafts sync where you sign in.`;
 
 export function architecturesNewPageSubtitle(buyerPolishedShell: boolean, hasLocalDrafts: boolean): string {
   if (!buyerPolishedShell) {

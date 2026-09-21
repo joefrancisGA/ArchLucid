@@ -80,7 +80,7 @@ describe("customer-glossary-manifest", () => {
     expect(architecture?.label).toBe("Architecture");
     expect(architecture?.definition.toLowerCase()).toContain("durable");
     expect(architecture?.definition.toLowerCase()).toContain("identity");
-    expect(architecture?.definition.toLowerCase()).not.toContain("draft editor");
+    expect(architecture?.definition.toLowerCase()).not.toContain("architecture draft editor");
   });
 
   it("does not read architecture draft as the whole Architectures workspace (CA-44)", () => {

@@ -174,7 +174,7 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={headings} />
+          <HelpTopicTableOfContents headings={headings} enableScrollSpy />
         </div>
       </div>
     </article>

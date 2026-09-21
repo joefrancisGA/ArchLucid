@@ -142,7 +142,7 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_OPERATION_MISSING =
   "This structured-brief suggestion is no longer tracked on the server (it may have expired after a restart). Retry Suggest from overview to run it again.";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT =
-  "This draft is locked while a linked review is open. Continue in the linked review for findings and exports, or start a new draft from this snapshot if you need a separate brief.";
+  "This architecture draft is locked while a linked review is open. Continue in the linked review for findings and exports, or start a new architecture draft from this snapshot if you need a separate brief.";
 
 export function guidedIntakeStructuredBriefSuggestSuccess(addedCount: number): string {
   const label = addedCount === 1 ? "suggestion" : "suggestions";
@@ -242,7 +242,7 @@ export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and syst
 export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_TITLE = "Resolve suggested people and systems";
 
 export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_DESCRIPTION =
-  "You opened suggested people and systems from the architecture overview. Add the ones you want to the draft, or dismiss the list, before starting an architecture review.";
+  "You opened suggested people and systems from the architecture overview. Add the ones you want to the architecture draft, or dismiss the list, before starting an architecture review.";
 
 export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT =
   "Resolve suggested people and systems before starting a review.";
@@ -334,7 +334,7 @@ export const GUIDED_INTAKE_ALREADY_SUBMITTED_BODY =
   "Submit is not available again for this saved architecture draft. Open the existing review to continue, or start a new architecture draft if you need a separate review.";
 
 export const GUIDED_INTAKE_ALREADY_SUBMITTED_STUCK_BODY =
-  "Submit already ran for this draft and is still finishing on the server. Open the review if one exists, or retry later with the correlation id from troubleshooting if no review appears.";
+  "Submit already ran for this architecture draft and is still finishing on the server. Open the review if one exists, or retry later with the correlation id from troubleshooting if no review appears.";
 
 export const GUIDED_INTAKE_ALREADY_SUBMITTED_OPEN_REVIEW_CTA = "Open review";
 

@@ -16,6 +16,7 @@ import {
 } from "./helpers/live-private-beta-access";
 import { isLiveEmailOtpLaneConfigured, liveEmailOtpLaneSkipReason } from "./helpers/live-email-otp-harness";
 import { liveApiBase, liveJsonHeaders, resolveLiveJwtMode } from "./helpers/live-api-client";
+import { assertLiveSeatOperatorScopeChrome } from "./helpers/live-seat-scope-assertions";
 
 const releaseGateTag = "@release-gate";
 
@@ -78,6 +79,24 @@ test.describe(
       await page.goto("/auth/signin?returnUrl=%2Farchitecture%2Freviews", { waitUntil: "domcontentloaded" });
 
       await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 60_000 });
+    });
+
+    test("authenticated JwtBearer session shows branded not-found for dead run deep link", async ({
+      page,
+    }) => {
+      test.setTimeout(90_000);
+
+      const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+      await primePrivateBetaBrowserPage(page, accessToken);
+      await stubEmptyArchitectureDraftListRoute(page);
+
+      const fakeRunId = crypto.randomUUID();
+
+      await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+
+      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 60_000 });
+      await expect(page.getByTestId("not-found-review-packages")).toBeVisible();
     });
 
     test("signed-out deep-link preserves returnUrl for admin and help destinations", async ({ browser }) => {
@@ -159,6 +178,9 @@ test.describe(
         await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/, {
           timeout: 120_000,
         });
+
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await assertLiveSeatOperatorScopeChrome(page);
       } finally {
         await inviteeContext.close();
       }

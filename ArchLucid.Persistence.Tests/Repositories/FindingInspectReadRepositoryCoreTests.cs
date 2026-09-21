@@ -26,18 +26,18 @@ public sealed class FindingInspectReadRepositoryCoreTests
             "trace-text");
 
         ruleId.Should().Be("rule-1");
-        ruleName.Should().Be("rule-1");
+        ruleName.Should().Be("trace-text");
     }
 
     [Fact]
-    public void ResolveRuleFields_when_applied_rule_ids_present_keeps_decision_rule_name_aligned_with_first_id()
+    public void ResolveRuleFields_when_applied_rule_ids_present_keeps_trace_rule_name()
     {
         (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
             """["cost-guardrail"]""",
             firstRuleText: "Encrypt data at rest");
 
         ruleId.Should().Be("cost-guardrail");
-        ruleName.Should().Be("cost-guardrail");
+        ruleName.Should().Be("Encrypt data at rest");
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public sealed class FindingInspectReadRepositoryCoreTests
             firstRuleText: null);
 
         ruleId.Should().Be("cost-guardrail");
-        ruleName.Should().Be("cost-guardrail");
+        ruleName.Should().Be("Encrypt data at rest");
     }
 
     [Fact]
@@ -227,7 +227,7 @@ public sealed class FindingInspectReadRepositoryCoreTests
         typed.Should().NotBeNull();
         typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
         typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
-        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+        typed!.Value.TryGetProperty("whyThisMatters", out _).Should().BeFalse();
     }
 
     [Fact]

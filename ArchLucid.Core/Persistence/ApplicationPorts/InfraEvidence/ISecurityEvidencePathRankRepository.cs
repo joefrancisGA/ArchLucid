@@ -1,3 +1,5 @@
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface ISecurityEvidencePathRankRepository
@@ -6,6 +8,12 @@ public interface ISecurityEvidencePathRankRepository
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default);
+
+    Task<SecurityEvidencePathRankRecord?> TryGetRankInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default) =>
+        TryGetRankAsync(scope.TenantId, pathId, cancellationToken);
 
     Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
         Guid tenantId,
@@ -19,6 +27,13 @@ public interface ISecurityEvidencePathRankRepository
         Guid snapshotId,
         IReadOnlyList<SecurityEvidencePathRankRecord> ranks,
         CancellationToken cancellationToken = default);
+
+    Task ReplaceRanksForSnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        IReadOnlyList<SecurityEvidencePathRankRecord> ranks,
+        CancellationToken cancellationToken = default) =>
+        ReplaceRanksForSnapshotAsync(scope.TenantId, snapshotId, ranks, cancellationToken);
 
     Task<(IReadOnlyList<SecurityEvidencePathRankRecord> Items, int TotalCount)> ListRankedPagedAsync(
         Guid tenantId,
