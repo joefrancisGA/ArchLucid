@@ -183,7 +183,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 disabled={verticalImportSlug !== null || !canMutatePacks}
                 onClick={() => void onImportVertical(row.slug, row.label)}
               >
-                {verticalImportSlug === row.slug ? "Loadingâ€¦" : row.label}
+                {verticalImportSlug === row.slug ? "Loading…" : row.label}
               </Button>
             ))}
           </div>
