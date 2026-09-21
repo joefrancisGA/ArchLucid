@@ -120,7 +120,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | INX | `/infrastructure/extract-upload` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IRE | `/infrastructure/resources` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | ICL | `/infrastructure/resources/[cloudResourceId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
-| ITE | `/infrastructure/terraform` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| ITE | `/infrastructure/terraform` | 0.02% | 70,72 | 0 | 2 | Marketing | No | SecureNow Terraform mapping Phase 2: scoped entry actions, route identity, no-scope status, recovery links, help/shortcut access, recent resume, product-line-safe CTAs, advisory caveat deduplication, and degraded provenance copy; 2026-09-21 al-ui-rate: shipped safe backlog |
 | INW | `/insights/workspace-health` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | ING | `/internal/agent-model-catalog` | 0.02% | 0 | 0 | 2 | Internal | No | None |
 | INO | `/internal/operational-errors` | 0.02% | 0 | 0 | 2 | Admin | No | None |
