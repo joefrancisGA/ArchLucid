@@ -21,7 +21,7 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
     private static readonly Guid SnapshotId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
 
     [Fact]
-    public async Task TryResolveGraphAsync_connects_logic_apps_to_web_connections_in_the_same_resource_group()
+    public async Task TryResolveGraphAsync_connects_logic_apps_to_cited_web_connections()
     {
         Guid workflowRow = Guid.Parse("11111111-1111-4000-8000-000000000001");
         Guid connectionRow = Guid.Parse("11111111-1111-4000-8000-000000000002");
@@ -36,7 +36,14 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
                     CreateResource(workflowRow, workflowArmId, "Microsoft.Logic/workflows"),
                     CreateResource(connectionRow, connectionArmId, "Microsoft.Web/connections"),
                 ],
-                [],
+                [
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = workflowRow,
+                        PropertyKey = "parameters.$connections.value.office365.connectionId",
+                        PropertyValue = connectionArmId,
+                    },
+                ],
                 []));
 
         result.Succeeded.Should().BeTrue();
@@ -47,6 +54,48 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
         ast.Edges.Where(edge => !edge.IsLayoutOnly).Should().NotBeEmpty();
         ast.Nodes.Should().Contain(node => node.Label == "la-notify");
         ast.Nodes.Should().Contain(node => node.Label == "office365");
+    }
+
+    [Fact]
+    public async Task TryResolveGraphAsync_does_not_complete_graph_uncited_web_connections()
+    {
+        Guid workflowRow = Guid.Parse("11111111-1111-4000-8000-000000000011");
+        Guid citedConnectionRow = Guid.Parse("11111111-1111-4000-8000-000000000012");
+        Guid uncitedConnectionRow = Guid.Parse("11111111-1111-4000-8000-000000000013");
+        Guid secondUncitedConnectionRow = Guid.Parse("11111111-1111-4000-8000-000000000014");
+        const string workflowArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Logic/workflows/la-notify";
+        const string citedConnectionArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/office365";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    CreateResource(workflowRow, workflowArmId, "Microsoft.Logic/workflows"),
+                    CreateResource(citedConnectionRow, citedConnectionArmId, "Microsoft.Web/connections"),
+                    CreateResource(
+                        uncitedConnectionRow,
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/teams",
+                        "Microsoft.Web/connections"),
+                    CreateResource(
+                        secondUncitedConnectionRow,
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/excel",
+                        "Microsoft.Web/connections"),
+                ],
+                [
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = workflowRow,
+                        PropertyKey = "parameters.$connections.value.office365.connectionId",
+                        PropertyValue = citedConnectionArmId,
+                    },
+                ],
+                []));
+
+        result.Graph!.Edges
+            .Where(edge => edge.InferenceSource == GraphEdgeInferenceSources.InventoryLogicAppConnection)
+            .Should()
+            .ContainSingle();
     }
 
     [Fact]
@@ -126,7 +175,7 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
 
         result.Succeeded.Should().BeTrue();
         result.Graph!.Edges.Should().Contain(edge =>
-            edge.InferenceSource == GraphEdgeInferenceSources.InventoryResourceGroupCollocation);
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryPropertyArmId);
     }
 
     [Fact]

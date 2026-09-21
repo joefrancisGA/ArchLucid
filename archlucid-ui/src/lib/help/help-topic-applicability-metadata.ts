@@ -16,6 +16,8 @@ export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "decision-register",
   "evidence-graph",
   "extraction-fidelity",
+  "false-hard-infeasibility",
+  "inspect-stored-evidence",
   "impact-preview",
   "improvement-planning",
   "jira-integration",

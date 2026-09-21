@@ -37,14 +37,18 @@ class TestRoiBatch25DriftGuards(unittest.TestCase):
         self.assertIn("help-which-mode-am-i-in", guide)
         self.assertIn("showSsoOptional={false}", guide)
 
-    def test_help_inspect_stored_evidence_send_path_honesty(self) -> None:
+    def test_help_inspect_stored_evidence_evidence_guidance_phase2(self) -> None:
         guide = (
             _UI / "src/app/(operator)/help/_sections/HelpInspectStoredEvidenceGuideView.tsx"
         ).read_text(encoding="utf-8")
+        content = (
+            _UI / "src/lib/evidence-source-inspect-help-stored-evidence-guide-content.ts"
+        ).read_text(encoding="utf-8")
 
-        self.assertIn("SponsorSendPathHonestyPanel", guide)
-        self.assertIn("help-inspect-stored-evidence", guide)
-        self.assertIn("showSsoOptional={false}", guide)
+        self.assertNotIn("SponsorSendPathHonestyPanel", guide)
+        self.assertIn("help-inspect-stored-evidence-safety-callout", guide)
+        self.assertIn("help-inspect-stored-evidence-audit", guide)
+        self.assertIn("EvidenceSourceOpened", content)
 
     def test_help_background_wait_send_path_honesty(self) -> None:
         guide = (_UI / "src/app/(operator)/help/_sections/HelpBackgroundWaitGuideView.tsx").read_text(

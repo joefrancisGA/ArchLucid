@@ -2063,6 +2063,37 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "hardened", out JsonElement hardened)
+                || TryGetPropertyIgnoreCase(res, "hardened", out hardened))
+            && (hardened.ValueKind == JsonValueKind.True || hardened.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.hardened"] = hardened.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "restored", out JsonElement restored)
+                || TryGetPropertyIgnoreCase(res, "restored", out restored))
+            && (restored.ValueKind == JsonValueKind.True || restored.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.restored"] = restored.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "kind", out JsonElement kind)
+                || TryGetPropertyIgnoreCase(res, "kind", out kind))
+            && kind.ValueKind == JsonValueKind.String)
+        {
+            string? kindText = kind.GetString();
+
+            if (!string.IsNullOrWhiteSpace(kindText))
+                properties["tf.kind"] = kindText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "multi_region", out JsonElement multiRegion)
+                || TryGetPropertyIgnoreCase(res, "multiRegion", out multiRegion))
+            && (multiRegion.ValueKind == JsonValueKind.True || multiRegion.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.multi_region"] = multiRegion.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "encrypted", out JsonElement encrypted)
                 || TryGetPropertyIgnoreCase(res, "encrypted", out encrypted))
             && (encrypted.ValueKind == JsonValueKind.True || encrypted.ValueKind == JsonValueKind.False))
