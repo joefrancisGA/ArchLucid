@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
-import { ARCHITECTURES_NEW_PATH, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_NEW_PATH, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA } from "@/lib/buyer/buyer-polish-copy";
 
@@ -46,7 +46,7 @@ describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
 
     const link = screen.getByTestId("operator-home-working-new-review-primary");
 
-    expect(link).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
+    expect(link).toHaveAttribute("href", REVIEWS_NEW_PATH);
     expect(link).toHaveTextContent("New review");
   });
 
@@ -95,6 +95,6 @@ describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
 
     const primary = screen.getByTestId("operator-home-working-new-review-primary");
 
-    expect(primary.getAttribute("href")).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
+    expect(primary.getAttribute("href")).not.toMatch(/^\/architecture\/reviews\/(?!new$)[^/]+$/);
   });
 });
