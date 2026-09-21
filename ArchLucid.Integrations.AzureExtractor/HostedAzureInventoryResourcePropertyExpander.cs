@@ -81,6 +81,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         if (resourceType.Contains("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase))
         {
             AddAppServiceSubnetProperty(propertiesElement, properties);
+            AddKindProperty(propertiesElement, properties);
         }
 
         if (resourceType.Contains("virtualMachineScaleSets", StringComparison.OrdinalIgnoreCase))
@@ -418,6 +419,24 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         if (!string.IsNullOrWhiteSpace(subnetId))
         {
             properties["virtualNetworkSubnetId"] = subnetId.Trim();
+        }
+    }
+
+    private static void AddKindProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("kind", out JsonElement kindElement)
+            || kindElement.ValueKind is not JsonValueKind.String)
+        {
+            return;
+        }
+
+        string? kind = kindElement.GetString();
+
+        if (!string.IsNullOrWhiteSpace(kind) && !properties.ContainsKey("kind"))
+        {
+            properties["kind"] = kind.Trim();
         }
     }
 
