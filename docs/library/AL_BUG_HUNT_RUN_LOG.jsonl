@@ -7078,3 +7078,4 @@
 {"at":"2026-09-21T19:01:18.9705535Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-21T19:01:23.6012205Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-21T19:03:21.9448258Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-21T19:03:29.3499162Z","zoneId":"context-ingestion","outcome":"seed-only"}
