@@ -1,3 +1,5 @@
+using ArchLucid.Core.InfraEvidence;
+
 namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface ISecurityAssetAssertionRepository
