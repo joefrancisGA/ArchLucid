@@ -72,6 +72,22 @@ Re-triage after 15 minutes if scope was misjudged.
 
 ---
 
+## Private-beta on-call signals
+
+Use these five checks first during a private-beta wave. **HTTP 5xx** and **stale in-flight runs** already have Prometheus alert rules when the monitoring stack is enabled. Auth failures, LLM spend versus budget, and queue depth are log and scaler checks — this section does not claim a named page for those three.
+
+| Signal | Where to look | First action |
+| --- | --- | --- |
+| API 5xx | Application Insights **Failures**; alert `ArchLucidSloHttp5xxRatioElevatedTf` (5xx ratio above 2% for 10 minutes) | Group by exception type and `cloud_RoleName`. Pull `X-Correlation-ID`. |
+| Auth failures | Failures on `/auth/invite`, `/auth/bootstrap`, and BFF **401** / **403** | Confirm the invite token and tenant scope before treating the spike as an API outage. |
+| Run stuck | Alert `ArchLucidStaleInFlightRunsTf` (`archlucid_runs_stale_in_flight_count` > 0, in-flight longer than 1 hour). SQL status **Executing** or **WaitingForResults** with an old `UpdatedUtc`. | Worker revision, then [STALE_IN_FLIGHT_RUNS.md](STALE_IN_FLIGHT_RUNS.md). |
+| LLM spend vs budget | Structured log `EventName == "archlucid.llm.cost_delta"`. Tenant monthly budget in [LLM_COST_ESTIMATION.md](LLM_COST_ESTIMATION.md). | Freeze Real spend with [PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md](PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md). |
+| Queue depth | Container Apps scaler `background-jobs-queue-depth` and worker traces | Pause new executes when depth climbs while worker replicas are already at the configured maximum. |
+
+Do not append Gate 4 proof-log rows from this section. A Simulator run is not a Real proof run.
+
+---
+
 ## Related docs
 
 | Topic | Doc |
