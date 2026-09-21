@@ -13,6 +13,7 @@ import {
   ARCHITECTURE_DESK_PAGE_SHORTCUTS,
   FINDINGS_PAGE_SHORTCUTS,
   REVIEW_DETAIL_PAGE_SHORTCUTS,
+  REMEDIATION_FACTORY_PAGE_SHORTCUTS,
   SHELL_COMMAND_SHORTCUTS,
   SHORTCUTS,
   resolveShortcutDescription,
@@ -136,6 +137,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
   const [alertsOpen, setAlertsOpenState] = useState(urlSection === "alerts");
   const [findingsOpen, setFindingsOpenState] = useState(urlSection === "findings");
   const [reviewDetailOpen, setReviewDetailOpenState] = useState(urlSection === "review");
+  const [remediationFactoryOpen, setRemediationFactoryOpenState] = useState(false);
   const [helpOpen, setHelpOpenState] = useState(urlSection === "help");
 
   const syncSectionToUrl = useCallback(
@@ -224,6 +226,20 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
             <ShortcutTable entries={FINDINGS_PAGE_SHORTCUTS} caption="Findings page" />
+          </CollapsibleContent>
+        </Collapsible>
+      ) : null}
+      {REMEDIATION_FACTORY_PAGE_SHORTCUTS.length > 0 ? (
+        <Collapsible open={remediationFactoryOpen} onOpenChange={setRemediationFactoryOpenState}>
+          <CollapsibleTrigger
+            type="button"
+            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
+            aria-expanded={remediationFactoryOpen}
+          >
+            {remediationFactoryOpen ? "Hide" : "Show"} remediation factory shortcuts
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <ShortcutTable entries={REMEDIATION_FACTORY_PAGE_SHORTCUTS} caption="Remediation factory" />
           </CollapsibleContent>
         </Collapsible>
       ) : null}

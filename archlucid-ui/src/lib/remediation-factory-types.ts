@@ -1,5 +1,7 @@
 export type RemediationPrioritizedFinding = {
   findingId: string;
+  /** Deterministic server rank when provided; otherwise position in ranked response. */
+  rankOrder?: number;
   totalScore: number;
   explanationSummary: string;
   breakdownJson: string;
