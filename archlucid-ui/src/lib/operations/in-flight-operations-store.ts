@@ -20,7 +20,7 @@ export type TrackedInFlightOperation = {
   /** Architecture draft id for Suggest from overview rows (`new` until deferred create). */
   readonly architectureId: string | null;
   /**
-   * When true, the shell keeps a terminal Succeeded row until the draft page applies the result.
+   * When true, the shell keeps a terminal Succeeded row until the architecture draft page applies the result.
    * Leaving the page would otherwise drop the only handle to suggestions the server already finished.
    */
   readonly retainUntilConsumed: boolean;

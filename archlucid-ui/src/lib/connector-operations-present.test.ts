@@ -65,10 +65,10 @@ describe("connector-operations-present", () => {
     expect(resolveConnectorGuidance(jira, resolveConnectorHumanStatus(jira))).toMatch(/Jira Cloud base URL/i);
   });
 
-  it("labels recommended notification connectors as Recommended when not ready", () => {
+  it("labels recommended notification connectors as not configured when not ready", () => {
     const teams = connector({ connectorKey: "teams", smokeReadiness: "NotConfigured" });
 
-    expect(formatConnectorDisplayStatus(teams)).toBe("Recommended");
+    expect(formatConnectorDisplayStatus(teams)).toBe("Not configured");
   });
 
   it("maps display status tags with distinct kinds for Recommended and Needs attention", () => {
@@ -82,10 +82,10 @@ describe("connector-operations-present", () => {
     });
   });
 
-  it("labels partially configured optional connectors as Optional", () => {
+  it("labels partially configured optional connectors as needs attention", () => {
     const jira = connector({ connectorKey: "jira", smokeReadiness: "ConfigurationIncomplete" });
 
-    expect(formatConnectorDisplayStatus(jira)).toBe("Optional");
+    expect(formatConnectorDisplayStatus(jira)).toBe("Needs attention");
   });
 
   it("marks disabled Confluence publishing as Disabled", () => {
@@ -142,8 +142,8 @@ describe("connector-readiness-summary", () => {
     );
 
     const tiles = buildIntegrationReadinessSummaryTiles(data);
-    expect(tiles.find((tile) => tile.id === "connected")?.label).toBe("Integrations connected");
-    expect(tiles.find((tile) => tile.id === "connected")?.value).toBe("0 of 2 — none required");
+    expect(tiles.find((tile) => tile.id === "connected")?.label).toBe("Integrations configured");
+    expect(tiles.find((tile) => tile.id === "connected")?.value).toBe("0 of 3 — none required");
     expect(tiles.find((tile) => tile.id === "recommended")?.value).toBe("1");
     expect(tiles.find((tile) => tile.id === "optional")?.value).toBe("1");
     expect(tiles.find((tile) => tile.id === "background")?.value).toBe("Not required");
@@ -157,7 +157,7 @@ describe("connector-readiness-summary", () => {
 
     const tiles = buildIntegrationReadinessSummaryTiles(data);
 
-    expect(tiles.find((tile) => tile.id === "connected")?.value).toBe("1 of 2");
+    expect(tiles.find((tile) => tile.id === "connected")?.value).toBe("1 of 3");
   });
 
   it("surfaces a single recommended first setup for notification connectors", () => {

@@ -14,6 +14,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
 }));
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" as const }),
+}));
+
 vi.mock("@/hooks/use-policy-pack-versions-query", () => ({
   usePolicyPackVersionsQuery: vi.fn((packId: string) => ({
     data:
@@ -145,6 +149,8 @@ describe("PolicyPackImpactPreviewPanel", () => {
         scopedReviewId="run-abc"
       />,
     );
+
+    expect(screen.getByTestId("policy-pack-rule-key-diff-gated")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("policy-impact-preview-run"));
 

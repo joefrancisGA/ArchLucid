@@ -95,6 +95,8 @@ export const BUYER_SEED_SAMPLE_WORKSPACE_CTA = "Load sample workspace";
 /** Toast after demo seed succeeds — dashboard may stay on sponsor dashboard while caches refresh. */
 export const BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS = "Sample workspace loaded.";
 
+export const BUYER_SCOPE_BACK_TO_YOUR_WORKSPACE_CTA = "Back to your workspace";
+
 export const BUYER_UNLOAD_SAMPLE_WORKSPACE_CTA = "Unload sample dashboard";
 
 /** Toast after demo sample purge succeeds — sponsor dashboard returns to the empty state. */

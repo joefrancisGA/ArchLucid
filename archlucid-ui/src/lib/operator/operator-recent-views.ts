@@ -25,7 +25,7 @@ export type OperatorRecentViewEntry = {
   label: string;
   kind: OperatorRecentViewKind;
   visitedAtUtc: string;
-  /** Durable architecture identity id — never a draft id (CA-38). */
+  /** Durable architecture identity id — never an architecture draft id (CA-38). */
   architectureId?: string;
   /** Parent architecture identity for review recents when known. */
   parentArchitectureId?: string;

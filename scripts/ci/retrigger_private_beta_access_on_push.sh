@@ -5,7 +5,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
-REF="${1:-master}"
+REF="${1:-RC34}"
 WORKFLOW_FILE=".github/workflows/private-beta-access-on-push.yml"
 
 if ! command -v gh >/dev/null 2>&1; then

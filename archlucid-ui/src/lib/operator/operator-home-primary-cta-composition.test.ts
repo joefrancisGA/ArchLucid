@@ -17,7 +17,7 @@ describe("operator home primary CTA composition (TB-1539)", () => {
     expect(isPersistentWorkspaceNextActionStripPath("/")).toBe(false);
   });
 
-  it("keeps lifecycle alternatives visible when a draft primary owns the viewport", () => {
+  it("keeps lifecycle alternatives visible when an architecture draft primary owns the viewport", () => {
     const source = readFileSync(
       join(UI_ROOT, "src/components/operator-home/OperatorHomeLifecycleAlternativesDisclosure.tsx"),
       "utf8",

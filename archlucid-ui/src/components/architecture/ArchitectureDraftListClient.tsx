@@ -9,7 +9,7 @@ type ArchitectureDraftListClientProps = {
   readonly presentation?: ArchitectureDraftListPresentation;
 };
 
-/** Client-side architecture draft registry — search, filter, and sort saved drafts. */
+/** Client-side architecture draft registry — search, filter, and sort saved architecture drafts. */
 export function ArchitectureDraftListClient(
   props: ArchitectureDraftListClientProps = {},
 ): React.JSX.Element {

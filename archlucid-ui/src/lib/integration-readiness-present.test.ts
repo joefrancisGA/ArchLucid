@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatIntegrationReadinessFreshness,
   formatIntegrationReadinessLastChecked,
+  formatIntegrationReadinessWorkspaceScopeLine,
+  INTEGRATION_READINESS_STALE_AFTER_MS,
+  isIntegrationReadinessSnapshotStale,
   resolveConnectorConfigureHelper,
   resolveConnectorDetailsLabel,
   resolveConnectorRowActionLabel,
@@ -42,5 +46,17 @@ describe("integration-readiness-present", () => {
 
     expect(formatIntegrationReadinessLastChecked(readAt)).toMatch(/^Configuration read at /);
     expect(formatIntegrationReadinessLastChecked(readAt)).not.toMatch(/^Last checked:/);
+  });
+
+  it("marks snapshots stale after the readiness threshold", () => {
+    const readAt = new Date("2026-08-12T15:30:00.000Z");
+    const nowMs = readAt.getTime() + INTEGRATION_READINESS_STALE_AFTER_MS + 1;
+
+    expect(isIntegrationReadinessSnapshotStale(readAt, nowMs)).toBe(true);
+    expect(formatIntegrationReadinessFreshness(readAt, null, nowMs).stale).toBe(true);
+  });
+
+  it("names workspace scope consistently on the summary strip", () => {
+    expect(formatIntegrationReadinessWorkspaceScopeLine("Claims Intake")).toBe("Workspace scope: Claims Intake");
   });
 });

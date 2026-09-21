@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,71 @@ public sealed class AuditReadinessService(
     IAuditManualEvidenceRepository manualEvidenceRepository,
     ILogger<AuditReadinessService> logger) : IAuditReadinessService
 {
+    public async Task<AuditAssessmentReadinessSummaryRecord?> TryBuildAssessmentReadinessInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        Guid auditEvidenceSnapshotId,
+        bool catalogAllowsComplianceScoreAggregate = false,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            AuditAssessmentRecord? assessment =
+                await assessmentRepository.TryGetByIdInScopeAsync(scope, assessmentId, cancellationToken);
+            if (assessment is null)
+                return null;
+
+            AuditEvidenceSnapshotHeaderRecord? snapshotHeader =
+                await snapshotRepository.TryGetHeaderInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
+            if (snapshotHeader is null || snapshotHeader.AssessmentId != assessmentId)
+                return null;
+
+            IReadOnlyList<AuditControlRecord> controls =
+                await frameworkRepository.ListControlsAsync(scope.TenantId, assessment.FrameworkId, cancellationToken);
+
+            IReadOnlyList<AuditEvidenceRequirementRecord> requirements =
+                await requirementRepository.ListByFrameworkIdAsync(scope.TenantId, assessment.FrameworkId, cancellationToken);
+
+            IReadOnlyList<AuditEvidenceSnapshotItemRecord> evidenceItems =
+                await snapshotRepository.ListItemsInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
+
+            IReadOnlyList<AuditManualEvidenceSubmissionRecord> manualSubmissions =
+                await manualEvidenceRepository.ListByAssessmentInScopeAsync(scope, assessmentId, cancellationToken);
+
+            List<AuditControlReadinessRecord> controlReadiness = [];
+            foreach (AuditControlRecord control in controls)
+            {
+                AuditControlEvaluationRecord? evaluation =
+                    await evaluationRepository.TryGetLatestByControlInScopeAsync(
+                        scope,
+                        control.ControlId,
+                        auditEvidenceSnapshotId,
+                        cancellationToken);
+
+                controlReadiness.Add(
+                    AuditReadinessBuilder.BuildControlReadiness(
+                        control,
+                        requirements,
+                        evidenceItems,
+                        evaluation,
+                        manualSubmissions));
+            }
+
+            return AuditReadinessBuilder.BuildAssessmentSummary(
+                controlReadiness,
+                AuditReadinessLabels.ResolveAggregateLabel(catalogAllowsComplianceScoreAggregate));
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(
+                ex,
+                "Scoped audit readiness build failed for AssessmentId={AssessmentId} AuditEvidenceSnapshotId={AuditEvidenceSnapshotId}.",
+                assessmentId,
+                auditEvidenceSnapshotId);
+            return null;
+        }
+    }
+
     public async Task<AuditAssessmentReadinessSummaryRecord?> TryBuildAssessmentReadinessAsync(
         Guid tenantId,
         Guid assessmentId,

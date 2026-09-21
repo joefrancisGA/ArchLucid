@@ -4,6 +4,8 @@ import {
   isOptionalConnector,
   isRecommendedConnector,
   resolveConnectorDisplayStatus,
+  resolveIntegrationEventBusDisplayStatus,
+  resolveIntegrationEventBusHumanStatus,
 } from "@/lib/connector-operations-present";
 import {
   resolveIntegrationBackgroundDeliveryLabel,
@@ -61,26 +63,29 @@ export function resolveIntegrationReadinessHeadline(
 export const INTEGRATION_READINESS_OPTIONAL_SUPPORTING_COPY =
   "You can complete architecture reviews without configuring integrations." as const;
 
-function tileToneForBackground(label: IntegrationBackgroundDeliveryLabel): IntegrationReadinessSummaryTile["tone"] {
-  if (label === "Configured") {
-    return "healthy";
-  }
-
-  if (label === "Not configured") {
-    return "attention";
-  }
-
-  return "neutral";
+/** Rows shown on connection status: connector inventory plus the integration event bus row. */
+export function countConnectionStatusVisibleInventoryRows(connectorCount: number): number {
+  return connectorCount + 1;
 }
 
-function formatIntegrationsConnectedValue(connectedCount: number, totalCount: number): string {
+function formatIntegrationsConfiguredValue(configuredCount: number, totalVisibleRows: number): string {
   // Zero is an acceptable state on this surface, so the tile says so rather than showing a
   // bare "0" that reads as a fault. Every count keeps the "of {total}" scope framing.
-  if (connectedCount === 0) {
-    return `${connectedCount} of ${totalCount} — none required`;
+  if (configuredCount === 0) {
+    return `${configuredCount} of ${totalVisibleRows} — none required`;
   }
 
-  return `${connectedCount} of ${totalCount}`;
+  return `${configuredCount} of ${totalVisibleRows}`;
+}
+
+function formatIntegrationEventBusSummaryValue(bus: IntegrationEventBusStatusDto): string {
+  const displayStatus = resolveIntegrationEventBusDisplayStatus(bus);
+
+  if (displayStatus === "Not configured") {
+    return "Not required";
+  }
+
+  return displayStatus;
 }
 
 function recommendedSetupActionLabel(
@@ -106,7 +111,7 @@ function recommendedSetupActionLabel(
 
 /** Labels on the live connection-status summary strip — keep help copy aligned via drift tests. */
 export const INTEGRATION_READINESS_SUMMARY_TILE_LABELS = [
-  "Integrations connected",
+  "Integrations configured",
   "Recommended setup remaining",
   "Optional not configured",
   "Disabled integrations",
@@ -117,8 +122,10 @@ export function buildIntegrationReadinessSummaryTiles(
   data: TenantIntegrationsOperationsDto,
 ): readonly IntegrationReadinessSummaryTile[] {
   const connectors = data.connectors.map((connector) => normalizeConnectorSurfaceStatus(connector));
-  const totalIntegrations = connectors.length;
+  const totalVisibleRows = countConnectionStatusVisibleInventoryRows(connectors.length);
   const readyConnectors = connectors.filter((connector) => isConnectorReady(connector)).length;
+  const eventBusReady = resolveIntegrationEventBusHumanStatus(data.integrationEventBus) === "Ready";
+  const configuredCount = readyConnectors + (eventBusReady ? 1 : 0);
 
   const recommendedRemaining = connectors.filter(
     (connector) =>
@@ -130,20 +137,19 @@ export function buildIntegrationReadinessSummaryTiles(
       return false;
     }
 
-    const status = resolveConnectorDisplayStatus(connector);
-
-    return status === "Not configured" || status === "Optional";
+    return resolveConnectorDisplayStatus(connector) === "Not configured";
   }).length;
 
   const disabledCount = connectors.filter((connector) => isDisabledConnector(connector)).length;
-  const backgroundStatus = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus);
+  const backgroundSummaryValue = formatIntegrationEventBusSummaryValue(data.integrationEventBus);
+  const backgroundDisplayStatus = resolveIntegrationEventBusDisplayStatus(data.integrationEventBus);
 
   return [
     {
       id: "connected",
       label: INTEGRATION_READINESS_SUMMARY_TILE_LABELS[0],
-      value: formatIntegrationsConnectedValue(readyConnectors, totalIntegrations),
-      tone: readyConnectors > 0 ? "healthy" : "neutral",
+      value: formatIntegrationsConfiguredValue(configuredCount, totalVisibleRows),
+      tone: configuredCount > 0 ? "healthy" : "neutral",
     },
     {
       id: "recommended",
@@ -166,8 +172,13 @@ export function buildIntegrationReadinessSummaryTiles(
     {
       id: "background",
       label: INTEGRATION_READINESS_SUMMARY_TILE_LABELS[4],
-      value: backgroundStatus,
-      tone: tileToneForBackground(backgroundStatus),
+      value: backgroundSummaryValue,
+      tone:
+        backgroundDisplayStatus === "Ready"
+          ? "healthy"
+          : backgroundDisplayStatus === "Needs attention"
+            ? "attention"
+            : "neutral",
     },
   ];
 }

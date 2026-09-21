@@ -62,6 +62,9 @@ public static class GraphEdgeTypes
 
     /// <summary>VNet peering adapter edge (IE-RF-07); peering is not a generic CONNECTS_TO hop.</summary>
     public const string PeersWith = "PEERS_WITH";
+
+    /// <summary>MI + RBAC composed authorization hop (AX-DE-03); not confirmed data-plane traffic.</summary>
+    public const string MayAccess = "MAY_ACCESS";
 }
 
 /// <summary>

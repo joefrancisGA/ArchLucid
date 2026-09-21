@@ -23,25 +23,31 @@ import {
 import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
+  assignedToMeFindingsHref,
   buildGovernanceAssignedToMeEmptyDescription,
-  GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF,
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 import { usePathname } from "next/navigation";
+import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
 import { resolveInhabitedFindingsEmptyStateCopy } from "@/lib/inhabit/inhabit-findings-document-presentation";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { GovernanceAssignedToMeBuildProvenanceStrip } from "@/app/(operator)/governance/findings/GovernanceAssignedToMeBuildProvenanceStrip";
 import {
   INHABIT_FINDINGS_LIVE_RECOVERY_BODY,
   INHABIT_FINDINGS_LIVE_RECOVERY_TITLE,
   resolveInhabitFindingsLiveRecoveryActions,
 } from "@/lib/inhabit/inhabit-live-recovery-contract";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
+  const relativeFreshnessNowMs = useOperatorRelativeFreshnessNowMs();
   const inhabitedEmptyState = resolveInhabitedFindingsEmptyStateCopy({
     workingMode: props.isWorkingMode,
     pathname,
@@ -131,12 +137,17 @@ export function GovernanceFindingsQueueOutcomeSection(
             }
             description={
               props.isAssignedToMe
-                ? buildGovernanceAssignedToMeEmptyDescription({
-                    assigneeDisplayName: props.currentPrincipalName,
-                    assigneeRoleLabel: props.currentPrincipalRole,
-                    checkedAt: props.assignedToMeCheckedAt,
-                    fetchBasis: props.assignedToMeFetchBasis,
-                  })
+                ? buildGovernanceAssignedToMeEmptyDescription(
+                    {
+                      assigneeDisplayName: props.currentPrincipalName,
+                      assigneeRoleLabel: props.currentPrincipalRole,
+                      checkedAt: props.assignedToMeCheckedAt,
+                      fetchBasis: props.assignedToMeFetchBasis,
+                      productLine,
+                      suppressCheckedAtLine: true,
+                    },
+                    { nowMs: relativeFreshnessNowMs, headerOwnsFreshness: true },
+                  )
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.description
                   : props.buyerPolishedShell
@@ -159,11 +170,15 @@ export function GovernanceFindingsQueueOutcomeSection(
             }
             footer={
               props.isAssignedToMe ? (
-                <Button asChild size="sm" variant="primary">
-                  <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
-                    {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
-                  </Link>
-                </Button>
+                <div className="space-y-3">
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={assignedToMeFindingsHref(productLine)}>
+                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
+                    </Link>
+                  </Button>
+                  <PageCapabilityBoundaryStrip surfaceId="assignedFindings" className="mb-0" />
+                  <GovernanceAssignedToMeBuildProvenanceStrip />
+                </div>
               ) : !props.buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
                   View policy packs

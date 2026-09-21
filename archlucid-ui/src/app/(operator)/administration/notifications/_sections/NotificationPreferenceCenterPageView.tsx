@@ -24,12 +24,11 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
-  NOTIFICATION_PREFERENCE_CHANNELS,
   NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE,
   NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
-  NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY,
-  NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS,
   notificationPreferenceCenterPageSubtitle,
+  notificationPreferenceCenterRelationsDisclosureSummary,
+  resolveNotificationPreferenceRelations,
   resolveNotificationPreferenceChannels,
 } from "@/lib/notification-preference-center";
 import {
@@ -60,6 +59,7 @@ export function NotificationPreferenceCenterPageView() {
   const { productLine } = useProductLine();
   const { localize } = useLocalizedProductCopy();
   const notificationPreferenceChannels = resolveNotificationPreferenceChannels(productLine);
+  const notificationPreferenceRelations = resolveNotificationPreferenceRelations(productLine);
   const searchParams = useSearchParams();
   const notificationPreferenceCenterRelationsOpenParam = searchParams.get("notificationPreferenceCenterRelationsOpen");
   const [relationsOpen, setRelationsOpenState] = useState(() =>
@@ -213,10 +213,10 @@ export function NotificationPreferenceCenterPageView() {
           )}
         >
           <DisclosureTriangleIndicator />
-          {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY}
+          {notificationPreferenceCenterRelationsDisclosureSummary(productLine)}
         </summary>
         <div className="mt-4 space-y-4">
-          {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS.map((section) => (
+          {notificationPreferenceRelations.map((section) => (
             <section key={section.id} className="space-y-2" data-testid={`notification-preference-relations-${section.id}`}>
               <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.heading}</h3>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{localize(section.body)}</p>

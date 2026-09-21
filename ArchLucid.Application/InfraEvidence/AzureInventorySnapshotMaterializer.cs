@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
@@ -45,6 +46,11 @@ public sealed class AzureInventorySnapshotMaterializer(
             }
 
             using MemoryStream zipStream = new(packageBytes, writable: false);
+            zipStream.Position = 0;
+            (AzureExtractorNormalizedManifest? manifest, _) =
+                AzureExtractorManifestReader.TryReadNormalizedFromZip(zipStream);
+
+            zipStream.Position = 0;
             AzureExtractorPackageInventoryReadResult inventory =
                 AzureExtractorPackageInventoryReader.TryReadFromZip(zipStream);
 
@@ -64,13 +70,22 @@ public sealed class AzureInventorySnapshotMaterializer(
             List<AzureInventoryUnknownResourceWrite> unknowns = [];
             List<AzureInventoryRoleAssignmentWrite> roleAssignments = [];
             List<AzureInventoryDiagnosticConfigurationWrite> diagnostics = [];
+            List<AzureExtractorExtendedResourceRow> visibleInventoryRows = [];
+            HashSet<string> privateLinkOnlyNicArmIds = AzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(
+                inventory.Resources,
+                inventory.NetworkAssociations);
 
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
-                if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(row.ResourceType))
+                if (AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                        row.ResourceType,
+                        row.AzureResourceId,
+                        privateLinkOnlyNicArmIds))
                 {
                     continue;
                 }
+
+                visibleInventoryRows.Add(row);
 
                 string normalizedArmId = ArmResourceIdNormalizer.Normalize(row.AzureResourceId);
                 CloudResourceIdentityRecord identity = await cloudResourceIdentityDirectory.UpsertOnSnapshotAsync(
@@ -189,7 +204,7 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             AzureInventorySecurityEdgeMaterializeResult securityEdges =
                 AzureInventorySecurityEdgeMaterializer.Materialize(
-                    inventory.Resources,
+                    visibleInventoryRows,
                     inventory.RoleAssignments,
                     inventory.NetworkAssociations,
                     inventory.PolicyAssignments,
@@ -199,12 +214,59 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.EntraGroupMemberships,
                     inventory.EntraGroupMembershipsFilePresent,
                     inventory.EffectiveNetworkControls,
-                    inventory.EffectiveNetworkControlsFilePresent);
+                    inventory.EffectiveNetworkControlsFilePresent,
+                    inventory.AdfLinkedServices,
+                    inventory.AdfLinkedServicesFilePresent,
+                    inventory.AdfDatasets,
+                    inventory.AdfDatasetsFilePresent,
+                    inventory.AdfPipelineFlows,
+                    inventory.AdfPipelineFlowsFilePresent,
+                    inventory.AdfTriggers,
+                    inventory.AdfTriggersFilePresent,
+                    inventory.AdfIntegrationRuntimes,
+                    inventory.AdfIntegrationRuntimesFilePresent,
+                    inventory.AdfDataflows,
+                    inventory.AdfDataflowsFilePresent,
+                    inventory.EventGridSubscriptions,
+                    inventory.EventGridSubscriptionsFilePresent,
+                    inventory.LogicAppConnections,
+                    inventory.LogicAppConnectionsFilePresent,
+                    inventory.MessagingAssociations,
+                    inventory.MessagingAssociationsFilePresent,
+                    inventory.PaasChildAssociations,
+                    inventory.PaasChildAssociationsFilePresent,
+                    inventory.ServiceConnectorLinks,
+                    inventory.ServiceConnectorLinksFilePresent,
+                    inventory.AppSettingHosts,
+                    inventory.AppSettingHostsFilePresent,
+                    inventory.DependencyObservations,
+                    inventory.DependencyObservationsFilePresent,
+                    inventory.SqlDatabasePrincipals,
+                    inventory.SqlDatabasePrincipalsFilePresent);
 
-            byte[] contentHash = ComputeContentHash(resources, securityEdges.Relationships);
+            HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(resources);
+            List<AzureInventoryResourceRelationshipWrite> visibleRelationships =
+                AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(
+                    securityEdges.Relationships,
+                    visibleArmIds);
+
+            byte[] contentHash = ComputeContentHash(resources, visibleRelationships);
             AzureInventoryCaptureStatus status = resources.Count == 0
                 ? AzureInventoryCaptureStatus.Partial
                 : AzureInventoryCaptureStatus.Succeeded;
+
+            string? subscriptionId = null;
+            string? subscriptionName = null;
+
+            if (manifest is not null)
+            {
+                (subscriptionId, subscriptionName) = AzureInventorySnapshotSubscriptionIdentity.Resolve(
+                    header.SubscriptionId,
+                    header.SubscriptionName,
+                    manifest.SubscriptionId,
+                    manifest.SubscriptionName,
+                    siblingSubscriptionName: null);
+            }
 
             await snapshotRepository.MaterializeSnapshotAsync(
                 scope,
@@ -213,16 +275,20 @@ public sealed class AzureInventorySnapshotMaterializer(
                 {
                     CaptureStatus = status,
                     ResourceCount = resources.Count,
-                    RelationshipCount = securityEdges.Relationships.Count,
+                    RelationshipCount = visibleRelationships.Count,
                     CompletenessScore = resources.Count == 0 ? 0m : 1.0m,
                     WarningCount = securityEdges.CompletenessWarnings.Count,
+                    CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
+                        securityEdges.CompletenessWarnings),
                     ErrorCount = 0,
                     ContentHashSha256 = contentHash,
                     CaptureMethod = captureMethod,
                     CollectorVersion = collectorVersion,
+                    SubscriptionId = subscriptionId,
+                    SubscriptionName = subscriptionName,
                     Resources = resources,
                     Properties = properties,
-                    Relationships = securityEdges.Relationships,
+                    Relationships = visibleRelationships,
                     RoleAssignments = roleAssignments,
                     Tags = tags,
                     Diagnostics = diagnostics,
@@ -248,7 +314,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 Succeeded = true,
                 CaptureStatus = status,
                 ResourceCount = resources.Count,
-                RelationshipCount = securityEdges.Relationships.Count,
+                RelationshipCount = visibleRelationships.Count,
                 ContentHashSha256 = contentHash,
             };
         }
@@ -298,12 +364,12 @@ public sealed class AzureInventorySnapshotMaterializer(
 
     private static string? TryGetParentArmId(string normalizedArmId)
     {
-        int lastSlash = normalizedArmId.LastIndexOf('/');
-
-        if (lastSlash <= 0)
+        if (!ArmResourceIdNormalizer.TryGetParentResourceId(normalizedArmId, out string parentResourceId))
+        {
             return null;
+        }
 
-        return normalizedArmId[..lastSlash];
+        return parentResourceId;
     }
 
     private static string? TryReadJsonString(JsonElement element, string propertyName)

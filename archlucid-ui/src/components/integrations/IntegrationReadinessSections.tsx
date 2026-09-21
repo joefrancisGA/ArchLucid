@@ -17,16 +17,23 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   resolveConnectorDisplayStatusTag,
+  resolveConnectorPolicyLabel,
+  resolveConnectorPolicyLabelTag,
   type ConnectorDisplayStatus,
+  type ConnectorPolicyLabel,
 } from "@/lib/connector-operations-present";
 import type {
   IntegrationReadinessSummaryTile,
   IntegrationRecommendedFirstSetup,
 } from "@/lib/connector-readiness-summary";
 import { INTEGRATION_READINESS_OPTIONAL_SUPPORTING_COPY } from "@/lib/connector-readiness-summary";
-import { formatIntegrationReadinessLastChecked } from "@/lib/integration-readiness-present";
+import {
+  formatIntegrationReadinessFreshness,
+  formatIntegrationReadinessWorkspaceScopeLine,
+} from "@/lib/integration-readiness-present";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import {
   integrationReadinessTechnicalDetailsHrefFromSearch,
@@ -53,30 +60,58 @@ type IntegrationReadinessSummaryStripProps = {
   readonly headline: string;
   readonly tiles: readonly IntegrationReadinessSummaryTile[];
   readonly configurationReadAt: Date;
+  readonly serverAsOfUtc: string | null;
+  readonly workspaceScopeLabel: string;
+  readonly refreshing: boolean;
+  readonly onRefresh: () => void;
 };
 
 export function IntegrationReadinessSummaryStrip(props: IntegrationReadinessSummaryStripProps): ReactElement {
+  const freshness = formatIntegrationReadinessFreshness(props.configurationReadAt, props.serverAsOfUtc);
+
   return (
     <section
       className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/60 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="integration-readiness-summary"
     >
-      <div className="space-y-1">
-        <p
-          className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="integration-readiness-headline"
-        >
-          {props.headline}
-        </p>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {INTEGRATION_READINESS_OPTIONAL_SUPPORTING_COPY}
-        </p>
-        <p
-          className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}
-          data-testid="integration-readiness-last-checked"
-        >
-          {formatIntegrationReadinessLastChecked(props.configurationReadAt)}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-1">
+          <p
+            className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="integration-readiness-headline"
+          >
+            {props.headline}
+          </p>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {INTEGRATION_READINESS_OPTIONAL_SUPPORTING_COPY}
+          </p>
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="integration-readiness-workspace-scope"
+          >
+            {formatIntegrationReadinessWorkspaceScopeLine(props.workspaceScopeLabel)}
+          </p>
+          <p
+            className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}
+            data-testid="integration-readiness-last-checked"
+          >
+            {freshness.absoluteLine} ({freshness.relativeLine})
+          </p>
+          {freshness.stale ? (
+            <p
+              className={cn("m-0 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="integration-readiness-stale-notice"
+              role="status"
+            >
+              This snapshot may be stale. Refresh to load the latest configuration.
+            </p>
+          ) : null}
+        </div>
+        <RefreshButton
+          busy={props.refreshing}
+          data-testid="integration-readiness-refresh"
+          onClick={props.onRefresh}
+        />
       </div>
       <dl className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-5">
         {props.tiles.map((tile) => (
@@ -157,6 +192,8 @@ function IntegrationReadinessTechnicalDetails(props: {
     [pathname, props.connectorKey, router, searchParams],
   );
 
+  const detailsPanelId = `integration-readiness-tech-${props.connectorKey}`;
+
   return (
     <div className="mt-2">
       <button
@@ -166,6 +203,7 @@ function IntegrationReadinessTechnicalDetails(props: {
           OPERATOR_TYPOGRAPHY.helper,
         )}
         aria-expanded={expanded}
+        aria-controls={detailsPanelId}
         onClick={() => {
           syncExpandedToUrl(!expanded);
         }}
@@ -177,7 +215,12 @@ function IntegrationReadinessTechnicalDetails(props: {
         <span className="underline underline-offset-2">{props.label}</span>
       </button>
       {expanded ? (
-        <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{props.children}</p>
+        <p
+          id={detailsPanelId}
+          className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {props.children}
+        </p>
       ) : null}
     </div>
   );
@@ -186,6 +229,7 @@ function IntegrationReadinessTechnicalDetails(props: {
 export type IntegrationConnectorInventoryRow = {
   readonly key: string;
   readonly title: string;
+  readonly policyLabel: ConnectorPolicyLabel | null;
   readonly displayStatus: ConnectorDisplayStatus;
   readonly guidance: string;
   readonly configurationHref: string | null;
@@ -203,29 +247,52 @@ type IntegrationConnectorInventoryTableProps = {
 };
 
 export function IntegrationConnectorInventoryTable(props: IntegrationConnectorInventoryTableProps): ReactElement {
-  const statusTag = (displayStatus: ConnectorDisplayStatus): ReactElement => {
+  const configurationStatusTag = (displayStatus: ConnectorDisplayStatus): ReactElement => {
     const resolved = resolveConnectorDisplayStatusTag(displayStatus);
 
-    return <StatusTag kind={resolved.kind} label={resolved.label} />;
+    return (
+      <StatusTag
+        kind={resolved.kind}
+        label={resolved.label}
+        aria-label={`Configuration status: ${resolved.label}`}
+      />
+    );
+  };
+
+  const policyTag = (label: ConnectorPolicyLabel | null): ReactElement | null => {
+    if (label === null) {
+      return null;
+    }
+
+    const resolved = resolveConnectorPolicyLabelTag(label);
+
+    return (
+      <StatusTag
+        kind={resolved.kind}
+        label={resolved.label}
+        aria-label={`Pilot policy: ${resolved.label}`}
+      />
+    );
   };
 
   return (
-    <EnterpriseTable ariaLabel={props.ariaLabel} data-testid={props.testId}>
+    <EnterpriseTable ariaLabel={props.ariaLabel} data-testid={props.testId} className="text-sm">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>Integration</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Configuration</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>
         {props.rows.map((row) => (
           <EnterpriseTableRow key={row.key} data-testid={row.testId}>
-            <EnterpriseTableCell>
+            <EnterpriseTableCell className="py-2.5">
               <div className="space-y-1">
                 <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                   {row.title}
                 </span>
+                {policyTag(row.policyLabel)}
                 <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{row.guidance}</p>
                 {row.disabledForDeployment ? (
                   <p
@@ -242,11 +309,13 @@ export function IntegrationConnectorInventoryTable(props: IntegrationConnectorIn
                 ) : null}
               </div>
             </EnterpriseTableCell>
-            <EnterpriseTableCell>{statusTag(row.displayStatus)}</EnterpriseTableCell>
-            <EnterpriseTableCell>
-              {!row.disabledForDeployment && row.configurationHref && row.rowActionLabel ? (
+            <EnterpriseTableCell className="py-2.5">{configurationStatusTag(row.displayStatus)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="py-2.5">
+              {row.configurationHref && row.rowActionLabel ? (
                 <Button variant="outline" size="sm" className={CTA_WIDTH.content} asChild>
-                  <Link href={row.configurationHref}>{row.rowActionLabel}</Link>
+                  <Link href={row.configurationHref} aria-label={`${row.rowActionLabel} for ${row.title}`}>
+                    {row.rowActionLabel}
+                  </Link>
                 </Button>
               ) : (
                 <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>—</span>

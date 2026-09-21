@@ -220,7 +220,7 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
               helpTopicSlug={entry.slug}
             />
           </div>
-          <HelpTopicTableOfContents headings={headings} />
+          <HelpTopicTableOfContents headings={headings} enableScrollSpy />
         </div>
 
         {buyerPolishedShell ? <HelpAzureBoardsSourcesOrientationStrip /> : null}

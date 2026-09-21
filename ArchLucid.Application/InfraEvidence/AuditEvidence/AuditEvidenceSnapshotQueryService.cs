@@ -5,8 +5,8 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence.AuditEvidence;
 
 public sealed class AuditEvidenceSnapshotQueryService(
-    IAuditAssessmentRepository assessmentRepository,
-    IAuditEvidenceSnapshotRepository snapshotRepository) : IAuditEvidenceSnapshotQueryService
+    IProjectScopedAuditAssessmentRepository assessmentRepository,
+    IProjectScopedAuditEvidenceSnapshotRepository snapshotRepository) : IAuditEvidenceSnapshotQueryService
 {
     public async Task<IReadOnlyList<AuditEvidenceSnapshotHeaderRecord>> ListSnapshotsAsync(
         ScopeContext scope,
@@ -23,8 +23,8 @@ public sealed class AuditEvidenceSnapshotQueryService(
                 return [];
 
             AuditEvidenceBaselineRecord? baseline =
-                await snapshotRepository.TryGetBaselineByNameAsync(
-                    scope.TenantId,
+                await snapshotRepository.TryGetBaselineByNameInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     assessmentId,
                     baselineName.Trim(),
                     cancellationToken);
@@ -33,8 +33,8 @@ public sealed class AuditEvidenceSnapshotQueryService(
                 return [];
 
             AuditEvidenceSnapshotHeaderRecord? header =
-                await snapshotRepository.TryGetHeaderAsync(
-                    scope.TenantId,
+                await snapshotRepository.TryGetHeaderInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     baseline.AuditEvidenceSnapshotId,
                     cancellationToken);
 
@@ -42,10 +42,16 @@ public sealed class AuditEvidenceSnapshotQueryService(
         }
 
         IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> snapshots =
-            await snapshotRepository.ListByAssessmentAsync(scope.TenantId, assessmentId, cancellationToken);
+            await snapshotRepository.ListByAssessmentInScopeAsync(
+                scope.ToProjectScopeKey(),
+                assessmentId,
+                cancellationToken);
 
         AuditAssessmentRecord? assessment =
-            await assessmentRepository.TryGetByIdAsync(scope.TenantId, assessmentId, cancellationToken);
+            await assessmentRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                assessmentId,
+                cancellationToken);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 

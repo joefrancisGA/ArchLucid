@@ -54,7 +54,7 @@ describe("metadataForWorkingArchitectureNestedReviewRoute (SY-61)", () => {
     expect(metadata.title).not.toBe("Architecture Review Detail");
   });
 
-  it("falls back to the untitled architecture label when the draft cannot be loaded", async () => {
+  it("falls back to the untitled architecture label when the architecture draft cannot be loaded", async () => {
     loadArchitectureDraftForRouteCachedMock.mockRejectedValue(new Error("not found"));
 
     const metadata = await metadataForWorkingArchitectureNestedReviewRoute("arch-missing");

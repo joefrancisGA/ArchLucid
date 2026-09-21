@@ -234,6 +234,50 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByText('Node A')).toBeInTheDocument();
   });
 
+  it('scopes host CSS to card bodies so forest accents and pictograms keep baked fills', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
+      '  <g class="node">',
+      '    <rect class="node-card" width="200" height="48" fill="#f8fafc" stroke="#cbd5e1"/>',
+      '    <rect class="node-accent" width="4" height="48" fill="#d97706"/>',
+      '    <g class="pictogram" data-kind="Storage">',
+      '      <rect x="4" y="4" width="16" height="4" fill="#d97706"/>',
+      '      <rect x="4" y="10" width="16" height="4" fill="#ea580c"/>',
+      '    </g>',
+      '    <text fill="#0f172a"><tspan>staephidevws001</tspan></text>',
+      '    <text fill="#475569"><tspan>anly-aep-dev-hi</tspan></text>',
+      '  </g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={forestLayoutSvg}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    const host = screen.getByTestId('architecture-diagram-svg-host');
+    expect(host.className).toContain('g.node>rect.node-card');
+    expect(host.className).toContain('g.node>rect:not(.node-accent):not(.node-card)');
+    expect(host.className).not.toContain('[&_svg_.node_rect]');
+    expect(host.className).toContain('text:not([fill])');
+
+    const accent = host.querySelector('rect.node-accent');
+    const pictogramRect = host.querySelector('g.pictogram rect');
+
+    expect(accent?.getAttribute('fill')).toBe('#d97706');
+    expect(pictogramRect?.getAttribute('fill')).toBe('#d97706');
+    expect(host.querySelector('text')).not.toBeNull();
+    expect(screen.getByText('anly-aep-dev-hi')).toBeInTheDocument();
+  });
+
   it('strips inline mermaid comments before calling mermaid.render', async () => {
     render(
       <ArchitectureDiagramViewer
@@ -438,9 +482,38 @@ describe('ArchitectureDiagramViewer', () => {
 
     const viewport = screen.getByTestId('architecture-diagram-viewport');
     const controls = screen.getByTestId('architecture-diagram-viewport-controls');
+    const hint = screen.getByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT);
+    const inkClip = screen.getByTestId('architecture-diagram-ink-clip');
 
     expect(viewport).not.toContainElement(controls);
     expect(controls.compareDocumentPosition(viewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hint.className.split(/\s+/u)).not.toContain('sr-only');
+    expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
+  });
+
+  it('keeps overlay viewport hint screen-reader only while clipping diagram ink', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        viewportControlsLayout="overlay"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const hint = screen.getByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT);
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+    const controls = screen.getByTestId('architecture-diagram-viewport-controls');
+    const inkClip = screen.getByTestId('architecture-diagram-ink-clip');
+
+    expect(hint.className.split(/\s+/u)).toContain('sr-only');
+    expect(viewport).toContainElement(controls);
+    expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
   });
 
   it('zooms the mermaid viewport with ctrl+wheel', async () => {
@@ -495,6 +568,79 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('keeps manual zoom changes on overflow diagrams instead of snapping back to contain fit', async () => {
+    replaceMock.mockClear();
+
+    const largeSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
+      '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
+      '</svg>';
+
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+    Object.defineProperty(SVGGraphicsElement.prototype, 'getBBox', {
+      configurable: true,
+      writable: true,
+      value: (): DOMRect =>
+        ({
+          x: 0,
+          y: 0,
+          width: 3000,
+          height: 2000,
+          top: 0,
+          right: 3000,
+          bottom: 2000,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        layoutSvg={largeSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    const zoomInput = screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement;
+    const initialZoom = Number(zoomInput.value);
+
+    expect(initialZoom).toBeLessThan(100);
+
+    replaceMock.mockClear();
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+
+    fireEvent.click(within(viewport).getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalled();
+    });
+
+    const lastHref = String(replaceMock.mock.calls.at(-1)?.[0] ?? '');
+    const urlZoomMatch = lastHref.match(/diagZoom=([\d.]+)/u);
+    const urlZoomPercent = Math.round(Number.parseFloat(urlZoomMatch?.[1] ?? '0') * 100);
+
+    expect(urlZoomPercent).toBeGreaterThan(initialZoom);
+
+    await waitFor(() => {
+      expect(Number(zoomInput.value)).toBe(urlZoomPercent);
+    });
+  });
+
   it('keeps URL zoom on first mermaid mount and resets to 100 percent when the source changes', async () => {
     searchParamsMock.set('diagZoom', '0.30');
 
@@ -527,6 +673,163 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
   });
 
+  it('keeps zoom at 100 percent when measured ink fits the viewport', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
+    });
+  });
+
+  it('defaults zoom below 100 percent when measured ink overflows the viewport', async () => {
+    const largeSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
+      '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
+      '</svg>';
+
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+    Object.defineProperty(SVGGraphicsElement.prototype, 'getBBox', {
+      configurable: true,
+      writable: true,
+      value: (): DOMRect =>
+        ({
+          x: 0,
+          y: 0,
+          width: 3000,
+          height: 2000,
+          top: 0,
+          right: 3000,
+          bottom: 2000,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        layoutSvg={largeSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      const zoomValue = Number(
+        (screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement).value,
+      );
+
+      expect(zoomValue).toBeLessThan(100);
+      expect(zoomValue).toBeGreaterThan(0);
+    });
+  });
+
+  it('clears stale URL zoom and applies contain zoom when layout SVG changes to an overflow plate', async () => {
+    searchParamsMock.set('diagZoom', '0.30');
+
+    const smallSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+      '<g class="node"><rect width="100" height="100" fill="#eee"/><text class="nodeLabel">Node A</text></g>' +
+      '</svg>';
+    const largeSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
+      '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
+      '</svg>';
+
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+    Object.defineProperty(SVGGraphicsElement.prototype, 'getBBox', {
+      configurable: true,
+      writable: true,
+      value: (): DOMRect =>
+        ({
+          x: 0,
+          y: 0,
+          width: 3000,
+          height: 2000,
+          top: 0,
+          right: 3000,
+          bottom: 2000,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={smallSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+    });
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={largeSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory', {
+        scroll: false,
+      });
+    });
+
+    await waitFor(() => {
+      const zoomValue = Number(
+        (screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement).value,
+      );
+
+      expect(zoomValue).toBeLessThan(100);
+    });
+  });
+
   it('sizes mermaid svg from measured ink after render without paint failure', async () => {
     render(
       <ArchitectureDiagramViewer
@@ -545,6 +848,10 @@ describe('ArchitectureDiagramViewer', () => {
     const svg = host.querySelector('svg');
 
     expect(host.className).toContain('mx-auto');
+    expect(host.className).toContain('[&_svg_.clusterLabelText]:font-bold');
+    expect(host.className).toContain('[&_svg_.cluster-label_text]:font-bold');
+    expect(host.className).toContain('[&_svg_.cluster-label_.nodeLabel]:font-bold');
+    expect(host.className).toContain('[&_svg_.rg-frame_text]:font-bold');
     expect(svg).not.toBeNull();
     expect(screen.queryByTestId('architecture-diagram-render-failure')).not.toBeInTheDocument();
     expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(

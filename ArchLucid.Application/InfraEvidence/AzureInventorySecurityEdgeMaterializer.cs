@@ -27,7 +27,35 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships,
         bool entraGroupMembershipsFilePresent,
         IReadOnlyList<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls,
-        bool effectiveNetworkControlsFilePresent)
+        bool effectiveNetworkControlsFilePresent,
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow>? adfLinkedServices = null,
+        bool adfLinkedServicesFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfDatasetRow>? adfDatasets = null,
+        bool adfDatasetsFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow>? adfPipelineFlows = null,
+        bool adfPipelineFlowsFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfTriggerRow>? adfTriggers = null,
+        bool adfTriggersFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow>? adfIntegrationRuntimes = null,
+        bool adfIntegrationRuntimesFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfDataflowRow>? adfDataflows = null,
+        bool adfDataflowsFilePresent = false,
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow>? eventGridSubscriptions = null,
+        bool eventGridSubscriptionsFilePresent = false,
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
+        bool logicAppConnectionsFilePresent = false,
+        IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
+        bool messagingAssociationsFilePresent = false,
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
+        bool paasChildAssociationsFilePresent = false,
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
+        bool serviceConnectorLinksFilePresent = false,
+        IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
+        bool appSettingHostsFilePresent = false,
+        IReadOnlyList<AzureInventoryDependencyObservationRow>? dependencyObservations = null,
+        bool dependencyObservationsFilePresent = false,
+        IReadOnlyList<AzureInventorySqlDatabasePrincipalRow>? sqlDatabasePrincipals = null,
+        bool sqlDatabasePrincipalsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -37,6 +65,21 @@ public static class AzureInventorySecurityEdgeMaterializer
         ArgumentNullException.ThrowIfNull(federatedCredentials);
         ArgumentNullException.ThrowIfNull(entraGroupMemberships);
         ArgumentNullException.ThrowIfNull(effectiveNetworkControls);
+
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfRows = adfLinkedServices ?? [];
+        IReadOnlyList<AzureInventoryAdfDatasetRow> adfDatasetRows = adfDatasets ?? [];
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> adfFlowRows = adfPipelineFlows ?? [];
+        IReadOnlyList<AzureInventoryAdfTriggerRow> adfTriggerRows = adfTriggers ?? [];
+        IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow> adfIntegrationRuntimeRows = adfIntegrationRuntimes ?? [];
+        IReadOnlyList<AzureInventoryAdfDataflowRow> adfDataflowRows = adfDataflows ?? [];
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptionRows = eventGridSubscriptions ?? [];
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow> logicAppConnectionRows = logicAppConnections ?? [];
+        IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociationRows = messagingAssociations ?? [];
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow> paasChildAssociationRows = paasChildAssociations ?? [];
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinkRows = serviceConnectorLinks ?? [];
+        IReadOnlyList<AzureInventoryAppSettingHostRow> appSettingHostRows = appSettingHosts ?? [];
+        IReadOnlyList<AzureInventoryDependencyObservationRow> dependencyObservationRows = dependencyObservations ?? [];
+        IReadOnlyList<AzureInventorySqlDatabasePrincipalRow> sqlDatabasePrincipalRows = sqlDatabasePrincipals ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -52,6 +95,37 @@ public static class AzureInventorySecurityEdgeMaterializer
             warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.MissingFile);
         }
 
+        if (!adfLinkedServicesFilePresent)
+        {
+            warnings.Add(AzureInventoryAdfLinkedServiceCompletenessWarningCodes.MissingFile);
+        }
+
+        if (!adfDatasetsFilePresent)
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfDatasetsMissing);
+        }
+
+        if (!adfPipelineFlowsFilePresent)
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfPipelineFlowsMissing);
+        }
+
+        if (!adfTriggersFilePresent
+            && resources.Any(resource =>
+                resource.ResourceType.Equals(
+                    AzureInventoryFactoryStyleResourceCatalog.DataFactoryResourceType,
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfTriggersMissing);
+        }
+
+        if (!adfPipelineFlowsFilePresent
+            && resources.Any(resource =>
+                AzureInventoryFactoryStyleResourceCatalog.IsSynapseWorkspaceResourceType(resource.ResourceType)))
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.SynapsePipelineFlowsMissing);
+        }
+
         foreach (AzureExtractorExtendedResourceRow resource in resources)
         {
             string normalizedArmId = ArmResourceIdNormalizer.Normalize(resource.AzureResourceId);
@@ -63,6 +137,12 @@ public static class AzureInventorySecurityEdgeMaterializer
         }
 
         AddRoleAssignmentEdges(roleAssignments, relationships, relationshipKeys, warnings);
+        AzureInventoryAppAuthorizedAccessEdgeMapper.MapAuthorizedAccess(
+            resources,
+            roleAssignments,
+            relationships,
+            relationshipKeys,
+            warnings);
         AddFederatedCredentialEdges(federatedCredentials, relationships, relationshipKeys);
         AddEntraGroupMembershipEdges(entraGroupMemberships, relationships, relationshipKeys);
         foreach (JsonElement association in networkAssociations)
@@ -74,13 +154,113 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings);
         }
 
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AddObservedVnetPeeringsFromResourceProperties(resources, relationships, relationshipKeys);
+
         AzureInventoryNetworkAssociationEdgeMapper.AddRelationshipCompletenessWarnings(
             resources,
             networkAssociations,
+            relationships,
             warnings);
 
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
-        AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
+        AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys, warnings);
+
+        HashSet<string> directionalFactoryTargetPairs = new(StringComparer.OrdinalIgnoreCase);
+
+        AzureInventoryAdfPipelineFlowEdgeMapper.MapPipelineFlows(
+            resources,
+            adfDatasetRows,
+            adfRows,
+            adfFlowRows,
+            relationships,
+            relationshipKeys,
+            directionalFactoryTargetPairs,
+            warnings);
+
+        AzureInventoryAdfLinkedServiceEdgeMapper.MapLinkedServices(
+            resources,
+            adfRows,
+            relationships,
+            relationshipKeys,
+            directionalFactoryTargetPairs,
+            warnings);
+
+        AzureInventoryAdfTriggerEdgeMapper.MapTriggers(
+            adfTriggerRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryAdfIntegrationRuntimeEdgeMapper.MapIntegrationRuntimes(
+            adfIntegrationRuntimeRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryEventGridSubscriptionEdgeMapper.MapSubscriptions(
+            eventGridSubscriptionRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryLogicAppConnectionEdgeMapper.MapConnections(
+            logicAppConnectionRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
+            messagingAssociationRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryPaasChildAssociationEdgeMapper.MapAssociations(
+            paasChildAssociationRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryServiceConnectorEdgeMapper.MapLinks(
+            serviceConnectorLinkRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        if (appSettingHostsFilePresent)
+        {
+            AzureInventoryAppSettingHostEdgeMapper.MapHosts(
+                resources,
+                appSettingHostRows,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
+
+        if (dependencyObservationsFilePresent)
+        {
+            AzureInventoryDependencyObservationEdgeMapper.MapObservations(
+                resources,
+                dependencyObservationRows,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
+
+        if (sqlDatabasePrincipalsFilePresent)
+        {
+            AzureInventorySqlDatabasePrincipalEdgeMapper.MapPrincipals(
+                resources,
+                sqlDatabasePrincipalRows,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
 
         if (effectiveNetworkControlsFilePresent)
         {
@@ -254,6 +434,73 @@ public static class AzureInventorySecurityEdgeMaterializer
             ProvenanceKind.ObservedFact,
             ObservedFactConfidence,
             GraphEdgeInferenceSources.InventoryNicSubnet);
+    }
+
+    private static void AddObservedVnetPeeringsFromResourceProperties(
+        IReadOnlyList<AzureExtractorExtendedResourceRow> resources,
+        List<AzureInventoryResourceRelationshipWrite> relationships,
+        HashSet<string> relationshipKeys)
+    {
+        ArgumentNullException.ThrowIfNull(resources);
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(relationshipKeys);
+
+        foreach (AzureExtractorExtendedResourceRow resource in resources)
+        {
+            if (AzureInventoryVnetPeeringParser.IsPeeringResourceType(resource.ResourceType)
+                || AzureInventoryVnetPeeringParser.IsPeeringResourceId(resource.AzureResourceId))
+            {
+                string? parentVnetId = AzureInventoryVnetPeeringParser.TryGetParentVirtualNetworkArmId(
+                    resource.AzureResourceId);
+                string? remoteVnetId = AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromProperties(
+                    resource.Properties.ToDictionary(
+                        pair => pair.Key,
+                        pair => (string?)pair.Value,
+                        StringComparer.OrdinalIgnoreCase));
+
+                if (string.IsNullOrWhiteSpace(parentVnetId) || string.IsNullOrWhiteSpace(remoteVnetId))
+                {
+                    continue;
+                }
+
+                AddRelationship(
+                    relationships,
+                    relationshipKeys,
+                    ArmResourceIdNormalizer.Normalize(parentVnetId),
+                    ArmResourceIdNormalizer.Normalize(remoteVnetId),
+                    GraphEdgeTypes.PeersWith,
+                    ProvenanceKind.ObservedFact,
+                    ObservedFactConfidence,
+                    GraphEdgeInferenceSources.InventoryVnetPeering);
+                continue;
+            }
+
+            if (!AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(resource.ResourceType))
+            {
+                continue;
+            }
+
+            if (!AzureInventoryVnetPeeringParser.TryGetPeeringsJson(
+                    resource.Properties,
+                    out string? peeringsJson)
+                || string.IsNullOrWhiteSpace(peeringsJson))
+            {
+                continue;
+            }
+
+            foreach (string remoteVnetId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
+            {
+                AddRelationship(
+                    relationships,
+                    relationshipKeys,
+                    ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
+                    remoteVnetId,
+                    GraphEdgeTypes.PeersWith,
+                    ProvenanceKind.ObservedFact,
+                    ObservedFactConfidence,
+                    GraphEdgeInferenceSources.InventoryVnetPeering);
+            }
+        }
     }
 
     private static void AddRoleAssignmentEdges(
@@ -442,29 +689,52 @@ public static class AzureInventorySecurityEdgeMaterializer
     private static void AddDiagnosticEdges(
         IReadOnlyList<JsonElement> diagnosticSettings,
         List<AzureInventoryResourceRelationshipWrite> relationships,
-        HashSet<string> relationshipKeys)
+        HashSet<string> relationshipKeys,
+        List<string> warnings)
     {
+        ArgumentNullException.ThrowIfNull(warnings);
+
+        if (!AzureInventoryRelationshipAssociationTypes.TryGet(
+                AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination,
+                out AzureInventoryRelationshipAssociationTypeDefinition? definition)
+            || definition is null)
+        {
+            return;
+        }
+
         foreach (JsonElement diagnostic in diagnosticSettings)
         {
             string? targetId = TryReadJsonString(diagnostic, "targetResourceId")
                                ?? TryReadJsonString(diagnostic, "resourceId");
-            string? workspaceId = TryReadJsonString(diagnostic, "workspaceId")
-                                  ?? TryReadJsonString(diagnostic, "workspaceResourceId");
+            string? name = TryReadJsonString(diagnostic, "name");
 
-            if (string.IsNullOrWhiteSpace(targetId) || string.IsNullOrWhiteSpace(workspaceId))
+            if (string.IsNullOrWhiteSpace(targetId))
             {
                 continue;
             }
 
-            AddRelationship(
-                relationships,
-                relationshipKeys,
-                ArmResourceIdNormalizer.Normalize(targetId),
-                ArmResourceIdNormalizer.Normalize(workspaceId),
-                GraphEdgeTypes.ConnectsTo,
-                ProvenanceKind.ObservedFact,
-                ObservedFactConfidence,
-                GraphEdgeInferenceSources.InventoryDiagnosticTarget);
+            string normalizedTargetId = ArmResourceIdNormalizer.Normalize(targetId);
+            bool emittedDestination = false;
+
+            foreach (string destinationArmId in AzureInventoryDiagnosticDestinationParser.EnumerateDestinationArmIds(diagnostic))
+            {
+                AddRelationship(
+                    relationships,
+                    relationshipKeys,
+                    normalizedTargetId,
+                    destinationArmId,
+                    definition.DefaultGraphEdgeType,
+                    definition.DefaultProvenanceKind,
+                    ObservedFactConfidence,
+                    definition.DefaultInferenceSource);
+
+                emittedDestination = true;
+            }
+
+            if (!emittedDestination && !string.IsNullOrWhiteSpace(name))
+            {
+                warnings.Add("diagnostic-destination-unresolved");
+            }
         }
     }
 
@@ -581,14 +851,12 @@ public static class AzureInventorySecurityEdgeMaterializer
 
     private static string? TryGetParentArmId(string normalizedArmId)
     {
-        int lastSlash = normalizedArmId.LastIndexOf('/');
-
-        if (lastSlash <= 0)
+        if (!ArmResourceIdNormalizer.TryGetParentResourceId(normalizedArmId, out string parentResourceId))
         {
             return null;
         }
 
-        return normalizedArmId[..lastSlash];
+        return parentResourceId;
     }
 
     private static string? TryReadJsonString(JsonElement element, string propertyName)

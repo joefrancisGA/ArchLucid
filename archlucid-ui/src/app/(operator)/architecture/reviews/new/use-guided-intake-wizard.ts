@@ -38,7 +38,7 @@ import { useGuidedIntakeDraftWorkflow } from "./use-guided-intake-draft-workflow
 import { useGuidedIntakePriorRunPrefill } from "./use-guided-intake-prior-run-prefill";
 
 /**
- * Everything `SocraticIntakeWizard` renders from: the brief form, the draft workflow, step
+ * Everything `SocraticIntakeWizard` renders from: the brief form, the architecture draft workflow, step
  * navigation, resume-from-session, and the gates that combine the three.
  *
  * The component is left as pure markup so a copy or layout change never has to be made inside a
@@ -257,7 +257,7 @@ export function useGuidedIntakeWizard() {
     !systemNameAvailability.blocksSubmit &&
     !systemNameAvailability.validating;
   const canReviewAnswers = workflow.allClarificationsHandled && !workflow.busy && !workflow.isSubmitBlocked;
-  // Scope is gated on step 0 and already persisted on the draft, so it is not re-gated here.
+  // Scope is gated on step 0 and already persisted on the architecture draft, so it is not re-gated here.
   const canSubmit =
     workflow.draftId !== null &&
     workflow.allClarificationsHandled &&
@@ -306,7 +306,7 @@ export function useGuidedIntakeWizard() {
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
 
-  // Prefer system name / intent for the saved-architecture banner; keep the GUID in the draft href only.
+  // Prefer system name / intent for the saved-architecture banner; keep the GUID in the architecture draft href only.
   const sourceArchitectureDisplayName = useMemo(
     () => architectureDraftDisplayName(form.systemName, form.freeTextIntent),
     [form.freeTextIntent, form.systemName],

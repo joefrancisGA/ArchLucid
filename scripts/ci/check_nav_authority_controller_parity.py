@@ -609,9 +609,30 @@ def run_check(root: Path) -> list[str]:
         return ["manifest: 'entries' must be a list"]
 
     if committed_entries != live_entries:
+        committed_by_href = {
+            row.get("nav_href"): row
+            for row in committed_entries
+            if isinstance(row, dict) and isinstance(row.get("nav_href"), str)
+        }
+        live_manifest_by_href = {
+            row.get("nav_href"): row
+            for row in live_entries
+            if isinstance(row, dict) and isinstance(row.get("nav_href"), str)
+        }
+        changed_hrefs = sorted(
+            href
+            for href in set(committed_by_href) | set(live_manifest_by_href)
+            if committed_by_href.get(href) != live_manifest_by_href.get(href)
+        )
+        changed_suffix = (
+            f" (changed hrefs: {', '.join(changed_hrefs)})"
+            if changed_hrefs
+            else ""
+        )
         errors.append(
-            "nav authority parity manifest is stale — run: "
-            "python scripts/ci/check_nav_authority_controller_parity.py --sync"
+            "nav authority parity manifest is stale"
+            + changed_suffix
+            + " — run: python scripts/ci/check_nav_authority_controller_parity.py --sync"
         )
 
     for entry in live_entries:

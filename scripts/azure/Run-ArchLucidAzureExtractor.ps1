@@ -4,9 +4,12 @@
 
 .DESCRIPTION
     Installs Az modules when missing (unless -SkipModuleInstall), signs in when no Azure
-    context exists (unless -SkipConnect), resolves the active subscription when
-    -SubscriptionId is omitted, writes ./archlucid-azure-package.zip by default, and
-    delegates to Get-ArchLucidAzurePackage.ps1 with -IncludeCost enabled.
+    context exists (unless -SkipConnect), prompts for a sign-in method and subscription
+    by friendly name when -SubscriptionId is omitted (unless -NonInteractive), writes
+    ./archlucid-azure-package.zip by default, and delegates to Get-ArchLucidAzurePackage.ps1
+    with -IncludeCost, -IncludeRetailPrices, and -IncludeAppSettingsHosts enabled.
+    Azure CLI is signed in from the same Azure PowerShell session so cost collection can
+    succeed without a separate az login.
 
 .NOTES
     Upload the resulting ZIP manually in ArchLucid — this script never sends data to ArchLucid.
@@ -34,6 +37,13 @@ param(
     [switch] $SkipModuleInstall,
 
     [Parameter(Mandatory = $false)]
+    [switch] $NonInteractive,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("Browser", "Credential", "DeviceCode", "")]
+    [string] $AuthenticationMethod = "",
+
+    [Parameter(Mandatory = $false)]
     [switch] $DryRun
 )
 
@@ -54,9 +64,12 @@ Ensure-ArchLucidAzModules -SkipModuleInstall:$SkipModuleInstall
 [string]$resolvedSubscriptionId = Resolve-ArchLucidAzureExtractorSubscriptionId `
     -TenantId $TenantId `
     -SubscriptionId $SubscriptionId `
-    -SkipConnect:$SkipConnect
+    -SkipConnect:$SkipConnect `
+    -NonInteractive:$NonInteractive `
+    -AuthenticationMethod $AuthenticationMethod
 
 [string]$resolvedOutputPath = Resolve-ArchLucidAzureExtractorOutputPath -OutputPath $OutputPath
+[string]$resolvedSubscriptionName = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId $resolvedSubscriptionId
 
 Write-Host "ArchLucid Azure extractor quick start" -ForegroundColor Cyan
 
@@ -65,7 +78,14 @@ if (-not ([string]::IsNullOrWhiteSpace($TenantId)))
     Write-Host ("  Tenant:       {0}" -f $TenantId.Trim())
 }
 
-Write-Host ("  Subscription: {0}" -f $resolvedSubscriptionId)
+if (-not ([string]::IsNullOrWhiteSpace($resolvedSubscriptionName)))
+{
+    Write-Host ("  Subscription: {0} [{1}]" -f $resolvedSubscriptionName, $resolvedSubscriptionId)
+}
+else
+{
+    Write-Host ("  Subscription: {0}" -f $resolvedSubscriptionId)
+}
 Write-Host ("  Output ZIP:   {0}" -f $resolvedOutputPath)
 
 if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
@@ -79,6 +99,8 @@ Write-Host ""
     SubscriptionId = $resolvedSubscriptionId
     OutputPath = $resolvedOutputPath
     IncludeCost = $true
+    IncludeRetailPrices = $true
+    IncludeAppSettingsHosts = $true
 }
 
 if (-not ([string]::IsNullOrWhiteSpace($TenantId)))

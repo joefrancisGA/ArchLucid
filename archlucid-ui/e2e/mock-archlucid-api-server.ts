@@ -482,6 +482,12 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      if (req.method === "PUT" && pathname === "/v1/user/preferences/working-workspace-continuity") {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
       if (req.method !== "GET") {
         res.writeHead(405);
         res.end();

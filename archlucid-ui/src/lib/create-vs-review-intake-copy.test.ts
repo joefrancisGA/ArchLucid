@@ -17,15 +17,15 @@ import {
 } from "@/lib/architecture/architecture-workflow-labels";
 
 describe("create-vs-review-intake-copy (TB-1459)", () => {
-  it("discloses account sync for saved drafts without implying review filing is required", () => {
+  it("discloses account sync for saved architecture drafts without implying review filing is required", () => {
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("account");
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("sync");
-    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).not.toMatch(/^recently saved drafts on this browser/);
+    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).not.toMatch(/^recently saved architecture drafts on this browser/);
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("unsaved typing");
   });
 
   it("aligns view-all drafts label with saved-draft inventory", () => {
-    expect(ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL.toLowerCase()).toContain("saved drafts");
+    expect(ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL.toLowerCase()).toContain("saved architecture drafts");
     expect(ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL.toLowerCase()).not.toContain("this device");
   });
 });
@@ -51,7 +51,7 @@ describe("create-vs-review-intake-copy (TB-1461)", () => {
 });
 
 describe("create-vs-review-intake-copy — draft lead matches the fields the form renders", () => {
-  it("promises only the system, outcome, and people/systems the draft form asks for", () => {
+  it("promises only the system, outcome, and people/systems the architecture draft form asks for", () => {
     const lead = ARCHITECTURE_DRAFT_WORKSPACE_LEAD.toLowerCase();
 
     expect(lead).toContain("system");
@@ -59,7 +59,7 @@ describe("create-vs-review-intake-copy — draft lead matches the fields the for
     expect(lead).toContain("people");
   });
 
-  it("does not promise goals or tradeoff fields the draft form never renders", () => {
+  it("does not promise goals or tradeoff fields the architecture draft form never renders", () => {
     const lead = ARCHITECTURE_DRAFT_WORKSPACE_LEAD.toLowerCase();
 
     expect(lead).not.toContain("goals");

@@ -30,21 +30,21 @@ import {
 import { cn } from "@/lib/utils";
 import { EvidenceOrientationMetaLine } from "@/components/evidence-orientation/EvidenceOrientationMetaLine";
 import {
-  TROUBLESHOOTING_HELP_APPLICABILITY,
   TROUBLESHOOTING_HELP_CANONICAL_PATH,
-  TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
   TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
   TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL,
   TROUBLESHOOTING_SUPPORT_EXPECTATIONS,
+  resolveTroubleshootingHelpApplicability,
+  resolveTroubleshootingHelpClaimDiscipline,
 } from "@/lib/troubleshooting-help-evidence-copy";
 import {
-  TROUBLESHOOTING_BEFORE_CONTACT_ITEMS,
-  TROUBLESHOOTING_DECISION_TREE_STEPS,
   TROUBLESHOOTING_GUIDE_HEADINGS,
   TROUBLESHOOTING_HELP_PAGE_TITLE,
   TROUBLESHOOTING_HELP_PRIMARY_ACTION,
   TROUBLESHOOTING_HELP_START_HERE_CARD_TITLE,
   TROUBLESHOOTING_PRIMARY_ACTIONS,
+  troubleshootingBeforeContactItems,
+  troubleshootingDecisionTreeSteps,
   troubleshootingHelpOverview,
   troubleshootingStartHereItems,
 } from "@/lib/troubleshooting-help-guide-content";
@@ -78,6 +78,10 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
   const productLineId = resolveProductLineIdFromEnv();
   const overview = troubleshootingHelpOverview(productLineId);
   const startHereItems = troubleshootingStartHereItems(productLineId);
+  const decisionTreeSteps = troubleshootingDecisionTreeSteps(productLineId);
+  const beforeContactItems = troubleshootingBeforeContactItems(productLineId);
+  const claimDiscipline = resolveTroubleshootingHelpClaimDiscipline(productLineId);
+  const applicability = resolveTroubleshootingHelpApplicability(productLineId);
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-troubleshooting",
     TROUBLESHOOTING_GUIDE_HEADINGS,
@@ -107,7 +111,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
           subtitle={undefined}
           navHref={TROUBLESHOOTING_HELP_CANONICAL_PATH}
           headingLevel="h1"
-          claimDiscipline={TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE}
+          claimDiscipline={claimDiscipline}
           claimDisciplineTestId={TROUBLESHOOTING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
           actions={<HelpTroubleshootingHeaderActions entry={entry} />}
@@ -189,7 +193,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
                 Use this guided triage when quick fixes did not resolve the issue.
               </p>
               <ol className="m-0 list-none space-y-4 p-0" data-testid="troubleshooting-decision-tree">
-                {TROUBLESHOOTING_DECISION_TREE_STEPS.map((step, index) => (
+                {decisionTreeSteps.map((step, index) => (
                   <li
                     key={step.id}
                     id={step.id}
@@ -226,7 +230,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
                 faster.
               </p>
               <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                {TROUBLESHOOTING_BEFORE_CONTACT_ITEMS.map((item) => (
+                {beforeContactItems.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
@@ -265,11 +269,11 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
             <EvidenceOrientationMetaLine
               testId="troubleshooting-help-freshness"
               label={TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL}
-              text={TROUBLESHOOTING_HELP_APPLICABILITY}
+              text={applicability}
             />
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         <div data-testid="help-troubleshooting-orientation-bottom">

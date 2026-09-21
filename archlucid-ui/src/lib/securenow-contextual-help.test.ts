@@ -5,7 +5,11 @@ import {
   GOVERNANCE_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
 } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 describe("SecureNow contextual help (SH-01)", () => {
@@ -65,8 +69,8 @@ describe("SecureNow contextual help (SH-01)", () => {
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_PATH, "security")?.slug).toBe(
       "governance-infrastructure-overview",
     );
-    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).toBeUndefined();
-    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH, "security")?.label).toBe(
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.label).toBe(
       "Resource explorer",
     );
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_PATH, "architecture")?.slug).toBe("cloud-connections");

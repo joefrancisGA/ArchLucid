@@ -58,7 +58,6 @@ export function SecureNowHomeDestinationSection({
             <EnterpriseTableRow>
               <EnterpriseTableHeaderCell>Destination</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
-              {buyerPolishedShell ? <EnterpriseTableHeaderCell>Open</EnterpriseTableHeaderCell> : null}
             </EnterpriseTableRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
@@ -79,13 +78,6 @@ export function SecureNowHomeDestinationSection({
                   </div>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
-                {buyerPolishedShell ? (
-                  <EnterpriseTableCell>
-                    <Link className={OPERATOR_LINK.inline} href={row.href}>
-                      Open
-                    </Link>
-                  </EnterpriseTableCell>
-                ) : null}
               </EnterpriseTableRow>
             ))}
           </EnterpriseTableBody>

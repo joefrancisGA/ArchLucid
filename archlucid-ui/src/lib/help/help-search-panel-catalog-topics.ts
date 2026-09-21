@@ -30,6 +30,22 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/authentication-sign-in", helpSlug: "authentication-sign-in" },
   },
   {
+    id: "first-login-workspace",
+    title: "Your workspace after sign-in",
+    description: "Live tenant workspace by default, optional Training on sample data, and how that differs from Record and Practice.",
+    keywords: [
+      "first login",
+      "training mode",
+      "not live data",
+      "customer intake demo",
+      "live data",
+      "sample workspace",
+      "leave training",
+      "workspace after sign-in",
+    ],
+    action: { kind: "route", href: "/help/first-login-workspace", helpSlug: "first-login-workspace" },
+  },
+  {
     id: "how-archlucid-works",
     title: "How ArchLucid works",
     description: "Product workflow from architecture evidence through findings, decisions, approval, and exports.",
@@ -586,6 +602,11 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "career door": ["career-rehearsal-doors"],
   rehearsal: ["career-rehearsal-doors"],
   "career-complete": ["career-rehearsal-doors"],
+  "training mode": ["first-login-workspace"],
+  "not live data": ["first-login-workspace"],
+  "customer intake demo": ["first-login-workspace"],
+  "first login": ["first-login-workspace"],
+  "live data": ["first-login-workspace"],
 };
 
 export function collectHelpSearchPanelTopics(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 
 import { POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
@@ -19,6 +19,7 @@ export type { PolicyPacksAuthoringDeps } from "./policy-packs-authoring-deps";
 
 export function usePolicyPacksAuthoring(deps: PolicyPacksAuthoringDeps) {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
   const searchParams = useSearchParams();
   const ruleIdFromUrl = searchParams.get(POLICY_RULE_ID_QUERY_PARAM)?.trim() ?? "";
   const pickedReviewId = searchParams.get(POLICY_PACKS_REVIEW_ID_QUERY_PARAM)?.trim() ?? "";
@@ -65,9 +66,9 @@ export function usePolicyPacksAuthoring(deps: PolicyPacksAuthoringDeps) {
         params.delete(POLICY_PACKS_REVIEW_ID_QUERY_PARAM);
       }
 
-      router.replace(`${GOVERNANCE_POLICY_PACKS_PATH}?${params.toString()}`, { scroll: false });
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams],
+    [pathname, router, searchParams],
   );
 
   return {

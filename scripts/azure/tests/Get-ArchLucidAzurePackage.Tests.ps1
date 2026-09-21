@@ -7,6 +7,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     BeforeAll {
         # Stub targets for Pester Mock when Az.* modules are installed locally.
         function Get-AzSubscription { }
+        function Get-AzContext { }
         function Set-AzContext { }
         function Get-AzResource { }
         function Get-AzPolicyDefinition { }
@@ -26,9 +27,20 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         # Pester 5 discovery can run before $PSScriptRoot is populated at script scope.
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:extractorScript = Join-Path $script:scriptRoot 'Get-ArchLucidAzurePackage.ps1'
+        [string]$script:helpersScript = Join-Path $script:scriptRoot 'ArchLucid.ExtractorQuickStart.helpers.ps1'
         [string]$script:armFixturePath = Join-Path $PSScriptRoot 'fixtures/arm-resources.sample.json'
-        [string]$script:previousModuleAutoLoadingPreference = $PSModuleAutoLoadingPreference
+        . $script:helpersScript
+        [object]$previousModuleAutoLoadingPreference =
+            Get-Variable -Name PSModuleAutoLoadingPreference -ValueOnly -ErrorAction SilentlyContinue
+
+        if ($null -eq $previousModuleAutoLoadingPreference)
+        {
+            $previousModuleAutoLoadingPreference = 'All'
+        }
+
+        [string]$script:previousModuleAutoLoadingPreference = "$previousModuleAutoLoadingPreference"
         $PSModuleAutoLoadingPreference = 'None'
+        $env:ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC = '1'
 
         function script:New-ArchLucidMockAzResource([object] $FixtureRow)
         {
@@ -45,7 +57,8 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     }
 
     AfterAll {
-        $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
+        Set-Variable -Name PSModuleAutoLoadingPreference -Value $script:previousModuleAutoLoadingPreference -Scope Global
+        Remove-Item Env:ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC -ErrorAction SilentlyContinue
     }
 
     It 'writes a schema-version-2 ZIP with manifest.json and resources.json from mocked ARM inventory' {
@@ -72,6 +85,14 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
             }
         }
 
+        Mock Get-AzContext {
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
+                Tenant = [PSCustomObject]@{ Id = '99999999-8888-7777-6666-555555555555' }
+                Account = [PSCustomObject]@{ Id = 'ci-extractor-test@contoso.com' }
+            }
+        }
+
         Mock Set-AzContext {
             param([string] $SubscriptionId, [string] $Tenant)
 
@@ -91,6 +112,15 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
         Mock Get-AzPolicyAssignment {
             return @()
+        }
+
+        Mock Ensure-ArchLucidAzureSubscriptionSession {
+            param([string] $SubscriptionId)
+
+            return $SubscriptionId
+        }
+
+        Mock Connect-ArchLucidAzureAccountForSubscription {
         }
 
         $env:ARCHLUCID_EXTRACTOR_SKIP_MODULE_PREFLIGHT = '1'
@@ -145,10 +175,17 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 $roleAssignments.Count | Should -Be 1
                 $roleAssignments[0].principalId | Should -Be '11111111-1111-1111-1111-111111111111'
 
+                [string]$roleAssignmentsJson = Get-Content -LiteralPath $roleAssignmentsPath -Raw -Encoding Utf8
+                # One role assignment must remain a JSON array; pipeline ConvertTo-Json unwraps a single row to an object.
+                $roleAssignmentsJson.Trim().StartsWith('[') | Should -Be $true
+
                 [object[]]$resourceTypes = @( $resources | ForEach-Object { $_.resourceType } )
 
                 ($resourceTypes -contains 'Microsoft.Storage/storageAccounts') | Should -Be $true
                 ($resourceTypes -contains 'Microsoft.Compute/virtualMachines') | Should -Be $true
+
+                Test-Path -LiteralPath (Join-Path $staging 'dependency-observations.json') | Should -Be $false
+                Test-Path -LiteralPath (Join-Path $staging 'sql-database-principals.json') | Should -Be $false
             }
             finally
             {

@@ -194,7 +194,7 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
             </div>
           </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
         </div>
 
         <div data-testid="help-pilot-feedback-orientation-bottom">

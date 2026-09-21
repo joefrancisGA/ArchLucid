@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow constrained AI path explanation API (SA-17).
+
 # SecureNow constrained AI path explanation (SA-17)
 
 Optional LLM (or simulator template) that **summarizes a cited PathId** without minting topology, snapshot rows, ExactMatch, or ObservedFact.

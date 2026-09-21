@@ -837,7 +837,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         HttpClient httpClient = new(handler);
         GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
 
-        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> settings = await client.ListDiagnosticSettingsAsync(
+        HostedAzureDiagnosticSettingsCollectResult result = await client.ListDiagnosticSettingsAsync(
             "token-abc",
             [
                 new HostedAzureArmResourceRecord(
@@ -859,9 +859,10 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
             ],
             CancellationToken.None);
 
-        Assert.Single(settings);
-        Assert.Equal(storageResourceId, settings[0].TargetResourceId);
-        Assert.Equal("diag-to-law", settings[0].Name);
+        Assert.False(result.PartialCollection);
+        Assert.Single(result.Settings);
+        Assert.Equal(storageResourceId, result.Settings[0].TargetResourceId);
+        Assert.Equal("diag-to-law", result.Settings[0].Name);
     }
 
     [Fact]

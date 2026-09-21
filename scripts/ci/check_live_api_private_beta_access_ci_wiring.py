@@ -10,6 +10,9 @@ from pathlib import Path
 
 _CI_REL = ".github/workflows/ci.yml"
 _PUSH_REL = ".github/workflows/private-beta-access-on-push.yml"
+_SMOKE_REL = ".github/workflows/private-beta-access-smoke-branch.yml"
+_FROZEN_BRANCH = "cursor/al-beta-private-beta-frozen-7730"
+_FROZEN_SHA_REL = "scripts/ci/private_beta_frozen_branch.sha"
 _SPEC = "live-api-private-beta-access.spec.ts"
 _WAVE3_SPEC = "live-api-private-beta-wave-3.spec.ts"
 _INVITE_FLOW_SPEC = "live-api-invite-flow.spec.ts"
@@ -40,6 +43,28 @@ _SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
 _SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
 _FETCH_AUTH_ME_WITH_BEARER = "fetchAuthMeWithBearer"
 _WRITE_JWT_BROWSER_SESSION = "writeJwtBrowserSession"
+_RECOVERY_SPEC_MARKERS: tuple[tuple[str, str], ...] = (
+    (
+        "expired invitation token surfaces recovery copy",
+        "expired invite recovery",
+    ),
+    (
+        "revoked invitation token surfaces recovery copy",
+        "revoked invite recovery",
+    ),
+    (
+        "signed-in dead review deep-link surfaces branded 404 recovery",
+        "dead deep-link 404 recovery",
+    ),
+    (
+        "session-expired-heading",
+        "expired session recovery",
+    ),
+    (
+        "signed-in /403 access-denied surfaces recovery CTAs (missing role / wrong tenant)",
+        "missing-role / wrong-tenant recovery",
+    ),
+)
 
 
 def repo_root() -> Path:
@@ -305,6 +330,15 @@ def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str
         )
 
 
+def _require_private_beta_recovery_cases(spec_text: str, errors: list[str]) -> None:
+    for marker, label in _RECOVERY_SPEC_MARKERS:
+
+        if marker not in spec_text:
+            errors.append(
+                f"archlucid-ui/e2e/{_SPEC}: missing {label} case ({marker!r})",
+            )
+
+
 def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors: list[str]) -> None:
     if _FETCH_AUTH_ME_WITH_BEARER not in helper_text:
         errors.append(
@@ -330,12 +364,89 @@ def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors:
             f"via {_WRITE_JWT_BROWSER_SESSION} (stale BFF cookie from CI admin principal)",
         )
 
+    if "page.request.post" in helper_text and "/api/auth/bff-session" in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must not use page.request "
+            "for BFF session POST (APIRequestContext omits Origin; isSameOriginBffRequest 403s)",
+        )
+
+    if 'credentials: "same-origin"' not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must same-origin fetch "
+            "/api/auth/bff-session so the browser sends Origin",
+        )
+
 
 def _require_invite_flow_jwt_priming_wiring(invite_flow_text: str, errors: list[str]) -> None:
     if "primePrivateBetaBrowserSessionIfJwtMode" not in invite_flow_text:
         errors.append(
             f"archlucid-ui/e2e/{_INVITE_FLOW_SPEC}: must call primePrivateBetaBrowserSessionIfJwtMode "
             "before /administration/users (JwtBearer CI requires session priming)",
+        )
+
+
+def _require_smoke_branch_wiring(root: Path, errors: list[str]) -> None:
+    smoke_path = root / _SMOKE_REL
+    pin_path = root / _FROZEN_SHA_REL
+
+    if not smoke_path.is_file():
+        errors.append(
+            f"missing {_SMOKE_REL} (frozen invite-wave lane when trunk cancel-in-progress buries JwtBearer)",
+        )
+        return
+
+    text = smoke_path.read_text(encoding="utf-8", errors="replace")
+
+    if _FROZEN_BRANCH not in text:
+        errors.append(f"{_SMOKE_REL}: must pin push branch {_FROZEN_BRANCH}")
+
+    if "cancel-in-progress: false" not in text:
+        errors.append(
+            f"{_SMOKE_REL}: must set cancel-in-progress: false so frozen-lane Playwright is not cancelled",
+        )
+
+    if _JOB_NAME not in text:
+        errors.append(f"{_SMOKE_REL}: missing job name {_JOB_NAME}")
+
+    _require_jwt_bearer_and_spec(_SMOKE_REL, text, errors)
+    _require_private_beta_job_timeout(_SMOKE_REL, text, errors)
+    _require_live_e2e_build(_SMOKE_REL, text, errors)
+    _require_private_beta_install_and_typecheck(_SMOKE_REL, text, errors)
+    _require_private_beta_inline_pipeline_env(_SMOKE_REL, text, errors)
+    _require_post_warm_api_ready(_SMOKE_REL, text, errors)
+    _require_jwt_refresh_before_playwright(_SMOKE_REL, text, errors)
+
+    if _SPEC not in text or _INVITE_FLOW_SPEC not in text or _WAVE3_SPEC not in text:
+        errors.append(
+            f"{_SMOKE_REL}: must run {_INVITE_FLOW_SPEC}, {_WAVE3_SPEC}, and {_SPEC} "
+            "(parity with private-beta-access-on-push.yml)",
+        )
+
+    if not pin_path.is_file():
+        errors.append(f"missing {_FROZEN_SHA_REL}")
+    elif _FROZEN_BRANCH not in pin_path.read_text(encoding="utf-8", errors="replace"):
+        errors.append(f"{_FROZEN_SHA_REL}: must name {_FROZEN_BRANCH}")
+
+
+def _require_wait_for_api_ready_http_000_fail_fast(errors: list[str]) -> None:
+    path = repo_root() / "scripts" / "ci" / _WAIT_FOR_API_READY
+
+    if not path.is_file():
+        errors.append(f"missing scripts/ci/{_WAIT_FOR_API_READY}")
+
+        return
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    if "ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must fail fast after consecutive HTTP 000 "
+            "(/health/ready unreachable must not burn 180 attempts)",
+        )
+
+    if "Failing fast instead of waiting for remaining attempts" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must emit a fail-fast error when /health/ready is HTTP 000",
         )
 
 
@@ -384,6 +495,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_playwright_timeout_wiring(spec_text, client_text, errors)
         _require_private_beta_create_run_wiring(spec_text, client_text, errors)
         _require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
+        _require_private_beta_recovery_cases(spec_text, errors)
 
     if invite_flow_path.is_file():
         invite_flow_text = invite_flow_path.read_text(encoding="utf-8", errors="replace")
@@ -411,8 +523,8 @@ def main(argv: list[str] | None = None) -> int:
         if "push:" not in text:
             errors.append(f"{_PUSH_REL}: missing on.push trigger")
 
-        if "branches: [main, master]" not in text:
-            errors.append(f"{_PUSH_REL}: missing push branches main/master")
+        if "branches: [main, master, RC34]" not in text:
+            errors.append(f"{_PUSH_REL}: missing push branches main/master/RC34")
 
         if _JOB_NAME not in text:
             errors.append(f"{_PUSH_REL}: missing job name {_JOB_NAME}")
@@ -478,7 +590,9 @@ def main(argv: list[str] | None = None) -> int:
             "(Vitest must catch ESM/JSON import failures before Playwright reports 'No tests found')",
         )
 
+    _require_wait_for_api_ready_http_000_fail_fast(errors)
     _require_sandbox_mock_json_import_attribute(errors)
+    _require_smoke_branch_wiring(root, errors)
 
     if errors:
         for error in errors:

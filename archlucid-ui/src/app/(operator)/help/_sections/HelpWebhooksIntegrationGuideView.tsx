@@ -257,7 +257,7 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} />
+          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
 
         <SponsorSendPathHonestyPanel testIdPrefix="help-webhooks-integration" showSsoOptional={false} />

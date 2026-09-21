@@ -29,6 +29,36 @@ export function canApproveRemediationPatternVersion(
   return !actorIdentities.includes(author);
 }
 
+export function canSubmitRemediationPatternVersion(
+  version: RemediationPatternVersionRecord,
+  canMutate: boolean,
+): boolean {
+  if (!canMutate) {
+    return false;
+  }
+
+  return version.status === REMEDIATION_PATTERN_STATUS.draft;
+}
+
+export function remediationPatternSubmitBlockedReason(
+  version: RemediationPatternVersionRecord | null,
+  canMutate: boolean,
+): string | null {
+  if (!canMutate) {
+    return "Execute authority is required to submit patterns.";
+  }
+
+  if (version === null) {
+    return "Select a Draft version to submit for review.";
+  }
+
+  if (version.status !== REMEDIATION_PATTERN_STATUS.draft) {
+    return "Only Draft versions can be submitted for review.";
+  }
+
+  return null;
+}
+
 export function remediationPatternApprovalBlockedReason(
   version: RemediationPatternVersionRecord,
   principal: CurrentPrincipal,

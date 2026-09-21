@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildDiagramReconcileOperationalFindingFingerprint,
   formatDiagramReconcileExplanation,
+  formatDiagramReconcileResourceLabelForDisplay,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
 import type { DiagramInfrastructureCorrespondenceRow } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 
@@ -30,6 +31,26 @@ describe("infra-evidence-diagram-reconcile-explanation", () => {
       matchKind: "Conflict",
       aiRationale: "Should not appear",
     })).not.toContain("AI rationale:");
+  });
+
+  it("lowercases diagram node labels for display", () => {
+    expect(
+      formatDiagramReconcileResourceLabelForDisplay({
+        correspondenceId: "diagram-node-1",
+        diagramNodeId: "node-1",
+        diagramNodeLabel: "Gateway-PIP",
+        cloudResourceId: null,
+        azureResourceId: null,
+        resourceType: null,
+        resourceGroup: null,
+        terraformAddress: null,
+        matchKind: "Conflict",
+        confidenceBand: "High",
+        explainText: "Name mismatch.",
+        aiRationale: null,
+        securityDiscrepancy: false,
+      }),
+    ).toBe("gateway-pip");
   });
 
   it("builds stable operational finding fingerprints", () => {

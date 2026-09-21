@@ -19,7 +19,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_INTEGRATIONS: reado
     ],
     "includeIntroWithSections": true,
     "pdfStatus": "customer",
-    "lastReviewed": "2026-08-09",
+    "lastReviewed": "2026-09-18",
     "releaseApplicability": "optional cloud evidence connectors",
   },
   {

@@ -99,4 +99,16 @@ public sealed class AzureInventoryChangeRecord
         get;
         init;
     }
+
+    public string? ChangedByDisplayName
+    {
+        get;
+        init;
+    }
+
+    public string? ChangedByKind
+    {
+        get;
+        init;
+    }
 }

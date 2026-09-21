@@ -5,7 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import { isGovernanceInfrastructureAskRoutePath } from "@/lib/governance/governance-infrastructure-route-paths";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 import {
@@ -23,7 +26,10 @@ type TrialNextAction = {
   readonly href: string;
 };
 
-function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): TrialNextAction {
+function resolveTrialNextAction(
+  payload: TenantTrialStatusPayload | null,
+  productLine: "architecture" | "security",
+): TrialNextAction {
   if (payload?.trialSampleRunId !== null && payload?.trialSampleRunId !== undefined && payload.trialSampleRunId.trim().length > 0) {
     return {
       label: "Explore sample review",
@@ -32,11 +38,17 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
   }
 
   if (payload?.status === "Active") {
+    if (productLine === "security") {
+      return { label: "Open compliance workspace", href: "/compliance/policy-packs" };
+    }
+
     return { label: "Commit your first review", href: "/architecture/reviews" };
   }
 
   if (payload?.status === "Expired" || payload?.status === "ReadOnly" || payload?.status === "ExportOnly") {
-    return { label: "Convert to paid", href: "/pricing#pricing-quote-request" };
+    return productLine === "security"
+      ? { label: "Open procurement guidance", href: "/help/procurement" }
+      : { label: "Convert to paid", href: "/pricing#pricing-quote-request" };
   }
 
   return {
@@ -48,6 +60,8 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
 /** Persistent trial strip with days remaining and a single primary next action (all operator routes). */
 export function PersistentTrialStatusStrip() {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
+  const { isWorkingMode } = useWorkspaceMode();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: payload } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -60,7 +74,27 @@ export function PersistentTrialStatusStrip() {
     return null;
   }
 
+  if (isWorkingMode && isGovernanceInfrastructureAskRoutePath(pathname)) {
+    return null;
+  }
+
+  if (
+    payload.status === "Active"
+    && typeof payload.daysRemaining === "number"
+    && payload.daysRemaining >= 0
+    && payload.daysRemaining <= 7
+  ) {
+    return null;
+  }
+
   if (buyerPolishedShell && payload.status === "Active") {
+    const sampleHref =
+      productLine === "security"
+        ? "/compliance/policy-packs"
+        : `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+    const sampleCta =
+      productLine === "security" ? "Open compliance workspace" : BUYER_TRY_SAMPLE_REVIEW_CTA;
+
     return (
       <div
         className={cn(
@@ -78,13 +112,13 @@ export function PersistentTrialStatusStrip() {
           <span className="text-neutral-700 dark:text-neutral-300">{BUYER_DEMO_EVALUATION_WORKSPACE_STATUS}</span>
         </div>
         <Button asChild type="button" size="sm" variant="outline" className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}>
-          <Link href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>{BUYER_TRY_SAMPLE_REVIEW_CTA}</Link>
+          <Link href={sampleHref}>{sampleCta}</Link>
         </Button>
       </div>
     );
   }
 
-  const nextAction = resolveTrialNextAction(payload);
+  const nextAction = resolveTrialNextAction(payload, productLine);
   const days = payload.daysRemaining;
   const daysLabel =
     typeof days === "number" ? `${days} day${days === 1 ? "" : "s"} left on trial` : "Trial workspace";

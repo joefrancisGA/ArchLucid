@@ -37,11 +37,9 @@ public sealed class SecurityEvidencePathExplanationService(
         try
         {
             SecurityEvidencePathRecord? path =
-                await pathRepository.TryGetByIdAsync(scope.TenantId, pathId, cancellationToken);
+                await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-            if (path is null
-                || path.WorkspaceId != scope.WorkspaceId
-                || path.ProjectId != scope.ProjectId)
+            if (path is null)
             {
                 return new SecurityEvidencePathExplanationResult
                 {
@@ -61,7 +59,7 @@ public sealed class SecurityEvidencePathExplanationService(
             }
 
             IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, pathId, cancellationToken);
+                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
             if (hops.Count == 0)
             {
@@ -73,7 +71,7 @@ public sealed class SecurityEvidencePathExplanationService(
             }
 
             IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints =
-                await cutPointRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+                await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
             IReadOnlyList<string> allowedEvidenceRefs =
                 SecurityEvidencePathExplanationValidator.SelectAllowedEvidenceRefs(pathId, hops);

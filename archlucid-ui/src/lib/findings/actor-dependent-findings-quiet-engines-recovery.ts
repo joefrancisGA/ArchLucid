@@ -14,7 +14,7 @@ export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_GUIDED_RECOVERY =
 export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_ARCHITECTURE_LINK_LABEL =
   "Add people and systems on Architecture";
 
-export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_DRAFT_LINK_LABEL = "Open draft actors";
+export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_DRAFT_LINK_LABEL = "Open architecture draft actors";
 
 export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_GUIDED_INTAKE_LINK_LABEL =
   "Open guided intake — People, systems, and integrations";

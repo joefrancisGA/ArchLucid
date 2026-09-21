@@ -21,7 +21,7 @@ function appendUnique(target: string[], line: string): void {
   }
 }
 
-/** Mirrors backend DraftRequestProjector — projects draft structured brief onto run constraints (TB-2282). */
+/** Mirrors backend DraftRequestProjector — projects architecture draft structured brief onto run constraints (TB-2282). */
 export function projectStructuredBriefOntoCreateRunPayload(
   basePayload: CreateArchitectureRunRequestPayload,
   structuredBrief: ArchitectureDraftStructuredBriefState,

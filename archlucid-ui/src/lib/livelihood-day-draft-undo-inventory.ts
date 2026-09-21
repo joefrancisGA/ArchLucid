@@ -13,12 +13,12 @@ export type LivelihoodDayDraftUndoSurfaceRow = {
 /** LY-041 — inventory only. Do not lengthen 300s. Do not unseal. */
 export const LIVELIHOOD_DAY_DRAFT_UNDO_SURFACES: readonly LivelihoodDayDraftUndoSurfaceRow[] = [
   {
-    surface: "Working draft document undo stacks",
+    surface: "Working architecture draft document undo stacks",
     scope: "in-tab",
     notes: "ADR 0071 in-memory stacks. Lost on refresh. Disabled when spawn-locked.",
   },
   {
-    surface: "Draft desk keyboard undo/redo",
+    surface: "architecture draft desk keyboard undo/redo",
     scope: "in-tab",
     notes: "Same stacks as architecture-draft-document-undo. Not a second kernel.",
   },

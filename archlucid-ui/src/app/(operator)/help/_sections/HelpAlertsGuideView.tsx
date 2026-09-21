@@ -259,7 +259,7 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
             <HelpAlertsGuideBody readingBodyClass={readingBodyClass} />
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy={!buyerPolishedShell} />
+          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
 
         {buyerPolishedShell ? <HelpAlertsSourcesOrientationStrip /> : null}

@@ -201,7 +201,7 @@ export function HelpSoc2SelfAssessmentGuideView(
           </div>
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        <HelpTopicTableOfContents headings={headings} enableScrollSpy />
       </div>
     </article>
   );
