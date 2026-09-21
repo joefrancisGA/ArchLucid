@@ -32,7 +32,16 @@ public static class AzureInventoryLogicAppConnectionExtractor
             && parametersElement.TryGetProperty("$connections", out JsonElement connectionsElement)
             && connectionsElement.ValueKind is JsonValueKind.Object)
         {
-            foreach (JsonProperty connectionProperty in connectionsElement.EnumerateObject())
+            // ARM stores Consumption connections as parameters.$connections.value.{name}.
+            JsonElement connectionsObject = connectionsElement;
+
+            if (connectionsElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind is JsonValueKind.Object)
+            {
+                connectionsObject = valueElement;
+            }
+
+            foreach (JsonProperty connectionProperty in connectionsObject.EnumerateObject())
             {
                 if (connectionProperty.Value.ValueKind is not JsonValueKind.Object)
                 {

@@ -225,6 +225,26 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotPropertyArmIdEdgeHydrator.AddMissingPropertyArmIdEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
+        AzureInventorySnapshotLogicAppConnectionHydrator.AddMissingConnectionEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
+        AzureInventorySnapshotSameResourceGroupEdgeHydrator.AddMissingCollocationEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
+        AzureInventorySnapshotDiagnosticEdgeHydrator.AddMissingDiagnosticEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotParentChildEdgeHydrator.AddMissingContainsEdges(
             nodeIdByArmId,
             edges,

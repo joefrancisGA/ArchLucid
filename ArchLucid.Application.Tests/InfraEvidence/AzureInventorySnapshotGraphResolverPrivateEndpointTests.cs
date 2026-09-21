@@ -93,7 +93,8 @@ public sealed class AzureInventorySnapshotGraphResolverPrivateEndpointTests
         AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(snapshot);
 
         result.Succeeded.Should().BeTrue();
-        result.Graph!.Edges.Should().ContainSingle();
+        result.Graph!.Edges.Should().Contain(edge =>
+            edge.EdgeType == AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget);
 
         DiagramAst ast = new DiagramAstFromGraphCompiler().Compile(result.Graph, DiagramMode.FullSubscription);
         ast.Nodes.Single(node => node.Label == "app").HasPrivateEndpointAccess.Should().BeTrue();
