@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveContinueLastPolicyPack } from "@/lib/resolve-continue-last-policy-pack";
+import {
+  resolveContinueLastPolicyPack,
+  resolveContinueLastPolicyPackDetail,
+} from "@/lib/resolve-continue-last-policy-pack";
 import type { PolicyPack } from "@/types/policy-packs";
 
 function pack(overrides: Partial<PolicyPack> = {}): PolicyPack {
@@ -40,5 +43,16 @@ describe("resolveContinueLastPolicyPack", () => {
 
   it("returns null when no packs exist", () => {
     expect(resolveContinueLastPolicyPack([])).toBeNull();
+  });
+
+  it("labels recency fallback when no recent view exists", () => {
+    const detail = resolveContinueLastPolicyPackDetail([
+      pack({ policyPackId: "pack-old", activatedUtc: "2025-01-01T00:00:00Z" }),
+      pack({ policyPackId: "pack-new", activatedUtc: "2026-02-01T00:00:00Z" }),
+    ]);
+
+    expect(detail?.source).toBe("recency-fallback");
+    expect(detail?.viewedAtUtc).toBeNull();
+    expect(detail?.pack.policyPackId).toBe("pack-new");
   });
 });
