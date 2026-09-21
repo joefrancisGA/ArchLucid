@@ -41,7 +41,7 @@ public sealed class PathRankingEngine(
 
         if (paths.Count == 0)
         {
-            await rankRepository.ReplaceRanksForSnapshotAsync(scope.TenantId, snapshotId, [], cancellationToken);
+            await rankRepository.ReplaceRanksForSnapshotInScopeAsync(scope.ToProjectScopeKey(), snapshotId, [], cancellationToken);
 
             return new PathRankingEngineResult
             {
@@ -58,7 +58,7 @@ public sealed class PathRankingEngine(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         IReadOnlySet<Guid> activeCrownJewelAssertionIds =
-            await assertionResolver.GetActiveCrownJewelAssertionIdsAsync(scope.TenantId, utcNow, cancellationToken);
+            await assertionResolver.GetActiveCrownJewelAssertionIdsAsync(scope.ToProjectScopeKey(), utcNow, cancellationToken);
 
         DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown;
 
@@ -75,7 +75,7 @@ public sealed class PathRankingEngine(
         foreach (SecurityEvidencePathRecord path in paths)
         {
             IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, path.PathId, cancellationToken);
+                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), path.PathId, cancellationToken);
 
             SecurityEvidencePathRankEvaluation evaluation =
                 SecurityEvidencePathRankCalculator.Evaluate(
@@ -121,8 +121,8 @@ public sealed class PathRankingEngine(
 
         try
         {
-            await rankRepository.ReplaceRanksForSnapshotAsync(
-                scope.TenantId,
+            await rankRepository.ReplaceRanksForSnapshotInScopeAsync(
+                scope.ToProjectScopeKey(),
                 snapshotId,
                 rankRecords,
                 cancellationToken);

@@ -46,19 +46,13 @@ public sealed class SecureNowArchitectMetricsQueryService(
         SecureNowArchitectOutcomeMetricsSnapshotData toPaths =
             await LoadSnapshotPathsAsync(scope, toSnapshotId, cancellationToken);
 
-        IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
-            await exceptionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
 
-        IReadOnlyList<OperationalSecurityExceptionRecord> scopedExceptions = exceptions
-            .Where(item => item.WorkspaceId == scope.WorkspaceId && item.ProjectId == scope.ProjectId)
-            .ToList();
+        IReadOnlyList<OperationalSecurityExceptionRecord> scopedExceptions =
+            await exceptionRepository.ListByScopeAsync(projectScope, cancellationToken);
 
-        IReadOnlyList<OperationalSecurityFindingRecord> findings =
-            await findingRepository.ListByTenantAsync(scope.TenantId, status: null, cancellationToken);
-
-        IReadOnlyList<OperationalSecurityFindingRecord> scopedFindings = findings
-            .Where(item => item.WorkspaceId == scope.WorkspaceId && item.ProjectId == scope.ProjectId)
-            .ToList();
+        IReadOnlyList<OperationalSecurityFindingRecord> scopedFindings =
+            await findingRepository.ListByScopeAsync(projectScope, status: null, cancellationToken);
 
         int openFindings = scopedFindings.Count(item =>
             item.Status is OperationalSecurityFindingStatus.Open or OperationalSecurityFindingStatus.Recurred);
@@ -111,7 +105,10 @@ public sealed class SecureNowArchitectMetricsQueryService(
         foreach (SecurityEvidencePathRecord path in paths)
         {
             IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, path.PathId, cancellationToken);
+                await pathRepository.ListHopsByPathInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    path.PathId,
+                    cancellationToken);
 
             hopsByPathId[path.PathId] = hops;
         }

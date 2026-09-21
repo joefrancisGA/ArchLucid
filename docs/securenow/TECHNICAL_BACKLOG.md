@@ -46,7 +46,7 @@ These waves are **closed for greenfield re-implementation**. Extend or fix with 
 | **Consumer brand** | **SN-01–SN-07** | Display name, connector copy, help token policy, leak ratchet (`scripts/ci/data/securenow-archlucid-allowlist.json`). **SN-08** remains hold. |
 | **Data flow diagrams** | **SN-DF-01–SN-DF-08** | `DiagramMode.DataFlow` / `DataArchitecture`, stage catalog, ADF spine, workbench `mermaidMode=dataFlow`, honesty legends, empty-stage captions, mermaid contract tests. |
 | **Probable evidence on Data Flow** | **SN-PE-01–SN-PE-07** | `AzureInventoryDataFlowEvidenceCatalog`, family filter, PE DNS join (`peReachableTarget`), messaging RBAC direction, ordinal bands — **not** percents. |
-| **Runtime connections** | **SN-RT-01–SN-RT-13** (core) | Container Apps env → `app-settings-hosts.json`, parsers, SQL catalog grain, PaaS stages, RBAC allowlist, opt-in `dependency-observations.json` + `ObservedRuntime`, SQL principals companion, upload parsers, operator confirm (`HumanAssertion`), inference questionnaire API + workbench panel. |
+| **Runtime connections** | **SN-RT-01–SN-RT-14** (core) | Container Apps env → `app-settings-hosts.json`, parsers, SQL catalog grain, PaaS stages, RBAC allowlist, opt-in `dependency-observations.json` + `ObservedRuntime`, SQL principals companion, upload parsers, operator confirm (`HumanAssertion`), inference questionnaire API + workbench panel. **SN-RT-14** maps the operator-inferred controller so Diagrams GETs stop 500ing `Unmapped API controller`. |
 | **Architect plane** | **SA-01–SA-21** | `SecurityEvidencePath` domain, security edges, privilege/reachability/toxic/capability engines, ranking, cut points, four-reality drift, neighborhood recompute, path inspector API + UI, constrained path explanation, asset assertions, outcome metrics, honesty copy. Optional Entra group + federated-credential **inventory** companions feed SA-02/SA-03. |
 | **Help job-match (partial set)** | **SH-01**, **SH-07–SH-10**, **SH-26**, others | Product-line contextual help rows for governance/infrastructure routes; Security help hub excludes Architecture-process featured slugs (e.g. `billing-and-plans`, `first-architecture-review`). |
 
@@ -202,6 +202,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | SN-RT-10 | D | Operator confirm → HumanAssertion | **Shipped** |
 | SN-RT-12 | E | Inference questionnaire items | **Shipped** |
 | SN-RT-13 | E | Questionnaire UI (Yes/No/Skip) | **Shipped** |
+| SN-RT-14 | D/E | OP-01 map row for operator-inferred connections controller | **Shipped** |
 | SN-RT-HOLD | — | Secret persistence, auto-answer, merge observed into May access | **Hold** |
 
 ---

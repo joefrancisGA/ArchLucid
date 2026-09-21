@@ -40,7 +40,7 @@ public sealed class CutPointAnalysisEngine(
 
         if (ranks.Count == 0)
         {
-            await cutPointRepository.ReplaceCutPointsForSnapshotAsync(scope.TenantId, snapshotId, [], cancellationToken);
+            await cutPointRepository.ReplaceCutPointsForSnapshotInScopeAsync(scope.ToProjectScopeKey(), snapshotId, [], cancellationToken);
 
             return new CutPointAnalysisEngineResult
             {
@@ -60,7 +60,7 @@ public sealed class CutPointAnalysisEngine(
         foreach (SecurityEvidencePathRankRecord rank in ranks)
         {
             SecurityEvidencePathRecord? path =
-                await pathRepository.TryGetByIdAsync(scope.TenantId, rank.PathId, cancellationToken);
+                await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
 
             if (path is null)
             {
@@ -68,7 +68,7 @@ public sealed class CutPointAnalysisEngine(
             }
 
             IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, rank.PathId, cancellationToken);
+                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
 
             rankedPaths.Add((path, hops));
         }
@@ -96,8 +96,8 @@ public sealed class CutPointAnalysisEngine(
 
         try
         {
-            await cutPointRepository.ReplaceCutPointsForSnapshotAsync(
-                scope.TenantId,
+            await cutPointRepository.ReplaceCutPointsForSnapshotInScopeAsync(
+                scope.ToProjectScopeKey(),
                 snapshotId,
                 records,
                 cancellationToken);

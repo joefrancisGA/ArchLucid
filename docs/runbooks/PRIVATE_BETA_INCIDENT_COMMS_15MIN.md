@@ -35,6 +35,10 @@ Do **not** claim root cause until confirmed. Do **not** imply CPA SOC 2 or third
 | Customer notice sent (UTC) | |
 | Next update due (UTC) | |
 | Owner | founder |
+| Correlation id(s) | |
+| Run id(s) | |
+| Configuration / image revision | |
+| Containment verified (UTC) | |
 
 ## Follow-up cadence
 
@@ -44,6 +48,11 @@ Do **not** claim root cause until confirmed. Do **not** imply CPA SOC 2 or third
 | **SEV-2** | Every **2 hr** while impact continues | Within **10 business days** |
 
 Full policy: [`INCIDENT_COMMUNICATIONS_POLICY.md`](../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md) (alias → support policy).
+
+Never paste tokens, invite URLs, raw evidence, or unredacted support bundles into
+the customer notice or the internal log. Keep identifiers sufficient for
+correlation, but resolve tenant names and email addresses in the private support
+system only.
 
 ## Related
 

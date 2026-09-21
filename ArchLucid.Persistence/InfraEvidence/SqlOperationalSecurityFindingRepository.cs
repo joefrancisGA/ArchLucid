@@ -193,6 +193,44 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         return rows.Select(MapFinding).ToList();
     }
 
+    public async Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityFindingStatus? status,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+                                  CloudResourceId, ExternalResourceId, ResourceType, SubscriptionOrAccountId,
+                                  ControlId, ControlFramework, Title, Description, Severity, RiskScore,
+                                  Exploitability, Exposure, BusinessCriticality, BlastRadius,
+                                  FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
+                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
+                                  PayloadHashSha256, CreatedUtc, UpdatedUtc
+                           FROM dbo.OperationalSecurityFindings
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND (@Status IS NULL OR Status = @Status)
+                           ORDER BY LastObservedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<FindingRow> rows = await conn.QueryAsync<FindingRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    Status = status.HasValue ? (int?)status.Value : null,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapFinding).ToList();
+    }
+
     public async Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,
@@ -291,6 +329,33 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         return rows.Select(MapMetadata).ToList();
     }
 
+    public async Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT m.MetadataRowId, m.FindingId, m.TenantId, m.MetadataKey, m.MetadataValue
+                           FROM dbo.OperationalSecurityFindingMetadata m
+                           INNER JOIN dbo.OperationalSecurityFindings f
+                               ON f.TenantId = m.TenantId AND f.FindingId = m.FindingId
+                           WHERE m.TenantId = @TenantId
+                             AND m.FindingId = @FindingId
+                             AND f.WorkspaceId = @WorkspaceId
+                             AND f.ProjectId = @ProjectId
+                           ORDER BY m.MetadataKey;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<MetadataRow> rows = await conn.QueryAsync<MetadataRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapMetadata).ToList();
+    }
+
     public async Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingAsync(
         Guid tenantId,
         Guid findingId,
@@ -359,6 +424,173 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
 
             if (observation is not null)
                 await InsertObservationAsync(conn, tx, observation, cancellationToken);
+
+            tx.Commit();
+        }
+        catch
+        {
+            tx.Rollback();
+            throw;
+        }
+    }
+
+    public async Task UpdateInScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityFindingMutation mutation,
+        IReadOnlyList<OperationalSecurityFindingMetadataMutation> metadata,
+        OperationalSecurityFindingObservationMutation? observation,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(mutation);
+        ArgumentNullException.ThrowIfNull(metadata);
+
+        if (metadata.Any(item => item.FindingId != mutation.FindingId))
+            throw new InvalidOperationException("Operational finding metadata mutation targets a different finding.");
+
+        if (observation is not null && observation.FindingId != mutation.FindingId)
+            throw new InvalidOperationException("Operational finding observation mutation targets a different finding.");
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using System.Data.IDbTransaction tx = conn.BeginTransaction();
+
+        try
+        {
+            const string updateSql = """
+                                     UPDATE dbo.OperationalSecurityFindings
+                                     SET CloudResourceId = @CloudResourceId,
+                                         ExternalResourceId = @ExternalResourceId,
+                                         ResourceType = @ResourceType,
+                                         SubscriptionOrAccountId = @SubscriptionOrAccountId,
+                                         ControlId = @ControlId,
+                                         ControlFramework = @ControlFramework,
+                                         Title = @Title,
+                                         Description = @Description,
+                                         Severity = @Severity,
+                                         RiskScore = @RiskScore,
+                                         Exploitability = @Exploitability,
+                                         Exposure = @Exposure,
+                                         BusinessCriticality = @BusinessCriticality,
+                                         BlastRadius = @BlastRadius,
+                                         LastObservedUtc = @LastObservedUtc,
+                                         Status = @Status,
+                                         RawEvidenceReference = @RawEvidenceReference,
+                                         AssessmentId = @AssessmentId,
+                                         InventoryDiffId = @InventoryDiffId,
+                                         AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId,
+                                         PathId = @PathId,
+                                         PayloadHashSha256 = @PayloadHashSha256,
+                                         UpdatedUtc = @UpdatedUtc
+                                     WHERE TenantId = @TenantId
+                                       AND WorkspaceId = @WorkspaceId
+                                       AND ProjectId = @ProjectId
+                                       AND FindingId = @FindingId;
+                                     """;
+
+            int affected = await conn.ExecuteAsync(
+                new CommandDefinition(
+                    updateSql,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        mutation.FindingId,
+                        mutation.CloudResourceId,
+                        mutation.ExternalResourceId,
+                        mutation.ResourceType,
+                        mutation.SubscriptionOrAccountId,
+                        mutation.ControlId,
+                        mutation.ControlFramework,
+                        mutation.Title,
+                        mutation.Description,
+                        mutation.Severity,
+                        mutation.RiskScore,
+                        mutation.Exploitability,
+                        mutation.Exposure,
+                        mutation.BusinessCriticality,
+                        mutation.BlastRadius,
+                        mutation.LastObservedUtc,
+                        Status = (int)mutation.Status,
+                        mutation.RawEvidenceReference,
+                        mutation.AssessmentId,
+                        mutation.InventoryDiffId,
+                        mutation.AuditEvidenceSnapshotId,
+                        mutation.PathId,
+                        mutation.PayloadHashSha256,
+                        mutation.UpdatedUtc,
+                    },
+                    tx,
+                    cancellationToken: cancellationToken));
+
+            if (affected != 1)
+                throw new InvalidOperationException("Scoped operational finding mutation did not update exactly one record.");
+
+            const string metadataSql = """
+                                       MERGE dbo.OperationalSecurityFindingMetadata AS target
+                                       USING (SELECT @MetadataRowId AS MetadataRowId, @FindingId AS FindingId, @TenantId AS TenantId,
+                                                     @MetadataKey AS MetadataKey, @MetadataValue AS MetadataValue) AS source
+                                       ON target.TenantId = source.TenantId
+                                          AND target.FindingId = source.FindingId
+                                          AND target.MetadataKey = source.MetadataKey
+                                       WHEN MATCHED THEN
+                                           UPDATE SET MetadataValue = source.MetadataValue
+                                       WHEN NOT MATCHED THEN
+                                           INSERT (MetadataRowId, FindingId, TenantId, MetadataKey, MetadataValue)
+                                           VALUES (source.MetadataRowId, source.FindingId, source.TenantId, source.MetadataKey, source.MetadataValue);
+                                       """;
+
+            foreach (OperationalSecurityFindingMetadataMutation row in metadata)
+            {
+                await conn.ExecuteAsync(
+                    new CommandDefinition(
+                        metadataSql,
+                        new
+                        {
+                            row.MetadataRowId,
+                            FindingId = mutation.FindingId,
+                            TenantId = scope.TenantId,
+                            row.MetadataKey,
+                            row.MetadataValue,
+                        },
+                        tx,
+                        cancellationToken: cancellationToken));
+            }
+
+            if (observation is not null)
+            {
+                const string observationSql = """
+                                              INSERT INTO dbo.OperationalSecurityFindingObservations
+                                              (
+                                                  ObservationId, FindingId, TenantId, ObservedUtc, Status, Severity, RiskScore,
+                                                  Summary, PayloadHashSha256, SourceSystem
+                                              )
+                                              VALUES
+                                              (
+                                                  @ObservationId, @FindingId, @TenantId, @ObservedUtc, @Status, @Severity, @RiskScore,
+                                                  @Summary, @PayloadHashSha256, @SourceSystem
+                                              );
+                                              """;
+
+                await conn.ExecuteAsync(
+                    new CommandDefinition(
+                        observationSql,
+                        new
+                        {
+                            observation.ObservationId,
+                            FindingId = mutation.FindingId,
+                            TenantId = scope.TenantId,
+                            observation.ObservedUtc,
+                            Status = (int)observation.Status,
+                            observation.Severity,
+                            observation.RiskScore,
+                            observation.Summary,
+                            observation.PayloadHashSha256,
+                            observation.SourceSystem,
+                        },
+                        tx,
+                        cancellationToken: cancellationToken));
+            }
 
             tx.Commit();
         }

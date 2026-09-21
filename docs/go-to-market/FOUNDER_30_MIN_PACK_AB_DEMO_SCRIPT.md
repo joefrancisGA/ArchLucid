@@ -36,6 +36,33 @@
 
 ---
 
+## 30-minute talk track (verbatim)
+
+Use this when the room goes silent or challenges “isn’t this just ChatGPT?”
+
+1. **Same evidence.** “We are not re-prompting. This is the committed review package.”
+2. **Pack A.** “Default assignment. Dry-run says the gate allows finalize.”
+3. **Pack B.** “Same ZIP, tighter pack. Gate outcome and sponsor headline change.”
+4. **Non-summing ROI.** “Disposition-aware headline. Rows do not add up to the banner number.”
+5. **WK-21.** “Packs do not drive every engine. Topology/cost still run; here is what is pack-aware vs not.”
+6. **Audit CSV.** “Security can reconstruct this without trusting the screen share.”
+
+Offline rehearsal (no live API):
+
+```powershell
+.\scripts\demo-policy-pack-delta.ps1 -OfflineFindingDelta
+```
+
+Live rehearsal (committed run id):
+
+```powershell
+.\scripts\demo-policy-pack-delta.ps1 -RunId <committed-run-id> -ShowFindingDelta
+```
+
+Do not claim SOC 2 certified, live agents on Workspace B, or Simulator dollars as savings.
+
+---
+
 ## Recovery lines (if something breaks)
 
 | Symptom | Founder line | Escalation |

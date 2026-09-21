@@ -66,7 +66,7 @@ def test_parse_rows_nine_columns_with_done() -> None:
     assert rows[0]["done"] == "Yes"
 
 
-def test_parse_rows_keeps_ids_that_start_with_header_prefix() -> None:
+def test_parse_rows_does_not_treat_route_id_starting_with_id_as_header() -> None:
     table = """
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Done | Notes |
 |----|------|------|--------|--------|---------|---------|------|-------|

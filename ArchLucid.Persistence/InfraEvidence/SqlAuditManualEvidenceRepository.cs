@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -62,6 +63,48 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                 cancellationToken: cancellationToken));
     }
 
+    public async Task InsertSubmissionInScopeAsync(
+        ProjectScopeKey scope,
+        AuditManualEvidenceSubmissionMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1 FROM dbo.AuditAssessments
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND AssessmentId = @AssessmentId
+                           )
+                               THROW 50008, 'Scoped audit assessment was not found.', 1;
+
+                           INSERT INTO dbo.AuditManualEvidenceSubmissions
+                           (
+                               SubmissionId, TenantId, AssessmentId, ControlId, RequirementId,
+                               Owner, SubmittedBy, SubmittedUtc, ApplicablePeriodStartUtc, ApplicablePeriodEndUtc,
+                               ExpirationUtc, DocumentVersion, DocumentKind, EvidenceHashSha256, BlobPointer,
+                               ReviewStatus, ProvenanceKind, ItsmProvider, ItsmExternalKey
+                           )
+                           VALUES
+                           (
+                               @SubmissionId, @TenantId, @AssessmentId, @ControlId, @RequirementId,
+                               @Owner, @SubmittedBy, @SubmittedUtc, @ApplicablePeriodStartUtc, @ApplicablePeriodEndUtc,
+                               @ExpirationUtc, @DocumentVersion, @DocumentKind, @EvidenceHashSha256, @BlobPointer,
+                               @ReviewStatus, @ProvenanceKind, @ItsmProvider, @ItsmExternalKey
+                           );
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            mutation.SubmissionId, mutation.AssessmentId, mutation.ControlId, mutation.RequirementId,
+            mutation.Owner, mutation.SubmittedBy, mutation.SubmittedUtc, mutation.ApplicablePeriodStartUtc,
+            mutation.ApplicablePeriodEndUtc, mutation.ExpirationUtc, mutation.DocumentVersion, mutation.DocumentKind,
+            mutation.EvidenceHashSha256, mutation.BlobPointer, ReviewStatus = (int)mutation.ReviewStatus,
+            ProvenanceKind = (int)mutation.ProvenanceKind, mutation.ItsmProvider, mutation.ItsmExternalKey,
+        }, cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyList<AuditManualEvidenceSubmissionRecord>> ListByAssessmentAsync(
         Guid tenantId,
         Guid assessmentId,
@@ -85,6 +128,31 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                 new { TenantId = tenantId, AssessmentId = assessmentId },
                 cancellationToken: cancellationToken));
 
+        return rows.Select(MapSubmission).ToList();
+    }
+
+    public async Task<IReadOnlyList<AuditManualEvidenceSubmissionRecord>> ListByAssessmentInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT m.SubmissionId, m.TenantId, m.AssessmentId, m.ControlId, m.RequirementId,
+                                  m.Owner, m.SubmittedBy, m.SubmittedUtc, m.ApplicablePeriodStartUtc, m.ApplicablePeriodEndUtc,
+                                  m.ExpirationUtc, m.DocumentVersion, m.DocumentKind, m.EvidenceHashSha256, m.BlobPointer,
+                                  m.ReviewStatus, m.ProvenanceKind, m.ItsmProvider, m.ItsmExternalKey
+                           FROM dbo.AuditManualEvidenceSubmissions m
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = m.TenantId AND a.AssessmentId = m.AssessmentId
+                           WHERE m.TenantId = @TenantId
+                             AND m.AssessmentId = @AssessmentId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId
+                           ORDER BY m.SubmittedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<SubmissionRow> rows = await conn.QueryAsync<SubmissionRow>(
+            new CommandDefinition(sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, AssessmentId = assessmentId }, cancellationToken: cancellationToken));
         return rows.Select(MapSubmission).ToList();
     }
 
@@ -115,6 +183,37 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         return rows.Select(MapSubmission).ToList();
     }
 
+    public async Task<IReadOnlyList<AuditManualEvidenceSubmissionRecord>> ListByControlInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        Guid controlId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT m.SubmissionId, m.TenantId, m.AssessmentId, m.ControlId, m.RequirementId,
+                                  m.Owner, m.SubmittedBy, m.SubmittedUtc, m.ApplicablePeriodStartUtc, m.ApplicablePeriodEndUtc,
+                                  m.ExpirationUtc, m.DocumentVersion, m.DocumentKind, m.EvidenceHashSha256, m.BlobPointer,
+                                  m.ReviewStatus, m.ProvenanceKind, m.ItsmProvider, m.ItsmExternalKey
+                           FROM dbo.AuditManualEvidenceSubmissions m
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = m.TenantId AND a.AssessmentId = m.AssessmentId
+                           WHERE m.TenantId = @TenantId
+                             AND m.AssessmentId = @AssessmentId
+                             AND m.ControlId = @ControlId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId
+                           ORDER BY m.SubmittedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<SubmissionRow> rows = await conn.QueryAsync<SubmissionRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                AssessmentId = assessmentId, ControlId = controlId,
+            }, cancellationToken: cancellationToken));
+        return rows.Select(MapSubmission).ToList();
+    }
+
     public async Task<AuditManualEvidenceSubmissionRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid submissionId,
@@ -140,6 +239,30 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         return row is null ? null : MapSubmission(row);
     }
 
+    public async Task<AuditManualEvidenceSubmissionRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid submissionId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT m.SubmissionId, m.TenantId, m.AssessmentId, m.ControlId, m.RequirementId,
+                                  m.Owner, m.SubmittedBy, m.SubmittedUtc, m.ApplicablePeriodStartUtc, m.ApplicablePeriodEndUtc,
+                                  m.ExpirationUtc, m.DocumentVersion, m.DocumentKind, m.EvidenceHashSha256, m.BlobPointer,
+                                  m.ReviewStatus, m.ProvenanceKind, m.ItsmProvider, m.ItsmExternalKey
+                           FROM dbo.AuditManualEvidenceSubmissions m
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = m.TenantId AND a.AssessmentId = m.AssessmentId
+                           WHERE m.TenantId = @TenantId
+                             AND m.SubmissionId = @SubmissionId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        SubmissionRow? row = await conn.QuerySingleOrDefaultAsync<SubmissionRow>(
+            new CommandDefinition(sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SubmissionId = submissionId }, cancellationToken: cancellationToken));
+        return row is null ? null : MapSubmission(row);
+    }
+
     public async Task InsertArchitectureLinkAsync(
         AuditArchitectureEvidenceLinkRecord link,
         CancellationToken cancellationToken = default)
@@ -160,6 +283,36 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                 sql,
                 link,
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task InsertArchitectureLinkInScopeAsync(
+        ProjectScopeKey scope,
+        AuditArchitectureEvidenceLinkRecord link,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(link);
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1 FROM dbo.AuditAssessments
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND AssessmentId = @AssessmentId
+                           )
+                               THROW 50009, 'Scoped audit assessment was not found.', 1;
+
+                           INSERT INTO dbo.AuditArchitectureEvidenceLinks
+                           (LinkId, TenantId, AssessmentId, ControlId, RequirementId, RunId, GoldenManifestId, LinkedBy, LinkedUtc)
+                           VALUES
+                           (@LinkId, @TenantId, @AssessmentId, @ControlId, @RequirementId, @RunId, @GoldenManifestId, @LinkedBy, @LinkedUtc);
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            link.LinkId, link.AssessmentId, link.ControlId, link.RequirementId, link.RunId,
+            link.GoldenManifestId, link.LinkedBy, link.LinkedUtc,
+        }, cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentAsync(
@@ -185,6 +338,29 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         return rows.Select(MapArchitectureLink).ToList();
     }
 
+    public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT l.LinkId, l.TenantId, l.AssessmentId, l.ControlId, l.RequirementId, l.RunId,
+                                  l.GoldenManifestId, l.LinkedBy, l.LinkedUtc
+                           FROM dbo.AuditArchitectureEvidenceLinks l
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = l.TenantId AND a.AssessmentId = l.AssessmentId
+                           WHERE l.TenantId = @TenantId
+                             AND l.AssessmentId = @AssessmentId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId
+                           ORDER BY l.LinkedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ArchitectureLinkRow> rows = await conn.QueryAsync<ArchitectureLinkRow>(
+            new CommandDefinition(sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, AssessmentId = assessmentId }, cancellationToken: cancellationToken));
+        return rows.Select(MapArchitectureLink).ToList();
+    }
+
     public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlAsync(
         Guid tenantId,
         Guid assessmentId,
@@ -206,6 +382,35 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                 new { TenantId = tenantId, AssessmentId = assessmentId, ControlId = controlId },
                 cancellationToken: cancellationToken));
 
+        return rows.Select(MapArchitectureLink).ToList();
+    }
+
+    public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        Guid controlId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT l.LinkId, l.TenantId, l.AssessmentId, l.ControlId, l.RequirementId, l.RunId,
+                                  l.GoldenManifestId, l.LinkedBy, l.LinkedUtc
+                           FROM dbo.AuditArchitectureEvidenceLinks l
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = l.TenantId AND a.AssessmentId = l.AssessmentId
+                           WHERE l.TenantId = @TenantId
+                             AND l.AssessmentId = @AssessmentId
+                             AND l.ControlId = @ControlId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId
+                           ORDER BY l.LinkedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ArchitectureLinkRow> rows = await conn.QueryAsync<ArchitectureLinkRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                AssessmentId = assessmentId, ControlId = controlId,
+            }, cancellationToken: cancellationToken));
         return rows.Select(MapArchitectureLink).ToList();
     }
 

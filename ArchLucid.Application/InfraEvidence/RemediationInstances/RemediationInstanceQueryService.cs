@@ -163,8 +163,8 @@ public interface IRemediationInstanceQueryService
 }
 
 public sealed class RemediationInstanceQueryService(
-    IRemediationInstanceRepository instanceRepository,
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedRemediationInstanceRepository instanceRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     IRemediationPatternMatchRepository matchRepository,
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
     IAuthorityQueryService authorityQueryService,
@@ -190,8 +190,8 @@ public sealed class RemediationInstanceQueryService(
 
         if (findingId is Guid scopedFindingId && scopedFindingId != Guid.Empty)
         {
-            instances = await instanceRepository.ListByFindingIdAsync(
-                scope.TenantId,
+            instances = await instanceRepository.ListByFindingIdInScopeAsync(
+                scope.ToProjectScopeKey(),
                 scopedFindingId,
                 cancellationToken);
 
@@ -205,8 +205,8 @@ public sealed class RemediationInstanceQueryService(
         else if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
         {
             (IReadOnlyList<RemediationInstanceRecord> items, _) =
-                await instanceRepository.ListByCloudResourceIdPagedAsync(
-                    scope.TenantId,
+                await instanceRepository.ListByCloudResourceIdPagedInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     resourceId,
                     PaginationDefaults.DefaultPage,
                     PaginationDefaults.MaxPageSize,
@@ -216,16 +216,8 @@ public sealed class RemediationInstanceQueryService(
         }
         else
         {
-            instances = await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+            instances = await instanceRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
         }
-
-        instances = instances
-            .Where(instance => SecureNowScopeGuard.Matches(
-                scope,
-                instance.TenantId,
-                instance.WorkspaceId,
-                instance.ProjectId))
-            .ToList();
 
         foreach (RemediationInstanceRecord instance in instances)
         {
@@ -274,10 +266,16 @@ public sealed class RemediationInstanceQueryService(
             await findingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), instance.FindingId, cancellationToken);
 
         RemediationPatternMatchResultRecord? activeMatch =
-            await matchRepository.TryGetActiveMatchAsync(scope.TenantId, instance.FindingId, cancellationToken);
+            await matchRepository.TryGetActiveMatchInScopeAsync(
+                scope.ToProjectScopeKey(),
+                instance.FindingId,
+                cancellationToken);
 
         IReadOnlyList<RemediationEvidenceRecord> evidence =
-            await instanceRepository.ListEvidenceByInstanceAsync(scope.TenantId, instanceId, cancellationToken);
+            await instanceRepository.ListEvidenceByInstanceInScopeAsync(
+                scope.ToProjectScopeKey(),
+                instanceId,
+                cancellationToken);
 
         return new RemediationInstanceDetail
         {

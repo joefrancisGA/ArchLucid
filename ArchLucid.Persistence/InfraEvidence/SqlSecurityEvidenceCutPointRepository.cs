@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -86,6 +87,55 @@ public sealed class SqlSecurityEvidenceCutPointRepository(ISqlConnectionFactory 
             .ToList();
     }
 
+    public async Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListByPathIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT c.CutPointId, c.TenantId, c.SnapshotId, c.RuleVersion, c.CutKind, c.CutKey,
+                                  c.FromNodeId, c.ToNodeId, c.EdgeType, c.PathsCollapsedCount, c.OperationalCostClass,
+                                  c.LeverageScore, c.CutOrder, c.EvidenceReferencesJson, c.CollapsedPathIdsJson,
+                                  c.SuggestedPatternKey, c.CloudResourceId, c.ResourceType, c.ComputedUtc
+                           FROM dbo.SecurityEvidenceCutPoints c
+                           INNER JOIN dbo.SecurityEvidencePaths p
+                               ON p.TenantId = c.TenantId AND p.SnapshotId = c.SnapshotId
+                           WHERE c.TenantId = @TenantId
+                             AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId
+                             AND c.CollapsedPathIdsJson LIKE @PathIdLike
+                             AND EXISTS (
+                                 SELECT 1
+                                 FROM dbo.SecurityEvidencePaths targetPath
+                                 WHERE targetPath.TenantId = @TenantId
+                                   AND targetPath.WorkspaceId = @WorkspaceId
+                                   AND targetPath.ProjectId = @ProjectId
+                                   AND targetPath.PathId = @PathId
+                             )
+                           ORDER BY c.LeverageScore DESC, c.CutOrder, c.CutPointId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<CutPointRow> rows = await conn.QueryAsync<CutPointRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    PathId = pathId,
+                    PathIdLike = $"%{pathId:D}%",
+                },
+                cancellationToken: cancellationToken));
+
+        return rows
+            .Select(MapCutPoint)
+            .Where(record => CollapsedPathIdsContains(record, pathId))
+            .DistinctBy(record => record.CutPointId)
+            .ToList();
+    }
+
     public async Task ReplaceCutPointsForSnapshotAsync(
         Guid tenantId,
         Guid snapshotId,
@@ -142,6 +192,110 @@ public sealed class SqlSecurityEvidenceCutPointRepository(ISqlConnectionFactory 
                         cutPoint.CutPointId,
                         cutPoint.TenantId,
                         cutPoint.SnapshotId,
+                        cutPoint.RuleVersion,
+                        CutKind = (int)cutPoint.CutKind,
+                        cutPoint.CutKey,
+                        cutPoint.FromNodeId,
+                        cutPoint.ToNodeId,
+                        cutPoint.EdgeType,
+                        cutPoint.PathsCollapsedCount,
+                        OperationalCostClass = (int)cutPoint.OperationalCostClass,
+                        cutPoint.LeverageScore,
+                        cutPoint.CutOrder,
+                        cutPoint.EvidenceReferencesJson,
+                        cutPoint.CollapsedPathIdsJson,
+                        cutPoint.SuggestedPatternKey,
+                        cutPoint.CloudResourceId,
+                        cutPoint.ResourceType,
+                        cutPoint.ComputedUtc,
+                    },
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
+        }
+
+        tx.Commit();
+    }
+
+    public async Task ReplaceCutPointsForSnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(cutPoints);
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using System.Data.IDbTransaction tx = conn.BeginTransaction();
+
+        const string scopeExistsSql = """
+                                      SELECT COUNT(1)
+                                      FROM dbo.SecurityEvidencePaths
+                                      WHERE TenantId = @TenantId
+                                        AND WorkspaceId = @WorkspaceId
+                                        AND ProjectId = @ProjectId
+                                        AND SnapshotId = @SnapshotId;
+                                      """;
+
+        int scopedPathCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                scopeExistsSql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId },
+                transaction: tx,
+                cancellationToken: cancellationToken));
+
+        if (scopedPathCount == 0 && cutPoints.Count > 0)
+            throw new InvalidOperationException("Scoped cut-point replacement target snapshot has no paths in the project.");
+
+        const string deleteSql = """
+                                 DELETE c
+                                 FROM dbo.SecurityEvidenceCutPoints c
+                                 WHERE c.TenantId = @TenantId
+                                   AND c.SnapshotId = @SnapshotId
+                                   AND EXISTS (
+                                       SELECT 1
+                                       FROM dbo.SecurityEvidencePaths p
+                                       WHERE p.TenantId = c.TenantId
+                                         AND p.SnapshotId = c.SnapshotId
+                                         AND p.WorkspaceId = @WorkspaceId
+                                         AND p.ProjectId = @ProjectId
+                                   );
+                                 """;
+
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                deleteSql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId },
+                transaction: tx,
+                cancellationToken: cancellationToken));
+
+        const string insertSql = """
+                                 INSERT INTO dbo.SecurityEvidenceCutPoints
+                                 (
+                                     CutPointId, TenantId, SnapshotId, RuleVersion, CutKind, CutKey,
+                                     FromNodeId, ToNodeId, EdgeType, PathsCollapsedCount, OperationalCostClass,
+                                     LeverageScore, CutOrder, EvidenceReferencesJson, CollapsedPathIdsJson,
+                                     SuggestedPatternKey, CloudResourceId, ResourceType, ComputedUtc
+                                 )
+                                 VALUES
+                                 (
+                                     @CutPointId, @TenantId, @SnapshotId, @RuleVersion, @CutKind, @CutKey,
+                                     @FromNodeId, @ToNodeId, @EdgeType, @PathsCollapsedCount, @OperationalCostClass,
+                                     @LeverageScore, @CutOrder, @EvidenceReferencesJson, @CollapsedPathIdsJson,
+                                     @SuggestedPatternKey, @CloudResourceId, @ResourceType, @ComputedUtc
+                                 );
+                                 """;
+
+        foreach (SecurityEvidenceCutPointRecord cutPoint in cutPoints)
+        {
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    insertSql,
+                    new
+                    {
+                        cutPoint.CutPointId,
+                        TenantId = scope.TenantId,
+                        SnapshotId = snapshotId,
                         cutPoint.RuleVersion,
                         CutKind = (int)cutPoint.CutKind,
                         cutPoint.CutKey,
