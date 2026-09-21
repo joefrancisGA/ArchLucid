@@ -132,7 +132,14 @@ public sealed class AuditEvidenceFreshnessGateTests
             NullLogger<AuditEvidenceFreshnessService>.Instance);
 
         IReadOnlyList<AuditEvidenceSnapshotItemRecord> items =
-            await freshnessService.ListHistoricalItemsAsync(tenantId, auditEvidenceSnapshotId);
+            await freshnessService.ListHistoricalItemsAsync(
+                new ScopeContext
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                },
+                auditEvidenceSnapshotId);
 
         items.Should().ContainSingle();
         items[0].FreshnessStatus.Should().Be(AuditEvidenceFreshnessStatus.Stale);

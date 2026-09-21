@@ -104,19 +104,22 @@ public sealed class AuditEvidenceFreshnessService(
         snapshotRepository.ListItemsInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
 
     public async Task<IReadOnlyList<AuditEvidenceFreshnessItemUpdate>> ClassifySnapshotItemsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid auditEvidenceSnapshotId,
         DateTime referenceUtc,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+
         IReadOnlyList<AuditEvidenceSnapshotItemRecord> items =
-            await snapshotRepository.ListItemsAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+            await snapshotRepository.ListItemsInScopeAsync(projectScope, auditEvidenceSnapshotId, cancellationToken);
 
         if (items.Count == 0)
             return [];
 
         IReadOnlyDictionary<Guid, AuditEvidenceRequirementRecord> requirementsById =
-            await LoadRequirementsForSnapshotAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+            await LoadRequirementsForSnapshotInScopeAsync(projectScope, auditEvidenceSnapshotId, cancellationToken);
 
         List<AuditEvidenceFreshnessItemUpdate> updates = [];
 
@@ -134,20 +137,26 @@ public sealed class AuditEvidenceFreshnessService(
     }
 
     public async Task ApplyFreshnessToSnapshotAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid auditEvidenceSnapshotId,
         DateTime referenceUtc,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         try
         {
             IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates =
-                await ClassifySnapshotItemsAsync(tenantId, auditEvidenceSnapshotId, referenceUtc, cancellationToken);
+                await ClassifySnapshotItemsAsync(scope, auditEvidenceSnapshotId, referenceUtc, cancellationToken);
 
             if (updates.Count == 0)
                 return;
 
-            await snapshotRepository.UpdateItemFreshnessAsync(tenantId, auditEvidenceSnapshotId, updates, cancellationToken);
+            await snapshotRepository.UpdateItemFreshnessInScopeAsync(
+                scope.ToProjectScopeKey(),
+                auditEvidenceSnapshotId,
+                updates,
+                cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -161,22 +170,31 @@ public sealed class AuditEvidenceFreshnessService(
     }
 
     public async Task<AuditEvidenceFreshnessDashboardRecord> GetDashboardCountsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid assessmentId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+
         IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> snapshots =
-            await snapshotRepository.ListByAssessmentAsync(tenantId, assessmentId, cancellationToken);
+            await snapshotRepository.ListByAssessmentInScopeAsync(projectScope, assessmentId, cancellationToken);
 
         if (snapshots.Count == 0)
             return new AuditEvidenceFreshnessDashboardRecord();
 
         AuditEvidenceSnapshotHeaderRecord latestSnapshot = snapshots[0];
         IReadOnlyList<AuditEvidenceSnapshotItemRecord> items =
-            await snapshotRepository.ListItemsAsync(tenantId, latestSnapshot.AuditEvidenceSnapshotId, cancellationToken);
+            await snapshotRepository.ListItemsInScopeAsync(
+                projectScope,
+                latestSnapshot.AuditEvidenceSnapshotId,
+                cancellationToken);
 
         IReadOnlyDictionary<Guid, AuditEvidenceRequirementRecord> requirementsById =
-            await LoadRequirementsForSnapshotAsync(tenantId, latestSnapshot.AuditEvidenceSnapshotId, cancellationToken);
+            await LoadRequirementsForSnapshotInScopeAsync(
+                projectScope,
+                latestSnapshot.AuditEvidenceSnapshotId,
+                cancellationToken);
 
         int currentCount = 0;
         int freshCount = 0;
@@ -244,10 +262,22 @@ public sealed class AuditEvidenceFreshnessService(
     }
 
     public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListHistoricalItemsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default) =>
-        snapshotRepository.ListItemsAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+        ListHistoricalItemsInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
+
+    private async Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListHistoricalItemsInScopeAsync(
+        ScopeContext scope,
+        Guid auditEvidenceSnapshotId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        return await snapshotRepository.ListItemsInScopeAsync(
+            scope.ToProjectScopeKey(),
+            auditEvidenceSnapshotId,
+            cancellationToken);
+    }
 
     internal static AuditEvidenceFreshnessStatus ClassifyItem(
         AuditEvidenceSnapshotItemRecord item,
@@ -270,25 +300,25 @@ public sealed class AuditEvidenceFreshnessService(
         return AuditEvidenceFreshnessClassifier.Classify(item.CollectedUtc, referenceUtc, policy);
     }
 
-    private async Task<IReadOnlyDictionary<Guid, AuditEvidenceRequirementRecord>> LoadRequirementsForSnapshotAsync(
-        Guid tenantId,
+    private async Task<IReadOnlyDictionary<Guid, AuditEvidenceRequirementRecord>> LoadRequirementsForSnapshotInScopeAsync(
+        ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken)
     {
         AuditEvidenceSnapshotHeaderRecord? header =
-            await snapshotRepository.TryGetHeaderAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+            await snapshotRepository.TryGetHeaderInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
 
         if (header is null)
             return new Dictionary<Guid, AuditEvidenceRequirementRecord>();
 
         AuditAssessmentRecord? assessment =
-            await assessmentRepository.TryGetByIdAsync(tenantId, header.AssessmentId, cancellationToken);
+            await assessmentRepository.TryGetByIdInScopeAsync(scope, header.AssessmentId, cancellationToken);
 
         if (assessment is null)
             return new Dictionary<Guid, AuditEvidenceRequirementRecord>();
 
         IReadOnlyList<AuditEvidenceRequirementRecord> requirements =
-            await requirementRepository.ListByFrameworkIdAsync(tenantId, assessment.FrameworkId, cancellationToken);
+            await requirementRepository.ListByFrameworkIdAsync(scope.TenantId, assessment.FrameworkId, cancellationToken);
 
         return requirements.ToDictionary(requirement => requirement.RequirementId);
     }
