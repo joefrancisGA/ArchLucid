@@ -17,6 +17,8 @@ import {
   TEAMS_SLACK_NOTIFICATION_TEAMS_LINK,
   TEAMS_SLACK_NOTIFICATION_SLACK_LINK,
 } from "@/lib/vocabulary/teams-slack-notification-vocabulary";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 import type { NotificationPreferenceChannel } from "./notification-preference-center-channels";
 
@@ -105,6 +107,22 @@ export const NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS: readonly Notific
     links: [TEAMS_SLACK_NOTIFICATION_TEAMS_LINK, TEAMS_SLACK_NOTIFICATION_SLACK_LINK],
   },
 ] as const;
+
+export function notificationPreferenceCenterRelationsDisclosureSummary(productLineId: ProductLineId): string {
+  return isSecureNowProductLine(productLineId)
+    ? "How this page relates to Digests, Preferences, and Microsoft Teams"
+    : NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY;
+}
+
+export function resolveNotificationPreferenceRelations(
+  productLineId: ProductLineId,
+): readonly NotificationPreferenceCenterRelationsSection[] {
+  if (!isSecureNowProductLine(productLineId)) {
+    return NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS;
+  }
+
+  return NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS.filter((section) => section.id !== "teams-slack");
+}
 
 export function pathMatchesNotificationPreferenceCenter(pathname: string): boolean {
   const normalized =

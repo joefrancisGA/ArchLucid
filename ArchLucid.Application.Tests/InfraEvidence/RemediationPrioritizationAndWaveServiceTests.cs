@@ -190,14 +190,15 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationInstanceRepository instanceRepository)
     {
         RemediationInstanceService instanceService = new(
-            instanceRepository,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             new InMemoryRemediationPatternMatchRepository(),
             new InMemoryRemediationPatternRepository(),
             new InMemoryOperationalSecurityExceptionRepository(),
             new InMemorySnapshotRepository(),
             new InMemoryAdvisoryTerraformService(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IOperationalSecurityFindingRepository>(),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
+                Mock.Of<IOperationalSecurityFindingRepository>()),
             Mock.Of<IRemediationPathNarrativeBuilder>(),
             Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),

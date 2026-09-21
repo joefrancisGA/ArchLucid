@@ -24,6 +24,15 @@ async function mockDiagramRoutes(
   await page.route("**/api/proxy/v1/infra-evidence/snapshots**", async (route) => {
     const url = route.request().url();
 
+    if (url.includes("/operator-inferred-connections")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]",
+      });
+      return;
+    }
+
     if (url.includes("/mermaid/preview")) {
       await route.fulfill({
         status: 200,

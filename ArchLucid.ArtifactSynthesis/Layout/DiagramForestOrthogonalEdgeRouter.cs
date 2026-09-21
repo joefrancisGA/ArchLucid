@@ -65,10 +65,17 @@ public static class DiagramForestOrthogonalEdgeRouter
             return uRoute;
         }
 
-        // Last resort: straight chord even when it crosses a third node (better than no connector).
+        List<(double X1, double Y1, double X2, double Y2)> fallbackSegments = horizontalFirst;
+
+        if (IsAxisAligned(fromX, fromY, toX, toY))
+        {
+            fallbackSegments = straightSegments;
+        }
+
+        // Last resort: keep the connector orthogonal even when it crosses a third node.
         return new RouteResult(
-            BuildPathData(straightSegments),
-            straightSegments,
+            BuildPathData(fallbackSegments),
+            fallbackSegments,
             UsedFallback: true);
     }
 

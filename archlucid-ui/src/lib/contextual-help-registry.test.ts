@@ -494,6 +494,16 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves slack integration Category-1 help (ISN)", () => {
     expect(contextualHelpForPathname("/integrations/slack")?.whatIsThisPage).toContain("Slack integration");
     expect(contextualHelpForPathname("/integrations/slack")?.whatToDoNext).toContain("Slack destination");
+    expect(contextualHelpForPathname("/integrations/slack", { productLineId: "security" })).toBeNull();
+    expect(contextualHelpForPathname("/integrations/azure-boards", { productLineId: "security" })).toBeNull();
+  });
+
+  it("localizes SecureNow notification help without Slack", () => {
+    const entry = contextualHelpForPathname("/administration/notifications", { productLineId: "security" });
+
+    expect(entry?.whatIsThisPage).toContain("Teams");
+    expect(entry?.whatIsThisPage).not.toContain("Slack");
+    expect(entry?.whereToConfigurePrerequisite).not.toContain("Slack");
   });
 
   it("resolves webhooks integration Category-1 help (IWX)", () => {

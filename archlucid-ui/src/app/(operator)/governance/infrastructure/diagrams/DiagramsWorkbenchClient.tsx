@@ -1543,7 +1543,7 @@ export function DiagramsWorkbenchClient() {
 
       <section
         className={cn(
-          "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+          "grid items-start gap-x-4 gap-y-2 md:grid-cols-2",
           cnCard,
         )}
         aria-label="Subscription, snapshot, and diagram type selection"
