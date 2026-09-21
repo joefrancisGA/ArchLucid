@@ -32,7 +32,10 @@ public sealed class AuditManualEvidenceSubmissionService(
             AuditManualEvidenceActorGuard.EnsureHumanSubmitter(actorId, ProvenanceKind.HumanAssertion);
 
             AuditAssessmentRecord? assessment =
-                await assessmentRepository.TryGetByIdAsync(scope.TenantId, request.AssessmentId, cancellationToken);
+                await assessmentRepository.TryGetByIdInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    request.AssessmentId,
+                    cancellationToken);
 
             if (assessment is null)
             {
@@ -79,30 +82,30 @@ public sealed class AuditManualEvidenceSubmissionService(
                 request.Content,
                 cancellationToken);
 
-            AuditManualEvidenceSubmissionRecord submission = new()
-            {
-                SubmissionId = submissionId,
-                TenantId = scope.TenantId,
-                AssessmentId = request.AssessmentId,
-                ControlId = request.ControlId,
-                RequirementId = request.RequirementId,
-                Owner = request.Owner,
-                SubmittedBy = submittedBy,
-                SubmittedUtc = TimeProvider.System.UtcNowDateTime(),
-                ApplicablePeriodStartUtc = request.ApplicablePeriodStartUtc,
-                ApplicablePeriodEndUtc = request.ApplicablePeriodEndUtc,
-                ExpirationUtc = request.ExpirationUtc,
-                DocumentVersion = request.DocumentVersion,
-                DocumentKind = request.DocumentKind,
-                EvidenceHashSha256 = evidenceHash,
-                BlobPointer = blobPointer,
-                ReviewStatus = AuditEvidenceReviewStatus.Pending,
-                ProvenanceKind = ProvenanceKind.HumanAssertion,
-                ItsmProvider = request.ItsmProvider,
-                ItsmExternalKey = request.ItsmExternalKey,
-            };
-
-            await manualEvidenceRepository.InsertSubmissionAsync(submission, cancellationToken);
+            await manualEvidenceRepository.InsertSubmissionInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new AuditManualEvidenceSubmissionMutation
+                {
+                    SubmissionId = submissionId,
+                    AssessmentId = request.AssessmentId,
+                    ControlId = request.ControlId,
+                    RequirementId = request.RequirementId,
+                    Owner = request.Owner,
+                    SubmittedBy = submittedBy,
+                    SubmittedUtc = TimeProvider.System.UtcNowDateTime(),
+                    ApplicablePeriodStartUtc = request.ApplicablePeriodStartUtc,
+                    ApplicablePeriodEndUtc = request.ApplicablePeriodEndUtc,
+                    ExpirationUtc = request.ExpirationUtc,
+                    DocumentVersion = request.DocumentVersion,
+                    DocumentKind = request.DocumentKind,
+                    EvidenceHashSha256 = evidenceHash,
+                    BlobPointer = blobPointer,
+                    ReviewStatus = AuditEvidenceReviewStatus.Pending,
+                    ProvenanceKind = ProvenanceKind.HumanAssertion,
+                    ItsmProvider = request.ItsmProvider,
+                    ItsmExternalKey = request.ItsmExternalKey,
+                },
+                cancellationToken);
 
             return new AuditManualEvidenceSubmitResult
             {
