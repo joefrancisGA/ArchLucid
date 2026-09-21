@@ -93,7 +93,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | EAX | `/help/architecture-desk` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HXX | `/help/architecture-draft-editing` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EXX | `/help/architecture-sharing` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
-| HBA | `/help/background-wait` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HBA | `/help/background-wait` | 0.02% | 78,80 | 0 | 2 | Help topic | No | SecureNow background-wait help Phase 2: in-flight resume path, cooperative cancel semantics, seat applicability, provenance, anchored sections, related guides, state vocabulary, shortcut path, and completion check-back; 2026-09-21 al-ui-rate: shipped safe backlog |
 | HCA | `/help/career-rehearsal-doors` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | ECX | `/help/career-vs-rehearsal` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EEX | `/help/extraction-fidelity` | 0.02% | 0 | 0 | 2 | Help topic | No | None |

@@ -9,6 +9,7 @@ export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "advisory-scans",
   "ai-usage",
   "baseline-settings",
+  "background-wait",
   "connection-status",
   "contact-support",
   "decision-register",
