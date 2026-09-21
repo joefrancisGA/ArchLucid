@@ -16,7 +16,7 @@ IDR-HOLD exists because frames on the connected-component grid overlapped. IDA-0
 
 | Temptation | Hold |
 |-----------|------|
-| Nested VNet / subnet / NIC / subscription frames | Recursive cluster packer; **IDA-HOLD** |
+| Nested VNet / subnet / NIC / subscription frames **from an IDF chat** | Recursive cluster packer; **IDA-HOLD** in IDA/IDF waves. Authorized nesting is **IDX-05 / IDX-06** |
 | Merge disconnected components so a split RG is one box | Hides the component grid IDH/IDG kept compact |
 | Draw RG rects from an **IDR** chat | **IDR-HOLD** — captions only in IDR |
 | Bump `ComponentHorizontalGap` / `ComponentVerticalGap` | Dense `viewBoxToUnion` ratchet; use IDF-04 chrome |
@@ -32,7 +32,7 @@ IDR-HOLD exists because frames on the connected-component grid overlapped. IDA-0
 
 ## If a session is already implementing a hold item
 
-Stop. Revert uncommitted hold-item code. Point at **IDF-01–IDF-07**. For nested frames, write a one-paragraph owner question — do not start a packer.
+Stop. Revert uncommitted hold-item code. Point at **IDF-01–IDF-07**. For nested frames, point at **IDX-05 / IDX-06** — do not start a packer from an IDF chat.
 
 ## Done when
 
