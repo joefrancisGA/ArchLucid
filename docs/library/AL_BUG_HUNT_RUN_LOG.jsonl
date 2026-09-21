@@ -6493,3 +6493,4 @@
 {"at":"2026-09-21T01:26:29.1860495Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-21T01:26:33.2769711Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-21T01:26:37.4064579Z","zoneId":"tenant-data-export","outcome":"seed-only"}
+{"at":"2026-09-21T01:26:41.7897488Z","zoneId":"persistence-identity","outcome":"seed-only"}
