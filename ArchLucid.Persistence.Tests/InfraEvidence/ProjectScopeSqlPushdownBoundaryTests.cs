@@ -48,6 +48,15 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(ISecurityEvidencePathRoutingRepository), typeof(SqlSecurityEvidencePathRoutingRepository), "ListByPathIdInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRoutingRepository), typeof(SqlSecurityEvidencePathRoutingRepository), "ReplaceRoutingForPathInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListEvidenceByInstanceInScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByCloudResourceIdPagedInScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByFindingIdInScopeAsync"];
+        yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "InsertWaveInScopeAsync"];
+        yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "UpdateWaveInScopeAsync"];
+        yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "ListByScopeAsync"];
+        yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "InsertMemberInScopeAsync"];
+        yield return [typeof(IRemediationWaveRepository), typeof(SqlRemediationWaveRepository), "ListMembersByWaveInScopeAsync"];
         yield return [typeof(IRemediationPrioritizationRepository), typeof(SqlRemediationPrioritizationRepository), "ListScoresByScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "DeactivateMatchesForFindingInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "InsertMatchResultInScopeAsync"];
@@ -94,6 +103,9 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(OperationalSecurityExceptionRevokeMutation)];
         yield return [typeof(OperationalSecurityExceptionExpiryProcessedMutation)];
         yield return [typeof(RemediationPrioritizationScoreMutation)];
+        yield return [typeof(RemediationWaveCreateMutation)];
+        yield return [typeof(RemediationWaveMutation)];
+        yield return [typeof(RemediationWaveMemberMutation)];
     }
 
     [Theory]

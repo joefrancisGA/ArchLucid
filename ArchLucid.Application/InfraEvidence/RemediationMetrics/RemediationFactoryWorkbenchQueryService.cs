@@ -80,7 +80,7 @@ public sealed class RemediationFactoryWorkbenchQueryService(
         RemediationFactoryMetrics metrics = await metricsService.GetMetricsAsync(scope, cancellationToken);
 
         IReadOnlyList<RemediationInstanceRecord> instances =
-            await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+            await instanceRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
 
         Dictionary<string, int> openInstancesByStatus = instances
             .Where(item => item.Status != RemediationInstanceStatus.Closed)

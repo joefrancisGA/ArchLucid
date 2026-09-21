@@ -52,6 +52,17 @@ public interface IRemediationInstanceRepository
         Guid instanceId,
         CancellationToken cancellationToken = default);
 
+    async Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        Guid instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        RemediationInstanceRecord? instance = await TryGetByIdInScopeAsync(scope, instanceId, cancellationToken);
+        return instance is null
+            ? []
+            : await ListEvidenceByInstanceAsync(scope.TenantId, instanceId, cancellationToken);
+    }
+
     Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default);
@@ -75,10 +86,35 @@ public interface IRemediationInstanceRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    async Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (IReadOnlyList<RemediationInstanceRecord> items, _) =
+            await ListByCloudResourceIdPagedAsync(scope.TenantId, cloudResourceId, page, pageSize, cancellationToken);
+        IReadOnlyList<RemediationInstanceRecord> scoped = items
+            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId))
+            .ToList();
+        return (scoped, scoped.Count);
+    }
+
     Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default);
+
+    async Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationInstanceRecord> rows =
+            await ListByFindingIdAsync(scope.TenantId, findingId, cancellationToken);
+        return rows.Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)).ToList();
+    }
 }
 
 public sealed record RemediationInstanceMutation
