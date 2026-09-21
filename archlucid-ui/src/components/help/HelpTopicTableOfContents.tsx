@@ -185,8 +185,10 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
     };
   }, []);
 
+  const enableScrollSpy = props.enableScrollSpy ?? true;
+
   useEffect(() => {
-    if (!props.enableScrollSpy || sectionIds.length === 0) {
+    if (!enableScrollSpy || sectionIds.length === 0) {
       return;
     }
 
@@ -231,7 +233,7 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
     return () => {
       observer.disconnect();
     };
-  }, [props.enableScrollSpy, sectionIds]);
+  }, [enableScrollSpy, sectionIds]);
 
   const headingCount =
     props.groups !== undefined && props.groups.length > 0
