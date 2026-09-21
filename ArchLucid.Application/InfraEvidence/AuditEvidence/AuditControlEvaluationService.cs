@@ -113,9 +113,10 @@ public sealed class AuditControlEvaluationService(
                 };
             }
 
-            return await TryEvaluateControlAsync(
+            return await TryEvaluateCurrentAssessmentControlCoreAsync(
                 scope,
                 auditSnapshotHeader.InventorySnapshotIds[0],
+                auditEvidenceSnapshotId,
                 frameworkId,
                 controlId,
                 approvedExceptionIds,
