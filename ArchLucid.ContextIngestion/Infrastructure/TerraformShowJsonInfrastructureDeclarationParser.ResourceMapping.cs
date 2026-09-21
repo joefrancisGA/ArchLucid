@@ -2077,6 +2077,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.migrated"] = migrated.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "protocol", out JsonElement protocol)
+                || TryGetPropertyIgnoreCase(res, "protocol", out protocol))
+            && protocol.ValueKind == JsonValueKind.String)
+        {
+            string? protocolText = protocol.GetString();
+
+            if (!string.IsNullOrWhiteSpace(protocolText))
+                properties["tf.protocol"] = protocolText.Trim();
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "hardened", out JsonElement hardened)
                 || TryGetPropertyIgnoreCase(res, "hardened", out hardened))
             && (hardened.ValueKind == JsonValueKind.True || hardened.ValueKind == JsonValueKind.False))
