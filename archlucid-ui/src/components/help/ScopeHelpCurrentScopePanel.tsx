@@ -21,7 +21,7 @@ import {
 } from "@/lib/scope-help-evidence-copy";
 import {
   formatScopeSwitcherTriggerLabel,
-  isEffectiveDevDefaultScope,
+  isSampleWorkspacePresentationScope,
   isScopeSwitchingAvailable,
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
@@ -86,7 +86,7 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
     return readActiveTenantContext(isBuyerPolishedOperatorShellEnv());
   }, [scopeTick]);
 
-  const isSampleWorkspaceSession = isEffectiveDevDefaultScope(workspaceId, projectId);
+  const isSampleWorkspaceSession = isSampleWorkspacePresentationScope(workspaceId, projectId);
   const workspacesQuery = useTenantWorkspacesListQuery({ enabled: !isSampleWorkspaceSession });
   const workspaces = useMemo((): ScopeSwitcherWorkspaceOption[] | null => {
     if (isSampleWorkspaceSession) {

@@ -1,5 +1,8 @@
 import { BUYER_WORKSPACE_DISPLAY_NAME } from "@/lib/buyer/buyer-polish-copy";
-import { isEffectiveDevDefaultScope, type ScopeSwitcherWorkspaceOption } from "@/lib/scope-switcher-display";
+import {
+  isSampleWorkspacePresentationScope,
+  type ScopeSwitcherWorkspaceOption,
+} from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
@@ -81,5 +84,5 @@ export function shouldUseSampleWorkspaceFallback(
   workspaceId: string,
   projectId: string,
 ): boolean {
-  return isEffectiveDevDefaultScope(workspaceId, projectId);
+  return isSampleWorkspacePresentationScope(workspaceId, projectId);
 }
