@@ -1,5 +1,6 @@
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,96 @@ public sealed class AuditEvidenceFreshnessService(
     IAuditAssessmentRepository assessmentRepository,
     ILogger<AuditEvidenceFreshnessService> logger) : IAuditEvidenceFreshnessService
 {
+    public async Task<IReadOnlyList<AuditEvidenceFreshnessItemUpdate>> ClassifySnapshotItemsInScopeAsync(
+        ProjectScopeKey scope,
+        Guid auditEvidenceSnapshotId,
+        DateTime referenceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<AuditEvidenceSnapshotItemRecord> items =
+            await snapshotRepository.ListItemsInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
+        if (items.Count == 0)
+            return [];
+
+        IReadOnlyDictionary<Guid, AuditEvidenceRequirementRecord> requirementsById =
+            await LoadRequirementsForSnapshotInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
+
+        return items.Select(item => new AuditEvidenceFreshnessItemUpdate
+        {
+            EvidenceRowId = item.EvidenceRowId,
+            FreshnessStatus = ClassifyItem(item, requirementsById, referenceUtc),
+        }).ToList();
+    }
+
+    public async Task ApplyFreshnessToSnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid auditEvidenceSnapshotId,
+        DateTime referenceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates =
+            await ClassifySnapshotItemsInScopeAsync(scope, auditEvidenceSnapshotId, referenceUtc, cancellationToken);
+        if (updates.Count == 0)
+            return;
+
+        await snapshotRepository.UpdateItemFreshnessInScopeAsync(scope, auditEvidenceSnapshotId, updates, cancellationToken);
+    }
+
+    public async Task<AuditEvidenceFreshnessDashboardRecord> GetDashboardCountsInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> snapshots =
+            await snapshotRepository.ListByAssessmentInScopeAsync(scope, assessmentId, cancellationToken);
+        if (snapshots.Count == 0)
+            return new AuditEvidenceFreshnessDashboardRecord();
+
+        AuditEvidenceSnapshotHeaderRecord latestSnapshot = snapshots[0];
+        IReadOnlyList<AuditEvidenceSnapshotItemRecord> items =
+            await snapshotRepository.ListItemsInScopeAsync(scope, latestSnapshot.AuditEvidenceSnapshotId, cancellationToken);
+        IReadOnlyDictionary<Guid, AuditEvidenceRequirementRecord> requirementsById =
+            await LoadRequirementsForSnapshotInScopeAsync(scope, latestSnapshot.AuditEvidenceSnapshotId, cancellationToken);
+
+        int currentCount = 0, freshCount = 0, agingCount = 0, staleCount = 0, expiredCount = 0,
+            unknownCount = 0, missingCount = 0, recollectCount = 0, manualCount = 0;
+
+        foreach (AuditEvidenceSnapshotItemRecord item in items)
+        {
+            if (item.CollectionStatus is AuditEvidenceCollectionStatus.Insufficient or AuditEvidenceCollectionStatus.Unsupported)
+            {
+                missingCount++;
+                if (requirementsById.TryGetValue(item.RequirementId, out AuditEvidenceRequirementRecord? requirement)
+                    && requirement.ManualEvidenceAllowed)
+                    manualCount++;
+                continue;
+            }
+
+            switch (item.FreshnessStatus)
+            {
+                case AuditEvidenceFreshnessStatus.Current: currentCount++; break;
+                case AuditEvidenceFreshnessStatus.Fresh: freshCount++; break;
+                case AuditEvidenceFreshnessStatus.Aging: agingCount++; break;
+                case AuditEvidenceFreshnessStatus.Stale: staleCount++; recollectCount++; break;
+                case AuditEvidenceFreshnessStatus.Expired: expiredCount++; recollectCount++; break;
+                default: unknownCount++; break;
+            }
+        }
+
+        return new AuditEvidenceFreshnessDashboardRecord
+        {
+            CurrentCount = currentCount, FreshCount = freshCount, AgingCount = agingCount,
+            StaleCount = staleCount, ExpiredCount = expiredCount, UnknownCount = unknownCount,
+            MissingCount = missingCount, RecollectCount = recollectCount, ManualCount = manualCount,
+        };
+    }
+
+    public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListHistoricalItemsInScopeAsync(
+        ProjectScopeKey scope,
+        Guid auditEvidenceSnapshotId,
+        CancellationToken cancellationToken = default) =>
+        snapshotRepository.ListItemsInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken);
+
     public async Task<IReadOnlyList<AuditEvidenceFreshnessItemUpdate>> ClassifySnapshotItemsAsync(
         Guid tenantId,
         Guid auditEvidenceSnapshotId,

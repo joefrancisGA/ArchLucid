@@ -79,8 +79,8 @@ public sealed class AuditEvidenceLineageService(
                 await requirementRepository.ListByControlIdAsync(scope.TenantId, controlId, cancellationToken);
 
             IReadOnlyList<AuditArchitectureEvidenceLinkRecord> architectureLinks =
-                await manualEvidenceRepository.ListArchitectureLinksByControlAsync(
-                    scope.TenantId,
+                await manualEvidenceRepository.ListArchitectureLinksByControlInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     assessmentId,
                     controlId,
                     cancellationToken);
@@ -102,21 +102,24 @@ public sealed class AuditEvidenceLineageService(
                     cancellationToken);
 
             AuditControlEvaluationRecord? evaluation =
-                await evaluationRepository.TryGetLatestByControlAsync(
-                    scope.TenantId,
+                await evaluationRepository.TryGetLatestByControlInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     controlId,
                     auditEvidenceSnapshotId,
                     cancellationToken);
 
             IReadOnlyList<AuditEvidenceItemRecord> evaluationItems = evaluation is null
                 ? []
-                : await evaluationRepository.ListEvidenceItemsByEvaluationAsync(
-                    scope.TenantId,
+                : await evaluationRepository.ListEvidenceItemsByEvaluationInScopeAsync(
+                    scope.ToProjectScopeKey(),
                     evaluation.EvaluationId,
                     cancellationToken);
 
             AuditEvidenceSnapshotVerificationResult verification =
-                await verificationService.TryVerifyAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+                await verificationService.TryVerifyInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    auditEvidenceSnapshotId,
+                    cancellationToken);
 
             List<AuditEvidenceLineageRequirementChain> requirementChains = [];
             List<string> brokenLinkReasons = [];

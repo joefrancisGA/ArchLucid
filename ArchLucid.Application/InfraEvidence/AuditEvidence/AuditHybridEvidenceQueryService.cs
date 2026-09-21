@@ -56,8 +56,8 @@ public sealed class AuditHybridEvidenceQueryService(
                     cancellationToken);
 
             IReadOnlyList<AuditArchitectureEvidenceLinkRecord> architectureLinks =
-                await manualEvidenceRepository.ListArchitectureLinksByControlAsync(
-                    tenantId,
+                await manualEvidenceRepository.ListArchitectureLinksByControlInScopeAsync(
+                    projectScope,
                     assessmentId,
                     controlId,
                     cancellationToken);

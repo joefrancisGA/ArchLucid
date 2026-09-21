@@ -411,6 +411,45 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                 cancellationToken: cancellationToken));
     }
 
+    public async Task InsertBaselineInScopeAsync(
+        ProjectScopeKey scope,
+        AuditEvidenceBaselineRecord baseline,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(baseline);
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.AuditAssessments
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND AssessmentId = @AssessmentId
+                           )
+                               THROW 50010, 'Scoped audit baseline assessment was not found.', 1;
+
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.AuditEvidenceSnapshots
+                               WHERE TenantId = @TenantId
+                                 AND AssessmentId = @AssessmentId
+                                 AND AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId
+                           )
+                               THROW 50011, 'Scoped audit baseline snapshot was not found.', 1;
+
+                           INSERT INTO dbo.AuditEvidenceBaselines
+                           (BaselineId, AssessmentId, AuditEvidenceSnapshotId, TenantId, Name, DesignatedBy, DesignatedUtc)
+                           VALUES (@BaselineId, @AssessmentId, @AuditEvidenceSnapshotId, @TenantId, @Name, @DesignatedBy, @DesignatedUtc);
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            baseline.BaselineId, baseline.AssessmentId, baseline.AuditEvidenceSnapshotId,
+            baseline.Name, baseline.DesignatedBy, baseline.DesignatedUtc,
+        }, cancellationToken: cancellationToken));
+    }
+
     public async Task<AuditEvidenceBaselineRecord?> TryGetBaselineByNameAsync(
         Guid tenantId,
         Guid assessmentId,
