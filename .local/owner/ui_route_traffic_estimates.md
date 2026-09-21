@@ -126,7 +126,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | INO | `/internal/operational-errors` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | IPL | `/internal/platform-bundled-policy-packs` | 0.02% | 0 | 0 | 2 | Internal | No | None |
 | IPR | `/internal/product-line` | 0.02% | 0 | 0 | 2 | Admin | No | None |
-| SEA | `/security/assigned-to-me` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| SEA | `/security/assigned-to-me` | 0.02% | 86,82 | 0 | 2 | Marketing | No | SecureNow assigned findings Phase 2: scope/filter visibility, resume anchor, product-line link safety, incomplete-zero status, freshness, provenance, and keyboard recovery; 2026-09-21 al-ui-rate: shipped safe backlog; exclusion counts remain backend-limited |
 | SRE | `/security/remediation-factory` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | ERX | `/security/remediation-instances` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | REX | `/security/remediation-patterns` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
