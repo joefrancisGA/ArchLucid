@@ -50,6 +50,15 @@ def main(argv: list[str] | None = None) -> int:
                 f"(dedicated job runs {_SCRIPT})",
             )
 
+        if script_path.is_file() and "ensure_openapi_contract_build.sh" not in script_path.read_text(
+            encoding="utf-8",
+            errors="replace",
+        ):
+            errors.append(
+                f"scripts/ci/{_SCRIPT}: must compile via ensure_openapi_contract_build.sh "
+                "before snapshot compare (regen after a green compile, not against a broken tree)",
+            )
+
     if errors:
         for error in errors:
             print(error, file=sys.stderr)

@@ -16,6 +16,7 @@ import {
 } from "./jwt-token-provider";
 import { collectArchLucidRoleClaimValues } from "@/lib/nav-authority";
 import { liveApiBase, liveE2eHarnessHeaders, liveJsonHeaders, resolveLiveJwtMode } from "./live-api-client";
+import { throwIfNotOk } from "./live-api-response";
 
 /** Matches {@link ScopeIds.DefaultTenant} when JWT omits scope claims. */
 export const LIVE_E2E_DEFAULT_TENANT_ID = "11111111-1111-1111-1111-111111111111";
@@ -556,11 +557,7 @@ export async function listPendingInvitations(request: APIRequestContext): Promis
     headers: liveJsonHeaders(),
   });
 
-  if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`GET /v1/admin/users/invitations failed ${res.status()}: ${body.slice(0, 400)}`);
-  }
+  await throwIfNotOk(res, "GET /v1/admin/users/invitations");
 
   const body = (await res.json()) as { invitations?: unknown[] };
 

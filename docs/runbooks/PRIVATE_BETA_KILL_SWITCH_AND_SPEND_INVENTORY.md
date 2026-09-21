@@ -20,6 +20,40 @@
 
 ---
 
+## Freeze Real LLM in under five minutes
+
+1. Set `AgentExecution__Mode=Simulator` on API **and** worker (env / Key Vault / Container Apps revision).
+2. Confirm Quick Scan stays sample-only: `AnonymousExecutionEnabled=false`.
+3. Optionally set tenant monthly budget to `0` if one named tenant is the spend source.
+4. User-visible result: execute/Ask fail closed with mode badge + correlation id — not a silent hang.
+
+Do **not** disable SQL or auth to stop spend; that takes the invite path down with it.
+
+---
+
+## Email and storage spend
+
+| Path | Cap today | Kill switch | User-visible failure |
+| --- | --- | --- | --- |
+| Invite / notification email | Admin-only invite API; provider rate limits | Disable email sender config / connection string | Invite send error surfaced to admin |
+| Report Problem bundles | Consent-gated; size-capped (**TB-787**) | Feature flag / queue drain | Inline error + correlation id |
+| Extractor / evidence blobs | Per-tenant storage quota | Revoke tenant execute + disable upload | Upload rejected |
+| Audit CSV / sponsor export | Authenticated operator only | Same as execute kill (Simulator still allows export of existing runs) | Export error if pipeline down |
+
+---
+
+## Capacity note (about 10 named users this week)
+
+What breaks first under a 10-invitee wave, in order:
+
+1. **AOAI TPM** on Real execute (if anyone flips off Simulator) — freeze with `AgentExecution__Mode=Simulator`.
+2. **Worker queue depth** on create-run / authority pipeline — visible as stuck runs; use triage card.
+3. **SQL DTU / pool** on cold draft-list and invite GETs — already stubbed in JwtBearer CI; production may still run slow first hits.
+
+SQL and queue issues are reliability, not unbounded spend. Unbounded spend is Real LLM + anonymous Quick Scan (keep Quick Scan sample-only).
+
+---
+
 ## Deploy rollback
 
 | Layer | Action |

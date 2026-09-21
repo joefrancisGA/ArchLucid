@@ -109,6 +109,10 @@ jobs:
           python3 scripts/ci/check_live_e2e_simulator_azure_openai_env.py
           python3 scripts/ci/check_schemathesis_light_auth_paths.py
           python3 scripts/ci/check_sponsor_roi_summary_section_imports.py
+          python3 scripts/ci/check_private_beta_proxy_esm_boundary.py
+          python3 scripts/ci/check_quick_scan_sample_only.py
+          python3 scripts/ci/check_private_beta_claim_boundary.py
+          python3 scripts/ci/check_azure_extractor_pester_isolation.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -132,6 +136,11 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_e2e_simulator_azure_openai_env.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_schemathesis_light_auth_paths.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_roi_summary_section_imports.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_private_beta_proxy_esm_boundary.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_quick_scan_sample_only.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_private_beta_claim_boundary.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_azure_extractor_pester_isolation.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_warm_private_beta_live_api_paths.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_retrigger_private_beta_access_on_push.py"
 
   ui-typecheck:
