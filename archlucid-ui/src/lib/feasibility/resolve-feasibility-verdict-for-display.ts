@@ -4,6 +4,9 @@ import { feasibilityVerdictKindLabel, feasibilityVerdictTone } from "@/lib/feasi
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import { hasHardInfeasibleCitation } from "@/lib/feasibility/feasibility-verdict-citation";
 
+export const FEASIBILITY_VERDICT_MISSING_HARD_CITATION_LABEL =
+  "Infeasibility verdict needs citation" as const;
+
 export type FeasibilityVerdictDisplayResolution = {
   readonly verdict: ManifestFeasibilityVerdict;
   readonly kindLabel: string;
@@ -22,7 +25,7 @@ export function resolveFeasibilityVerdictForDisplay(
   return {
     verdict,
     kindLabel: missingHardCitationDefect
-      ? "Infeasibility verdict needs citation"
+      ? FEASIBILITY_VERDICT_MISSING_HARD_CITATION_LABEL
       : feasibilityVerdictKindLabel(verdict.kind),
     tone: missingHardCitationDefect ? "warning" : feasibilityVerdictTone(verdict.kind),
     missingHardCitationDefect,
