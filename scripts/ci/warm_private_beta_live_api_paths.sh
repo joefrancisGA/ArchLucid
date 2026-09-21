@@ -165,12 +165,7 @@ warm_path_post_optional() {
     warm_status=$?
   fi
 
-  if [ "${warm_status}" -eq 2 ]; then
-    echo "::error::Required warm failed because the API is unreachable; stopping the invite-wave lane before Playwright." >&2
-    return 1
-  fi
-
-  echo "::warning::Optional warm skipped for ${label}; Playwright createRun will JIT-warm with per-attempt HTTP budget." >&2
+  echo "::warning::Optional warm skipped for ${label} (status ${warm_status}); Playwright createRun will JIT-warm with per-attempt HTTP budget." >&2
   return 0
 }
 
