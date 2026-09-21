@@ -168,7 +168,7 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
 
     expect(screen.getByLabelText("Subscription, snapshot, and diagram type selection")).toHaveClass(
       "items-start",
-      "md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+      "md:grid-cols-2",
     );
     expect(screen.getByTestId("infra-diagrams-snapshot-id-readout")).toHaveClass("col-start-1");
   });
