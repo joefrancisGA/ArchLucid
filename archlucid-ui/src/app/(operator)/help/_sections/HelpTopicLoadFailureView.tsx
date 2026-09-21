@@ -28,7 +28,7 @@ export function HelpTopicLoadFailureView(props: HelpTopicLoadFailureViewProps = 
     <div className="space-y-4" data-testid="help-topic-load-failure">
       <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{topicLabel} unavailable</h1>
       <OperatorSectionLoadFailure
-        message={`We could not load ${topicLabel}. The operator shell is available, but this topic request failed. Retry or report the reference ID below.`}
+        message={`We could not load ${topicLabel}. The workspace is available, but this topic request failed. Retry or report the reference ID below.`}
         onRetry={() => window.location.reload()}
         retryLabel="Reload page"
       />
