@@ -533,7 +533,11 @@ describe("InfrastructureAskClient", () => {
     );
     render(<InfrastructureAskClient />);
 
-    expect(await screen.findByText("Question: Persisted question")).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        (_content, element) => element?.textContent === "Question: Persisted question",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-question")).toHaveValue("Saved draft");
   });
 });
