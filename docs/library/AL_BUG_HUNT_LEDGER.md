@@ -3044,7 +3044,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
 - **hunts:** 252
-- **bugs-found:** 484
+- **bugs-found:** 252
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11
@@ -3082,7 +3082,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
 - **hunts:** 8
-- **bugs-found:** 13
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11 — null-coalescing local initializer bypassed ARCH006 static resolution
@@ -3798,7 +3798,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
 - **hunts:** 8
-- **bugs-found:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — enabling auto-replenish skipped step validation on persisted invalid monthly cap
@@ -4576,7 +4576,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
 - **hunts:** 8
-- **bugs-found:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
@@ -5109,7 +5109,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
 - **hunts:** 7
-- **bugs-found:** 8
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
@@ -5244,7 +5244,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
 - **hunts:** 4
-- **bugs-found:** 6
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-25 — Simulator mode skipped `MaxCompletionTokens` range check in `ValidateOrThrow`, deferring failure to `AzureOpenAiOptions` `ValidateOnStart` at `Build()`
@@ -5806,7 +5806,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
 - **hunts:** 8
-- **bugs-found:** 11
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-05 — SAML ambiguous multi-valued scope attributes promoted first value; custom-role permissions resolved via `sub` instead of `oid`; unparseable `auth_time` fell through to fresh `iat` for step-up
@@ -7557,7 +7557,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
 - **hunts:** 14
-- **bugs-found:** 16
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-09 — ServiceNow disposition ignored incident_state when primary state mapped human review only
@@ -7689,7 +7689,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **hunts:** 13
-- **bugs-found:** 17
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-05 — AL0003 missed `[MutatingAuditExcluded]` on implemented interface methods
@@ -7816,7 +7816,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
 - **hunts:** 25
-- **bugs-found:** 32
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — replay cost estimator ignored confidence-only agent deltas
@@ -7921,7 +7921,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
 - **hunts:** 6
-- **bugs-found:** 7
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-03 — abandoned checkout Pending row blocked retry
@@ -8050,7 +8050,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
 - **hunts:** 9
-- **bugs-found:** 11
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-04 — confidence enrichment ignored recorded composite quality-gate rejection
@@ -9877,7 +9877,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 17
-- **bugs-found:** 22
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11 — session hints kept fractional expires_in while BFF sync truncated to whole seconds
@@ -14924,7 +14924,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
 - **hunts:** 7
-- **bugs-found:** 9
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — at-sign-delimited resource tokens under-penalized duplication parity
@@ -16926,7 +16926,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 20
-- **bugs-found:** 27
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — unknown sourceAgent string silently left invalid default AgentType
@@ -19201,7 +19201,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
 - **hunts:** 15
-- **bugs-found:** 29
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — inventory.json mandatory flag parity vs markdown/DOCX
@@ -21010,7 +21010,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
 - **hunts:** 9
-- **bugs-found:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-09 — org-required toggle on inactive platform pack bypassed inactive gate for enabled assignments and returned HTTP 404
@@ -21060,7 +21060,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
 - **hunts:** 8
-- **bugs-found:** 10
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — waiver guard allowed create on findings closed as RejectedAsNotApplicable
@@ -21425,7 +21425,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
 - **hunts:** 18
-- **bugs-found:** 20
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — executive next-action inputs query cache omitted operator scope
@@ -21491,7 +21491,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
 - **hunts:** 14
-- **bugs-found:** 21
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-10 — /see-it live disclosure after thin API JSON upgraded to static showcase
@@ -21583,7 +21583,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
 - **hunts:** 24
-- **bugs-found:** 33
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — sponsor dashboard bundle query cache omitted operator scope
@@ -21683,7 +21683,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
 - **hunts:** 9
-- **bugs-found:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — promote loop used stale MaxConcurrentAnonymousScans after options tightened during queue wait
@@ -21858,7 +21858,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
 - **hunts:** 5
-- **bugs-found:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — outcome cards omitted detail snapshot finding counts when explanation deferred
@@ -21903,7 +21903,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **hunts:** 10
-- **bugs-found:** 11
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11 — orphan rerun= from guided-intake deep links prefilled quick-start run title
@@ -21961,7 +21961,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
 - **hunts:** 8
-- **bugs-found:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
 - **last-bug:** 2026-09-08 — pick-review and show-all-filtered URL sync gaps
@@ -22090,7 +22090,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
 - **hunts:** 7
-- **bugs-found:** 8
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — help-teams-integration TOC kept claim heading while header strip owns the band

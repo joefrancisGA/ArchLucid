@@ -50,6 +50,14 @@ def test_lint_fails_open_zone_with_inflated_counters() -> None:
     assert retired == []
 
 
+def test_repo_ledger_has_no_open_invariant_violations() -> None:
+    ledger = lint_ledger.LEDGER_PATH.read_text(encoding="utf-8")
+    violations, retired = lint_ledger.lint_ledger(ledger)
+
+    assert violations == []
+    assert {zone.zone_id for zone in retired} == set(lint_ledger.RETIRED_COUNTER_ALLOWLIST)
+
+
 if __name__ == "__main__":
     failures = 0
 
