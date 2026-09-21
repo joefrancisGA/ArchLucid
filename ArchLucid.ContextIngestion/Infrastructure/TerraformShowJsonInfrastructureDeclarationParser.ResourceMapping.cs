@@ -2019,6 +2019,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.drained"] = drained.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "scope", out JsonElement scope)
+                || TryGetPropertyIgnoreCase(res, "scope", out scope))
+            && scope.ValueKind == JsonValueKind.String)
+        {
+            string? scopeText = scope.GetString();
+
+            if (!string.IsNullOrWhiteSpace(scopeText))
+                properties["tf.scope"] = scopeText.Trim();
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
                 || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
             && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
