@@ -18059,6 +18059,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-18 seed hunt #6882 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `migrated` property gap; regression `ParseAsync_migrated_maps_tf_migrated_property`.
+
 2026-09-18 seed hunt #6877 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6872 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -19841,11 +19843,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1025
-- **bugs-found:** 420
+- **hunts:** 1026
+- **bugs-found:** 421
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-18 — hunt #6857: terraform-show-json indexed property gap
+- **last-bug:** 2026-09-18 — hunt #6882: terraform-show-json migrated property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
