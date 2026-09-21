@@ -6661,3 +6661,4 @@
 {"at":"2026-09-21T12:42:09.5869575Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-21T12:44:10.7510946Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-21T12:44:15.3280721Z","zoneId":"context-ingestion","outcome":"seed-only"}
+{"at":"2026-09-21T12:44:19.8630680Z","zoneId":"core-costing","outcome":"seed-only"}
