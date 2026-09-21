@@ -29,9 +29,10 @@ public sealed class AuditHybridEvidenceQueryService(
         try
         {
             Guid tenantId = scope.TenantId;
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
 
             AuditEvidenceSnapshotHeaderRecord? snapshotHeader =
-                await snapshotRepository.TryGetHeaderAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+                await snapshotRepository.TryGetHeaderInScopeAsync(projectScope, auditEvidenceSnapshotId, cancellationToken);
 
             if (snapshotHeader is null || snapshotHeader.AssessmentId != assessmentId)
                 return null;
@@ -45,10 +46,14 @@ public sealed class AuditHybridEvidenceQueryService(
             HashSet<Guid> requirementIds = requirements.Select(requirement => requirement.RequirementId).ToHashSet();
 
             IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
-                await snapshotRepository.ListItemsAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
+                await snapshotRepository.ListItemsInScopeAsync(projectScope, auditEvidenceSnapshotId, cancellationToken);
 
             IReadOnlyList<AuditManualEvidenceSubmissionRecord> manualSubmissions =
-                await manualEvidenceRepository.ListByControlAsync(tenantId, assessmentId, controlId, cancellationToken);
+                await manualEvidenceRepository.ListByControlInScopeAsync(
+                    projectScope,
+                    assessmentId,
+                    controlId,
+                    cancellationToken);
 
             IReadOnlyList<AuditArchitectureEvidenceLinkRecord> architectureLinks =
                 await manualEvidenceRepository.ListArchitectureLinksByControlAsync(

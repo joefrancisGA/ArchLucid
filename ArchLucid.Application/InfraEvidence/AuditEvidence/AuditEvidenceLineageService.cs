@@ -32,7 +32,10 @@ public sealed class AuditEvidenceLineageService(
         try
         {
             AuditAssessmentRecord? assessment =
-                await assessmentRepository.TryGetByIdAsync(scope.TenantId, assessmentId, cancellationToken);
+                await assessmentRepository.TryGetByIdInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    assessmentId,
+                    cancellationToken);
 
             if (assessment is null)
             {
@@ -44,7 +47,10 @@ public sealed class AuditEvidenceLineageService(
             }
 
             AuditEvidenceSnapshotHeaderRecord? snapshotHeader =
-                await snapshotRepository.TryGetHeaderAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+                await snapshotRepository.TryGetHeaderInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    auditEvidenceSnapshotId,
+                    cancellationToken);
 
             if (snapshotHeader is null || snapshotHeader.AssessmentId != assessmentId)
             {
@@ -90,7 +96,10 @@ public sealed class AuditEvidenceLineageService(
             }
 
             IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
-                await snapshotRepository.ListItemsAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+                await snapshotRepository.ListItemsInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    auditEvidenceSnapshotId,
+                    cancellationToken);
 
             AuditControlEvaluationRecord? evaluation =
                 await evaluationRepository.TryGetLatestByControlAsync(
