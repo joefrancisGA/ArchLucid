@@ -36,6 +36,38 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
     }
 
+    public async Task InsertInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceRecord instance,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(instance);
+
+        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
+            throw new InvalidOperationException("Scoped remediation instance payload does not match project authority.");
+
+        const string sql = """
+                           INSERT INTO dbo.RemediationInstances
+                               (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                PathNarrativeJson, AssessmentId,
+                                ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
+                                PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc)
+                           VALUES
+                               (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
+                                @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
+                                @PathNarrativeJson, @AssessmentId,
+                                @ControlId, @PreflightSnapshotId, @ExecutionSnapshotId, @VerificationSnapshotId, @WaveId,
+                                @PreflightResultJson, @VerificationResultJson, @CreatedByActorKey, @ApprovedByActorKey,
+                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @VerifiedUtc, @ClosedUtc);
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(
+            new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
+    }
+
     public async Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -219,6 +251,50 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                     evidence.EvidenceId,
                     evidence.InstanceId,
                     evidence.TenantId,
+                    Phase = (int)evidence.Phase,
+                    evidence.PayloadJson,
+                    evidence.ActorKey,
+                    evidence.CorrelationId,
+                    evidence.CreatedUtc,
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task InsertEvidenceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(evidence);
+
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.RemediationInstances
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND InstanceId = @InstanceId
+                           )
+                               THROW 50012, 'Scoped remediation instance was not found for evidence insert.', 1;
+
+                           INSERT INTO dbo.RemediationEvidence
+                               (EvidenceId, InstanceId, TenantId, Phase, PayloadJson, ActorKey, CorrelationId, CreatedUtc)
+                           VALUES
+                               (@EvidenceId, @InstanceId, @TenantId, @Phase, @PayloadJson, @ActorKey, @CorrelationId, @CreatedUtc);
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    evidence.EvidenceId,
+                    evidence.InstanceId,
                     Phase = (int)evidence.Phase,
                     evidence.PayloadJson,
                     evidence.ActorKey,

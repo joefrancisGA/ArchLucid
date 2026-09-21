@@ -15,7 +15,7 @@ namespace ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 
 public sealed class OperationalSecurityExceptionService(
     IOperationalSecurityExceptionRepository exceptionRepository,
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     IAuditService auditService,
     ILogger<OperationalSecurityExceptionService> logger) : IOperationalSecurityExceptionService
 {
@@ -292,7 +292,7 @@ public sealed class OperationalSecurityExceptionService(
             return false;
 
         IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
-            await findingRepository.ListObservationsByFindingAsync(scope.TenantId, findingId, cancellationToken);
+            await findingRepository.ListObservationsByFindingInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
 
         if (observations.Any(observation =>
                 string.Equals(

@@ -77,10 +77,31 @@ public interface IOperationalSecurityFindingRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    async Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (IReadOnlyList<OperationalSecurityFindingRecord> items, _) =
+            await ListByCloudResourceIdPagedAsync(scope.TenantId, cloudResourceId, page, pageSize, cancellationToken);
+        IReadOnlyList<OperationalSecurityFindingRecord> scoped = items
+            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId))
+            .ToList();
+        return (scoped, scoped.Count);
+    }
+
     Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default) =>
+        ListFindingIdsByPathIdAsync(scope.TenantId, pathId, cancellationToken);
 
     Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
         Guid tenantId,
@@ -97,6 +118,17 @@ public interface IOperationalSecurityFindingRepository
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default);
+
+    async Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        OperationalSecurityFindingRecord? finding = await TryGetByIdInScopeAsync(scope, findingId, cancellationToken);
+        return finding is null
+            ? []
+            : await ListObservationsByFindingAsync(scope.TenantId, findingId, cancellationToken);
+    }
 
     Task InsertAsync(
         OperationalSecurityFindingRecord finding,

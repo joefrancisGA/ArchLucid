@@ -9,7 +9,7 @@ namespace ArchLucid.Application.InfraEvidence;
 
 public sealed class SecurityEvidencePathInspectorQueryService(
     ISecurityEvidencePathRepository pathRepository,
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     ISecurityEvidenceCutPointRepository cutPointRepository,
     ISecurityEvidencePathRoutingRepository routingRepository) : ISecurityEvidencePathInspectorQueryService
 {
@@ -72,7 +72,7 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         IReadOnlyList<Guid> citingFindingIds =
-            await findingRepository.ListFindingIdsByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+            await findingRepository.ListFindingIdsByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         SecurityEvidencePathHopRecord? weakestHopRecord = hops.FirstOrDefault(hop => hop.HopOrdinal == path.WeakestHopOrdinal);
 
