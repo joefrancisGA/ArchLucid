@@ -7,6 +7,7 @@ import {
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import {
   isEffectiveDevDefaultScope,
+  isSampleWorkspacePresentationScope,
   workspaceShortNameFromLabel,
 } from "@/lib/scope-switcher-display";
 
@@ -20,11 +21,15 @@ export function resolveWorkspaceScopeLabelFromRecord(record: OperatorScopeRecord
   const workspaceId: string = record?.workspaceId ?? DEV_SCOPE_WORKSPACE_ID;
   const projectId: string = record?.projectId ?? DEV_SCOPE_PROJECT_ID;
 
-  if (isEffectiveDevDefaultScope(workspaceId, projectId)) {
+  if (isSampleWorkspacePresentationScope(workspaceId, projectId)) {
     return BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL;
   }
 
   const fallback: string = defaultLabelsForScopeIds(workspaceId, projectId).workspace;
+
+  if (isEffectiveDevDefaultScope(workspaceId, projectId)) {
+    return workspaceShortNameFromLabel(fallback);
+  }
 
   if (record !== null && record.workspaceLabel.trim().length > 0) {
     return workspaceShortNameFromLabel(record.workspaceLabel);

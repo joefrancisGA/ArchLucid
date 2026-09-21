@@ -13,6 +13,7 @@ import {
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
   isEffectiveDevDefaultScope,
+  isSampleWorkspacePresentationScope,
   isScopeSwitcherOptionSelected,
   isScopeSwitchingAvailable,
   resolveScopeSwitcherOptionPrimaryLabel,
@@ -24,6 +25,11 @@ describe("scope-switcher-display", () => {
   it("detects the dev default sample workspace scope", () => {
     expect(isEffectiveDevDefaultScope(DEV_SCOPE_WORKSPACE_ID, DEV_SCOPE_PROJECT_ID)).toBe(true);
     expect(isEffectiveDevDefaultScope(DEV_SCOPE_WORKSPACE_ID, "other-project")).toBe(false);
+  });
+
+  it("presents the local default as live unless demo mode is explicit", () => {
+    expect(isSampleWorkspacePresentationScope(DEV_SCOPE_WORKSPACE_ID, DEV_SCOPE_PROJECT_ID, false)).toBe(false);
+    expect(isSampleWorkspacePresentationScope(DEV_SCOPE_WORKSPACE_ID, DEV_SCOPE_PROJECT_ID, true)).toBe(true);
   });
 
   it("formats compact and accessible sample workspace labels separately", () => {

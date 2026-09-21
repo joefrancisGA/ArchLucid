@@ -92,9 +92,6 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/search": "/insights/search-review-evidence",
     "/compare": "/insights/compare-two-reviews",
     "/scorecard": "/insights/architecture-scorecard",
-    # Legacy key: /help/policy-pack-delta-demo is a live registry topic again, so this entry only
-    # keeps the route out of the traffic catalog. Dropping it needs a workbook sync for the new row.
-    "/help/policy-pack-delta-demo": "/help/policy-packs#policy-pack-delta-demo",
     "/manifests": "/governance/sealed-records",
     "/manifests/[manifestId]": "/governance/sealed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (

@@ -14,7 +14,7 @@ namespace ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
 
 public sealed class SecurityAssetAssertionService(
     ISecurityAssetAssertionRepository assertionRepository,
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     IAuditService auditService,
     ILogger<SecurityAssetAssertionService> logger) : ISecurityAssetAssertionService
 {
@@ -360,8 +360,8 @@ public sealed class SecurityAssetAssertionService(
         CancellationToken cancellationToken)
     {
         (IReadOnlyList<OperationalSecurityFindingRecord> findings, _) =
-            await findingRepository.ListByCloudResourceIdPagedAsync(
-                scope.TenantId,
+            await findingRepository.ListByCloudResourceIdPagedInScopeAsync(
+                scope.ToProjectScopeKey(),
                 expired.CloudResourceId,
                 page: 1,
                 pageSize: 100,
@@ -379,7 +379,7 @@ public sealed class SecurityAssetAssertionService(
                      && finding.ProjectId == expired.ProjectId))
         {
             IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
-                await findingRepository.ListObservationsByFindingAsync(scope.TenantId, finding.FindingId, cancellationToken);
+                await findingRepository.ListObservationsByFindingInScopeAsync(scope.ToProjectScopeKey(), finding.FindingId, cancellationToken);
 
             if (observations.Any(observation =>
                     string.Equals(
