@@ -47,7 +47,8 @@ import {
   resolveConnectorRowActionLabel,
   resolveIntegrationBackgroundDeliveryLabel,
 } from "@/lib/integration-readiness-present";
-import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
+import { isIntegrationConnectorExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { normalizeConnectorSurfaceStatus, type TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
 const CONNECTION_STATUS_EMPTY_STATE = {
   title: "No integrations to show yet",
@@ -128,6 +129,15 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
     void load();
   }, [load]);
 
+  const visibleData: TenantIntegrationsOperationsDto | null = data === null
+    ? null
+    : {
+      ...data,
+      connectors: data.connectors
+        .map((connector) => normalizeConnectorSurfaceStatus(connector))
+        .filter((connector) => !isIntegrationConnectorExcludedForProductLine(connector.connectorKey, productLine)),
+    };
+
   if (loading && data === null && loadFailureMessage === null) {
     return (
       <OperatorLoadingNotice>
@@ -147,7 +157,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
     );
   }
 
-  if (data === null || configurationReadAt === null) {
+  if (visibleData === null || configurationReadAt === null) {
     return (
       <OperatorSectionLoadFailure
         message="Connection status could not be loaded."
@@ -158,7 +168,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
     );
   }
 
-  if (data.connectors.length === 0) {
+  if (visibleData.connectors.length === 0) {
     return (
       <EnterpriseCompactEmptyState
         title={CONNECTION_STATUS_EMPTY_STATE.title}
@@ -168,12 +178,12 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
     );
   }
 
-  const groupedConnectors = groupConnectorsByPurpose(data.connectors);
-  const summaryTiles = buildIntegrationReadinessSummaryTiles(data);
-  const headline = resolveIntegrationReadinessHeadline(data.connectors, data.integrationEventBus);
-  const recommendedFirstSetup = buildIntegrationRecommendedFirstSetup(data);
-  const eventBusHumanStatus = resolveIntegrationEventBusHumanStatus(data.integrationEventBus);
-  const eventBusBackgroundLabel = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus);
+  const groupedConnectors = groupConnectorsByPurpose(visibleData.connectors);
+  const summaryTiles = buildIntegrationReadinessSummaryTiles(visibleData);
+  const headline = resolveIntegrationReadinessHeadline(visibleData.connectors, visibleData.integrationEventBus);
+  const recommendedFirstSetup = buildIntegrationRecommendedFirstSetup(visibleData);
+  const eventBusHumanStatus = resolveIntegrationEventBusHumanStatus(visibleData.integrationEventBus);
+  const eventBusBackgroundLabel = resolveIntegrationBackgroundDeliveryLabel(visibleData.integrationEventBus);
   const eventBusDisplayStatus =
     eventBusBackgroundLabel === "Configured"
       ? "Ready"
@@ -300,9 +310,9 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
               "integration-event-bus",
               "Integration event bus",
               eventBusDisplayStatus,
-              resolveIntegrationEventBusGuidance(data.integrationEventBus, eventBusHumanStatus),
+              resolveIntegrationEventBusGuidance(visibleData.integrationEventBus, eventBusHumanStatus),
               null,
-              formatIntegrationEventBusTechnicalDetails(data.integrationEventBus),
+              formatIntegrationEventBusTechnicalDetails(visibleData.integrationEventBus),
               false,
               "connector-card-integration-event-bus",
             ),

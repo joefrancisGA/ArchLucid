@@ -22,6 +22,7 @@ import { IDENTITY_PROVIDERS_SETTINGS_CANONICAL_PATH } from "@/lib/identity-provi
 import { INTEGRATION_READINESS_HELP_CANONICAL_PATH } from "@/lib/integration-readiness-help-evidence-copy";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { INVITE_REVIEWER_CANONICAL_PATH } from "@/lib/invite-reviewer-evidence-copy";
+import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
 import { SETTINGS_USERS_CANONICAL_PATH } from "@/lib/settings-users-evidence-copy";
 import { POLICY_PACKS_HELP_CANONICAL_PATH } from "@/lib/policy/policy-packs-help-evidence-copy";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
@@ -66,6 +67,22 @@ const SECURENOW_FINDINGS_HELP_TOPIC: PageContextualHelpEntry = {
     label: "Open policy packs",
     href: SECURENOW_POLICY_PACKS_PATH,
   },
+};
+
+const SECURENOW_NOTIFICATIONS_HUB: PageContextualHelpEntry = {
+  whatIsThisPage:
+    "Notifications — channel launcher for digests, in-product alerts, alert rules, and Microsoft Teams.",
+  whatToDoNext:
+    "Review each available channel card, then open its destination page to change subscriptions or rules.",
+  whyEmpty:
+    "Status tags load from each available channel's API; when a destination cannot be read here, configure it on that page.",
+  whereToConfigurePrerequisite:
+    "Digests, alert rules, and Microsoft Teams each save settings on their own pages — this hub does not store a unified preference profile.",
+  taskSteps: [
+    "Scan each available channel card for delivery or configuration status.",
+    "Open the destination page when a channel needs subscriptions or routing.",
+    "Follow alerts or integration help when a connector is not configured yet.",
+  ],
 };
 
 const SECURENOW_ASSIGNED_TO_ME_FINDINGS: PageContextualHelpEntry = {
@@ -361,6 +378,7 @@ const SECURENOW_CONTEXTUAL_HELP_OVERRIDES: readonly SecureNowOverride[] = [
   { prefix: USERS_AND_ROLES_HELP_CANONICAL_PATH, entry: SECURENOW_USERS_AND_ROLES_HELP },
   { prefix: "/help/data-handling", entry: SECURENOW_DATA_HANDLING_HELP },
   { prefix: INTEGRATION_READINESS_HELP_CANONICAL_PATH, entry: SECURENOW_INTEGRATION_READINESS_HELP },
+  { prefix: NOTIFICATION_PREFERENCE_CENTER_PATH, entry: SECURENOW_NOTIFICATIONS_HUB },
   { prefix: ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH, entry: SECURENOW_ENTERPRISE_ONBOARDING_HELP },
   { prefix: SSO_WIZARD_CANONICAL_PATH, entry: SECURENOW_SSO_WIZARD },
   { prefix: IDENTITY_PROVIDERS_SETTINGS_CANONICAL_PATH, entry: SECURENOW_IDENTITY_PROVIDERS },
