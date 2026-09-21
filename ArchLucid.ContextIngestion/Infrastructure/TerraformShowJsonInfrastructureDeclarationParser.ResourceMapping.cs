@@ -2087,6 +2087,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.environment"] = environmentText.Trim();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "availability_zones", out JsonElement availabilityzonesEl)
+            || TryGetPropertyIgnoreCase(res, "availabilityZones", out availabilityzonesEl))
+        {
+            List<string> availabilityzonesFields = [];
+
+            if (availabilityzonesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in availabilityzonesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        availabilityzonesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (availabilityzonesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = availabilityzonesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    availabilityzonesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (availabilityzonesFields.Count > 0)
+            {
+                string joined = string.Join('|', availabilityzonesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.availability_zones"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "mirrored", out JsonElement mirrored)
                 || TryGetPropertyIgnoreCase(res, "mirrored", out mirrored))
             && (mirrored.ValueKind == JsonValueKind.True || mirrored.ValueKind == JsonValueKind.False))
