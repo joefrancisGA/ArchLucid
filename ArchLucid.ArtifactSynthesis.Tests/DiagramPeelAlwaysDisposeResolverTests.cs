@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Mermaid;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
@@ -27,7 +28,10 @@ public sealed class DiagramPeelAlwaysDisposeResolverTests
             ],
         };
 
-        IReadOnlySet<string> types = DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph);
+        IReadOnlySet<string> types = DiagramPeelAlwaysDisposeResolver.Resolve(
+            catalog,
+            graph,
+            DiagramMode.FullSubscription);
 
         types.Should().Contain("Microsoft.Portal/dashboards");
         types.Should().Contain("Microsoft.Compute/virtualMachines/extensions");
@@ -36,6 +40,28 @@ public sealed class DiagramPeelAlwaysDisposeResolverTests
         types.Should().Contain("Microsoft.Maintenance/maintenanceConfigurations");
         types.Should().Contain("Microsoft.Example/widgets/extensions");
         types.Should().NotContain("Microsoft.Compute/virtualMachines");
+    }
+
+    [Fact]
+    public void Resolve_identity_mode_retains_managed_identity_always_dispose_types()
+    {
+        DiagramPeelCatalogSnapshot catalog = DiagramPeelCatalogDefaultSeed.BuildSnapshot();
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                CreateNode("mi-1", "Microsoft.ManagedIdentity/userAssignedIdentities"),
+                CreateNode("dash-1", "Microsoft.Portal/dashboards"),
+            ],
+        };
+
+        IReadOnlySet<string> types = DiagramPeelAlwaysDisposeResolver.Resolve(
+            catalog,
+            graph,
+            DiagramMode.Identity);
+
+        types.Should().NotContain("Microsoft.ManagedIdentity/userAssignedIdentities");
+        types.Should().Contain("Microsoft.Portal/dashboards");
     }
 
     [Fact]
@@ -49,6 +75,12 @@ public sealed class DiagramPeelAlwaysDisposeResolverTests
             && entry.PeelRank == 0);
         entries.Should().Contain(entry =>
             string.Equals(entry.ArmResourceType, "Microsoft.Compute/virtualMachines/extensions", StringComparison.Ordinal)
+            && entry.AlwaysDispose);
+        entries.Should().Contain(entry =>
+            string.Equals(
+                entry.ArmResourceType,
+                "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                StringComparison.Ordinal)
             && entry.AlwaysDispose);
         entries.Should().NotContain(entry =>
             string.Equals(entry.ArmResourceType, "Microsoft.Compute/virtualMachines/extensions", StringComparison.Ordinal)

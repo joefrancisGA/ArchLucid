@@ -23,7 +23,7 @@ export const LIVELIHOOD_DAY_OUT_OF_WAVE_RESIDUAL_ROWS: readonly LivelihoodDayOut
       notes: "Host Mode stays Simulator. Real finalize judge does not flip Mode.",
     },
     {
-      item: "Draft-to-draft Compare",
+      item: "Compare architecture drafts",
       tracking: "R12 / SN-038 / CE-017",
       ownerPrompt: "LY-117",
       status: "not-shipped",
@@ -76,7 +76,7 @@ export const LIVELIHOOD_DAY_OUT_OF_WAVE_RESIDUAL_ROWS: readonly LivelihoodDayOut
       tracking: "ADR 0039",
       ownerPrompt: "LY-044",
       status: "not-shipped",
-      notes: "Sealed records stay immutable. Draft-only undo stays in-tab.",
+      notes: "Sealed records stay immutable. Architecture-architecture-draft-only undo stays in-tab.",
     },
     {
       item: "Uncited-hard leftover (LN-025 residual)",

@@ -1,7 +1,19 @@
 import type { PageContextualHelpEntry } from "@/lib/contextual-help/types";
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH, GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
-import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
 import { CLOUD_CONNECTIONS_HELP_PATH } from "@/lib/cloud-connections-help-guide-content";
 import { ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH } from "@/lib/enterprise-onboarding-help-evidence-copy";
@@ -23,7 +35,7 @@ const SECURENOW_FINDINGS_QUEUE_HUB: PageContextualHelpEntry = {
   whatIsThisPage:
     "Triage open findings raised by ARC-AMPE policy packs against connected cloud inventory evidence in this workspace.",
   whatToDoNext: "Open a finding, assign an owner, and follow the resource evidence hub or audit lineage when context is missing.",
-  whyEmpty: "Rows appear after policy packs apply to connected inventory — not after architecture reviews finalize.",
+  whyEmpty: "Rows appear after policy packs apply to connected inventory — not after security reviews finalize.",
   whereToConfigurePrerequisite: "Assign ARC-AMPE policy packs and connect Azure before expecting inventory-backed findings.",
   whatToDoNextAction: {
     label: "Open assigned-to-me",
@@ -31,7 +43,7 @@ const SECURENOW_FINDINGS_QUEUE_HUB: PageContextualHelpEntry = {
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   taskSteps: [
     "Open a finding to inspect severity, evidence, and owners.",
@@ -48,11 +60,11 @@ const SECURENOW_FINDINGS_HELP_TOPIC: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Findings respect the workspace and project selected in the header switcher.",
   whatToDoNextAction: {
     label: "Open findings queue",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: SECURENOW_FINDINGS_PATH,
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
 };
 
@@ -66,11 +78,11 @@ const SECURENOW_ASSIGNED_TO_ME_FINDINGS: PageContextualHelpEntry = {
     "When the tenant queue is also empty, assign ARC-AMPE policy packs and confirm Azure inventory is connected.",
   whatToDoNextAction: {
     label: "Open tenant findings queue",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: SECURENOW_FINDINGS_PATH,
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   taskSteps: [
     "Use continue oldest when the strip is visible.",
@@ -99,7 +111,7 @@ const SECURENOW_POLICY_PACKS_HELP: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Pack assignment needs a role that can manage policy packs for this workspace.",
   whatToDoNextAction: {
     label: "Open Policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
 };
 
@@ -111,11 +123,11 @@ const SECURENOW_STANDARDS_RULES_HUB: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Assign and order policy packs for the current workspace and project scope.",
   whatToDoNextAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   whereToConfigureAction: {
     label: "Open findings",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: SECURENOW_FINDINGS_PATH,
   },
   taskSteps: [
     "Open a rule row to read enforcement mode and source pack.",
@@ -126,13 +138,13 @@ const SECURENOW_STANDARDS_RULES_HUB: PageContextualHelpEntry = {
 
 const SECURENOW_STANDARDS_RULES_HELP: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Standards and rules — how effective policy resolution rows apply to the active workspace scope, not a sealed architecture review.",
+    "Standards and rules — how effective policy resolution rows apply to the active workspace scope, not a sealed security review.",
   whatToDoNext: "Open standards and rules for this workspace scope, then follow policy packs or findings when maintenance is required.",
   whyEmpty: "This guide is always available; rule rows appear when packs are assigned to this scope.",
   whereToConfigurePrerequisite: "Policy packs help explains how packs are authored, versioned, and assigned across scopes.",
   whatToDoNextAction: {
     label: "Open standards and rules",
-    href: GOVERNANCE_STANDARDS_AND_RULES_PATH,
+    href: SECURENOW_STANDARDS_AND_RULES_PATH,
   },
   whereToConfigureAction: {
     label: "Read policy packs help",
@@ -304,22 +316,22 @@ const SECURENOW_TROUBLESHOOTING_HELP: PageContextualHelpEntry = {
 
 const SECURENOW_EXTRACT_UPLOAD: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Extract and upload — run the read-only Azure extractor locally, validate the ZIP, then upload inventory for SecureNow inventory workbenches and ARC-AMPE scans.",
+    "Extract and upload — schedule a customer-owned inventory agent or run a one-time packager, then upload inventory for SecureNow inventory workbenches and ARC-AMPE scans.",
   whatToDoNext:
-    "Copy the quick-start extractor command, upload a validated inventory ZIP, then open the resource explorer or drift workbench.",
+    "Set up scheduled collection, or copy the one-time packager command, upload a validated inventory ZIP, then open the resource explorer or drift workbench.",
   whyEmpty: "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
   whereToConfigurePrerequisite:
     "Uploading packages needs workspace Admin or Execute authority; Azure connectors are optional for ZIP-only intake.",
   whatToDoNextAction: {
     label: "Open resource explorer",
-    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    href: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   taskSteps: [
-    "Copy the quick-start extractor command and run it locally — read-only, no vendor credentials in your subscription.",
+    "Schedule a customer-owned agent, or copy the one-time packager command and run it locally — read-only, no vendor credentials in your subscription.",
     "Upload a validated securenow-azure-package.zip inventory ZIP.",
     "Open resource explorer or drift when the upload completes.",
   ],
@@ -333,10 +345,13 @@ type SecureNowOverride = {
 const SECURENOW_CONTEXTUAL_HELP_OVERRIDES: readonly SecureNowOverride[] = [
   { prefix: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH, entry: SECURENOW_ASSIGNED_TO_ME_FINDINGS },
   { prefix: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, entry: SECURENOW_ASSIGNED_TO_ME_FINDINGS },
+  { prefix: SECURENOW_FINDINGS_PATH, entry: SECURENOW_FINDINGS_QUEUE_HUB },
   { prefix: GOVERNANCE_FINDINGS_PATH, entry: SECURENOW_FINDINGS_QUEUE_HUB },
   { prefix: FINDINGS_HELP_PATH, entry: SECURENOW_FINDINGS_HELP_TOPIC },
+  { prefix: SECURENOW_POLICY_PACKS_PATH, entry: SECURENOW_POLICY_PACKS_HUB },
   { prefix: GOVERNANCE_POLICY_PACKS_PATH, entry: SECURENOW_POLICY_PACKS_HUB },
   { prefix: POLICY_PACKS_HELP_CANONICAL_PATH, entry: SECURENOW_POLICY_PACKS_HELP },
+  { prefix: SECURENOW_STANDARDS_AND_RULES_PATH, entry: SECURENOW_STANDARDS_RULES_HUB },
   { prefix: GOVERNANCE_STANDARDS_AND_RULES_PATH, entry: SECURENOW_STANDARDS_RULES_HUB },
   { prefix: STANDARDS_RULES_HELP_CANONICAL_PATH, entry: SECURENOW_STANDARDS_RULES_HELP },
   { prefix: CLOUD_CONNECTIONS_CANONICAL_PATH, entry: SECURENOW_CLOUD_CONNECTIONS_HUB },
@@ -351,6 +366,7 @@ const SECURENOW_CONTEXTUAL_HELP_OVERRIDES: readonly SecureNowOverride[] = [
   { prefix: IDENTITY_PROVIDERS_SETTINGS_CANONICAL_PATH, entry: SECURENOW_IDENTITY_PROVIDERS },
   { prefix: "/help/getting-started", entry: SECURENOW_GETTING_STARTED_HELP },
   { prefix: "/help/troubleshooting", entry: SECURENOW_TROUBLESHOOTING_HELP },
+  { prefix: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, entry: SECURENOW_EXTRACT_UPLOAD },
   { prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, entry: SECURENOW_EXTRACT_UPLOAD },
 ];
 

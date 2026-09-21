@@ -74,7 +74,7 @@ Focus a finding card or row (`data-finding-id`, typically `role="article"` / `ta
 | **Alt+K** | Focus previous finding (stays on first) |
 
 
-## Page-specific: Inventory diagrams (`/governance/infrastructure/diagrams`)
+## Page-specific: Diagrams (`/governance/infrastructure/diagrams`)
 
 Focus the diagram viewport (`data-testid="architecture-diagram-viewport"`, `tabIndex={0}`) before using zoom shortcuts. The same actions are also labeled buttons above the canvas: **Zoom in**, **Zoom out**, **Reset to 100%**, and **Fit in view**. Implemented in [`ArchitectureDiagramViewer`](../src/components/architecture/ArchitectureDiagramViewer.tsx).
 

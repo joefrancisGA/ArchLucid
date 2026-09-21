@@ -26,7 +26,7 @@ describe("operator-live-preview-readiness-rail (TB-1574)", () => {
     ).toBe(false);
   });
 
-  it("pins Alert rules when rules exist or the draft left defaults", () => {
+  it("pins Alert rules when rules exist or the architecture draft left defaults", () => {
     expect(
       hasAlertRulesLivePreviewPinContent({
         existingRuleCount: 1,

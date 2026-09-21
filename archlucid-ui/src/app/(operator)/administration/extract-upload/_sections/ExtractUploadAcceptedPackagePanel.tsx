@@ -44,7 +44,7 @@ export function ExtractUploadAcceptedPackagePanel(
     try {
       await navigator.clipboard.writeText(record.packageId);
       setCopied(true);
-      showSuccess("Package id copied.");
+      showSuccess("Upload id copied.");
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopyPackageIdError(
@@ -74,7 +74,7 @@ export function ExtractUploadAcceptedPackagePanel(
           <dl className="m-0 grid gap-2 sm:grid-cols-2">
             <div>
               <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                Package id
+                Upload id
               </dt>
               <dd className={cn("m-0 mt-0.5 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
                 <span className="font-mono" data-testid="extract-upload-accepted-package-id-truncated">
@@ -103,7 +103,7 @@ export function ExtractUploadAcceptedPackagePanel(
               ) : null}
               <details className="mt-1">
                 <summary className={cn("cursor-pointer text-al-link", OPERATOR_TYPOGRAPHY.helper)}>
-                  Show full package id
+                  Show full upload id
                 </summary>
                 <p
                   className={cn("m-0 mt-1 break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}

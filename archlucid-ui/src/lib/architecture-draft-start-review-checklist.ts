@@ -1,6 +1,6 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
-export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE = "Draft readiness checklist" as const;
+export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE = "Architecture draft readiness checklist" as const;
 
 export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION_PAGE_LOCAL =
   "These three steps prepare this architecture draft for review." as const;

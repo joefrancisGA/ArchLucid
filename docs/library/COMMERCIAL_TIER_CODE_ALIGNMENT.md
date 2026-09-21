@@ -38,6 +38,7 @@ The report lists every controller route prefix, commercial tier gate, class-leve
 | DOCX consulting export | [`DocxExportController`](../../ArchLucid.Api/Controllers/Authority/DocxExportController.cs): **`Standard`**. |
 | Webhook / CloudEvents | Teams / customer notification preference controllers at **`Standard`**; Service Bus publishers are host configuration as well as higher-tier API surfaces. |
 | Service Bus integration | Primarily **host / Terraform** configuration; API routes for advanced Operate features trend **`Standard`**+ when attributed. |
+| SCIM token administration | [`ScimTokensAdminController`](../../ArchLucid.Api/Controllers/Admin/ScimTokensAdminController.cs): **`Enterprise`**. |
 
 ## Authority commit / golden manifest schema
 

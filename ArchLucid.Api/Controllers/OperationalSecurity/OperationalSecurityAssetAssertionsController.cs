@@ -44,6 +44,7 @@ public sealed class OperationalSecurityAssetAssertionsController(
         return Ok(response);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityAssetAssertionService logs create via IAuditService.")]
@@ -104,6 +105,7 @@ public sealed class OperationalSecurityAssetAssertionsController(
             new SecurityAssetAssertionCreateApiResponse { AssertionId = result.AssertionId.Value });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{assertionId:guid}/renew")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityAssetAssertionService logs renew via IAuditService.")]
@@ -158,6 +160,7 @@ public sealed class OperationalSecurityAssetAssertionsController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{assertionId:guid}/revoke")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityAssetAssertionService logs revoke via IAuditService.")]
@@ -200,6 +203,7 @@ public sealed class OperationalSecurityAssetAssertionsController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("sweep-expired")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecurityAssetAssertionService logs expiry sweep via IAuditService.")]

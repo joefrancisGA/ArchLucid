@@ -46,7 +46,7 @@ describe("operator-nav-labels", () => {
 
     expect(working.label).toBe(ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE);
     expect(working.title).toContain("Durable architecture identities");
-    expect(working.title).toContain("Drafts are listed on this page");
+    expect(working.title).toContain("Architecture drafts are listed on this page");
   });
 
   it("CA-36: Guided sidebar keeps draft-inventory teaching tooltip", () => {

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -91,7 +92,10 @@ public sealed class OperationalSecurityFindingIngestService(
         }
 
         OperationalSecurityFindingRecord? finding =
-            await repository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+            await repository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                findingId,
+                cancellationToken);
 
         if (finding is null)
         {
@@ -139,8 +143,8 @@ public sealed class OperationalSecurityFindingIngestService(
             DateTime observedUtc = item.ObservedUtc ?? TimeProvider.System.UtcNowDateTime();
             byte[] payloadHash = OperationalSecurityFindingGuard.ComputePayloadHash(item);
 
-            OperationalSecurityFindingRecord? existing = await repository.TryGetByNaturalKeyAsync(
-                scope.TenantId,
+            OperationalSecurityFindingRecord? existing = await repository.TryGetByNaturalKeyInScopeAsync(
+                scope.ToProjectScopeKey(),
                 item.Provider,
                 item.SourceSystem.Trim(),
                 item.SourceFindingId.Trim(),
@@ -195,8 +199,9 @@ public sealed class OperationalSecurityFindingIngestService(
                     lastObservedUtc: observedUtc,
                     updatedUtc: observedUtc);
 
-                await repository.UpdateAsync(
-                    touchRecord,
+                await repository.UpdateInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    ToMutation(touchRecord),
                     [],
                     observation: null,
                     cancellationToken);
@@ -257,7 +262,12 @@ public sealed class OperationalSecurityFindingIngestService(
             IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadataRows =
                 BuildMetadata(existing.FindingId, scope.TenantId, item.Metadata);
 
-            await repository.UpdateAsync(updatedFinding, metadataRows, observationRecord, cancellationToken);
+            await repository.UpdateInScopeAsync(
+                scope.ToProjectScopeKey(),
+                ToMutation(updatedFinding),
+                metadataRows.Select(ToMutation).ToList(),
+                ToMutation(observationRecord),
+                cancellationToken);
 
             await LogAuditAsync(
                 scope,
@@ -276,7 +286,7 @@ public sealed class OperationalSecurityFindingIngestService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(
+            logger.LogWarningWithExceptionAndTwoSanitizedUserStrings(
                 ex,
                 "Operational security finding ingest failed for SourceSystem={SourceSystem} SourceFindingId={SourceFindingId}.",
                 item.SourceSystem,
@@ -350,6 +360,60 @@ public sealed class OperationalSecurityFindingIngestService(
             PayloadHashSha256 = payloadHashSha256 ?? source.PayloadHashSha256,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,
+        };
+
+    private static OperationalSecurityFindingMutation ToMutation(OperationalSecurityFindingRecord source) =>
+        new()
+        {
+            FindingId = source.FindingId,
+            CloudResourceId = source.CloudResourceId,
+            ExternalResourceId = source.ExternalResourceId,
+            ResourceType = source.ResourceType,
+            SubscriptionOrAccountId = source.SubscriptionOrAccountId,
+            ControlId = source.ControlId,
+            ControlFramework = source.ControlFramework,
+            Title = source.Title,
+            Description = source.Description,
+            Severity = source.Severity,
+            RiskScore = source.RiskScore,
+            Exploitability = source.Exploitability,
+            Exposure = source.Exposure,
+            BusinessCriticality = source.BusinessCriticality,
+            BlastRadius = source.BlastRadius,
+            LastObservedUtc = source.LastObservedUtc,
+            Status = source.Status,
+            RawEvidenceReference = source.RawEvidenceReference,
+            AssessmentId = source.AssessmentId,
+            InventoryDiffId = source.InventoryDiffId,
+            AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
+            PayloadHashSha256 = source.PayloadHashSha256,
+            UpdatedUtc = source.UpdatedUtc,
+        };
+
+    private static OperationalSecurityFindingMetadataMutation ToMutation(
+        OperationalSecurityFindingMetadataRecord source) =>
+        new()
+        {
+            MetadataRowId = source.MetadataRowId,
+            FindingId = source.FindingId,
+            MetadataKey = source.MetadataKey,
+            MetadataValue = source.MetadataValue,
+        };
+
+    private static OperationalSecurityFindingObservationMutation ToMutation(
+        OperationalSecurityFindingObservationRecord source) =>
+        new()
+        {
+            ObservationId = source.ObservationId,
+            FindingId = source.FindingId,
+            ObservedUtc = source.ObservedUtc,
+            Status = source.Status,
+            Severity = source.Severity,
+            RiskScore = source.RiskScore,
+            Summary = source.Summary ?? string.Empty,
+            PayloadHashSha256 = source.PayloadHashSha256,
+            SourceSystem = source.SourceSystem,
         };
 
     private static OperationalSecurityFindingStatus ResolveUpdatedStatus(

@@ -33,7 +33,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
 
         SecurityEvidencePathInspectorQueryService sut = new(
             pathRepository,
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             new InMemoryCutPointRepository(),
             new InMemoryRoutingRepository());
 
@@ -79,7 +79,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
 
         SecurityEvidencePathInspectorQueryService sut = new(
             pathRepository,
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             new InMemoryCutPointRepository(),
             routingRepository);
 
@@ -105,7 +105,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
 
         SecurityEvidencePathInspectorQueryService sut = new(
             CreateSamplePathRepository(),
-            new InMemoryFindingRepository(),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(new InMemoryFindingRepository()),
             new InMemoryCutPointRepository(),
             new InMemoryRoutingRepository());
 
@@ -127,7 +127,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
 
         SecurityEvidencePathInspectorQueryService sut = new(
             pathRepository,
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             new InMemoryCutPointRepository(),
             new InMemoryRoutingRepository());
 
@@ -167,7 +167,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
 
         SecurityEvidencePathInspectorQueryService sut = new(
             pathRepository,
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             new InMemoryCutPointRepository(),
             new InMemoryRoutingRepository());
 

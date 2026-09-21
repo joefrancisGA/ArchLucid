@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow path inspect workbench surfaces (SA-16).
+
 # SecureNow path inspect workbench (SA-16)
 
 Operators stay in the remediation factory priority queue. Selecting a row opens an inline **Path inspect** panel that loads the cited architect path without leaving the desk.

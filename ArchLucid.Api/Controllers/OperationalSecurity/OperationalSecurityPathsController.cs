@@ -148,6 +148,7 @@ public sealed class OperationalSecurityPathsController(
         return Ok(detail);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{pathId:guid}/explanations")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Path explanations are persisted AiInference artifacts with cited hop evidence refs.")]

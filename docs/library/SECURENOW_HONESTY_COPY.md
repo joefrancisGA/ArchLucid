@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow architect desk honesty copy templates (SA-21).
+
 # SecureNow honesty copy (SA-21)
 
 Deterministic architect desk copy for SecureNow path inspect and explanation APIs.

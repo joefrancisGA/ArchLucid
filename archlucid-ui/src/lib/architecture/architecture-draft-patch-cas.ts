@@ -39,7 +39,7 @@ export function draftPatchBodyHasCas(body: {
 
 export function architectureDraftCasConflictMessage(code: string | null | undefined): string {
   if (code === DRAFT_CAS_TOKEN_MISSING_CODE) {
-    return "This tab did not send a draft version token. Reload the server copy, or keep your edits with Keep mine. This is not another session overwriting you.";
+    return "This tab did not send an architecture draft version token. Reload the server copy, or keep your edits with Keep mine. This is not another session overwriting you.";
   }
 
   return "This architecture was updated in another session or from offline replay. Keep your edits or load the server copy before saving again.";

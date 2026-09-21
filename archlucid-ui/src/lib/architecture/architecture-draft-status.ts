@@ -40,7 +40,7 @@ export const ARCHITECTURE_DRAFT_STATUS_LABELS: Record<ArchitectureDraftCustomerS
   archived: "Archived",
 };
 
-/** Customer-facing placeholder when a draft has no system name. */
+/** Customer-facing placeholder when an architecture draft has no system name. */
 export const UNTITLED_ARCHITECTURE_LABEL = "Untitled architecture" as const;
 
 /**
@@ -105,7 +105,7 @@ export function formatArchitectureDraftCreatedLabel(
 }
 
 /**
- * Placeholder title for unnamed drafts.
+ * Placeholder title for unnamed architecture drafts.
  * Created/updated dates belong in metadata — not in the title string.
  */
 export function architectureDraftPlaceholderTitle(_referenceUtc?: string | null): string {

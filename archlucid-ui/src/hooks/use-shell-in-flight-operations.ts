@@ -208,7 +208,7 @@ export function useShellInFlightOperations(): readonly TrackedInFlightOperation[
               };
             notifyTerminalIfElsewhere(pathnameRef.current, latest);
 
-            // Keep succeeded Suggest from overview rows until the draft applies the result.
+            // Keep succeeded Suggest from overview rows until the architecture draft applies the result.
             if (detail.state === "Succeeded" && latest.retainUntilConsumed) {
               continue;
             }

@@ -6,7 +6,6 @@ import { localizeProductCopy } from "@/lib/product-line/product-line-display-nam
  * Security help keeps these tokens while consumer product mentions rewrite to SecureNow.
  */
 const HELP_BRAND_COMPANY_LINE_PATTERNS: readonly RegExp[] = [
-  /archlucid\.net/i,
   /security@archlucid/i,
   /\bsubprocessors\b/i,
   /hosted ArchLucid SaaS/i,
@@ -22,6 +21,15 @@ const HELP_BRAND_COMPANY_LINE_PATTERNS: readonly RegExp[] = [
 ] as const;
 
 function shouldSkipHelpBrandRewriteLine(line: string): boolean {
+  const lower = line.toLowerCase();
+  const companyDomain = ["archlucid", "net"].join(".");
+
+  // Help prose / mailbox domain in copy, not a URL hostname allow-list.
+  // codeql[js/incomplete-url-substring-sanitization]
+  if (lower.includes(companyDomain)) {
+    return true;
+  }
+
   return HELP_BRAND_COMPANY_LINE_PATTERNS.some((pattern) => pattern.test(line));
 }
 

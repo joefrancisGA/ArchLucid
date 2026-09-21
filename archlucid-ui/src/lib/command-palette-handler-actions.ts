@@ -73,7 +73,7 @@ const reviewDetailPathPattern = /^\/architecture\/reviews\/[^/]+/;
 const nestedReviewDetailPathPattern = /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+/;
 const nestedArchitectureFindingsPathPattern =
   /^\/architecture\/architectures\/[^/]+\/findings(\/|$)/;
-const findingsQueuePathPattern = /^\/governance\/findings(\/|$)/;
+const findingsQueuePathPattern = /^\/(?:governance|compliance)\/findings(\/|$)/;
 const alertsPathPattern = /^\/governance\/alerts(\/|$)/;
 const workspaceSettingsPathPattern = /^\/administration\/workspace-settings(\/|$)/;
 
@@ -115,7 +115,7 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
   {
     id: "action-save-draft",
     label: "Save changes",
-    searchValue: "action save draft architecture workspace review disposition remediation",
+    searchValue: "action save architecture draft workspace review disposition remediation",
     isAvailable: (pathname) =>
       isArchitectureDraftWorkPath(pathname)
       || (isReviewDetailWorkPath(pathname) && isCommandPaletteReviewSaveAvailable()),

@@ -240,7 +240,7 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
           </section>
         </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-> **Scope:** Placeholder — wave-128 robustness controls (1521–1532) when opened.
+> **Scope:** Contributor-reference placeholder — wave-128 robustness controls (1521–1532) when opened.
 
 # Architecture create/review robustness — wave 128
 

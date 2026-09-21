@@ -23,6 +23,10 @@ export const WORKING_REHEARSAL_READY_SUPPRESSED_COPY =
 
 export const WORKING_CAREER_REHEARSAL_HELP_LEARN_MORE_LABEL = "Learn about Record and Practice";
 
+/** Shown on demo / public-demo shell banners when Record is selected — Record does not remove eval chrome. */
+export const PUBLIC_DEMO_RECORD_MODE_CHROME_REMINDER =
+  "Record is for live tenant reviews. Switch to your workspace or stay in Training. This workspace still uses sample data and is not your organization.";
+
 /** CG-015 — persistent Working banner on Simulator-pinned clones (not sample, not Guided). */
 export const WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_TITLE =
   "Practice on this Simulator clone";

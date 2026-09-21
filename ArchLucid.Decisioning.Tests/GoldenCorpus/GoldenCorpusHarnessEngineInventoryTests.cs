@@ -17,11 +17,11 @@ public sealed class GoldenCorpusHarnessEngineInventoryTests
     [Fact]
     public void Registered_count_matches_harness_contract()
     {
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(45);
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(45);
-        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(9);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(47);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(47);
+        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(7);
         BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(54);
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(45);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(47);
         InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(54);
     }
 
@@ -36,10 +36,13 @@ public sealed class GoldenCorpusHarnessEngineInventoryTests
     }
 
     [Fact]
-    public void Absent_inventory_documents_cloud_and_cross_run_engines()
+    public void Cross_run_diff_engines_are_registered_not_absent()
     {
-        GoldenCorpusHarnessEngineInventory.TryGetAbsentReason("requirement-cross-run-diff", out string? diffReason)
-            .Should().BeTrue();
-        diffReason.Should().Contain("Cross-run");
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds
+            .Should().Contain(["requirement-cross-run-diff", "topology-cross-run-diff"]);
+
+        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons
+            .Should().NotContainKey("requirement-cross-run-diff")
+            .And.NotContainKey("topology-cross-run-diff");
     }
 }

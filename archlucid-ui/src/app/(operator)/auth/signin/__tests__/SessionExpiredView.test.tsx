@@ -85,7 +85,7 @@ describe("SessionExpiredView — copy per reason", () => {
   it("states server work preservation honestly for idle timeout", () => {
     render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
 
-    expect(screen.getByText(/saved drafts and other server-stored work remain available/i)).toBeInTheDocument();
+    expect(screen.getByText(/saved architecture drafts and other server-stored work remain available/i)).toBeInTheDocument();
     expect(screen.getByText(/unsaved changes in this browser tab were not preserved/i)).toBeInTheDocument();
   });
 

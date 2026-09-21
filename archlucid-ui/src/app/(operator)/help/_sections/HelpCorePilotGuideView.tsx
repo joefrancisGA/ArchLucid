@@ -436,7 +436,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           {buyerPolishedShell ? null : <CorePilotHelpClosingPanel />}
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} enableScrollSpy /> : null}
       </div>
 
       {buyerPolishedShell ? <HelpCorePilotSourcesOrientationStrip /> : null}

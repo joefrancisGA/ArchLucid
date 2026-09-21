@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH, SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 
 describe("isNavLinkActive", () => {
@@ -22,6 +22,8 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/governance/findings/assigned-to-me", "/governance/findings/assigned-to-me")).toBe(true);
     expect(isNavLinkActive("/security/assigned-to-me", GOVERNANCE_FINDINGS_PATH)).toBe(false);
     expect(isNavLinkActive("/security/assigned-to-me", "/security/assigned-to-me")).toBe(true);
+    expect(isNavLinkActive(SECURENOW_FINDINGS_PATH, SECURENOW_FINDINGS_PATH)).toBe(true);
+    expect(isNavLinkActive("/security/assigned-to-me", SECURENOW_FINDINGS_PATH)).toBe(false);
   });
 
   it("matches /architecture/reviews/new exactly", () => {

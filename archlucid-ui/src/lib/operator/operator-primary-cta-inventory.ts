@@ -118,7 +118,7 @@ export const OPERATOR_PRIMARY_CTA_INVENTORY: readonly OperatorPrimaryCtaInventor
     componentOrModule: "components/usability/PilotCommandCenterCard.tsx",
     status: "verified",
     notes:
-      "Resume latest draft is the sole filled primary when drafts exist; lifecycle cards demote via pagePrimaryOwnedElsewhere. Persistent Core Pilot strip is omitted on `/` because PilotCommandCenterCard owns next action (**TB-1539**).",
+      "Resume latest architecture draft is the sole filled primary when drafts exist; lifecycle cards demote via pagePrimaryOwnedElsewhere. Persistent Core Pilot strip is omitted on `/` because PilotCommandCenterCard owns next action (**TB-1539**).",
   },
 ] as const;
 

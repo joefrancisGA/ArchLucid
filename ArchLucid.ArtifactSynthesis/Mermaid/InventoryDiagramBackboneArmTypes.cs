@@ -31,6 +31,8 @@ internal static class InventoryDiagramBackboneArmTypes
         "Microsoft.DBforMySQL/servers",
         "Microsoft.DocumentDB/databaseAccounts",
         "Microsoft.Cache/Redis",
+        "Microsoft.DataFactory/factories",
+        "Microsoft.Synapse/workspaces",
         "Microsoft.Compute/virtualMachineScaleSets",
         "Microsoft.ContainerService/managedClusters",
         "Microsoft.Web/serverFarms",

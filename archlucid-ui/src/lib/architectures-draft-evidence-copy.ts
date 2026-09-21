@@ -13,11 +13,11 @@ export const ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE =
   "Editing a saved architecture draft does not start a review. Open Start a review when the brief is ready for evidence intake.";
 
 export const ARCHITECTURES_DRAFT_SOURCES_INTRO =
-  "Use these when the brief is ready for review intake, you want to start another draft, or you need first-run orientation.";
+  "Use these when the brief is ready for review intake, you want to start another architecture draft, or you need first-run orientation.";
 
 export const ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE = "Where to go next";
 
-/** Operator Sources — no self-href to the open draft or draft inventory (breadcrumb covers the list). */
+/** Operator Sources — no self-href to the open draft or architecture draft inventory (breadcrumb covers the list). */
 export const ARCHITECTURES_DRAFT_SOURCES: readonly EvidenceSourceLink[] = [
   { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
   { label: "Start a review", href: REVIEWS_NEW_PATH },
@@ -29,13 +29,13 @@ export const ARCHITECTURES_DRAFT_CONTEXTUAL_HELP = {
   whatIsThisPage:
     "Architecture draft workspace - refine a saved system brief before filing evidence for an approval review.",
   whatToDoNext:
-    "Update the draft fields, save when ready, then open Start a review when the brief is ready for evidence intake.",
-  whyEmpty: "Draft fields load from the architectures API for this id; empty fields mean the draft has no content yet.",
+    "Update the architecture draft fields, save when ready, then open Start a review when the brief is ready for evidence intake.",
+  whyEmpty: "Architecture draft fields load from the architectures API for this id; empty fields mean the architecture draft has no content yet.",
   whereToConfigurePrerequisite:
-    "Drafting uses the workspace and project selected in the header switcher; saving a draft does not start a review.",
+    "Architecture drafting uses the workspace and project selected in the header switcher; saving an architecture draft does not start a review.",
   taskSteps: [
-    "Refine the system brief. Autosave keeps work; Save and exit stores a named draft.",
-    "Saving a draft does not start a review or submit evidence.",
+    "Refine the system brief. Autosave keeps work; Save and exit stores a named architecture draft.",
+    "Saving an architecture draft does not start a review or submit evidence.",
     "Open Start a review only when the brief is ready for evidence intake.",
   ],
 } as const;

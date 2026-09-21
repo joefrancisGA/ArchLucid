@@ -6409,15 +6409,11 @@ describe("wave81 filter url helpers", () => {
 });
 
 describe("wave82 filter url helpers", () => {
-  it("infra drift change/snapshot identifiers, audit evidence spine evidence technical row id, system health demo scope note, manifest top decisions show all, advisory scans manual id admin, quick scan privacy/scope, trust center and assurance status vocabulary params", async () => {
+  it("infra drift change identifiers, audit evidence spine evidence technical row id, system health demo scope note, manifest top decisions show all, advisory scans manual id admin, quick scan privacy/scope, trust center and assurance status vocabulary params", async () => {
     const {
       infraDriftChangeIdentifiersDisclosureHrefFromSearch,
       parseInfraDriftChangeIdentifiersOpenFromSearch,
     } = await import("@/lib/infra-evidence/infra-drift-change-identifiers-disclosure-url");
-    const {
-      infraDriftSnapshotIdentifiersDisclosureHrefFromSearch,
-      parseInfraDriftSnapshotIdentifiersOpenFromSearch,
-    } = await import("@/lib/infra-evidence/infra-drift-snapshot-identifiers-disclosure-url");
     const {
       auditEvidenceSpineEvidenceTechnicalDisclosureHrefFromSearch,
       parseAuditEvidenceSpineEvidenceTechnicalRowIdFromSearch,
@@ -6455,10 +6451,6 @@ describe("wave82 filter url helpers", () => {
     expect(
       infraDriftChangeIdentifiersDisclosureHrefFromSearch("changeId=c1", true, "/governance/infrastructure/drift"),
     ).toBe("/governance/infrastructure/drift?changeId=c1&infraDriftChangeIdentifiersOpen=1");
-    expect(parseInfraDriftSnapshotIdentifiersOpenFromSearch("true")).toBe(true);
-    expect(infraDriftSnapshotIdentifiersDisclosureHrefFromSearch("", true, "/governance/infrastructure/drift")).toBe(
-      "/governance/infrastructure/drift?infraDriftSnapshotIdentifiersOpen=1",
-    );
     expect(parseAuditEvidenceSpineEvidenceTechnicalRowIdFromSearch("evidence-row-7")).toBe("evidence-row-7");
     expect(
       auditEvidenceSpineEvidenceTechnicalDisclosureHrefFromSearch(

@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { enrichRunsListWithStaticDemoFallback } from "@/lib/operator/operator-runs-list-with-demo-fallback";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -24,6 +26,7 @@ export type GovernanceFindingsQueueNextReviewFooterClientProps = {
 export function GovernanceFindingsQueueNextReviewFooterClient(
   props: GovernanceFindingsQueueNextReviewFooterClientProps,
 ): React.JSX.Element | null {
+  const { productLine } = useProductLine();
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
 
   const loadRuns = useCallback(async () => {
@@ -64,9 +67,9 @@ export function GovernanceFindingsQueueNextReviewFooterClient(
     return {
       runId: target.runId,
       reviewTitle,
-      href: governanceFindingsQueueNextReviewHref(target.runId),
+      href: governanceFindingsQueueNextReviewHref(target.runId, findingsPathForProductLine(productLine)),
     };
-  }, [props.runId, runs]);
+  }, [productLine, props.runId, runs]);
 
   if (nextReview === null) {
     return null;

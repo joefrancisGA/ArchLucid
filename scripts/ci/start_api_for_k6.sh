@@ -56,6 +56,27 @@ export ARCHLUCID_API_READY_WAIT_ATTEMPTS="${ARCHLUCID_K6_READY_WAIT_ATTEMPTS:-18
 export ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS="${ARCHLUCID_K6_READY_WAIT_SLEEP_SECONDS:-2}"
 bash scripts/ci/wait-for-api-ready.sh "${LOG_FILE}"
 
+# DevelopmentBypass has no authenticated scope claims. Seed the well-known development
+# scope used by local/integration hosts before exercising the synchronous write path.
+smoke_tenant_id="11111111-1111-1111-1111-111111111111"
+smoke_workspace_id="22222222-2222-2222-2222-222222222222"
+smoke_project_id="33333333-3333-3333-3333-333333333333"
+docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+  mcr.microsoft.com/mssql/server:2022-latest \
+  -S "127.0.0.1,1433" -U sa -P "${SA_PASSWORD}" -C -d "${DB_NAME}" -b -Q "
+SET NOCOUNT ON;
+IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = '${smoke_tenant_id}')
+    INSERT INTO dbo.Tenants (Id, Name, Slug, Tier)
+    VALUES ('${smoke_tenant_id}', N'k6 startup smoke tenant', N'k6-startup-smoke', N'Standard');
+IF NOT EXISTS (SELECT 1 FROM dbo.TenantWorkspaces WHERE Id = '${smoke_workspace_id}')
+    INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
+    VALUES ('${smoke_workspace_id}', '${smoke_tenant_id}', N'default', '${smoke_project_id}');
+IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = '${smoke_project_id}')
+    INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, IsDeleted)
+    VALUES ('${smoke_project_id}', '${smoke_tenant_id}', '${smoke_workspace_id}', N'default', 0);
+"
+
 audit_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/audit/search?take=1" -H "Accept: application/json")"
 if [ "${audit_code}" != "200" ]; then
   echo "::error::GET /v1/audit/search (smoke) returned HTTP ${audit_code} — check API log for SQL/auth/RLS errors"
@@ -77,6 +98,9 @@ create_run_code="$(curl -sS --max-time "${create_run_smoke_max_time_seconds}" -o
   -X POST "${API_URL}/v1/architecture/request" \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
+  -H "x-tenant-id: ${smoke_tenant_id}" \
+  -H "x-workspace-id: ${smoke_workspace_id}" \
+  -H "x-project-id: ${smoke_project_id}" \
   -d "${create_run_body}")"
 if [ "${create_run_code}" != "200" ] && [ "${create_run_code}" != "201" ]; then
   echo "::error::POST /v1/architecture/request (smoke) returned HTTP ${create_run_code} — check API log for auth/trial/validation errors"

@@ -6,7 +6,7 @@ export function architectureDraftDeleteConfirmDescription(displayName: string): 
   return `Delete "${trimmed}" permanently? This cannot be undone. The brief and any answers you entered will be removed. This does not delete a review if one was already started.`;
 }
 
-export const ARCHITECTURE_DRAFT_DELETE_CONFIRM_ACTION_LABEL = "Delete draft";
+export const ARCHITECTURE_DRAFT_DELETE_CONFIRM_ACTION_LABEL = "Delete architecture draft";
 
 export const ARCHITECTURE_DRAFT_DELETE_CONFIRM_CANCEL_LABEL = "Cancel";
 

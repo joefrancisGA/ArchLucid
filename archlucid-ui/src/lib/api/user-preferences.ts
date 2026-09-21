@@ -8,3 +8,4 @@ export * from "./user-preferences-roi";
 export * from "./user-preferences-findings";
 export * from "./user-preferences-desk-continuity";
 export * from "./user-preferences-working-workspace-continuity";
+export * from "./user-preferences-first-session";

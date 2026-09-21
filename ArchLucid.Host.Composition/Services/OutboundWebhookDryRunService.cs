@@ -74,6 +74,10 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
                     (preview, truncated) =
                         await ReadResponseBodyPreviewAsync(response.Content, cancellationToken).ConfigureAwait(false);
                 }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
                 catch (Exception)
                 {
                     // Headers arrived; body preview is best-effort for operator diagnostics.
@@ -88,6 +92,10 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
                 ResponseBodyPreview = preview,
                 ResponseBodyTruncated = truncated
             };
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

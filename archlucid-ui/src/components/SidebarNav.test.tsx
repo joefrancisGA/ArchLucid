@@ -220,6 +220,48 @@ describe("SidebarNav (primary navigation)", () => {
     );
   });
 
+  it("keeps Administration expanded after manual toggle when disclosure URL sync updates search params", async () => {
+    mockPathname.mockReturnValue("/governance/infrastructure/diagrams");
+    mockSearchParams.delete("sidebarNavExpandedGroups");
+    mockRouter.replace.mockImplementation((href: string) => {
+      const queryIndex = href.indexOf("?");
+
+      if (queryIndex === -1) {
+        mockSearchParams.delete("sidebarNavExpandedGroups");
+
+        return;
+      }
+
+      const params = new URLSearchParams(href.slice(queryIndex + 1));
+      const expandedGroups = params.get("sidebarNavExpandedGroups");
+
+      if (expandedGroups === null) {
+        mockSearchParams.delete("sidebarNavExpandedGroups");
+      } else {
+        mockSearchParams.set("sidebarNavExpandedGroups", expandedGroups);
+      }
+    });
+
+    const { rerender } = render(<SidebarNav />);
+
+    const adminToggle = screen.getByTestId("sidebar-group-toggle-operator-admin");
+    expect(adminToggle).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(adminToggle);
+
+    await waitFor(() => {
+      expect(adminToggle).toHaveAttribute("aria-expanded", "true");
+    });
+
+    rerender(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(adminToggle).toHaveAttribute("aria-expanded", "true");
+    });
+
+    expect(screen.getByRole("group", { name: "Administration" })).toBeInTheDocument();
+  });
+
   it("does not duplicate the numbered first-hour journey strip in the sidebar (TB-345)", () => {
     render(<SidebarNav />);
 

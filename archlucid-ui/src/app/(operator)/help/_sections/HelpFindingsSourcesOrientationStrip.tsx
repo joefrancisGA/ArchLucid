@@ -3,9 +3,10 @@
 import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   FINDINGS_HELP_FOLLOW_UPS_TITLE,
-  FINDINGS_HELP_SOURCES,
-  FINDINGS_HELP_SOURCES_INTRO,
+  resolveFindingsHelpSources,
+  resolveFindingsHelpSourcesIntro,
 } from "@/lib/findings/findings-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { FINDINGS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/findings/findings-help-page-copy";
 import {
   helpFindingsSourcesDisclosureHrefFromSearch,
@@ -14,6 +15,8 @@ import {
 
 /** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpFindingsSourcesOrientationStrip(): React.JSX.Element {
+  const productLineId = resolveProductLineIdFromEnv();
+
   return (
     <UrlSyncedSourcesCollapsibleStrip
       surfaceId="help-findings-sources"
@@ -22,8 +25,8 @@ export function HelpFindingsSourcesOrientationStrip(): React.JSX.Element {
       disclosureHrefFromSearch={helpFindingsSourcesDisclosureHrefFromSearch}
       sectionTestId={FINDINGS_HELP_ORIENTATION_BOTTOM_TEST_ID}
       title={FINDINGS_HELP_FOLLOW_UPS_TITLE}
-      intro={FINDINGS_HELP_SOURCES_INTRO}
-      links={FINDINGS_HELP_SOURCES}
+      intro={resolveFindingsHelpSourcesIntro(productLineId)}
+      links={resolveFindingsHelpSources(productLineId)}
       sourcesTestId="help-findings-sources"
     />
   );

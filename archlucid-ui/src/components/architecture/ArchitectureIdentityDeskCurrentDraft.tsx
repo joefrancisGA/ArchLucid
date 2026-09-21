@@ -25,7 +25,7 @@ type ArchitectureIdentityDeskCurrentDraftProps = {
   readonly drafts: readonly ArchitectureIdentityChildDraftSummary[];
 };
 
-/** Current draft slot on the architecture identity desk (CA-28). */
+/** Current architecture draft slot on the architecture identity desk (CA-28). */
 export function ArchitectureIdentityDeskCurrentDraft(
   props: ArchitectureIdentityDeskCurrentDraftProps,
 ): React.JSX.Element {
@@ -47,7 +47,7 @@ export function ArchitectureIdentityDeskCurrentDraft(
 
       {state.kind === "drafting" ? (
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <StatusTag kind="in-progress" label="Open draft" />
+          <StatusTag kind="in-progress" label="Open architecture draft" />
           <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-identity-continue-architecture">
             <Link href={architectureIdentityDraftHref(props.architectureId, state.draftId)}>
               {ARCHITECTURE_IDENTITY_DESK_CONTINUE_ARCHITECTURE_LABEL}
@@ -58,7 +58,7 @@ export function ArchitectureIdentityDeskCurrentDraft(
             className={OPERATOR_LINK.nav}
             data-testid="architecture-identity-open-current-draft"
           >
-            Open draft editor
+            Open architecture draft editor
           </Link>
         </div>
       ) : null}

@@ -16,11 +16,18 @@ public static class DiagramNodeHumanCaptionFactory
         string combined = string.IsNullOrWhiteSpace(typeCaption)
             ? resourceName
             : $"{resourceName} ({typeCaption})";
+        string? resourceGroupCaption = string.IsNullOrWhiteSpace(node.ArmResourceGroup)
+            ? null
+            : node.ArmResourceGroup.Trim();
+        string accessibilityTitle = string.IsNullOrWhiteSpace(resourceGroupCaption)
+            ? combined
+            : $"{combined} · {resourceGroupCaption}";
 
         return new DiagramNodeHumanCaption(
             ResourceName: resourceName,
             TypeCaption: typeCaption,
+            ResourceGroupCaption: resourceGroupCaption,
             CombinedPlainText: combined,
-            AccessibilityTitle: combined);
+            AccessibilityTitle: accessibilityTitle);
     }
 }
