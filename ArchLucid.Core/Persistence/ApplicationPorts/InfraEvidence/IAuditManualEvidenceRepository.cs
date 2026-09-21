@@ -114,14 +114,14 @@ public sealed record AuditManualEvidenceSubmissionMutation
         AssessmentId = AssessmentId,
         ControlId = ControlId,
         RequirementId = RequirementId,
-        Owner = Owner,
+        Owner = EmptyIfNull(Owner),
         SubmittedBy = SubmittedBy,
         SubmittedUtc = SubmittedUtc,
         ApplicablePeriodStartUtc = ApplicablePeriodStartUtc,
         ApplicablePeriodEndUtc = ApplicablePeriodEndUtc,
         ExpirationUtc = ExpirationUtc,
         DocumentVersion = DocumentVersion,
-        DocumentKind = DocumentKind,
+        DocumentKind = EmptyIfNull(DocumentKind),
         EvidenceHashSha256 = EvidenceHashSha256,
         BlobPointer = BlobPointer,
         ReviewStatus = ReviewStatus,
@@ -129,4 +129,7 @@ public sealed record AuditManualEvidenceSubmissionMutation
         ItsmProvider = ItsmProvider,
         ItsmExternalKey = ItsmExternalKey,
     };
+
+    // Persistence records keep Owner/DocumentKind non-null (empty when omitted).
+    private static string EmptyIfNull(string? value) => value ?? string.Empty;
 }
