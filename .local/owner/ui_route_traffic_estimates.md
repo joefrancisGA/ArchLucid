@@ -102,7 +102,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEG | `/help/governance-infrastructure-drift` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EIM | `/help/impact-preview-vs-architecture-envelope` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HIN | `/help/inhabit-the-architecture` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
-| EIN | `/help/inspect-stored-evidence` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EIN | `/help/inspect-stored-evidence` | 0.02% | 70,76 | 0 | 2 | Help topic | No | SecureNow stored evidence help Phase 2: canonical sealed-record denial, download-only truth, ReadAuthority/EvidenceSourceOpened recording, provenance, anchored guidance, related/review links, Record/Practice applicability, and preview keyboard behavior; 2026-09-21 al-ui-rate: shipped safe backlog |
 | HPO | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EPX | `/help/proxy-timeout-real-execute` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | SEX | `/help/sealed-record-vs-decision-register` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
