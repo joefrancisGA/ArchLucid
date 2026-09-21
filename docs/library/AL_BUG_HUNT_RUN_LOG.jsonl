@@ -7049,3 +7049,4 @@
 {"at":"2026-09-21T18:46:27.3636845Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-21T18:46:33.8320414Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-21T18:48:35.7977377Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-21T18:48:40.5761879Z","zoneId":"context-ingestion","outcome":"seed-only"}
