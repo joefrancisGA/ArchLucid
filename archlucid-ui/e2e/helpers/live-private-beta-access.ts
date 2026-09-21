@@ -350,9 +350,7 @@ export async function createAdminUserInvite(
   });
 
   if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`POST /v1/admin/users/invite failed ${res.status()}: ${body.slice(0, 400)}`);
+    await throwIfNotOk(res, "POST /v1/admin/users/invite");
   }
 
   const created = (await res.json()) as {
@@ -644,9 +642,7 @@ export async function createScimAdminToken(request: APIRequestContext): Promise<
   });
 
   if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`POST /v1/admin/scim/tokens failed ${res.status()}: ${body.slice(0, 400)}`);
+    await throwIfNotOk(res, "POST /v1/admin/scim/tokens");
   }
 
   const created = (await res.json()) as { id?: string; plaintextToken?: string };
