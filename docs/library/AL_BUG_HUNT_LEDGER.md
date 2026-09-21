@@ -17699,6 +17699,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-18 seed hunt #6657 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `encrypted` property gap; regression `ParseAsync_encrypted_maps_tf_encrypted_property`.
+
 2026-09-18 seed hunt #6652 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-18 seed hunt #6647 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -19391,11 +19393,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 980
-- **bugs-found:** 411
+- **hunts:** 981
+- **bugs-found:** 412
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-18 — hunt #6632: terraform-show-json subregions property gap
+- **last-bug:** 2026-09-18 — hunt #6657: terraform-show-json encrypted property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
