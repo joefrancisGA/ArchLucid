@@ -184,7 +184,7 @@ export function HelpSponsorSummaryGuideView(
               />
             </div>
 
-            <HelpTopicTableOfContents headings={headings} />
+            <HelpTopicTableOfContents headings={headings} enableScrollSpy />
           </div>
         </div>
 
