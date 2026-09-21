@@ -18,6 +18,8 @@ class TestWaitForApiReady(unittest.TestCase):
         self.assertIn("HTTP 000", script_text)
         self.assertIn("Failing fast instead of waiting for remaining attempts", script_text)
         self.assertIn("unreachable_streak", script_text)
+        self.assertIn('2>/dev/null || true)', script_text)
+        self.assertNotIn('2>/dev/null || echo "000")', script_text)
 
     def test_script_syntax_is_valid(self) -> None:
         result = subprocess.run(
