@@ -134,8 +134,9 @@ public sealed class RemediationInstanceQueryServiceTests
 
     private static RemediationInstanceQueryService CreateService(IRemediationInstanceRepository repository) =>
         new(
-            repository,
-            new Mock<IOperationalSecurityFindingRepository>().Object,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(repository),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
+                new Mock<IOperationalSecurityFindingRepository>().Object),
             new Mock<IRemediationPatternMatchRepository>().Object,
             new Mock<IAuditManualEvidenceRepository>().Object,
             new Mock<IAuthorityQueryService>().Object,
