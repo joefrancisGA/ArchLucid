@@ -150,7 +150,7 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
           <SponsorSendPathHonestyPanel testIdPrefix="help-structured-brief" showSsoOptional={false} />
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

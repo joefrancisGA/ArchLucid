@@ -200,7 +200,7 @@ export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningG
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         <SponsorSendPathHonestyPanel testIdPrefix="help-improvement-planning" showSsoOptional={false} />

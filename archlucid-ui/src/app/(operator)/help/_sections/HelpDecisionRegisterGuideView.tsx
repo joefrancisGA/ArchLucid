@@ -220,7 +220,7 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} />
+          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
 
         <SponsorSendPathHonestyPanel testIdPrefix="help-decision-register" showSsoOptional={false} />

@@ -187,7 +187,7 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
         {guideSections}
       </div>
 
-      <HelpTopicTableOfContents headings={ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS} />
+      <HelpTopicTableOfContents headings={ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS} enableScrollSpy />
     </div>
   );
 

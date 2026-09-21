@@ -147,7 +147,7 @@ export function HelpArchitectureShareRestrictGuideView(
         </div>
 
         <aside className={HELP_PAGE_TOC.nav}>
-          <HelpTopicTableOfContents headings={ARCHITECTURE_SHARE_RESTRICT_HELP_GUIDE_HEADINGS} />
+          <HelpTopicTableOfContents headings={ARCHITECTURE_SHARE_RESTRICT_HELP_GUIDE_HEADINGS} enableScrollSpy />
           <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Topic: {ARCHITECTURE_SHARE_RESTRICT_HELP_TOPIC_LABEL}
           </p>

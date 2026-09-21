@@ -451,7 +451,9 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             </section>
           </div>
 
-          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />}
+          {buyerPolishedShell ? null : (
+            <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} enableScrollSpy />
+          )}
         </div>
 
         <div data-testid={AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID}>

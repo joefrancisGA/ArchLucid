@@ -127,7 +127,7 @@ export function HelpArchitectureDeskGuideView(props: HelpArchitectureDeskGuideVi
         </div>
 
         <aside className={HELP_PAGE_TOC.nav}>
-          <HelpTopicTableOfContents headings={SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_GUIDE_HEADINGS} />
+          <HelpTopicTableOfContents headings={SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_GUIDE_HEADINGS} enableScrollSpy />
           <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Topic: {SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL}
           </p>

@@ -1,12 +1,13 @@
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface IAuditEvidenceFreshnessService
 {
     Task<IReadOnlyList<AuditEvidenceFreshnessItemUpdate>> ClassifySnapshotItemsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid auditEvidenceSnapshotId,
         DateTime referenceUtc,
         CancellationToken cancellationToken = default);
@@ -18,7 +19,7 @@ public interface IAuditEvidenceFreshnessService
         CancellationToken cancellationToken = default);
 
     Task ApplyFreshnessToSnapshotAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid auditEvidenceSnapshotId,
         DateTime referenceUtc,
         CancellationToken cancellationToken = default);
@@ -30,7 +31,7 @@ public interface IAuditEvidenceFreshnessService
         CancellationToken cancellationToken = default);
 
     Task<AuditEvidenceFreshnessDashboardRecord> GetDashboardCountsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid assessmentId,
         CancellationToken cancellationToken = default);
 
@@ -40,7 +41,7 @@ public interface IAuditEvidenceFreshnessService
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListHistoricalItemsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default);
 
