@@ -422,6 +422,28 @@ def _require_smoke_branch_wiring(root: Path, errors: list[str]) -> None:
         errors.append(f"{_FROZEN_SHA_REL}: must name {_FROZEN_BRANCH}")
 
 
+def _require_wait_for_api_ready_http_000_fail_fast(errors: list[str]) -> None:
+    path = repo_root() / "scripts" / "ci" / _WAIT_FOR_API_READY
+
+    if not path.is_file():
+        errors.append(f"missing scripts/ci/{_WAIT_FOR_API_READY}")
+
+        return
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    if "ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must fail fast after consecutive HTTP 000 "
+            "(/health/ready unreachable must not burn 180 attempts)",
+        )
+
+    if "Failing fast instead of waiting for remaining attempts" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must emit a fail-fast error when /health/ready is HTTP 000",
+        )
+
+
 def _require_sandbox_mock_json_import_attribute(errors: list[str]) -> None:
     path = repo_root() / _SANDBOX_MOCKS_REL
 
@@ -562,6 +584,7 @@ def main(argv: list[str] | None = None) -> int:
             "(Vitest must catch ESM/JSON import failures before Playwright reports 'No tests found')",
         )
 
+    _require_wait_for_api_ready_http_000_fail_fast(errors)
     _require_sandbox_mock_json_import_attribute(errors)
     _require_smoke_branch_wiring(root, errors)
 

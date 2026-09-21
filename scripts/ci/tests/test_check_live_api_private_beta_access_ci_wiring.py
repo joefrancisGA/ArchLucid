@@ -179,6 +179,13 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertTrue(any("expired invite recovery" in error for error in errors))
 
+    def test_wait_for_api_ready_http_000_fail_fast_required(self) -> None:
+        errors: list[str] = []
+
+        sut._require_wait_for_api_ready_http_000_fail_fast(errors)
+
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()
