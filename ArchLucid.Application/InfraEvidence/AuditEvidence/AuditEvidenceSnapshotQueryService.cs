@@ -5,8 +5,8 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence.AuditEvidence;
 
 public sealed class AuditEvidenceSnapshotQueryService(
-    IAuditAssessmentRepository assessmentRepository,
-    IAuditEvidenceSnapshotRepository snapshotRepository) : IAuditEvidenceSnapshotQueryService
+    IProjectScopedAuditAssessmentRepository assessmentRepository,
+    IProjectScopedAuditEvidenceSnapshotRepository snapshotRepository) : IAuditEvidenceSnapshotQueryService
 {
     public async Task<IReadOnlyList<AuditEvidenceSnapshotHeaderRecord>> ListSnapshotsAsync(
         ScopeContext scope,
