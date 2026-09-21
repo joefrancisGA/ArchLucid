@@ -13,7 +13,7 @@ public sealed class AuditManualEvidenceSubmissionService(
     IActorContext actorContext,
     IAuditManualEvidenceRepository manualEvidenceRepository,
     IAuditEvidenceRequirementRepository requirementRepository,
-    IAuditAssessmentRepository assessmentRepository,
+    IProjectScopedAuditAssessmentRepository assessmentRepository,
     IArtifactBlobStore blobStore,
     ILogger<AuditManualEvidenceSubmissionService> logger) : IAuditManualEvidenceSubmissionService
 {

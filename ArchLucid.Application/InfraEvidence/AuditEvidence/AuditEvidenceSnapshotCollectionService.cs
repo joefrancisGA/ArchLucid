@@ -9,12 +9,12 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.InfraEvidence.AuditEvidence;
 
 public sealed class AuditEvidenceSnapshotCollectionService(
-    IAuditAssessmentRepository assessmentRepository,
+    IProjectScopedAuditAssessmentRepository assessmentRepository,
     IAuditFrameworkRepository frameworkRepository,
     IAzureInventorySnapshotRepository inventorySnapshotRepository,
     IAuditEvidenceSelectionService selectionService,
     IAuditEvidenceSelectorRegistry selectorRegistry,
-    IAuditEvidenceSnapshotRepository auditEvidenceSnapshotRepository,
+    IProjectScopedAuditEvidenceSnapshotRepository auditEvidenceSnapshotRepository,
     ILogger<AuditEvidenceSnapshotCollectionService> logger) : IAuditEvidenceSnapshotCollectionService
 {
     public async Task<AuditAssessmentCreateResult> TryCreateAssessmentAsync(

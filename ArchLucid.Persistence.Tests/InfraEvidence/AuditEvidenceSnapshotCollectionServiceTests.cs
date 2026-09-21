@@ -42,12 +42,12 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             NullLogger<AuditEvidenceSelectionService>.Instance);
 
         AuditEvidenceSnapshotCollectionService service = new(
-            assessmentRepository,
+            new ProjectScopedAuditAssessmentRepositoryAdapter(assessmentRepository),
             frameworkRepository,
             inventoryRepository,
             selectionService,
             selectorRegistry,
-            snapshotRepository,
+            new ProjectScopedAuditEvidenceSnapshotRepositoryAdapter(snapshotRepository),
             NullLogger<AuditEvidenceSnapshotCollectionService>.Instance);
 
         AuditAssessmentCreateResult assessmentResult = await service.TryCreateAssessmentAsync(

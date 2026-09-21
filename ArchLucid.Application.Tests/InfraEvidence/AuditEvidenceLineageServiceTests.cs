@@ -379,10 +379,10 @@ public sealed class AuditEvidenceLineageServiceTests
             .ReturnsAsync([]);
 
         return new AuditEvidenceLineageService(
-            assessmentRepository,
+            new ProjectScopedAuditAssessmentRepositoryAdapter(assessmentRepository),
             frameworkRepository,
             requirementRepository,
-            snapshotRepository,
+            new ProjectScopedAuditEvidenceSnapshotRepositoryAdapter(snapshotRepository),
             evaluationRepository,
             manualEvidenceRepository.Object,
             verificationService,
