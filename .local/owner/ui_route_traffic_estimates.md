@@ -69,7 +69,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | COA | `/compliance/audit-evidence` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | COO | `/compliance/audit-evidence/[assessmentId]/snapshots/[snapshotId]/controls/[controlId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | COF | `/compliance/findings` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
-| COP | `/compliance/policy-packs` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| COP | `/compliance/policy-packs` | 0.02% | 84,83 | 0 | 2 | Marketing | No | SecureNow policy packs Phase 2: corrected boundary copy, reconciled scope status, gated preview diff, honest resume fallback, scope banner, enforcement confirmation/undo, freshness, status tags, and working-mode copy; 2026-09-21 al-ui-rate: shipped safe backlog |
 | COD | `/compliance/policy-packs/[id]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | COS | `/compliance/standards-and-rules` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | GOU | `/governance/audit-evidence` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
