@@ -65,6 +65,20 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListByFindingInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListConflictsByFindingInScopeAsync"];
         yield return [typeof(IRemediationPrioritizationRepository), typeof(SqlRemediationPrioritizationRepository), "UpsertScoreInScopeAsync"];
+        yield return [typeof(IAuditAssessmentRepository), typeof(SqlAuditAssessmentRepository), "InsertInScopeAsync"];
+        yield return [typeof(IAuditAssessmentRepository), typeof(SqlAuditAssessmentRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(IAuditAssessmentRepository), typeof(SqlAuditAssessmentRepository), "UpdateStatusInScopeAsync"];
+        yield return [typeof(IAuditAssessmentRepository), typeof(SqlAuditAssessmentRepository), "ListActiveByScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "InsertSubmissionInScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "ListByAssessmentInScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "ListByControlInScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "TryGetByIdInScopeAsync"];
+        yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "InsertSnapshotInScopeAsync"];
+        yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "TryGetHeaderInScopeAsync"];
+        yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "ListItemsInScopeAsync"];
+        yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "ListByAssessmentInScopeAsync"];
+        yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "TryGetBaselineByNameInScopeAsync"];
+        yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "UpdateItemFreshnessInScopeAsync"];
     }
 
     [Theory]
@@ -106,6 +120,9 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(RemediationWaveCreateMutation)];
         yield return [typeof(RemediationWaveMutation)];
         yield return [typeof(RemediationWaveMemberMutation)];
+        yield return [typeof(AuditAssessmentCreateMutation)];
+        yield return [typeof(AuditAssessmentStatusMutation)];
+        yield return [typeof(AuditManualEvidenceSubmissionMutation)];
     }
 
     [Theory]
