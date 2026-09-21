@@ -19,9 +19,18 @@ describe("operatorLastRefreshedClockLabel", () => {
     const label = operatorLastRefreshedClockLabel(refreshedAt);
 
     expect(label).not.toBeNull();
-    expect(label).toMatch(/6:07/);
-    expect(label).not.toMatch(/6:07:26/);
-    expect(label).not.toMatch(/06:07/);
+    expect(label).toMatch(/1:07/);
+    expect(label).toMatch(/EST/);
+    expect(label).not.toMatch(/1:07:26/);
+    expect(label).not.toMatch(/01:07/);
+  });
+
+  it("uses Eastern daylight time in summer", () => {
+    const refreshedAt = new Date("2026-08-15T18:07:26.000Z");
+    const label = operatorLastRefreshedClockLabel(refreshedAt);
+
+    expect(label).toMatch(/2:07/);
+    expect(label).toMatch(/EDT/);
   });
 });
 
@@ -30,9 +39,10 @@ describe("operatorFreshnessMetadataClockValue", () => {
     const refreshedAt = new Date("2026-01-15T18:07:26.000Z");
     const label = operatorFreshnessMetadataClockValue(refreshedAt);
 
-    expect(label).toMatch(/6:07/);
-    expect(label).not.toMatch(/6:07:26/);
-    expect(label).not.toMatch(/06:07/);
+    expect(label).toMatch(/1:07/);
+    expect(label).toMatch(/EST/);
+    expect(label).not.toMatch(/1:07:26/);
+    expect(label).not.toMatch(/01:07/);
   });
 });
 
@@ -165,10 +175,10 @@ describe("operatorLastRefreshedExactLabel", () => {
     expect(operatorLastRefreshedExactLabel(undefined)).toBeUndefined();
   });
 
-  it("keeps the exact timestamp available for the tooltip in a fixed time zone", () => {
+  it("keeps the exact timestamp available for the tooltip in the product default zone", () => {
     const refreshedAt = new Date("2026-01-15T12:00:00.000Z");
 
-    expect(operatorLastRefreshedExactLabel(refreshedAt)).toBe("Jan 15, 2026, 12:00 PM UTC");
+    expect(operatorLastRefreshedExactLabel(refreshedAt)).toBe("1/15/2026, 7:00 AM EST");
   });
 });
 

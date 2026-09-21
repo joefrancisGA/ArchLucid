@@ -57,4 +57,20 @@ public sealed class ProductLineRouteGateIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+
+    [Fact]
+    public async Task Security_product_line_header_allows_both_mapped_extractor_upload_route()
+    {
+        await using OpenApiContractWebAppFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        client.DefaultRequestHeaders.Add(ProductLineHttpHeaderNames.Header, "security");
+
+        using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", content: null);
+
+        response.StatusCode.Should().NotBe(
+            HttpStatusCode.Forbidden,
+            "extractor upload is mapped productLine=both and must not be blocked by OP-04");
+    }
 }

@@ -52,6 +52,7 @@ import {
   type AlertRoutingSubscriptionDisableTarget,
 } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   parseSlackDisableIdFromSearch,
   slackDisableRouteHrefFromSearch,
@@ -59,7 +60,7 @@ import {
 import {
   SLACK_INTEGRATION_BUYER_OVERVIEW,
   SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
-  SLACK_INTEGRATION_PAGE_LEAD,
+  slackIntegrationPageLead,
   SLACK_INTEGRATION_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_SKIP_LINK_LABEL,
   SLACK_INTEGRATION_SKIP_TARGET_ID,
@@ -429,7 +430,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
             >
               <div className="space-y-4" data-testid="slack-integration-buyer-intro">
                 <p className={readingBodyClass} data-testid="slack-integration-intro">
-                  {SLACK_INTEGRATION_PAGE_LEAD}
+                  {slackIntegrationPageLead(resolveProductLineIdFromEnv())}
                 </p>
               </div>
             </div>

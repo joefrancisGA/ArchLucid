@@ -26,6 +26,7 @@ import { HealthcareClaimsPolicyPackTechnicalDetailsDisclosure } from "./Healthca
 
 type HealthcareClaimsPolicyPackDetailProps = {
   readonly policyPackId: string;
+  readonly packsHubHref?: string;
 };
 
 /**
@@ -34,6 +35,7 @@ type HealthcareClaimsPolicyPackDetailProps = {
 export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPackDetailProps) {
   const { policyPackId } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
 
   const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION);
   const versionBadgeLabel = `Healthcare Claims policy pack · v${CLAIMS_INTAKE_RULE_SET_VERSION} · effective 2026-05-01`;
@@ -41,10 +43,10 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
   return (
     <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="healthcare-claims-policy-pack-detail">
       <OperatorPageHeader
-        navHref={GOVERNANCE_POLICY_PACKS_PATH}
+        navHref={packsHubHref}
         title={canonicalPackLabel}
         headingLevel="h1"
-        breadcrumb={<GovernancePolicyPackBreadcrumb packLabel="Enterprise Privacy" />}
+        breadcrumb={<GovernancePolicyPackBreadcrumb packLabel="Enterprise Privacy" packsHubHref={packsHubHref} />}
         subtitle={BUYER_POLICY_PACK_LEAD}
         claimDiscipline={POLICY_PACK_DETAIL_CLAIM_DISCIPLINE}
         claimDisciplineTestId="policy-pack-detail-claim-discipline"

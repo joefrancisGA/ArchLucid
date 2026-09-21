@@ -164,7 +164,7 @@ export async function patchDraftRequest(
 
 export type ArchitectureDraftPatchBody = Parameters<typeof patchDraftRequest>[1];
 
-/** PATCH a draft with ADR 0088 CAS. Resolves the token from GET when the caller has none. */
+/** PATCH an architecture draft with ADR 0088 CAS. Resolves the token from GET when the caller has none. */
 export async function patchDraftRequestRequiringCas(
   draftId: string,
   body: Omit<ArchitectureDraftPatchBody, "expectedUpdatedUtc" | "forceOverwrite">,

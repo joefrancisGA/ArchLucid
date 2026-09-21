@@ -1,5 +1,6 @@
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -27,6 +28,32 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
 
         PathRow? row = await conn.QuerySingleOrDefaultAsync<PathRow>(
             new CommandDefinition(sql, new { TenantId = tenantId, PathId = pathId }, cancellationToken: cancellationToken));
+
+        return row is null ? null : MapPath(row);
+    }
+
+    public async Task<SecurityEvidencePathRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT PathId, TenantId, WorkspaceId, ProjectId, SnapshotId, PathKind, PathConfidenceBand,
+                                  CanonicalHopHashSha256, WeakestHopOrdinal, WeakestHopReason, CrownJewelAssertionId,
+                                  CreatedUtc, UpdatedUtc
+                           FROM dbo.SecurityEvidencePaths
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND PathId = @PathId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        PathRow? row = await conn.QuerySingleOrDefaultAsync<PathRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
+                cancellationToken: cancellationToken));
 
         return row is null ? null : MapPath(row);
     }
@@ -82,6 +109,34 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
 
         IEnumerable<HopRow> rows = await conn.QueryAsync<HopRow>(
             new CommandDefinition(sql, new { TenantId = tenantId, PathId = pathId }, cancellationToken: cancellationToken));
+
+        return rows.Select(MapHop).ToList();
+    }
+
+    public async Task<IReadOnlyList<SecurityEvidencePathHopRecord>> ListHopsByPathInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT h.HopRowId, h.PathId, h.TenantId, h.HopOrdinal, h.FromNodeId, h.ToNodeId, h.EdgeType,
+                                  h.ProvenanceKind, h.HopConfidenceBand, h.InferenceSource, h.EvidenceReference, h.CloudResourceId
+                           FROM dbo.SecurityEvidencePathHops h
+                           INNER JOIN dbo.SecurityEvidencePaths p
+                               ON p.TenantId = h.TenantId AND p.PathId = h.PathId
+                           WHERE h.TenantId = @TenantId
+                             AND h.PathId = @PathId
+                             AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId
+                           ORDER BY h.HopOrdinal;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<HopRow> rows = await conn.QueryAsync<HopRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
+                cancellationToken: cancellationToken));
 
         return rows.Select(MapHop).ToList();
     }

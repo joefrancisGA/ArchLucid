@@ -2,12 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { listArchitectureIdentities } from "@/lib/api/architecture-identity-api";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { listArchitectureIdentities } from "@/lib/api/architecture-identity-api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { architectureIdentityListBlockedReason } from "@/lib/architecture/architecture-identity-blocked-reason";
 import { ARCHITECTURE_IDENTITIES_DEFAULT_PAGE_SIZE } from "@/lib/inventory-showing-count";
+import { shouldSkipArchitectureOnlyProxyApi } from "@/lib/product-line/architecture-only-proxy-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -19,13 +21,15 @@ export function useArchitectureIdentitiesListQuery(
   pageSize = ARCHITECTURE_IDENTITIES_DEFAULT_PAGE_SIZE,
   options?: { readonly enabled?: boolean; readonly includeArchived?: boolean },
 ) {
+  const { productLine } = useProductLine();
+  const skipArchitectureOnlyApi = shouldSkipArchitectureOnlyProxyApi(productLine);
   const scopeKey = useOperatorScopeQueryKey();
   const includeArchived = options?.includeArchived ?? false;
 
   const query = useQuery({
     queryKey: operatorQueryKeys.architectureIdentityList(scopeKey, page, pageSize, includeArchived),
     queryFn: () => listArchitectureIdentities({ page, pageSize, includeArchived }),
-    enabled: options?.enabled ?? true,
+    enabled: (options?.enabled ?? true) && !skipArchitectureOnlyApi,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,

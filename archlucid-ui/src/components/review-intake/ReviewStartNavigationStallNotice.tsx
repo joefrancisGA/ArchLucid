@@ -18,7 +18,7 @@ export type ReviewStartNavigationStallNoticeProps = {
 
 /**
  * Shown when a soft navigation to the review start page is still outstanding at the wait ceiling.
- * Announced as status, not an error: the draft is saved and the pending navigation is untouched.
+ * Announced as status, not an error: the architecture draft is saved and the pending navigation is untouched.
  */
 export function ReviewStartNavigationStallNotice(
   props: ReviewStartNavigationStallNoticeProps,

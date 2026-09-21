@@ -164,7 +164,7 @@ describe("resolveOperatorHomePhaseHeroCopy", () => {
     expect(copy.lead).toContain("2");
   });
 
-  it("falls back to continue-architecture heading when the draft has no display name", () => {
+  it("falls back to continue-architecture heading when the architecture draft has no display name", () => {
     const copy = resolveOperatorHomePhaseHeroCopy("eval-with-drafts", {
       ...baseSignals,
       draftCount: 1,

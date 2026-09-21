@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow incremental path invalidation rules (SA-13).
+
 # SecureNow incremental path invalidation (SA-13)
 
 Default: **neighborhood recompute** driven by IE-06 diffs. Full-estate recompute is opt-in via configuration.

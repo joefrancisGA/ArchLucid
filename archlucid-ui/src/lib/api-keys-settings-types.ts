@@ -4,6 +4,7 @@ export type ApiKeyAuditAction =
   | "key_created"
   | "overlap_key_issued"
   | "key_rotated"
+  | "rotation_material_issued"
   | "key_revoked"
   | "rotation_failed";
 

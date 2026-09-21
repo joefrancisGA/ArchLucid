@@ -5,7 +5,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 
-/** Inventory diagrams breadcrumb (OIN). */
+/** Diagrams breadcrumb (OIN). */
 export function DiagramsBreadcrumb(): React.JSX.Element {
   return (
     <OperatorPageBreadcrumb

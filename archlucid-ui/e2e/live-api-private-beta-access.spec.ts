@@ -35,6 +35,7 @@ import {
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
+import { assertLiveSeatOperatorScopeChrome } from "./helpers/live-seat-scope-assertions";
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
@@ -79,11 +80,11 @@ test.describe(
       return;
     }
 
-    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list for minutes.
+    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list past the 60s UI proxy budget.
 
     const draftListRes = await request.get(
       `${liveApiBase}/v1/architecture/draft?mine=true&page=1&pageSize=1`,
-      { headers: liveJsonHeaders(), timeout: 120_000 },
+      { headers: liveJsonHeaders(), timeout: 20_000 },
     );
 
     if (!draftListRes.ok()) {
@@ -284,6 +285,23 @@ test.describe(
     await expect(page.getByTestId("invitation-recovery-sign-in")).toBeVisible({ timeout: 30_000 });
     });
 
+    test("signed-in dead review deep-link surfaces branded 404 recovery (not a blank loop)", async ({
+      page,
+    }) => {
+      test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
+      const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+      await primePrivateBetaBrowserPage(page, accessToken);
+
+      const fakeRunId = "00000000-0000-4000-8000-000000000000";
+
+      await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+
+      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 30_000 });
+    });
+
   test.describe("browser journeys", () => {
     test.describe.configure({ mode: "serial" });
 
@@ -467,6 +485,10 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+
+    await stubEmptyArchitectureDraftListRoute(page);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await assertLiveSeatOperatorScopeChrome(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);

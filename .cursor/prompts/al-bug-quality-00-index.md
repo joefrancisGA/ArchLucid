@@ -8,11 +8,13 @@
      concurrency/authz/clock probes, drills, ratchets (shipped in code, #1969).
      Wave 6 (ABQ-36–45): leftover honesty (blocking ratchet, dead ingest, catalog
      without host) plus seed-only/seeder Goodhart. Prompts only until implemented.
+     Wave 7 (ABQ-46–50): stop + delete synthetic Azure week UOM `weekk+` letter-run
+     farming (owner 2026-09-15). Shipped in code (#3336).
      Do not implement from this index. -->
 
-# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-45)
+# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-50)
 
-**Status:** **ABQ-01–45 shipped in code** (wave 5 #1969, wave 6 implementation). Do **not** re-implement 01–45 from their files.
+**Status:** **ABQ-01–50 shipped in code** (wave 7 week-UOM cleanup #3336). Do **not** re-implement 01–50 from their files. Do **not** ship more `weekk+` UOM hunts. Topology-proposal-merge hunts may continue on separate branches.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -67,10 +69,13 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **Seeder paste flood** | Three 15-caps concatenate; no cross-dedup | ABQ-43 *(shipped)* |
 | **Ghost zone paths** | Ledger prefixes survive file rename | ABQ-44 *(shipped)* |
 | **Uncheckable proven** | `no-test-cited` / `could-not-run` bypass the unguarded ratchet | ABQ-45 *(shipped)* |
+| **UOM letter-run treadmill** | `10week` + extra `k`s farmed as core-costing hits; Azure never emits them | ABQ-46–50 *(shipped)* |
 
 ## Run order
 
-**01–45 are done** (do not paste those files to re-do the work).
+**01–50 are done** (do not paste those files to re-do the work).
+
+**46–50 shipped** (week UOM cleanup #3336). Do not hunt `weekk+`. Topology hunts may continue on separate branches. See `al-bug-quality-week-uom-00-index.md`.
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
@@ -119,6 +124,11 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **43** | `al-bug-quality-43-seeder-spam-cap.md` | Cross-seeder dedup + combined cap 15 |
 | **44** | `al-bug-quality-44-ghost-zone-paths.md` | Lint ledger `paths` that match no files |
 | **45** | `al-bug-quality-45-uncheckable-proven-ratchet.md` | New `no-test-cited` / `could-not-run` vs baseline |
+| **46** | `al-bug-quality-46-stop-weekk-uom-farming.md` | Hunt-ready ban: no new `weekk+` UOM hits |
+| **47** | `al-bug-quality-47-week-uom-keep-list.md` | Keep vs delete inventory for week meters |
+| **48** | `al-bug-quality-48-delete-weekk-matchers.md` | Delete farmed matcher methods |
+| **49** | `al-bug-quality-49-delete-weekk-tests.md` | Delete farmed matcher tests |
+| **50** | `al-bug-quality-50-ban-weekk-uom.md` | CI ban reintroduction; topology still allowed |
 
 ## Already shipped — do not re-open as this set’s job
 
@@ -205,6 +215,9 @@ Do **not** create implementation prompts or engineering batches for:
 - Using `--fail-on-unguarded` (nuclear) in CI.
 - Enabling new CI test retries solely to feed the flake log (ABQ-38).
 - Rewriting historical `bugs-found` from the ABQ-35 0% sample (ABQ-40 may demote ≤3 zone `impact:` fields).
+- Shipping another compact/spaced-slash `weekk+` core-costing hunt or `ship-hunts-*.py` `CORE_COMPACT`/`CORE_SPACED` map (ABQ-46–50; owner stop 2026-09-15).
+- Mixing new topology-proposal-merge hunts into the matcher-deletion PR (resume topology after ABQ-48/49).
+- Mass-rewriting historical ledger lines that cite deleted `AzureRetailPricesSkuMatchersWeekk+Tests` class names.
 
 ## Global constraints (every prompt)
 
@@ -223,3 +236,5 @@ Summarize: files changed, tests run, whether fictional allowlists/phrase lists s
 Wave 5 leftovers now owned by wave 6: 34→**36**; 30→**37**; 31→**38**; 28 host→**39**; 35 lint→**40**; 27 replay→**42**. 26 still does not ratchet Stryker; 32 still does not rewrite historical parsers; 33 still does not invoke `/al-bug`.
 
 Wave 6 leftovers (do not steal another prompt’s job): 36 does not nuclear `--fail-on-unguarded`; 37/38 do not git-push JSONL; 39 does not walk every in-matrix route; 40 does not rewrite `bugs-found`; 41 does not zero stanza `hunts` on seed-only; 43 does not auto-delete candidate rows; 44 does not mass-edit ghosts on the first PR; 45 does not outrun 36.
+
+Wave 7 leftovers: 46 does not delete matchers; 47 does not delete code; 48 may leave tests red if 49 is split; 49 does not rewrite hour/day/month tests; 50 does not ban topology `ds-` tokens.

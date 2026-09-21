@@ -39,7 +39,7 @@ describe("ReviewsNewWizardResumeStrip", () => {
     render(<ReviewsNewWizardResumeStrip />);
 
     expect(screen.getByTestId("reviews-new-wizard-resume-strip")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Resume your draft review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Resume your architecture draft review" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Start over" })).toBeInTheDocument();
   });

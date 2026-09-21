@@ -23,8 +23,8 @@ import {
 import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
+  assignedToMeFindingsHref,
   buildGovernanceAssignedToMeEmptyDescription,
-  GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF,
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
 
@@ -37,11 +37,13 @@ import {
   resolveInhabitFindingsLiveRecoveryActions,
 } from "@/lib/inhabit/inhabit-live-recovery-contract";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
   const inhabitedEmptyState = resolveInhabitedFindingsEmptyStateCopy({
     workingMode: props.isWorkingMode,
     pathname,
@@ -136,6 +138,7 @@ export function GovernanceFindingsQueueOutcomeSection(
                     assigneeRoleLabel: props.currentPrincipalRole,
                     checkedAt: props.assignedToMeCheckedAt,
                     fetchBasis: props.assignedToMeFetchBasis,
+                    productLine,
                   })
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.description
@@ -160,7 +163,7 @@ export function GovernanceFindingsQueueOutcomeSection(
             footer={
               props.isAssignedToMe ? (
                 <Button asChild size="sm" variant="primary">
-                  <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
+                  <Link href={assignedToMeFindingsHref(productLine)}>
                     {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
                   </Link>
                 </Button>

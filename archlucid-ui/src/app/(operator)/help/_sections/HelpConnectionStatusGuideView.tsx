@@ -193,7 +193,7 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         <div data-testid="help-connection-status-orientation-bottom">

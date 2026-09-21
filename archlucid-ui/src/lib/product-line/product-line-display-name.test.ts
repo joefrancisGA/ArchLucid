@@ -138,4 +138,14 @@ describe("localizeProductCopy", () => {
     expect(productLineTenantIdLabel("security")).toBe("SecureNow tenant ID");
     expect(productLineManagedIdentityObjectIdLabel("security")).toBe("SecureNow managed identity object ID");
   });
+
+  it("rewrites architecture review vocabulary to security reviews for SecureNow", () => {
+    expect(localizeProductCopy("security", "Upload inventory for architecture reviews.")).toBe(
+      "Upload inventory for security reviews.",
+    );
+    expect(localizeProductCopy("security", "Start a new Architecture review")).toBe("Start a new Security review");
+    expect(localizeProductCopy("architecture", "Upload inventory for architecture reviews.")).toBe(
+      "Upload inventory for architecture reviews.",
+    );
+  });
 });

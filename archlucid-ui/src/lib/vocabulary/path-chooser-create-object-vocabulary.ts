@@ -4,12 +4,12 @@
  * Three related create / choose surfaces:
  * - Path chooser help (`/help/choose-your-next-step`) orients procurement and
  *   evaluators on which product area to open next.
- * - Architecture drafts (`/architecture/architectures`) is the draft registry
+ * - Architecture drafts (`/architecture/architectures`) is the architecture draft registry
  *   before a review starts.
  * - Start a review (`/architecture/reviews/new`) creates a new architecture
  *   review that becomes an architecture package.
  *
- * They stay separate because choosing a next step is not saving a draft, and
+ * They stay separate because choosing a next step is not saving an architecture draft, and
  * drafts are not the same task as starting a review.
  */
 
@@ -50,7 +50,7 @@ export const PATH_CHOOSER_CREATE_OBJECT_HEADING =
   "Path chooser, drafts, and Start review serve three different purposes" as const;
 
 export const PATH_CHOOSER_CREATE_OBJECT_WHY_THREE =
-  "Choose your next step orients which product area to open. Architecture drafts save work before a review starts. Start review creates a new architecture review that becomes an architecture package. Choosing a path is not saving a draft — and a draft is not the same as starting a review." as const;
+  "Choose your next step orients which product area to open. Architecture drafts save work before a review starts. Start review creates a new architecture review that becomes an architecture package. Choosing a path is not saving an architecture draft — and an architecture draft is not the same as starting a review." as const;
 
 export const PATH_CHOOSER_CREATE_OBJECT_COMPACT_LINE =
   "Path chooser orients next steps; drafts save pre-review work; Start review creates a review." as const;
@@ -64,7 +64,7 @@ export const PATH_CHOOSER_CREATE_OBJECT_DRAFTS_COMPACT_ANCHOR = "drafts" as cons
 /** Inline compact-line anchor for the Start review hub. */
 export const PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_COMPACT_ANCHOR = "Start review" as const;
 
-/** Working-mode compact anchor — same lifecycle, draft editor entry. */
+/** Working-mode compact anchor — same lifecycle, architecture draft editor entry. */
 export const PATH_CHOOSER_CREATE_OBJECT_WORKING_NEW_REVIEW_COMPACT_ANCHOR = "New review" as const;
 
 /** Short tooltip shown when hovering the Path chooser inline link. */
@@ -96,7 +96,7 @@ export const PATH_CHOOSER_CREATE_OBJECT_WORKING_NEW_REVIEW_LINK: PathChooserCrea
   id: "reviews-new",
   label: WORKING_NEW_REVIEW_LABEL,
   href: ARCHITECTURES_NEW_PATH,
-  whenToUse: "Open the draft editor and start a new architecture review.",
+  whenToUse: "Open the architecture draft editor and start a new architecture review.",
 };
 
 function resolveReviewsNewLink(workingMode: boolean): PathChooserCreateObjectLink {

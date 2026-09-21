@@ -104,6 +104,30 @@ public sealed class MermaidDiagramRenderPipelineTests
     }
 
     [Fact]
+    public async Task RenderAsync_layout_only_invisible_links_succeed()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "layout-only-validate",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "A", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "B", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "a", ToNodeId = "b", Label = string.Empty, IsLayoutOnly = true },
+            ],
+        };
+
+        MermaidDiagramRenderResult result = await pipeline.RenderAsync(new MermaidDiagramRenderRequest { Ast = ast });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.PrimaryMermaid.Should().Contain("~~~");
+        result.ValidationErrors.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
     public async Task RenderAsync_over_threshold_graph_returns_partitioned_not_succeeded()
     {
         DiagramAst ast = BuildLargeAst(nodeCount: 500);

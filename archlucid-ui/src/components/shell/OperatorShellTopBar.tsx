@@ -14,7 +14,6 @@ import {
 import { TenantMastheadWordmark } from "@/components/brand/TenantMastheadWordmark";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { OperatorShellDemoWorkspaceTag } from "@/components/shell/OperatorShellDemoWorkspaceTag";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
 import { WorkingCareerRehearsalChooser } from "@/components/workspace-mode/WorkingCareerRehearsalChooser";
@@ -24,7 +23,12 @@ import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chr
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
+import {
+  OPERATOR_HELP_ARIA_KEYSHORTCUTS,
+  resolveOperatorHelpAriaLabel,
+  resolveOperatorHelpTooltip,
+  resolveOperatorHelpTriggerLabel,
+} from "@/lib/keyboard-shortcut-display";
 import {
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
@@ -51,6 +55,9 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const { productLine } = useProductLine();
   const wordmarkAriaLabel = PRODUCT_LINE_WORDMARK_ARIA_LABEL[productLine];
+  const operatorHelpAriaLabel = resolveOperatorHelpAriaLabel(productLine);
+  const operatorHelpTooltip = resolveOperatorHelpTooltip(productLine);
+  const operatorHelpTriggerLabel = resolveOperatorHelpTriggerLabel(productLine);
   const showEngineerOperatorChrome = isOperatorExperienceFullShellEnv();
   const presenterQuiet = useReviewPresenterChromeActive();
   const showLlmBudgetPill =
@@ -120,7 +127,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                 className="flex min-w-0 flex-nowrap items-center gap-2"
               >
                 <ScopeSwitcherDeferred density="compact" />
-                <OperatorShellDemoWorkspaceTag />
               </div>
             ) : null}
             <AuthPanel />
@@ -130,8 +136,8 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
               {showDevAnalysisTopBarChrome ? <SimulatorModeTopBarChip /> : null}
               <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip
-                aria-label={OPERATOR_HELP_ARIA_LABEL}
-                content={OPERATOR_HELP_TOOLTIP}
+                aria-label={operatorHelpAriaLabel}
+                content={operatorHelpTooltip}
                 aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
               >
                 <Button
@@ -142,14 +148,14 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                   data-testid="operator-shell-help-trigger"
                   data-help-tooltip-trigger=""
                   data-help-tooltip-icon="help"
-                  aria-label={OPERATOR_HELP_ARIA_LABEL}
+                  aria-label={operatorHelpAriaLabel}
                   aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
                   onClick={() => {
                     props.onOpenHelpSearch();
                   }}
                 >
                   <CircleHelp className="size-[18px]" aria-hidden />
-                  <span className="hidden sm:inline">Help &amp; Support</span>
+                  <span className="hidden sm:inline">{operatorHelpTriggerLabel}</span>
                 </Button>
               </ToolbarHelpTooltip>
               {showLlmBudgetPill ? <LlmBudgetStatusPillDeferred /> : null}

@@ -416,7 +416,7 @@ describe("InfrastructureAskClient", () => {
     expect(vi.mocked(submitInfraEvidenceAsk)).toHaveBeenCalledTimes(2);
   });
 
-  it("inserts canned prompts into the draft without auto-submitting", async () => {
+  it("inserts canned prompts into the architecture draft without auto-submitting", async () => {
     searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 

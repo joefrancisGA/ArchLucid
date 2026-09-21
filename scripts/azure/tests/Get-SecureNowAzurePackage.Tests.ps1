@@ -35,6 +35,40 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
         $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
     }
 
+    It 'configures SecureNow consumer branding for shared extractor console helpers' {
+        [string]$telemetryHelpers = Join-Path $script:scriptRoot 'ArchLucid.ExtractorTelemetry.helpers.ps1'
+        [string]$heartbeatHelpers = Join-Path $script:scriptRoot 'ArchLucid.ExtractorProgressHeartbeat.helpers.ps1'
+        [string]$previousBrand = 'ArchLucid Azure extractor'
+
+        if (Get-Command -Name Get-ArchLucidExtractorConsoleBrandName -ErrorAction SilentlyContinue)
+        {
+            $previousBrand = Get-ArchLucidExtractorConsoleBrandName
+        }
+
+        try
+        {
+            . $telemetryHelpers
+            . $heartbeatHelpers
+            Set-ArchLucidExtractorConsoleBrandName -BrandName 'SecureNow Azure extractor'
+
+            Get-ArchLucidExtractorConsoleBrandName | Should -Be 'SecureNow Azure extractor'
+
+            [string]$line = Format-ArchLucidExtractorProgressHeartbeatMessage `
+                -Step 'SubscriptionContext' `
+                -Elapsed ([TimeSpan]::FromSeconds(3))
+
+            $line | Should -Be 'SecureNow Azure extractor | SubscriptionContext | Still running... 00:00:03'
+            $line | Should -Not -Match 'ArchLucid Azure extractor'
+        }
+        finally
+        {
+            if (Get-Command -Name Set-ArchLucidExtractorConsoleBrandName -ErrorAction SilentlyContinue)
+            {
+                Set-ArchLucidExtractorConsoleBrandName -BrandName $previousBrand
+            }
+        }
+    }
+
     It 'uses SecureNow consumer branding in README.txt while emitting schema-version-2 ZIP output' {
         [object[]]$fixtureResources =
             @(Get-Content -LiteralPath $script:armFixturePath -Raw -Encoding Utf8 | ConvertFrom-Json)
@@ -122,6 +156,11 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
 
                 [object[]]$resources = @(Get-Content -LiteralPath $resourcesPath -Raw -Encoding Utf8 | ConvertFrom-Json)
                 $resources.Count | Should -Be 2
+
+                [string]$diagnosticSettingsPath = Join-Path $staging 'diagnostic-settings.json'
+                Test-Path -LiteralPath $diagnosticSettingsPath | Should -Be $true
+                [string]$diagnosticSettingsJson = Get-Content -LiteralPath $diagnosticSettingsPath -Raw -Encoding Utf8
+                $diagnosticSettingsJson.Trim() | Should -Be '[]'
             }
             finally
             {

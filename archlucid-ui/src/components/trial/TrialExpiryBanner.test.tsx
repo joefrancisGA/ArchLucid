@@ -98,7 +98,7 @@ describe("TrialExpiryBanner", () => {
       expect(screen.getByTestId("trial-expiry-banner")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /dismiss trial countdown for this session/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^dismiss$/i }));
 
     await waitFor(() => {
       expect(screen.queryByTestId("trial-expiry-banner")).not.toBeInTheDocument();

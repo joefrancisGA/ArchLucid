@@ -93,7 +93,11 @@ internal static class FindingInspectReadRepositoryCore
                     .FirstOrDefault(normalized => normalized is not null);
 
                 if (firstValid is not null)
-                    return (firstValid, firstValid);
+                {
+                    string? traceRuleName = NormalizeInspectText(firstRuleText);
+
+                    return (firstValid, traceRuleName ?? firstValid);
+                }
             }
         }
         catch (JsonException)
@@ -116,7 +120,6 @@ internal static class FindingInspectReadRepositoryCore
         {
             ["title"] = normalizedTitle,
             ["rationale"] = normalizedRationale,
-            ["whyThisMatters"] = normalizedRationale,
         };
 
         return JsonSerializer.SerializeToElement(slim);

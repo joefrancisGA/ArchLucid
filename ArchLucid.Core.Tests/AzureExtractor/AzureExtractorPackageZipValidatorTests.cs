@@ -419,7 +419,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
             schemaVersion: 2,
             includeResources: true,
             optionalEntryName: AzureExtractorPackageZipEntryNames.RoleAssignments,
-            optionalEntryJson: "{}");
+            optionalEntryJson: "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -438,7 +438,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
             schemaVersion: 2,
             includeResources: true,
             optionalEntryName: AzureExtractorPackageZipEntryNames.DiagnosticSettings,
-            optionalEntryJson: "{}");
+            optionalEntryJson: "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -450,6 +450,24 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_accepts_single_object_diagnostic_settings_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.DiagnosticSettings,
+            optionalEntryJson: """{"name":"diag1","workspaceId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"}""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+        result.IsSchemaRejection.Should().BeFalse();
+    }
+
+    [Fact]
     public void Validate_rejects_non_array_network_associations_json()
     {
         byte[] zipBytes = BuildZip(
@@ -457,7 +475,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
             schemaVersion: 2,
             includeResources: true,
             optionalEntryName: AzureExtractorPackageZipEntryNames.NetworkAssociations,
-            optionalEntryJson: "{}");
+            optionalEntryJson: "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -476,7 +494,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
             schemaVersion: 2,
             includeResources: true,
             optionalEntryName: AzureExtractorPackageZipEntryNames.PolicyAssignments,
-            optionalEntryJson: "{}");
+            optionalEntryJson: "1");
 
         using MemoryStream stream = new(zipBytes);
 
@@ -596,7 +614,8 @@ public sealed class AzureExtractorPackageZipValidatorTests
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
         result.IsValid.Should().BeTrue();
-        result.FileEntryCount.Should().Be(9);
+        int expectedFileEntryCount = 2 + AzureExtractorPackageZipEntryNames.OptionalInventoryEntryNames.Count;
+        result.FileEntryCount.Should().Be(expectedFileEntryCount);
     }
 
     [Fact]
@@ -662,7 +681,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
             schemaVersion: 2,
             includeResources: true,
             optionalEntryName: AzureExtractorPackageZipEntryNames.DefenderSummary,
-            optionalEntryJson: "{}");
+            optionalEntryJson: "1");
 
         using MemoryStream stream = new(zipBytes);
 

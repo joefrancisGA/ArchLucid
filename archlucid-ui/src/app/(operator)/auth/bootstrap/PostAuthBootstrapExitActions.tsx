@@ -8,9 +8,10 @@ import {
   POST_AUTH_BOOTSTRAP_SIGN_IN_AGAIN_LABEL,
   POST_AUTH_BOOTSTRAP_SIGN_IN_PATH,
   POST_AUTH_BOOTSTRAP_USE_DIFFERENT_ACCOUNT_LABEL,
-  SESSION_EXPIRED_SECONDARY_EXIT_LABEL,
   SESSION_EXPIRED_SECONDARY_EXIT_PATH,
 } from "@/lib/auth/post-auth-bootstrap-exit-copy";
+import { sessionExpiredSecondaryExitLabel } from "@/lib/auth/session-expired-page-copy";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { clearOidcSession, signOutAndRedirectHome } from "@/lib/oidc/session";
 import { appSiteHref } from "@/lib/site-urls";
 
@@ -21,6 +22,8 @@ function redirectToSignInAgain(): void {
 
 /** Secondary exits when post-auth bootstrap cannot complete (TB-1469; pairs TB-1315). */
 export function PostAuthBootstrapExitActions() {
+  const { productLine } = useLocalizedProductCopy();
+
   return (
     <div className="mt-4 flex flex-wrap items-center gap-3" data-testid="bootstrap-secondary-exit">
       <Button
@@ -48,7 +51,7 @@ export function PostAuthBootstrapExitActions() {
         href={appSiteHref(SESSION_EXPIRED_SECONDARY_EXIT_PATH)}
         data-testid="bootstrap-public-exit"
       >
-        {SESSION_EXPIRED_SECONDARY_EXIT_LABEL}
+        {sessionExpiredSecondaryExitLabel(productLine)}
       </Link>
     </div>
   );

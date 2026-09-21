@@ -31,7 +31,8 @@ export type CreateWorkspaceFormValues = z.infer<typeof createWorkspaceFormSchema
 
 export const CREATE_WORKSPACE_COPY = {
   title: "Create your workspace",
-  lead: "Set up an ArchLucid workspace for your organization. You can rename the workspace later.",
+  lead:
+    "Create a workspace for your organization. This is live tenant data — not the Customer Intake Demo sample and not the first-session Training walkthrough. If you were invited, return to sign-in and accept the invitation instead.",
   workspaceNameLabel: "Workspace name",
   organizationNameLabel: "Organization name (optional)",
   organizationHint: "Use a different name when your workspace label differs from your company name.",
@@ -40,12 +41,13 @@ export const CREATE_WORKSPACE_COPY = {
     "Select where this workspace's data is stored. Additional regions are added when demand warrants — this choice does not imply multi-region failover.",
   industryLabel: "Industry or evaluation focus (optional)",
   termsLabel: "I accept the ArchLucid terms and privacy policy for this workspace.",
-  includeDemoSeedLabel: "Include sample architecture review data",
+  includeDemoSeedLabel: "Include optional sample reviews inside this tenant (not Training scope)",
   submit: "Create workspace",
   submitting: "Creating workspace…",
   accessRequest: "Request access",
   selectWorkspaceTitle: "Choose a workspace",
   invitationTitle: "Join your organization",
-  invitationLead: "You have a pending invitation to join an ArchLucid workspace.",
+  invitationLead:
+    "You have a pending invitation to join an ArchLucid workspace. Accepting opens your organization’s live workspace — not sample data.",
   noAccessTitle: "Access not available",
 } as const;

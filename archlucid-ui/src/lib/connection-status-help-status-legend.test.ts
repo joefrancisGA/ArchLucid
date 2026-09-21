@@ -28,10 +28,10 @@ describe("connection-status-help-status-legend", () => {
     }
   });
 
-  it("assigns a distinct status kind to every connector display status", () => {
-    const kinds = EXPECTED_STATUSES.map((status) => resolveConnectorDisplayStatusTag(status).kind);
-
-    expect(new Set(kinds).size).toBe(EXPECTED_STATUSES.length);
+  it("uses non-alarming kinds for disabled and not-configured configuration states", () => {
+    expect(resolveConnectorDisplayStatusTag("Disabled").kind).toBe("draft");
+    expect(resolveConnectorDisplayStatusTag("Disabled").kind).not.toBe("blocked");
+    expect(resolveConnectorDisplayStatusTag("Not configured").kind).toBe("neutral");
     expect(resolveConnectorDisplayStatusTag("Recommended").kind).not.toBe(
       resolveConnectorDisplayStatusTag("Needs attention").kind,
     );

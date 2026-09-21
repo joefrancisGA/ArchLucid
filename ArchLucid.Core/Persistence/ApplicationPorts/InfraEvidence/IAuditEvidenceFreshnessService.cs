@@ -6,24 +6,46 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public interface IAuditEvidenceFreshnessService
 {
     Task<IReadOnlyList<AuditEvidenceFreshnessItemUpdate>> ClassifySnapshotItemsAsync(
-        Guid tenantId,
+        ScopeContext scope,
+        Guid auditEvidenceSnapshotId,
+        DateTime referenceUtc,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AuditEvidenceFreshnessItemUpdate>> ClassifySnapshotItemsInScopeAsync(
+        ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
         DateTime referenceUtc,
         CancellationToken cancellationToken = default);
 
     Task ApplyFreshnessToSnapshotAsync(
-        Guid tenantId,
+        ScopeContext scope,
+        Guid auditEvidenceSnapshotId,
+        DateTime referenceUtc,
+        CancellationToken cancellationToken = default);
+
+    Task ApplyFreshnessToSnapshotInScopeAsync(
+        ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
         DateTime referenceUtc,
         CancellationToken cancellationToken = default);
 
     Task<AuditEvidenceFreshnessDashboardRecord> GetDashboardCountsAsync(
-        Guid tenantId,
+        ScopeContext scope,
+        Guid assessmentId,
+        CancellationToken cancellationToken = default);
+
+    Task<AuditEvidenceFreshnessDashboardRecord> GetDashboardCountsInScopeAsync(
+        ProjectScopeKey scope,
         Guid assessmentId,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListHistoricalItemsAsync(
-        Guid tenantId,
+        ScopeContext scope,
+        Guid auditEvidenceSnapshotId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListHistoricalItemsInScopeAsync(
+        ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default);
 }

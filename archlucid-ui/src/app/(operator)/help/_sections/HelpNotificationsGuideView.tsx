@@ -228,7 +228,7 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
             </section>
           </div>
 
-          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={guideHeadings} />}
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />}
         </div>
 
         {buyerPolishedShell ? <HelpNotificationsSourcesOrientationStrip /> : null}

@@ -142,6 +142,12 @@ regexes = [
 ]
 
 [[allowlists]]
+description = "infra resource row ARM id disclosure Vitest: disclosure search-param UUID fixture, not an API secret; generic-api-key false positive"
+paths = [
+  '''(?:^|/)archlucid-ui/src/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url\.test\.ts$''',
+]
+
+[[allowlists]]
 description = "Declaration premise conflict classifier: Kubernetes property key literal k8s.privileged (policy control id, not an API secret); generic-api-key false positive on propertyKey assignment"
 paths = [
   '''(?:^|/)ArchLucid\.Decisioning/Analysis/DeclarationPremiseConflictClassifier(?:\.WorkloadIsolation)?\.cs$''',

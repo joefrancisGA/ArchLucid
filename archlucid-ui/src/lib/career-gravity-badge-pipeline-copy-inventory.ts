@@ -15,7 +15,7 @@ export type CareerGravityBadgePipelineRow = {
   readonly ownerPrompt: string;
 };
 
-/** Security product line hides ArchLucid training and Career/Rehearsal chrome (CG-017 / SecureNow production shell). */
+/** Security product line hides architecture training and Career/Rehearsal chrome (CG-017 / SecureNow production shell). */
 export const CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH =
   "archlucid-ui/src/components/shell/OperatorShellTopBar.tsx" as const;
 

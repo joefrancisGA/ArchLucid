@@ -26,40 +26,40 @@ public static class DiagramInventoryPictogramSvgEmitter
         switch (kind)
         {
             case DiagramInventoryPictogramKind.Compute:
-                group.Add(Rect(svgNamespace, 3, 4, 18, 12, "#2563eb"));
+                group.Add(Rect(svgNamespace, 3, 4, 18, 12, DiagramInventoryPictogramKindColors.FillFor(kind)));
                 group.Add(Rect(svgNamespace, 10, 16, 4, 3, "#1d4ed8"));
                 group.Add(Rect(svgNamespace, 7, 19, 10, 2, "#1e40af"));
                 break;
             case DiagramInventoryPictogramKind.Network:
-                group.Add(Circle(svgNamespace, 6, 7, 3, "#0f766e"));
-                group.Add(Circle(svgNamespace, 18, 7, 3, "#0f766e"));
-                group.Add(Circle(svgNamespace, 12, 17, 3, "#0f766e"));
+                group.Add(Circle(svgNamespace, 6, 7, 3, DiagramInventoryPictogramKindColors.FillFor(kind)));
+                group.Add(Circle(svgNamespace, 18, 7, 3, DiagramInventoryPictogramKindColors.FillFor(kind)));
+                group.Add(Circle(svgNamespace, 12, 17, 3, DiagramInventoryPictogramKindColors.FillFor(kind)));
                 group.Add(Line(svgNamespace, 8.5, 9, 10.5, 15, "#0d9488"));
                 group.Add(Line(svgNamespace, 15.5, 9, 13.5, 15, "#0d9488"));
                 group.Add(Line(svgNamespace, 9, 7, 15, 7, "#0d9488"));
                 break;
             case DiagramInventoryPictogramKind.Data:
-                group.Add(Ellipse(svgNamespace, 12, 6, 8, 3, "#7c3aed"));
-                group.Add(Rect(svgNamespace, 4, 6, 16, 10, "#7c3aed"));
+                group.Add(Ellipse(svgNamespace, 12, 6, 8, 3, DiagramInventoryPictogramKindColors.FillFor(kind)));
+                group.Add(Rect(svgNamespace, 4, 6, 16, 10, DiagramInventoryPictogramKindColors.FillFor(kind)));
                 group.Add(Ellipse(svgNamespace, 12, 16, 8, 3, "#6d28d9"));
                 break;
             case DiagramInventoryPictogramKind.Storage:
-                group.Add(Rect(svgNamespace, 4, 4, 16, 4, "#d97706"));
+                group.Add(Rect(svgNamespace, 4, 4, 16, 4, DiagramInventoryPictogramKindColors.FillFor(kind)));
                 group.Add(Rect(svgNamespace, 4, 10, 16, 4, "#ea580c"));
                 group.Add(Rect(svgNamespace, 4, 16, 16, 4, "#c2410c"));
                 break;
             case DiagramInventoryPictogramKind.Identity:
-                group.Add(Circle(svgNamespace, 12, 8, 4, "#db2777"));
+                group.Add(Circle(svgNamespace, 12, 8, 4, DiagramInventoryPictogramKindColors.FillFor(kind)));
                 group.Add(new XElement(
                     svgNamespace + "path",
                     new XAttribute("d", "M5 20c0-4 3-6 7-6s7 2 7 6"),
                     new XAttribute("fill", "none"),
-                    new XAttribute("stroke", "#db2777"),
+                    new XAttribute("stroke", DiagramInventoryPictogramKindColors.FillFor(kind)),
                     new XAttribute("stroke-width", "2"),
                     new XAttribute("stroke-linecap", "round")));
                 break;
             default:
-                group.Add(Rect(svgNamespace, 4, 4, 16, 16, "#475569"));
+                group.Add(Rect(svgNamespace, 4, 4, 16, 16, DiagramInventoryPictogramKindColors.FillFor(kind)));
                 break;
         }
 

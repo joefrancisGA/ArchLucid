@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -55,6 +56,39 @@ public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFact
         return row is null ? null : Map(row);
     }
 
+    public async Task<OperationalSecurityExceptionRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid exceptionId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT ExceptionId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, CloudResourceId,
+                                  OwnerActorKeysJson, Rationale, ResidualRisk, CompensatingControls, EvidenceReference,
+                                  ExpirationUtc, Status, RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256,
+                                  ExpiryProcessedUtc, CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.OperationalSecurityExceptions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ExceptionId = @ExceptionId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        ExceptionRow? row = await conn.QuerySingleOrDefaultAsync<ExceptionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ExceptionId = exceptionId,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default)
@@ -73,6 +107,32 @@ public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFact
 
         IEnumerable<ExceptionRow> rows = await conn.QueryAsync<ExceptionRow>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
+    public async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT ExceptionId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, CloudResourceId,
+                                  OwnerActorKeysJson, Rationale, ResidualRisk, CompensatingControls, EvidenceReference,
+                                  ExpirationUtc, Status, RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256,
+                                  ExpiryProcessedUtc, CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey
+                           FROM dbo.OperationalSecurityExceptions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ExceptionRow> rows = await conn.QueryAsync<ExceptionRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
 
         return rows.Select(Map).ToList();
     }
@@ -115,6 +175,47 @@ public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFact
         return rows.Select(Map).ToList();
     }
 
+    public async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> MarkExpiredInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.OperationalSecurityExceptions
+                           SET Status = @ExpiredStatus, UpdatedUtc = @AsOfUtc
+                           OUTPUT
+                               INSERTED.ExceptionId, INSERTED.TenantId, INSERTED.WorkspaceId, INSERTED.ProjectId,
+                               INSERTED.FindingId, INSERTED.PatternId, INSERTED.CloudResourceId,
+                               INSERTED.OwnerActorKeysJson, INSERTED.Rationale, INSERTED.ResidualRisk,
+                               INSERTED.CompensatingControls, INSERTED.EvidenceReference, INSERTED.ExpirationUtc,
+                               INSERTED.Status, INSERTED.RequestedByActorKey, INSERTED.ApprovedByActorKey,
+                               INSERTED.PayloadHashSha256, INSERTED.ExpiryProcessedUtc, INSERTED.CreatedUtc,
+                               INSERTED.UpdatedUtc, INSERTED.RevokedUtc, INSERTED.RevokedByActorKey
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status = @ActiveStatus
+                             AND ExpirationUtc < @AsOfUtc;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ExceptionRow> rows = await conn.QueryAsync<ExceptionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    AsOfUtc = asOfUtc,
+                    ActiveStatus = (int)OperationalSecurityExceptionStatus.Active,
+                    ExpiredStatus = (int)OperationalSecurityExceptionStatus.Expired,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
     public async Task MarkExpiryProcessedAsync(
         Guid tenantId,
         Guid exceptionId,
@@ -134,6 +235,39 @@ public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFact
                 sql,
                 new { TenantId = tenantId, ExceptionId = exceptionId, ProcessedUtc = processedUtc },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task MarkExpiryProcessedInScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityExceptionExpiryProcessedMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.OperationalSecurityExceptions
+                           SET ExpiryProcessedUtc = @ProcessedUtc, UpdatedUtc = @ProcessedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ExceptionId = @ExceptionId
+                             AND ExpiryProcessedUtc IS NULL;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.ExceptionId,
+                    mutation.ProcessedUtc,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped operational exception expiry mutation did not update exactly one record.");
     }
 
     public async Task RevokeAsync(
@@ -171,6 +305,45 @@ public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFact
                 cancellationToken: cancellationToken));
     }
 
+    public async Task RevokeInScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityExceptionRevokeMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.OperationalSecurityExceptions
+                           SET Status = @RevokedStatus,
+                               RevokedUtc = @RevokedUtc,
+                               RevokedByActorKey = @RevokedByActorKey,
+                               UpdatedUtc = @RevokedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ExceptionId = @ExceptionId
+                             AND Status = @ActiveStatus;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.ExceptionId,
+                    mutation.RevokedUtc,
+                    mutation.RevokedByActorKey,
+                    ActiveStatus = (int)OperationalSecurityExceptionStatus.Active,
+                    RevokedStatus = (int)OperationalSecurityExceptionStatus.Revoked,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped operational exception revoke did not update exactly one record.");
+    }
+
     public async Task<bool> HasActiveExceptionForFindingAsync(
         Guid tenantId,
         Guid findingId,
@@ -194,6 +367,42 @@ public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFact
                 new
                 {
                     TenantId = tenantId,
+                    FindingId = findingId,
+                    AsOfUtc = asOfUtc,
+                    ActiveStatus = (int)OperationalSecurityExceptionStatus.Active,
+                },
+                cancellationToken: cancellationToken));
+
+        return exists.HasValue;
+    }
+
+    public async Task<bool> HasActiveExceptionForFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        DateTime asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT TOP (1) 1
+                           FROM dbo.OperationalSecurityExceptions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND FindingId = @FindingId
+                             AND Status = @ActiveStatus
+                             AND ExpirationUtc > @AsOfUtc;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int? exists = await conn.ExecuteScalarAsync<int?>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
                     FindingId = findingId,
                     AsOfUtc = asOfUtc,
                     ActiveStatus = (int)OperationalSecurityExceptionStatus.Active,

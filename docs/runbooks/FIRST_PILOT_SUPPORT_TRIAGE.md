@@ -2,7 +2,9 @@
 
 # First-pilot support and audit triage
 
-**Last reviewed:** 2026-08-02
+**Last reviewed:** 2026-09-14
+
+**One-page card:** [`FIRST_PILOT_TRIAGE_CARD.md`](FIRST_PILOT_TRIAGE_CARD.md) (pin during private-beta support).
 
 Use this page when a pilot stalls, proof collection fails, or sponsor handoff is **HOLD**.
 

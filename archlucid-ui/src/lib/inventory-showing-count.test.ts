@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   REVIEWS_HUB_DEFAULT_PAGE_SIZE,
   ARCHITECTURE_IDENTITIES_DEFAULT_PAGE_SIZE,
+  formatInventoryPageRangeLine,
   formatInventoryShowingLine,
   formatInventoryShowingFirstLine,
+  inventoryTotalPageCount,
   resolveInventoryShowingCount,
   shouldShowInventoryIncompleteness,
 } from "@/lib/inventory-showing-count";
@@ -37,5 +39,14 @@ describe("inventory-showing-count (DA-07)", () => {
   it("formats first-N remainder copy without inventing a total", () => {
     expect(formatInventoryShowingFirstLine(20, 27)).toBe("Showing first 20. 27 more");
     expect(formatInventoryShowingFirstLine(20, 0)).toBeNull();
+  });
+
+  it("formats an offset page range against the full total", () => {
+    expect(formatInventoryPageRangeLine(1, 20, 621)).toBe("Showing 1–20 of 621");
+    expect(formatInventoryPageRangeLine(13, 50, 621)).toBe("Showing 601–621 of 621");
+    expect(formatInventoryPageRangeLine(99, 50, 621)).toBe("Showing 601–621 of 621");
+    expect(formatInventoryPageRangeLine(1, 50, 0)).toBeNull();
+    expect(inventoryTotalPageCount(621, 50)).toBe(13);
+    expect(inventoryTotalPageCount(0, 50)).toBe(1);
   });
 });

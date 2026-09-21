@@ -59,7 +59,7 @@ describe("useCreateArchitectureNavigation", () => {
     vi.unstubAllGlobals();
   });
 
-  it("opens the draft workspace without pre-creating a server draft", () => {
+  it("opens the architecture draft workspace without pre-creating a server draft", () => {
     const { result } = renderHook(() => useCreateArchitectureNavigation());
 
     act(() => {

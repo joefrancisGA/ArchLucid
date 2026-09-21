@@ -169,8 +169,8 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
         <div className="space-y-4">
           <BaselineStepHeading
             step={1}
-            title="Collect inventory locally"
-            description="Run the read-only extractor in your Azure tenant — ArchLucid never needs cloud credentials for this step."
+            title="Collect inventory"
+            description="Prefer a scheduled runbook or Function in your subscription for recurring collection. The local command is for a one-time pilot ZIP — ArchLucid never needs cloud credentials for this step."
           />
           <CloudInventoryExtractorCommandPanel
             platform="azure"

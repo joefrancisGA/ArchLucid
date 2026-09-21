@@ -12,8 +12,11 @@ export type ExtractUploadConstraintsPanelProps = {
 };
 
 /** Up-front upload constraints for the extract & upload settings page. */
+const EXTRACT_UPLOAD_CONSTRAINTS_INTRO =
+  "Package ZIP uploads turn cloud inventory into evidence for architecture reviews." as const;
+
 export function ExtractUploadConstraintsPanel(props: ExtractUploadConstraintsPanelProps) {
-  const { productLine } = useLocalizedProductCopy();
+  const { productLine, localize } = useLocalizedProductCopy();
   const constraints = extractorUploadConstraints(props.platform ?? "azure", undefined, productLine);
 
   return (
@@ -25,7 +28,7 @@ export function ExtractUploadConstraintsPanel(props: ExtractUploadConstraintsPan
         Before you upload
       </h3>
       <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Package ZIP uploads turn cloud inventory into evidence for architecture reviews.
+        {localize(EXTRACT_UPLOAD_CONSTRAINTS_INTRO)}
       </p>
       <dl className="m-0 mt-3 grid grid-cols-1 gap-3">
         {constraints.map((row) => (

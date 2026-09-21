@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
+import { SampleWorkspaceExitTrainingButton } from "@/components/operator/SampleWorkspaceExitTrainingButton";
 import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
 import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";
 import { WorkspaceSwitcherFirstOpenCoach } from "@/components/WorkspaceSwitcherFirstOpenCoach";
@@ -24,6 +25,7 @@ import {
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
   BUYER_SCOPE_SWITCHER_LOAD_ERROR,
 } from "@/lib/buyer/buyer-polish-copy";
+import { isSampleWorkspaceVisitActive } from "@/lib/operator/operator-sample-workspace-visit";
 import {
   clearOperatorScopeStorage,
   isDevDefaultScopeRecord,
@@ -160,6 +162,9 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {isSampleWorkspaceVisitActive() ? (
+              <SampleWorkspaceExitTrainingButton onAfterExit={onClose} />
+            ) : null}
             <Button type="button" size="sm" onClick={onClose}>
               {BUYER_SCOPE_SWITCHER_CLOSE}
             </Button>

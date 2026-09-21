@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow federated CI identity adapter design (SA-19).
+
 # Federated CI identity adapter (SA-19)
 
 Optional ZIP sibling evidence for GitHub Actions / Azure DevOps OIDC federated credentials mapped to Entra service principals and Azure RBAC.
