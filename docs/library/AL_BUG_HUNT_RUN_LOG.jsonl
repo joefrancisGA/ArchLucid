@@ -7015,3 +7015,4 @@
 {"at":"2026-09-21T18:13:14.4576917Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-21T18:15:12.1649469Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-21T18:16:27.7970439Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-21T18:16:32.9935941Z","zoneId":"core-costing","outcome":"seed-only"}
