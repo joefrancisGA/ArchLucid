@@ -1961,6 +1961,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.stalled"] = stalled.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "category", out JsonElement category)
+                || TryGetPropertyIgnoreCase(res, "category", out category))
+            && category.ValueKind == JsonValueKind.String)
+        {
+            string? categoryText = category.GetString();
+
+            if (!string.IsNullOrWhiteSpace(categoryText))
+                properties["tf.category"] = categoryText.Trim();
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
