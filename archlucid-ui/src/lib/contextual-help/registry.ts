@@ -80,6 +80,7 @@ import { secureNowContextualHelpOverrideForPath } from "@/lib/contextual-help/se
 import {
   cloudConnectionsHubContextualLeadForProductLine,
   isCloudConnectionPathExcludedForProductLine,
+  isIntegrationPathExcludedForProductLine,
 } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   EVIDENCE_TRACE_CONTEXTUAL_HELP,
@@ -230,6 +231,10 @@ export function contextualHelpForPathname(
   const productLineId = options?.productLineId ?? "architecture";
 
   if (isCloudConnectionPathExcludedForProductLine(path, productLineId)) {
+    return null;
+  }
+
+  if (isIntegrationPathExcludedForProductLine(path, productLineId)) {
     return null;
   }
 
