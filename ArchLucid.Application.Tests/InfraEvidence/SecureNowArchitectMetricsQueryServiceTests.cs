@@ -34,7 +34,7 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
             snapshotRepository,
             new InMemoryPathRepository(),
             new InMemoryExceptionRepository(),
-            new InMemoryFindingRepository());
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(new InMemoryFindingRepository()));
 
         SecureNowArchitectOutcomeMetricsResponse? metrics = await sut.TryGetOutcomeMetricsAsync(
             scope,
@@ -56,7 +56,7 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
             snapshotRepository,
             new InMemoryPathRepository(),
             new InMemoryExceptionRepository(),
-            new InMemoryFindingRepository());
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(new InMemoryFindingRepository()));
 
         SecureNowArchitectOutcomeMetricsResponse? metrics = await sut.TryGetOutcomeMetricsAsync(
             scope,

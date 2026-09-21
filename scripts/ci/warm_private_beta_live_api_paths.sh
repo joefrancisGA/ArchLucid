@@ -89,7 +89,7 @@ warm_path() {
 
     if [ "${status}" = "000" ] || [ -z "${status}" ]; then
       describe_warm_failure "${label}" "${url}" "${status}"
-      return 1
+      return 2
     fi
 
     if [ "${attempt}" -eq "${max_attempts}" ]; then
@@ -136,7 +136,7 @@ warm_path_post() {
 
     if [ "${status}" = "000" ] || [ -z "${status}" ]; then
       describe_warm_failure "${label}" "${url}" "${status}"
-      return 1
+      return 2
     fi
 
     if [ "${attempt}" -eq "${max_attempts}" ]; then
@@ -157,8 +157,17 @@ warm_path_post_optional() {
   local max_time="${4:-${CURL_MAX_TIME}}"
   local max_attempts="${5:-${ATTEMPTS}}"
 
+  local warm_status
+
   if warm_path_post "${label}" "${url}" "${body}" "${max_time}" "${max_attempts}"; then
     return 0
+  else
+    warm_status=$?
+  fi
+
+  if [ "${warm_status}" -eq 2 ]; then
+    echo "::error::Required warm failed because the API is unreachable; stopping the invite-wave lane before Playwright." >&2
+    return 1
   fi
 
   echo "::warning::Optional warm skipped for ${label}; Playwright createRun will JIT-warm with per-attempt HTTP budget." >&2

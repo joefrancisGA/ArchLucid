@@ -58,6 +58,11 @@ class TestCheckPrivateBetaClaimBoundary(unittest.TestCase):
 
         self.assertEqual(violations, [])
 
+    def test_founder_demo_requires_recovery_honesty_markers(self) -> None:
+        errors = sut.require_founder_demo_recovery(REPO_ROOT)
+
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()

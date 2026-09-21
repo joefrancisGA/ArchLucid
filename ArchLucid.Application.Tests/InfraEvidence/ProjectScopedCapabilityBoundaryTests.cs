@@ -1,9 +1,12 @@
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
 using ArchLucid.Application.InfraEvidence.RemediationWaves;
+using ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
+using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -38,9 +41,13 @@ public sealed class ProjectScopedCapabilityBoundaryTests
                 .Should()
                 .Contain(typeof(ProjectScopeKey), $"{capabilityType.Name}.{method.Name} must require explicit project authority");
 
+            // CS8122: FluentAssertions NotContain compiles to an expression tree; use == instead of `is`.
             parameters.Select(parameter => parameter.Name)
                 .Should()
-                .NotContain(name => name is "tenantId" or "workspaceId" or "projectId");
+                .NotContain(name =>
+                    name == "tenantId"
+                    || name == "workspaceId"
+                    || name == "projectId");
         }
     }
 
@@ -57,6 +64,12 @@ public sealed class ProjectScopedCapabilityBoundaryTests
         yield return [typeof(AuditManualEvidenceSubmissionService)];
         yield return [typeof(AuditEvidencePackageExportService)];
         yield return [typeof(AuditEvidenceSnapshotCollectionService)];
+        yield return [typeof(SecureNowArchitectMetricsQueryService)];
+        yield return [typeof(SecurityEvidencePathInspectorQueryService)];
+        yield return [typeof(SecurityAssetAssertionService)];
+        yield return [typeof(OperationalSecurityExceptionService)];
+        yield return [typeof(RemediationInstanceService)];
+        yield return [typeof(CloudResourceEvidenceHubService)];
     }
 
     [Theory]

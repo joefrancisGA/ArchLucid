@@ -10,6 +10,7 @@ const require = createRequire(import.meta.url);
  * Mock-backed specs: `npx playwright test -c playwright.mock.config.ts`.
  */
 const skipNextBuild = process.env.LIVE_E2E_SKIP_NEXT_BUILD === "1";
+const liveUiBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
 const liveWebServerCommand = skipNextBuild
   ? "npx tsx --tsconfig e2e/tsconfig.json e2e/start-e2e-live-api.ts"
   : "npm run build && npx tsx --tsconfig e2e/tsconfig.json e2e/start-e2e-live-api.ts";
@@ -28,13 +29,13 @@ export default defineConfig({
   workers: 1,
   reporter: process.env.CI ? [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]] : "list",
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    baseURL: liveUiBaseUrl,
     trace: "on-first-retry",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: liveWebServerCommand,
-    url: "http://127.0.0.1:3000",
+    url: liveUiBaseUrl,
     reuseExistingServer: !process.env.CI,
     // Local `npm run build` + standalone asset sync routinely exceeds 3 minutes on Windows HDDs /
     // cold caches; CI uses LIVE_E2E_SKIP_NEXT_BUILD=1 and only waits for standalone boot (120s).

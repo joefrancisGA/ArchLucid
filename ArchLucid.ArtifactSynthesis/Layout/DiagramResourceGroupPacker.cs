@@ -2,7 +2,10 @@ using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
-/// <summary>Packs forest nodes that share a resource group into layout super-cells.</summary>
+/// <summary>
+/// Packs forest nodes Visio-style: one labeled container per Azure resource group,
+/// including groups that currently show only one resource.
+/// </summary>
 public static class DiagramResourceGroupPacker
 {
     public sealed record ResourceGroupCell(
@@ -20,7 +23,12 @@ public static class DiagramResourceGroupPacker
     {
         ArgumentNullException.ThrowIfNull(cell);
 
-        return !string.IsNullOrWhiteSpace(cell.GroupName) && cell.Nodes.Count >= 2;
+        if (cell.Nodes is null || cell.Nodes.Count == 0)
+        {
+            return false;
+        }
+
+        return !string.IsNullOrWhiteSpace(cell.GroupName);
     }
 
     public static IReadOnlyList<ResourceGroupCell> PartitionCells(IReadOnlyList<DiagramNode> nodes)
@@ -32,6 +40,11 @@ public static class DiagramResourceGroupPacker
 
         foreach (DiagramNode node in nodes)
         {
+            if (node is null)
+            {
+                continue;
+            }
+
             string? groupName = NormalizeGroupName(node.ArmResourceGroup);
 
             if (groupName is null)
@@ -53,19 +66,12 @@ public static class DiagramResourceGroupPacker
 
         foreach ((string groupName, List<DiagramNode> members) in grouped)
         {
-            if (members.Count >= 2)
-            {
-                cells.Add(new ResourceGroupCell(
-                    groupName,
-                    members
-                        .OrderBy(node => node.OrderKey)
-                        .ThenBy(node => node.NodeId, StringComparer.Ordinal)
-                        .ToList()));
-            }
-            else
-            {
-                ungrouped.AddRange(members);
-            }
+            cells.Add(new ResourceGroupCell(
+                groupName,
+                members
+                    .OrderBy(node => node.OrderKey)
+                    .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                    .ToList()));
         }
 
         foreach (DiagramNode node in ungrouped
@@ -97,6 +103,11 @@ public static class DiagramResourceGroupPacker
 
             foreach (DiagramNode node in cell.Nodes)
             {
+                if (node is null || string.IsNullOrWhiteSpace(node.NodeId))
+                {
+                    continue;
+                }
+
                 suppressed.Add(node.NodeId);
             }
         }
@@ -131,7 +142,7 @@ public static class DiagramResourceGroupPacker
 
         foreach ((string frameCellId, List<NodePlacementBounds> members) in grouped)
         {
-            if (members.Count < 2)
+            if (members.Count == 0)
             {
                 continue;
             }

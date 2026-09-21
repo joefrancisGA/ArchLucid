@@ -28,6 +28,23 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid pathId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default);
+
     Task UpdateInScopeAsync(
         ProjectScopeKey scope,
         OperationalSecurityFindingMutation mutation,
@@ -38,6 +55,16 @@ public interface IProjectScopedOperationalSecurityFindingRepository
 
 public interface IProjectScopedRemediationInstanceRepository
 {
+    Task InsertInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceRecord instance,
+        CancellationToken cancellationToken = default);
+
+    Task InsertEvidenceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default);
+
     Task UpdateInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceMutation mutation,

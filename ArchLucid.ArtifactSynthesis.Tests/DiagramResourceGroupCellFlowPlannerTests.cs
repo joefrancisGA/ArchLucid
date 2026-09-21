@@ -76,6 +76,38 @@ public sealed class DiagramResourceGroupCellFlowPlannerTests
     }
 
     [Fact]
+    public void GroupByLayers_places_from_cell_in_column_zero()
+    {
+        DiagramResourceGroupPacker.ResourceGroupCell fromCell = Singleton("adf", orderKey: 10, resourceGroup: "rg-adf");
+        DiagramResourceGroupPacker.ResourceGroupCell toCell = Singleton("storage", orderKey: 0, resourceGroup: "rg-storage");
+
+        IReadOnlyList<IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>> layers =
+            DiagramResourceGroupCellFlowPlanner.GroupByLayers(
+                [toCell, fromCell],
+                [Edge("adf", "storage")]);
+
+        layers.Should().HaveCount(2);
+        layers[0].Select(cell => cell.Nodes.Single().NodeId).Should().Equal("adf");
+        layers[1].Select(cell => cell.Nodes.Single().NodeId).Should().Equal("storage");
+    }
+
+    [Fact]
+    public void GroupByLayers_throws_when_cells_are_null()
+    {
+        Action act = () => DiagramResourceGroupCellFlowPlanner.GroupByLayers(null!, []);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("cells");
+    }
+
+    [Fact]
+    public void GroupByLayers_throws_when_visible_edges_are_null()
+    {
+        Action act = () => DiagramResourceGroupCellFlowPlanner.GroupByLayers([], null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("visibleEdges");
+    }
+
+    [Fact]
     public void OrderCells_returns_same_instance_for_single_cell()
     {
         DiagramResourceGroupPacker.ResourceGroupCell cell = Singleton("only", orderKey: 0);
@@ -103,9 +135,12 @@ public sealed class DiagramResourceGroupCellFlowPlannerTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("visibleEdges");
     }
 
-    private static DiagramResourceGroupPacker.ResourceGroupCell Singleton(string nodeId, int orderKey)
+    private static DiagramResourceGroupPacker.ResourceGroupCell Singleton(
+        string nodeId,
+        int orderKey,
+        string? resourceGroup = null)
     {
-        return new DiagramResourceGroupPacker.ResourceGroupCell(null, [Node(nodeId, orderKey, resourceGroup: null)]);
+        return new DiagramResourceGroupPacker.ResourceGroupCell(resourceGroup, [Node(nodeId, orderKey, resourceGroup)]);
     }
 
     private static DiagramNode Node(string nodeId, int orderKey, string? resourceGroup)

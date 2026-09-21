@@ -158,6 +158,48 @@ public sealed class DiagramAstGraphvizDotEmitterTests
     }
 
     [Fact]
+    public void Emit_omits_empty_region_clusters_when_nodes_are_in_resource_group_frames()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "rg-over-region",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vnet-a",
+                    Label = "vnet-a",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Network/virtualNetworks",
+                    ArmResourceGroup = "rg-a",
+                    SubgraphId = "region-eastus",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "vnet-b",
+                    Label = "vnet-b",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Network/virtualNetworks",
+                    ArmResourceGroup = "rg-b",
+                    SubgraphId = "region-eastus",
+                    OrderKey = 1,
+                },
+            ],
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "region-eastus", Label = "Region eastus", OrderKey = 0 },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        CountOccurrences(dot, "subgraph cluster_rg_").Should().Be(2);
+        dot.Should().NotContain("cluster_region_eastus");
+        CountNodeLabelStatements(dot).Should().Be(2);
+    }
+
+    [Fact]
     public void Emit_empty_ast_and_single_node_remain_valid_dot()
     {
         DiagramAst empty = new() { Title = "empty" };
@@ -213,7 +255,7 @@ public sealed class DiagramAstGraphvizDotEmitterTests
 
         string dot = emitter.Emit(ast);
 
-        dot.Should().Contain("subgraph cluster_c_0_c0");
+        dot.Should().Contain("subgraph cluster_rg_c0");
         dot.Should().Contain($"color=\"{ArchitectureDiagramMermaidPalette.LightResourceGroupFrameStroke}\"");
         dot.Should().Contain("penwidth=2");
         dot.Should().Contain("style=\"rounded,filled\"");
@@ -221,7 +263,35 @@ public sealed class DiagramAstGraphvizDotEmitterTests
     }
 
     [Fact]
-    public void Emit_split_resource_group_in_two_components_emits_two_clusters()
+    public void Emit_named_singleton_resource_group_emits_one_cluster()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "singleton-rg",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-1",
+                    Label = "vm-a",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 0,
+                },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        CountOccurrences(dot, "subgraph cluster_").Should().Be(1);
+        dot.Should().Contain("subgraph cluster_rg_c0");
+        dot.Should().Contain("label=\"rg-app\"");
+        CountNodeLabelStatements(dot).Should().Be(1);
+    }
+
+    [Fact]
+    public void Emit_split_resource_group_in_two_components_emits_one_cluster()
     {
         DiagramAst ast = new()
         {
@@ -274,9 +344,9 @@ public sealed class DiagramAstGraphvizDotEmitterTests
 
         string dot = emitter.Emit(ast);
 
-        dot.Should().Contain("subgraph cluster_c_0_c0");
-        dot.Should().Contain("subgraph cluster_c_1_c0");
-        CountOccurrences(dot, "penwidth=2").Should().BeGreaterThanOrEqualTo(2);
+        CountOccurrences(dot, "subgraph cluster_").Should().Be(1);
+        dot.Should().Contain("subgraph cluster_rg_c0");
+        CountOccurrences(dot, "penwidth=2").Should().BeGreaterThanOrEqualTo(1);
         CountNodeLabelStatements(dot).Should().Be(4);
     }
 

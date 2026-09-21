@@ -11,6 +11,8 @@ import {
   effectiveCloudPlatformScopeForProductLine,
   filterCloudProvidersForProductLine,
   isCloudConnectionPathExcludedForProductLine,
+  isIntegrationConnectorExcludedForProductLine,
+  isIntegrationPathExcludedForProductLine,
   isCloudProviderSupportedForProductLine,
   isHelpSearchTopicExcludedForProductLine,
   isHelpTopicExcludedForProductLine,
@@ -92,6 +94,18 @@ describe("securenow-cloud-platform-policy", () => {
     expect(
       isCloudConnectionPathExcludedForProductLine("/integrations/cloud-connections/aws", "architecture"),
     ).toBe(false);
+  });
+
+  it("keeps Slack and Azure Boards out of SecureNow integration surfaces", () => {
+    expect(isIntegrationConnectorExcludedForProductLine("slack", "security")).toBe(true);
+    expect(isIntegrationConnectorExcludedForProductLine("azureBoards", "security")).toBe(true);
+    expect(isIntegrationConnectorExcludedForProductLine("slack", "architecture")).toBe(false);
+    expect(isIntegrationConnectorExcludedForProductLine("teams", "security")).toBe(false);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/slack", "security")).toBe(true);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/azure-boards", "security")).toBe(true);
+    expect(isIntegrationPathExcludedForProductLine("/help/slack-integration", "security")).toBe(true);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/teams", "security")).toBe(false);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/slack", "architecture")).toBe(false);
   });
 
   it("forces Azure-only platform scope for SecureNow", () => {

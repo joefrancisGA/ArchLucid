@@ -124,6 +124,11 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             return;
         }
 
+        if (!SubgraphTreeHasVisibleContent(ast, subgraph, subgraphById, excludedNodeIds))
+        {
+            return;
+        }
+
         string indentText = new(' ', indent * 4);
         string clusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(subgraph.SubgraphId);
         string clusterLabel = string.IsNullOrWhiteSpace(subgraph.Label)
@@ -157,11 +162,43 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}}}");
     }
 
+    private static bool SubgraphTreeHasVisibleContent(
+        DiagramAst ast,
+        DiagramSubgraph subgraph,
+        Dictionary<string, DiagramSubgraph> subgraphById,
+        HashSet<string> excludedNodeIds)
+    {
+        ArgumentNullException.ThrowIfNull(ast);
+        ArgumentNullException.ThrowIfNull(subgraph);
+        ArgumentNullException.ThrowIfNull(subgraphById);
+        ArgumentNullException.ThrowIfNull(excludedNodeIds);
+
+        bool hasVisibleNode = ast.Nodes
+            .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
+            .Where(node => node is not null && !excludedNodeIds.Contains(node.NodeId))
+            .Any(node => string.Equals(node.SubgraphId, subgraph.SubgraphId, StringComparison.Ordinal));
+
+        if (hasVisibleNode)
+        {
+            return true;
+        }
+
+        return subgraphById.Values.Any(candidate =>
+            candidate is not null
+            && string.Equals(candidate.ParentSubgraphId, subgraph.SubgraphId, StringComparison.Ordinal)
+            && SubgraphTreeHasVisibleContent(ast, candidate, subgraphById, excludedNodeIds));
+    }
+
     private static void EmitResourceGroupCluster(
         StringBuilder builder,
         DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster,
         int indent)
     {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(cluster);
+        ArgumentException.ThrowIfNullOrWhiteSpace(cluster.ClusterId);
+        ArgumentNullException.ThrowIfNull(cluster.Nodes);
+
         string indentText = new(' ', indent * 4);
         string clusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(cluster.ClusterId);
         string clusterLabel = GraphvizIdEscaper.QuoteLabel(cluster.GroupName);
@@ -175,6 +212,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}    fontcolor=\"{DiagramForestResourceGroupFrameStyle.LabelFill}\";");
 
         foreach (DiagramNode node in cluster.Nodes
+                     .Where(candidate => candidate is not null)
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {

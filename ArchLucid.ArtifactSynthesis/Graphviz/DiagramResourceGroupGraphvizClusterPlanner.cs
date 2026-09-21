@@ -4,7 +4,10 @@ using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Graphviz;
 
-/// <summary>Plans Graphviz resource-group clusters from ArmResourceGroup packing (IDF-06).</summary>
+/// <summary>
+/// Plans Graphviz resource-group clusters from Visio-style ArmResourceGroup packing:
+/// one cluster per named group on the canvas, including singletons.
+/// </summary>
 public static class DiagramResourceGroupGraphvizClusterPlanner
 {
     public sealed record ClusterPlan(
@@ -21,32 +24,23 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
             .OrderBy(node => node.OrderKey)
             .ThenBy(node => node.NodeId, StringComparer.Ordinal)
             .ToList();
-
-        List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(
-            renderableNodes,
-            ast.Edges);
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells =
+            DiagramResourceGroupPacker.PartitionCells(renderableNodes);
         List<ClusterPlan> clusters = [];
 
-        for (int componentIndex = 0; componentIndex < components.Count; componentIndex++)
+        for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
         {
-            List<DiagramNode> component = components[componentIndex];
-            IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells =
-                DiagramResourceGroupPacker.PartitionCells(component);
+            DiagramResourceGroupPacker.ResourceGroupCell cell = cells[cellIndex];
 
-            for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
+            if (cell is null || !DiagramResourceGroupPacker.ShouldDrawFrame(cell))
             {
-                DiagramResourceGroupPacker.ResourceGroupCell cell = cells[cellIndex];
-
-                if (!DiagramResourceGroupPacker.ShouldDrawFrame(cell))
-                {
-                    continue;
-                }
-
-                clusters.Add(new ClusterPlan(
-                    DiagramResourceGroupPacker.BuildFrameCellId(componentIndex.ToString(), cellIndex),
-                    cell.GroupName!,
-                    cell.Nodes));
+                continue;
             }
+
+            clusters.Add(new ClusterPlan(
+                DiagramResourceGroupPacker.BuildFrameCellId("rg", cellIndex),
+                cell.GroupName!,
+                cell.Nodes));
         }
 
         return clusters;
@@ -60,8 +54,18 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
 
         foreach (ClusterPlan cluster in clusters)
         {
+            if (cluster.Nodes is null)
+            {
+                continue;
+            }
+
             foreach (DiagramNode node in cluster.Nodes)
             {
+                if (node is null || string.IsNullOrWhiteSpace(node.NodeId))
+                {
+                    continue;
+                }
+
                 nodeIds.Add(node.NodeId);
             }
         }

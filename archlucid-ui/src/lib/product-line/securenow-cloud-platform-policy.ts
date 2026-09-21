@@ -4,6 +4,9 @@ import type { ProductLineId } from "@/lib/product-line/product-line-id";
 /** SecureNow ships Azure cloud connectors only — not AWS or GCP. */
 export const SECURENOW_SUPPORTED_CLOUD_PROVIDERS: readonly CloudProviderId[] = ["azure"];
 
+/** Connector routes and status cards that belong only to the Architecture product line. */
+export const SECURENOW_EXCLUDED_INTEGRATION_CONNECTOR_KEYS: readonly string[] = ["azureBoards", "slack"];
+
 /** Help topic slugs hidden from SecureNow help hub, search, and advanced lists. */
 export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "cloud-connections-aws",
@@ -114,6 +117,30 @@ export function isCloudConnectionPathExcludedForProductLine(
     || normalized.endsWith("/integrations/cloud-connections/gcp")
     || normalized.endsWith("/help/cloud-connections/aws")
     || normalized.endsWith("/help/cloud-connections/gcp");
+}
+
+export function isIntegrationPathExcludedForProductLine(
+  pathname: string,
+  productLineId: ProductLineId,
+): boolean {
+  if (!isSecureNowProductLine(productLineId)) {
+    return false;
+  }
+
+  const normalized = pathname.replace(/\/$/, "");
+
+  return normalized.endsWith("/integrations/azure-boards")
+    || normalized.endsWith("/integrations/slack")
+    || normalized.endsWith("/help/azure-boards")
+    || normalized.endsWith("/help/slack-integration");
+}
+
+export function isIntegrationConnectorExcludedForProductLine(
+  connectorKey: string,
+  productLineId: ProductLineId,
+): boolean {
+  return isSecureNowProductLine(productLineId)
+    && SECURENOW_EXCLUDED_INTEGRATION_CONNECTOR_KEYS.includes(connectorKey);
 }
 
 /** Preferences and hub cards must not surface unsupported providers in SecureNow. */
