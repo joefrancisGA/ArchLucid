@@ -8,6 +8,7 @@ import {
   createScimAdminToken,
   primePrivateBetaBrowserSessionIfJwtMode,
   provisionScimDirectoryUser,
+  stubEmptyArchitectureDraftListRoute,
   submitAdminInviteFromUsersUi,
 } from "./helpers/live-private-beta-access";
 import { liveApiBase } from "./helpers/live-api-client";
@@ -21,6 +22,10 @@ async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promi
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
   test.describe.configure({ timeout: 180_000 });
+
+  test.beforeEach(async ({ page }) => {
+    await stubEmptyArchitectureDraftListRoute(page);
+  });
 
   test.beforeAll(async ({ request }) => {
     test.setTimeout(120_000);

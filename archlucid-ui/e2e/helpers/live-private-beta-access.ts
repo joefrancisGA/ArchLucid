@@ -16,6 +16,7 @@ import {
 } from "./jwt-token-provider";
 import { collectArchLucidRoleClaimValues } from "@/lib/nav-authority";
 import { liveApiBase, liveE2eHarnessHeaders, liveJsonHeaders, resolveLiveJwtMode } from "./live-api-client";
+import { mergeTenantScope } from "./live-api-headers";
 import { throwIfNotOk } from "./live-api-response";
 
 /** Matches {@link ScopeIds.DefaultTenant} when JWT omits scope claims. */
@@ -641,7 +642,11 @@ export type LiveScimAdminToken = {
 /** Mints a SCIM provisioning token for directory-user seeding in live E2E. */
 export async function createScimAdminToken(request: APIRequestContext): Promise<LiveScimAdminToken> {
   const res = await request.post(`${liveApiBase}/v1/admin/scim/tokens`, {
-    headers: liveJsonHeaders(),
+    headers: mergeTenantScope(liveJsonHeaders(), {
+      tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
+      workspaceId: LIVE_E2E_DEFAULT_WORKSPACE_ID,
+      projectId: LIVE_E2E_DEFAULT_PROJECT_ID,
+    }),
   });
 
   if (!res.ok()) {
@@ -717,9 +722,16 @@ export async function submitAdminInviteFromUsersUi(
 ): Promise<void> {
   await openInviteForm(page);
   await page.getByTestId("settings-roles-invite-email").fill(email);
-  await page.getByTestId("settings-roles-invite-role").click();
-  await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).waitFor({ state: "visible", timeout: 15_000 });
-  await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
+
+  const roleTrigger = page.getByTestId("settings-roles-invite-role");
+  const hiddenRoleSelect = roleTrigger.locator("xpath=..//select");
+
+  if ((await hiddenRoleSelect.count()) > 0) {
+    await hiddenRoleSelect.selectOption({ label: roleLabel });
+  } else {
+    await roleTrigger.click();
+    await page.getByRole("option", { name: roleLabel, exact: true }).click({ timeout: 15_000 });
+  }
 
   const submitButton = page.getByTestId("settings-roles-invite-submit");
   await submitButton.waitFor({ state: "visible", timeout: 15_000 });

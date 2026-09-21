@@ -14,6 +14,7 @@ import {
   expectBuyerPolishedReviewDetailShellReady,
   gotoLiveRunDetailPage,
 } from "./operator-journey";
+import { stubEmptyArchitectureDraftListRoute } from "./live-private-beta-access";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
 
@@ -55,6 +56,9 @@ export async function injectDemoWorkspaceOperatorScope(
   page: Page,
   scope: DemoWorkspaceScopeIds,
 ): Promise<void> {
+  // Home chrome mounts draft inventory; cold SQL list reads can block proxy for 60s during scope priming navigations.
+  await stubEmptyArchitectureDraftListRoute(page);
+
   const scopeCookieValue = serializeOperatorScopeCookiePayload({
     tenantId: scope.tenantId,
     workspaceId: scope.workspaceId,
