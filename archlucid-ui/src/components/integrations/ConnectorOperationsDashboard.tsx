@@ -252,7 +252,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         headline={headline}
         tiles={summaryTiles}
         configurationReadAt={configurationReadAt}
-        serverAsOfUtc={data.asOfUtc ?? null}
+        serverAsOfUtc={data?.asOfUtc ?? null}
         workspaceScopeLabel={workspaceScopeLabel}
         refreshing={loading || retrying}
         onRefresh={handleRetry}
