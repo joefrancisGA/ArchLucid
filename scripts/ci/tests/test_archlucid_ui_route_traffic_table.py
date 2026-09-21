@@ -71,11 +71,12 @@ def test_parse_rows_does_not_treat_route_id_starting_with_id_as_header() -> None
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Done | Notes |
 |----|------|------|--------|--------|---------|---------|------|-------|
 | IDI | `/infrastructure/diagram-reconcile` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| IDR | `/infrastructure/drift` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 """
+
     rows = parse_rows(table)
 
-    assert rows[0]["id"] == "IDI"
-    assert rows[0]["path"] == "/infrastructure/diagram-reconcile"
+    assert [row["id"] for row in rows] == ["IDI", "IDR"]
 
 
 def test_weight_is_hit_pct_times_score() -> None:

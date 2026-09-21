@@ -38,9 +38,13 @@ public sealed class ProjectScopedCapabilityBoundaryTests
                 .Should()
                 .Contain(typeof(ProjectScopeKey), $"{capabilityType.Name}.{method.Name} must require explicit project authority");
 
+            // CS8122: FluentAssertions NotContain compiles to an expression tree; use == instead of `is`.
             parameters.Select(parameter => parameter.Name)
                 .Should()
-                .NotContain(name => name is "tenantId" or "workspaceId" or "projectId");
+                .NotContain(name =>
+                    name == "tenantId"
+                    || name == "workspaceId"
+                    || name == "projectId");
         }
     }
 

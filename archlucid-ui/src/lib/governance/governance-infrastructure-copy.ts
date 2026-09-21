@@ -250,6 +250,8 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_REC
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE = "Resource groups" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_ALL = "All resource groups" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_BODY =
   "Choose a resource group to render its inventory diagram." as const;
 

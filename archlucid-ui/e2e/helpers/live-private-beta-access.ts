@@ -183,22 +183,25 @@ export async function writeJwtBrowserSession(page: Page, accessToken: string): P
     },
   );
 
-  // page.request shares the browser cookie jar; Origin is required by isSameOriginBffRequest.
-  const response = await page.request.post(`${appOrigin}/api/auth/bff-session`, {
-    headers: {
-      "Content-Type": "application/json",
-      Origin: appOrigin,
-    },
-    data: {
-      access_token: accessToken,
-      expires_in: 3600,
-    },
-  });
+  // Playwright APIRequestContext (page.request) does not send Origin; isSameOriginBffRequest then 403s.
+  // Same-origin fetch from the already-navigated document sends Origin + cookies.
+  const result = await page.evaluate(
+    async ({ path, token }) => {
+      const response = await fetch(path, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: token, expires_in: 3600 }),
+      });
+      const body = (await response.text()).slice(0, 400);
 
-  if (!response.ok()) {
-    const body = (await response.text()).slice(0, 400);
+      return { ok: response.ok, status: response.status, body };
+    },
+    { path: "/api/auth/bff-session", token: accessToken },
+  );
 
-    throw new Error(`POST /api/auth/bff-session failed ${response.status()}: ${body}`);
+  if (!result.ok) {
+    throw new Error(`POST /api/auth/bff-session failed ${result.status}: ${result.body}`);
   }
 }
 

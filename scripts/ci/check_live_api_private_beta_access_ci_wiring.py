@@ -364,10 +364,16 @@ def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors:
             f"via {_WRITE_JWT_BROWSER_SESSION} (stale BFF cookie from CI admin principal)",
         )
 
-    if "Origin: appOrigin" not in helper_text:
+    if "page.request.post" in helper_text and "/api/auth/bff-session" in helper_text:
         errors.append(
-            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must send Origin "
-            "(isSameOriginBffRequest fail-closes cross-site BFF session POSTs)",
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must not use page.request "
+            "for BFF session POST (APIRequestContext omits Origin; isSameOriginBffRequest 403s)",
+        )
+
+    if 'credentials: "same-origin"' not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must same-origin fetch "
+            "/api/auth/bff-session so the browser sends Origin",
         )
 
 
@@ -420,6 +426,28 @@ def _require_smoke_branch_wiring(root: Path, errors: list[str]) -> None:
         errors.append(f"missing {_FROZEN_SHA_REL}")
     elif _FROZEN_BRANCH not in pin_path.read_text(encoding="utf-8", errors="replace"):
         errors.append(f"{_FROZEN_SHA_REL}: must name {_FROZEN_BRANCH}")
+
+
+def _require_wait_for_api_ready_http_000_fail_fast(errors: list[str]) -> None:
+    path = repo_root() / "scripts" / "ci" / _WAIT_FOR_API_READY
+
+    if not path.is_file():
+        errors.append(f"missing scripts/ci/{_WAIT_FOR_API_READY}")
+
+        return
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    if "ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must fail fast after consecutive HTTP 000 "
+            "(/health/ready unreachable must not burn 180 attempts)",
+        )
+
+    if "Failing fast instead of waiting for remaining attempts" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must emit a fail-fast error when /health/ready is HTTP 000",
+        )
 
 
 def _require_sandbox_mock_json_import_attribute(errors: list[str]) -> None:
@@ -562,6 +590,7 @@ def main(argv: list[str] | None = None) -> int:
             "(Vitest must catch ESM/JSON import failures before Playwright reports 'No tests found')",
         )
 
+    _require_wait_for_api_ready_http_000_fail_fast(errors)
     _require_sandbox_mock_json_import_attribute(errors)
     _require_smoke_branch_wiring(root, errors)
 

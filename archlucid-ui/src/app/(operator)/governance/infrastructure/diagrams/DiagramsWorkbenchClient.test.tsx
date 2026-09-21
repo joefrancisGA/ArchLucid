@@ -12,6 +12,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_ALL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
@@ -346,6 +347,23 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-snapshot-id-readout")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-executive-always-show")).not.toBeInTheDocument();
     expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalled();
+  });
+
+  it("shows an all-resource-groups picker after subscription and snapshot selection", async () => {
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    await selectDiagramsSubscription("sub-1");
+
+    const snapshotPicker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+    fireEvent.change(snapshotPicker, { target: { value: "11111111-1111-1111-1111-111111111111" } });
+
+    const resourceGroupPicker = await screen.findByTestId("infra-diagrams-resource-group-picker");
+
+    expect(resourceGroupPicker).toHaveValue("");
+    expect(resourceGroupPicker).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_ALL);
+    await waitFor(() => expect(resourceGroupPicker).toBeEnabled());
+    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE)).toBeInTheDocument();
   });
 
   it("renders the Executive diagram after the user chooses a snapshot", async () => {
@@ -1176,11 +1194,11 @@ describe("DiagramsWorkbenchClient", () => {
 
     await selectDiagramsSubscription("sub-1");
 
-    const resourceGroupPicker = await screen.findByTestId("infra-diagrams-resource-group-picker");
-
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
 
     fireEvent.change(picker, { target: { value: "11111111-1111-1111-1111-111111111111" } });
+
+    const resourceGroupPicker = await screen.findByTestId("infra-diagrams-resource-group-picker");
 
     fireEvent.change(resourceGroupPicker, { target: { value: "rg-net" } });
 
@@ -1190,7 +1208,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-resource-group-cards")).not.toBeInTheDocument();
   });
 
-  it("shows resource group cards when only one resource group exists and resource group mode is requested", async () => {
+  it("shows the resource group picker when only one resource group exists and resource group mode is requested", async () => {
     fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
       const mode = query.mode ?? "executive";
       const isPicker = mode === "resourceGroup";
@@ -1240,15 +1258,9 @@ describe("DiagramsWorkbenchClient", () => {
     );
     render(<DiagramsWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-diagrams-resource-group-cards")).toBeInTheDocument();
+    const resourceGroupPicker = await screen.findByTestId("infra-diagrams-resource-group-picker");
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-resource-group-picker-prompt")).toBeInTheDocument();
-    expect(screen.queryByTestId("infra-diagrams-fallback-full-machine")).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /rg-net/i }));
-
-    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
-    expect(screen.queryByTestId("infra-diagrams-resource-group-picker-prompt")).not.toBeInTheDocument();
+    expect(resourceGroupPicker).toHaveValue("");
   });
 
   it("shows the resource group map caption for a collapsed full subscription diagram", async () => {
