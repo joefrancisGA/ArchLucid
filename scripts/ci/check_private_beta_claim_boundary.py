@@ -12,6 +12,8 @@ _DOCS: tuple[str, ...] = (
     "docs/go-to-market/PRIVATE_BETA_INVITEE_WELCOME_KIT.md",
     "docs/runbooks/PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md",
     "docs/go-to-market/FOUNDER_30_MIN_PACK_AB_DEMO_SCRIPT.md",
+    "docs/runbooks/PRIVATE_BETA_INCIDENT_COMMS_15MIN.md",
+    "docs/runbooks/PRIVATE_BETA_FROZEN_BRANCH.md",
 )
 
 _PROHIBITED: tuple[tuple[re.Pattern[str], str], ...] = (
