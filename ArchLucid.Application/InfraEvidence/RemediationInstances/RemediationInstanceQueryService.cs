@@ -163,8 +163,8 @@ public interface IRemediationInstanceQueryService
 }
 
 public sealed class RemediationInstanceQueryService(
-    IRemediationInstanceRepository instanceRepository,
-    IOperationalSecurityFindingRepository findingRepository,
+    IProjectScopedRemediationInstanceRepository instanceRepository,
+    IProjectScopedOperationalSecurityFindingRepository findingRepository,
     IRemediationPatternMatchRepository matchRepository,
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
     IAuthorityQueryService authorityQueryService,
