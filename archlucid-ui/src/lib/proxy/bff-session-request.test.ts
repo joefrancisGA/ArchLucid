@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { isSameOriginBffRequest } from "@/lib/proxy/bff-session-request";
 
@@ -37,6 +37,22 @@ describe("isSameOriginBffRequest", () => {
 
   it("rejects a cross-site Origin header", () => {
     expect(isSameOriginBffRequest(mockRequest({ origin: "https://evil.example" }))).toBe(false);
+  });
+
+  it("allows an explicitly configured loopback origin", () => {
+    vi.stubEnv("ARCHLUCID_BFF_ALLOWED_ORIGINS", "http://localhost:3000");
+
+    expect(isSameOriginBffRequest(mockRequest({ origin: "http://localhost:3000" }))).toBe(true);
+
+    vi.unstubAllEnvs();
+  });
+
+  it("rejects malformed configured origins", () => {
+    vi.stubEnv("ARCHLUCID_BFF_ALLOWED_ORIGINS", "localhost:3000,https://evil.example/path");
+
+    expect(isSameOriginBffRequest(mockRequest({ origin: "http://localhost:3000" }))).toBe(false);
+
+    vi.unstubAllEnvs();
   });
 
   it("allows same-origin Sec-Fetch-Site when Origin is omitted", () => {

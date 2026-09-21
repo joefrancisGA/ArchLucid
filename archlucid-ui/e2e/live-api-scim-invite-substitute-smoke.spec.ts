@@ -35,6 +35,14 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
+
+    const existingDialog = page.getByRole("alertdialog");
+
+    if (await existingDialog.isVisible().catch(() => false)) {
+      await page.keyboard.press("Escape");
+      await expect(existingDialog).toBeHidden({ timeout: 15_000 });
+    }
+
     await page.getByTestId("scim-create-token").click();
 
     const createDialog = page.getByRole("alertdialog");
