@@ -19,7 +19,7 @@ describe("inhabit mode matrix guard (IH-028 / IH-029 / IH-032)", () => {
   it("documents Record + Simulator incompleteness without Career blocked (IH-029)", () => {
     expect(INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY).toContain("Record");
     expect(INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY).toContain("Simulator");
-    expect(INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY).toContain('not “Career blocked,”');
+    expect(INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY).toContain('not “Record blocked,”');
   });
 
   it("keeps Working execute chrome on Record/Practice, not a host AgentExecution Mode picker (IH-032)", () => {
