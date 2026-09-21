@@ -88069,6 +88069,7 @@ export interface paths {
                     seedNodeId?: string;
                     includeNeverShow?: boolean;
                     hideTiers?: string;
+                    includePrivateEndpointNodes?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
@@ -88225,6 +88226,7 @@ export interface paths {
                     seedNodeId?: string;
                     includeNeverShow?: boolean;
                     hideTiers?: string;
+                    includePrivateEndpointNodes?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
@@ -88369,6 +88371,7 @@ export interface paths {
             parameters: {
                 query?: {
                     includeNeverShow?: boolean;
+                    includePrivateEndpointNodes?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */

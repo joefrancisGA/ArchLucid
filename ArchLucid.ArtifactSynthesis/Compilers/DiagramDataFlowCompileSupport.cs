@@ -25,13 +25,6 @@ internal static class DiagramDataFlowEdgeFilter
             return false;
         }
 
-        if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
         return AzureInventoryDataFlowEvidenceCatalog.IncludeOnDataFlow(edge.EdgeType, edge.InferenceSource);
     }
 }

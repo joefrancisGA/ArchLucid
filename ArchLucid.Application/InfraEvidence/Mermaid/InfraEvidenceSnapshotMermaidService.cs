@@ -14,6 +14,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Inventory;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
 
@@ -84,7 +85,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         ScopeContext scope,
         Guid snapshotId,
         bool includeNeverShowArmTypes = false,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -138,6 +140,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 diagramMode,
                 null,
                 includeNeverShowArmTypes,
+                includePrivateEndpointNodes
+                    ? new DiagramAstCompileOptions { IncludePrivateEndpointNodes = true }
+                    : null,
                 cancellationToken);
 
             modePreviews.Add(modePreview);
@@ -163,7 +168,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? seedNodeId,
         bool includeNeverShowArmTypes = false,
         string? hiddenExecutiveTierKeys = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -203,7 +209,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 mode,
                 seedNodeId,
                 hiddenExecutiveTierKeys,
-                out InfraEvidenceMermaidModeParseResult parsedMode))
+                out InfraEvidenceMermaidModeParseResult parsedMode,
+                includePrivateEndpointNodes))
         {
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
@@ -258,7 +265,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? seedNodeId,
         bool includeNeverShowArmTypes = false,
         string? hiddenExecutiveTierKeys = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -271,7 +279,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 seedNodeId,
                 includeNeverShowArmTypes,
                 hiddenExecutiveTierKeys,
-                cancellationToken);
+                cancellationToken,
+                includePrivateEndpointNodes);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
         {
@@ -384,6 +393,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         DiagramMode diagramMode,
         DiagramAstCompileOptions? compileOptions,
         bool includeNeverShowArmTypes,
+        DiagramAstCompileOptions? displayOptions,
         CancellationToken cancellationToken)
     {
         try
@@ -391,7 +401,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             MermaidDiagramRenderResult renderResult = await RenderModeAsync(
                 graph,
                 diagramMode,
-                compileOptions,
+                displayOptions ?? compileOptions,
                 includeNeverShowArmTypes,
                 cancellationToken);
 
@@ -743,7 +753,101 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CollapseReport = MapCollapseReport(renderResult.CollapseReport),
             IdentityDiagramHints = MapIdentityDiagramHints(modeKey, snapshot),
             CompletenessWarnings = ResolveCompletenessWarnings(snapshot),
+            CompletenessSummary = BuildCompletenessSummary(modeKey, sourceGraph, snapshot),
         };
+    }
+
+    private static InfraEvidenceMermaidCompletenessSummary? BuildCompletenessSummary(
+        string modeKey,
+        GraphSnapshot? graph,
+        AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        if (graph is null)
+        {
+            return null;
+        }
+
+        List<GraphEdge> visibleEdges = graph.Edges
+            .Where(edge => edge.Weight >= 0.5d)
+            .ToList();
+        HashSet<string> collectedClasses = visibleEdges
+            .Select(edge => edge.InferenceSource ?? edge.EdgeType)
+            .Where(source => !string.IsNullOrWhiteSpace(source))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int hiddenHopCount = visibleEdges.Count(edge =>
+            edge.InferenceSource is not null
+            && (edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
+                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase)));
+        int collocationCount = visibleEdges.Count(edge =>
+            string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                StringComparison.OrdinalIgnoreCase));
+
+        return new InfraEvidenceMermaidCompletenessSummary
+        {
+            Mode = modeKey,
+            VisibleNodeCount = graph.Nodes.Count,
+            VisibleEdgeCount = visibleEdges.Count,
+            ConnectedComponentCount = CountConnectedComponents(graph.Nodes, visibleEdges),
+            HiddenHopsUsedCount = hiddenHopCount,
+            LikelyInCollocationEdgeCount = collocationCount,
+            CollectedClasses = collectedClasses.Order(StringComparer.Ordinal).ToList(),
+            MissingClasses = ResolveCompletenessWarnings(snapshot)
+                .Where(warning => warning.Contains("missing", StringComparison.OrdinalIgnoreCase))
+                .ToList(),
+        };
+    }
+
+    private static int CountConnectedComponents(
+        IReadOnlyList<GraphNode> nodes,
+        IReadOnlyList<GraphEdge> edges)
+    {
+        Dictionary<string, List<string>> adjacency = nodes.ToDictionary(
+            node => node.NodeId,
+            _ => new List<string>(),
+            StringComparer.Ordinal);
+
+        foreach (GraphEdge edge in edges)
+        {
+            if (adjacency.TryGetValue(edge.FromNodeId, out List<string>? from)
+                && adjacency.TryGetValue(edge.ToNodeId, out List<string>? to))
+            {
+                from.Add(edge.ToNodeId);
+                to.Add(edge.FromNodeId);
+            }
+        }
+
+        HashSet<string> visited = new(StringComparer.Ordinal);
+        int components = 0;
+
+        foreach (string nodeId in adjacency.Keys)
+        {
+            if (!visited.Add(nodeId))
+            {
+                continue;
+            }
+
+            components++;
+            Queue<string> queue = new();
+            queue.Enqueue(nodeId);
+
+            while (queue.Count > 0)
+            {
+                string current = queue.Dequeue();
+
+                foreach (string neighbor in adjacency[current])
+                {
+                    if (visited.Add(neighbor))
+                    {
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+
+        return components;
     }
 
     private static List<string> ResolveCompletenessWarnings(AzureInventorySnapshotDetailReadModel? snapshot)
