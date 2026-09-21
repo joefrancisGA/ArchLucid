@@ -10,11 +10,12 @@
      without host) plus seed-only/seeder Goodhart. Prompts only until implemented.
      Wave 7 (ABQ-46–50): stop + delete synthetic Azure week UOM `weekk+` letter-run
      farming (owner 2026-09-15). Shipped in code (#3336).
-     Do not implement from this index. -->
+     Wave 8 (ABQ-51): pin azurerm v5.6.0 and replace source-id Contains chains.
+     Prompt only until implemented. Do not implement from this index. -->
 
-# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-50)
+# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-51)
 
-**Status:** **ABQ-01–50 shipped in code** (wave 7 week-UOM cleanup #3336). Do **not** re-implement 01–50 from their files. Do **not** ship more `weekk+` UOM hunts. Topology-proposal-merge hunts may continue on separate branches.
+**Status:** **ABQ-01–50 shipped in code** (wave 7 week-UOM cleanup #3336). **ABQ-51 is ready to run** — paste [`.cursor/prompts/al-bug-quality-51-azurerm-resource-catalog.md`](al-bug-quality-51-azurerm-resource-catalog.md). Do **not** re-implement 01–50 from their files. Do **not** ship more `weekk+` UOM hunts. Do **not** ship more three-letter Terraform source-id tokens (`fty`, `gaf`, …); ABQ-51 replaces that chain with the pinned AzureRM catalog.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -129,6 +130,7 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **48** | `al-bug-quality-48-delete-weekk-matchers.md` | Delete farmed matcher methods |
 | **49** | `al-bug-quality-49-delete-weekk-tests.md` | Delete farmed matcher tests |
 | **50** | `al-bug-quality-50-ban-weekk-uom.md` | CI ban reintroduction; topology still allowed |
+| **51** | `al-bug-quality-51-azurerm-resource-catalog.md` | Exact `azurerm` type membership at provider v5.6.0; no new three-letter source-id tokens |
 
 ## Already shipped — do not re-open as this set’s job
 
