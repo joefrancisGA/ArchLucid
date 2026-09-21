@@ -23,10 +23,6 @@ function isCorePilotEssentialOnlyPathname(pathname: string): boolean {
     return true;
   }
 
-  if (pathname === "/help" || pathname.startsWith("/help/")) {
-    return true;
-  }
-
   if (pathname === "/administration" || pathname.startsWith("/administration/")) {
     return true;
   }

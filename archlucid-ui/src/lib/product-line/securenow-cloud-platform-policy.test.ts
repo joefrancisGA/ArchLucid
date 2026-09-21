@@ -52,6 +52,7 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpTopicExcludedForProductLine("choose-your-next-step", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("accelerator-chooser", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("career-vs-rehearsal", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("architecture-draft-editing", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("architecture-sharing", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("slack-integration", "security")).toBe(true);
@@ -64,6 +65,7 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpSearchTopicExcludedForProductLine("create-first-review", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("how-archlucid-works", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("career-vs-rehearsal", "security")).toBe(true);
   });
 
   it("excludes ArchLucid training and simulator chrome from SecureNow", () => {
