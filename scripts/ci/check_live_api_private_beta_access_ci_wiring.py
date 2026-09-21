@@ -364,10 +364,16 @@ def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors:
             f"via {_WRITE_JWT_BROWSER_SESSION} (stale BFF cookie from CI admin principal)",
         )
 
-    if "Origin: appOrigin" not in helper_text:
+    if "page.request.post" in helper_text and "/api/auth/bff-session" in helper_text:
         errors.append(
-            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must send Origin "
-            "(isSameOriginBffRequest fail-closes cross-site BFF session POSTs)",
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must not use page.request "
+            "for BFF session POST (APIRequestContext omits Origin; isSameOriginBffRequest 403s)",
+        )
+
+    if 'credentials: "same-origin"' not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must same-origin fetch "
+            "/api/auth/bff-session so the browser sends Origin",
         )
 
 
