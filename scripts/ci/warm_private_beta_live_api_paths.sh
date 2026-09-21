@@ -15,6 +15,62 @@ ATTEMPTS="${ARCHLUCID_PRIVATE_BETA_WARMUP_ATTEMPTS:-5}"
 SLEEP_SECONDS="${ARCHLUCID_PRIVATE_BETA_WARMUP_SLEEP_SECONDS:-3}"
 CURL_MAX_TIME="${ARCHLUCID_PRIVATE_BETA_WARMUP_MAX_TIME:-120}"
 
+if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
+  # Invite-wave: do not burn 120s per GET when SQL is cold or the API is unreachable (HTTP 000).
+  ATTEMPTS="${ARCHLUCID_PRIVATE_BETA_WARMUP_ATTEMPTS:-2}"
+  CURL_MAX_TIME="${ARCHLUCID_PRIVATE_BETA_WARMUP_MAX_TIME:-20}"
+fi
+
+http_status() {
+  local method="$1"
+  local url="$2"
+  local max_time="$3"
+  local extra_args=()
+
+  if [ "${method}" = "POST" ]; then
+    extra_args+=(-X POST -H "Content-Type: application/json" -d "$4")
+  fi
+
+  curl -sS -o /dev/null -w "%{http_code}" \
+    "${extra_args[@]}" \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "Accept: application/json" \
+    --max-time "${max_time}" \
+    "${url}" || true
+}
+
+probe_health_ready() {
+  local status
+  status="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 "${API_URL}/health/ready" || true)"
+
+  case "${status}" in
+    000|"")
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
+describe_warm_failure() {
+  local label="$1"
+  local url="$2"
+  local status="$3"
+
+  if [ "${status}" = "000" ] || [ -z "${status}" ]; then
+    echo "::error::Failed to warm ${label} at ${url}: API unreachable (HTTP 000). Skipping remaining 120s retries." >&2
+    return
+  fi
+
+  if [ "${status}" = "401" ]; then
+    echo "::error::Failed to warm ${label} at ${url}: HTTP 401. JwtBearer token may be expired or not forwarded. Re-mint with scripts/ci/refresh_private_beta_ci_jwt.sh before Playwright." >&2
+    return
+  fi
+
+  echo "::error::Failed to warm ${label} at ${url} (last HTTP ${status})" >&2
+}
+
 warm_path() {
   local label="$1"
   local url="$2"
@@ -23,21 +79,25 @@ warm_path() {
   local attempt=1
 
   while [ "${attempt}" -le "${max_attempts}" ]; do
-    if curl -fsS \
-      -H "Authorization: Bearer ${TOKEN}" \
-      -H "Accept: application/json" \
-      --max-time "${max_time}" \
-      "${url}" >/dev/null; then
-      echo "Warmed ${label}."
+    local status
+    status="$(http_status GET "${url}" "${max_time}")"
+
+    if [ "${status}" = "200" ] || [ "${status}" = "204" ]; then
+      echo "Warmed ${label} (HTTP ${status})."
       return 0
     fi
 
-    if [ "${attempt}" -eq "${max_attempts}" ]; then
-      echo "::error::Failed to warm ${label} at ${url} after ${max_attempts} attempts" >&2
+    if [ "${status}" = "000" ] || [ -z "${status}" ]; then
+      describe_warm_failure "${label}" "${url}" "${status}"
       return 1
     fi
 
-    echo "Warm ${label} attempt ${attempt}/${max_attempts} failed; retrying in ${SLEEP_SECONDS}s..."
+    if [ "${attempt}" -eq "${max_attempts}" ]; then
+      describe_warm_failure "${label}" "${url}" "${status}"
+      return 1
+    fi
+
+    echo "Warm ${label} attempt ${attempt}/${max_attempts} failed (HTTP ${status}); retrying in ${SLEEP_SECONDS}s..."
     sleep "${SLEEP_SECONDS}"
     attempt=$((attempt + 1))
   done
@@ -67,22 +127,20 @@ warm_path_post() {
 
   while [ "${attempt}" -le "${max_attempts}" ]; do
     local status
-    status="$(curl -sS -o /dev/null -w "%{http_code}" \
-      -X POST \
-      -H "Authorization: Bearer ${TOKEN}" \
-      -H "Accept: application/json" \
-      -H "Content-Type: application/json" \
-      --max-time "${max_time}" \
-      -d "${body}" \
-      "${url}" || true)"
+    status="$(http_status POST "${url}" "${max_time}" "${body}")"
 
     if [ "${status}" = "200" ] || [ "${status}" = "201" ]; then
       echo "Warmed ${label} (HTTP ${status})."
       return 0
     fi
 
+    if [ "${status}" = "000" ] || [ -z "${status}" ]; then
+      describe_warm_failure "${label}" "${url}" "${status}"
+      return 1
+    fi
+
     if [ "${attempt}" -eq "${max_attempts}" ]; then
-      echo "::error::Failed to warm ${label} at ${url} after ${max_attempts} attempts (last HTTP ${status})" >&2
+      describe_warm_failure "${label}" "${url}" "${status}"
       return 1
     fi
 
@@ -108,21 +166,37 @@ warm_path_post_optional() {
 }
 
 echo "Warming private-beta API paths at ${API_URL}..."
+
+if ! probe_health_ready; then
+  echo "::error::${API_URL}/health/ready is unreachable (HTTP 000). Skipping remaining warms so invite-wave JWT refresh is not delayed by fail-closed /v1/scope GETs." >&2
+  exit 1
+fi
+
 warm_path "auth scope" "${API_URL}/v1/scope"
 warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
 
 if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
-  # Prime inline create-run on cold SQL before Playwright (best-effort; long per-attempt budget).
-  CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
-  warm_path_post_optional \
-    "create architecture run" \
-    "${API_URL}/v1/architecture/request" \
-    "${CREATE_BODY}" \
-    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-120}" \
-    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-1}"
+  # Skip create-run warm when the API is not accepting connections (curl HTTP 000).
+  # A hung 120s POST does not help invite-wave Playwright and delays JWT refresh.
+  if curl -fsS --max-time 5 "${API_URL}/health/ready" >/dev/null; then
+    CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+    warm_path_post_optional \
+      "create architecture run" \
+      "${API_URL}/v1/architecture/request" \
+      "${CREATE_BODY}" \
+      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-20}" \
+      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-2}"
+  else
+    echo "::warning::Skipping create-run warm; ${API_URL}/health/ready is not reachable." >&2
+  fi
   echo "Skipping draft inventory shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright stubs draft inventory in-browser."
 else
-  warm_path "draft inventory" "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1"
+  # Draft inventory can exceed the UI proxy 60s budget; keep the shell GET short.
+  warm_path_optional \
+    "draft inventory" \
+    "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1" \
+    "${ARCHLUCID_PRIVATE_BETA_DRAFT_WARM_MAX_TIME:-20}" \
+    "${ARCHLUCID_PRIVATE_BETA_DRAFT_WARM_ATTEMPTS:-2}"
 fi
 
 echo "Private-beta API warm-up complete."

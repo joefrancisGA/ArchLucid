@@ -67,18 +67,19 @@ internal static class AzureInventoryNetworkAssociationEdgeMapper
     public static void AddRelationshipCompletenessWarnings(
         IReadOnlyList<AzureExtractorExtendedResourceRow> resources,
         IReadOnlyList<JsonElement> networkAssociations,
+        IReadOnlyList<AzureInventoryResourceRelationshipWrite> relationships,
         List<string> warnings)
     {
+        ArgumentNullException.ThrowIfNull(resources);
+        ArgumentNullException.ThrowIfNull(networkAssociations);
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(warnings);
+
         bool hasVirtualMachine = resources.Any(resource =>
             resource.ResourceType.Contains("virtualMachines", StringComparison.OrdinalIgnoreCase));
 
         bool hasNetworkInterface = resources.Any(resource =>
             resource.ResourceType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase));
-
-        if (!hasVirtualMachine && !hasNetworkInterface)
-        {
-            return;
-        }
 
         HashSet<string> associationTypes = networkAssociations
             .Select(TryReadAssociationType)
@@ -93,6 +94,23 @@ internal static class AzureInventoryNetworkAssociationEdgeMapper
         if (hasNetworkInterface && !associationTypes.Contains(AzureInventoryRelationshipAssociationTypes.NicToSubnet))
         {
             warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.ArgNicSubnetMissing);
+        }
+
+        bool hasPeeringEvidence = resources.Any(resource =>
+            AzureInventoryVnetPeeringParser.HasPeeringCollectionEvidence(
+                resource.ResourceType,
+                resource.AzureResourceId,
+                resource.Properties));
+
+        bool hasPeeringRelationship = associationTypes.Contains(AzureInventoryRelationshipAssociationTypes.VnetPeering)
+            || relationships.Any(relationship =>
+                AzureInventoryRelationshipAssociationTypes.IsVnetPeeringRelationship(
+                    relationship.RelationshipType,
+                    relationship.InferenceSource));
+
+        if (hasPeeringEvidence && !hasPeeringRelationship)
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.ArgVnetPeeringMissing);
         }
     }
 

@@ -163,6 +163,14 @@ export function productLineTeamsNotificationsPageTitle(productLineId: ProductLin
   return `${productLineMicrosoftTeamsLabel(productLineId)} notifications`;
 }
 
+function localizeSecureNowReviewTerminology(text: string): string {
+  return text
+    .replaceAll("Architecture reviews", "Security reviews")
+    .replaceAll("architecture reviews", "security reviews")
+    .replaceAll("Architecture review", "Security review")
+    .replaceAll("architecture review", "security review");
+}
+
 /**
  * Rewrites architecture product name in consumer copy for the active product line.
  * Preserves `{…}` script placeholders (for example `{ArchLucid tenant ID}`) so copied runbooks keep working.
@@ -181,12 +189,14 @@ export function localizeProductCopy(productLineId: ProductLineId, text: string):
         return part;
       }
 
-      return part
-        .replaceAll("ArchLucid", productName)
-        .replaceAll("archlucid-azure-package.zip", "securenow-azure-package.zip")
-        .replaceAll("Run-ArchLucidAzureExtractor.ps1", "Run-SecureNowAzureExtractor.ps1")
-        .replaceAll("Get-ArchLucidAzurePackage.ps1", "Get-SecureNowAzurePackage.ps1")
-        .replaceAll("Microsoft Teams", "Teams");
+      return localizeSecureNowReviewTerminology(
+        part
+          .replaceAll("ArchLucid", productName)
+          .replaceAll("archlucid-azure-package.zip", "securenow-azure-package.zip")
+          .replaceAll("Run-ArchLucidAzureExtractor.ps1", "Run-SecureNowAzureExtractor.ps1")
+          .replaceAll("Get-ArchLucidAzurePackage.ps1", "Get-SecureNowAzurePackage.ps1")
+          .replaceAll("Microsoft Teams", "Teams"),
+      );
     })
     .join("");
 }

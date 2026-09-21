@@ -16,6 +16,7 @@ export function resolveNextPolicyPackInList(
   packs: readonly PolicyPack[],
   currentPolicyPackId: string,
   reviewId?: string | null,
+  hubPath?: string,
 ): PolicyPackDetailNextPackTarget | null {
   const normalizedCurrentId = currentPolicyPackId.trim();
   const sorted = [...packs].sort((left, right) =>
@@ -36,6 +37,6 @@ export function resolveNextPolicyPackInList(
   return {
     policyPackId: nextPack.policyPackId,
     name: nextPack.name,
-    href: policyPackDetailHref(nextPack.policyPackId, reviewId),
+    href: policyPackDetailHref(nextPack.policyPackId, reviewId, hubPath),
   };
 }

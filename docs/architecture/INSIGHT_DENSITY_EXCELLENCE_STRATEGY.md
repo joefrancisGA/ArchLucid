@@ -59,7 +59,7 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 | Component | Information source | Notes |
 |-----------|-------------------|-------|
-| 42 registered finding engines | Graph, declarations, inventory (when run), governance trail | Golden harness registers **42** of **53** catalog engines; **11** absent-with-reason; **23** appear in the distribution table on the current `case-69` slice |
+| 47 registered finding engines | Graph, declarations, inventory (when run), governance trail, prior sealed graph | Golden harness registers **47** of **54** catalog engines; **7** absent-with-reason; **28** appear in the distribution table on the current `case-73` slice |
 | `OpenCommitmentFindingEngine` | Governance trail (effectful) | Shipped ID-05 |
 | `PortfolioRecurrenceFindingEngine` | Cross-run SQL (effectful) | Default **off** |
 | `DeclarationPremiseConflictFindingEngine` | Declaration vs baseline intent | Policy-gated via `DeclarationSignalPolicyKeyMap` |
@@ -74,7 +74,7 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 | Instrument | Location | Limit |
 |------------|----------|-------|
-| Engine distribution | [`../quality/insight-density-engine-distribution.md`](../quality/insight-density-engine-distribution.md) | 42-engine golden harness through `case-69`; recorded scores do not form the old 60/65/75/80/85 ladder |
+| Engine distribution | [`../quality/insight-density-engine-distribution.md`](../quality/insight-density-engine-distribution.md) | 47-engine golden harness through `case-73`; recorded scores do not form the old 60/65/75/80/85 ladder |
 | Frontier delta | [`../quality/insight-density-frontier-delta.md`](../quality/insight-density-frontier-delta.md) | Three hand-authored scenarios — regression only, not moat proof |
 | Measurement floor UI | `InsightDensityMeasurementFloorPresenter`, SPA strips | Honesty; does not raise numerator |
 
@@ -191,7 +191,7 @@ Parallel with Workstream 1 so new engines are not all Decision-grade.
 | Selective policy-awareness | `external-exposure`, `trust-boundary`, `privileged-access`, `security-gap`, `cost-constraint`, inventory security-baseline — same theme→rule map pattern |
 | ITSM path | Decision-grade tickets only; refuse `ChecklistCoverage` |
 | Finalize stamp | Measurement floor: engines run vs registered, actor engines skipped, judge skipped-by-cap, novelty vs tenant frontier baseline |
-| Golden harness | Expand from 16 → all product engines with actors, inventory, narrowed pack fixtures |
+| Golden harness | Continue from 47/54 toward all suitable product engines; keep explicit absent-with-reason entries for engines that need incompatible runtime state |
 
 ---
 

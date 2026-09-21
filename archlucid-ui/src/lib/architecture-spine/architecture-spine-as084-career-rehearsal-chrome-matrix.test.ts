@@ -127,7 +127,7 @@ const AS084_CAREER_REHEARSAL_CHROME_MATRIX_CASES: readonly CareerRehearsalChrome
 
       expect(matrix.cellId).toBe("rehearsal-real-practice");
       expect(matrix.labelAsRehearsal).toBe(true);
-      expect(matrix.showStatusTag).toBe(true);
+      expect(matrix.showStatusTag).toBe(false);
       expect(matrix.detail).toBe(WORKING_CAREER_DOOR_HOST_MODE_MATRIX_REHEARSAL_REAL_PRACTICE_DETAIL);
       expect(resolveEffectiveWorkingCareerRehearsalDoor("rehearsal", gate)).toBe("rehearsal");
     },

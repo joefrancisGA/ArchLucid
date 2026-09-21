@@ -41,7 +41,10 @@ public sealed class OperationalSecurityExceptionService(
         if (request.FindingId is Guid findingId && findingId != Guid.Empty)
         {
             OperationalSecurityFindingRecord? finding =
-                await findingRepository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+                await findingRepository.TryGetByIdInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    findingId,
+                    cancellationToken);
 
             if (finding is null)
             {
@@ -84,7 +87,7 @@ public sealed class OperationalSecurityExceptionService(
 
         if (request.FindingId is Guid linkedFindingId && linkedFindingId != Guid.Empty)
         {
-            await ApplyFindingExceptionStatusAsync(scope.TenantId, linkedFindingId, utcNow, cancellationToken);
+            await ApplyFindingExceptionStatusAsync(scope, linkedFindingId, utcNow, cancellationToken);
         }
 
         await LogAuditAsync(
@@ -129,7 +132,10 @@ public sealed class OperationalSecurityExceptionService(
         }
 
         OperationalSecurityExceptionRecord? existing =
-            await exceptionRepository.TryGetByIdAsync(scope.TenantId, exceptionId, cancellationToken);
+            await exceptionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                exceptionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -150,11 +156,19 @@ public sealed class OperationalSecurityExceptionService(
         }
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
-        await exceptionRepository.RevokeAsync(scope.TenantId, exceptionId, revokedByActorKey.Trim(), utcNow, cancellationToken);
+        await exceptionRepository.RevokeInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new OperationalSecurityExceptionRevokeMutation
+            {
+                ExceptionId = exceptionId,
+                RevokedByActorKey = revokedByActorKey.Trim(),
+                RevokedUtc = utcNow,
+            },
+            cancellationToken);
 
         if (existing.FindingId is Guid findingId)
         {
-            await ReopenFindingAsync(scope.TenantId, findingId, utcNow, summary: "Exception revoked.", cancellationToken);
+            await ReopenFindingAsync(scope, findingId, utcNow, summary: "Exception revoked.", cancellationToken);
         }
 
         await LogAuditAsync(
@@ -177,7 +191,10 @@ public sealed class OperationalSecurityExceptionService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         IReadOnlyList<OperationalSecurityExceptionRecord> expiredRecords =
-            await exceptionRepository.MarkExpiredAsync(scope.TenantId, utcNow, cancellationToken);
+            await exceptionRepository.MarkExpiredInScopeAsync(
+                scope.ToProjectScopeKey(),
+                utcNow,
+                cancellationToken);
 
         int findingsReopened = 0;
         int observationsCreated = 0;
@@ -190,7 +207,7 @@ public sealed class OperationalSecurityExceptionService(
             if (expired.FindingId is Guid findingId)
             {
                 bool reopened = await ReopenFindingWithExpiryObservationAsync(
-                    scope.TenantId,
+                    scope,
                     findingId,
                     expired.ExceptionId,
                     utcNow,
@@ -203,10 +220,13 @@ public sealed class OperationalSecurityExceptionService(
                 }
             }
 
-            await exceptionRepository.MarkExpiryProcessedAsync(
-                scope.TenantId,
-                expired.ExceptionId,
-                utcNow,
+            await exceptionRepository.MarkExpiryProcessedInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new OperationalSecurityExceptionExpiryProcessedMutation
+                {
+                    ExceptionId = expired.ExceptionId,
+                    ProcessedUtc = utcNow,
+                },
                 cancellationToken);
         }
 
@@ -227,13 +247,16 @@ public sealed class OperationalSecurityExceptionService(
     }
 
     private async Task ApplyFindingExceptionStatusAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid findingId,
         DateTime utcNow,
         CancellationToken cancellationToken)
     {
         OperationalSecurityFindingRecord? finding =
-            await findingRepository.TryGetByIdAsync(tenantId, findingId, cancellationToken);
+            await findingRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                findingId,
+                cancellationToken);
 
         if (finding is null || finding.Status == OperationalSecurityFindingStatus.Exception)
             return;
@@ -244,24 +267,32 @@ public sealed class OperationalSecurityExceptionService(
             lastObservedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await findingRepository.UpdateAsync(updated, [], observation: null, cancellationToken);
+        await findingRepository.UpdateInScopeAsync(
+            scope.ToProjectScopeKey(),
+            ToMutation(updated),
+            [],
+            observation: null,
+            cancellationToken);
     }
 
     private async Task<bool> ReopenFindingWithExpiryObservationAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid findingId,
         Guid exceptionId,
         DateTime utcNow,
         CancellationToken cancellationToken)
     {
         OperationalSecurityFindingRecord? finding =
-            await findingRepository.TryGetByIdAsync(tenantId, findingId, cancellationToken);
+            await findingRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                findingId,
+                cancellationToken);
 
         if (finding is null)
             return false;
 
         IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
-            await findingRepository.ListObservationsByFindingAsync(tenantId, findingId, cancellationToken);
+            await findingRepository.ListObservationsByFindingAsync(scope.TenantId, findingId, cancellationToken);
 
         if (observations.Any(observation =>
                 string.Equals(
@@ -287,7 +318,7 @@ public sealed class OperationalSecurityExceptionService(
         {
             ObservationId = Guid.NewGuid(),
             FindingId = findingId,
-            TenantId = tenantId,
+            TenantId = scope.TenantId,
             ObservedUtc = utcNow,
             Status = reopenedStatus,
             Severity = finding.Severity,
@@ -303,19 +334,27 @@ public sealed class OperationalSecurityExceptionService(
             lastObservedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await findingRepository.UpdateAsync(updated, [], observation, cancellationToken);
+        await findingRepository.UpdateInScopeAsync(
+            scope.ToProjectScopeKey(),
+            ToMutation(updated),
+            [],
+            ToMutation(observation),
+            cancellationToken);
         return true;
     }
 
     private async Task ReopenFindingAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid findingId,
         DateTime utcNow,
         string summary,
         CancellationToken cancellationToken)
     {
         OperationalSecurityFindingRecord? finding =
-            await findingRepository.TryGetByIdAsync(tenantId, findingId, cancellationToken);
+            await findingRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                findingId,
+                cancellationToken);
 
         if (finding is null || finding.Status != OperationalSecurityFindingStatus.Exception)
             return;
@@ -326,7 +365,7 @@ public sealed class OperationalSecurityExceptionService(
         {
             ObservationId = Guid.NewGuid(),
             FindingId = findingId,
-            TenantId = tenantId,
+            TenantId = scope.TenantId,
             ObservedUtc = utcNow,
             Status = reopenedStatus,
             Severity = finding.Severity,
@@ -342,8 +381,58 @@ public sealed class OperationalSecurityExceptionService(
             lastObservedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await findingRepository.UpdateAsync(updated, [], observation, cancellationToken);
+        await findingRepository.UpdateInScopeAsync(
+            scope.ToProjectScopeKey(),
+            ToMutation(updated),
+            [],
+            ToMutation(observation),
+            cancellationToken);
     }
+
+    private static OperationalSecurityFindingMutation ToMutation(
+        OperationalSecurityFindingRecord source) =>
+        new()
+        {
+            FindingId = source.FindingId,
+            CloudResourceId = source.CloudResourceId,
+            ExternalResourceId = source.ExternalResourceId,
+            ResourceType = source.ResourceType,
+            SubscriptionOrAccountId = source.SubscriptionOrAccountId,
+            ControlId = source.ControlId,
+            ControlFramework = source.ControlFramework,
+            Title = source.Title,
+            Description = source.Description,
+            Severity = source.Severity,
+            RiskScore = source.RiskScore,
+            Exploitability = source.Exploitability,
+            Exposure = source.Exposure,
+            BusinessCriticality = source.BusinessCriticality,
+            BlastRadius = source.BlastRadius,
+            LastObservedUtc = source.LastObservedUtc,
+            Status = source.Status,
+            RawEvidenceReference = source.RawEvidenceReference,
+            AssessmentId = source.AssessmentId,
+            InventoryDiffId = source.InventoryDiffId,
+            AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
+            PayloadHashSha256 = source.PayloadHashSha256,
+            UpdatedUtc = source.UpdatedUtc,
+        };
+
+    private static OperationalSecurityFindingObservationMutation ToMutation(
+        OperationalSecurityFindingObservationRecord source) =>
+        new()
+        {
+            ObservationId = source.ObservationId,
+            FindingId = source.FindingId,
+            ObservedUtc = source.ObservedUtc,
+            Status = source.Status,
+            Severity = source.Severity,
+            RiskScore = source.RiskScore,
+            Summary = source.Summary ?? string.Empty,
+            PayloadHashSha256 = source.PayloadHashSha256,
+            SourceSystem = source.SourceSystem,
+        };
 
     private static OperationalSecurityFindingRecord CloneFinding(
         OperationalSecurityFindingRecord source,
@@ -380,6 +469,7 @@ public sealed class OperationalSecurityExceptionService(
             AssessmentId = source.AssessmentId,
             InventoryDiffId = source.InventoryDiffId,
             AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
             PayloadHashSha256 = source.PayloadHashSha256,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,

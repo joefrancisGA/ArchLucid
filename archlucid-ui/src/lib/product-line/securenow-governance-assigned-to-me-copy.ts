@@ -22,7 +22,7 @@ export const SECURENOW_GOVERNANCE_JOB_ASSIGNED_TO_ME_WHEN_TO_USE =
   "Use your personal queue to remediate findings assigned to you across issues." as const;
 
 export const SECURENOW_GOVERNANCE_JOB_RECORD_DECISIONS_WHEN_TO_USE =
-  "Use the Decision register to browse security decisions locked with finalized review records." as const;
+  "Use the Decision register to browse security decisions locked with audit control lineage." as const;
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
   return productLineId === "security";

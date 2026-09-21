@@ -37,14 +37,15 @@ public sealed class SecurityAssetAssertionService(
             };
         }
 
-        SecurityAssetAssertionRecord? existingActive =
-            await assertionRepository.TryGetActiveByCloudResourceIdAsync(
-                scope.TenantId,
-                request.CloudResourceId,
-                utcNow,
-                cancellationToken);
+        IReadOnlyList<SecurityAssetAssertionRecord> scopedAssertions =
+            await assertionRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
 
-        if (existingActive is not null)
+        bool existingActive = scopedAssertions.Any(assertion =>
+            assertion.CloudResourceId == request.CloudResourceId
+            && assertion.Status == SecurityAssetAssertionStatus.Active
+            && assertion.ExpirationUtc > utcNow);
+
+        if (existingActive)
         {
             return new SecurityAssetAssertionCreateResult
             {
@@ -127,7 +128,10 @@ public sealed class SecurityAssetAssertionService(
         }
 
         SecurityAssetAssertionRecord? existing =
-            await assertionRepository.TryGetByIdAsync(scope.TenantId, assertionId, cancellationToken);
+            await assertionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                assertionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -176,7 +180,18 @@ public sealed class SecurityAssetAssertionService(
             UpdatedUtc = utcNow,
         };
 
-        await assertionRepository.UpdateRenewalAsync(renewed, cancellationToken);
+        await assertionRepository.UpdateRenewalInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new SecurityAssetAssertionRenewalMutation
+            {
+                AssertionId = renewed.AssertionId,
+                ExpirationUtc = renewed.ExpirationUtc,
+                RequestedByActorKey = renewed.RequestedByActorKey,
+                ApprovedByActorKey = renewed.ApprovedByActorKey,
+                PayloadHashSha256 = renewed.PayloadHashSha256,
+                UpdatedUtc = renewed.UpdatedUtc,
+            },
+            cancellationToken);
 
         await LogAuditAsync(
             scope,
@@ -216,7 +231,10 @@ public sealed class SecurityAssetAssertionService(
         }
 
         SecurityAssetAssertionRecord? existing =
-            await assertionRepository.TryGetByIdAsync(scope.TenantId, assertionId, cancellationToken);
+            await assertionRepository.TryGetByIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                assertionId,
+                cancellationToken);
 
         if (existing is null)
         {
@@ -237,11 +255,14 @@ public sealed class SecurityAssetAssertionService(
         }
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
-        await assertionRepository.RevokeAsync(
-            scope.TenantId,
-            assertionId,
-            revokedByActorKey.Trim(),
-            utcNow,
+        await assertionRepository.RevokeInScopeAsync(
+            scope.ToProjectScopeKey(),
+            new SecurityAssetAssertionRevokeMutation
+            {
+                AssertionId = assertionId,
+                RevokedByActorKey = revokedByActorKey.Trim(),
+                RevokedUtc = utcNow,
+            },
             cancellationToken);
 
         await LogAuditAsync(
@@ -263,7 +284,9 @@ public sealed class SecurityAssetAssertionService(
 
         await SweepExpiredAsync(scope, cancellationToken);
 
-        return await assertionRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        return await assertionRepository.ListByScopeAsync(
+            scope.ToProjectScopeKey(),
+            cancellationToken);
     }
 
     public async Task<SecurityAssetAssertionExpirySweepResult> SweepExpiredAsync(
@@ -275,7 +298,10 @@ public sealed class SecurityAssetAssertionService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         IReadOnlyList<SecurityAssetAssertionRecord> expiredRecords =
-            await assertionRepository.MarkExpiredAsync(scope.TenantId, utcNow, cancellationToken);
+            await assertionRepository.MarkExpiredInScopeAsync(
+                scope.ToProjectScopeKey(),
+                utcNow,
+                cancellationToken);
 
         int observationsCreated = 0;
 
@@ -287,17 +313,20 @@ public sealed class SecurityAssetAssertionService(
             }
 
             int created = await CreateExpiryObservationsAsync(
-                scope.TenantId,
+                scope,
                 expired,
                 utcNow,
                 cancellationToken);
 
             observationsCreated += created;
 
-            await assertionRepository.MarkExpiryProcessedAsync(
-                scope.TenantId,
-                expired.AssertionId,
-                utcNow,
+            await assertionRepository.MarkExpiryProcessedInScopeAsync(
+                scope.ToProjectScopeKey(),
+                new SecurityAssetAssertionExpiryProcessedMutation
+                {
+                    AssertionId = expired.AssertionId,
+                    ProcessedUtc = utcNow,
+                },
                 cancellationToken);
 
             await LogAuditAsync(
@@ -325,14 +354,14 @@ public sealed class SecurityAssetAssertionService(
     }
 
     private async Task<int> CreateExpiryObservationsAsync(
-        Guid tenantId,
+        ScopeContext scope,
         SecurityAssetAssertionRecord expired,
         DateTime utcNow,
         CancellationToken cancellationToken)
     {
         (IReadOnlyList<OperationalSecurityFindingRecord> findings, _) =
             await findingRepository.ListByCloudResourceIdPagedAsync(
-                tenantId,
+                scope.TenantId,
                 expired.CloudResourceId,
                 page: 1,
                 pageSize: 100,
@@ -345,10 +374,12 @@ public sealed class SecurityAssetAssertionService(
 
         int created = 0;
 
-        foreach (OperationalSecurityFindingRecord finding in findings)
+        foreach (OperationalSecurityFindingRecord finding in findings.Where(finding =>
+                     finding.WorkspaceId == expired.WorkspaceId
+                     && finding.ProjectId == expired.ProjectId))
         {
             IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
-                await findingRepository.ListObservationsByFindingAsync(tenantId, finding.FindingId, cancellationToken);
+                await findingRepository.ListObservationsByFindingAsync(scope.TenantId, finding.FindingId, cancellationToken);
 
             if (observations.Any(observation =>
                     string.Equals(
@@ -368,7 +399,7 @@ public sealed class SecurityAssetAssertionService(
             {
                 ObservationId = Guid.NewGuid(),
                 FindingId = finding.FindingId,
-                TenantId = tenantId,
+                TenantId = scope.TenantId,
                 ObservedUtc = utcNow,
                 Status = finding.Status,
                 Severity = finding.Severity,
@@ -383,12 +414,62 @@ public sealed class SecurityAssetAssertionService(
 
             OperationalSecurityFindingRecord updated = CloneFinding(finding, utcNow);
 
-            await findingRepository.UpdateAsync(updated, [], observation, cancellationToken);
+            await findingRepository.UpdateInScopeAsync(
+                scope.ToProjectScopeKey(),
+                ToMutation(updated),
+                [],
+                ToMutation(observation),
+                cancellationToken);
             created++;
         }
 
         return created;
     }
+
+    private static OperationalSecurityFindingMutation ToMutation(
+        OperationalSecurityFindingRecord source) =>
+        new()
+        {
+            FindingId = source.FindingId,
+            CloudResourceId = source.CloudResourceId,
+            ExternalResourceId = source.ExternalResourceId,
+            ResourceType = source.ResourceType,
+            SubscriptionOrAccountId = source.SubscriptionOrAccountId,
+            ControlId = source.ControlId,
+            ControlFramework = source.ControlFramework,
+            Title = source.Title,
+            Description = source.Description,
+            Severity = source.Severity,
+            RiskScore = source.RiskScore,
+            Exploitability = source.Exploitability,
+            Exposure = source.Exposure,
+            BusinessCriticality = source.BusinessCriticality,
+            BlastRadius = source.BlastRadius,
+            LastObservedUtc = source.LastObservedUtc,
+            Status = source.Status,
+            RawEvidenceReference = source.RawEvidenceReference,
+            AssessmentId = source.AssessmentId,
+            InventoryDiffId = source.InventoryDiffId,
+            AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
+            PayloadHashSha256 = source.PayloadHashSha256,
+            UpdatedUtc = source.UpdatedUtc,
+        };
+
+    private static OperationalSecurityFindingObservationMutation ToMutation(
+        OperationalSecurityFindingObservationRecord source) =>
+        new()
+        {
+            ObservationId = source.ObservationId,
+            FindingId = source.FindingId,
+            ObservedUtc = source.ObservedUtc,
+            Status = source.Status,
+            Severity = source.Severity,
+            RiskScore = source.RiskScore,
+            Summary = source.Summary ?? string.Empty,
+            PayloadHashSha256 = source.PayloadHashSha256,
+            SourceSystem = source.SourceSystem,
+        };
 
     private static OperationalSecurityFindingRecord CloneFinding(
         OperationalSecurityFindingRecord source,
@@ -423,6 +504,7 @@ public sealed class SecurityAssetAssertionService(
             AssessmentId = source.AssessmentId,
             InventoryDiffId = source.InventoryDiffId,
             AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            PathId = source.PathId,
             PayloadHashSha256 = source.PayloadHashSha256,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = utcNow,

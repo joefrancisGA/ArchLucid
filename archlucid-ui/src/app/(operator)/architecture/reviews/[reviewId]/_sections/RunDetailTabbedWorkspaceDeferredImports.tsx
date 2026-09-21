@@ -27,7 +27,7 @@ export {
   RunDetailTabbedSectionNavDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 export { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
-export { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
+export { resolveRunDetailSponsorBriefingSection } from "./resolve-run-detail-sponsor-briefing-section";
 export { RunDetailPackageChangesSinceFinalizeSection } from "./RunDetailPackageChangesSinceFinalizeSection";
 export { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 export {

@@ -20,10 +20,10 @@ export function ArchitectureDraftNextDraftFooter(
         OPERATOR_TYPOGRAPHY.body,
       )}
       data-testid="architecture-draft-next-draft-footer"
-      aria-label="Next draft in workspace"
+      aria-label="Next architecture draft in workspace"
     >
       <div className="min-w-0">
-        <p className="m-0 font-medium text-al-text-primary">Next draft in workspace</p>
+        <p className="m-0 font-medium text-al-text-primary">Next architecture draft in workspace</p>
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Continue with <span className="font-medium text-al-text-primary">{props.target.displayName}</span>.
         </p>

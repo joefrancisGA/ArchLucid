@@ -233,7 +233,7 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
           )}
         </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
         </div>
       </section>
 

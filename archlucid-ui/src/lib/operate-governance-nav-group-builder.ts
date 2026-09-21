@@ -114,7 +114,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance/remediation-patterns",
           label: OPERATOR_NAV_LINK_LABELS.remediationPatterns,
-          title: "Create, review, approve, and import remediation patterns (Draft-only import)",
+          title: "Create, review, approve, and import remediation patterns (Architecture-architecture-draft-only import)",
           icon: Puzzle,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

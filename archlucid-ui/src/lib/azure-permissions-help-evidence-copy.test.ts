@@ -5,6 +5,7 @@ import {
   AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES,
   AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
   AZURE_PERMISSIONS_HELP_SOURCES,
+  azurePermissionsHelpSourcesForProductLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
 
 describe("azure-permissions help evidence copy", () => {
@@ -15,5 +16,11 @@ describe("azure-permissions help evidence copy", () => {
     expect(orientationHrefs).not.toContain(AZURE_PERMISSIONS_HELP_CANONICAL_PATH);
     expect(orientationHrefs).not.toContain(AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.defaultHref);
     expect(AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES.length).toBeLessThan(AZURE_PERMISSIONS_HELP_SOURCES.length);
+  });
+
+  it("localizes help sources for the architecture product line", () => {
+    const links = azurePermissionsHelpSourcesForProductLine("architecture");
+
+    expect(links).toHaveLength(AZURE_PERMISSIONS_HELP_SOURCES.length);
   });
 });

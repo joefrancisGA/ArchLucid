@@ -108,6 +108,8 @@ public sealed class SecurityAssetAssertionServiceTests
 
         findingRepository.Observations.Should().ContainSingle(observation =>
             observation.SourceSystem == SecurityAssetAssertionConstants.AssertionExpirySourceSystem);
+        findingRepository.Findings.Single().PathId.Should().Be(
+            Guid.Parse("12121212-1212-1212-1212-121212121212"));
     }
 
     [Fact]
@@ -130,6 +132,47 @@ public sealed class SecurityAssetAssertionServiceTests
             },
             assertionId,
             "revoker");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("not found");
+    }
+
+    [Fact]
+    public async Task RevokeAsync_rejects_same_tenant_foreign_project_lookup()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        Guid assertionId = Guid.NewGuid();
+        InMemorySecurityAssetAssertionRepository repository = new();
+        SecurityAssetAssertionRecord foreign = CreateActiveAssertion(assertionId, utcNow.AddDays(10));
+        repository.Records.Add(new SecurityAssetAssertionRecord
+        {
+            AssertionId = foreign.AssertionId,
+            TenantId = foreign.TenantId,
+            WorkspaceId = foreign.WorkspaceId,
+            ProjectId = Guid.Parse("13131313-1313-1313-1313-131313131313"),
+            CloudResourceId = foreign.CloudResourceId,
+            DataSensitivity = foreign.DataSensitivity,
+            RegulatoryClass = foreign.RegulatoryClass,
+            DeploymentEnvironment = foreign.DeploymentEnvironment,
+            BusinessCriticality = foreign.BusinessCriticality,
+            IsRevenueImpact = foreign.IsRevenueImpact,
+            IsPatientImpact = foreign.IsPatientImpact,
+            Rationale = foreign.Rationale,
+            EvidenceReference = foreign.EvidenceReference,
+            ExpirationUtc = foreign.ExpirationUtc,
+            Status = foreign.Status,
+            RequestedByActorKey = foreign.RequestedByActorKey,
+            ApprovedByActorKey = foreign.ApprovedByActorKey,
+            PayloadHashSha256 = foreign.PayloadHashSha256,
+            CreatedUtc = foreign.CreatedUtc,
+            UpdatedUtc = foreign.UpdatedUtc,
+        });
+
+        SecurityAssetAssertionService sut =
+            CreateSut(repository, new InMemoryOperationalSecurityFindingRepository());
+
+        SecurityAssetAssertionRevokeResult result =
+            await sut.RevokeAsync(CreateScope(), assertionId, "revoker");
 
         result.Succeeded.Should().BeFalse();
         result.ErrorMessage.Should().Contain("not found");
@@ -209,6 +252,7 @@ public sealed class SecurityAssetAssertionServiceTests
             FirstObservedUtc = utcNow,
             LastObservedUtc = utcNow,
             Status = OperationalSecurityFindingStatus.Open,
+            PathId = Guid.Parse("12121212-1212-1212-1212-121212121212"),
             PayloadHashSha256 = [1, 2, 3],
             CreatedUtc = utcNow,
             UpdatedUtc = utcNow,

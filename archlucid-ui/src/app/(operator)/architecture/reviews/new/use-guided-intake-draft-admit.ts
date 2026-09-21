@@ -206,7 +206,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
   const skipQuestion = useCallback(
     async (questionKey: string) => {
       if (core.draftId === null) {
-        core.setSubmitError(new Error("Draft is not ready yet. Go back and continue from the brief step."));
+        core.setSubmitError(new Error("Architecture draft is not ready yet. Go back and continue from the brief step."));
 
         return;
       }

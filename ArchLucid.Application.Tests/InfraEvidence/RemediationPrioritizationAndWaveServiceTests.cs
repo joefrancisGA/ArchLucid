@@ -135,10 +135,10 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationPrioritizationRepository prioritizationRepository = new();
 
         RemediationFactoryMetricsService metricsService = new(
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             exceptionRepository,
             matchRepository,
-            instanceRepository,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             prioritizationRepository);
 
         RemediationFactoryMetrics tenantAMetrics =
@@ -178,7 +178,7 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationPatternRepository patternRepository,
         InMemoryRemediationPrioritizationRepository prioritizationRepository) =>
         new(
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             exceptionRepository,
             matchRepository,
             patternRepository,
@@ -208,7 +208,7 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             waveRepository,
             prioritizationService,
             instanceService,
-            instanceRepository);
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository));
     }
 
     private static ScopeContext CreateScope(Guid tenantId) =>
@@ -622,6 +622,24 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             string? subscriptionId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
+
+        public Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            int page,
+            int pageSize,
+            Guid? cloudResourceId = null,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
+
+        public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
+            });
     }
 
     private sealed class InMemoryAdvisoryTerraformService : IAdvisoryTerraformRepresentationService

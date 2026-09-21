@@ -214,19 +214,18 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
     setStatusMessage(`Loaded “${selectedView.name}”.`);
   };
 
+  const trimmedSaveName = saveName.trim();
+  const canSaveView = trimmedSaveName.length >= 2;
+
   const handleSave = async () => {
-    const trimmedName = saveName.trim();
-
-    if (trimmedName.length === 0) {
-      setStatusMessage("Enter a name before saving this view.");
-
+    if (!canSaveView) {
       return;
     }
 
     setStatusMessage(null);
 
     try {
-      const created = await saveView(trimmedName, getCurrentPayload(), saveShared);
+      const created = await saveView(trimmedSaveName, getCurrentPayload(), saveShared);
       setSaveName("");
       setSaveShared(false);
       setStatusMessage(`Saved “${created.name}”.`);
@@ -334,7 +333,7 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
           />
           Share with team
         </label>
-        <Button type="button" variant="primary" size="sm" disabled={disabled || saving} onClick={() => void handleSave()} data-testid={`operator-saved-views-save-${surface}`}>
+        <Button type="button" variant="primary" size="sm" disabled={disabled || saving || !canSaveView} onClick={() => void handleSave()} data-testid={`operator-saved-views-save-${surface}`}>
           {saving ? "Saving…" : "Save view"}
         </Button>
       </div>

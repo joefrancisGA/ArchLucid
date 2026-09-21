@@ -1,4 +1,6 @@
 import { SESSION_IDLE_TIMEOUT_MINUTES } from "@/lib/auth/session-idle-timeout";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 /** Recognized `reason` values that render the session-message view instead of auto-redirecting. */
 export const SESSION_MESSAGE_REASONS = [
@@ -25,39 +27,43 @@ const SESSION_RECOVERY_SCOPE_NOTE =
   "This page covers sign-in recovery only — not a full audit export.";
 
 const SERVER_WORK_PRESERVATION_NOTE =
-  "Saved drafts and other server-stored work remain available after you sign in again. Unsaved changes in this browser tab were not preserved — if you had a dirty draft, you may see a recovery prompt after sign-in.";
+  "Saved architecture drafts and other server-stored work remain available after you sign in again. Unsaved changes in this browser tab were not preserved — if you had a dirty architecture draft, you may see a recovery prompt after sign-in.";
 
 const IDLE_SCOPE_RESTORE_NOTE =
   "Your workspace and project selection will be restored after you sign in again when they were active before the timeout.";
 
-const REASON_COPY: Record<SessionMessageReason, SessionMessageCopy> = {
-  "idle-timeout": {
-    title: "Your session expired",
-    body: `For your security, ArchLucid signed you out after ${SESSION_IDLE_TIMEOUT_MINUTES} minutes of inactivity.`,
-    showsReturnDestinationHint: true,
-    workPreservationNote: SERVER_WORK_PRESERVATION_NOTE,
-    scopeNote: IDLE_SCOPE_RESTORE_NOTE,
-  },
-  "session-expired": {
-    title: "Your session expired",
-    body: "Your session is no longer active. Sign in again to continue.",
-    showsReturnDestinationHint: true,
-    workPreservationNote: SERVER_WORK_PRESERVATION_NOTE,
-    scopeNote: SESSION_RECOVERY_SCOPE_NOTE,
-  },
-  "signed-out": {
-    title: "You're signed out",
-    body: "You've been signed out of ArchLucid.",
-    showsReturnDestinationHint: true,
-    scopeNote: SESSION_RECOVERY_SCOPE_NOTE,
-  },
-  unauthorized: {
-    title: "Sign in required",
-    body: "You need to sign in to access that page.",
-    showsReturnDestinationHint: false,
-    scopeNote: SESSION_RECOVERY_SCOPE_NOTE,
-  },
-};
+function buildReasonCopy(productLineId: ProductLineId): Record<SessionMessageReason, SessionMessageCopy> {
+  const productName = productLineDisplayName(productLineId);
+
+  return {
+    "idle-timeout": {
+      title: "Your session expired",
+      body: `For your security, ${productName} signed you out after ${SESSION_IDLE_TIMEOUT_MINUTES} minutes of inactivity.`,
+      showsReturnDestinationHint: true,
+      workPreservationNote: SERVER_WORK_PRESERVATION_NOTE,
+      scopeNote: IDLE_SCOPE_RESTORE_NOTE,
+    },
+    "session-expired": {
+      title: "Your session expired",
+      body: "Your session is no longer active. Sign in again to continue.",
+      showsReturnDestinationHint: true,
+      workPreservationNote: SERVER_WORK_PRESERVATION_NOTE,
+      scopeNote: SESSION_RECOVERY_SCOPE_NOTE,
+    },
+    "signed-out": {
+      title: "You're signed out",
+      body: `You've been signed out of ${productName}.`,
+      showsReturnDestinationHint: true,
+      scopeNote: SESSION_RECOVERY_SCOPE_NOTE,
+    },
+    unauthorized: {
+      title: "Sign in required",
+      body: "You need to sign in to access that page.",
+      showsReturnDestinationHint: false,
+      scopeNote: SESSION_RECOVERY_SCOPE_NOTE,
+    },
+  };
+}
 
 /** Safe generic copy shown for a missing or unrecognized `reason` value — never echoes raw input. */
 const DEFAULT_COPY: SessionMessageCopy = {
@@ -72,6 +78,11 @@ export function isSessionMessageReason(reason: string | null | undefined): reaso
 }
 
 /** Resolves display copy for a `reason` query value; unknown/absent reasons get safe generic copy. */
-export function getSessionMessageCopy(reason: string | null | undefined): SessionMessageCopy {
-  return isSessionMessageReason(reason) ? REASON_COPY[reason] : DEFAULT_COPY;
+export function getSessionMessageCopy(
+  reason: string | null | undefined,
+  productLineId: ProductLineId = "architecture",
+): SessionMessageCopy {
+  const reasonCopy = buildReasonCopy(productLineId);
+
+  return isSessionMessageReason(reason) ? reasonCopy[reason] : DEFAULT_COPY;
 }

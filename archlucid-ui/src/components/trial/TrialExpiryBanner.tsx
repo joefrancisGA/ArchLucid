@@ -10,6 +10,7 @@ import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/Op
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 /** Session-only: dismiss hides the banner until the browser tab/session ends. */
 const SESSION_DISMISS_KEY = "archlucid_trial_expiry_banner_dismissed_session";
@@ -21,6 +22,7 @@ const URGENT_TRIAL_DAYS_MAX = 7;
  * (not only home). Uses `GET /v1/tenant/trial-status` — same source as {@link TrialBanner}.
  */
 export function TrialExpiryBanner() {
+  const { productLine } = useProductLine();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const [dismissed, setDismissed] = useState(false);
@@ -72,7 +74,9 @@ export function TrialExpiryBanner() {
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Button asChild type="button" variant="primary" size="sm">
-            <Link href="/pricing#pricing-quote-request">Talk to us</Link>
+            <Link href={productLine === "security" ? "/help/procurement" : "/pricing#pricing-quote-request"}>
+              {productLine === "security" ? "Open procurement guidance" : "Talk to us"}
+            </Link>
           </Button>
         </div>
       </div>

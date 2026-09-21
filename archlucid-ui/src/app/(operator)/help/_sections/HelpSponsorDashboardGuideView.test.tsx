@@ -22,6 +22,16 @@ vi.mock("@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessS
   ),
 }));
 
+vi.mock("@/lib/use-sponsor-dashboard-help-workspace-readiness", () => ({
+  useSponsorDashboardHelpWorkspaceReadiness: () => ({
+    loading: false,
+    baselineStatusLabel: "Baseline anchors set",
+    baselineStatusKind: "ready",
+    workspaceScopeLabel: "Test workspace",
+    reload: vi.fn(),
+  }),
+}));
+
 import { HelpSponsorDashboardGuideView } from "@/app/(operator)/help/_sections/HelpSponsorDashboardGuideView";
 import {
   SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID,
@@ -33,10 +43,8 @@ import {
 import {
   SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE,
   SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING,
-  SPONSOR_DASHBOARD_HELP_SOURCES,
 } from "@/lib/sponsor-dashboard-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpSponsorDashboardGuideView", () => {
@@ -83,11 +91,15 @@ describe("HelpSponsorDashboardGuideView", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Before you start" })).toBeInTheDocument();
     expect(screen.getByTestId("help-sponsor-dashboard-before-you-start")).toBeInTheDocument();
 
-    for (const source of SPONSOR_DASHBOARD_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expect(screen.getByRole("link", { name: "Open Architecture reviews" })).toHaveAttribute("href", "/architecture/reviews");
+    expect(screen.getByRole("link", { name: "Open Ask review questions" })).toHaveAttribute(
+      "href",
+      "/insights/ask-review-questions",
+    );
+    expect(screen.getByRole("link", { name: "Read Sponsor report help" })).toHaveAttribute(
+      "href",
+      "/help/sponsor-report",
+    );
 
     expect(screen.getAllByRole("link", { name: "Architecture scorecard" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: "Architecture scorecard" })).toHaveAttribute(

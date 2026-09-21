@@ -208,4 +208,16 @@ public static partial class SanitizedLoggerInformationExtensions
         Guid reservationId,
         string runId,
         decimal reserveUsd);
+
+    [LoggerMessage(
+        EventId = 3019,
+        Level = LogLevel.Information,
+        Message =
+            "Finding insight signal {Kind} recorded for run {RunId} finding {FindingId} created={Created}.")]
+    private static partial void EmitFindingInsightSignalRecorded(
+        ILogger logger,
+        string kind,
+        Guid runId,
+        string findingId,
+        bool created);
 }

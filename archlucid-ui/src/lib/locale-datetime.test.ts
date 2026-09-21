@@ -3,17 +3,16 @@ import { describe, expect, it } from "vitest";
 import {
   formatBrowserTimeZoneAbbreviation,
   formatIanaTimeZoneAbbreviation,
+  formatInstantCompactMilitary,
   formatInstantForLocale,
   formatInstantInPreferredTimeZone,
 } from "@/lib/locale-datetime";
 import { pilotOutcomesReportingPeriodHelper } from "@/lib/pilot-outcomes-page-copy";
 
 describe("formatInstantForLocale", () => {
-  it("returns locale string for valid ISO input", () => {
-    const s = formatInstantForLocale("2026-01-15T14:30:00.000Z");
-
-    expect(s).not.toMatch(/invalid/i);
-    expect(s.length).toBeGreaterThan(4);
+  it("returns Eastern locale string for valid ISO input", () => {
+    expect(formatInstantForLocale("2026-01-15T14:30:00.000Z")).toBe("1/15/2026, 9:30 AM EST");
+    expect(formatInstantForLocale("2026-09-10T13:45:35.000Z")).toBe("9/10/2026, 9:45 AM EDT");
   });
 
   it("returns em dash for empty or invalid input", () => {
@@ -49,6 +48,27 @@ describe("formatInstantInPreferredTimeZone", () => {
     expect(formatInstantInPreferredTimeZone("")).toBe(" — ");
     expect(formatInstantInPreferredTimeZone(null)).toBe(" — ");
     expect(formatInstantInPreferredTimeZone(undefined)).toBe(" — ");
+  });
+});
+
+describe("formatInstantCompactMilitary", () => {
+  it("uses a two-digit year and 24-hour clock without AM/PM", () => {
+    expect(formatInstantCompactMilitary("2026-09-01T12:00:00Z")).toBe("9/1/26, 08:00");
+    expect(formatInstantCompactMilitary("2026-01-15T14:30:00.000Z")).toBe("1/15/26, 09:30");
+  });
+
+  it("does not include an AM/PM suffix", () => {
+    const label = formatInstantCompactMilitary("2026-09-10T13:45:35.000Z");
+
+    expect(label).toBe("9/10/26, 09:45");
+    expect(label).not.toMatch(/\bAM\b|\bPM\b/);
+    expect(label).not.toContain("2026");
+  });
+
+  it("returns em dash for empty input", () => {
+    expect(formatInstantCompactMilitary("")).toBe(" — ");
+    expect(formatInstantCompactMilitary(null)).toBe(" — ");
+    expect(formatInstantCompactMilitary(undefined)).toBe(" — ");
   });
 });
 

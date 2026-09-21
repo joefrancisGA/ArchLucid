@@ -27,5 +27,5 @@ export const INHABIT_FINDINGS_SKIP_TO_WORK_ID = "inhabit-findings-skip-to-work" 
 export const INHABIT_FINDINGS_SKIP_TO_WORK_LABEL = "Skip to findings list" as const;
 
 export function focusNextInhabitedFindingFromFirst(): void {
-  focusAdjacentFindingCard("next");
+  focusAdjacentFindingCard(1);
 }

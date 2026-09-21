@@ -19,6 +19,7 @@ class TestRetriggerPrivateBetaAccessOnPush(unittest.TestCase):
         text = SCRIPT.read_text(encoding="utf-8")
         self.assertIn("private-beta-access-on-push.yml", text)
         self.assertIn("gh workflow run", text)
+        self.assertIn('REF="${1:-RC34}"', text)
 
 
 if __name__ == "__main__":

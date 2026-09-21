@@ -46,6 +46,13 @@ public sealed class AzureInventorySnapshotRecord
         init;
     }
 
+    /// <summary>Bound architecture display name when an inventory binding exists for this snapshot.</summary>
+    public string? ArchitectureDisplayName
+    {
+        get;
+        init;
+    }
+
     public DateTime? CapturedUtc
     {
         get;
@@ -107,6 +114,12 @@ public sealed class AzureInventorySnapshotRecord
     }
 
     public int WarningCount
+    {
+        get;
+        init;
+    }
+
+    public string? CompletenessWarningsJson
     {
         get;
         init;

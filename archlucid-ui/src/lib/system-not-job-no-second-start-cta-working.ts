@@ -11,7 +11,7 @@ export const WORKING_HOME_SINGLE_START_PRIMARY_LABEL = WORKING_NEW_REVIEW_LABEL;
 
 /** Bridge copy under the Working Home primary when no resume target exists. */
 export const WORKING_HOME_NEW_REVIEW_BRIDGE_COPY =
-  "Open the draft editor and add evidence when this architecture is ready to seal." as const;
+  "Open the architecture draft editor and add evidence when this architecture is ready to seal." as const;
 
 /** Grep ratchet — peer start product labels must not appear on Working Home primaries. */
 export const WORKING_HOME_BANNED_PEER_START_LABELS: readonly string[] = [

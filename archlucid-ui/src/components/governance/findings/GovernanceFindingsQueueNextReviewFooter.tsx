@@ -42,9 +42,12 @@ export function GovernanceFindingsQueueNextReviewFooter(
   );
 }
 
-export function governanceFindingsQueueNextReviewHref(runId: string): string {
+export function governanceFindingsQueueNextReviewHref(
+  runId: string,
+  findingsHubPath: string = GOVERNANCE_FINDINGS_PATH,
+): string {
   const params = new URLSearchParams();
   params.set("runId", runId);
 
-  return `${GOVERNANCE_FINDINGS_PATH}?${params.toString()}`;
+  return `${findingsHubPath}?${params.toString()}`;
 }

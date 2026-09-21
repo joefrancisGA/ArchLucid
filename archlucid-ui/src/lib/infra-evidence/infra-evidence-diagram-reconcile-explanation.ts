@@ -1,7 +1,26 @@
+import { formatAzureResourceDisplay, normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import {
   DIAGRAM_INFRASTRUCTURE_MATCH_KINDS,
   type DiagramInfrastructureCorrespondenceRow,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
+
+export function formatDiagramReconcileResourceLabelForDisplay(
+  row: DiagramInfrastructureCorrespondenceRow,
+): string {
+  const diagramNodeLabel = row.diagramNodeLabel?.trim() ?? "";
+
+  if (diagramNodeLabel.length > 0) {
+    return normalizeSecureNowResourceNameForDisplay(diagramNodeLabel);
+  }
+
+  const azureResourceId = row.azureResourceId?.trim() ?? "";
+
+  if (azureResourceId.length > 0) {
+    return formatAzureResourceDisplay(azureResourceId).primaryLabel;
+  }
+
+  return row.correspondenceId;
+}
 
 /** Deterministic explanation column — AI rationale only on Possible/Unknown rows. */
 export function formatDiagramReconcileExplanation(row: DiagramInfrastructureCorrespondenceRow): string {
@@ -52,7 +71,7 @@ export function buildDiagramReconcileOperationalFindingRequestItem(
   rawEvidenceReference?: string | null;
   metadata?: Record<string, string | null>;
 } {
-  const label = row.diagramNodeLabel ?? row.azureResourceId ?? row.correspondenceId;
+  const label = formatDiagramReconcileResourceLabelForDisplay(row);
   const severity =
     row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.conflict
       ? "high"

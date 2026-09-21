@@ -1,13 +1,14 @@
-# Invite-wave private-beta Playwright: runs on master/main push without waiting for
+# Invite-wave private-beta Playwright: runs on master/main/RC34 push without waiting for
 # ci.yml full regression. ci.yml's ui-e2e-live-beta-access is pull_request-skipped and
 # ci.yml itself has no push trigger, so that job never fires on trunk merge.
+# RC34 is the private-beta release cut (/al-beta inspects this ref, not master).
 #
 # Not a golden-cohort required check (owner apply later). Same job display name as ci.yml.
 name: Private-beta access on push
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, RC34]
   workflow_dispatch:
 
 concurrency:

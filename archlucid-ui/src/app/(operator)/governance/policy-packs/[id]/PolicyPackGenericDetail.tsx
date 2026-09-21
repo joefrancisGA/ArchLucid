@@ -47,6 +47,7 @@ type PolicyPackGenericDetailProps = {
   readonly isEnabled: boolean;
   readonly isGloballyActive: boolean;
   readonly scopedReviewId?: string;
+  readonly packsHubHref?: string;
 };
 
 function formatPackDate(value: string | null | undefined): string {
@@ -87,8 +88,9 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
+  const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
   const policyPacksHubHref =
-    scopedReviewId.length > 0 ? buildPolicyPacksHrefWithReviewId(scopedReviewId) : GOVERNANCE_POLICY_PACKS_PATH;
+    scopedReviewId.length > 0 ? buildPolicyPacksHrefWithReviewId(scopedReviewId, packsHubHref) : packsHubHref;
   const policyPacksEditTargetHref =
     scopedReviewId.length > 0
       ? `${policyPacksEditHref(policyPackId)}&${POLICY_PACKS_REVIEW_ID_QUERY_PARAM}=${encodeURIComponent(scopedReviewId)}`
@@ -115,6 +117,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
         breadcrumb={
           <GovernancePolicyPackBreadcrumb
             packLabel={resolvePolicyPackDetailBreadcrumbLabel(policyPackId, packRecord)}
+            packsHubHref={packsHubHref}
           />
         }
         statusBadge={resolveEnablementStatusTag(isEnabled, isGloballyActive)}

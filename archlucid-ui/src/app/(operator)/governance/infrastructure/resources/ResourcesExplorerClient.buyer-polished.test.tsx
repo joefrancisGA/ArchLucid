@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 let searchParams = new URLSearchParams("");
@@ -79,7 +79,7 @@ import {
 import { ResourcesExplorerClient } from "./ResourcesExplorerClient";
 
 describe("ResourcesExplorerClient buyer-polished chrome", () => {
-  it("renders skip link, claim discipline, filters, table row, and sources strip", async () => {
+  it("renders skip link, filters, table row, and sources strip", async () => {
     searchParams = new URLSearchParams("");
     render(<ResourcesExplorerClient />);
 
@@ -87,7 +87,7 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
       "href",
       `#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("infra-resource-explorer-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-explorer-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-infrastructure-resources-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
@@ -95,6 +95,19 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
     await waitFor(() => {
       expect(screen.getByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111"));
+    expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "resource id: /subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+    );
+    expect(screen.queryByTestId("infra-resource-explorer-snapshot-id")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-type-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Network/publicIPAddresses",
+    );
+    expect(screen.getByTestId("infra-resource-last-seen-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "9/1/26, 08:00",
+    );
   });
 });

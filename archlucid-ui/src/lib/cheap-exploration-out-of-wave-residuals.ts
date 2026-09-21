@@ -16,7 +16,7 @@ export type CheapExplorationOutOfWaveResidualRow = {
 export const CHEAP_EXPLORATION_OUT_OF_WAVE_RESIDUAL_ROWS: readonly CheapExplorationOutOfWaveResidualRow[] =
   [
     {
-      item: "Draft-to-draft Compare",
+      item: "Compare architecture drafts",
       tracking: "R12 rejected alternative",
       ownerPrompt: "CE-017",
       status: "not-shipped",

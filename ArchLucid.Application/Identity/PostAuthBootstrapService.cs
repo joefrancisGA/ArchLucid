@@ -33,6 +33,11 @@ public interface IPostAuthBootstrapService
         CancellationToken cancellationToken);
 }
 
+/// <summary>
+/// Post-auth destination order (ADR 0102 / LS-004): pending invitation → workspace membership
+/// (complete or select) → create workspace when allowed → no access. Training is not a bootstrap
+/// destination; first-session purpose is chosen in the UI after Complete.
+/// </summary>
 public sealed class PostAuthBootstrapService(
     IWorkspaceMembershipRepository memberships,
     IPostAuthInvitationBootstrapService invitationBootstrap,

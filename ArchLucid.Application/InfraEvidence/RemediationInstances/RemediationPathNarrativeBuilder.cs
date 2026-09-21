@@ -35,7 +35,7 @@ public sealed class RemediationPathNarrativeBuilder(
         }
 
         IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-            await pathRepository.ListHopsByPathAsync(scope.TenantId, pathId, cancellationToken);
+            await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints =
             await cutPointRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);

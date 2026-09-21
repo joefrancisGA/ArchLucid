@@ -8,7 +8,7 @@ import {
 /** Engineering ratchet anchor — TB-1299 forbids silent Simulator as Career execute. */
 export const WORKING_CAREER_DOOR_TB_1299_ANCHOR = "TB-1299";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
-import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
+import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
 
 export type WorkingCareerDoorBlockReason =
   | "loading"
@@ -31,7 +31,7 @@ export type WorkingCareerDoorGateResult = {
   readonly platformSettingsHref: string;
 };
 
-export const WORKING_CAREER_DOOR_PLATFORM_SETTINGS_HREF = CONNECTION_STATUS_CANONICAL_PATH;
+export const WORKING_CAREER_DOOR_PLATFORM_SETTINGS_HREF = MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH;
 
 /** Career door requires Real execute with live AI readiness (AS-078 / TB-1299). */
 export function resolveWorkingCareerDoorGate(

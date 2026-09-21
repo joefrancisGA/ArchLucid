@@ -11,6 +11,6 @@ export function formatInhabitFindingDispositionConflictMessage(
     `Another operator updated this finding (${conflict.disposition} at ${conflict.occurredAtUtc}).`,
     "This is a version conflict — not live co-editing or overlap indicators.",
     "Use Keep mine or Load theirs, then amend or record a correction if needed.",
-    "Draft work leases apply on the draft editor; finding disposition uses CAS on the shared job.",
+    "Draft work leases apply on the architecture draft editor; finding disposition uses CAS on the shared job.",
   ].join(" ");
 }

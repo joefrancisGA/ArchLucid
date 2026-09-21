@@ -216,7 +216,7 @@ export function HelpArchitectureIntelligenceGuideView(
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>{guideSections}</div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
 
       <div data-testid={ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_BOTTOM_TEST_ID}>

@@ -36,7 +36,7 @@ type LinkedReviewProbe = {
   readonly linkedReviewId?: string | null;
 };
 
-/** True when a draft registry row already spawned (or is linked to) a review run. */
+/** True when an architecture draft registry row already spawned (or is linked to) a review run. */
 export function architectureDraftHasLinkedReview(entry: LinkedReviewProbe | null | undefined): boolean {
   const linkedReviewId = entry?.linkedReviewId?.trim() ?? "";
 

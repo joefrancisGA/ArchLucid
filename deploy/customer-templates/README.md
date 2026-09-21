@@ -61,4 +61,4 @@ python scripts/ci/validate_customer_wif_templates.py
 
 CI runs the same script in warn-only mode when `terraform` / `az` / `bicep` CLIs are available.
 
-See also: `docs/library/AZURE_EXTRACTOR.md`.
+See also: `docs/library/AZURE_EXTRACTOR.md` and the **scheduled agent** (customer-owned runbook / Function) under `deploy/customer-templates/scheduled-agent/`.

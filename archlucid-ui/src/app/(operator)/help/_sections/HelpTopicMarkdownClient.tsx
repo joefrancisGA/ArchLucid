@@ -23,7 +23,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
   }
 
   if (markdownQuery.isError) {
-    return <HelpTopicLoadFailureView />;
+    return <HelpTopicLoadFailureView topicTitle={props.entry.title} topicSlug={props.entry.slug} />;
   }
 
   if (markdownQuery.data === undefined) {

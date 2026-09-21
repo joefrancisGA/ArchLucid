@@ -25,6 +25,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpPilotFeedbackGuideView } from "@/app/(operator)/help/_sections/HelpPilotFeedbackGuideView";
+import { HelpTopicLoadFailureView } from "@/app/(operator)/help/_sections/HelpTopicLoadFailureView";
 import {
   PILOT_FEEDBACK_HELP_PAGE_TITLE,
   PILOT_FEEDBACK_HELP_PRIMARY_ACTION,
@@ -49,6 +50,19 @@ describe("HelpPilotFeedbackGuideView", () => {
   it("loads pilot-feedback help from product learning source", () => {
     expect(loaded).not.toBeNull();
     expect(loaded?.entry.title).toBe("Pilot feedback (internal runbook)");
+  });
+
+  it("keeps topic identity and support diagnostics on load failure", () => {
+    render(<HelpTopicLoadFailureView topicTitle="Pilot feedback" topicSlug="pilot-feedback" />);
+
+    expect(screen.getByRole("heading", { name: "Pilot feedback unavailable" })).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-load-failure-reference")).toHaveTextContent(
+      /Reference ID: help-pilot-feedback-/,
+    );
+    expect(screen.getByRole("link", { name: "Report a problem" })).toHaveAttribute(
+      "href",
+      expect.stringMatching(/^\/help\/report-a-problem\?referenceId=help-pilot-feedback-/),
+    );
   });
 
   it("renders specialty admin chrome without API/SQL leakage (TB-1716 / TB-1717 / TB-1718)", () => {

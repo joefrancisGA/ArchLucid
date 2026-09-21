@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.InfraEvidence;
@@ -166,6 +167,39 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         }
     }
 
+    public async Task InsertSnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        AuditEvidenceSnapshotPersistRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Header);
+
+        if (request.Header.TenantId != scope.TenantId
+            || request.Items.Any(item => item.TenantId != scope.TenantId))
+            throw new InvalidOperationException("Scoped audit snapshot payload contains foreign tenant authority.");
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        const string sql = """
+                           SELECT COUNT(1)
+                           FROM dbo.AuditAssessments
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND AssessmentId = @AssessmentId;
+                           """;
+        int count = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                request.Header.AssessmentId,
+            }, cancellationToken: cancellationToken));
+        if (count != 1)
+            throw new InvalidOperationException("Scoped audit snapshot assessment was not found.");
+
+        await InsertSnapshotAsync(request, cancellationToken);
+    }
+
     public async Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderAsync(
         Guid tenantId,
         Guid auditEvidenceSnapshotId,
@@ -200,6 +234,36 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         return MapHeader(row, inventoryIds);
     }
 
+    public async Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderInScopeAsync(
+        ProjectScopeKey scope,
+        Guid auditEvidenceSnapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT s.AuditEvidenceSnapshotId, s.AssessmentId, s.TenantId, s.SubscriptionIdsJson,
+                                  s.CollectionStartedUtc, s.CollectionCompletedUtc, s.SelectorVersionsJson,
+                                  s.FrameworkVersion, s.ControlCatalogVersion, s.Completeness, s.FailuresJson,
+                                  s.WarningsJson, s.EvidenceHashSha256, s.CreatedUtc
+                           FROM dbo.AuditEvidenceSnapshots s
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = s.TenantId AND a.AssessmentId = s.AssessmentId
+                           WHERE s.TenantId = @TenantId
+                             AND s.AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        HeaderRow? row = await conn.QuerySingleOrDefaultAsync<HeaderRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+            }, cancellationToken: cancellationToken));
+        if (row is null) return null;
+        IReadOnlyList<Guid> inventoryIds = await ListInventorySnapshotIdsAsync(conn, scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+        return MapHeader(row, inventoryIds);
+    }
+
     public async Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsAsync(
         Guid tenantId,
         Guid auditEvidenceSnapshotId,
@@ -222,6 +286,36 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                 new { TenantId = tenantId, AuditEvidenceSnapshotId = auditEvidenceSnapshotId },
                 cancellationToken: cancellationToken));
 
+        return rows.Select(MapItem).ToList();
+    }
+
+    public async Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsInScopeAsync(
+        ProjectScopeKey scope,
+        Guid auditEvidenceSnapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT i.EvidenceRowId, i.AuditEvidenceSnapshotId, i.RequirementId, i.TenantId, i.CloudResourceId,
+                                  i.AzureResourceId, i.EvidenceType, i.CollectedUtc, i.CollectorVersion, i.NormalizedPointer,
+                                  i.RawPointer, i.EvidenceHashSha256, i.CollectionStatus, i.FreshnessStatus, i.Confidence,
+                                  i.Summary, i.ProvenanceKind, i.SelectorVersion, i.AzureScope, i.ApiQueryId
+                           FROM dbo.AuditEvidenceSnapshotItems i
+                           INNER JOIN dbo.AuditEvidenceSnapshots s
+                               ON s.TenantId = i.TenantId AND s.AuditEvidenceSnapshotId = i.AuditEvidenceSnapshotId
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = s.TenantId AND a.AssessmentId = s.AssessmentId
+                           WHERE i.TenantId = @TenantId
+                             AND i.AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ItemRow> rows = await conn.QueryAsync<ItemRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+            }, cancellationToken: cancellationToken));
         return rows.Select(MapItem).ToList();
     }
 
@@ -264,6 +358,40 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         return headers;
     }
 
+    public async Task<IReadOnlyList<AuditEvidenceSnapshotHeaderRecord>> ListByAssessmentInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT s.AuditEvidenceSnapshotId, s.AssessmentId, s.TenantId, s.SubscriptionIdsJson,
+                                  s.CollectionStartedUtc, s.CollectionCompletedUtc, s.SelectorVersionsJson,
+                                  s.FrameworkVersion, s.ControlCatalogVersion, s.Completeness, s.FailuresJson,
+                                  s.WarningsJson, s.EvidenceHashSha256, s.CreatedUtc
+                           FROM dbo.AuditEvidenceSnapshots s
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = s.TenantId AND a.AssessmentId = s.AssessmentId
+                           WHERE s.TenantId = @TenantId
+                             AND s.AssessmentId = @AssessmentId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId
+                           ORDER BY s.CollectionCompletedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        List<HeaderRow> rows = (await conn.QueryAsync<HeaderRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, AssessmentId = assessmentId,
+            }, cancellationToken: cancellationToken))).ToList();
+        List<AuditEvidenceSnapshotHeaderRecord> headers = [];
+        foreach (HeaderRow row in rows)
+        {
+            IReadOnlyList<Guid> inventoryIds = await ListInventorySnapshotIdsAsync(conn, scope.TenantId, row.AuditEvidenceSnapshotId, cancellationToken);
+            headers.Add(MapHeader(row, inventoryIds));
+        }
+        return headers;
+    }
+
     public async Task InsertBaselineAsync(AuditEvidenceBaselineRecord baseline, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(baseline);
@@ -281,6 +409,45 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                 sql,
                 baseline,
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task InsertBaselineInScopeAsync(
+        ProjectScopeKey scope,
+        AuditEvidenceBaselineRecord baseline,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(baseline);
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.AuditAssessments
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND AssessmentId = @AssessmentId
+                           )
+                               THROW 50010, 'Scoped audit baseline assessment was not found.', 1;
+
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.AuditEvidenceSnapshots
+                               WHERE TenantId = @TenantId
+                                 AND AssessmentId = @AssessmentId
+                                 AND AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId
+                           )
+                               THROW 50011, 'Scoped audit baseline snapshot was not found.', 1;
+
+                           INSERT INTO dbo.AuditEvidenceBaselines
+                           (BaselineId, AssessmentId, AuditEvidenceSnapshotId, TenantId, Name, DesignatedBy, DesignatedUtc)
+                           VALUES (@BaselineId, @AssessmentId, @AuditEvidenceSnapshotId, @TenantId, @Name, @DesignatedBy, @DesignatedUtc);
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            baseline.BaselineId, baseline.AssessmentId, baseline.AuditEvidenceSnapshotId,
+            baseline.Name, baseline.DesignatedBy, baseline.DesignatedUtc,
+        }, cancellationToken: cancellationToken));
     }
 
     public async Task<AuditEvidenceBaselineRecord?> TryGetBaselineByNameAsync(
@@ -302,6 +469,33 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                 sql,
                 new { TenantId = tenantId, AssessmentId = assessmentId, Name = baselineName },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task<AuditEvidenceBaselineRecord?> TryGetBaselineByNameInScopeAsync(
+        ProjectScopeKey scope,
+        Guid assessmentId,
+        string baselineName,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT b.BaselineId, b.AssessmentId, b.AuditEvidenceSnapshotId, b.TenantId,
+                                  b.Name, b.DesignatedBy, b.DesignatedUtc
+                           FROM dbo.AuditEvidenceBaselines b
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = b.TenantId AND a.AssessmentId = b.AssessmentId
+                           WHERE b.TenantId = @TenantId
+                             AND b.AssessmentId = @AssessmentId
+                             AND b.Name = @Name
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await conn.QuerySingleOrDefaultAsync<AuditEvidenceBaselineRecord>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                AssessmentId = assessmentId, Name = baselineName,
+            }, cancellationToken: cancellationToken));
     }
 
     public async Task UpdateItemFreshnessAsync(
@@ -338,6 +532,43 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                         FreshnessStatus = (int)update.FreshnessStatus,
                     },
                     cancellationToken: cancellationToken));
+        }
+    }
+
+    public async Task UpdateItemFreshnessInScopeAsync(
+        ProjectScopeKey scope,
+        Guid auditEvidenceSnapshotId,
+        IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(updates);
+        if (updates.Count == 0) return;
+
+        const string sql = """
+                           UPDATE i
+                           SET FreshnessStatus = @FreshnessStatus
+                           FROM dbo.AuditEvidenceSnapshotItems i
+                           INNER JOIN dbo.AuditEvidenceSnapshots s
+                               ON s.TenantId = i.TenantId AND s.AuditEvidenceSnapshotId = i.AuditEvidenceSnapshotId
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = s.TenantId AND a.AssessmentId = s.AssessmentId
+                           WHERE i.TenantId = @TenantId
+                             AND i.AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId
+                             AND i.EvidenceRowId = @EvidenceRowId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        foreach (AuditEvidenceFreshnessItemUpdate update in updates)
+        {
+            int affected = await conn.ExecuteAsync(new CommandDefinition(sql, new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+                update.EvidenceRowId, FreshnessStatus = (int)update.FreshnessStatus,
+            }, cancellationToken: cancellationToken));
+            if (affected != 1)
+                throw new InvalidOperationException("Scoped audit evidence freshness mutation did not update exactly one record.");
         }
     }
 

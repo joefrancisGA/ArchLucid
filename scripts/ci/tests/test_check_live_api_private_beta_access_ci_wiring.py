@@ -151,6 +151,19 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_smoke_branch_wiring_requires_frozen_pin(self) -> None:
+        errors: list[str] = []
+
+        sut._require_smoke_branch_wiring(REPO_ROOT, errors)
+
+        self.assertEqual(errors, [])
+
+    def test_bff_origin_header_required_on_jwt_session_write(self) -> None:
+        helper_text = (REPO_ROOT / sut._PRIVATE_BETA_HELPER_REL).read_text(encoding="utf-8")
+
+        self.assertIn("Origin: appOrigin", helper_text)
+        self.assertIn("isSameOriginBffRequest", helper_text)
+
 
 if __name__ == "__main__":
     unittest.main()

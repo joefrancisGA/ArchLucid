@@ -285,7 +285,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             actor,
             repository,
             requirementRepository,
-            assessmentRepository,
+            new ProjectScopedAuditAssessmentRepositoryAdapter(assessmentRepository),
             new InMemoryArtifactBlobStore(),
             NullLogger<AuditManualEvidenceSubmissionService>.Instance);
     }

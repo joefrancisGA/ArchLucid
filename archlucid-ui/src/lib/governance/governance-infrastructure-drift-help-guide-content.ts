@@ -1,4 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
@@ -66,24 +68,34 @@ export type GovernanceInfrastructureDriftHelpTileItem = {
   readonly detail: string;
 };
 
-export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TILE_ITEMS: readonly GovernanceInfrastructureDriftHelpTileItem[] = [
-  {
-    label: "Current snapshot",
-    detail: "The inventory capture you are reviewing — pick this first before choosing a diff.",
-  },
-  {
-    label: "Diff vs other snapshot",
-    detail: "The baseline snapshot ArchLucid compares against the current capture.",
-  },
-  {
-    label: "Drift rows",
-    detail: "Property-level adds, updates, and deletes with risk and change-type labels.",
-  },
-  {
-    label: "Advisory Terraform",
-    detail: "Exports are reconstructed from snapshot evidence and require human review before any apply.",
-  },
-] as const;
+export function governanceInfrastructureDriftHelpTileItems(
+  productLineId: ProductLineId,
+): readonly GovernanceInfrastructureDriftHelpTileItem[] {
+  const productName = productLineDisplayName(productLineId);
+
+  return [
+    {
+      label: "Current snapshot",
+      detail: "The inventory capture you are reviewing — pick this first before choosing a diff.",
+    },
+    {
+      label: "Diff vs other snapshot",
+      detail: `The baseline snapshot ${productName} compares against the current capture.`,
+    },
+    {
+      label: "Drift rows",
+      detail: "Property-level adds, updates, and deletes with risk and change-type labels.",
+    },
+    {
+      label: "Advisory Terraform",
+      detail: "Exports are reconstructed from snapshot evidence and require human review before any apply.",
+    },
+  ] as const;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TILE_ITEMS =
+  governanceInfrastructureDriftHelpTileItems("architecture");
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_SECTION_TITLE = "Reading the drift table";
 

@@ -50,3 +50,5 @@ See [`.cursor/prompts/securenow-architect-00-index.md`](../../.cursor/prompts/se
 ## Global constraints
 
 See [`.cursor/prompts/securenow-architect-00-index.md`](../../.cursor/prompts/securenow-architect-00-index.md). Plane wins on conflict. Working-tree safety; one class per file; no `ConfigureAwait(false)` in tests; scoped compile; stage only files the prompt names.
+
+Inventory **Data flow** / **Data architecture** diagram modes (not path engines): [`SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) (**SN-DF-01–08**). Do not implement those from SA chats.
