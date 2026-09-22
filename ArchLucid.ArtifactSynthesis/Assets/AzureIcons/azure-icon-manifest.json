@@ -266,6 +266,14 @@
         "Microsoft.ContainerInstance/containerGroups"
       ],
       "file": "container-instances.png"
+    },
+    {
+      "category": "Integration",
+      "service": "Logic Apps",
+      "armTypes": [
+        "Microsoft.Logic/workflows"
+      ],
+      "file": "logic-apps.png"
     }
   ]
 }
