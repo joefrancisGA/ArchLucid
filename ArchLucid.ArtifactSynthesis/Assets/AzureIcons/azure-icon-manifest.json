@@ -199,6 +199,14 @@
         "Microsoft.Cdn/profiles/afdEndpoints"
       ],
       "file": "front-door.png"
+    },
+    {
+      "category": "Networking",
+      "service": "DNS Zone",
+      "armTypes": [
+        "Microsoft.Network/dnsZones"
+      ],
+      "file": "dns-zone.png"
     }
   ]
 }
