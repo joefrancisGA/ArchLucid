@@ -274,6 +274,15 @@
         "Microsoft.Logic/workflows"
       ],
       "file": "logic-apps.png"
+    },
+    {
+      "category": "Integration",
+      "service": "Event Grid Topics",
+      "armTypes": [
+        "Microsoft.EventGrid/topics",
+        "Microsoft.EventGrid/systemTopics"
+      ],
+      "file": "event-grid-topics.png"
     }
   ]
 }
