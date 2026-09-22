@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ type LoadState =
 const defaultDeploymentsJson = '{\n  "default": "gpt-4o"\n}';
 
 export function ModelGovernanceAzureOpenAiConnectionCard() {
+  const { localize } = useLocalizedProductCopy();
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [endpoint, setEndpoint] = useState("");
   const [secretName, setSecretName] = useState("");
@@ -175,7 +177,7 @@ export function ModelGovernanceAzureOpenAiConnectionCard() {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {MODEL_GOVERNANCE_CONNECTION_STATEMENT_COPY} Embeddings remain ArchLucid-managed.
+          {localize(MODEL_GOVERNANCE_CONNECTION_STATEMENT_COPY)}
         </p>
         <div className="space-y-2">
           <Label htmlFor="azure-openai-endpoint">Endpoint</Label>
