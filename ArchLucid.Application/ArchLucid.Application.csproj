@@ -77,6 +77,12 @@
       <LogicalName>ArchLucid.Application.Marketing.EvidencePack.AUDIT_COVERAGE_MATRIX.md</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+  <!-- Pinned azurerm v5.6.0 resource types. LogicalName is the manifest stream the catalog loader opens. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Runs\Orchestration\azurerm-resource-types-v5.6.0.txt">
+      <LogicalName>ArchLucid.Application.Runs.Orchestration.azurerm-resource-types-v5.6.0.txt</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />

@@ -2364,6 +2364,16 @@ jobs:
       - name: test_al_bug_ban_retired_classes.py
         run: python3 scripts/ci/tests/test_al_bug_ban_retired_classes.py
 
+      # ARCHLUCID_AZURERM_CATALOG_REMOTE=1 diffs the vendored slug file against
+      # hashicorp/terraform-provider-azurerm commit daf16e27e2d45d2fb6b7d83644dc201363b05e62.
+      - name: assert_azurerm_resource_catalog.py
+        env:
+          ARCHLUCID_AZURERM_CATALOG_REMOTE: "1"
+        run: python3 scripts/ci/assert_azurerm_resource_catalog.py
+
+      - name: test_assert_azurerm_resource_catalog.py
+        run: python3 scripts/ci/tests/test_assert_azurerm_resource_catalog.py
+
       - name: al-bug-lint-flake-log.py
         continue-on-error: true
         run: python3 scripts/agent/al-bug-lint-flake-log.py

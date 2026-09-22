@@ -1,5 +1,7 @@
 # ABQ-51 — Pin the AzureRM resource catalog and match source ids exactly
 
+**Status: implemented.** Do not re-run this prompt. Recognition is catalog membership in `TerraformAzurermResourceTypeCatalog`.
+
 **After ABQ-50.** Do not hunt. Do not append another `normalized.Contains("…")` fragment. Do not ship `gaf` / `gbg` / any new three-letter topology token. ABQ-50 still allows topology **zones**; it does not allow this treadmill to continue.
 
 ## Goal
