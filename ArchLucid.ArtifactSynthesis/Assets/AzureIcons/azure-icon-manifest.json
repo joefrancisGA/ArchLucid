@@ -207,6 +207,15 @@
         "Microsoft.Network/dnsZones"
       ],
       "file": "dns-zone.png"
+    },
+    {
+      "category": "Networking",
+      "service": "VPN Gateway",
+      "armTypes": [
+        "Microsoft.Network/virtualNetworkGateways"
+      ],
+      "file": "vpn-gateway.png",
+      "notes": "Matches gateways where gatewayType is VPN; ExpressRoute uses a separate icon when added."
     }
   ]
 }
