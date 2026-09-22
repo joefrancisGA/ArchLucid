@@ -236,7 +236,7 @@ describe("settings-master-page-model", () => {
     expect(hrefs).not.toContain("/administration/branding");
     expect(hrefs).not.toContain("/administration/scim-provisioning");
     expect(sectionIds).not.toContain("governance");
-    expect(sectionIds).not.toContain("ai-usage");
+    expect(sectionIds).toContain("ai-usage");
     expect(sectionIds).not.toContain("support");
     expect(sectionIds).toContain("integrations");
     expect(sectionIds).toContain("health-and-access");
