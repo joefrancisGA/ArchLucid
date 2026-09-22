@@ -25,13 +25,16 @@ export const INFRA_DIAGRAMS_DEFAULT_MODE = "executive";
 
 export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; readonly label: string }[] = [
   { value: "executive", label: "Executive" },
+  { value: "architecture", label: "Architecture" },
   { value: "network", label: "Network" },
+  { value: "security", label: "Security" },
   { value: "identity", label: "Identity" },
   { value: "data", label: "Data" },
   { value: "dataFlow", label: "Data flow diagram" },
   { value: "dataArchitecture", label: "Data architecture" },
   { value: "full", label: "Full subscription" },
   { value: "resourceGroup", label: "Pick a Resource Group" },
+  { value: "selectedResources", label: "Selected resources" },
   { value: "dependencyNeighborhood", label: "Dependency neighborhood" },
 ];
 

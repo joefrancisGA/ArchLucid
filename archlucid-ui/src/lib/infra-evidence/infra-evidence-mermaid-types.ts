@@ -66,6 +66,18 @@ export type InfraEvidenceMermaidRenderResponse = {
   collapseReport: InfraEvidenceMermaidCollapseReport | null;
   identityDiagramHints?: InfraEvidenceMermaidIdentityDiagramHints | null;
   completenessWarnings?: string[];
+  completenessSummary?: InfraEvidenceMermaidCompletenessSummary | null;
+};
+
+export type InfraEvidenceMermaidCompletenessSummary = {
+  mode: string;
+  visibleNodeCount: number;
+  visibleEdgeCount: number;
+  connectedComponentCount: number;
+  hiddenHopsUsedCount: number;
+  likelyInCollocationEdgeCount: number;
+  missingClasses: string[];
+  collectedClasses: string[];
 };
 
 export type InfraEvidenceMermaidRenderStatus = "Succeeded" | "Partitioned" | "Failed";

@@ -126,6 +126,7 @@ import {
   OPERATOR_HOME_READY_TO_BEGIN_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/architecture/architecture-routes";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
@@ -189,8 +190,8 @@ describe("OperatorHomeDualPathCards", () => {
     fireEvent.click(screen.getByTestId("operator-home-review-architecture-cta"));
 
     expect(screen.getByRole("button", { name: REVIEW_START_LOADING_LABEL })).toBeDisabled();
-    expect(prefetch).toHaveBeenCalledWith("/architecture/reviews/new");
-    expect(push).toHaveBeenCalledWith("/architecture/reviews/new");
+    expect(prefetch).toHaveBeenCalledWith(REVIEWS_NEW_GUIDED_INTAKE_HREF);
+    expect(push).toHaveBeenCalledWith(REVIEWS_NEW_GUIDED_INTAKE_HREF);
   });
 
   it("navigates to the workspace featured completed sample from the explore card", () => {

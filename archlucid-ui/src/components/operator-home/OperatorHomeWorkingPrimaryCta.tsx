@@ -5,7 +5,7 @@ import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { useWorkingCreateStartHref } from "@/hooks/use-working-start-href";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH } from "@/app/(operator)/_sections/operator-home-page-surface-copy";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
@@ -30,7 +30,6 @@ export function OperatorHomeWorkingPrimaryCta(
   const drafts = useArchitectureDraftRegistryEntries();
   const latestDraft = drafts[0] ?? null;
   const draftResume = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
-  const workingCreateStartHref = useWorkingCreateStartHref();
   const orientationCopy =
     props.suppressOrientationCopy === true ? null : OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH;
 
@@ -61,7 +60,7 @@ export function OperatorHomeWorkingPrimaryCta(
   return (
     <div className="space-y-2" data-testid="operator-home-working-primary-cta">
       <Button asChild variant={variant} size="sm" className="h-8 w-fit">
-        <Link href={workingCreateStartHref} data-testid="operator-home-working-new-review-primary">
+        <Link href={REVIEWS_NEW_GUIDED_INTAKE_HREF} data-testid="operator-home-working-new-review-primary">
           {resolveWorkingHomeSingleStartPrimaryLabel()}
         </Link>
       </Button>

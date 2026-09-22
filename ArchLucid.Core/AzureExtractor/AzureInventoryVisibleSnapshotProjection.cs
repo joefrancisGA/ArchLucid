@@ -252,6 +252,27 @@ public static class AzureInventoryVisibleSnapshotProjection
             return true;
         }
 
+        // Nested ARM children (subnets) are often omitted as ARG rows. Keep the hop when
+        // the missing endpoint sits under a visible parent so diagram compile can lift
+        // NIC / private-endpoint / App Service edges onto that parent.
+        if (fromVisible
+            && ArmResourceIdNormalizer.TryResolveVisibleAncestorArmId(
+                toAzureResourceId,
+                visibleArmIds,
+                out _))
+        {
+            return true;
+        }
+
+        if (toVisible
+            && ArmResourceIdNormalizer.TryResolveVisibleAncestorArmId(
+                fromAzureResourceId,
+                visibleArmIds,
+                out _))
+        {
+            return true;
+        }
+
         return false;
     }
 

@@ -19165,6 +19165,46 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidCompletenessSummary": {
+        "properties": {
+          "collectedClasses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "connectedComponentCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hiddenHopsUsedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "likelyInCollocationEdgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "missingClasses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "visibleEdgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "visibleNodeCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "InfraEvidenceMermaidComplexityMetrics": {
         "properties": {
           "crossSubgraphEdgeCount": {
@@ -19304,6 +19344,16 @@
               },
               {
                 "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseReport"
+              }
+            ]
+          },
+          "completenessSummary": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidCompletenessSummary"
               }
             ]
           },

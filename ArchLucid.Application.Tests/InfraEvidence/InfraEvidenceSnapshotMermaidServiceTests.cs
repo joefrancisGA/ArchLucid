@@ -354,14 +354,13 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         result.Value.Metrics.Should().NotBeNull();
         result.Value.Metrics!.NodeCount.Should().BeGreaterThanOrEqualTo(4);
         result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
-        result.Value.Mermaid.Should().Contain("app-nic");
         result.Value.Mermaid.Should().Contain("core-vnet");
         result.Value.Mermaid.Should().Contain("edge-nsg");
         result.Value.Mermaid.Should().Contain("peer-vnet");
-        result.Value.Mermaid.Should().Contain("connects");
         result.Value.Mermaid.Should().Contain("peering");
         result.Value.Mermaid.Should().Contain("app-vm");
         result.Value.Mermaid.Should().Contain(@"""in""");
+        result.Value.Mermaid.Should().NotContain("app-nic");
     }
 
     [Fact]
@@ -398,8 +397,10 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             DiagramMode.Network);
 
         ast.Nodes.Should().Contain(node => node.Label == "app-vm");
+        ast.Nodes.Should().NotContain(node => node.Label == "app-nic");
         ast.Edges.Should().Contain(edge => edge.Label == "in");
-        ast.Edges.Should().Contain(edge => edge.Label == "connects");
+        ast.Edges.Should().Contain(edge => edge.Label == "contains");
+        ast.Edges.Should().Contain(edge => edge.Label == "peering");
     }
 
     [Fact]

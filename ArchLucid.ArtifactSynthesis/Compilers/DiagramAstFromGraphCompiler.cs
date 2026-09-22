@@ -38,6 +38,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             topologyNodes = InventoryConnectionEndpointIncluder.Include(graph, topologyNodes, mode);
         }
 
+        if (!options.IncludePrivateEndpointNodes)
+        {
+            topologyNodes = NetworkDiagramNodeFilter.ExcludePrivateEndpoints(topologyNodes);
+        }
+
         HashSet<string> includedNodeIds = topologyNodes
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
@@ -112,6 +117,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             });
         }
 
+
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
         if (mode == DiagramMode.Executive)
@@ -123,14 +129,19 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
 
-        if (mode is not DiagramMode.Network && !isSecureNowDataMode)
+        if (!options.IncludePrivateEndpointNodes)
         {
             HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
                 ast,
                 graph.Nodes,
                 graph.Edges,
                 nodeIdMap);
-            DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
+
+            if (!options.IncludePrivateEndpointNodes)
+            {
+                DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
+            }
+
         }
 
         if (DiagramNicCollapseApplier.ShouldCollapseNetworkInterfaces(mode))
@@ -140,11 +151,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
-        if (!isSecureNowDataMode)
-        {
-            DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
-        }
+        DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
+        DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
+        DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
 
+        DiagramInventoryConnectionRollupApplier.Apply(ast);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
@@ -253,8 +264,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                         IncludeInventoryConnectedVirtualMachines(
                             graph,
                             NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                                NetworkDiagramNodeFilter.ExcludePrivateEndpoints(
-                                    FilterByCategories(nodes, GraphTopologyCategories.Network))))));
+                                FilterByCategories(nodes, GraphTopologyCategories.Network)))));
             case DiagramMode.Security:
                 return ApplyNetworkInterfaceCollapse(
                     graph,
@@ -274,12 +284,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     graph,
                     mode,
                     NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        ExcludeExternalSourceNodes(
-                            NetworkDiagramNodeFilter.ExcludePrivateEndpoints(nodes))));
+                        ExcludeExternalSourceNodes(nodes)));
             case DiagramMode.ResourceGroup:
-                return FilterByResourceGroup(nodes, options.ResourceGroupName);
+                return FilterByResourceGroup(graph, nodes, options.ResourceGroupName);
             case DiagramMode.SelectedResources:
-                return FilterBySelectedNodes(nodes, options.SelectedNodeIds);
+                return FilterBySelectedNodes(graph, nodes, options.SelectedNodeIds);
             case DiagramMode.DependencyNeighborhood:
                 return FilterByNeighborhood(graph, nodes, options);
             default:
@@ -407,22 +416,33 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .ToList();
     }
 
-    private static List<GraphNode> FilterByResourceGroup(List<GraphNode> nodes, string? resourceGroupName)
+    private static List<GraphNode> FilterByResourceGroup(
+        GraphSnapshot graph,
+        List<GraphNode> nodes,
+        string? resourceGroupName)
     {
         if (string.IsNullOrWhiteSpace(resourceGroupName))
         {
             return [];
         }
 
-        return nodes
+        HashSet<string> selectedIds = nodes
             .Where(node => string.Equals(
                 DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
                 resourceGroupName,
                 StringComparison.OrdinalIgnoreCase))
-            .ToList();
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        AddCitedAttachmentEndpoints(graph, selectedIds);
+
+        return nodes.Where(node => selectedIds.Contains(node.NodeId)).ToList();
     }
 
-    private static List<GraphNode> FilterBySelectedNodes(List<GraphNode> nodes, IReadOnlyList<string>? selectedNodeIds)
+    private static List<GraphNode> FilterBySelectedNodes(
+        GraphSnapshot graph,
+        List<GraphNode> nodes,
+        IReadOnlyList<string>? selectedNodeIds)
     {
         if (selectedNodeIds is null || selectedNodeIds.Count == 0)
         {
@@ -431,9 +451,32 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         HashSet<string> selected = selectedNodeIds.ToHashSet(StringComparer.Ordinal);
 
-        return nodes
-            .Where(node => selected.Contains(node.NodeId))
-            .ToList();
+        AddCitedAttachmentEndpoints(graph, selected);
+
+        return nodes.Where(node => selected.Contains(node.NodeId)).ToList();
+    }
+
+    private static void AddCitedAttachmentEndpoints(GraphSnapshot graph, HashSet<string> selectedIds)
+    {
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (edge.InferenceSource?.Equals(
+                    GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                    StringComparison.OrdinalIgnoreCase) == true)
+            {
+                continue;
+            }
+
+            if (selectedIds.Contains(edge.FromNodeId))
+            {
+                selectedIds.Add(edge.ToNodeId);
+            }
+
+            if (selectedIds.Contains(edge.ToNodeId))
+            {
+                selectedIds.Add(edge.FromNodeId);
+            }
+        }
     }
 
     private static List<GraphNode> FilterByNeighborhood(

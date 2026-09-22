@@ -52,6 +52,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAppKeyVaultRef = "inventory-app-key-vault-ref";
 
+    public const string InventoryPropertyArmId = "inventory-property-arm-id";
+
     public const string InventoryHostnameInferredTarget = "inventory-hostname-inferred-target";
 
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
@@ -117,6 +119,12 @@ public static class GraphEdgeInferenceSources
     public const string InventoryAdfWritesTo = "inventory-adf-writes-to";
 
     public const string InventoryLayoutVmVnet = "inventory-layout-vm-vnet";
+
+    /// <summary>
+    ///     Same-resource-group collocation (Logic App ↔ API connection, single VNet placement)
+    ///     when a cited ARM association row is missing from the snapshot.
+    /// </summary>
+    public const string InventoryResourceGroupCollocation = "inventory-rg-collocation";
 
     public const string InventoryEffectiveNsg = "inventory-effective-nsg";
 

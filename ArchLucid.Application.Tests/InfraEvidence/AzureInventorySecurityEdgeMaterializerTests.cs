@@ -307,6 +307,73 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_nested_subnet_emits_contains_to_virtual_network()
+    {
+        const string vnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/app";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId = subnet,
+                        ResourceType = "Microsoft.Network/virtualNetworks/subnets",
+                        Name = "app",
+                    },
+                ],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle(relationship =>
+            relationship.RelationshipType == GraphEdgeTypes.Contains
+            && relationship.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(vnet)
+            && relationship.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(subnet)
+            && relationship.InferenceSource == GraphEdgeInferenceSources.InventoryExplicitParentChild);
+    }
+
+    [Fact]
+    public void Materialize_top_level_virtual_machine_does_not_emit_contains()
+    {
+        const string virtualMachine =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId = virtualMachine,
+                        ResourceType = "Microsoft.Compute/virtualMachines",
+                        Name = "vm1",
+                    },
+                ],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().NotContain(relationship =>
+            relationship.RelationshipType == GraphEdgeTypes.Contains);
+    }
+
+    [Fact]
     public void Materialize_avd_session_host_association_emits_observed_connects_to_vm()
     {
         const string sessionHost =

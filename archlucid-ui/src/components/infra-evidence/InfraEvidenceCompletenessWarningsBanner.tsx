@@ -7,9 +7,11 @@ import {
   resolveInfraEvidenceCompletenessWarningPresentation,
   snapshotIncludesTier1AppSettingHosts,
 } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
+import type { InfraEvidenceMermaidCompletenessSummary } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 
 export type InfraEvidenceCompletenessWarningsBannerProps = {
   readonly warnings: readonly string[];
+  readonly summary?: InfraEvidenceMermaidCompletenessSummary | null;
 };
 
 export function InfraEvidenceCompletenessWarningsBanner(
@@ -24,6 +26,7 @@ export function InfraEvidenceCompletenessWarningsBanner(
   }
 
   const tier1HostsIncluded = snapshotIncludesTier1AppSettingHosts(warnings);
+  const summary = props.summary;
 
   return (
     <div
@@ -36,6 +39,16 @@ export function InfraEvidenceCompletenessWarningsBanner(
       <p className={cn("m-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
         These warnings do not block rendering. Connection lines may be missing or weaker than the underlying authorization facts.
       </p>
+      {summary ? (
+        <p className={cn("m-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
+          {summary.visibleNodeCount} resources in {summary.connectedComponentCount} connected components.{" "}
+          {summary.visibleEdgeCount} visible relationships
+          {summary.hiddenHopsUsedCount > 0 ? ` (${summary.hiddenHopsUsedCount} from hidden attachment hops)` : ""}.
+          {summary.likelyInCollocationEdgeCount > 0
+            ? ` ${summary.likelyInCollocationEdgeCount} likely-in collocation edges.`
+            : ""}
+        </p>
+      ) : null}
       {tier1HostsIncluded ? (
         <p className={cn("m-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
           App setting hostnames are included in this package (values are never collected).
