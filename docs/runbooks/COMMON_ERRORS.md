@@ -66,7 +66,7 @@ See **[SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md)**.
 
 **Resolution:** For local simulator development, set **`AgentExecution:Mode=Simulator`** (or **`AgentExecution__Mode=Simulator`**) and restart. For Real mode, configure **`AzureOpenAI:Endpoint`**, **`DeploymentName`**, and **`ApiKey`** (user secrets / **`AZURE_OPENAI_*`**) or use **`dotnet run --launch-profile http-real`** after those secrets are set. See [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) and **`appsettings.Real.sample.json`**. Production outage: [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md) (retry → circuit → optional same-family FallbackLlm; never Simulator-fail-over for buyer Real runs).
 
-**Prevention:** Do not put Real mode or partial Azure OpenAI into the always-loaded **`appsettings.Pilot.json`**. Maintain **[RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md)** non-default tuned profile per environment.
+**Prevention:** Do not put Real mode or partial Azure OpenAI into **`appsettings.Pilot.json`**; it is loaded for non-Development hosts. Maintain **[RESILIENCE_CONFIGURATION.md](RESILIENCE_CONFIGURATION.md)** non-default tuned profile per environment.
 
 ---
 
