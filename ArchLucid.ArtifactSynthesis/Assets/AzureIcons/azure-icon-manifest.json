@@ -283,6 +283,14 @@
         "Microsoft.EventGrid/systemTopics"
       ],
       "file": "event-grid-topics.png"
+    },
+    {
+      "category": "Integration",
+      "service": "Event Grid Domains",
+      "armTypes": [
+        "Microsoft.EventGrid/domains"
+      ],
+      "file": "event-grid-domains.png"
     }
   ]
 }
