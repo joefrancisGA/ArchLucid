@@ -69,6 +69,29 @@ try {
     if ($normalized -match '(\.csproj$|Directory\.Build\.props$|Directory\.Packages\.props$|\.editorconfig$|\.ruleset$)') {
         Write-Advisory 'Build or analysis configuration change: preserve Release warning-as-error and analyzer coverage; add a targeted rule only when it prevents a demonstrated recurring defect.'
     }
+    if ($normalized -match '(^|\n)(.*Tests?/|.*\.Tests/|stryker-config|mutation)') {
+        Write-Advisory 'Test-surface change: consider mutation testing for high-risk domain logic and confirm the new test fails when the intended behavior is deliberately broken.'
+    }
+    if ($normalized -match '(Api\.Client|openapi|OpenAPI|contract|Contracts|\.schema\.json$)') {
+        Write-Advisory 'Contract change: add consumer-driven coverage for SDK and UI callers, including an older-client or unknown-field compatibility case.'
+    }
+    if ($normalized -match '(^|\n)(deploy/|infra/|\.github/workflows/|Dockerfile|helm|kustomize|release|rollout)') {
+        Write-Advisory 'Deployment change: define a production-like canary check, its abort threshold, and the exact rollback signal before rollout.'
+        Write-Advisory 'Deployment or infrastructure change: rehearse the rollback or restore path periodically and link the runbook or evidence in the change.'
+    }
+    if ($normalized -match '(^|\n)(ArchLucid\.Api/Controllers/|.*Controller\.cs$|.*Endpoint.*\.cs$)') {
+        Write-Advisory 'Endpoint change: verify rate-limit and authorization metadata are present and covered by a negative test for every newly exposed operation.'
+    }
+    if ($normalized -match '(^|\n)(ArchLucid\.(Integrations|Worker|Jobs|AgentRuntime)/|.*(Integration|Worker|Job|Handler).*\.cs$)') {
+        Write-Advisory 'External or asynchronous dependency change: add a failure-injection or chaos case for timeout, retry, duplicate delivery, and partial response behavior.'
+    }
+    if ($normalized -match '(\.json$|\.schema\.json$|Dto|Contract|Event|Message|Serialization|Serializer)') {
+        Write-Advisory 'Wire or persisted-shape change: compare the generated/serialized diff and test renamed fields, added enum values, unknown fields, defaults, and round trips.'
+    }
+    if ($normalized -match '(\.sql$|Migration|DbUp|lock$|package-lock|Directory\.Packages\.props|generated|OpenAPI|openapi)') {
+        Write-Advisory 'Generated, migration, or dependency diff: review the generated artifact and lock/schema delta separately from source changes before approval.'
+    }
+    Write-Advisory 'For recurring escapes, tag the subsystem and failure class in the defect log; use the highest-repeat category to choose the next prevention investment.'
 
     Write-Advisory 'For a bug fix, retain a reproducible failing scenario, add a focused regression test whenever feasible, and check the nearest boundary case.'
     Write-Advisory 'Record one focused local command or manual scenario that a reviewer can repeat.'
