@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -5,6 +7,7 @@ import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
@@ -17,8 +20,8 @@ import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/he
 import {
   LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_CLAIM_DISCIPLINE,
   LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_SAFETY_HEADING_ID,
-  LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_SOURCES,
   LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_TOPIC_LABEL,
+  livelihoodGradeNoHelpExtractionFidelitySources,
 } from "@/lib/livelihood-grade-no-help-extraction-fidelity-evidence-copy";
 import {
   LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_ADR_REFERENCES,
@@ -92,6 +95,8 @@ export function HelpExtractionFidelityGuideView(
 ): React.ReactElement {
   void props.markdown;
   const { entry } = props;
+  const { productLine } = useProductLine();
+  const sources = livelihoodGradeNoHelpExtractionFidelitySources(productLine);
   const contentGridClass = resolveHelpPageContentGridClass(
     LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_GUIDE_HEADINGS.length,
   );
@@ -303,7 +308,7 @@ export function HelpExtractionFidelityGuideView(
             >
               <HelpSectionHeading id="help-extraction-fidelity-where-to-go-next">Where to go next</HelpSectionHeading>
               <ul className={cn("m-0 list-none space-y-2 p-0", HELP_PAGE_LAYOUT.readingBody)}>
-                {LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_SOURCES.map((source) => (
+                {sources.map((source) => (
                   <li key={source.href}>
                     <Link className={OPERATOR_LINK.nav} href={source.href}>
                       {source.label}
