@@ -3,11 +3,7 @@
 const TRAILING_CREATE_SUFFIX = /-\d{10,}-[a-z0-9]+$/i;
 
 export function isPrivateBetaCreateIdentityConflict(status: number, body: string): boolean {
-  if (status === 409 && /already exists in this workspace/i.test(body)) {
-    return true;
-  }
-
-  return status === 400 && /partial findings|partial finding|haltOnPartialFindings/i.test(body);
+  return status === 409 && /already exists in this workspace/i.test(body);
 }
 
 function stripCreateSuffix(value: string, fallback: string): string {

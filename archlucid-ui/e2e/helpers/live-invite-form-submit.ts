@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
-import { dismissBlockingModalOverlays } from "./dismiss-blocking-modal-overlays";
+import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
 
 async function openInviteForm(page: Page): Promise<Locator> {
   const inviteForm = page.getByTestId("settings-roles-invite-form");
@@ -115,7 +115,7 @@ export async function submitAdminInviteFromUsersUi(
     { timeout: 90_000 },
   );
 
-  await submitButton.click();
+  await clickThroughBlockingOverlays(page, submitButton);
 
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";

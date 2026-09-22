@@ -565,16 +565,10 @@ export async function warmPrivateBetaCreateRunPipeline(
   try {
     await createRun(
       request,
-      enrichArchitectureRequestBody({
-        requestId: `E2E-BETA-PIPELINE-WARM-${Date.now()}`,
-        description: liveE2eArchitectureDescription("Private beta create-run pipeline warm-up."),
-        systemName: "PrivateBetaPipelineWarm",
-        environment: "prod",
-        cloudProvider: 1,
-        constraints: [] as string[],
-        requiredCapabilities: ["SQL"],
-        assumptions: [] as string[],
-        priorManifestVersion: null as string | null,
+      liveE2eSimulatorFriendlyArchitectureCreateBody({
+        requestIdPrefix: "E2E-BETA-PIPELINE-WARM",
+        systemNamePrefix: "PrivateBetaPipelineWarm",
+        intent: "Private beta create-run pipeline warm-up for secure Azure enterprise RAG.",
       }),
       tenantScope,
     );

@@ -147,6 +147,13 @@ warm_path_post() {
     echo "Warm ${label} attempt ${attempt}/${max_attempts} failed (HTTP ${status}); retrying in ${SLEEP_SECONDS}s..."
     sleep "${SLEEP_SECONDS}"
     attempt=$((attempt + 1))
+
+    # Partial create-run failures can persist requestId/systemName; rotate identity before retry.
+    if [ "${label}" = "create architecture run" ]; then
+      local retry_suffix
+      retry_suffix="$(date +%s)-$$-${attempt}"
+      body="{\"requestId\":\"WARM-PRIVATE-BETA-${retry_suffix}\",\"description\":\"Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.\",\"systemName\":\"PrivateBetaPipelineWarm-${retry_suffix}\",\"environment\":\"prod\",\"cloudProvider\":1,\"constraints\":[\"Private endpoints required\",\"Use managed identity\"],\"requiredCapabilities\":[\"Azure AI Search\",\"SQL\",\"Managed Identity\",\"Private Networking\"],\"assumptions\":[],\"priorManifestVersion\":null}"
+    fi
   done
 }
 
@@ -184,7 +191,7 @@ if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
   # A hung 120s POST does not help invite-wave Playwright and delays JWT refresh.
   if curl -fsS --max-time 5 "${API_URL}/health/ready" >/dev/null; then
     warm_suffix="$(date +%s)-$$"
-    CREATE_BODY="{\"requestId\":\"WARM-PRIVATE-BETA-${warm_suffix}\",\"description\":\"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.\",\"systemName\":\"PrivateBetaPipelineWarm-${warm_suffix}\",\"environment\":\"prod\",\"cloudProvider\":1,\"constraints\":[],\"requiredCapabilities\":[\"SQL\"],\"assumptions\":[],\"priorManifestVersion\":null}"
+    CREATE_BODY="{\"requestId\":\"WARM-PRIVATE-BETA-${warm_suffix}\",\"description\":\"Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.\",\"systemName\":\"PrivateBetaPipelineWarm-${warm_suffix}\",\"environment\":\"prod\",\"cloudProvider\":1,\"constraints\":[\"Private endpoints required\",\"Use managed identity\"],\"requiredCapabilities\":[\"Azure AI Search\",\"SQL\",\"Managed Identity\",\"Private Networking\"],\"assumptions\":[],\"priorManifestVersion\":null}"
     warm_path_post_optional \
       "create architecture run" \
       "${API_URL}/v1/architecture/request" \

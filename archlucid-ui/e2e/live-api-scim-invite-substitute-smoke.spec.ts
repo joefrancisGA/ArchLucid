@@ -4,7 +4,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { dismissBlockingModalOverlays } from "./helpers/dismiss-blocking-modal-overlays";
+import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { resolveLiveJwtMode } from "./helpers/live-api-client";
@@ -42,9 +42,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
 
-    await dismissBlockingModalOverlays(page);
-
-    await page.getByTestId("scim-create-token").click();
+    await clickThroughBlockingOverlays(page, page.getByTestId("scim-create-token"));
 
     const createDialog = page.getByRole("alertdialog");
     await expect(createDialog).toBeVisible({ timeout: 15_000 });

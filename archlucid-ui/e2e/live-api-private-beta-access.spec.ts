@@ -42,7 +42,6 @@ import {
   enrichArchitectureRequestBody,
   getRunDetailsWithTransientRetries,
   liveApiBase,
-  liveE2eArchitectureDescription,
   liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
   resolveArchitectureIdentityIdForRun,
   resolveLiveJwtMode,
@@ -52,6 +51,7 @@ import {
   waitForLiveApiReady,
   warmPrivateBetaCreateRunPipeline,
 } from "./helpers/live-api-client";
+import { liveE2eSimulatorFriendlyArchitectureCreateBody } from "./helpers/live-api-payloads";
 
 const expectedScope = {
   tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
@@ -351,16 +351,10 @@ test.describe(
 
     const { runId } = await createRun(
       request,
-      enrichArchitectureRequestBody({
-        requestId: `E2E-BETA-ACCESS-${Date.now()}`,
-        description: liveE2eArchitectureDescription("Private beta access-path smoke architecture review."),
-        systemName: "PrivateBetaAccessSmoke",
-        environment: "prod",
-        cloudProvider: 1,
-        constraints: [] as string[],
-        requiredCapabilities: ["SQL"],
-        assumptions: [] as string[],
-        priorManifestVersion: null as string | null,
+      liveE2eSimulatorFriendlyArchitectureCreateBody({
+        requestIdPrefix: "E2E-BETA-ACCESS",
+        systemNamePrefix: "PrivateBetaAccessSmoke",
+        intent: "Private beta access-path smoke architecture review for secure Azure enterprise RAG.",
       }),
       scope,
     );

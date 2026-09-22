@@ -6,7 +6,7 @@ import {
 } from "./private-beta-create-identity";
 
 describe("private-beta create identity", () => {
-  it("treats name collisions and partial-findings halts as retryable identity conflicts", () => {
+  it("treats workspace name collisions as retryable identity conflicts", () => {
     expect(
       isPrivateBetaCreateIdentityConflict(
         409,
@@ -18,7 +18,7 @@ describe("private-beta create identity", () => {
         400,
         "Findings snapshot is only partially complete; AuthorityPipeline:HaltOnPartialFindings is true.",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(isPrivateBetaCreateIdentityConflict(401, "unauthorized")).toBe(false);
     expect(isPrivateBetaCreateIdentityConflict(409, "manifest could not be loaded yet")).toBe(false);
   });

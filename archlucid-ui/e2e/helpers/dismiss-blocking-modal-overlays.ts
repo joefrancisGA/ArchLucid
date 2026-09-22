@@ -1,16 +1,16 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 /** Radix Dialog / AlertDialog backdrop that intercepts pointer events when left open. */
 const BLOCKING_MODAL_OVERLAY =
   'div.fixed.inset-0.z-50.bg-neutral-900\\/50[data-state="open"]';
 
-/** Closes stray Radix modal layers so Playwright clicks reach the intended control. */
-export async function dismissBlockingModalOverlays(page: Page): Promise<void> {
+/** Best-effort dismissal of stray Radix modal layers. Returns true when no blocking overlay remains. */
+export async function dismissBlockingModalOverlays(page: Page): Promise<boolean> {
   const overlay = page.locator(BLOCKING_MODAL_OVERLAY);
 
   for (let attempt = 0; attempt < 4; attempt += 1) {
     if ((await overlay.count()) === 0) {
-      return;
+      return true;
     }
 
     const openDialog = page.getByRole("alertdialog").or(page.getByRole("dialog"));
@@ -30,7 +30,28 @@ export async function dismissBlockingModalOverlays(page: Page): Promise<void> {
     await expect(overlay).toHaveCount(0, { timeout: 5_000 }).catch(() => undefined);
   }
 
-  if ((await overlay.count()) > 0) {
-    throw new Error("Blocking modal overlay remained open after dismissal attempts.");
+  return (await overlay.count()) === 0;
+}
+
+/** Clicks through a stuck Radix backdrop when normal Playwright clicking is intercepted. */
+export async function clickThroughBlockingOverlays(
+  page: Page,
+  target: Locator,
+  options?: { force?: boolean },
+): Promise<void> {
+  await dismissBlockingModalOverlays(page);
+
+  try {
+    await target.click({ timeout: 15_000, force: options?.force });
+    return;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+
+    if (!/intercepts pointer events/i.test(message)) {
+      throw error;
+    }
   }
+
+  await dismissBlockingModalOverlays(page);
+  await target.click({ timeout: 15_000, force: true });
 }
