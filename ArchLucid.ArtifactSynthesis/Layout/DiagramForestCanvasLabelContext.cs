@@ -9,22 +9,26 @@ public sealed class DiagramForestCanvasLabelContext
     private readonly IReadOnlyList<string> _peerResourceGroupNames;
     private readonly DiagramForestLayoutOptions _options;
     private readonly HashSet<string> _suppressResourceGroupCaptionNodeIds;
+    private readonly AzureArchitectureIconCatalog _iconCatalog;
 
     private DiagramForestCanvasLabelContext(
         IReadOnlyList<string> peerResourceNames,
         IReadOnlyList<string> peerResourceGroupNames,
         DiagramForestLayoutOptions options,
-        HashSet<string> suppressResourceGroupCaptionNodeIds)
+        HashSet<string> suppressResourceGroupCaptionNodeIds,
+        AzureArchitectureIconCatalog iconCatalog)
     {
         _peerResourceNames = peerResourceNames;
         _peerResourceGroupNames = peerResourceGroupNames;
         _options = options;
         _suppressResourceGroupCaptionNodeIds = suppressResourceGroupCaptionNodeIds;
+        _iconCatalog = iconCatalog;
     }
 
     public static DiagramForestCanvasLabelContext Create(
         IReadOnlyList<DiagramNode> nodes,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        AzureArchitectureIconCatalog? iconCatalog = null)
     {
         ArgumentNullException.ThrowIfNull(nodes);
         ArgumentNullException.ThrowIfNull(options);
@@ -48,7 +52,8 @@ public sealed class DiagramForestCanvasLabelContext
             peerResourceNames,
             peerResourceGroupNames,
             options,
-            suppressResourceGroupCaptionNodeIds);
+            suppressResourceGroupCaptionNodeIds,
+            iconCatalog ?? AzureArchitectureIconCatalog.Load());
     }
 
     public DiagramForestNodeMetrics Measure(DiagramNode node)
@@ -108,6 +113,7 @@ public sealed class DiagramForestCanvasLabelContext
             ResourceGroupLines: resourceGroupLines,
             Caption: caption,
             PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType),
+            AzureIcon: _iconCatalog.Resolve(node.ArmResourceType),
             HasPrivateEndpointAccess: node.HasPrivateEndpointAccess,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
     }

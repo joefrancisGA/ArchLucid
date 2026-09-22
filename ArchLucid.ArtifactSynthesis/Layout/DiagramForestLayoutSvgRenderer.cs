@@ -603,9 +603,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             DiagramForestLegendSvgEmitter.CollectUsedKinds(placements.Select(placement => placement.Metrics).ToList());
 
         XNamespace svgNamespace = "http://www.w3.org/2000/svg";
+        XNamespace xlinkNamespace = "http://www.w3.org/1999/xlink";
         XElement root = new(
             svgNamespace + "svg",
-            new XAttribute("xmlns", svgNamespace.NamespaceName));
+            new XAttribute("xmlns", svgNamespace.NamespaceName),
+            new XAttribute(XNamespace.Xmlns + "xlink", xlinkNamespace.NamespaceName));
 
         DiagramForestEdgeArrowMarkerSvgEmitter.EmitDefs(svgNamespace, root);
 
