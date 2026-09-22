@@ -369,7 +369,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
   {
     "slug": "sketch-a-change",
     "title": "Sketch a change",
-    "summary": "Cheap labeled envelope on the architecture desk — Rehearsal-stamped clone from snapshot after spawn lock (ADR 0092).",
+    "summary": "Working help — Practice-labeled architecture desk cheap envelope after spawn lock; clone from snapshot, branch cap, and no unseal (CE-019 / ADR 0092).",
     "audience": "operator",
     "sourcePaths": [],
     "lastReviewed": "2026-09-12",

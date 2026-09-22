@@ -76,6 +76,23 @@ function maxArchitectureMutationAttempts(): number {
   return getMaxInfrastructureMutationAttempts();
 }
 
+function privateBetaCreateRunTimeoutError(error: unknown): Error {
+  const message = error instanceof Error ? error.message : String(error);
+  const apiLog =
+    process.env.ARCHLUCID_API_LOG_FILE ??
+    `${process.env.RUNNER_TEMP ?? "<runner-temp>"}/live-api-beta-access.log`;
+
+  return new Error(
+    `Private-beta create-run timed out after one ${architectureRequestAttemptHttpTimeoutMs()}ms attempt: ${message}. Inspect API logs at ${apiLog} and the Playwright test-results directory.`,
+  );
+}
+
+/** Keep private-beta create requests unique so a prior failed run cannot cause a 409 name conflict. */
+export function uniquePrivateBetaSystemName(prefix: string): string {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `${prefix}-${suffix}`;
+}
+
 async function ensurePrivateBetaApiReadyBeforeCreateRun(request: APIRequestContext): Promise<void> {
   if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS !== "1") {
     return;
@@ -171,6 +188,10 @@ export async function createRun(
 
       const isPerAttemptTimeout = error instanceof Error && /timeout .* exceeded|timed out/i.test(message);
 
+      if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1" && isPerAttemptTimeout) {
+        throw privateBetaCreateRunTimeoutError(error);
+      }
+
       if (
         (isPerAttemptTimeout || isTransientLiveApiTransportError(error)) &&
         attempt < maxArchitectureMutationAttempts() - 1
@@ -213,7 +234,14 @@ export async function createRun(
           " Hint: use auth lane matching the API — DevelopmentBypass expects no Bearer/X-Api-Key (omit LIVE_JWT_TOKEN and LIVE_API_KEY); JwtBearer CI needs LIVE_JWT_TOKEN; ApiKey needs LIVE_API_KEY. Confirm LIVE_API_URL points at ArchLucid.Api.";
       }
 
-      throw new Error(`POST /v1/architecture/request failed ${status}: ${responseBody.slice(0, 500)}${hint}`);
+      if (status === 400 && /partial findings|partial finding/i.test(responseBody)) {
+        hint =
+          " Hint: the API rejected a partial-findings payload; use a fresh requestId/systemName and inspect the findings/constraints fields.";
+      }
+
+      throw new Error(
+        `POST /v1/architecture/request failed ${status}: ${responseBody.slice(0, 1000)}${hint}`,
+      );
     }
 
     const created = (await res.json()) as { run?: { runId?: string } };
@@ -538,7 +566,7 @@ export async function warmPrivateBetaCreateRunPipeline(
       enrichArchitectureRequestBody({
         requestId: `E2E-BETA-PIPELINE-WARM-${Date.now()}`,
         description: liveE2eArchitectureDescription("Private beta create-run pipeline warm-up."),
-        systemName: "PrivateBetaPipelineWarm",
+        systemName: uniquePrivateBetaSystemName("PrivateBetaPipelineWarm"),
         environment: "prod",
         cloudProvider: 1,
         constraints: [] as string[],

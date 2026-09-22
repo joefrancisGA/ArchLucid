@@ -107,7 +107,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | EPX | `/help/proxy-timeout-real-execute` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | SEX | `/help/sealed-record-vs-decision-register` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HE2 | `/help/security-evidence-paths` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
-| HEK | `/help/sketch-a-change` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEK | `/help/sketch-a-change` | 0.02% | 78,76 | 0 | 2 | Help topic | No | SecureNow sketch-a-change help Phase 2: Record/Practice vocabulary, provenance, desk/palette paths, irreversible seal boundary, comparison gate, branch cap/no-unseal rules, anchors/TOC, applicability, related/help links, and Practice status; 2026-09-21 al-ui-rate: shipped safe backlog |
 | HST | `/help/structured-brief` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HSY | `/help/system-gravity` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEH | `/help/which-mode-am-i-in` | 0.02% | 0 | 0 | 2 | Help topic | No | None |

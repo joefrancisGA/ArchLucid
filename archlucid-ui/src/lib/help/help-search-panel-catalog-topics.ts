@@ -182,6 +182,25 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     },
   },
   {
+    id: "sketch-a-change",
+    title: "Sketch a change",
+    description:
+      "Working help — clone from sealed snapshot after spawn lock; Practice sketch, R12 branch cap, no unseal (CE-019 / ADR 0092).",
+    keywords: [
+      "sketch a change",
+      "architecture sketch envelope",
+      "clone from snapshot",
+      "spawn lock",
+      "cheap envelope sketch",
+      "practice sketch",
+      "ce-019",
+      "adr 0092",
+      "branch cap",
+      "no unseal",
+    ],
+    action: { kind: "route", href: "/help/sketch-a-change", helpSlug: "sketch-a-change" },
+  },
+  {
     id: "which-mode-am-i-in",
     title: "Which mode am I in?",
     description:
@@ -638,6 +657,9 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "policy cheap envelope": ["impact-preview-vs-architecture-envelope"],
   "architecture sketch envelope": ["impact-preview-vs-architecture-envelope", "sketch-a-change"],
   "impact preview vs sketch": ["impact-preview-vs-architecture-envelope"],
+  "sketch a change": ["sketch-a-change"],
+  "clone from snapshot": ["sketch-a-change"],
+  "spawn lock clone": ["sketch-a-change"],
   "cheap envelope": ["impact-preview-vs-architecture-envelope"],
   "which mode": ["which-mode-am-i-in"],
   "am i in working": ["which-mode-am-i-in"],
