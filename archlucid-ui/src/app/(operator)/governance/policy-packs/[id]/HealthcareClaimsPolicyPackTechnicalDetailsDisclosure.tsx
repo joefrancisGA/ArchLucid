@@ -12,8 +12,14 @@ import {
 import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { cn } from "@/lib/utils";
 
+type HealthcareClaimsPolicyPackTechnicalDetailsDisclosureProps = {
+  readonly policyPackId?: string;
+};
+
 /** Healthcare claims policy pack technical metadata disclosure synced to URL. */
-export function HealthcareClaimsPolicyPackTechnicalDetailsDisclosure(): ReactElement {
+export function HealthcareClaimsPolicyPackTechnicalDetailsDisclosure(
+  props: HealthcareClaimsPolicyPackTechnicalDetailsDisclosureProps = {},
+): ReactElement {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -53,6 +59,11 @@ export function HealthcareClaimsPolicyPackTechnicalDetailsDisclosure(): ReactEle
         Technical identifiers &amp; lifecycle metadata
       </CollapsibleTrigger>
       <CollapsibleContent className={cn("mt-2 space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {props.policyPackId != null && props.policyPackId.trim().length > 0 ? (
+          <p className="m-0">
+            Pack reference <span className="font-mono">{props.policyPackId}</span>
+          </p>
+        ) : null}
         <p className="m-0">
           Rule-set id <span className="font-mono">healthcare-claims-v3</span> · Effective version{" "}
           <span className="font-mono">{CLAIMS_INTAKE_RULE_SET_VERSION}</span>

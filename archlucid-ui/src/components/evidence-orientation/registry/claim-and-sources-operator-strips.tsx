@@ -5,6 +5,21 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_SOURCES_INTRO,
 } from "@/lib/governance/governance-assigned-to-me-evidence-copy";
 import {
+  OPERATIONAL_ERRORS_FOLLOW_UPS_TITLE,
+  OPERATIONAL_ERRORS_SOURCES,
+  OPERATIONAL_ERRORS_SOURCES_INTRO,
+} from "@/lib/internal/operational-errors-evidence-copy";
+import {
+  PRODUCT_LINE_PLAYGROUND_FOLLOW_UPS_TITLE,
+  PRODUCT_LINE_PLAYGROUND_SOURCES,
+  PRODUCT_LINE_PLAYGROUND_SOURCES_INTRO,
+} from "@/lib/product-line/product-line-playground-evidence-copy";
+import {
+  SPONSOR_WORKSPACE_HEALTH_FOLLOW_UPS_TITLE,
+  SPONSOR_WORKSPACE_HEALTH_SOURCES,
+  SPONSOR_WORKSPACE_HEALTH_SOURCES_INTRO,
+} from "@/lib/sponsor/sponsor-workspace-health-evidence-copy";
+import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
@@ -415,6 +430,42 @@ export function GovernanceAssignedToMeEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
       hubSecondary
+    />
+  );
+}
+
+export function WorkspaceHealthEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="workspace-health"
+      sourcesTitle={SPONSOR_WORKSPACE_HEALTH_FOLLOW_UPS_TITLE}
+      sourcesIntro={SPONSOR_WORKSPACE_HEALTH_SOURCES_INTRO}
+      sources={SPONSOR_WORKSPACE_HEALTH_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function OperationalErrorsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="operational-errors"
+      sourcesTitle={OPERATIONAL_ERRORS_FOLLOW_UPS_TITLE}
+      sourcesIntro={OPERATIONAL_ERRORS_SOURCES_INTRO}
+      sources={OPERATIONAL_ERRORS_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ProductLinePlaygroundEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="product-line-playground"
+      sourcesTitle={PRODUCT_LINE_PLAYGROUND_FOLLOW_UPS_TITLE}
+      sourcesIntro={PRODUCT_LINE_PLAYGROUND_SOURCES_INTRO}
+      sources={PRODUCT_LINE_PLAYGROUND_SOURCES}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }

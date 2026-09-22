@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicRegistryProvenanceFooter } from "@/components/help/HelpTopicRegistryProvenanceFooter";
+import { HelpTopicRegistrySourcesDisclosure } from "@/components/help/HelpTopicRegistrySourcesDisclosure";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import {
@@ -72,13 +74,19 @@ export function HelpWorkingCareerRehearsalGuideView(
     >
       <HelpTopicHashScroll />
 
+      <HelpTopicBreadcrumb topicTitle={WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL} />
+
       <HelpTopicGuidePageHeader
         title={WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE}
         titleTestId="help-career-rehearsal-doors-page-title"
         subtitle={WORKING_CAREER_REHEARSAL_HELP_PAGE_SUBTITLE}
         navHref={WORKING_CAREER_REHEARSAL_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        metadata={
+          <div className="space-y-2" data-testid="help-career-rehearsal-doors-header-metadata">
+            <HelpTopicRegistrySourcesDisclosure entry={entry} />
+          </div>
+        }
       />
 
       <div
@@ -154,6 +162,8 @@ export function HelpWorkingCareerRehearsalGuideView(
           </section>
 
           <SponsorSendPathHonestyPanel testIdPrefix="help-career-rehearsal-doors" showSsoOptional={false} />
+
+          <HelpTopicRegistryProvenanceFooter entry={entry} />
         </div>
 
         <aside className={HELP_PAGE_TOC.nav}>

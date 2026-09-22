@@ -456,14 +456,12 @@ export function AuditEvidenceLookupClient() {
 
   return (
     <div className="space-y-4 p-4" data-testid="audit-evidence-lookup-page">
-      {buyerPolishedShell ? (
-        <a
-          href={`#${AUDIT_EVIDENCE_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {AUDIT_EVIDENCE_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${AUDIT_EVIDENCE_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {AUDIT_EVIDENCE_SKIP_LINK_LABEL}
+      </a>
 
       <OperatorPageHeader
         title={AUDIT_EVIDENCE_PAGE_TITLE}
@@ -490,8 +488,8 @@ export function AuditEvidenceLookupClient() {
       />
 
       <div
-        id={buyerPolishedShell ? AUDIT_EVIDENCE_PRIMARY_CONTENT_ID : undefined}
-        className={cn("min-w-0 space-y-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        id={AUDIT_EVIDENCE_PRIMARY_CONTENT_ID}
+        className={cn("min-w-0 space-y-4 scroll-mt-24")}
         data-testid="audit-evidence-primary-content"
       >
         <AuditEvidenceLookupScopeBanner />

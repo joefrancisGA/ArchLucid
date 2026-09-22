@@ -3,8 +3,10 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicRegistryProvenanceFooter } from "@/components/help/HelpTopicRegistryProvenanceFooter";
+import { HelpTopicRegistrySourcesDisclosure } from "@/components/help/HelpTopicRegistrySourcesDisclosure";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,12 +68,18 @@ export function HelpArchitectureDraftEditingGuideView(
   return (
     <div className={operatorPageContainerClass()} data-testid={ARCHITECTURE_DRAFT_EDITING_HELP_GUIDE_TEST_ID}>
       <HelpTopicHashScroll />
+      <HelpTopicBreadcrumb topicTitle={ARCHITECTURE_DRAFT_EDITING_HELP_PAGE_TITLE} />
       <HelpTopicGuidePageHeader
         eyebrow="Architecture desk"
         title={ARCHITECTURE_DRAFT_EDITING_HELP_PAGE_TITLE}
         titleTestId="help-architecture-draft-editing-page-title"
         subtitle={ARCHITECTURE_DRAFT_EDITING_HELP_PAGE_SUBTITLE}
         navHref={ARCHITECTURE_DRAFT_EDITING_HELP_CANONICAL_PATH}
+        metadata={
+          <div className="space-y-2" data-testid="help-architecture-draft-editing-header-metadata">
+            <HelpTopicRegistrySourcesDisclosure entry={entry} />
+          </div>
+        }
       />
       <div
         className={cn(OPERATOR_LAYOUT.majorSectionGap, "pb-10")}
@@ -137,7 +145,7 @@ export function HelpArchitectureDraftEditingGuideView(
           </div>
         </section>
 
-        <HelpTopicRegistryProvenanceLine entry={entry} />
+        <HelpTopicRegistryProvenanceFooter entry={entry} />
       </div>
     </div>
   );

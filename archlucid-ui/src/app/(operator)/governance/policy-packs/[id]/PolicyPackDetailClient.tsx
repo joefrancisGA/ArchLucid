@@ -135,7 +135,13 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   }
 
   if (kind === "healthcare-claims") {
-    return wrapDetail(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} packsHubHref={packsHubHref} />);
+    return wrapDetail(
+      <HealthcareClaimsPolicyPackDetail
+        policyPackId={policyPackId}
+        packsHubHref={packsHubHref}
+        findingsHref={findingsHref}
+      />,
+    );
   }
 
   if (kind === "responsible-ai") {

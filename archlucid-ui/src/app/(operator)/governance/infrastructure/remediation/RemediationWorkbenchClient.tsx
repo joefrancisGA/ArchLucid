@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ShortcutHint } from "@/components/ShortcutHint";
@@ -771,83 +770,68 @@ export function RemediationWorkbenchClient() {
       className="py-4"
       data-testid="infra-remediation-workbench"
     >
-      {buyerPolishedShell ? (
-        <a
-          href={`#${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL}
+      </a>
 
       <OperatorPageHeader
         navHref={navHref}
         title={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD}
-        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE : undefined}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-remediation-claim-discipline"
         titleTestId="infra-remediation-page-title"
-        breadcrumb={buyerPolishedShell ? <RemediationBreadcrumb /> : undefined}
-        actions={
-          buyerPolishedShell ? (
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-                <RefreshButton
-                  busy={loading}
-                  data-testid="infra-remediation-refresh-button"
-                  onClick={() => void loadWorkbench()}
-                />
-              </div>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;{" "}
-                <ShortcutHint shortcut="j" />/<ShortcutHint shortcut="k" /> move lifecycle cards.
-              </p>
-            </div>
-          ) : (
-            <PageContextualHelpButton />
-          )
-        }
         metadata={
-          buyerPolishedShell ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <OperatorPageFreshnessMetadata
-                testId="infra-remediation-last-refreshed"
-                lastRefreshedAt={lastRefreshedAt}
-              >
-                {freshnessLabel}
-              </OperatorPageFreshnessMetadata>
-              {staleCue !== null ? (
-                <span data-testid="infra-remediation-stale-cue">
-                  <StatusTag kind="needs-attention" label={staleCue} />
-                </span>
-              ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            <RemediationBreadcrumb />
+            <OperatorPageFreshnessMetadata
+              testId="infra-remediation-last-refreshed"
+              lastRefreshedAt={lastRefreshedAt}
+            >
+              {freshnessLabel}
+            </OperatorPageFreshnessMetadata>
+            {staleCue !== null ? (
+              <span data-testid="infra-remediation-stale-cue">
+                <StatusTag kind="needs-attention" label={staleCue} />
+              </span>
+            ) : null}
+          </div>
+        }
+        actions={
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              <RefreshButton
+                busy={loading}
+                data-testid="infra-remediation-refresh-button"
+                onClick={() => void loadWorkbench()}
+              />
             </div>
-          ) : undefined
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;{" "}
+              <ShortcutHint shortcut="j" />/<ShortcutHint shortcut="k" /> move lifecycle cards.
+            </p>
+          </div>
         }
       />
 
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-remediation" /> : null}
-
       <main
-        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID : undefined}
-        className={cn(
-          "flex w-full flex-col gap-4",
-          buyerPolishedShell ? "scroll-mt-24 space-y-4" : undefined,
-        )}
+        id={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID}
+        className="flex w-full flex-col gap-4 scroll-mt-24 space-y-4"
         data-testid="infra-remediation-primary-content"
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
 
-      {buyerPolishedShell ? (
-        <RemediationWorkbenchContextStrip
-          freshnessLabel={freshnessLabel}
-          lastRefreshedAt={lastRefreshedAt}
-          scopeLabel={workbenchScopeLabel}
-          selectionLabel={workbenchSelectionLabel}
-          detailAnchorId={REMEDIATION_DETAIL_SECTION_ID}
-        />
-      ) : null}
+      <RemediationWorkbenchContextStrip
+        freshnessLabel={freshnessLabel}
+        lastRefreshedAt={lastRefreshedAt}
+        scopeLabel={workbenchScopeLabel}
+        selectionLabel={workbenchSelectionLabel}
+        detailAnchorId={REMEDIATION_DETAIL_SECTION_ID}
+      />
 
       {urlCloudResourceId.length > 0 ? (
         <section
@@ -1099,9 +1083,9 @@ export function RemediationWorkbenchClient() {
           className="grid gap-3 xl:grid-cols-6"
           aria-label="Remediation instance lifecycle board"
           data-testid="infra-remediation-board"
-          ref={buyerPolishedShell ? boardNavRef : undefined}
-          tabIndex={buyerPolishedShell && flatBoardInstances.length > 0 ? 0 : undefined}
-          onKeyDown={buyerPolishedShell ? onBoardKeyDown : undefined}
+          ref={boardNavRef}
+          tabIndex={flatBoardInstances.length > 0 ? 0 : undefined}
+          onKeyDown={onBoardKeyDown}
         >
           {REMEDIATION_WORKBENCH_COLUMNS.map((column) => (
             <div key={column.id} className={cn("p-3", cnCard)} data-testid={`infra-remediation-column-${column.id}`}>
@@ -1109,7 +1093,7 @@ export function RemediationWorkbenchClient() {
               <ul className="m-0 grid gap-2 p-0">
                 {(groupedInstances.get(column.id) ?? []).map((instance) => {
                   const flatIndex = flatBoardInstances.findIndex((row) => row.instanceId === instance.instanceId);
-                  const isFocused = buyerPolishedShell && flatIndex === focusedBoardIndex;
+                  const isFocused = flatIndex === focusedBoardIndex;
 
                   return (
                   <li key={instance.instanceId}>

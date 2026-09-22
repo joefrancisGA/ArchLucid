@@ -1,8 +1,10 @@
 import type { ReactElement } from "react";
 
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicRegistryProvenanceFooter } from "@/components/help/HelpTopicRegistryProvenanceFooter";
+import { HelpTopicRegistrySourcesDisclosure } from "@/components/help/HelpTopicRegistrySourcesDisclosure";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -35,10 +37,16 @@ export function HelpArchitectureSharingGuideView(props: HelpArchitectureSharingG
   return (
     <div className={operatorPageContainerClass()} data-testid="help-architecture-sharing-guide">
       <HelpTopicHashScroll />
+      <HelpTopicBreadcrumb topicTitle={ARCHITECTURE_SHARING_HELP_PAGE_TITLE} />
       <HelpTopicGuidePageHeader
         eyebrow="Architecture desk"
         title={ARCHITECTURE_SHARING_HELP_PAGE_TITLE}
         subtitle={ARCHITECTURE_SHARING_HELP_PAGE_SUBTITLE}
+        metadata={
+          <div className="space-y-2" data-testid="help-architecture-sharing-header-metadata">
+            <HelpTopicRegistrySourcesDisclosure entry={entry} />
+          </div>
+        }
       />
       <div
         className={cn(OPERATOR_LAYOUT.majorSectionGap, "pb-10")}
@@ -77,7 +85,7 @@ export function HelpArchitectureSharingGuideView(props: HelpArchitectureSharingG
 
         <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-sharing" showSsoOptional={false} />
 
-        <HelpTopicRegistryProvenanceLine entry={entry} />
+        <HelpTopicRegistryProvenanceFooter entry={entry} />
       </div>
     </div>
   );

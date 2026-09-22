@@ -142,6 +142,11 @@ import {
   PROJECTS_RECYCLE_BIN_SOURCES,
   PROJECTS_RECYCLE_BIN_SOURCES_INTRO,
 } from "@/lib/projects-recycle-bin-evidence-copy";
+import {
+  TENANT_BRANDING_SETTINGS_FOLLOW_UPS_TITLE,
+  TENANT_BRANDING_SETTINGS_SOURCES,
+  TENANT_BRANDING_SETTINGS_SOURCES_INTRO,
+} from "@/lib/tenant-branding-settings-evidence-copy";
 
 export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -516,6 +521,18 @@ export function SettingsHubEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
       hubSecondary
+    />
+  );
+}
+
+export function BrandingSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="branding-settings"
+      sourcesTitle={TENANT_BRANDING_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={TENANT_BRANDING_SETTINGS_SOURCES_INTRO}
+      sources={TENANT_BRANDING_SETTINGS_SOURCES}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }

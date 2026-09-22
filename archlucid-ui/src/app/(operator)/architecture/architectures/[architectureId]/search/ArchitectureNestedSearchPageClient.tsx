@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 
+import { WorkingArchitectureNestedToolShell } from "@/components/architecture/WorkingArchitectureNestedToolShell";
 import { SearchPageClient } from "@/app/(operator)/insights/search-review-evidence/_sections/SearchPageClient";
 import { architectureNestedSearchPath } from "@/lib/architecture/architecture-routes";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -20,13 +21,15 @@ export function ArchitectureNestedSearchPageClient(
   const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   return (
-    <Suspense fallback={null}>
-      <SearchPageClient
-        buyerShell={buyerShell}
-        isDemo={isDemo}
-        basePathname={architectureNestedSearchPath(architectureId)}
-        pinnedArchitectureId={architectureId}
-      />
-    </Suspense>
+    <WorkingArchitectureNestedToolShell architectureId={architectureId} toolLabel="Search">
+      <Suspense fallback={null}>
+        <SearchPageClient
+          buyerShell={buyerShell}
+          isDemo={isDemo}
+          basePathname={architectureNestedSearchPath(architectureId)}
+          pinnedArchitectureId={architectureId}
+        />
+      </Suspense>
+    </WorkingArchitectureNestedToolShell>
   );
 }

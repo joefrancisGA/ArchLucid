@@ -69,12 +69,12 @@ describe("BaselineSettingsPage", () => {
     vi.mocked(showError).mockClear();
   });
 
-  it("renders operator header chrome without breadcrumb trail", async () => {
+  it("renders operator header chrome with breadcrumb trail", async () => {
     vi.stubGlobal("fetch", createFetchMock());
     render(<BaselineSettingsClient />);
 
     expect(await screen.findByTestId("baseline-settings-page-title")).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
-    expect(screen.queryByTestId("baseline-settings-page-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("baseline-settings-page-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("baseline-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 

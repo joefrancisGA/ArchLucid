@@ -9,7 +9,6 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
 import { InfraEvidenceAuditScopeBar } from "@/components/infra-evidence/InfraEvidenceAuditScopeBar";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -37,9 +36,19 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_TITLE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
@@ -631,76 +640,43 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       className="py-4"
       data-testid="infra-resource-hub-workbench"
     >
-      {buyerPolishedShell ? (
-        <a
-          href={`#${GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SKIP_LINK_LABEL}
+      </a>
 
-      {buyerPolishedShell ? (
-        <OperatorPageHeader
-          navHref={resourcesPath}
-          title={resourceTitle}
-          subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD}
-          claimDiscipline={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE}
-          claimDisciplineTestId="infra-resource-hub-claim-discipline"
-          titleTestId="infra-resource-hub-page-title"
-          breadcrumb={<ResourceHubBreadcrumb />}
-          actions={
-            <div className="flex flex-wrap items-center gap-2">
-              <PageContextualHelpButton />
-              <Link
-                className="text-sm text-al-link hover:underline"
-                href={workQueue !== "all"
-                  ? resourceExplorerFilterHrefFromSearch("", { workQueue })
-                  : resourcesPath}
-                data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
-              >
-                {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}
-              </Link>
-            </div>
-          }
-        />
-      ) : null}
+      <OperatorPageHeader
+        navHref={resourcesPath}
+        title={resourceTitle}
+        subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="infra-resource-hub-claim-discipline"
+        titleTestId="infra-resource-hub-page-title"
+        breadcrumb={<ResourceHubBreadcrumb />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            <Link
+              className="text-sm text-al-link hover:underline"
+              href={workQueue !== "all"
+                ? resourceExplorerFilterHrefFromSearch("", { workQueue })
+                : resourcesPath}
+              data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
+            >
+              {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}
+            </Link>
+          </div>
+        }
+      />
 
       <main
-        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID : undefined}
-        className={cn(
-          "flex w-full flex-col gap-4",
-          buyerPolishedShell ? "scroll-mt-24" : "gap-6",
-        )}
+        id={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID}
+        className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-resource-hub-primary-content"
       >
-      {!buyerPolishedShell ? (
-        <>
-          <LayerHeader pageKey="infrastructure-resources" />
-
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{resourceTitle}</h1>
-              <p className={cn("m-0 font-mono text-xs text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {hub?.externalResourceId ?? cloudResourceId}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                className="text-sm text-al-link hover:underline"
-                href={workQueue !== "all"
-                  ? resourceExplorerFilterHrefFromSearch("", { workQueue })
-                  : resourcesPath}
-                data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
-              >
-                {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}
-              </Link>
-            </div>
-          </div>
-        </>
-      ) : null}
-      {buyerPolishedShell ? (
-        <section className={cnCard} aria-label="Resource identifiers">
+      <section className={cnCard} aria-label="Resource identifiers">
           <CollapsibleSection
             title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL}
             sectionTestId="infra-resource-hub-cloud-resource-id-disclosure"
@@ -724,7 +700,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             </p>
           </CollapsibleSection>
         </section>
-      ) : null}
 
       {auditScopeActive && workbenchLinkAuditContext != null ? (
         <InfraEvidenceAuditScopeBar
@@ -765,21 +740,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       ) : null}
 
       {loadError != null ? (
-        buyerPolishedShell ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-resource-hub-load-error"
-            footer={
-              <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
-                Retry
-              </Button>
-            }
-          />
-        ) : (
-          <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
-        )
+        <EnterpriseCompactEmptyState
+          role="alert"
+          title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
+          description={loadError}
+          testId="infra-resource-hub-load-error"
+          footer={
+            <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
+              Retry
+            </Button>
+          }
+        />
       ) : null}
 
       {loading ? (
@@ -944,7 +915,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <section className={cnCard}>
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Current configuration</h2>
               {hub.currentConfiguration == null ? (
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No snapshot-backed configuration is available.</p>
+                <EnterpriseCompactEmptyState
+                  title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
+                  description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
+                  testId="infra-resource-hub-config-empty"
+                />
               ) : (
                 <dl className="grid gap-2 text-sm">
                   <div>
@@ -1119,7 +1094,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   ))}
                 </EnterpriseTableBody>
               </EnterpriseTable>
-            ) : null}
+            ) : (
+              <EnterpriseCompactEmptyState
+                title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_TITLE}
+                description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_BODY}
+                testId="infra-resource-hub-drift-empty"
+              />
+            )}
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="diagram" className="mt-4 space-y-3">
@@ -1259,7 +1240,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </div>
               </section>
             ) : (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No diagram correspondence row is linked for this resource.</p>
+              <EnterpriseCompactEmptyState
+                title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE}
+                description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY}
+                testId="infra-resource-hub-diagram-empty"
+              />
             )}
           </EnterpriseTabsContent>
 
@@ -1438,7 +1423,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <section key={stream.streamKind} className={cnCard}>
                 <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{stream.streamLabel}</h2>
                 {stream.items.length === 0 ? (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No findings in this stream.</p>
+                  <EnterpriseCompactEmptyState
+                    title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_TITLE}
+                    description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_BODY}
+                    testId={`infra-resource-hub-findings-empty-${stream.streamKind}`}
+                  />
                 ) : (
                   <EnterpriseTable ariaLabel={`${stream.streamLabel} findings`}>
                     <EnterpriseTableHead>
@@ -1577,7 +1566,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               ) : null}
             </div>
             {hub.remediationInstances.items.length === 0 ? (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation instances are linked to this resource.</p>
+              <EnterpriseCompactEmptyState
+                title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE}
+                description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_BODY}
+                testId="infra-resource-hub-remediation-empty"
+              />
             ) : (
               <EnterpriseTable ariaLabel="Remediation instances">
                 <EnterpriseTableHead>
@@ -1755,7 +1748,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         </EnterpriseTabs>
       ) : null}
 
-      {buyerPolishedShell ? <ResourceHubClaimOrientationStrip /> : null}
+      <ResourceHubClaimOrientationStrip />
       </main>
     </OperatorPageContainer>
   );

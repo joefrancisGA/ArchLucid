@@ -1,12 +1,20 @@
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
-/** Infrastructure overview hub breadcrumb (GOI). */
+/** Infrastructure overview hub breadcrumb (IN / GOI). */
 export function InfrastructureOverviewBreadcrumb(): React.JSX.Element {
   return (
-    <OperatorPageBreadcrumb
+    <nav
+      aria-label="Breadcrumb"
+      className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="governance-infrastructure-overview-breadcrumb"
-      items={[{ label: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE }]}
-    />
+    >
+      <ol className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0">
+        <li aria-current="page" className="text-al-text-primary">
+          {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE}
+        </li>
+      </ol>
+    </nav>
   );
 }

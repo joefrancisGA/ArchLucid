@@ -20,6 +20,8 @@ import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedReco
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
+import { WorkingArchitectureNestedKeyboardHint } from "@/components/architecture/WorkingArchitectureNestedKeyboardHint";
+import { WorkingArchitectureNestedWayfinding } from "@/components/architecture/WorkingArchitectureNestedWayfinding";
 import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
 import { WorkingUnlinkedReviewHonestyBanner } from "@/components/reviews/WorkingUnlinkedReviewHonestyBanner";
 import {
@@ -269,11 +271,19 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     />
   );
 
+  const parentArchitectureId = m.resolvedDetail.run.architectureId?.trim() ?? "";
+
   const runDetailIdentityChrome = (
     <>
       <WorkingNestedArchitectureIdentityChromeMount
         parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
       />
+      {parentArchitectureId.length > 0 ? (
+        <>
+          <WorkingArchitectureNestedWayfinding architectureId={parentArchitectureId} toolLabel="Review" />
+          <WorkingArchitectureNestedKeyboardHint />
+        </>
+      ) : null}
 
       <WorkingUnlinkedReviewHonestyBanner architectureId={m.resolvedDetail.run.architectureId ?? null} />
     </>

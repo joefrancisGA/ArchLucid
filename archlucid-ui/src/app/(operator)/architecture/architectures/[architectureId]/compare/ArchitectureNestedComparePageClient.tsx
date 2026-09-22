@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { CompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareForm";
 import { CompareSuspenseFallback } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSuspenseFallback";
 import { ArchitectureNestedToolScopeSeed } from "@/components/architecture/ArchitectureNestedToolScopeSeed";
+import { WorkingArchitectureNestedToolShell } from "@/components/architecture/WorkingArchitectureNestedToolShell";
 import { OperateUnlockOnCompareVisit } from "@/components/usability/OperateUnlockOnCompareVisit";
 import { architectureNestedComparePath } from "@/lib/architecture/architecture-routes";
 
@@ -19,10 +20,12 @@ export function ArchitectureNestedComparePageClient(
   const architectureId = props.architectureId.trim();
 
   return (
-    <Suspense fallback={<CompareSuspenseFallback />}>
-      <ArchitectureNestedToolScopeSeed architectureId={architectureId} queryParam="architectureId" />
-      <OperateUnlockOnCompareVisit />
-      <CompareForm basePathname={architectureNestedComparePath(architectureId)} />
-    </Suspense>
+    <WorkingArchitectureNestedToolShell architectureId={architectureId} toolLabel="Compare">
+      <Suspense fallback={<CompareSuspenseFallback />}>
+        <ArchitectureNestedToolScopeSeed architectureId={architectureId} queryParam="architectureId" />
+        <OperateUnlockOnCompareVisit />
+        <CompareForm basePathname={architectureNestedComparePath(architectureId)} />
+      </Suspense>
+    </WorkingArchitectureNestedToolShell>
   );
 }

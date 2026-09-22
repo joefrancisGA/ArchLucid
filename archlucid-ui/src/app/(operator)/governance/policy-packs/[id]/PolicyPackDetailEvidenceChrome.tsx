@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+import { PolicyPackDetailClaimOrientationStrip } from "./PolicyPackDetailClaimOrientationStrip";
 
 type PolicyPackDetailEvidenceChromeProps = {
   readonly children: ReactNode;
@@ -30,14 +31,12 @@ export function PolicyPackDetailEvidenceChrome(
 
   return (
     <div data-testid="policy-pack-detail-evidence-chrome">
-      {buyerPolishedShell ? (
-        <a
-          href={`#${POLICY_PACK_DETAIL_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {POLICY_PACK_DETAIL_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${POLICY_PACK_DETAIL_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {POLICY_PACK_DETAIL_SKIP_LINK_LABEL}
+      </a>
 
       {buyerPolishedShell ? (
         <LayerHeader pageKey="policy-packs" density="compact" className="mb-3 px-4" />
@@ -73,7 +72,7 @@ export function PolicyPackDetailEvidenceChrome(
           </div>
         ) : null}
         {props.children}
-        {buyerPolishedShell ? <PolicyPackDetailBuyerChrome /> : null}
+        {buyerPolishedShell ? <PolicyPackDetailBuyerChrome /> : <PolicyPackDetailClaimOrientationStrip />}
       </div>
     </div>
   );

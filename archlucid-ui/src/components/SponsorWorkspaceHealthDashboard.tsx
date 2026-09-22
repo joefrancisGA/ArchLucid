@@ -32,6 +32,8 @@ import { useSponsorWorkspaceHealthDashboard } from "./use-sponsor-workspace-heal
 
 export type SponsorWorkspaceHealthDashboardProps = {
   readonly standalonePage?: boolean;
+  /** When the route shell renders page title and claim discipline, skip the embedded hero. */
+  readonly externalPageHeader?: boolean;
 };
 
 /**
@@ -39,7 +41,9 @@ export type SponsorWorkspaceHealthDashboardProps = {
  */
 export function SponsorWorkspaceHealthDashboard({
   standalonePage = false,
+  externalPageHeader = false,
 }: SponsorWorkspaceHealthDashboardProps = {}) {
+  const showEmbeddedHero = !externalPageHeader;
   const {
     buyerPolishedShell,
     callerRank,
@@ -90,10 +94,12 @@ export function SponsorWorkspaceHealthDashboard({
     return (
       <div className="space-y-4">
         {layerHeader}
-        <SponsorWorkspaceHealthPageHero
-          buyerPolishedShell={buyerPolishedShell}
-          standalonePage={standalonePage}
-        />
+        {showEmbeddedHero ? (
+          <SponsorWorkspaceHealthPageHero
+            buyerPolishedShell={buyerPolishedShell}
+            standalonePage={standalonePage}
+          />
+        ) : null}
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {`Loading ${SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE.toLowerCase()}…`}
@@ -106,10 +112,12 @@ export function SponsorWorkspaceHealthDashboard({
     return (
       <div className="space-y-4">
         {layerHeader}
-        <SponsorWorkspaceHealthPageHero
-          buyerPolishedShell={buyerPolishedShell}
-          standalonePage={standalonePage}
-        />
+        {showEmbeddedHero ? (
+          <SponsorWorkspaceHealthPageHero
+            buyerPolishedShell={buyerPolishedShell}
+            standalonePage={standalonePage}
+          />
+        ) : null}
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
         <OperatorApiProblem
           fallbackMessage={loadError.message}
@@ -136,10 +144,12 @@ export function SponsorWorkspaceHealthDashboard({
     return (
       <div className="space-y-4">
         {layerHeader}
-        <SponsorWorkspaceHealthPageHero
-          buyerPolishedShell={buyerPolishedShell}
-          standalonePage={standalonePage}
-        />
+        {showEmbeddedHero ? (
+          <SponsorWorkspaceHealthPageHero
+            buyerPolishedShell={buyerPolishedShell}
+            standalonePage={standalonePage}
+          />
+        ) : null}
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {`Loading ${SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE.toLowerCase()}…`}
@@ -186,10 +196,12 @@ export function SponsorWorkspaceHealthDashboard({
     <div className="space-y-4">
       {layerHeader}
 
-      <SponsorWorkspaceHealthPageHero
-        buyerPolishedShell={buyerPolishedShell}
-        standalonePage={standalonePage}
-      />
+      {showEmbeddedHero ? (
+        <SponsorWorkspaceHealthPageHero
+          buyerPolishedShell={buyerPolishedShell}
+          standalonePage={standalonePage}
+        />
+      ) : null}
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
       {scopeBannerBlock}
 

@@ -65,23 +65,22 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
       className="py-4"
       data-testid="governance-infrastructure-overview-page"
     >
-      {buyerPolishedShell ? (
-        <a
-          href={`#${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL}
+      </a>
+
+      <InfrastructureOverviewBreadcrumb />
 
       <OperatorPageHeader
         navHref={pageNavHref}
         title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD}
-        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE : undefined}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE}
         claimDisciplineTestId="governance-infrastructure-overview-claim-discipline"
         titleTestId="governance-infrastructure-overview-page-title"
-        breadcrumb={buyerPolishedShell ? <InfrastructureOverviewBreadcrumb /> : undefined}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton />
@@ -90,8 +89,8 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
       />
 
       <main
-        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID : undefined}
-        className={cn("min-w-0 space-y-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        id={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID}
+        className={cn("min-w-0 space-y-4 scroll-mt-24")}
         data-testid="governance-infrastructure-overview-primary-content"
       >
         {buyerPolishedShell ? (
@@ -144,13 +143,13 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
           <section aria-labelledby="governance-infrastructure-workbenches-heading">
             <h2
               id="governance-infrastructure-workbenches-heading"
-              className={cn("m-0", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.cardTitle : "sr-only")}
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
             >
               {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_WORKBENCHES_HEADING}
             </h2>
             <EnterpriseTable
               ariaLabel="Infrastructure evidence workbenches"
-              className={buyerPolishedShell ? "mt-3" : undefined}
+              className="mt-3"
             >
               <EnterpriseTableHead>
                 <EnterpriseTableRow>

@@ -522,6 +522,34 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL = "A
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL = "Terraform address" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_TITLE = "No drift rows for this resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_BODY =
+  "Inventory snapshots for this cloud resource show no property changes yet. Capture a new snapshot or open the drift workbench to compare baselines." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_TITLE = "No findings in this stream" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_BODY =
+  "Operational security and architecture review findings linked to this resource will appear here when present." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE =
+  "No remediation instances linked" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_BODY =
+  "Remediation factory instances scoped to this resource will appear here after you match a finding or create a draft." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE =
+  "No diagram correspondence linked" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY =
+  "Diagram reconciliation has not linked a node to this cloud resource yet. Open diagram reconcile to map inventory to architecture diagrams." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE =
+  "No snapshot-backed configuration" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY =
+  "Capture an inventory snapshot for this resource to surface type, region, and property evidence on the overview tab." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureTerraform;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID = "infra-terraform-primary-content" as const;

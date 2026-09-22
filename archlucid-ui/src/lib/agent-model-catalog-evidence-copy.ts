@@ -4,6 +4,13 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const AGENT_MODEL_CATALOG_CANONICAL_PATH = INTERNAL_AGENT_MODEL_CATALOG_PATH;
 
+export const AGENT_MODEL_CATALOG_PRIMARY_CONTENT_ID = "agent-model-catalog-primary-content" as const;
+
+export const AGENT_MODEL_CATALOG_SKIP_LINK_LABEL = "Skip to agent model catalog" as const;
+
+export const AGENT_MODEL_CATALOG_CLAIM_DISCIPLINE =
+  "Catalog rows describe platform alias lifecycle and evaluation evidence — not tenant-facing deployment names or sealed review exports." as const;
+
 export const AGENT_MODEL_CATALOG_HELP_TOPIC_LABEL = "How the agent model catalog works" as const;
 
 export const AGENT_MODEL_CATALOG_FOLLOW_UPS_TITLE = "Where to go next";

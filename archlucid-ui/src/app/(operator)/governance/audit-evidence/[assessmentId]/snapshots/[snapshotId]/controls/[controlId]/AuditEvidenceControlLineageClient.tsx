@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -15,10 +16,10 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { deriveAuditLineageCheckboxPresentation } from "@/lib/audit-evidence-lineage-presentation";
-import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
+import { auditEvidenceLineageLookupPathFromPathname } from "@/lib/audit-evidence-lineage-route";
 import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
 import { auditEvidencePackageBlockedReason } from "@/lib/governance/audit-evidence-package-blocked-reason";
 import { downloadAuditEvidencePackageZip } from "@/lib/governance/audit-evidence-package-api";
@@ -63,6 +64,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const buyerPolishedShell = useProductionEvalChrome();
+  const lookupPath = useMemo(() => auditEvidenceLineageLookupPathFromPathname(pathname), [pathname]);
   const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
   const [packageDownloadBusy, setPackageDownloadBusy] = useState(false);
@@ -129,111 +131,101 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   }, [props.assessmentId, props.snapshotId]);
 
   return (
-    <div className="space-y-6 p-4" data-testid="audit-evidence-control-lineage-page">
-      <header className="space-y-2">
-        <p className={OPERATOR_TYPOGRAPHY.helper}>
-          <a className="underline" href={AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH}>Audit evidence lineage</a>
-        </p>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Audit control evidence lineage</h1>
-        <p className={OPERATOR_TYPOGRAPHY.helper}>
-          Chain of custody from control through requirements, evaluation, and collected evidence. Read-only.
-        </p>
-        <p className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          assessmentId={props.assessmentId} · snapshotId={props.snapshotId} · controlId={props.controlId}
-        </p>
-        <div className="flex max-w-xl flex-col gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="self-start"
-            disabled={packageDownloadBusy}
-            data-testid="audit-evidence-package-download"
-            aria-describedby={packageDownloadError != null ? "audit-evidence-package-download-error" : undefined}
-            onClick={() => {
-              void onDownloadEvidencePackage();
-            }}
-          >
-            {packageDownloadBusy ? "Preparing bundle…" : "Download evidence bundle (ZIP)"}
-          </Button>
-          {packageDownloadError != null ? (
-            <OperatorMutationInlineError
-              message={packageDownloadError}
-              testId="audit-evidence-package-download-error"
-            />
-          ) : null}
-          <SponsorExportSendHonestyStrip testIdPrefix="audit-evidence-package" />
-        </div>
-      </header>
+    <OperatorPageContainer
+      variant="workflow"
+      className={OPERATOR_LAYOUT.sectionStack}
+      data-testid="audit-evidence-control-lineage-page"
+    >
+      <AuditEvidenceControlLineageBreadcrumb />
+
+      <a
+        href={`#${AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID}`}
+        className={cn(HELP_PAGE_LAYOUT.technicalReferenceSkipLink, OPERATOR_LINK.inline)}
+      >
+        {AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL}
+      </a>
+
+      <OperatorPageHeader
+        navHref={lookupPath}
+        headingLevel="h1"
+        title={AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE}
+        subtitle={AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD}
+        claimDiscipline={AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="audit-evidence-control-lineage-claim-discipline"
+        actions={<PageContextualHelpButton />}
+      />
+
+      <div className="flex max-w-xl flex-col gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          disabled={packageDownloadBusy}
+          data-testid="audit-evidence-package-download"
+          aria-describedby={packageDownloadError != null ? "audit-evidence-package-download-error" : undefined}
+          onClick={() => {
+            void onDownloadEvidencePackage();
+          }}
+        >
+          {packageDownloadBusy ? "Preparing bundle…" : "Download evidence bundle (ZIP)"}
+        </Button>
+        {packageDownloadError != null ? (
+          <OperatorMutationInlineError
+            message={packageDownloadError}
+            testId="audit-evidence-package-download-error"
+          />
+        ) : null}
+        <SponsorExportSendHonestyStrip testIdPrefix="audit-evidence-package" />
+      </div>
 
       <main
-        id={buyerPolishedShell ? AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID : undefined}
-        className={cn("min-w-0 space-y-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        id={AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID}
+        className={cn("min-w-0 space-y-4 scroll-mt-24")}
         data-testid="audit-evidence-control-lineage-primary-content"
       >
-        {buyerPolishedShell ? (
-          <AuditEvidenceLineageRouteIdentifiersDisclosure
-            assessmentId={props.assessmentId}
-            snapshotId={props.snapshotId}
-            controlId={props.controlId}
-          />
-        ) : (
-          <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            assessmentId={props.assessmentId} · snapshotId={props.snapshotId} · controlId={props.controlId}
-          </p>
-        )}
+        <AuditEvidenceLineageRouteIdentifiersDisclosure
+          assessmentId={props.assessmentId}
+          snapshotId={props.snapshotId}
+          controlId={props.controlId}
+        />
 
         {lineageQuery.isPending ? (
-          buyerPolishedShell ? (
-            <OperatorLoadingNotice data-testid="audit-evidence-lineage-loading">
-              {AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL}
-            </OperatorLoadingNotice>
-          ) : (
-            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="audit-evidence-lineage-loading">
-              Loading lineage…
-            </p>
-          )
+          <OperatorLoadingNotice data-testid="audit-evidence-lineage-loading">
+            {AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL}
+          </OperatorLoadingNotice>
         ) : null}
 
         {lineageQuery.isError ? (
           <div data-testid="audit-evidence-lineage-error">
-            {buyerPolishedShell ? (
-              <EnterpriseCompactEmptyState
-                role="alert"
-                title={AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_TITLE}
-                description={AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_BODY}
-                prominentBoundary
-                testId="audit-evidence-lineage-error-panel"
-                footer={
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="primary"
-                      data-testid="audit-evidence-lineage-retry"
-                      onClick={() => void lineageQuery.refetch()}
+            <EnterpriseCompactEmptyState
+              role="alert"
+              title={AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_TITLE}
+              description={lineageBlockedReason ?? AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_BODY}
+              prominentBoundary
+              testId="audit-evidence-lineage-error-panel"
+              footer={
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    data-testid="audit-evidence-lineage-retry"
+                    onClick={() => void lineageQuery.refetch()}
+                  >
+                    {AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION}
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" asChild>
+                    <Link
+                      href={lookupPath}
+                      data-testid="audit-evidence-lineage-back-to-lookup"
                     >
-                      {AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION}
-                    </Button>
-                    <Button type="button" size="sm" variant="outline" asChild>
-                      <Link
-                        href={AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH}
-                        data-testid="audit-evidence-lineage-back-to-lookup"
-                      >
-                        {AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION}
-                      </Link>
-                    </Button>
-                  </div>
-                }
-              />
-            ) : (
-              <>
-                <StatusTag kind="needs-attention" label="Lineage unavailable" />
-                <p className={OPERATOR_TYPOGRAPHY.helper}>
-                  {lineageBlockedReason ?? "Could not load chain of custody for this control."}
-                </p>
-              </>
-            )}
+                      {AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION}
+                    </Link>
+                  </Button>
+                </div>
+              }
+            />
           </div>
         ) : null}
 
@@ -265,11 +257,9 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {checkboxPresentation!.detail}
               </p>
-              {buyerPolishedShell ? (
-                <Link href={AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH} className={OPERATOR_LINK.inline}>
-                  {AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION}
-                </Link>
-              ) : null}
+              <Link href={lookupPath} className={OPERATOR_LINK.inline}>
+                {AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION}
+              </Link>
             </section>
 
             <AuditEvidenceLineageSpine
@@ -285,8 +275,8 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
           </>
         ) : null}
 
-        {buyerPolishedShell ? <AuditEvidenceControlLineageClaimOrientationStrip /> : null}
+        <AuditEvidenceControlLineageClaimOrientationStrip />
       </main>
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -2,17 +2,26 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
-import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
+import { HEALTHCARE_CLAIMS_POLICY_PACK_RULE_ROWS } from "@/lib/policy/healthcare-claims-policy-pack-rules";
 import {
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
@@ -24,9 +33,13 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { HealthcareClaimsPolicyPackTechnicalDetailsDisclosure } from "./HealthcareClaimsPolicyPackTechnicalDetailsDisclosure";
 
+const HEALTHCARE_CLAIMS_WORKING_LEAD =
+  "Enterprise privacy pack for healthcare intake modernization — enforced rule families, evidence expectations, and governance linkage for repeat reviewers.";
+
 type HealthcareClaimsPolicyPackDetailProps = {
   readonly policyPackId: string;
   readonly packsHubHref?: string;
+  readonly findingsHref?: string;
 };
 
 /**
@@ -36,6 +49,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
   const { policyPackId } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const findingsHref = props.findingsHref ?? "/governance/findings";
 
   const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION);
   const versionBadgeLabel = `Healthcare Claims policy pack · v${CLAIMS_INTAKE_RULE_SET_VERSION} · effective 2026-05-01`;
@@ -47,14 +61,16 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         title={canonicalPackLabel}
         headingLevel="h1"
         breadcrumb={<GovernancePolicyPackBreadcrumb packLabel="Enterprise Privacy" packsHubHref={packsHubHref} />}
-        subtitle={BUYER_POLICY_PACK_LEAD}
+        subtitle={buyerPolishedShell ? BUYER_POLICY_PACK_LEAD : HEALTHCARE_CLAIMS_WORKING_LEAD}
         claimDiscipline={POLICY_PACK_DETAIL_CLAIM_DISCIPLINE}
         claimDisciplineTestId="policy-pack-detail-claim-discipline"
         subtitleClassName="max-w-prose leading-relaxed"
         actions={
-          <Button asChild variant="default" size="sm">
-            <Link href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}>{BUYER_OPEN_SIGNED_RECORD_CTA}</Link>
-          </Button>
+          buyerPolishedShell ? (
+            <Button asChild variant="default" size="sm">
+              <Link href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}>{BUYER_OPEN_SIGNED_RECORD_CTA}</Link>
+            </Button>
+          ) : undefined
         }
       >
         <div className="flex flex-wrap gap-2">
@@ -62,17 +78,43 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           <Badge variant="outline">HIPAA-aligned intake posture</Badge>
           <Badge variant="outline">{versionBadgeLabel}</Badge>
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-            Pack reference: {policyPackId}
-          </p>
-          <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
-        </div>
       </OperatorPageHeader>
 
       <Card>
         <CardHeader>
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>What sponsors see first</h2>
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Enforced rules</h2>
+        </CardHeader>
+        <CardContent>
+          <EnterpriseTable ariaLabel="Healthcare claims policy pack rules" data-testid="healthcare-claims-policy-pack-rules-table">
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Rule name</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Requirement</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Evidence expected</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {HEALTHCARE_CLAIMS_POLICY_PACK_RULE_ROWS.map((row) => (
+                <EnterpriseTableRow key={row.ruleKey}>
+                  <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <SeverityTag severity={row.severity} />
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>{row.requirement}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{row.evidenceExpected}</EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            {buyerPolishedShell ? "What sponsors see first" : "Review focus"}
+          </h2>
         </CardHeader>
         <CardContent>
           <ul className={cn("m-0 list-disc space-y-2 ps-5 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -113,14 +155,17 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
 
       <nav className="flex flex-wrap gap-3" aria-label="Healthcare policy pack actions">
         <Button asChild variant="outline">
-          <Link href={GOVERNANCE_POLICY_PACKS_PATH}>Open policy pack library</Link>
+          <Link href={packsHubHref}>Open policy pack library</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href={findingsHref}>Open findings queue</Link>
         </Button>
         <Button asChild variant="outline">
           <Link href="/governance/approval-queue">{BUYER_GOVERNANCE_PAGE_TITLE}</Link>
         </Button>
       </nav>
 
-      <HealthcareClaimsPolicyPackTechnicalDetailsDisclosure />
+      <HealthcareClaimsPolicyPackTechnicalDetailsDisclosure policyPackId={policyPackId} />
     </OperatorPageContainer>
   );
 }

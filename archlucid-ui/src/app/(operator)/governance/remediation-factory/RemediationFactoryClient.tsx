@@ -80,6 +80,11 @@ import {
   resolveRemediationFactoryLastRefreshedAt,
 } from "./remediation-factory-freshness";
 import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-state";
+import {
+  REMEDIATION_FACTORY_PRIMARY_CONTENT_ID,
+  REMEDIATION_FACTORY_SKIP_LINK_LABEL,
+} from "./remediation-factory-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 function ExecutiveMetricTile(props: {
   readonly label: string;
@@ -452,6 +457,13 @@ export function RemediationFactoryClient() {
 
   return (
     <div className="space-y-4 p-4" data-testid="remediation-factory-page">
+      <a
+        href={`#${REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {REMEDIATION_FACTORY_SKIP_LINK_LABEL}
+      </a>
+
       <OperatorPageHeader
         navHref={navHref}
         title={OPERATOR_NAV_LINK_LABELS.remediationFactory}
@@ -488,6 +500,11 @@ export function RemediationFactoryClient() {
         }
       />
 
+      <main
+        id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}
+        className="scroll-mt-24 space-y-4"
+        data-testid="remediation-factory-primary-content"
+      >
       <RemediationFactoryContextStrip
         freshnessLabel={freshnessLabel}
         lastRefreshedAt={lastRefreshedAt}
@@ -592,6 +609,7 @@ export function RemediationFactoryClient() {
           <RemediationSimulatorOutput explanation={simulatorExplanation} generatedAt={simulatorGeneratedAt} />
         ) : null}
       </section>
+      </main>
     </div>
   );
 }

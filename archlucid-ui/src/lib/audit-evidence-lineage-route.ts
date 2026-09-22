@@ -67,3 +67,22 @@ export function isAuditEvidenceRoutePath(pathname: string): boolean {
     || bare.startsWith(`${SECURENOW_AUDIT_EVIDENCE_PATH}/`)
   );
 }
+
+function barePathname(pathname: string | null | undefined): string | null {
+  if (pathname === null || pathname === undefined) {
+    return null;
+  }
+
+  return pathname.split("?", 1)[0] ?? pathname;
+}
+
+/** Lookup hub path for the active audit-evidence URL namespace (governance vs compliance). */
+export function auditEvidenceLineageLookupPathFromPathname(pathname: string | null | undefined): string {
+  const bare = barePathname(pathname);
+
+  if (bare !== null && (bare === SECURENOW_AUDIT_EVIDENCE_PATH || bare.startsWith(`${SECURENOW_AUDIT_EVIDENCE_PATH}/`))) {
+    return SECURENOW_AUDIT_EVIDENCE_PATH;
+  }
+
+  return AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH;
+}

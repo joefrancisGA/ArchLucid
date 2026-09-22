@@ -2,6 +2,7 @@ import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import { infraEvidenceHubBlockedReason } from "@/lib/infra-evidence/infra-evidence-hub-blocked-reason";
+import { tryWorkbookInfraResourceHubDemoFallback } from "@/lib/infra-evidence/infra-resource-hub-demo-fallback";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resourceExplorerWorkQueueApiValue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type {
@@ -119,11 +120,24 @@ export async function fetchCloudResourceEvidenceHub(
     params.set("controlId", context.controlId.trim());
   }
 
-  const raw = await proxyJsonGet<Record<string, unknown>>(
-    `${CLOUD_RESOURCES_PATH}/${cloudResourceId}/hub?${params.toString()}`,
-  );
+  try {
+    const raw = await proxyJsonGet<Record<string, unknown>>(
+      `${CLOUD_RESOURCES_PATH}/${cloudResourceId}/hub?${params.toString()}`,
+    );
 
-  return mapHubResponse(raw);
+    return mapHubResponse(raw);
+  } catch (error: unknown) {
+    const demoFallback = tryWorkbookInfraResourceHubDemoFallback(cloudResourceId);
+
+    if (demoFallback !== null) {
+      return demoFallback;
+    }
+
+    const failure = toApiLoadFailure(error);
+    const blockedReason = infraEvidenceHubBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatInfraEvidenceSealedManifestAwareApiError(failure));
+  }
 }
 
 function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubResponse {

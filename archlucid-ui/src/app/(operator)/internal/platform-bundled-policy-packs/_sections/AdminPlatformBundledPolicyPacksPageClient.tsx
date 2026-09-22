@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { PlatformBundledPolicyPacksEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -9,9 +10,18 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH } from "@/lib/internal-ops-route-paths";
 import {
+  PLATFORM_BUNDLED_POLICY_PACKS_CLAIM_DISCIPLINE,
+  PLATFORM_BUNDLED_POLICY_PACKS_PRIMARY_CONTENT_ID,
+  PLATFORM_BUNDLED_POLICY_PACKS_SKIP_LINK_LABEL,
+} from "@/lib/platform-bundled-policy-packs-evidence-copy";
+import {
+  PLATFORM_BUNDLED_POLICY_PACKS_ACCESS_DENIED_DESCRIPTION,
+  PLATFORM_BUNDLED_POLICY_PACKS_ACCESS_DENIED_TITLE,
   PLATFORM_BUNDLED_POLICY_PACKS_PAGE_SUBTITLE,
   PLATFORM_BUNDLED_POLICY_PACKS_PAGE_TITLE,
 } from "@/lib/platform-bundled-policy-packs-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { PlatformBundledPolicyPacksBreadcrumb } from "./PlatformBundledPolicyPacksBreadcrumb";
 import { cn } from "@/lib/utils";
 
 import { PlatformBundledPolicyPackActivationConfirmDialog } from "./PlatformBundledPolicyPackActivationConfirmDialog";
@@ -27,9 +37,18 @@ export function AdminPlatformBundledPolicyPacksPageClient() {
 
   if (!model.isAdmin) {
     return (
-      <p className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
-        This page requires tenant administrator access (AdminAuthority).
-      </p>
+      <OperatorPageContainer
+        variant="dashboard"
+        className={OPERATOR_LAYOUT.sectionStack}
+        data-testid="platform-bundled-policy-packs-access-denied"
+      >
+        <EnterpriseCompactEmptyState
+          role="alert"
+          title={PLATFORM_BUNDLED_POLICY_PACKS_ACCESS_DENIED_TITLE}
+          description={PLATFORM_BUNDLED_POLICY_PACKS_ACCESS_DENIED_DESCRIPTION}
+          testId="platform-bundled-policy-packs-access-denied-panel"
+        />
+      </OperatorPageContainer>
     );
   }
 
@@ -39,11 +58,21 @@ export function AdminPlatformBundledPolicyPacksPageClient() {
       className={OPERATOR_LAYOUT.sectionStack}
       data-testid="admin-platform-bundled-policy-packs-page"
     >
+      <a
+        href={`#${PLATFORM_BUNDLED_POLICY_PACKS_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {PLATFORM_BUNDLED_POLICY_PACKS_SKIP_LINK_LABEL}
+      </a>
+
       <OperatorPageHeader
         navHref={INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH}
         title={PLATFORM_BUNDLED_POLICY_PACKS_PAGE_TITLE}
         headingLevel="h1"
         subtitle={PLATFORM_BUNDLED_POLICY_PACKS_PAGE_SUBTITLE}
+        breadcrumb={<PlatformBundledPolicyPacksBreadcrumb />}
+        claimDiscipline={PLATFORM_BUNDLED_POLICY_PACKS_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="platform-bundled-policy-packs-claim-discipline"
         actions={
           <div
             className="flex flex-wrap items-center gap-2"
@@ -61,6 +90,11 @@ export function AdminPlatformBundledPolicyPacksPageClient() {
         }
       />
 
+      <main
+        id={PLATFORM_BUNDLED_POLICY_PACKS_PRIMARY_CONTENT_ID}
+        className={cn("min-w-0 space-y-4 scroll-mt-24")}
+        data-testid="platform-bundled-policy-packs-primary-content"
+      >
       <PlatformBundledPolicyPacksEvidenceOrientationStrip />
 
       {model.loadError !== null ? (
@@ -112,6 +146,7 @@ export function AdminPlatformBundledPolicyPacksPageClient() {
           }}
         />
       ) : null}
+      </main>
     </OperatorPageContainer>
   );
 }

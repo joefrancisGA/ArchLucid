@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
   SECURENOW_AUDIT_EVIDENCE_PATH,
+  auditEvidenceLineageLookupPathFromPathname,
   buildAuditEvidenceControlLineagePath,
   isAuditEvidenceRoutePath,
   parseAuditEvidenceControlLineagePath,
@@ -59,5 +60,14 @@ describe("audit-evidence-lineage-route", () => {
     expect(isAuditEvidenceRoutePath(SECURENOW_AUDIT_EVIDENCE_PATH)).toBe(true);
     expect(isAuditEvidenceRoutePath("/compliance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
     expect(isAuditEvidenceRoutePath("/governance/audit")).toBe(false);
+  });
+
+  it("resolves lookup path from pathname namespace", () => {
+    expect(auditEvidenceLineageLookupPathFromPathname("/governance/audit-evidence/a/snapshots/s/controls/c")).toBe(
+      AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
+    );
+    expect(auditEvidenceLineageLookupPathFromPathname("/compliance/audit-evidence/a/snapshots/s/controls/c")).toBe(
+      SECURENOW_AUDIT_EVIDENCE_PATH,
+    );
   });
 });
