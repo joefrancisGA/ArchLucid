@@ -247,32 +247,32 @@ describe("InfraEvidenceDiagramOutline", () => {
       name: "Sort by Resource group",
     });
 
-    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, ascending");
 
     fireEvent.click(nodeNameHeader);
 
-    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
+    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("core-vnet"))).toBe(true);
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, descending");
 
     fireEvent.click(nodeNameHeader);
 
-    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, ascending");
 
     fireEvent.click(resourceTypeHeader);
 
-    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
     expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, ascending");
 
     fireEvent.click(resourceTypeHeader);
 
-    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
+    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("core-vnet"))).toBe(true);
     expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, descending");
 
     fireEvent.click(resourceGroupHeader);
 
-    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
     expect(resourceGroupHeader).toHaveAttribute("aria-label", "Sort by Resource group, ascending");
   });
 

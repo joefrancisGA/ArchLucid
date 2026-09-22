@@ -114,7 +114,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
                 new XAttribute("dominant-baseline", "middle"),
                 new XAttribute("font-size", FormatCoordinate(LabelFontSize)),
                 new XAttribute("font-family", "system-ui, sans-serif"),
-                new XAttribute("fill", "#334155"),
+                new XAttribute("fill", "#111827"),
                 label)));
 
         return edgeGroup;

@@ -15,7 +15,7 @@ public static class ArchitectureDiagramMermaidPalette
 
     public const string LightNodeCaption = "#475569";
 
-    public const string LightEdgeStroke = "#94a3b8";
+    public const string LightEdgeStroke = "#111827";
 
     public const string LightResourceGroupFrameStroke = "#64748b";
 
@@ -27,7 +27,7 @@ public static class ArchitectureDiagramMermaidPalette
 
     public const string DarkNodeCaption = "#cbd5e1";
 
-    public const string DarkEdgeStroke = "#94a3b8";
+    public const string DarkEdgeStroke = "#111827";
 
     public const string DarkResourceGroupFrameStroke = "#64748b";
 }

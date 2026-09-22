@@ -53,18 +53,33 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 DiagramResourceGroupPacker.PartitionCells(renderableNodes),
                 visibleEdges);
 
-        List<ComponentLayout> componentLayouts = BuildResourceGroupCellLayouts(
-            resourceGroupCells,
-            visibleEdges,
-            resolvedOptions,
-            labelContext);
+        List<NodePlacement> placements;
 
-        if (componentLayouts.Count == 0)
+        if (IsDataFlowTitle(ast.Title))
+        {
+            placements = LayoutDataFlowStageColumns(renderableNodes, ast.Subgraphs, resolvedOptions, labelContext);
+        }
+        else
+        {
+            List<ComponentLayout> componentLayouts = BuildResourceGroupCellLayouts(
+                resourceGroupCells,
+                visibleEdges,
+                resolvedOptions,
+                labelContext);
+
+            if (componentLayouts.Count == 0)
+            {
+                return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
+            }
+
+            placements = PlaceNodes(componentLayouts, resolvedOptions);
+        }
+
+        if (placements.Count == 0)
         {
             return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
         }
 
-        List<NodePlacement> placements = PlaceNodes(componentLayouts, resolvedOptions);
         string svg = EmitSvg(placements, visibleEdges, renderableNodes, ast.Title, resolvedOptions);
 
         if (string.IsNullOrWhiteSpace(svg))
@@ -77,6 +92,63 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             Succeeded = true,
             Svg = svg,
         };
+    }
+
+    private static List<NodePlacement> LayoutDataFlowStageColumns(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramSubgraph> subgraphs,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        Dictionary<string, int> stageOrder = subgraphs
+            .OrderBy(subgraph => subgraph.OrderKey)
+            .Select((subgraph, index) => new { subgraph.SubgraphId, Index = index })
+            .ToDictionary(item => item.SubgraphId, item => item.Index, StringComparer.Ordinal);
+        List<IGrouping<int, DiagramNode>> columns = nodes
+            .GroupBy(node =>
+                node.SubgraphId is not null && stageOrder.TryGetValue(node.SubgraphId, out int index)
+                    ? index
+                    : stageOrder.Count)
+            .OrderBy(group => group.Key)
+            .ToList();
+        List<NodePlacement> placements = [];
+        double columnX = options.Padding;
+
+        foreach (IGrouping<int, DiagramNode> column in columns)
+        {
+            List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = column
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .Select(node => (
+                    Node: node,
+                    Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext)))
+                .ToList();
+            double columnWidth = sized.Count == 0
+                ? options.UniformNodeWidth
+                : sized.Max(item => item.Metrics.Width);
+            double nodeY = options.Padding;
+
+            foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
+            {
+                placements.Add(new NodePlacement(
+                    node,
+                    columnX + ((columnWidth - metrics.Width) / 2.0d),
+                    nodeY,
+                    metrics.Width,
+                    metrics.Height,
+                    metrics));
+                nodeY += metrics.Height + options.NodeVerticalGap;
+            }
+
+            columnX += columnWidth + options.ComponentHorizontalGap;
+        }
+
+        return placements;
+    }
+
+    private static bool IsDataFlowTitle(string title)
+    {
+        return title.Contains("(DataFlow)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsPackingSubgraphMember(DiagramAst ast, DiagramNode node)
@@ -558,8 +630,6 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             DiagramResourceGroupPacker.ResolveFrameBounds(placementBounds);
         IReadOnlyList<DiagramForestNestedFrameBounds> nestedFrameBounds =
             DiagramForestNestedFrameResolver.Resolve(renderableNodes, placementBounds, visibleEdges);
-        DiagramForestNestedFrameBounds? subscriptionFrame =
-            DiagramForestSubscriptionFrameResolver.Resolve(title, placementBounds);
         double minX = placements.Min(placement => placement.X) - options.Padding;
         double minY = placements.Min(placement => placement.Y) - options.Padding;
         double maxX = placements.Max(placement => placement.X + placement.Width) + options.Padding;
@@ -579,14 +649,6 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             minY = Math.Min(minY, nestedFrameBounds.Min(frame => frame.Y) - options.Padding);
             maxX = Math.Max(maxX, nestedFrameBounds.Max(frame => frame.X + frame.Width) + options.Padding);
             maxY = Math.Max(maxY, nestedFrameBounds.Max(frame => frame.Y + frame.Height) + options.Padding);
-        }
-
-        if (subscriptionFrame is not null)
-        {
-            minX = Math.Min(minX, subscriptionFrame.X - options.Padding);
-            minY = Math.Min(minY, subscriptionFrame.Y - options.Padding);
-            maxX = Math.Max(maxX, subscriptionFrame.X + subscriptionFrame.Width + options.Padding);
-            maxY = Math.Max(maxY, subscriptionFrame.Y + subscriptionFrame.Height + options.Padding);
         }
 
         HashSet<string> suppressedEdgeKeys = DiagramForestEdgeLabelCollapse.ResolveSuppressedEdgeKeys(
@@ -616,14 +678,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             root.Add(DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(svgNamespace, frameBounds));
         }
 
-        if (subscriptionFrame is not null || nestedFrameBounds.Count > 0)
+        if (nestedFrameBounds.Count > 0)
         {
             List<DiagramForestNestedFrameBounds> containerFrames = [];
-
-            if (subscriptionFrame is not null)
-            {
-                containerFrames.Add(subscriptionFrame);
-            }
 
             containerFrames.AddRange(nestedFrameBounds);
             root.Add(DiagramForestNestedFrameSvgEmitter.EmitLayer(svgNamespace, containerFrames));
