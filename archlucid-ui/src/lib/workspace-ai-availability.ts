@@ -1,4 +1,6 @@
 import { apiGet } from "@/lib/api";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export const WORKSPACE_AI_AVAILABILITY_PATH = "/v1/diagnostics/workspace-ai-availability";
 
@@ -58,23 +60,36 @@ export function workspaceAiAvailableDetail(result: WorkspaceAiAvailabilityResult
   return "We checked AI availability and it is OK.";
 }
 
-export function workspaceAiUnavailableDetail(result: WorkspaceAiAvailabilityResult): string {
+export function workspaceAiSummary(
+  result: WorkspaceAiAvailabilityResult,
+  productLineId: ProductLineId = "architecture",
+): string {
+  return localizeProductCopy(productLineId, result.summary?.trim() ?? "");
+}
+
+export function workspaceAiUnavailableDetail(
+  result: WorkspaceAiAvailabilityResult,
+  productLineId: ProductLineId = "architecture",
+): string {
   const summary = result.summary?.trim() ?? "";
 
   if (summary.length > 0) {
-    return summary;
+    return localizeProductCopy(productLineId, summary);
   }
 
   if (result.aiSource === "customer-connection") {
     return "Your workspace customer-provided AI connection is unavailable — reviews cannot start until the connection is restored.";
   }
 
-  return "ArchLucid-managed AI is unavailable — reviews cannot start until platform AI is restored.";
+  return `${productLineId === "security" ? "SecureNow" : "ArchLucid"}-managed AI is unavailable — reviews cannot start until platform AI is restored.`;
 }
 
 /** Buyer/operator shell copy — hide HTTP paths, proxy hops, and internal service names. */
-export function operatorSafeWorkspaceAiUnavailableDetail(result: WorkspaceAiAvailabilityResult): string {
-  const raw = workspaceAiUnavailableDetail(result);
+export function operatorSafeWorkspaceAiUnavailableDetail(
+  result: WorkspaceAiAvailabilityResult,
+  productLineId: ProductLineId = "architecture",
+): string {
+  const raw = workspaceAiUnavailableDetail(result, productLineId);
 
   if (raw.includes("GET /") || raw.includes("ArchLucid.Api") || raw.includes("BFF proxy")) {
     return "Live AI availability checks could not finish for this workspace. Use Check AI availability to retry, or open Report a problem if this persists.";
