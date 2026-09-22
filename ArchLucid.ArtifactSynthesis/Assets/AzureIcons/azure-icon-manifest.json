@@ -300,6 +300,16 @@
       ],
       "file": "event-grid-subscriptions.png",
       "notes": "Child subscription resource; often rendered as an edge or metadata rather than a standalone inventory node."
+    },
+    {
+      "category": "Security",
+      "service": "Microsoft Defender for Cloud",
+      "armTypes": [
+        "Microsoft.Security/pricings",
+        "Microsoft.Security/securityContacts"
+      ],
+      "file": "defender-for-cloud.png",
+      "notes": "Defender for Cloud control-plane resources may be represented by pricing and security contact resources."
     }
   ]
 }
