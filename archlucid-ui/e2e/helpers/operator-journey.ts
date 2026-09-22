@@ -1020,53 +1020,44 @@ export async function expectLiveRunDetailPageReady(
   const brandedTransientFailure = page.getByTestId("branded-transient-failure");
   const main = page.getByRole("main").first();
 
-  // Detect a terminal/error shell before entering Playwright's retry loop. The demo
-  // workspace wrapper catches this error and re-seeds the scope on the next attempt.
   await expect(loadingReviewDetail).toHaveCount(0, { timeout: Math.min(timeoutMs, 5_000) });
-  if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
-    const text = (await main.textContent().catch(() => null)) ?? "";
 
-    if (shouldReloadReviewDetailAfterErrorShell(reloadAttempt)) {
-      await page.reload({ waitUntil: "domcontentloaded" });
-      return expectLiveRunDetailPageReady(page, timeoutMs, reloadAttempt + 1);
-    }
+  const reloadState = { attempt: reloadAttempt };
 
-    throw new Error(reviewDetailErrorShellMessage(text));
-  }
-  if ((await loadFailure.count()) > 0) {
-    throw new Error("Review detail load-failure surface is visible (run-detail-load-failure).");
-  }
-  if ((await brandedNotFound.count()) > 0) {
-    throw new Error("Review detail branded-not-found surface is visible.");
-  }
-  if ((await brandedTransientFailure.count()) > 0) {
-    throw new Error("Review detail branded-transient-failure surface is visible.");
-  }
+  await expect
+    .poll(
+      async () => {
+        if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
+          if (shouldReloadReviewDetailAfterErrorShell(reloadState.attempt)) {
+            await page.reload({ waitUntil: "domcontentloaded" });
+            reloadState.attempt += 1;
+            return "retry";
+          }
 
-  await expect(async () => {
-    // Keep the checks in the readiness assertion as well: a failure shell can replace
-    // the loading surface after the preflight but before the real page mounts.
-    if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
-      throw new Error("Review detail error shell is visible (Something went wrong).");
-    }
+          const text = (await main.textContent().catch(() => null)) ?? "";
+          throw new Error(reviewDetailErrorShellMessage(text));
+        }
 
-    // Fail this toPass iteration immediately on hard/transient failure chrome so callers can reload
-    // instead of polling a dead SSR error page until timeoutMs (demo-workspace cold starts).
-    if ((await loadFailure.count()) > 0) {
-      throw new Error("Review detail load-failure surface is visible (run-detail-load-failure).");
-    }
+        if ((await loadFailure.count()) > 0) {
+          throw new Error("Review detail load-failure surface is visible (run-detail-load-failure).");
+        }
 
-    if ((await brandedNotFound.count()) > 0) {
-      throw new Error("Review detail branded-not-found surface is visible.");
-    }
+        if ((await brandedNotFound.count()) > 0) {
+          throw new Error("Review detail branded-not-found surface is visible.");
+        }
 
-    if ((await brandedTransientFailure.count()) > 0) {
-      throw new Error("Review detail branded-transient-failure surface is visible.");
-    }
+        if ((await brandedTransientFailure.count()) > 0) {
+          throw new Error("Review detail branded-transient-failure surface is visible.");
+        }
 
-    await expect(reviewDetailRoot).toBeVisible({ timeout: 5_000 });
-    await expect(mainHeading).toBeVisible({ timeout: 5_000 });
-  }).toPass({ timeout: timeoutMs });
+        const rootVisible = await reviewDetailRoot.isVisible().catch(() => false);
+        const headingVisible = await mainHeading.isVisible().catch(() => false);
+
+        return rootVisible && headingVisible ? "ready" : "retry";
+      },
+      { timeout: timeoutMs, intervals: [500] },
+    )
+    .toBe("ready");
 }
 
 /** Live manifest detail after navigation — buyer-polished shell hides raw manifest UUID in the DOM. */
