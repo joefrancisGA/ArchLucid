@@ -23,6 +23,7 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "architecture-sharing",
   "career-rehearsal-doors",
   "career-vs-rehearsal",
+  "inspect-stored-evidence",
   "slack-integration",
 ];
 

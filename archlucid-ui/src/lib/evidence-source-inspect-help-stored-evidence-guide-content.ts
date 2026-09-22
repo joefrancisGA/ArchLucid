@@ -1,14 +1,14 @@
 /** ESI-08 — help: open and download submitted evidence files on the review. */
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON } from "@/lib/apply-working-bind-tool-nav-gate";
 import {
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_HEADING_ID,
 } from "@/lib/evidence-source-inspect-help-stored-evidence-evidence-copy";
 import { EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PATH } from "@/lib/evidence-source-inspect-help-stored-evidence-route";
-import { EVIDENCE_SOURCE_INSPECT_PREVIEW_DIALOG_HONESTY } from "@/lib/evidence-source-inspect-sealed-honesty";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SLUG = "inspect-stored-evidence" as const;
 
@@ -16,7 +16,7 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TITLE =
   "Inspect stored evidence on a review" as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PAGE_SUBTITLE =
-  "Working help — preview or download submitted source files on the review Evidence tab (ESI-08), not the sealed package ZIP." as const;
+  "Working help — preview or download submitted source files on the review Evidence tab." as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_OVERVIEW_LEAD =
   "After intake stores originals with the review, open the architecture package, go to the Evidence tab, and use Submitted evidence to reach stored catalog rows. Preview when the client policy allows inline display; otherwise download only. Citation-only inventory rows never expose Download — they were never persisted as files." as const;
@@ -29,7 +29,7 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_TITLE =
   "Submitted evidence is not the sealed review record" as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_BODY =
-  `${EVIDENCE_SOURCE_INSPECT_PREVIEW_DIALOG_HONESTY} The sealed package ZIP and manifest exports live on sealed review record surfaces — do not treat a downloaded PNG, PDF, or text source as proof of seal integrity.` as const;
+  "Submitted source files help you verify what was stored with the review. The sealed package ZIP and manifest exports live on sealed review record surfaces — do not treat a downloaded PNG, PDF, or text source as proof of seal integrity." as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_STATUS_TAG =
   "Not sealed package proof" as const;
@@ -44,28 +44,52 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_DOWNLOAD_ONLY_HEADING 
   "Download-only and unsafe inline types" as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_DOWNLOAD_ONLY_BODY =
-  "StoredEvidenceFileContentSafety mirrors server preview policy: HTML, SVG, and other unsafe inline types resolve to download-only. Unknown or binary content types also stay download-only — the UI does not attempt inline preview for those rows." as const;
+  "HTML, SVG, and other unsafe inline types resolve to download-only. Unknown or binary content types also stay download-only — the UI does not attempt inline preview for those rows." as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CITATION_HEADING =
   "Citation-only rows" as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CITATION_BODY =
-  "Inventory rows with inventoryKind citation reference external or passage-backed evidence that was never stored in dbo.RunStoredEvidenceFiles. They do not render file-name preview or Download — inspect stored originals on stored-file rows instead." as const;
+  "Citation-only inventory rows reference external or passage-backed evidence that was never stored as files. They do not render file-name preview or Download — inspect stored originals on stored-file rows instead." as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_AUDIT_HEADING =
   "Authority and audit recording" as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_AUDIT_BODY =
-  "ReviewStoredEvidenceFilesController requires ReadAuthority on GET /v1/architecture/review/{runId}/evidence/files/{evidenceItemId}. Successful stream or download requests emit EvidenceSourceOpened on the tenant audit trail — not a sealed-record export label and not a substitute for sealed package verification." as const;
+  "Authorized stream or download requests on stored catalog rows are recorded on the tenant audit trail. That event is not a sealed-record export label and not a substitute for sealed package verification." as const;
+
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_BODY =
+  `Packages hidden by restrict-to-shares inside your tenant never appear in review lists — that is workspace sharing policy, not Evidence source inspect. When Working bind tools stay disabled until an architecture desk is open, navigation uses this visible reason: ${WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON}` as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_HEADING =
   "Preview dialog keyboard behavior" as const;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_BODY =
-  "The submitted evidence preview dialog closes on Escape and returns focus to the file-name control that opened it. Use the dialog Download button to save a copy while previewing — the same sealed-record denial applies inside the dialog." as const;
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_INTRO =
+  "Keyboard paths below match the stored-file preview dialog on the review Evidence tab." as const;
+
+export type EvidenceSourceInspectHelpStoredEvidencePreviewKeyboardRow = {
+  readonly keys: string;
+  readonly action: string;
+};
+
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_ROWS: readonly EvidenceSourceInspectHelpStoredEvidencePreviewKeyboardRow[] =
+  [
+    {
+      keys: "Enter or Space",
+      action: "Open the preview dialog from the stored-file name control.",
+    },
+    {
+      keys: "Tab",
+      action: "Move focus to the Download button inside the preview dialog.",
+    },
+    {
+      keys: "Escape",
+      action: "Close the preview dialog and return focus to the file-name control that opened it.",
+    },
+  ] as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_WORKING =
-  "Working Architecture seats show Submitted evidence on in-flight and committed reviews when your role has ReadAuthority for the package. Portfolio headline savings stay disposition-aware and deduplicated by FindingId — per-system rows do not sum to the headline." as const;
+  "Working Architecture seats show Submitted evidence on in-flight and committed reviews when your role has ReadAuthority for the package." as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_GUIDED =
   "Guided, demo, and trial seats may show teaching chrome and sample scope. Stored-file inspect still applies when originals are persisted — do not treat practice labeling as sponsor proof." as const;
@@ -73,57 +97,46 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_GUIDED =
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_SECURENOW =
   "The SecureNow (Security) product shell does not host Architecture review Evidence tabs — this topic applies to Architecture review workflows and in-app Architecture help routes only." as const;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_HEADING =
-  "Record vs Practice on stored evidence" as const;
-
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_BODY =
   "Record (career) and Practice (rehearsal) both persist submitted source files on the review when intake retained originals. Practice labeling stays explicit on exports — downloaded sources from a Practice review are not sealed-record proof. Use Record paths when sponsors need career-grade evidence." as const;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_HEADING =
-  "Workspace scope and gated navigation" as const;
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_HEADING_ID =
+  "help-inspect-stored-evidence-technical-reference" as const;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_BODY =
-  `Packages hidden by restrict-to-shares inside your tenant never appear in review lists — that is workspace sharing policy, not Evidence source inspect. When Working bind tools stay disabled until an architecture desk is open, navigation uses this visible reason: ${WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON}` as const;
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_HEADING =
+  "Technical reference" as const;
 
-export type EvidenceSourceInspectHelpStoredEvidenceEnforcementSurface = {
-  readonly name: string;
-  readonly description: string;
-  readonly href: string;
-};
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_INTRO =
+  "Engineering identifiers for support and automation. Expand when you need exact API, policy, or inventory names." as const;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_ENFORCEMENT_SURFACES: readonly EvidenceSourceInspectHelpStoredEvidenceEnforcementSurface[] =
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_IDENTIFIERS: readonly string[] =
   [
-    {
-      name: "Review stored evidence files API",
-      description:
-        "ReviewStoredEvidenceFilesController — authorized GET stream for catalog evidenceItemId rows (ReadAuthority).",
-      href: inAppHelpHref("api-contracts"),
-    },
-    {
-      name: "Preview policy (client)",
-      description: "run-stored-evidence-preview-policy.ts — StoredEvidenceFileContentSafety.resolvePreviewKind fail-closed.",
-      href: inAppHelpHref("inspect-stored-evidence"),
-    },
-    {
-      name: "Evidence tab inventory",
-      description:
-        "RunDetailEvidenceInventorySection — stored-file rows expose preview + Download; citation rows do not.",
-      href: REVIEWS_LIST_PATH,
-    },
-    {
-      name: "Extraction fidelity (LN-034)",
-      description: "Decision-grade findings still require Kind A/B provenance — inspect originals before disposition.",
-      href: inAppHelpHref("extraction-fidelity"),
-    },
+    "StoredEvidenceFileContentSafety",
+    "inventoryKind",
+    "dbo.RunStoredEvidenceFiles",
+    "ReviewStoredEvidenceFilesController",
+    "EvidenceSourceOpened",
+    "GET /v1/architecture/review/{runId}/evidence/files/{evidenceItemId}",
   ] as const;
 
-export type EvidenceSourceInspectHelpStoredEvidencePurposeLink = {
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PRIMARY_ACTION = {
+  label: "Open architecture reviews",
+  href: REVIEWS_LIST_PATH,
+  testId: "help-inspect-stored-evidence-open-reviews",
+} as const;
+
+export type EvidenceSourceInspectHelpStoredEvidenceRelatedLink = {
   readonly label: string;
   readonly href: string;
-  readonly description: string;
+  readonly description?: string;
 };
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PURPOSE_LINKS: readonly EvidenceSourceInspectHelpStoredEvidencePurposeLink[] =
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID =
+  "help-inspect-stored-evidence-related-topics" as const;
+
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING = "Related" as const;
+
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS: readonly EvidenceSourceInspectHelpStoredEvidenceRelatedLink[] =
   [
     {
       label: "Evidence intake",
@@ -145,36 +158,58 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PURPOSE_LINKS: readonl
       href: inAppHelpHref("architecture-sharing"),
       description: "Restrict-to-shares hides packages from unshared workspace members — lists stay tenant-scoped.",
     },
+    {
+      label: "Review stored evidence files API",
+      href: inAppHelpHref("api-contracts"),
+      description: "Authorized GET stream for catalog evidenceItemId rows (ReadAuthority).",
+    },
+    {
+      label: "Extraction fidelity",
+      href: inAppHelpHref("extraction-fidelity"),
+      description: "Decision-grade findings still require Kind A/B provenance — inspect originals before disposition.",
+    },
+    {
+      label: "Security & Trust",
+      href: inAppHelpHref("security-trust"),
+    },
+    {
+      label: "Evidence trail",
+      href: inAppHelpHref("evidence-trail"),
+    },
+    {
+      label: "Findings",
+      href: inAppHelpHref("findings"),
+    },
+    {
+      label: "Architecture packages",
+      href: inAppHelpHref("review-packages"),
+    },
+    {
+      label: "Record vs Practice on the Working desk",
+      href: inAppHelpHref("career-vs-rehearsal"),
+    },
+    {
+      label: "Search review evidence",
+      href: inAppHelpHref("search-review-evidence"),
+    },
   ] as const;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PRIMARY_ACTION = {
-  label: "Open architecture reviews",
-  href: REVIEWS_LIST_PATH,
-  testId: "help-inspect-stored-evidence-open-reviews",
-} as const;
+/** @deprecated Merged into {@link EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS}. */
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_ENFORCEMENT_SURFACES =
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS;
 
-export type EvidenceSourceInspectHelpStoredEvidenceRelatedLink = {
-  readonly label: string;
-  readonly href: string;
-};
+/** @deprecated Merged into {@link EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS}. */
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PURPOSE_LINKS =
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID =
-  "help-inspect-stored-evidence-related-topics" as const;
+/** @deprecated Merged into {@link EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS}. */
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS =
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING = "Related topics" as const;
-
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS: readonly EvidenceSourceInspectHelpStoredEvidenceRelatedLink[] =
-  [
-    { label: "Evidence trail", href: inAppHelpHref("evidence-trail") },
-    { label: "Findings", href: inAppHelpHref("findings") },
-    { label: "Architecture packages", href: inAppHelpHref("review-packages") },
-    { label: "Record vs Practice on the Working desk", href: inAppHelpHref("career-vs-rehearsal") },
-    { label: "Search review evidence", href: inAppHelpHref("search-review-evidence") },
-  ] as const;
-
+/** @deprecated Folded into breadcrumb — no footer Help index link. */
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_HELP_RETURN = {
-  label: HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-  href: HELP_HUB_CANONICAL_PATH,
+  label: "Help & Support",
+  href: "/help",
 } as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
@@ -184,11 +219,6 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_GUIDE_HEADINGS: readon
     title: EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_TITLE,
   },
   { level: 2, id: "help-inspect-stored-evidence-applicability", title: "Scope and seat applicability" },
-  {
-    level: 2,
-    id: "help-inspect-stored-evidence-record-practice",
-    title: EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_HEADING,
-  },
   {
     level: 2,
     id: "help-inspect-stored-evidence-controls",
@@ -216,20 +246,9 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_GUIDE_HEADINGS: readon
   },
   {
     level: 2,
-    id: "help-inspect-stored-evidence-scope-nav",
-    title: EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_HEADING,
+    id: EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_HEADING_ID,
+    title: EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_HEADING,
   },
-  {
-    level: 2,
-    id: "help-inspect-stored-evidence-enforcement-surfaces",
-    title: "Enforcement surfaces",
-  },
-  {
-    level: 2,
-    id: "help-inspect-stored-evidence-purpose-links",
-    title: "Purpose-specific navigation links",
-  },
-  { level: 2, id: "help-inspect-stored-evidence-where-to-go-next", title: "Where to go next" },
   {
     level: 2,
     id: EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID,
@@ -245,3 +264,58 @@ export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_FORBIDDEN_LINK_MARKERS
   "github.com",
   "/blob/",
 ] as const;
+
+const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RENDER_PRODUCT_LINES: readonly ProductLineId[] = ["architecture"];
+
+export function helpTopicSlugFromInAppHref(href: string): string | null {
+  const normalized = href.trim();
+
+  if (!normalized.startsWith("/help/")) {
+    return null;
+  }
+
+  const slug = normalized.slice("/help/".length).split(/[?#]/)[0]?.trim() ?? "";
+
+  return slug.length > 0 ? slug : null;
+}
+
+export function collectEvidenceSourceInspectHelpStoredEvidenceGuideHrefs(): string[] {
+  return EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS.map((link) => link.href);
+}
+
+export function assertEvidenceSourceInspectHelpStoredEvidenceGuideLinksAllowed(
+  productLineId: ProductLineId,
+): void {
+  const hrefs = collectEvidenceSourceInspectHelpStoredEvidenceGuideHrefs();
+  const seen = new Set<string>();
+
+  for (const href of hrefs) {
+    if (seen.has(href)) {
+      throw new Error(`Duplicate guide href: ${href}`);
+    }
+
+    seen.add(href);
+
+    const slug = helpTopicSlugFromInAppHref(href);
+
+    if (slug === null) {
+      continue;
+    }
+
+    if (isHelpTopicExcludedForProductLine(slug, productLineId)) {
+      throw new Error(`Guide link targets excluded help topic ${slug} for ${productLineId}`);
+    }
+  }
+}
+
+export function evidenceSourceInspectHelpStoredEvidenceGuideLinksValidForRenderProductLines(): boolean {
+  try {
+    for (const productLineId of EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RENDER_PRODUCT_LINES) {
+      assertEvidenceSourceInspectHelpStoredEvidenceGuideLinksAllowed(productLineId);
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}

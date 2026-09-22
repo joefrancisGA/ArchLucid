@@ -1,8 +1,12 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
+import { HelpInspectStoredEvidenceBreadcrumb } from "@/app/(operator)/help/_sections/HelpInspectStoredEvidenceBreadcrumb";
 import { HelpInspectStoredEvidenceHeaderActions } from "@/app/(operator)/help/_sections/HelpInspectStoredEvidenceHeaderActions";
+import { HelpInspectStoredEvidenceTechnicalReference } from "@/app/(operator)/help/_sections/HelpInspectStoredEvidenceTechnicalReference";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -22,28 +26,25 @@ import {
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CITATION_BODY,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CONTROLS_BODY,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_DOWNLOAD_ONLY_BODY,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_ENFORCEMENT_SURFACES,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_GUIDE_HEADINGS,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_HELP_RETURN,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_OVERVIEW_LEAD,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PAGE_SUBTITLE,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_BODY,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PURPOSE_LINKS,
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_INTRO,
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_ROWS,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_BODY,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS,
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_BODY,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_STATUS_TAG,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_TITLE,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_BODY,
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_HEADING_ID,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TITLE,
 } from "@/lib/evidence-source-inspect-help-stored-evidence-guide-content";
 import {
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CLAIM_DISCIPLINE,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_HEADING_ID,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SOURCES,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TOPIC_LABEL,
 } from "@/lib/evidence-source-inspect-help-stored-evidence-evidence-copy";
 import {
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_FIRST_VIEWPORT_TEST_ID,
@@ -54,6 +55,10 @@ import {
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SKIP_TARGET_ID,
 } from "@/lib/evidence-source-inspect-help-stored-evidence-page-copy";
 import { EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PATH } from "@/lib/evidence-source-inspect-help-stored-evidence-route";
+import {
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RETURN_TO_REVIEW_EVIDENCE_LABEL,
+  resolveInspectStoredEvidenceHelpReturnHref,
+} from "@/lib/evidence-source-inspect-help-stored-evidence-return";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -97,6 +102,10 @@ export function HelpInspectStoredEvidenceGuideView(
 ): React.ReactElement {
   void props.markdown;
   const { entry } = props;
+  const searchParams = useSearchParams();
+  const returnToReviewEvidenceHref = resolveInspectStoredEvidenceHelpReturnHref(
+    searchParams.get("returnTo") ?? undefined,
+  );
   const contentGridClass = resolveHelpPageContentGridClass(
     EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_GUIDE_HEADINGS.length,
   );
@@ -119,8 +128,22 @@ export function HelpInspectStoredEvidenceGuideView(
       <div
         id={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PRIMARY_CONTENT_ID}
         data-testid={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PRIMARY_CONTENT_ID}
-        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+        className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
       >
+        <HelpInspectStoredEvidenceBreadcrumb />
+
+        {returnToReviewEvidenceHref !== null ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={returnToReviewEvidenceHref}
+              data-testid="help-inspect-stored-evidence-return-to-review-evidence"
+            >
+              {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RETURN_TO_REVIEW_EVIDENCE_LABEL}
+            </Link>
+          </p>
+        ) : null}
+
         <HelpTopicGuidePageHeader
           title={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TITLE}
           titleTestId="help-inspect-stored-evidence-page-title"
@@ -130,7 +153,6 @@ export function HelpInspectStoredEvidenceGuideView(
           headingLevel="h1"
           claimDiscipline={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CLAIM_DISCIPLINE}
           claimDisciplineTestId={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
-          breadcrumb={<HelpTopicBreadcrumb topicTitle={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TOPIC_LABEL} />}
           metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
           actions={<HelpInspectStoredEvidenceHeaderActions />}
         />
@@ -138,10 +160,7 @@ export function HelpInspectStoredEvidenceGuideView(
         <div
           id={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SKIP_TARGET_ID}
           data-testid={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_FIRST_VIEWPORT_TEST_ID}
-          className={cn(
-            "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-            OPERATOR_LAYOUT.sectionStack,
-          )}
+          className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
         >
           <p className={readingBodyClass} data-testid="help-inspect-stored-evidence-overview">
             {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_OVERVIEW_LEAD}
@@ -203,17 +222,12 @@ export function HelpInspectStoredEvidenceGuideView(
               >
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_SECURENOW}
               </p>
-            </section>
-
-            <section
-              aria-labelledby="help-inspect-stored-evidence-record-practice"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-              data-testid="help-inspect-stored-evidence-record-practice"
-            >
-              <HelpSectionHeading id="help-inspect-stored-evidence-record-practice">
-                Record vs Practice on stored evidence
-              </HelpSectionHeading>
-              <p className={readingBodyClass}>{EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_BODY}</p>
+              <p
+                className={cn(readingBodyClass, "text-al-text-secondary")}
+                data-testid="help-inspect-stored-evidence-record-practice"
+              >
+                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_BODY}
+              </p>
             </section>
 
             <section
@@ -243,9 +257,7 @@ export function HelpInspectStoredEvidenceGuideView(
               className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
               data-testid="help-inspect-stored-evidence-citation-only"
             >
-              <HelpSectionHeading id="help-inspect-stored-evidence-citation-only">
-                Citation-only rows
-              </HelpSectionHeading>
+              <HelpSectionHeading id="help-inspect-stored-evidence-citation-only">Citation-only rows</HelpSectionHeading>
               <p className={readingBodyClass}>{EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CITATION_BODY}</p>
             </section>
 
@@ -258,6 +270,9 @@ export function HelpInspectStoredEvidenceGuideView(
                 Authority and audit recording
               </HelpSectionHeading>
               <p className={readingBodyClass}>{EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_AUDIT_BODY}</p>
+              <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-inspect-stored-evidence-scope-nav">
+                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_BODY}
+              </p>
             </section>
 
             <section
@@ -268,79 +283,39 @@ export function HelpInspectStoredEvidenceGuideView(
               <HelpSectionHeading id="help-inspect-stored-evidence-preview-keyboard">
                 Preview dialog keyboard behavior
               </HelpSectionHeading>
-              <p className={readingBodyClass}>{EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_BODY}</p>
+              <p className={readingBodyClass}>{EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_INTRO}</p>
+              <div className="max-w-3xl overflow-x-auto">
+                <table
+                  className={cn("w-full border-collapse text-left", HELP_PAGE_LAYOUT.readingBody)}
+                  data-testid="help-inspect-stored-evidence-preview-keyboard-table"
+                >
+                  <caption className="sr-only">Stored-file preview dialog keyboard shortcuts</caption>
+                  <thead>
+                    <tr className="border-b border-neutral-200 dark:border-neutral-800">
+                      <th scope="col" className="py-2 pr-4 font-medium text-al-text-primary">Keys</th>
+                      <th scope="col" className="py-2 font-medium text-al-text-primary">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_ROWS.map((row) => (
+                      <tr
+                        key={row.keys}
+                        className="border-b border-neutral-100 dark:border-neutral-800/80"
+                      >
+                        <th scope="row" className="py-2 pr-4 font-medium text-al-text-primary">{row.keys}</th>
+                        <td className="py-2 text-al-text-secondary">{row.action}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </section>
 
             <section
-              aria-labelledby="help-inspect-stored-evidence-scope-nav"
+              aria-labelledby={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TECHNICAL_REFERENCE_HEADING_ID}
               className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-              data-testid="help-inspect-stored-evidence-scope-nav"
             >
-              <HelpSectionHeading id="help-inspect-stored-evidence-scope-nav">
-                Workspace scope and gated navigation
-              </HelpSectionHeading>
-              <p className={readingBodyClass}>{EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_BODY}</p>
-            </section>
-
-            <section
-              aria-labelledby="help-inspect-stored-evidence-enforcement-surfaces"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-              data-testid="help-inspect-stored-evidence-enforcement-surfaces"
-            >
-              <HelpSectionHeading id="help-inspect-stored-evidence-enforcement-surfaces">
-                Enforcement surfaces
-              </HelpSectionHeading>
-              <ul className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}>
-                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_ENFORCEMENT_SURFACES.map((surface) => (
-                  <li key={surface.name} className="max-w-3xl">
-                    <Link className={OPERATOR_LINK.nav} href={surface.href}>
-                      {surface.name}
-                    </Link>
-                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {surface.description}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section
-              aria-labelledby="help-inspect-stored-evidence-purpose-links"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-              data-testid="help-inspect-stored-evidence-purpose-links"
-            >
-              <HelpSectionHeading id="help-inspect-stored-evidence-purpose-links">
-                Purpose-specific navigation links
-              </HelpSectionHeading>
-              <ul className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}>
-                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PURPOSE_LINKS.map((link) => (
-                  <li key={link.href} className="max-w-3xl">
-                    <Link className={OPERATOR_LINK.nav} href={link.href}>
-                      {link.label}
-                    </Link>
-                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {link.description}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section
-              aria-labelledby="help-inspect-stored-evidence-where-to-go-next"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-              data-testid="help-inspect-stored-evidence-sources"
-            >
-              <HelpSectionHeading id="help-inspect-stored-evidence-where-to-go-next">Where to go next</HelpSectionHeading>
-              <ul className={cn("m-0 list-none space-y-2 p-0", HELP_PAGE_LAYOUT.readingBody)}>
-                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SOURCES.map((source) => (
-                  <li key={source.href}>
-                    <Link className={OPERATOR_LINK.nav} href={source.href}>
-                      {source.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <HelpInspectStoredEvidenceTechnicalReference />
             </section>
 
             <section
@@ -351,24 +326,20 @@ export function HelpInspectStoredEvidenceGuideView(
               <HelpSectionHeading id={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID}>
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING}
               </HelpSectionHeading>
-              <ul className={cn("m-0 list-none space-y-2 p-0", HELP_PAGE_LAYOUT.readingBody)}>
-                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS.map((topic) => (
-                  <li key={topic.href}>
-                    <Link className={OPERATOR_LINK.nav} href={topic.href}>
-                      {topic.label}
+              <ul className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}>
+                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS.map((link) => (
+                  <li key={link.href} className="max-w-3xl">
+                    <Link className={OPERATOR_LINK.nav} href={link.href}>
+                      {link.label}
                     </Link>
+                    {link.description !== undefined ? (
+                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        {link.description}
+                      </p>
+                    ) : null}
                   </li>
                 ))}
               </ul>
-              <p className={readingBodyClass}>
-                <Link
-                  className={OPERATOR_LINK.inline}
-                  href={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_HELP_RETURN.href}
-                  data-testid="help-inspect-stored-evidence-return-to-help"
-                >
-                  {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_HELP_RETURN.label} →
-                </Link>
-              </p>
             </section>
           </div>
 
