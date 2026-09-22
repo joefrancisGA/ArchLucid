@@ -65,8 +65,14 @@ def _check_pilot_overlay(root: Path, errors: list[str]) -> None:
         errors.append(f"{rel_path}: expected a JSON object")
         return
 
-    agent_execution = data.get("AgentExecution")
-    mode = agent_execution.get("Mode") if isinstance(agent_execution, dict) else None
+    normalized_data = {key.casefold(): value for key, value in data.items()}
+    agent_execution = normalized_data.get("agentexecution")
+    normalized_agent_execution = (
+        {key.casefold(): value for key, value in agent_execution.items()}
+        if isinstance(agent_execution, dict)
+        else {}
+    )
+    mode = normalized_agent_execution.get("mode")
 
     if isinstance(mode, str) and mode.strip().lower() == "real":
         errors.append(
@@ -74,10 +80,15 @@ def _check_pilot_overlay(root: Path, errors: list[str]) -> None:
             "(local dotnet run would require Azure OpenAI; use appsettings.Real.sample.json)"
         )
 
-    azure = data.get("AzureOpenAI") if isinstance(data.get("AzureOpenAI"), dict) else {}
+    azure_value = normalized_data.get("azureopenai")
+    azure = (
+        {key.casefold(): value for key, value in azure_value.items()}
+        if isinstance(azure_value, dict)
+        else {}
+    )
 
     for key in ("Endpoint", "DeploymentName", "EmbeddingDeploymentName", "ApiKey"):
-        value = azure.get(key)
+        value = azure.get(key.casefold())
 
         if isinstance(value, str) and value.strip():
             errors.append(
