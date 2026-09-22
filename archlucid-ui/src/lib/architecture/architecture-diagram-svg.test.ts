@@ -31,6 +31,18 @@ const FOREST_PAINT_FIXTURE = [
   "</svg>",
 ].join("");
 
+const AZURE_ICON_FIXTURE = [
+  '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',
+  '  <g class="node">',
+  '    <rect class="node-card" width="200" height="48"/>',
+  '    <rect class="node-accent" width="4" height="48" fill="#2563eb"/>',
+  '    <image class="azure-icon" data-file="virtual-machine.png"',
+  '      href="data:image/png;base64,iVBORw0KGgo="',
+  '      xlink:href="data:image/png;base64,iVBORw0KGgo="/>',
+  "  </g>",
+  "</svg>",
+].join("");
+
 describe("architecture-diagram-svg", () => {
   it("converts Mermaid foreignObject labels into visible SVG text", () => {
     const converted = replaceMermaidForeignObjectLabelsWithSvgText(LABELED_FOREIGN_OBJECT_SVG);
@@ -105,6 +117,22 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain('class="node-accent"');
     expect(converted).toContain('fill="#0f766e"');
     expect(converted).toMatch(/<circle[^>]*fill="#0f766e"/);
+  });
+
+  it("preserves embedded Azure PNG icons but rejects remote image URLs", () => {
+    const converted = sanitizeArchitectureDiagramSvg(AZURE_ICON_FIXTURE);
+    const remote = sanitizeArchitectureDiagramSvg(
+      AZURE_ICON_FIXTURE.replace(
+        "data:image/png;base64,iVBORw0KGgo=",
+        "https://example.invalid/icon.png",
+      ),
+    );
+
+    expect(converted).toContain('class="azure-icon"');
+    expect(converted).toContain("data-file=\"virtual-machine.png\"");
+    expect(converted).toContain("data:image/png;base64,iVBORw0KGgo=");
+    expect(converted).toContain('fill="#2563eb"');
+    expect(remote).not.toContain("https://example.invalid/icon.png");
   });
 
   it("wraps long foreignObject names into tspans that fit the node rect", () => {
