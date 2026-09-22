@@ -232,6 +232,15 @@
         "Microsoft.Network/natGateways"
       ],
       "file": "nat-gateway.png"
+    },
+    {
+      "category": "Databases",
+      "service": "PostgreSQL",
+      "armTypes": [
+        "Microsoft.DBforPostgreSQL/flexibleServers",
+        "Microsoft.DBforPostgreSQL/servers"
+      ],
+      "file": "postgresql.png"
     }
   ]
 }
