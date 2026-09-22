@@ -33,5 +33,17 @@ describe("cancel-abandon-in-flight-clarity (TB-2225)", () => {
     expect(stop!.explanation).toMatch(/cancel/i);
     expect(stop!.explanation).toMatch(/cooperative/i);
     expect(stop!.explanation).toMatch(/moment|not an instant/i);
+
+    expect(clarity.stopSafetyDetail).toMatch(/confirmation/i);
+    expect(clarity.stopSafetyDetail).toMatch(/CancelRequested/i);
+    expect(clarity.stopSafetyDetail).toMatch(/Canceled/i);
+    expect(clarity.stopSafetyDetail).toMatch(/sealed review record/i);
+
+    for (const action of clarity.actions) {
+      expect(action.helpExplanation).not.toMatch(/this panel|this list/i);
+    }
+
+    expect(wait!.helpExplanation).toMatch(/popover|tracked operation rows/i);
+    expect(stop!.helpExplanation).toMatch(/confirmation/i);
   });
 });

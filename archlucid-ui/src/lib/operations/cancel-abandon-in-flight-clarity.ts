@@ -8,7 +8,10 @@ export type CancelAbandonInFlightActionId = "wait" | "leave" | "stop";
 export type CancelAbandonInFlightAction = {
   readonly id: CancelAbandonInFlightActionId;
   readonly label: string;
+  /** Popover / shell copy — may reference "this panel" or "this list". */
   readonly explanation: string;
+  /** Help-topic copy — no popover-local deixis ("this panel", "this list"). */
+  readonly helpExplanation: string;
 };
 
 export type CancelAbandonInFlightClarity = {
@@ -16,6 +19,8 @@ export type CancelAbandonInFlightClarity = {
   /** Compact line under the panel "In progress" title. */
   readonly panelHeaderOneLiner: string;
   readonly actions: readonly CancelAbandonInFlightAction[];
+  /** Help-topic safety callout for Stop — confirmation, terminal cancel, partial output honesty. */
+  readonly stopSafetyDetail: string;
 };
 
 const ACTION_IDS: readonly CancelAbandonInFlightActionId[] = ["wait", "leave", "stop"] as const;
@@ -34,11 +39,15 @@ export function buildCancelAbandonInFlightClarity(): CancelAbandonInFlightClarit
         label: "Wait",
         explanation:
           "Keep watching this panel. Work continues on the server and this list updates as named stages change.",
+        helpExplanation:
+          "Keep the in-progress popover open while you watch named stages change. Work continues on the server and tracked operation rows update as stages advance.",
       },
       {
         id: "leave",
         label: "Leave",
         explanation:
+          "Navigate away anytime. The server keeps running — leaving does not cancel the work.",
+        helpExplanation:
           "Navigate away anytime. The server keeps running — leaving does not cancel the work.",
       },
       {
@@ -46,8 +55,12 @@ export function buildCancelAbandonInFlightClarity(): CancelAbandonInFlightClarit
         label: "Stop",
         explanation:
           "Use Cancel to request stop via the API. Cancel is cooperative and may take a moment — it is not an instant mid-work abort.",
+        helpExplanation:
+          "Use Cancel to request stop via the API. ArchLucid asks for confirmation before sending the stop request. Cancel is cooperative and may take a moment — it is not an instant mid-work abort.",
       },
     ],
+    stopSafetyDetail:
+      "Stop asks for confirmation, then moves the operation through CancelRequested before Canceled. Partial output from a canceled run is not a sealed review record — open Activity on the child review before treating artifacts as proof.",
   };
 }
 

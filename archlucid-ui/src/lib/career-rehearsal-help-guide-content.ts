@@ -29,6 +29,10 @@ export const CAREER_REHEARSAL_HELP_PAGE_TITLE = "Record vs Practice on the Worki
 export const CAREER_REHEARSAL_HELP_PAGE_SUBTITLE =
   "Pick the review type that matches whether you are building sealed-record evidence or running a labeled practice session." as const;
 
+/** Canonical buyer phrase for Record-path async execute (ADR 0096) — never render "Career Real". */
+export const CAREER_REHEARSAL_HELP_RECORD_EXECUTE_LABEL =
+  `${WORKING_CAREER_REHEARSAL_INTENT_LABELS.career} execute` as const;
+
 export const CAREER_REHEARSAL_HELP_OVERVIEW =
   "The Working top bar exposes a labeled review-type chooser on Architecture Working seats. Record and Practice are product review types — they do not flip host execution mode by themselves." as const;
 
