@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -17,6 +19,16 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCheckLiveE2eSimulatorAzureOpenaiEnv(unittest.TestCase):
+    def _check_pilot_overlay_errors(self, payload: dict[str, object]) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            pilot_path = root / "ArchLucid.Api" / "appsettings.Pilot.json"
+            pilot_path.parent.mkdir(parents=True, exist_ok=True)
+            pilot_path.write_text(json.dumps(payload), encoding="utf-8")
+            errors: list[str] = []
+            sut._check_pilot_overlay(root, errors)
+            return errors
+
     def test_guard_covers_rc_gate_and_nightly_workflows(self) -> None:
         self.assertIn(".github/workflows/rc-release-gate.yml", sut._WORKFLOW_PATHS)
         self.assertIn(".github/workflows/live-e2e-nightly.yml", sut._WORKFLOW_PATHS)
@@ -64,6 +76,43 @@ class TestCheckLiveE2eSimulatorAzureOpenaiEnv(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+
+    def test_check_pilot_overlay_rejects_forbidden_shapes(self) -> None:
+        cases = (
+            (
+                {"AgentExecution": {"Mode": "Real"}},
+                "AgentExecution.Mode=Real",
+            ),
+            (
+                {"AzureOpenAI": {"Endpoint": "https://example.openai.azure.com/"}},
+                "AzureOpenAI.Endpoint",
+            ),
+            (
+                {"AzureOpenAI": {"DeploymentName": "gpt-4o"}},
+                "AzureOpenAI.DeploymentName",
+            ),
+            (
+                {"AzureOpenAI": {"EmbeddingDeploymentName": "text-embedding-3-large"}},
+                "AzureOpenAI.EmbeddingDeploymentName",
+            ),
+            (
+                {"AzureOpenAI": {"ApiKey": "placeholder"}},
+                "AzureOpenAI.ApiKey",
+            ),
+        )
+
+        for payload, expected in cases:
+            with self.subTest(expected=expected):
+                errors = self._check_pilot_overlay_errors(payload)
+                self.assertTrue(any(expected in error for error in errors), msg=str(errors))
+
+    def test_check_pilot_overlay_rejects_case_insensitive_keys(self) -> None:
+        errors = self._check_pilot_overlay_errors(
+            {"agentexecution": {"mode": "Real"}, "azureopenai": {"endpoint": "https://example/"}}
+        )
+
+        self.assertTrue(any("AgentExecution.Mode=Real" in error for error in errors), msg=str(errors))
+        self.assertTrue(any("AzureOpenAI.Endpoint" in error for error in errors), msg=str(errors))
 
 
 if __name__ == "__main__":
