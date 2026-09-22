@@ -1,11 +1,11 @@
 > **Scope:** Copy-paste Composer prompts that stop `/al-bug` from manufacturing synthetic defects (especially redaction, schema-version coercion, and English-negation phrase lists) and restore a hunt catalog that covers recent product surface. Internal engineering only — not buyer-facing copy.
-> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–50 shipped**; **ABQ-51 ready**) · [`.cursor/prompts/al-bug-quality-51-azurerm-resource-catalog.md`](../../.cursor/prompts/al-bug-quality-51-azurerm-resource-catalog.md) · wave 7 index [`.cursor/prompts/al-bug-quality-week-uom-00-index.md`](../../.cursor/prompts/al-bug-quality-week-uom-00-index.md)
+> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–51 shipped**) · wave 7 index [`.cursor/prompts/al-bug-quality-week-uom-00-index.md`](../../.cursor/prompts/al-bug-quality-week-uom-00-index.md)
 > **Workflow:** [`.cursor/commands/al-bug.md`](../../.cursor/commands/al-bug.md) · ledger [`../library/AL_BUG_HUNT_LEDGER.md`](../library/AL_BUG_HUNT_LEDGER.md)
 > **Do not fork:** GTM cohorts **M-90 / M-44 / M-91 / M-92**; closed assurance **TB-135 / TB-136**; `/al-defect` PD intake; a full `bugsmash` revert
 
 # `/al-bug` quality — Composer prompts (ABQ-01–ABQ-51)
 
-**Created:** 2026-09-06 · **Status:** **01–50 shipped** · **51 ready to run** (pinned AzureRM resource catalog) · **Audience:** Cursor Composer. Paste ABQ-51 from its file. Do not implement 51 from this document’s tables.
+**Created:** 2026-09-06 · **Status:** **01–51 shipped** (ABQ-51 is exact azurerm v5.6.0 membership) · **Audience:** Cursor Composer. Do not re-implement 51 from this document’s tables.
 
 Wave 1 tables below are **historical** (ABQ-01–10). Do not re-implement 01–50. Do not implement from this document’s tables.
 
@@ -27,9 +27,8 @@ Owner 2026-09-15: stop shipping synthetic `weekk+` Azure Retail Prices UOM hunts
 
 Recommended order: **46** (can land immediately), **47**, then **48+49** (one PR preferred), then **50**. Wave 7 is shipped (#3336). Do not re-run it.
 
-## Wave 8 — ready to run (ABQ-51)
-
-Paste [`.cursor/prompts/al-bug-quality-51-azurerm-resource-catalog.md`](../../.cursor/prompts/al-bug-quality-51-azurerm-resource-catalog.md). One session. Do not implement from this table.
+## Wave 8 — implemented (ABQ-51)
+Do not re-run. Source-id recognition is `TerraformAzurermResourceTypeCatalog` at azurerm v5.6.0.
 
 | ID | Prompt file | Leftover / flaw |
 |----|-------------|-----------------|

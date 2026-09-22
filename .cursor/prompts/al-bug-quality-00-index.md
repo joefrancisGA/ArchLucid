@@ -11,11 +11,11 @@
      Wave 7 (ABQ-46–50): stop + delete synthetic Azure week UOM `weekk+` letter-run
      farming (owner 2026-09-15). Shipped in code (#3336).
      Wave 8 (ABQ-51): pin azurerm v5.6.0 and replace source-id Contains chains.
-     Prompt only until implemented. Do not implement from this index. -->
+     Implemented. Do not implement from this index. -->
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-51)
 
-**Status:** **ABQ-01–50 shipped in code** (wave 7 week-UOM cleanup #3336). **ABQ-51 is ready to run** — paste [`.cursor/prompts/al-bug-quality-51-azurerm-resource-catalog.md`](al-bug-quality-51-azurerm-resource-catalog.md). Do **not** re-implement 01–50 from their files. Do **not** ship more `weekk+` UOM hunts. Do **not** ship more three-letter Terraform source-id tokens (`fty`, `gaf`, …); ABQ-51 replaces that chain with the pinned AzureRM catalog.
+**Status:** **ABQ-01–51 shipped in code** (wave 7 week-UOM cleanup #3336; wave 8 exact azurerm v5.6.0 membership). Do **not** re-implement 01–51 from their files. Do **not** ship more `weekk+` UOM hunts. Do **not** ship more three-letter Terraform source-id tokens (`fty`, `gaf`, …).
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
