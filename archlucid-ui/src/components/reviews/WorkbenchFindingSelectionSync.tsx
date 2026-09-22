@@ -7,9 +7,11 @@ import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenc
 /** Applies selected-finding visual state to finding cards in the workbench findings column (PT-12). */
 export function WorkbenchFindingSelectionSync(): null {
   const selection = useReviewWorkbenchSelection();
+  const selectedFindingId = selection?.selectedFindingId ?? null;
+  const setSelectedFindingId = selection?.setSelectedFindingId;
 
   useEffect(() => {
-    const selectedId = selection?.selectedFindingId ?? null;
+    const selectedId = selectedFindingId;
     const cards = document.querySelectorAll<HTMLElement>("[data-finding-id]");
     let effectiveSelectedId = selectedId;
 
@@ -21,7 +23,7 @@ export function WorkbenchFindingSelectionSync(): null {
         // overwrite the null write in the same flush, so fail-closed must not wait
         // for a second selectedFindingId render (LI-13).
         effectiveSelectedId = null;
-        selection?.setSelectedFindingId(null);
+        setSelectedFindingId?.(null);
       }
     }
 
@@ -36,7 +38,7 @@ export function WorkbenchFindingSelectionSync(): null {
         card.focus({ preventScroll: true });
       }
     }
-  }, [selection, selection?.selectedFindingId]);
+  }, [selectedFindingId, setSelectedFindingId]);
 
   return null;
 }

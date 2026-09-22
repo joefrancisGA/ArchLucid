@@ -49,16 +49,28 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
 
   const setSelectedFindingId = useCallback(
     (findingId: string | null) => {
-      setSelectedFindingIdState(findingId);
-      props.onFindingIdChange?.(findingId);
+      setSelectedFindingIdState((current) => {
+        if (current === findingId) {
+          return current;
+        }
+
+        props.onFindingIdChange?.(findingId);
+        return findingId;
+      });
     },
     [props.onFindingIdChange],
   );
 
   const setWorkbenchFocusColumn = useCallback(
     (column: ReviewWorkbenchColumnId) => {
-      setWorkbenchFocusColumnState(column);
-      props.onFocusColumnChange?.(column);
+      setWorkbenchFocusColumnState((current) => {
+        if (current === column) {
+          return current;
+        }
+
+        props.onFocusColumnChange?.(column);
+        return column;
+      });
     },
     [props.onFocusColumnChange],
   );
