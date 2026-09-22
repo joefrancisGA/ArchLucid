@@ -32,6 +32,7 @@ export type InfraEvidenceMermaidRenderQuery = {
   readonly fallbackKey?: string | null;
   readonly seedNodeId?: string | null;
   readonly includeNeverShow?: boolean | null;
+  readonly includePrivateEndpointNodes?: boolean | null;
   readonly hiddenExecutiveTierKeys?: readonly string[] | null;
 };
 
@@ -62,6 +63,10 @@ function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
 
   if (params.includeNeverShow === true) {
     search.set("includeNeverShow", "true");
+  }
+
+  if (params.includePrivateEndpointNodes === true) {
+    search.set("includePrivateEndpointNodes", "true");
   }
 
   if (params.hiddenExecutiveTierKeys != null && params.hiddenExecutiveTierKeys.length > 0) {

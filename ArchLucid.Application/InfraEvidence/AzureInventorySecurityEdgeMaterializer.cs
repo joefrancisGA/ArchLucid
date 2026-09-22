@@ -851,14 +851,12 @@ public static class AzureInventorySecurityEdgeMaterializer
 
     private static string? TryGetParentArmId(string normalizedArmId)
     {
-        int lastSlash = normalizedArmId.LastIndexOf('/');
-
-        if (lastSlash <= 0)
+        if (!ArmResourceIdNormalizer.TryGetParentResourceId(normalizedArmId, out string parentResourceId))
         {
             return null;
         }
 
-        return normalizedArmId[..lastSlash];
+        return parentResourceId;
     }
 
     private static string? TryReadJsonString(JsonElement element, string propertyName)

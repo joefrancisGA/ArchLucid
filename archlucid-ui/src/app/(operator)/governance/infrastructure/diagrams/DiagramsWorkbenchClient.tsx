@@ -192,7 +192,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
@@ -322,6 +321,7 @@ export function DiagramsWorkbenchClient() {
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
+  const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(false);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
   const [seedNodeDraft, setSeedNodeDraft] = useState<string>(urlSeedNodeId);
   const [appliedSeedNodeId, setAppliedSeedNodeId] = useState<string>(() =>
@@ -536,13 +536,6 @@ export function DiagramsWorkbenchClient() {
     && selectedResourceGroupName.length === 0
     && resourceGroupPickerArtifacts.length > 0;
 
-  const awaitingSubscriptionSelection =
-    !loadingSnapshots
-    && !deepLinkedSnapshotMissing
-    && snapshots.length > 0
-    && !diagramsSubscriptionChosen
-    && selectedSnapshotId.length === 0;
-
   const awaitingSnapshotSelection =
     !loadingSnapshots
     && !deepLinkedSnapshotMissing
@@ -671,6 +664,7 @@ export function DiagramsWorkbenchClient() {
     () => renderResult?.completenessWarnings ?? snapshotCompletenessWarnings,
     [renderResult?.completenessWarnings, snapshotCompletenessWarnings],
   );
+  const completenessSummary = renderResult?.completenessSummary ?? null;
 
   const renderStatusPresentation = useMemo(() => {
     if (renderStatus.length === 0 || renderStatus !== "Failed") {
@@ -903,18 +897,29 @@ export function DiagramsWorkbenchClient() {
 
     if (isInfraDiagramsResourceGroupMode(selectedMode)) {
       if (selectedResourceGroupName.length === 0) {
-        return { mode: "resourceGroup", includeNeverShow, ...executiveTierQuery };
+        return {
+          mode: "resourceGroup",
+          includeNeverShow,
+          includePrivateEndpointNodes: showPrivateEndpoints,
+          ...executiveTierQuery,
+        };
       }
 
       return {
         mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName),
         includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
         ...executiveTierQuery,
       };
     }
 
     if (effectiveFallbackKey.length > 0) {
-      return { fallbackKey: effectiveFallbackKey, includeNeverShow, ...executiveTierQuery };
+      return {
+        fallbackKey: effectiveFallbackKey,
+        includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
+        ...executiveTierQuery,
+      };
     }
 
     if (selectedMode === "dependencyNeighborhood") {
@@ -928,6 +933,23 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         seedNodeId: trimmedSeed,
         includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
+        ...executiveTierQuery,
+      };
+    }
+
+    if (selectedMode === "selectedResources") {
+      const trimmedSelection = appliedSeedNodeId.trim();
+
+      if (trimmedSelection.length === 0) {
+        return null;
+      }
+
+      return {
+        mode: selectedMode,
+        seedNodeId: trimmedSelection,
+        includeNeverShow,
+        includePrivateEndpointNodes: showPrivateEndpoints,
         ...executiveTierQuery,
       };
     }
@@ -936,6 +958,7 @@ export function DiagramsWorkbenchClient() {
       mode: selectedMode,
       seedNodeId: null,
       includeNeverShow,
+      includePrivateEndpointNodes: showPrivateEndpoints,
       ...executiveTierQuery,
     };
   }, [
@@ -947,6 +970,7 @@ export function DiagramsWorkbenchClient() {
     diagramTypeSelected,
     selectedMode,
     selectedResourceGroupName,
+    showPrivateEndpoints,
   ]);
 
   const retryLoad = useCallback(() => {
@@ -1441,7 +1465,10 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-        <InfraEvidenceCompletenessWarningsBanner warnings={completenessWarnings} />
+        <InfraEvidenceCompletenessWarningsBanner
+          warnings={completenessWarnings}
+          summary={completenessSummary}
+        />
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
@@ -1779,6 +1806,24 @@ export function DiagramsWorkbenchClient() {
         )}
       </section>
 
+      <section className={cn("flex items-center justify-between gap-3", cnCard)} aria-label="Diagram display options">
+        <div>
+          <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Private endpoints remain available for relationship analysis but are hidden from the canvas by default.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant={showPrivateEndpoints ? "default" : "outline"}
+          data-testid="infra-diagrams-show-private-endpoints"
+          aria-pressed={showPrivateEndpoints}
+          onClick={() => setShowPrivateEndpoints((current) => !current)}
+        >
+          {showPrivateEndpoints ? "Hide private endpoints" : "Show private endpoints"}
+        </Button>
+      </section>
+
       {selectedMode === "dependencyNeighborhood" ? (
         <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Dependency neighborhood drill-down">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -1868,7 +1913,10 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      {isInfraDiagramsExecutiveMode(selectedMode) && selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+      {diagramTypeSelected
+      && isInfraDiagramsExecutiveMode(selectedMode)
+      && selectedSnapshotId.length > 0
+      && !deepLinkedSnapshotMissing ? (
         <section
           className={cn("flex flex-col gap-3", cnCard)}
           aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
@@ -2076,13 +2124,7 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {awaitingSubscriptionSelection ? (
-        <EnterpriseCompactEmptyState
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY}
-          testId="infra-diagrams-subscription-prompt"
-        />
-      ) : awaitingSnapshotSelection ? (
+      {awaitingSnapshotSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY}

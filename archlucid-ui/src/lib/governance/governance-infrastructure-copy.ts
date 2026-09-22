@@ -166,9 +166,6 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL = "Subscripti
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE = "Select a subscription" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_BODY =
-  "Choose a subscription before selecting a diagram type." as const;
-
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE = "Select a snapshot" as const;
@@ -561,6 +558,29 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SNAPSHOT_DEEP_LINK_RECOVERY =
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_RESOURCE_SCOPE_ACTION = "Clear resource scope" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_SNAPSHOT_SCOPE_ACTION = "Clear linked snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL = "Not scoped" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL = "Scoped" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_ADVISORY_RECONSTRUCTED_TAG = "Advisory · reconstructed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_LABEL = "Cloud resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_PLACEHOLDER =
+  "Search by resource name or paste a cloud resource id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_RECENT_MAPPINGS_TITLE = "Recent mappings" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TITLE = "No Terraform mapping for this snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_BODY =
+  "No advisory Terraform address is mapped for this resource in the selected snapshot." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TAG = "Not mapped" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_EXPORT_DISABLED_NO_SNAPSHOT =
+  "Select a snapshot with inventory evidence before downloading the advisory ZIP." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
 

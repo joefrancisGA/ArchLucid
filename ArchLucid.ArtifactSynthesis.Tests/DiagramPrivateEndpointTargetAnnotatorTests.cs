@@ -153,7 +153,7 @@ public sealed class DiagramPrivateEndpointTargetAnnotatorTests
     }
 
     [Fact]
-    public void Compile_resource_group_keeps_private_endpoint_when_only_subnet_is_attached()
+    public void Compile_resource_group_keeps_private_endpoint_when_opted_in()
     {
         const string peArmId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-sql";
@@ -185,7 +185,11 @@ public sealed class DiagramPrivateEndpointTargetAnnotatorTests
         DiagramAst ast = compiler.Compile(
             graph,
             DiagramMode.ResourceGroup,
-            new DiagramAstCompileOptions { ResourceGroupName = "rg" });
+            new DiagramAstCompileOptions
+            {
+                ResourceGroupName = "rg",
+                IncludePrivateEndpointNodes = true,
+            });
 
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "data", StringComparison.Ordinal));

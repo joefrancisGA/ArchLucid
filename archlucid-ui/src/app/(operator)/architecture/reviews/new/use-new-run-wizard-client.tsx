@@ -86,25 +86,17 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   );
 
   const setFocusedPilotModeEnabled = useCallback(
-    (value: boolean | ((prev: boolean) => boolean)) => {
-      setFocusedPilotModeEnabledState((prev) => {
-        const resolved = typeof value === "function" ? value(prev) : value;
-        syncPilotTogglesToUrl({ focusedPilotModeEnabled: resolved });
-
-        return resolved;
-      });
+    (value: boolean) => {
+      setFocusedPilotModeEnabledState(value);
+      syncPilotTogglesToUrl({ focusedPilotModeEnabled: value });
     },
     [syncPilotTogglesToUrl],
   );
 
   const setAdvancedConfigurationOptIn = useCallback(
-    (value: boolean | ((prev: boolean) => boolean)) => {
-      setAdvancedConfigurationOptInState((prev) => {
-        const resolved = typeof value === "function" ? value(prev) : value;
-        syncPilotTogglesToUrl({ advancedConfigurationOptIn: resolved });
-
-        return resolved;
-      });
+    (value: boolean) => {
+      setAdvancedConfigurationOptInState(value);
+      syncPilotTogglesToUrl({ advancedConfigurationOptIn: value });
     },
     [syncPilotTogglesToUrl],
   );

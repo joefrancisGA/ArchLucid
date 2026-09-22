@@ -329,7 +329,7 @@ describe("DiagramsWorkbenchClient", () => {
     const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
 
     expect(subscriptionPicker).toHaveValue("");
-    expect(await screen.findByTestId("infra-diagrams-subscription-prompt")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-subscription-prompt")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
 
     await selectDiagramsSubscription("sub-1");
@@ -347,6 +347,21 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-snapshot-id-readout")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-executive-always-show")).not.toBeInTheDocument();
     expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalled();
+  });
+
+  it("does not show Executive always-show choices until Executive is selected", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("");
+    expect(screen.queryByTestId("infra-diagrams-executive-always-show")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "executive" },
+    });
+
+    expect(await screen.findByTestId("infra-diagrams-executive-always-show")).toBeInTheDocument();
   });
 
   it("shows an all-resource-groups picker after subscription and snapshot selection", async () => {

@@ -5535,6 +5535,21 @@ export interface components {
         InfraEvidenceMermaidCollapseReport: {
             entries?: components["schemas"]["InfraEvidenceMermaidCollapseEntry"][];
         };
+        InfraEvidenceMermaidCompletenessSummary: {
+            collectedClasses?: string[];
+            /** Format: int32 */
+            connectedComponentCount?: number;
+            /** Format: int32 */
+            hiddenHopsUsedCount?: number;
+            /** Format: int32 */
+            likelyInCollocationEdgeCount?: number;
+            missingClasses?: string[];
+            mode?: string;
+            /** Format: int32 */
+            visibleEdgeCount?: number;
+            /** Format: int32 */
+            visibleNodeCount?: number;
+        };
         InfraEvidenceMermaidComplexityMetrics: {
             /** Format: int32 */
             crossSubgraphEdgeCount?: number;
@@ -5586,6 +5601,7 @@ export interface components {
         };
         InfraEvidenceMermaidRenderResponse: {
             collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
+            completenessSummary?: null | components["schemas"]["InfraEvidenceMermaidCompletenessSummary"];
             completenessWarnings?: string[];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;

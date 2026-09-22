@@ -53,4 +53,14 @@ public sealed class DiagramAstCompileOptions
         get;
         init;
     }
+
+    /// <summary>
+    ///     When true, private-endpoint cards stay on the canvas. Default hides them and still uses
+    ///     their hops to place remaining resources.
+    /// </summary>
+    public bool IncludePrivateEndpointNodes
+    {
+        get;
+        init;
+    }
 }

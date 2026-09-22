@@ -11,6 +11,7 @@ import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } 
 
 import { ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { DRIFT_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-drift-page-shortcuts";
+import { REMEDIATION_FACTORY_PAGE_SHORTCUTS } from "@/lib/remediation-factory/remediation-factory-page-shortcuts";
 
 export const WORKING_MODE_NEW_REVIEW_ROUTE = ARCHITECTURES_NEW_PATH;
 
@@ -298,7 +299,7 @@ export const EXTRACT_UPLOAD_PAGE_SHORTCUTS: PageShortcutEntry[] = [
 ];
 
 /** Working architecture identity desk — documented before nested job shortcuts (AO-43 / AD-10). */
-export { DRIFT_WORKBENCH_PAGE_SHORTCUTS };
+export { DRIFT_WORKBENCH_PAGE_SHORTCUTS, REMEDIATION_FACTORY_PAGE_SHORTCUTS };
 
 export const ARCHITECTURE_DESK_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
