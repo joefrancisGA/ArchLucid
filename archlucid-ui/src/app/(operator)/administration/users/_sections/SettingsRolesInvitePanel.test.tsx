@@ -44,11 +44,14 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
     }
 
     fireEvent.change(hiddenSelect, { target: { value: "Reader" } });
+    expect(screen.getByTestId("settings-roles-invite-email")).toHaveValue("reviewer@example.com");
+    expect(screen.getByTestId("settings-roles-invite-submit")).toBeEnabled();
     fireEvent.click(screen.getByTestId("settings-roles-invite-submit"));
 
     await waitFor(() => {
       expect(showError).toHaveBeenCalled();
     });
+    expect(sendAdminUserInvitation).toHaveBeenCalledWith("reviewer@example.com", "Reader", "");
     expect(showSuccess).not.toHaveBeenCalled();
   });
 

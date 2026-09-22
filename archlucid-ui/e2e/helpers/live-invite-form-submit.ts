@@ -62,14 +62,24 @@ export async function submitAdminInviteFromUsersUi(
   const inviteForm = await openInviteForm(page);
   const emailInput = inviteForm.getByTestId("settings-roles-invite-email");
 
-  // The settings surface can remount while its client state hydrates. Wait for the
-  // form-owned input to be editable, then prove the controlled value committed before
-  // selecting the role or evaluating the submit state.
+  // The settings surface can remount while its client state hydrates. Select the role
+  // first, then fill the controlled email input and prove the value committed. The
+  // post-role fill avoids a hydration/remount clearing email after it was entered.
   await expect(inviteForm).toBeVisible({ timeout: 15_000 });
   await expect(emailInput).toBeEditable({ timeout: 15_000 });
-  await emailInput.fill(email);
-  await expect(emailInput).toHaveValue(email, { timeout: 15_000 });
   await selectInviteRole(page, inviteForm, roleLabel);
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await emailInput.fill(email);
+      await expect(emailInput).toHaveValue(email, { timeout: 5_000 });
+      break;
+    } catch (error) {
+      if (attempt === 3) {
+        throw error;
+      }
+    }
+  }
 
   const submitButton = inviteForm.getByTestId("settings-roles-invite-submit");
   await submitButton.waitFor({ state: "visible", timeout: 15_000 });
