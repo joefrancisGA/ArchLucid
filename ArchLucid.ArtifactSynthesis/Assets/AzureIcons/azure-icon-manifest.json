@@ -241,6 +241,15 @@
         "Microsoft.DBforPostgreSQL/servers"
       ],
       "file": "postgresql.png"
+    },
+    {
+      "category": "Databases",
+      "service": "MySQL",
+      "armTypes": [
+        "Microsoft.DBforMySQL/flexibleServers",
+        "Microsoft.DBforMySQL/servers"
+      ],
+      "file": "mysql.png"
     }
   ]
 }
