@@ -317,9 +317,10 @@ function WorkspaceAiProbeModelSummary(props: {
 
 function WorkspaceAiProbeDiagnostics(props: {
   readonly result: WorkspaceAiAvailabilityResult;
+  readonly productLine: "architecture" | "security";
   readonly compact?: boolean;
 }): React.JSX.Element {
-  const { result, compact = false } = props;
+  const { result, productLine, compact = false } = props;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -600,7 +601,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
             open={probeDiagnosticsOpen}
             onOpenChange={setProbeDiagnosticsOpen}
           >
-            <WorkspaceAiProbeDiagnostics result={state.result} compact />
+          <WorkspaceAiProbeDiagnostics result={state.result} productLine={productLine} compact />
           </AdvancedOptionsAccordion>
         </div>
       ) : null}
@@ -614,6 +615,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
         >
           <WorkspaceAiProbeDiagnostics
             result={state.result}
+            productLine={productLine}
             compact={!neutralProbeOnTerminalFailure}
           />
         </AdvancedOptionsAccordion>
