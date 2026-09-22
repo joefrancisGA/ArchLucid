@@ -224,6 +224,14 @@
         "Microsoft.Network/azureFirewalls"
       ],
       "file": "azure-firewall.png"
+    },
+    {
+      "category": "Networking",
+      "service": "NAT Gateway",
+      "armTypes": [
+        "Microsoft.Network/natGateways"
+      ],
+      "file": "nat-gateway.png"
     }
   ]
 }
