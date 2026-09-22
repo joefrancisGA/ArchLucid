@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+import { dismissBlockingModalOverlays } from "./dismiss-blocking-modal-overlays";
+
 async function openInviteForm(page: Page): Promise<Locator> {
   const inviteForm = page.getByTestId("settings-roles-invite-form");
 
@@ -44,10 +46,13 @@ async function selectInviteRole(page: Page, inviteForm: Locator, roleLabel: stri
 
     if (await option.isVisible().catch(() => false)) {
       await option.click({ timeout: 15_000 });
+      await page.keyboard.press("Escape").catch(() => undefined);
+      await dismissBlockingModalOverlays(page);
       return;
     }
 
     await page.keyboard.press("Escape").catch(() => undefined);
+    await dismissBlockingModalOverlays(page);
   }
 
   throw new Error(`Invite role option "${roleLabel}" was not visible after two selection attempts.`);
@@ -102,6 +107,7 @@ export async function submitAdminInviteFromUsersUi(
   }
 
   await expect(submitButton).toBeEnabled({ timeout: 15_000 });
+  await dismissBlockingModalOverlays(page);
   const inviteResponsePromise = page.waitForResponse(
     (response) =>
       response.url().includes("/api/proxy/v1/admin/users/invite") &&
