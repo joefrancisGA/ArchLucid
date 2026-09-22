@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
 
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import {
@@ -16,6 +16,9 @@ type HelpConfigurationReferenceCatalogDisclosureProps = {
   readonly summaryClassName?: string;
   readonly bodyClassName?: string;
   readonly children: ReactNode;
+  readonly id?: string;
+  readonly initialOpen?: boolean;
+  readonly onBodyMount?: (element: HTMLElement) => void;
 };
 
 /** Configuration-reference key catalog appendix synced to URL (server-safe wrapper). */
@@ -26,7 +29,10 @@ export function HelpConfigurationReferenceCatalogDisclosure(
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const openParam = searchParams.get("helpConfigurationReferenceCatalogOpen");
-  const [open, setOpenState] = useState(() => parseHelpConfigurationReferenceCatalogOpenFromSearch(openParam));
+  const hasAppliedInitialOpen = useRef(false);
+  const [open, setOpenState] = useState(
+    () => props.initialOpen === true || parseHelpConfigurationReferenceCatalogOpenFromSearch(openParam),
+  );
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
@@ -47,11 +53,19 @@ export function HelpConfigurationReferenceCatalogDisclosure(
   );
 
   useEffect(() => {
-    setOpenState(parseHelpConfigurationReferenceCatalogOpenFromSearch(openParam));
+    if (!hasAppliedInitialOpen.current) {
+      hasAppliedInitialOpen.current = true;
+      return;
+    }
+
+    setOpenState(
+      parseHelpConfigurationReferenceCatalogOpenFromSearch(openParam),
+    );
   }, [openParam]);
 
   return (
     <HelpLazyDetails
+      id={props.id}
       summary={props.summary}
       preface={props.preface}
       className={props.className}
@@ -61,8 +75,25 @@ export function HelpConfigurationReferenceCatalogDisclosure(
       bodyTestId="help-configuration-reference-content"
       open={open}
       onOpenChange={setOpen}
+      mountOnHash
     >
-      {props.children}
+      <CatalogBodyMount onMount={props.onBodyMount}>{props.children}</CatalogBodyMount>
     </HelpLazyDetails>
   );
+}
+
+function CatalogBodyMount(props: {
+  readonly children: ReactNode;
+  readonly onMount?: (element: HTMLElement) => void;
+}): ReactElement {
+  const ref = useCallback(
+    (element: HTMLDivElement | null) => {
+      if (element !== null) {
+        props.onMount?.(element);
+      }
+    },
+    [props.onMount],
+  );
+
+  return <div ref={ref}>{props.children}</div>;
 }

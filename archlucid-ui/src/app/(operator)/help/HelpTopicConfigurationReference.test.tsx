@@ -9,6 +9,14 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
 }));
 
+vi.mock("@/hooks/use-admin-identity-providers-bundle-query", () => ({
+  useAdminIdentityProvidersBundleQuery: () => ({ data: null, isPending: true }),
+}));
+
+vi.mock("@/hooks/use-admin-config-lint-summary-query", () => ({
+  useAdminConfigLintSummaryQuery: () => ({ data: undefined, isPending: true }),
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/configuration-reference",
   useRouter: () => ({ replace: vi.fn() }),
@@ -87,5 +95,17 @@ describe("HelpTopicMarkdownView configuration reference (TB-1327)", () => {
 
     expect(visible).not.toMatch(/\bTB-\d+\b/i);
     expect(visible.toLowerCase()).not.toContain("contributor-reference —");
+  });
+
+  it("does not render sponsor-send findings panel content", () => {
+    if (loaded === null) {
+      throw new Error("Expected configuration-reference documentation to load.");
+    }
+
+    render(<HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.queryByText("Before sponsor send")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open findings queue" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Review policy pack assignments" })).not.toBeInTheDocument();
   });
 });
