@@ -216,6 +216,14 @@
       ],
       "file": "vpn-gateway.png",
       "notes": "Matches gateways where gatewayType is VPN; ExpressRoute uses a separate icon when added."
+    },
+    {
+      "category": "Networking",
+      "service": "Azure Firewall",
+      "armTypes": [
+        "Microsoft.Network/azureFirewalls"
+      ],
+      "file": "azure-firewall.png"
     }
   ]
 }
