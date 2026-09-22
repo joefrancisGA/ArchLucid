@@ -9,8 +9,9 @@ import {
   primePrivateBetaBrowserSessionIfJwtMode,
   provisionScimDirectoryUser,
   stubEmptyArchitectureDraftListRoute,
-  submitAdminInviteFromUsersUi,
 } from "./helpers/live-private-beta-access";
+import { submitAdminInviteFromUsersUi } from "./helpers/live-invite-form-submit";
+import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase } from "./helpers/live-api-client";
 
 async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
@@ -36,6 +37,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + auth.`,
       );
     }
+    await requireLiveScimAdminPreflight(request);
   });
 
   test("admin invite round-trip: send invite, list pending, revoke", async ({ page }) => {
