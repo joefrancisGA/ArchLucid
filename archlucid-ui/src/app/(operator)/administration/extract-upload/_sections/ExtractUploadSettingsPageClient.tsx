@@ -193,12 +193,12 @@ function ExtractUploadSettingsPageClientInner() {
           associateRunId={associateRunId}
         />
 
-        {buyerPolishedShell ? null : (
+        {!buyerPolishedShell ? (
           <ExtractUploadCloudConnectionsVocabularyRail
             currentSurfaceId="extract-upload"
             className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           />
-        )}
+        ) : null}
 
         <div
           id={EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID}
@@ -210,7 +210,7 @@ function ExtractUploadSettingsPageClientInner() {
         >
           <ExtractUploadSettingsBuyerChrome />
 
-          {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip /> : null}
+          <ExtractUploadSettingsEvidenceOrientationStrip />
 
           {lastAcceptedPackage !== null ? (
             <ExtractUploadAcceptedPackagePanel

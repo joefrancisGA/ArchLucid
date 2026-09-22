@@ -105,6 +105,8 @@ import {
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
+import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -154,8 +156,11 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { DRIFT_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-drift-page-shortcuts";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
@@ -297,6 +302,43 @@ export function DriftWorkbenchClient() {
   const [pendingDeleteSnapshotId, setPendingDeleteSnapshotId] = useState<string | null>(null);
   const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null);
   const [snapshotsReloadNonce, setSnapshotsReloadNonce] = useState(0);
+  const [workbenchRetryNonce, setWorkbenchRetryNonce] = useState(0);
+
+  const retryWorkbenchLoad = useCallback(() => {
+    setLoadError(null);
+    setWorkbenchRetryNonce((value) => value + 1);
+    setSnapshotsReloadNonce((value) => value + 1);
+  }, []);
+
+  const scopeStatusBadge = useMemo(() => {
+    if (urlCloudResourceId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL}
+          data-testid="infra-drift-scope-status"
+        />
+      );
+    }
+
+    if (selectedSnapshotId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label="Snapshot selected"
+          data-testid="infra-drift-scope-status"
+        />
+      );
+    }
+
+    return (
+      <StatusTag
+        kind="needs-attention"
+        label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL}
+        data-testid="infra-drift-scope-status"
+      />
+    );
+  }, [selectedSnapshotId, urlCloudResourceId]);
 
   const selectedSnapshot = useMemo(
     () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
@@ -521,7 +563,7 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [tableFilterState.snapshotsPage, urlSnapshotId, snapshotsReloadNonce]);
+  }, [tableFilterState.snapshotsPage, urlSnapshotId, snapshotsReloadNonce, workbenchRetryNonce]);
 
   const pendingDeleteSnapshot = useMemo(
     () => snapshots.find((snapshot) => snapshot.snapshotId === pendingDeleteSnapshotId) ?? null,
@@ -602,7 +644,7 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedSnapshotId]);
+  }, [selectedSnapshotId, workbenchRetryNonce]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0) {
@@ -706,6 +748,7 @@ export function DriftWorkbenchClient() {
     tableFilterState.includeUnchanged,
     urlChangeId,
     urlCloudResourceId,
+    workbenchRetryNonce,
   ]);
 
   useEffect(() => {
@@ -1092,17 +1135,19 @@ export function DriftWorkbenchClient() {
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
         title={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
-        subtitle={
-          buyerPolishedShell
-            ? GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD
-            : GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE
-        }
+        subtitle={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
         subtitleTestId="infra-drift-page-lead"
-        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE : undefined}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-drift-claim-discipline"
         titleTestId="infra-drift-page-title"
-        breadcrumb={<DriftBreadcrumb />}
-        actions={<PageContextualHelpButton />}
+        metadata={<DriftBreadcrumb />}
+        actions={
+          <InfraEvidenceWorkbenchHeaderActions
+            shortcutsTestId="infra-drift-page-shortcuts"
+            shortcuts={DRIFT_WORKBENCH_PAGE_SHORTCUTS}
+            scopeStatusBadge={scopeStatusBadge}
+          />
+        }
       />
 
       <main
@@ -1182,21 +1227,12 @@ export function DriftWorkbenchClient() {
             description={loadError}
             testId="infra-drift-load-error-panel"
             footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => window.location.reload()}>
-                Reload page
+              <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+                Retry load
               </Button>
             }
           />
         ) : null}
-
-        {buyerPolishedShell ? null : (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="infra-drift-page-secondary-lead"
-          >
-            {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
-          </p>
-        )}
 
         <section
           ref={snapshotsSectionRef}
@@ -1604,6 +1640,7 @@ export function DriftWorkbenchClient() {
         ) : null}
 
         <DriftClaimOrientationStrip />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-drift-build-provenance-limitation" />
       </main>
 
       <DriftCrossSubscriptionDiffConfirmDialog

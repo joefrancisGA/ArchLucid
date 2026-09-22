@@ -1,50 +1,45 @@
 "use client";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import {
   EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF,
   EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL,
   EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
 import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
-import {
-  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
-} from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
-import { usePathname } from "next/navigation";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
-/** Administration or Infrastructure trail for the Extract & Upload workspace (ADX). */
+/** Administration or Infrastructure trail for the Extract & Upload workspace (INX). */
 export function ExtractUploadSettingsBreadcrumb(): React.JSX.Element {
   const pathname = usePathname();
-  const isInfrastructureRoute = isExtractUploadSettingsRoutePath(pathname)
-    && pathname?.startsWith(GOVERNANCE_INFRASTRUCTURE_PATH);
+  const isInfrastructureRoute =
+    isExtractUploadSettingsRoutePath(pathname) && pathname?.startsWith(GOVERNANCE_INFRASTRUCTURE_PATH);
 
-  if (isInfrastructureRoute) {
-    return (
-      <OperatorPageBreadcrumb
-        data-testid="extract-upload-page-breadcrumb"
-        items={[
-          {
-            label: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
-            href: GOVERNANCE_INFRASTRUCTURE_PATH,
-          },
-          { label: EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE },
-        ]}
-      />
-    );
-  }
+  const parentHref = isInfrastructureRoute
+    ? GOVERNANCE_INFRASTRUCTURE_PATH
+    : EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF;
+  const parentLabel = isInfrastructureRoute
+    ? GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE
+    : EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL;
 
   return (
-    <OperatorPageBreadcrumb
-      data-testid="extract-upload-page-breadcrumb"
-      items={[
-        {
-          label: EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL,
-          href: EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF,
-        },
-        { label: EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE },
-      ]}
-    />
+    <nav aria-label="Breadcrumb" data-testid="extract-upload-page-breadcrumb">
+      <ol className={cn("m-0 flex flex-wrap items-center gap-1 p-0 list-none", OPERATOR_TYPOGRAPHY.helper)}>
+        <li>
+          <Link href={parentHref} className={cn("text-al-link hover:underline", OPERATOR_LINK.inline)}>
+            {parentLabel}
+          </Link>
+        </li>
+        <li aria-hidden className="text-al-text-secondary">/</li>
+        <li className="text-al-text-secondary" aria-current="page">
+          {EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE}
+        </li>
+      </ol>
+    </nav>
   );
 }
-

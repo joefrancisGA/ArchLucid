@@ -10,8 +10,12 @@ import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobR
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
+import { RefreshButton } from "@/components/ui/refresh-button";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import {
   GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
@@ -53,6 +57,9 @@ export type GovernanceFindingsQueueHeaderProps = {
   readonly scopedArchitectureId?: string | null;
   readonly architectureDisplayName?: string | null;
   readonly scopedRunTitle?: string | null;
+  readonly onRefresh?: () => void;
+  readonly queueRefreshing?: boolean;
+  readonly queueLastRefreshedAt?: Date | null;
 };
 
 export function GovernanceFindingsQueueHeader({
@@ -75,6 +82,9 @@ export function GovernanceFindingsQueueHeader({
   scopedArchitectureId = null,
   architectureDisplayName = null,
   scopedRunTitle = null,
+  onRefresh,
+  queueRefreshing = false,
+  queueLastRefreshedAt = null,
 }: GovernanceFindingsQueueHeaderProps) {
   const { productLine } = useProductLine();
   const skipLinkTargetId = isAssignedToMe
@@ -122,7 +132,7 @@ export function GovernanceFindingsQueueHeader({
         <LayerHeader pageKey="governance-findings" density="compact" />
       ) : null}
 
-      {!buyerPolishedShell ? <FindingsKeyboardTriageCoach /> : null}
+      {workingMode || !buyerPolishedShell ? <FindingsKeyboardTriageCoach /> : null}
 
       <OperatorPageHeader
         navHref={navHref}
@@ -144,6 +154,18 @@ export function GovernanceFindingsQueueHeader({
             assignedToMeHeaderMetadata
           ) : !loading ? (
             <>
+              {!isAssignedToMe && buyerPolishedShell ? (
+                <OperatorPageFreshnessMetadata
+                  testId="governance-findings-queue-last-refreshed"
+                  lastRefreshedAt={queueLastRefreshedAt}
+                >
+                  {operatorFreshnessMetadataWithClockLabel({
+                    prefix: "Last refreshed",
+                    lastRefreshedAt: queueLastRefreshedAt,
+                    refreshingLabel: queueRefreshing ? "Refreshing findings queue…" : null,
+                  })}
+                </OperatorPageFreshnessMetadata>
+              ) : null}
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-open"
@@ -188,7 +210,22 @@ export function GovernanceFindingsQueueHeader({
             </>
           ) : undefined
         }
-        actions={assignedToMeHeaderActions}
+        actions={
+          isAssignedToMe ? (
+            assignedToMeHeaderActions
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <PageContextualHelpButton />
+              {buyerPolishedShell && onRefresh !== undefined ? (
+                <RefreshButton
+                  busy={queueRefreshing}
+                  data-testid="governance-findings-queue-refresh-button"
+                  onClick={onRefresh}
+                />
+              ) : null}
+            </div>
+          )
+        }
       />
       {!isAssignedToMe ? <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" /> : null}
       {!isAssignedToMe && !buyerPolishedShell ? (

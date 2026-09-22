@@ -141,6 +141,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagr
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
   "Render inventory diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden. Pick a Resource Group to see every resource in one group." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE =
+  "Diagram exports are advisory inventory reconstructions — confirm snapshot and subscription scope before sealed-record citations." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory diagrams unavailable" as const;
@@ -482,6 +485,9 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL = "Skip to reso
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD =
   "Browse cloud resources, apply work-queue filters, and open evidence hubs for drift, findings, remediation, and Ask." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE =
+  "Resource rows reflect observed ARM inventory — work counts and hub tabs may lag ingestion. Confirm snapshot scope before sealed-record citations." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH = 50 as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE = "Resource explorer unavailable" as const;
@@ -548,6 +554,9 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_KEYBOARD_AFFORDANCE =
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION =
   "Provenance limitation: build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION =
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION;
+
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTINUE_LAST_TITLE = "Resume recent scoped mapping" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTINUE_LAST_ACTION = "Open mapping" as const;
@@ -589,6 +598,15 @@ export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD =
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE =
   "Declared connections are HumanAssertion edges with required expiry. They may strengthen path and diagram reasoning; they are not observed ARM facts.";
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PRIMARY_CONTENT_ID =
+  "infra-declared-connections-primary-content" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_SKIP_LINK_LABEL =
+  "Skip to declared connections" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE =
+  "Declared connections unavailable" as const;
 
 export type InfrastructureWorkbenchRow = {
   readonly href: string;

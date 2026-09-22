@@ -25,6 +25,8 @@ import { GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID } from "@/lib/governance/g
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import type { GovernanceAssignedToMeFetchBasis } from "@/lib/governance/governance-assigned-to-me-fetch-basis";
+import { GovernanceFindingsQueueContextStrip } from "@/components/governance/findings/GovernanceFindingsQueueContextStrip";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { InhabitedFindingsTrailBundleSnapshot } from "@/lib/inhabit/inhabited-findings-trail-bundle";
 import { cn } from "@/lib/utils";
@@ -115,6 +117,8 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly assignedToMeFetchBasis: GovernanceAssignedToMeFetchBasis | null;
   readonly currentJobId: GovernanceJobId;
   readonly inhabitedFindingsInitialTrailBundle?: InhabitedFindingsTrailBundleSnapshot | null;
+  readonly queueLastRefreshedAt?: Date | null;
+  readonly queueRefreshing?: boolean;
 };
 
 export function GovernanceFindingsQueueAssignedToMeShell(
@@ -155,6 +159,28 @@ export function GovernanceFindingsQueueAssignedToMeShell(
             {GOVERNANCE_FINDINGS_BUYER_START_HERE_HELPER}
           </p>
         </div>
+      ) : null}
+
+      {props.buyerPolishedShell && !props.isAssignedToMe ? (
+        <GovernanceFindingsQueueContextStrip
+          freshnessLabel={operatorFreshnessMetadataWithClockLabel({
+            prefix: "Last refreshed",
+            lastRefreshedAt: props.queueLastRefreshedAt ?? null,
+            refreshingLabel: props.queueRefreshing ? "Refreshing findings queue…" : null,
+          })}
+          lastRefreshedAt={props.queueLastRefreshedAt ?? null}
+          scopeLabel={
+            props.scopedRunFilterActive && props.scopedRunId !== null
+              ? `Review ${props.scopedRunId} findings`
+              : "Findings queue · current workspace scope"
+          }
+          resultsLabel={
+            props.loading
+              ? "Loading findings…"
+              : `${props.displayedRows.length} of ${props.scopedRows.length} findings`
+          }
+          filterSummary={props.activeFiltersSummary}
+        />
       ) : null}
 
       <GovernanceFindingsQueueScopeSection {...props} />

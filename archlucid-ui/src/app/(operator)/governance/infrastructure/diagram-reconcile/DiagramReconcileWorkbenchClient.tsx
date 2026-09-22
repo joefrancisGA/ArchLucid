@@ -5,9 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
+import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -84,7 +85,6 @@ import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infr
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -106,6 +106,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -233,6 +235,42 @@ export function DiagramReconcileWorkbenchClient() {
   const [diagramSourceActionError, setDiagramSourceActionError] = useState<string | null>(null);
   const [reconcileActionError, setReconcileActionError] = useState<string | null>(null);
   const [rowActionError, setRowActionError] = useState<{ correspondenceId: string; message: string } | null>(null);
+  const [workbenchRetryNonce, setWorkbenchRetryNonce] = useState(0);
+
+  const retryWorkbenchLoad = useCallback(() => {
+    setLoadError(null);
+    setWorkbenchRetryNonce((value) => value + 1);
+  }, []);
+
+  const scopeStatusBadge = useMemo(() => {
+    if (urlCloudResourceId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL}
+          data-testid="infra-diagram-reconcile-scope-status"
+        />
+      );
+    }
+
+    if (runId.trim().length > 0 && selectedSnapshotId.trim().length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label="Run and snapshot set"
+          data-testid="infra-diagram-reconcile-scope-status"
+        />
+      );
+    }
+
+    return (
+      <StatusTag
+        kind="needs-attention"
+        label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL}
+        data-testid="infra-diagram-reconcile-scope-status"
+      />
+    );
+  }, [runId, selectedSnapshotId, urlCloudResourceId]);
 
   const syncUrl = useCallback(
     (patch: {
@@ -379,7 +417,7 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [syncUrl, urlSnapshotId]);
+  }, [syncUrl, urlSnapshotId, workbenchRetryNonce]);
 
   useEffect(() => {
     if (runId.trim().length === 0 || selectedSnapshotId.trim().length === 0) {
@@ -433,7 +471,7 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId]);
+  }, [matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId, workbenchRetryNonce]);
 
   const handleRunIdChange = useCallback(
     (nextRunId: string) => {
@@ -652,64 +690,51 @@ export function DiagramReconcileWorkbenchClient() {
       className="py-4"
       data-testid="infra-diagram-reconcile-workbench"
     >
-      {buyerPolishedShell ? (
-        <a
-          href={`#${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL}
+      </a>
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD}
-        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE : undefined}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-diagram-reconcile-claim-discipline"
         titleTestId="infra-diagram-reconcile-page-title"
-        breadcrumb={buyerPolishedShell ? <DiagramReconcileBreadcrumb /> : undefined}
-        actions={<PageContextualHelpButton />}
+        metadata={<DiagramReconcileBreadcrumb />}
+        actions={
+          <InfraEvidenceWorkbenchHeaderActions
+            shortcutsTestId="infra-diagram-reconcile-page-shortcuts"
+            scopeStatusBadge={scopeStatusBadge}
+          />
+        }
       />
 
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagram-reconcile" /> : null}
-
       <main
-        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID : undefined}
-        className={cn(
-          "flex w-full flex-col gap-4",
-          buyerPolishedShell ? "scroll-mt-24" : undefined,
-        )}
+        id={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID}
+        className="flex w-full flex-col gap-4 scroll-mt-24"
         data-testid="infra-diagram-reconcile-primary-content"
       >
-      {!buyerPolishedShell ? (
-        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Reconcile an ingested architecture diagram against an Azure inventory snapshot. Correspondence rows are
-          deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient
-          evidence to confirmed.
-        </p>
-      ) : null}
       <InfraEvidenceSelectionAnnouncer
         message={selectionAnnouncement}
         testId="infra-diagram-reconcile-selection-announcer"
       />
 
       {loadError != null ? (
-        buyerPolishedShell ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-diagram-reconcile-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => window.location.reload()}>
-                Reload page
-              </Button>
-            }
-          />
-        ) : (
-          <StatusTag kind="needs-attention" label={loadError} />
-        )
+        <EnterpriseCompactEmptyState
+          role="alert"
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE}
+          description={loadError}
+          testId="infra-diagram-reconcile-load-error-panel"
+          footer={
+            <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+              Retry load
+            </Button>
+          }
+        />
       ) : null}
 
       {urlCloudResourceId.length > 0 ? (
@@ -719,26 +744,19 @@ export function DiagramReconcileWorkbenchClient() {
           aria-label="Diagram reconcile workbench resource scope"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL}
-            {!buyerPolishedShell ? (
-              <> <span className="font-mono text-xs">{urlCloudResourceId}</span>.</>
-            ) : (
-              "."
-            )}
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL}.
           </p>
-          {buyerPolishedShell ? (
-            <CollapsibleSection
-              title="Resource id"
-              sectionTestId="infra-diagram-reconcile-resource-id-disclosure"
-              summaryLine="Cloud resource UUID from the scoped link"
-              open={diagramReconcileResourceIdOpen}
-              onToggle={setDiagramReconcileResourceIdOpen}
-            >
-              <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {urlCloudResourceId}
-              </p>
-            </CollapsibleSection>
-          ) : null}
+          <CollapsibleSection
+            title="Resource id"
+            sectionTestId="infra-diagram-reconcile-resource-id-disclosure"
+            summaryLine="Cloud resource UUID from the scoped link"
+            open={diagramReconcileResourceIdOpen}
+            onToggle={setDiagramReconcileResourceIdOpen}
+          >
+            <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {urlCloudResourceId}
+            </p>
+          </CollapsibleSection>
           {(auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
@@ -1102,7 +1120,8 @@ export function DiagramReconcileWorkbenchClient() {
         </section>
       ) : null}
 
-        {buyerPolishedShell ? <DiagramReconcileClaimOrientationStrip /> : null}
+        <DiagramReconcileClaimOrientationStrip />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagram-reconcile-build-provenance-limitation" />
       </main>
     </OperatorPageContainer>
   );

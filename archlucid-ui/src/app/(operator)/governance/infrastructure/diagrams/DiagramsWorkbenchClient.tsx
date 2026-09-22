@@ -33,7 +33,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   downloadInfraEvidenceMermaidPng,
   fetchInfraEvidenceMermaidPreview,
@@ -148,6 +147,8 @@ import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evide
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
+import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -159,6 +160,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
@@ -200,6 +202,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -978,6 +982,36 @@ export function DiagramsWorkbenchClient() {
     setLoadGeneration((current) => current + 1);
   }, []);
 
+  const scopeStatusBadge = useMemo(() => {
+    if (urlCloudResourceId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL}
+          data-testid="infra-diagrams-scope-status"
+        />
+      );
+    }
+
+    if (selectedSnapshotId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label="Snapshot selected"
+          data-testid="infra-diagrams-scope-status"
+        />
+      );
+    }
+
+    return (
+      <StatusTag
+        kind="needs-attention"
+        label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL}
+        data-testid="infra-diagrams-scope-status"
+      />
+    );
+  }, [selectedSnapshotId, urlCloudResourceId]);
+
   const handleRenderFailure = useCallback(() => {
     // ArchitectureDiagramViewer surfaces retry; client render failures are not oversized-graph guards.
   }, []);
@@ -1444,9 +1478,16 @@ export function DiagramsWorkbenchClient() {
         navHref={pathname}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="infra-diagrams-claim-discipline"
         titleTestId="infra-diagrams-page-title"
-        breadcrumb={buyerPolishedShell ? <DiagramsBreadcrumb /> : undefined}
-        actions={<PageContextualHelpButton />}
+        metadata={<DiagramsBreadcrumb />}
+        actions={
+          <InfraEvidenceWorkbenchHeaderActions
+            shortcutsTestId="infra-diagrams-page-shortcuts"
+            scopeStatusBadge={scopeStatusBadge}
+          />
+        }
       />
 
       <main
@@ -1504,26 +1545,19 @@ export function DiagramsWorkbenchClient() {
           aria-label="Diagrams workbench resource scope"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL}
-            {!buyerPolishedShell ? (
-              <> <span className="font-mono text-xs">{urlCloudResourceId}</span>.</>
-            ) : (
-              "."
-            )}
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL}.
           </p>
-          {buyerPolishedShell ? (
-            <CollapsibleSection
-              title="Resource id"
-              sectionTestId="infra-diagrams-resource-id-disclosure"
-              summaryLine="Cloud resource UUID from the scoped link"
-              open={diagramsResourceIdOpen}
-              onToggle={setDiagramsResourceIdOpen}
-            >
-              <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {urlCloudResourceId}
-              </p>
-            </CollapsibleSection>
-          ) : null}
+          <CollapsibleSection
+            title="Resource id"
+            sectionTestId="infra-diagrams-resource-id-disclosure"
+            summaryLine="Cloud resource UUID from the scoped link"
+            open={diagramsResourceIdOpen}
+            onToggle={setDiagramsResourceIdOpen}
+          >
+            <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {urlCloudResourceId}
+            </p>
+          </CollapsibleSection>
           {auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
@@ -2298,6 +2332,7 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
         <DiagramsClaimOrientationStrip />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
       </main>
 
       <AlertDialog

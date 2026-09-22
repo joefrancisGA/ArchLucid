@@ -17,7 +17,10 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import { ShortcutHint } from "@/components/ShortcutHint";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
@@ -49,10 +52,10 @@ import {
   STANDARDS_RULES_PAGE_TITLE,
   STANDARDS_RULES_RESET_FILTERS,
 } from "@/lib/standards-rules-page";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
-
-import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { GovernanceResolutionOperatorDiagnostics } from "./GovernanceResolutionOperatorDiagnostics";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
@@ -65,6 +68,8 @@ import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
 import { StandardsRulesTableSkeleton } from "./StandardsRulesTableSkeleton";
 import { StandardsRulesBuyerChrome } from "./StandardsRulesBuyerChrome";
+import { StandardsRulesContextStrip } from "./StandardsRulesContextStrip";
+import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { useGovernanceResolutionRows } from "./use-governance-resolution-rows";
 
 type Props = {
@@ -74,7 +79,18 @@ type Props = {
 export function GovernanceResolutionPageView(props: Props) {
   const m = props.model;
   const rows = useGovernanceResolutionRows(m);
+  const { productLine } = useProductLine();
   const standardsPath = usePathname() ?? GOVERNANCE_STANDARDS_AND_RULES_PATH;
+  const loadRecovery = errorRecoveryContractForScenario("api-problem", {
+    failureSummary: GOVERNANCE_STANDARDS_RULES_LOAD_ERROR,
+    productLineId: productLine,
+  });
+  const standardsScopeLabel = rows.scopedRunFilterActive
+    ? `Review ${rows.scopedRunId} standards and rules`
+    : "All standards and rules · current workspace scope";
+  const standardsResultsLabel = m.loading
+    ? "Loading rules…"
+    : `${rows.filteredRuleRows.length} of ${rows.allRuleRows.length} rules`;
 
   const scopedRunBanner = rows.scopedRunFilterActive ? (
     <p
@@ -160,11 +176,21 @@ export function GovernanceResolutionPageView(props: Props) {
             >
               {STANDARDS_RULES_LOAD_RETRY_LABEL}
             </Button>
+            <OperatorErrorRecoveryContract presentation={loadRecovery} />
           </div>
         ) : null}
 
         {m.failure === null ? (
           <>
+            <StandardsRulesContextStrip
+              freshnessLabel={rows.freshnessLabel}
+              lastRefreshedAt={m.loading ? null : m.lastRefreshedAt}
+              scopeLabel={standardsScopeLabel}
+              resultsLabel={standardsResultsLabel}
+            />
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="standards-rules-keyboard-affordance">
+              <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search; use table sort headers to reorder rules.
+            </p>
             {!rows.scopedRunFilterActive ? (
               <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickRun} />
             ) : (
@@ -281,7 +307,18 @@ export function GovernanceResolutionPageView(props: Props) {
           claimDiscipline={STANDARDS_RULES_CLAIM_DISCIPLINE}
           claimDisciplineTestId="standards-rules-claim-discipline"
           breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
-          actions={<PageContextualHelpButton />}
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              <RefreshButton
+                busy={m.loading}
+                data-testid="standards-rules-refresh-button"
+                onClick={() => {
+                  void m.load();
+                }}
+              />
+            </div>
+          }
         />
 
         <div

@@ -1,20 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { ShortcutHint } from "@/components/ShortcutHint";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
@@ -60,7 +68,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SNAPSHOT_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
@@ -110,12 +117,23 @@ import {
   REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { remediationInstanceMutationBlockedReason } from "@/lib/infra-evidence/remediation-instance-mutation-blocked-reason";
+import {
+  remediationLifecycleActionBlockedReason,
+  type RemediationLifecycleAction,
+} from "@/lib/infra-evidence/remediation-lifecycle-action-blocked-reason";
+import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { RemediationBreadcrumb } from "./RemediationBreadcrumb";
 import { RemediationClaimOrientationStrip } from "./RemediationClaimOrientationStrip";
+import { RemediationWorkbenchContextStrip } from "./RemediationWorkbenchContextStrip";
+import {
+  remediationWorkbenchDataStaleCue,
+  remediationWorkbenchFreshnessLabel,
+} from "./remediation-workbench-freshness";
 
 const cnCard =
   "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
@@ -123,6 +141,14 @@ const cnCard =
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
+const REMEDIATION_DETAIL_SECTION_ID = "infra-remediation-detail-section";
+
+function activateSelectableCard(event: KeyboardEvent, onActivate: () => void): void {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    onActivate();
+  }
+}
 
 function formatRemediationWorkbenchApiError(error: unknown): string {
   const failure = toApiLoadFailure(error);
@@ -175,9 +201,14 @@ function buildDiagramHubHref(context: {
 
 export function RemediationWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const nowMs = useOperatorRelativeFreshnessNowMs();
   const router = useRouter();
   const pathname = usePathname() ?? "";
+  const navHref = useMemo(() => remediationInstancesPathForProductLine(productLine), [productLine]);
   const searchParams = useSearchParams();
+  const boardNavRef = useRef<HTMLDivElement>(null);
+  const [focusedBoardIndex, setFocusedBoardIndex] = useState(0);
   const remediationResourceIdOpenParam = searchParams.get(INFRA_REMEDIATION_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const remediationFindingIdOpenParam = searchParams.get(INFRA_REMEDIATION_FINDING_ID_DISCLOSURE_OPEN_PARAM);
   const remediationVerifyHintOpenParam = searchParams.get(INFRA_REMEDIATION_VERIFY_HINT_DISCLOSURE_OPEN_PARAM);
@@ -286,6 +317,8 @@ export function RemediationWorkbenchClient() {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionBusy, setActionBusy] = useState(false);
+  const [pendingAction, setPendingAction] = useState<RemediationLifecycleAction | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
@@ -416,6 +449,8 @@ export function RemediationWorkbenchClient() {
       if (selectedWaveId.length === 0 && waveRows.length > 0) {
         setSelectedWaveId(waveRows[0].waveId);
       }
+
+      setLastRefreshedAt(new Date());
     } catch (error: unknown) {
       setLoadError(formatRemediationWorkbenchApiError(error));
     } finally {
@@ -487,6 +522,7 @@ export function RemediationWorkbenchClient() {
     }
 
     setActionBusy(true);
+    setPendingAction("create");
     setActionMessage(null);
 
     try {
@@ -511,11 +547,16 @@ export function RemediationWorkbenchClient() {
       setActionMessage(formatRemediationWorkbenchApiError(error));
     } finally {
       setActionBusy(false);
+      setPendingAction(null);
     }
   };
 
-  const runLifecycleAction = async (action: () => Promise<{ succeeded: boolean; instanceId: string | null; blockers: string[]; errorMessage: string | null }>) => {
+  const runLifecycleAction = async (
+    lifecycleAction: RemediationLifecycleAction,
+    action: () => Promise<{ succeeded: boolean; instanceId: string | null; blockers: string[]; errorMessage: string | null }>,
+  ) => {
     setActionBusy(true);
+    setPendingAction(lifecycleAction);
     setActionMessage(null);
 
     try {
@@ -530,6 +571,7 @@ export function RemediationWorkbenchClient() {
       setActionMessage(formatRemediationWorkbenchApiError(error));
     } finally {
       setActionBusy(false);
+      setPendingAction(null);
     }
   };
 
@@ -615,6 +657,114 @@ export function RemediationWorkbenchClient() {
     return `Showing remediation instance ${selectedInstance.patternKey}.`;
   }, [selectedInstanceId, visibleInstances]);
 
+  const flatBoardInstances = useMemo(
+    () => REMEDIATION_WORKBENCH_COLUMNS.flatMap((column) => groupedInstances.get(column.id) ?? []),
+    [groupedInstances],
+  );
+
+  useEffect(() => {
+    const nextIndex = flatBoardInstances.findIndex((instance) => instance.instanceId === selectedInstanceId);
+
+    if (nextIndex >= 0) {
+      setFocusedBoardIndex(nextIndex);
+    }
+  }, [flatBoardInstances, selectedInstanceId]);
+
+  const lifecycleBlockedContext = useMemo(
+    () => ({
+      actionBusy,
+      selectedStatus,
+      transitionsBlocked,
+      findingIdInput,
+      selectedWaveId,
+      selectedSnapshotId,
+    }),
+    [actionBusy, findingIdInput, selectedSnapshotId, selectedStatus, selectedWaveId, transitionsBlocked],
+  );
+
+  const createBlockedReason = remediationLifecycleActionBlockedReason("create", lifecycleBlockedContext);
+  const preflightBlockedReason = remediationLifecycleActionBlockedReason("preflight", lifecycleBlockedContext);
+  const approveBlockedReason = remediationLifecycleActionBlockedReason("approve", lifecycleBlockedContext);
+  const assignWaveBlockedReason = remediationLifecycleActionBlockedReason("assignWave", lifecycleBlockedContext);
+  const executeBlockedReason = remediationLifecycleActionBlockedReason("execute", lifecycleBlockedContext);
+  const verifyBlockedReason = remediationLifecycleActionBlockedReason("verify", lifecycleBlockedContext);
+  const closeBlockedReason = remediationLifecycleActionBlockedReason("close", lifecycleBlockedContext);
+
+  const freshnessLabel = remediationWorkbenchFreshnessLabel({
+    lastRefreshedAt,
+    refreshing: loading,
+  });
+  const staleCue = remediationWorkbenchDataStaleCue(lastRefreshedAt, nowMs);
+  const loadRecovery = errorRecoveryContractForScenario("api-problem", {
+    failureSummary: "Remediation instances could not be loaded.",
+    productLineId: productLine,
+  });
+
+  const workbenchScopeLabel = useMemo(() => {
+    if (urlCloudResourceId.length > 0 && urlFindingId.length > 0) {
+      return "Resource + finding scoped remediation instances";
+    }
+
+    if (urlCloudResourceId.length > 0) {
+      return "Resource scoped remediation instances";
+    }
+
+    if (urlFindingId.length > 0) {
+      return "Finding scoped remediation instances";
+    }
+
+    return "Remediation instances · current workspace scope";
+  }, [urlCloudResourceId, urlFindingId]);
+
+  const workbenchSelectionLabel = useMemo(() => {
+    if (selectedInstanceId.length === 0) {
+      return null;
+    }
+
+    const selectedInstance = visibleInstances.find((instance) => instance.instanceId === selectedInstanceId);
+
+    if (selectedInstance == null) {
+      return `Instance ${selectedInstanceId.slice(0, 8)}…`;
+    }
+
+    return `${selectedInstance.patternKey} · ${selectedInstance.status}`;
+  }, [selectedInstanceId, visibleInstances]);
+
+  const onBoardKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (flatBoardInstances.length === 0) {
+        return;
+      }
+
+      if (event.key === "j" || event.key === "ArrowDown") {
+        event.preventDefault();
+        const nextIndex = Math.min(focusedBoardIndex + 1, flatBoardInstances.length - 1);
+        const nextInstance = flatBoardInstances[nextIndex];
+
+        if (nextInstance !== undefined) {
+          setFocusedBoardIndex(nextIndex);
+          setSelectedInstanceId(nextInstance.instanceId);
+          syncRemediationUrl({ instanceId: nextInstance.instanceId });
+        }
+
+        return;
+      }
+
+      if (event.key === "k" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const nextIndex = Math.max(focusedBoardIndex - 1, 0);
+        const nextInstance = flatBoardInstances[nextIndex];
+
+        if (nextInstance !== undefined) {
+          setFocusedBoardIndex(nextIndex);
+          setSelectedInstanceId(nextInstance.instanceId);
+          syncRemediationUrl({ instanceId: nextInstance.instanceId });
+        }
+      }
+    },
+    [flatBoardInstances, focusedBoardIndex, syncRemediationUrl],
+  );
+
   return (
     <OperatorPageContainer
       variant="full"
@@ -631,14 +781,50 @@ export function RemediationWorkbenchClient() {
       ) : null}
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}
+        navHref={navHref}
         title={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD}
         claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId="infra-remediation-claim-discipline"
         titleTestId="infra-remediation-page-title"
         breadcrumb={buyerPolishedShell ? <RemediationBreadcrumb /> : undefined}
-        actions={<PageContextualHelpButton />}
+        actions={
+          buyerPolishedShell ? (
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+                <RefreshButton
+                  busy={loading}
+                  data-testid="infra-remediation-refresh-button"
+                  onClick={() => void loadWorkbench()}
+                />
+              </div>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;{" "}
+                <ShortcutHint shortcut="j" />/<ShortcutHint shortcut="k" /> move lifecycle cards.
+              </p>
+            </div>
+          ) : (
+            <PageContextualHelpButton />
+          )
+        }
+        metadata={
+          buyerPolishedShell ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <OperatorPageFreshnessMetadata
+                testId="infra-remediation-last-refreshed"
+                lastRefreshedAt={lastRefreshedAt}
+              >
+                {freshnessLabel}
+              </OperatorPageFreshnessMetadata>
+              {staleCue !== null ? (
+                <span data-testid="infra-remediation-stale-cue">
+                  <StatusTag kind="needs-attention" label={staleCue} />
+                </span>
+              ) : null}
+            </div>
+          ) : undefined
+        }
       />
 
       {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-remediation" /> : null}
@@ -647,11 +833,21 @@ export function RemediationWorkbenchClient() {
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID : undefined}
         className={cn(
           "flex w-full flex-col gap-4",
-          buyerPolishedShell ? "scroll-mt-24" : undefined,
+          buyerPolishedShell ? "scroll-mt-24 space-y-4" : undefined,
         )}
         data-testid="infra-remediation-primary-content"
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
+
+      {buyerPolishedShell ? (
+        <RemediationWorkbenchContextStrip
+          freshnessLabel={freshnessLabel}
+          lastRefreshedAt={lastRefreshedAt}
+          scopeLabel={workbenchScopeLabel}
+          selectionLabel={workbenchSelectionLabel}
+          detailAnchorId={REMEDIATION_DETAIL_SECTION_ID}
+        />
+      ) : null}
 
       {urlCloudResourceId.length > 0 ? (
         <section
@@ -835,13 +1031,20 @@ export function RemediationWorkbenchClient() {
           <Button
             type="button"
             size="sm"
+            variant="primary"
             data-testid="infra-remediation-create"
             disabled={actionBusy || findingIdInput.trim().length === 0}
+            aria-describedby={createBlockedReason ? "infra-remediation-create-blocked-reason" : undefined}
             onClick={() => void runCreateFromFinding()}
           >
-            Match + create instance
+            {pendingAction === "create" ? "Creating instance…" : "Match + create instance"}
           </Button>
         </div>
+        <WhyDisabledCtaHint
+          id="infra-remediation-create-blocked-reason"
+          reason={createBlockedReason ? { kind: "incomplete-input", message: createBlockedReason } : null}
+          testId="infra-remediation-create-blocked-reason"
+        />
         {rankedFindings.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {rankedFindings.slice(0, 3).map((finding) => (
@@ -872,17 +1075,15 @@ export function RemediationWorkbenchClient() {
 
       {loadError != null ? (
         buyerPolishedShell ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-remediation-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => void loadWorkbench()}>
-                Retry load
-              </Button>
-            }
-          />
+          <div className="space-y-2" data-testid="infra-remediation-load-error-panel" role="alert">
+            <OperatorSectionLoadFailure
+              message={`${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_LOAD_ERROR_TITLE} ${loadError}`}
+              onRetry={() => void loadWorkbench()}
+              retrying={loading}
+              testId="infra-remediation-load-error-panel"
+            />
+            <OperatorErrorRecoveryContract presentation={loadRecovery} />
+          </div>
         ) : (
           <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
         )
@@ -894,18 +1095,30 @@ export function RemediationWorkbenchClient() {
           Loading remediation factory…
         </p>
       ) : (
-        <section className="grid gap-3 xl:grid-cols-6" aria-label="Remediation instance lifecycle board" data-testid="infra-remediation-board">
+        <section
+          className="grid gap-3 xl:grid-cols-6"
+          aria-label="Remediation instance lifecycle board"
+          data-testid="infra-remediation-board"
+          ref={buyerPolishedShell ? boardNavRef : undefined}
+          tabIndex={buyerPolishedShell && flatBoardInstances.length > 0 ? 0 : undefined}
+          onKeyDown={buyerPolishedShell ? onBoardKeyDown : undefined}
+        >
           {REMEDIATION_WORKBENCH_COLUMNS.map((column) => (
             <div key={column.id} className={cn("p-3", cnCard)} data-testid={`infra-remediation-column-${column.id}`}>
               <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{column.label}</h3>
               <ul className="m-0 grid gap-2 p-0">
-                {(groupedInstances.get(column.id) ?? []).map((instance) => (
+                {(groupedInstances.get(column.id) ?? []).map((instance) => {
+                  const flatIndex = flatBoardInstances.findIndex((row) => row.instanceId === instance.instanceId);
+                  const isFocused = buyerPolishedShell && flatIndex === focusedBoardIndex;
+
+                  return (
                   <li key={instance.instanceId}>
                     <button
                       type="button"
                       className={cn(
                         "w-full rounded-md border border-neutral-200 px-2 py-2 text-left text-sm hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] dark:border-neutral-800 dark:hover:bg-neutral-900",
                         selectedInstanceId === instance.instanceId ? "bg-neutral-100 dark:bg-neutral-900/40" : undefined,
+                        isFocused ? "ring-1 ring-inset ring-neutral-400" : undefined,
                       )}
                       data-testid={`infra-remediation-card-${instance.instanceId}`}
                       aria-selected={selectedInstanceId === instance.instanceId}
@@ -913,12 +1126,19 @@ export function RemediationWorkbenchClient() {
                         setSelectedInstanceId(instance.instanceId);
                         syncRemediationUrl({ instanceId: instance.instanceId });
                       }}
+                      onKeyDown={(event) =>
+                        activateSelectableCard(event, () => {
+                          setSelectedInstanceId(instance.instanceId);
+                          syncRemediationUrl({ instanceId: instance.instanceId });
+                        })
+                      }
                     >
                       <div className="font-medium">{instance.patternKey}</div>
                       <div className="text-xs text-al-text-secondary">{instance.status}</div>
                     </button>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </div>
           ))}
@@ -926,7 +1146,12 @@ export function RemediationWorkbenchClient() {
       )}
 
       {selectedInstanceId.length > 0 ? (
-        <section className={cn("grid gap-4", cnCard)} aria-label="Remediation instance detail" data-testid="infra-remediation-detail">
+        <section
+          id={REMEDIATION_DETAIL_SECTION_ID}
+          className={cn("grid gap-4", cnCard)}
+          aria-label="Remediation instance detail"
+          data-testid="infra-remediation-detail"
+        >
           {detailLoading || detail == null ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading instance detail…</p>
           ) : (
@@ -1033,23 +1258,27 @@ export function RemediationWorkbenchClient() {
                 <Button
                   type="button"
                   size="sm"
+                  variant="primary"
                   data-testid="infra-remediation-preflight"
                   disabled={actionBusy || transitionsBlocked || selectedStatus == null || !canRunRemediationPreflight(selectedStatus)}
+                  aria-describedby={preflightBlockedReason ? "infra-remediation-preflight-blocked-reason" : undefined}
                   onClick={() =>
-                    void runLifecycleAction(() =>
+                    void runLifecycleAction("preflight", () =>
                       runRemediationPreflight(detail.instance.instanceId, selectedSnapshotId),
-                    )}
+                    )
+                  }
                 >
-                  Run preflight
+                  {pendingAction === "preflight" ? "Running preflight…" : "Run preflight"}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   data-testid="infra-remediation-approve"
                   disabled={actionBusy || transitionsBlocked || selectedStatus == null || !canApproveRemediationInstance(selectedStatus)}
-                  onClick={() => void runLifecycleAction(() => approveRemediationInstance(detail.instance.instanceId))}
+                  aria-describedby={approveBlockedReason ? "infra-remediation-approve-blocked-reason" : undefined}
+                  onClick={() => void runLifecycleAction("approve", () => approveRemediationInstance(detail.instance.instanceId))}
                 >
-                  Approve
+                  {pendingAction === "approve" ? "Approving…" : "Approve"}
                 </Button>
                 <label className="inline-flex items-center gap-2 text-sm">
                   <span>Wave</span>
@@ -1068,36 +1297,42 @@ export function RemediationWorkbenchClient() {
                   size="sm"
                   data-testid="infra-remediation-assign-wave"
                   disabled={actionBusy || transitionsBlocked || selectedStatus == null || !canAssignRemediationWave(selectedStatus) || selectedWaveId.length === 0}
+                  aria-describedby={assignWaveBlockedReason ? "infra-remediation-assign-wave-blocked-reason" : undefined}
                   onClick={() =>
-                    void runLifecycleAction(() =>
+                    void runLifecycleAction("assignWave", () =>
                       assignRemediationWave(detail.instance.instanceId, selectedWaveId),
-                    )}
+                    )
+                  }
                 >
-                  Assign wave
+                  {pendingAction === "assignWave" ? "Assigning wave…" : "Assign wave"}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   data-testid="infra-remediation-execute"
                   disabled={actionBusy || transitionsBlocked || selectedStatus == null || !canExecuteRemediationInstance(selectedStatus)}
+                  aria-describedby={executeBlockedReason ? "infra-remediation-execute-blocked-reason" : undefined}
                   onClick={() =>
-                    void runLifecycleAction(() =>
+                    void runLifecycleAction("execute", () =>
                       executeRemediationInstance(detail.instance.instanceId, selectedSnapshotId),
-                    )}
+                    )
+                  }
                 >
-                  Execute (emit advisory)
+                  {pendingAction === "execute" ? "Executing…" : "Execute (emit advisory)"}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   data-testid="infra-remediation-verify"
                   disabled={actionBusy || transitionsBlocked || selectedStatus == null || !canVerifyRemediationInstance(selectedStatus)}
+                  aria-describedby={verifyBlockedReason ? "infra-remediation-verify-blocked-reason" : undefined}
                   onClick={() =>
-                    void runLifecycleAction(() =>
+                    void runLifecycleAction("verify", () =>
                       verifyRemediationInstance(detail.instance.instanceId, selectedSnapshotId),
-                    )}
+                    )
+                  }
                 >
-                  Verify
+                  {pendingAction === "verify" ? "Verifying…" : "Verify"}
                 </Button>
                 <Button
                   type="button"
@@ -1105,11 +1340,46 @@ export function RemediationWorkbenchClient() {
                   variant="outline"
                   data-testid="infra-remediation-close"
                   disabled={actionBusy || selectedStatus == null || !canCloseRemediationInstance(selectedStatus)}
-                  onClick={() => void runLifecycleAction(() => closeRemediationInstance(detail.instance.instanceId))}
+                  aria-describedby={closeBlockedReason ? "infra-remediation-close-blocked-reason" : undefined}
+                  onClick={() => void runLifecycleAction("close", () => closeRemediationInstance(detail.instance.instanceId))}
                 >
-                  Close
+                  {pendingAction === "close" ? "Closing…" : "Close"}
                 </Button>
               </div>
+              {buyerPolishedShell ? (
+                <div className="space-y-1">
+                  <WhyDisabledCtaHint
+                    id="infra-remediation-preflight-blocked-reason"
+                    reason={preflightBlockedReason ? { kind: "policy", message: preflightBlockedReason } : null}
+                    testId="infra-remediation-preflight-blocked-reason"
+                  />
+                  <WhyDisabledCtaHint
+                    id="infra-remediation-approve-blocked-reason"
+                    reason={approveBlockedReason ? { kind: "policy", message: approveBlockedReason } : null}
+                    testId="infra-remediation-approve-blocked-reason"
+                  />
+                  <WhyDisabledCtaHint
+                    id="infra-remediation-assign-wave-blocked-reason"
+                    reason={assignWaveBlockedReason ? { kind: "policy", message: assignWaveBlockedReason } : null}
+                    testId="infra-remediation-assign-wave-blocked-reason"
+                  />
+                  <WhyDisabledCtaHint
+                    id="infra-remediation-execute-blocked-reason"
+                    reason={executeBlockedReason ? { kind: "policy", message: executeBlockedReason } : null}
+                    testId="infra-remediation-execute-blocked-reason"
+                  />
+                  <WhyDisabledCtaHint
+                    id="infra-remediation-verify-blocked-reason"
+                    reason={verifyBlockedReason ? { kind: "policy", message: verifyBlockedReason } : null}
+                    testId="infra-remediation-verify-blocked-reason"
+                  />
+                  <WhyDisabledCtaHint
+                    id="infra-remediation-close-blocked-reason"
+                    reason={closeBlockedReason ? { kind: "policy", message: closeBlockedReason } : null}
+                    testId="infra-remediation-close-blocked-reason"
+                  />
+                </div>
+              ) : null}
 
               <p className={cn("m-0 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-execute-disclaimer">
                 {REMEDIATION_EXECUTE_DISCLAIMER}

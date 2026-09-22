@@ -6,14 +6,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { LayerHeader } from "@/components/LayerHeader";
+import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
+import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { InfrastructureResourcesSavedViewsBar } from "@/components/governance/infrastructure/InfrastructureResourcesSavedViewsBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { StatusTag } from "@/components/ui/status-tag";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -67,6 +69,7 @@ import type { CloudResourceSummary, ResourceHubTab } from "@/lib/infra-evidence/
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD,
@@ -77,10 +80,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -267,7 +270,6 @@ export function ResourcesExplorerClient() {
           subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
           titleTestId="infra-resource-explorer-page-title"
         />
-        {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-resources" /> : null}
         <p className={cn("m-0 inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
           {GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL}
@@ -277,6 +279,24 @@ export function ResourcesExplorerClient() {
   }
 
   const scopedHubTabLabel = formatResourceHubTabActionLabelFromExplorerWorkQueue(urlWorkQueue);
+  const activeFilterCount = [
+    urlNamePrefix,
+    urlResourceType,
+    urlResourceGroup,
+    workQueueExplicitlySet ? urlWorkQueue : "",
+  ].filter((value) => value.length > 0).length;
+
+  const scopeStatusBadge = (
+    <StatusTag
+      kind={activeFilterCount > 0 ? "ready" : "needs-attention"}
+      label={
+        activeFilterCount > 0
+          ? `${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active`
+          : GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL
+      }
+      data-testid="infra-resource-explorer-scope-status"
+    />
+  );
 
   return (
     <OperatorPageContainer
@@ -284,36 +304,32 @@ export function ResourcesExplorerClient() {
       className="py-4"
       data-testid="infra-resource-explorer-workbench"
     >
-      {buyerPolishedShell ? (
-        <a
-          href={`#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL}
+      </a>
 
       <OperatorPageHeader
         navHref={resourcesPath}
         title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
         titleTestId="infra-resource-explorer-page-title"
-        breadcrumb={buyerPolishedShell ? <ResourcesExplorerBreadcrumb /> : undefined}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="infra-resource-explorer-claim-discipline"
+        metadata={<ResourcesExplorerBreadcrumb />}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-          </div>
+          <InfraEvidenceWorkbenchHeaderActions
+            shortcutsTestId="infra-resource-explorer-page-shortcuts"
+            scopeStatusBadge={scopeStatusBadge}
+          />
         }
       />
 
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-resources" /> : null}
-
       <main
-        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID : undefined}
-        className={cn(
-          "flex w-full flex-col gap-4",
-          buyerPolishedShell ? "scroll-mt-24" : undefined,
-        )}
+        id={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}
+        className="flex w-full flex-col gap-4 scroll-mt-24"
         data-testid="infra-resource-explorer-primary-content"
       >
       <InfrastructureResourcesSavedViewsBar
@@ -345,86 +361,50 @@ export function ResourcesExplorerClient() {
           </p>
         ) : null}
         <div className="grid gap-3 md:grid-cols-3">
-          {buyerPolishedShell ? (
-            <>
-              <div className="grid gap-2 text-sm">
-                <Label
-                  htmlFor="infra-resource-explorer-name-prefix"
-                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
-                >
-                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}
-                </Label>
-                <Input
-                  id="infra-resource-explorer-name-prefix"
-                  data-testid="infra-resource-explorer-name-prefix"
-                  value={namePrefix}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setNamePrefix(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </div>
-              <div className="grid gap-2 text-sm">
-                <Label
-                  htmlFor="infra-resource-explorer-resource-type"
-                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
-                >
-                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}
-                </Label>
-                <Input
-                  id="infra-resource-explorer-resource-type"
-                  data-testid="infra-resource-explorer-resource-type"
-                  value={resourceType}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setResourceType(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </div>
-              <div className="grid gap-2 text-sm">
-                <Label
-                  htmlFor="infra-resource-explorer-resource-group"
-                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
-                >
-                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}
-                </Label>
-                <Input
-                  id="infra-resource-explorer-resource-group"
-                  data-testid="infra-resource-explorer-resource-group"
-                  value={resourceGroup}
-                  onChange={(event) => setResourceGroup(event.target.value)}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <label className="grid gap-1 text-sm">
-                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}</span>
-                <input
-                  className={cnField}
-                  data-testid="infra-resource-explorer-name-prefix"
-                  value={namePrefix}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setNamePrefix(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </label>
-              <label className="grid gap-1 text-sm">
-                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}</span>
-                <input
-                  className={cnField}
-                  data-testid="infra-resource-explorer-resource-type"
-                  value={resourceType}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setResourceType(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </label>
-              <label className="grid gap-1 text-sm">
-                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}</span>
-                <input
-                  className={cnField}
-                  data-testid="infra-resource-explorer-resource-group"
-                  value={resourceGroup}
-                  onChange={(event) => setResourceGroup(event.target.value)}
-                />
-              </label>
-            </>
-          )}
+          <div className="grid gap-2 text-sm">
+            <Label
+              htmlFor="infra-resource-explorer-name-prefix"
+              className={OPERATOR_FORM_FIELD_LABEL_CLASS}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}
+            </Label>
+            <Input
+              id="infra-resource-explorer-name-prefix"
+              data-testid="infra-resource-explorer-name-prefix"
+              value={namePrefix}
+              maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
+              onChange={(event) => setNamePrefix(clampResourceExplorerTopFilterDraft(event.target.value))}
+            />
+          </div>
+          <div className="grid gap-2 text-sm">
+            <Label
+              htmlFor="infra-resource-explorer-resource-type"
+              className={OPERATOR_FORM_FIELD_LABEL_CLASS}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}
+            </Label>
+            <Input
+              id="infra-resource-explorer-resource-type"
+              data-testid="infra-resource-explorer-resource-type"
+              value={resourceType}
+              maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
+              onChange={(event) => setResourceType(clampResourceExplorerTopFilterDraft(event.target.value))}
+            />
+          </div>
+          <div className="grid gap-2 text-sm">
+            <Label
+              htmlFor="infra-resource-explorer-resource-group"
+              className={OPERATOR_FORM_FIELD_LABEL_CLASS}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}
+            </Label>
+            <Input
+              id="infra-resource-explorer-resource-group"
+              data-testid="infra-resource-explorer-resource-group"
+              value={resourceGroup}
+              onChange={(event) => setResourceGroup(event.target.value)}
+            />
+          </div>
         </div>
         <div>
           <Button type="button" size="sm" data-testid="infra-resource-explorer-apply" onClick={applyFilters}>
@@ -434,21 +414,17 @@ export function ResourcesExplorerClient() {
       </section>
 
       {loadError != null ? (
-        buyerPolishedShell ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-resource-explorer-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
-                Retry load
-              </Button>
-            }
-          />
-        ) : (
-          <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
-        )
+        <EnterpriseCompactEmptyState
+          role="alert"
+          title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
+          description={loadError}
+          testId="infra-resource-explorer-load-error-panel"
+          footer={
+            <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
+              Retry load
+            </Button>
+          }
+        />
       ) : null}
 
       <EnterpriseTable ariaLabel="Cloud resources">
@@ -508,12 +484,23 @@ export function ResourcesExplorerClient() {
         <EnterpriseTableBody>
           {loading ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={7}>Loading resources…</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={7}>
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Loading resources…
+                </span>
+              </EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
-          {!loading && rows.length === 0 ? (
+          {!loading && rows.length === 0 && loadError == null ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={7}>No cloud resources match the current filters.</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={7}>
+                <EnterpriseCompactEmptyState
+                  title="No matching resources"
+                  description="Adjust filters or clear the work queue to widen the explorer results."
+                  testId="infra-resource-explorer-empty-state"
+                />
+              </EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
           {sortedRows.map((row) => {
@@ -627,7 +614,8 @@ export function ResourcesExplorerClient() {
         </EnterpriseTableBody>
       </EnterpriseTable>
 
-        {buyerPolishedShell ? <ResourcesExplorerClaimOrientationStrip /> : null}
+        <ResourcesExplorerClaimOrientationStrip />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-resource-explorer-build-provenance-limitation" />
       </main>
     </OperatorPageContainer>
   );

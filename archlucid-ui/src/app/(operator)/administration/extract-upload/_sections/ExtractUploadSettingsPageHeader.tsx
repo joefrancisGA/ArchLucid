@@ -78,7 +78,6 @@ export function ExtractUploadSettingsPageHeader(
       titleTestId="extract-upload-page-title"
       navHref={EXTRACT_UPLOAD_SETTINGS_NAV_HREF}
       headingLevel="h1"
-      breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
       subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell, productLine)}
       subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
@@ -103,16 +102,21 @@ export function ExtractUploadSettingsPageHeader(
       }
       metadata={
         buyerPolishedShell ? null : (
-          <div className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.extractorScriptVersion !== null ? (
-              <span className="text-al-text-secondary" data-testid="extract-upload-header-extractor-version">
-                {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
-              </span>
-            ) : null}
-            {reviewBinding !== null ? (
-              <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
-                {reviewBinding}
-              </span>
+          <div className={cn("flex flex-col gap-2", OPERATOR_TYPOGRAPHY.helper)}>
+            <ExtractUploadSettingsBreadcrumb />
+            {props.extractorScriptVersion !== null || reviewBinding !== null ? (
+              <div className="flex flex-col gap-1">
+                {props.extractorScriptVersion !== null ? (
+                  <span className="text-al-text-secondary" data-testid="extract-upload-header-extractor-version">
+                    {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
+                  </span>
+                ) : null}
+                {reviewBinding !== null ? (
+                  <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
+                    {reviewBinding}
+                  </span>
+                ) : null}
+              </div>
             ) : null}
           </div>
         )
