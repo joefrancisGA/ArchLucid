@@ -1003,6 +1003,11 @@ export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_0
   const loadFailure = page.getByTestId("run-detail-load-failure");
   const brandedNotFound = page.getByTestId("branded-not-found");
   const brandedTransientFailure = page.getByTestId("branded-transient-failure");
+  const main = page.getByRole("main").first();
+
+  if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
+    throw new Error("Review detail error shell is visible (Something went wrong).");
+  }
 
   await expect(async () => {
     await expect(loadingReviewDetail).toHaveCount(0, { timeout: 5_000 });

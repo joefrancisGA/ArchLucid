@@ -18,9 +18,6 @@ import { stubEmptyArchitectureDraftListRoute } from "./live-private-beta-access"
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
 
-/** Playwright `baseURL` / live E2E webServer origin — cookie must match for SSR scope on first navigation. */
-const LIVE_E2E_OPERATOR_ORIGIN = "http://127.0.0.1:3000";
-
 export const DEMO_SCOPE_DEFAULT_TENANT_ID = demoWorkspacesFixtureManifest.defaultTenantId;
 
 /** Stable Product Tour workspace A (Contoso storyline). */
@@ -73,7 +70,7 @@ export async function injectDemoWorkspaceOperatorScope(
     {
       name: OPERATOR_SCOPE_COOKIE_NAME,
       value: scopeCookieValue,
-      url: LIVE_E2E_OPERATOR_ORIGIN,
+      url: new URL(page.url()).origin,
       sameSite: "Lax",
     },
   ]);

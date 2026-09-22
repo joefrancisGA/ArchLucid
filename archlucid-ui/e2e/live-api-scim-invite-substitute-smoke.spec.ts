@@ -5,11 +5,16 @@
 import { expect, test } from "@playwright/test";
 
 import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
+import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { resolveLiveJwtMode } from "./helpers/live-api-client";
 import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/scim-provisioning-page-copy";
 
 test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] }, () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run SCIM invite-substitute smoke.");
+
+  test.beforeAll(async ({ request }) => {
+    await requireLiveScimAdminPreflight(request);
+  });
 
   test("SCIM provisioning page loads vocabulary rail linking to Identity providers", async ({ page }) => {
     test.setTimeout(120_000);

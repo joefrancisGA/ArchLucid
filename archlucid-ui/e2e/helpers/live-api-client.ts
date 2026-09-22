@@ -76,6 +76,17 @@ function maxArchitectureMutationAttempts(): number {
   return getMaxInfrastructureMutationAttempts();
 }
 
+function privateBetaCreateRunTimeoutError(error: unknown): Error {
+  const message = error instanceof Error ? error.message : String(error);
+  const apiLog =
+    process.env.ARCHLUCID_API_LOG_FILE ??
+    `${process.env.RUNNER_TEMP ?? "<runner-temp>"}/live-api-beta-access.log`;
+
+  return new Error(
+    `Private-beta create-run timed out after one 600s attempt: ${message}. Inspect API logs at ${apiLog} and the Playwright test-results directory.`,
+  );
+}
+
 async function ensurePrivateBetaApiReadyBeforeCreateRun(request: APIRequestContext): Promise<void> {
   if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS !== "1") {
     return;
@@ -170,6 +181,10 @@ export async function createRun(
       }
 
       const isPerAttemptTimeout = error instanceof Error && /timeout .* exceeded|timed out/i.test(message);
+
+      if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1" && isPerAttemptTimeout) {
+        throw privateBetaCreateRunTimeoutError(error);
+      }
 
       if (
         (isPerAttemptTimeout || isTransientLiveApiTransportError(error)) &&
