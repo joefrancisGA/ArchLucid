@@ -91,6 +91,33 @@ try {
     if ($normalized -match '(\.sql$|Migration|DbUp|lock$|package-lock|Directory\.Packages\.props|generated|OpenAPI|openapi)') {
         Write-Advisory 'Generated, migration, or dependency diff: review the generated artifact and lock/schema delta separately from source changes before approval.'
     }
+    if ($normalized -match '(^|\n)(.*Tests?/|.*\.Tests/|test\.runsettings|\.github/workflows/)') {
+        Write-Advisory 'Test reliability change: quarantine flaky tests with an owner and fix-by date; do not hide merge-gate failures behind automatic retries.'
+    }
+    if ($normalized -match '(global\.json|Directory\.Build|Directory\.Packages|package-lock|npm-shrinkwrap|\.dockerfile$|Dockerfile|\.github/workflows/)') {
+        Write-Advisory 'Build reproducibility change: pin toolchains and dependencies, and verify generated artifacts and SBOM inputs are reproducible from a clean checkout.'
+    }
+    if ($normalized -match '(Migration|\.sql$|OpenAPI|openapi|schema|Contracts|\.schema\.json$)') {
+        Write-Advisory 'Compatibility change: compare the new schema or contract against the previous release and test both upgrade and downgrade/older-client behavior.'
+    }
+    if ($normalized -match '(Fuzz|fuzz|Corpus|fixture|fixtures|Property|property-based|QuickCheck)') {
+        Write-Advisory 'Input-hardening change: preserve anonymized production failure shapes in a replayable fuzz corpus and run it in CI.'
+    }
+    if ($normalized -match '(Logging|Logger|Telemetry|Observability|Audit|Support.?Bundle|Redact|Secret)') {
+        Write-Advisory 'Diagnostics change: add assertions that secrets, tokens, and personal data cannot appear in logs, audit events, or support bundles.'
+    }
+    if ($normalized -match '(^|\n)(ArchLucid\.Api/Controllers/|.*Controller\.cs$|.*Endpoint.*\.cs$|.*Routes?/)') {
+        Write-Advisory 'Endpoint inventory change: ensure every new route is represented in the authorization/rate-limit inventory and has an explicit negative-path test.'
+    }
+    if ($normalized -match '(Concurrency|Concurrent|Lock|Semaphore|Channel|Queue|Outbox|Idempot|Transaction|Background|Worker)') {
+        Write-Advisory 'Concurrency change: run scheduled stress coverage for races, duplicate delivery, idempotency keys, cancellation, and shared-state recovery.'
+    }
+    if ($normalized -match '(Clock|Date|Time|Timezone|TimeZone|Expiry|Schedule|Retry|Backoff|Deadline)') {
+        Write-Advisory 'Time-behavior change: use injected clocks and exercise UTC plus representative time zones, daylight-saving transitions, expiry, and retry deadlines.'
+    }
+    if ($normalized -match '(golden|snapshot|baseline|approval|fixture)') {
+        Write-Advisory 'Golden artifact change: require an approval note explaining why each snapshot, fixture, or baseline changed and what behavior was intentionally accepted.'
+    }
     Write-Advisory 'For recurring escapes, tag the subsystem and failure class in the defect log; use the highest-repeat category to choose the next prevention investment.'
 
     Write-Advisory 'For a bug fix, retain a reproducible failing scenario, add a focused regression test whenever feasible, and check the nearest boundary case.'
