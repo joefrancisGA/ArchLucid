@@ -2,109 +2,173 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import { SecureNowArchitectOutcomeMetricsPanel } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
-import { OperatorAdvisorySimulatorProvenanceBlock } from "@/components/usability/OperatorAdvisorySimulatorProvenanceBlock";
-import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
-import type { RemediationPrioritizedFinding } from "@/lib/remediation-factory-types";
+import type { RemediationFactoryMetrics, RemediationPrioritizedFinding } from "@/lib/remediation-factory-types";
 import {
   useRemediationFactoryMetricsQuery,
   useRemediationRankedFindingsQuery,
 } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
 import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
-import {
-  REMEDIATION_FACTORY_ROW_ATTR,
-  useRemediationFactoryShortcuts,
-} from "@/hooks/useRemediationFactoryShortcuts";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import {
-  REMEDIATION_FACTORY_INSPECT_PREREQUISITE_EMPTY,
-  REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
-  REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
-  REMEDIATION_FACTORY_SIMULATOR_PREREQUISITE_EMPTY,
-} from "@/lib/remediation-factory/remediation-factory-empty-presets";
-import {
-  remediationFactoryArchitectMetricsErrorRecovery,
-  remediationFactoryExecutiveMetricsErrorRecovery,
-  remediationFactoryPriorityQueueErrorRecovery,
-  remediationFactoryRankedPathsErrorRecovery,
-} from "@/lib/remediation-factory/remediation-factory-error-recovery";
-import {
-  SECURENOW_PATH_RANKED_PATHS_LEAD,
-  SECURENOW_PATH_RANKED_PATHS_TITLE,
-} from "@/lib/product-line/securenow-path-inspect-copy";
-import { cn } from "@/lib/utils";
-
-import { RemediationFactoryExecutiveMetricsSection } from "./RemediationFactoryExecutiveMetricsSection";
-import { RemediationFactoryPriorityTable } from "./RemediationFactoryPriorityTable";
-import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
-import {
   REMEDIATION_FACTORY_LAST_REFRESHED_PREFIX,
   REMEDIATION_FACTORY_REFRESHING_LABEL,
   remediationFactoryDataStaleCue,
-  remediationFactoryPerSourceAgeLines,
   resolveRemediationFactoryLastRefreshedAt,
 } from "./remediation-factory-freshness";
-import { useRemediationFactoryUrlState } from "./useRemediationFactoryUrlState";
+import {
+  formatSecurityEvidencePathConfidenceBandLabel,
+  securityEvidencePathConfidenceBandStatusKind,
+} from "@/lib/security-evidence-path-presentation";
+import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
+import {
+  SECURENOW_PATH_RANKED_PATHS_EMPTY,
+  SECURENOW_PATH_RANKED_PATHS_ERROR,
+  SECURENOW_PATH_RANKED_PATHS_LEAD,
+  SECURENOW_PATH_RANKED_PATHS_TITLE,
+} from "@/lib/product-line/securenow-path-inspect-copy";
 
-const RANKED_PATHS_PAGE_SIZE = 25;
-
-function withServerRankOrder(rows: RemediationPrioritizedFinding[]): RemediationPrioritizedFinding[] {
-  return rows.map((row, index) => ({
-    ...row,
-    rankOrder: row.rankOrder ?? index + 1,
-  }));
+function MetricCard(props: { readonly label: string; readonly value: string; readonly hint?: string }) {
+  return (
+    <div className="rounded border border-border bg-card p-4" data-testid={`remediation-metric-${props.label}`}>
+      <p className={OPERATOR_TYPOGRAPHY.helper}>{props.label}</p>
+      <p className={OPERATOR_TYPOGRAPHY.dataValue}>{props.value}</p>
+      {props.hint ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.hint}</p> : null}
+    </div>
+  );
 }
 
-function RegionErrorRecovery(props: {
-  readonly presentation: ReturnType<typeof remediationFactoryExecutiveMetricsErrorRecovery>;
-  readonly onRetry: () => void;
+function ExecutiveMetricsGrid(props: { readonly metrics: RemediationFactoryMetrics }) {
+  const metrics = props.metrics;
+
+  return (
+    <section aria-label="Executive remediation metrics" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <MetricCard label="Open findings" value={String(metrics.openFindings)} />
+      <MetricCard label="Risk-weighted open" value={metrics.riskWeightedOpen.toFixed(2)} />
+      <MetricCard label="Critical exposure" value={String(metrics.criticalExposureCount)} />
+      <MetricCard label="Net burn (7d)" value={String(metrics.netBurn)} hint={`Created ${metrics.createdThisWeek} · Remediated ${metrics.remediatedThisWeek}`} />
+      <MetricCard label="Pattern ExactMatch %" value={`${metrics.patternCoverageExactMatchPercent}%`} />
+      <MetricCard label="Automation %" value={`${metrics.automationPercent}%`} />
+      <MetricCard label="Exceptions active" value={String(metrics.exceptionsActive)} hint={`${metrics.exceptionsExpiringSoon} expiring soon`} />
+      <MetricCard label="Avg age (days)" value={metrics.averageAgeDays.toFixed(1)} />
+    </section>
+  );
+}
+
+function PriorityTable(props: {
+  readonly rows: ReadonlyArray<RemediationPrioritizedFinding>;
+  readonly selectedFindingId: string | null;
+  readonly onSelect: (findingId: string) => void;
 }) {
   return (
-    <div className="space-y-2">
-      <StatusTag kind="needs-attention" label="Section unavailable" />
-      <OperatorErrorRecoveryContract presentation={props.presentation} />
-      <Button type="button" variant="outline" size="sm" onClick={props.onRetry}>
-        Retry this section
-      </Button>
-    </div>
+    <EnterpriseTable ariaLabel="Remediation priority queue">
+      <EnterpriseTableHead>
+        <EnterpriseTableRow>
+          <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Control</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+        </EnterpriseTableRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {props.rows.map((row, index) => (
+          <EnterpriseTableRow
+            key={row.findingId}
+            data-testid={`remediation-priority-row-${row.findingId}`}
+            onClick={() => props.onSelect(row.findingId)}
+            className={props.selectedFindingId === row.findingId ? "bg-muted/40" : undefined}
+            aria-selected={props.selectedFindingId === row.findingId}
+          >
+            <EnterpriseTableCell>{index + 1}</EnterpriseTableCell>
+            <EnterpriseTableCell>{row.totalScore.toFixed(4)}</EnterpriseTableCell>
+            <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{row.patternKey ?? "—"}</EnterpriseTableCell>
+            <EnterpriseTableCell className="max-w-md truncate">{row.explanationSummary}</EnterpriseTableCell>
+          </EnterpriseTableRow>
+        ))}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
+  );
+}
+
+function RankedPathsTable(props: {
+  readonly rows: ReadonlyArray<SecurityEvidencePathRankSummary>;
+  readonly selectedPathId: string | null;
+  readonly onSelect: (pathId: string) => void;
+}) {
+  return (
+    <EnterpriseTable ariaLabel={SECURENOW_PATH_RANKED_PATHS_TITLE}>
+      <EnterpriseTableHead>
+        <EnterpriseTableRow>
+          <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+        </EnterpriseTableRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {props.rows.map((row) => (
+          <EnterpriseTableRow
+            key={row.pathId}
+            data-testid={`security-evidence-ranked-path-row-${row.pathId}`}
+            onClick={() => props.onSelect(row.pathId)}
+            className={props.selectedPathId === row.pathId ? "bg-muted/40" : undefined}
+            aria-selected={props.selectedPathId === row.pathId}
+          >
+            <EnterpriseTableCell>{row.rankOrder}</EnterpriseTableCell>
+            <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
+            <EnterpriseTableCell>
+              <StatusTag
+                kind={securityEvidencePathConfidenceBandStatusKind(row.pathConfidenceBand)}
+                label={formatSecurityEvidencePathConfidenceBandLabel(row.pathConfidenceBand)}
+              />
+            </EnterpriseTableCell>
+            <EnterpriseTableCell>{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="max-w-md truncate">{row.explanationSummary}</EnterpriseTableCell>
+          </EnterpriseTableRow>
+        ))}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }
 
 export function RemediationFactoryClient() {
   const { productLine } = useProductLine();
   const navHref = remediationFactoryPathForProductLine(productLine);
-  const scopeLabel = "This workspace";
   const nowMs = useOperatorRelativeFreshnessNowMs();
-  const { state: urlState, replaceState: replaceUrlState } = useRemediationFactoryUrlState();
-  const [rankedPathsPage, setRankedPathsPage] = useState(1);
-
   const rankedQuery = useRemediationRankedFindingsQuery();
-  const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery(rankedPathsPage, RANKED_PATHS_PAGE_SIZE);
+  const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
   const metricsQuery = useRemediationFactoryMetricsQuery();
+  const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
+  const [selectedPathId, setSelectedPathId] = useState<string | null>(null);
+  const [simulatorSummary, setSimulatorSummary] = useState<string | null>(null);
+  const [simulatorError, setSimulatorError] = useState<string | null>(null);
+  const pathInspectPanelRef = useRef<HTMLElement | null>(null);
 
-  const selectedFindingId = urlState.selectedFindingId;
-  const selectedPathId = urlState.selectedPathId;
-
-  const ranked = useMemo(
-    () => withServerRankOrder(rankedQuery.data ?? []),
-    [rankedQuery.data],
-  );
+  const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
-  const rankedPathsTotal = rankedPathsQuery.data?.totalCount ?? rankedPaths.length;
 
   const refreshing =
     rankedQuery.isFetching || metricsQuery.isFetching || rankedPathsQuery.isFetching;
@@ -116,19 +180,17 @@ export function RemediationFactoryClient() {
         rankedUpdatedAt: rankedQuery.dataUpdatedAt,
         rankedPathsUpdatedAt: rankedPathsQuery.dataUpdatedAt,
       }),
-    [metricsQuery.dataUpdatedAt, rankedQuery.dataUpdatedAt, rankedPathsQuery.dataUpdatedAt],
+    [
+      metricsQuery.dataUpdatedAt,
+      rankedQuery.dataUpdatedAt,
+      rankedPathsQuery.dataUpdatedAt,
+    ],
   );
 
   const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
     prefix: REMEDIATION_FACTORY_LAST_REFRESHED_PREFIX,
     lastRefreshedAt: refreshing ? null : lastRefreshedAt,
-    refreshingLabel: refreshing ? REMEDIATION_FACTORY_REFRESHING_LABEL : null,
-  });
-
-  const perSourceAges = remediationFactoryPerSourceAgeLines({
-    metricsUpdatedAt: metricsQuery.dataUpdatedAt,
-    rankedUpdatedAt: rankedQuery.dataUpdatedAt,
-    rankedPathsUpdatedAt: rankedPathsQuery.dataUpdatedAt,
+    refreshingLabel: REMEDIATION_FACTORY_REFRESHING_LABEL,
   });
 
   const staleCue = remediationFactoryDataStaleCue(lastRefreshedAt, nowMs);
@@ -139,123 +201,37 @@ export function RemediationFactoryClient() {
     void rankedPathsQuery.refetch();
   }, [metricsQuery, rankedPathsQuery, rankedQuery]);
 
-  const pathInspectPanelRef = useRef<HTMLElement | null>(null);
-  const focusInspectOnSelectionRef = useRef(true);
-  const [simulatorSummary, setSimulatorSummary] = useState<string | null>(null);
-  const [simulatorRuleVersion, setSimulatorRuleVersion] = useState<string | null>(null);
-  const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
-  const [simulatorError, setSimulatorError] = useState<string | null>(null);
+  useEffect(() => {
+    if (selectedFindingId != null || selectedPathId != null) {
+      pathInspectPanelRef.current?.focus();
+    }
+  }, [selectedFindingId, selectedPathId]);
 
-  const selectedFindingRow = ranked.find((row) => row.findingId === selectedFindingId) ?? null;
-  const selectedPathRow = rankedPaths.find((row) => row.pathId === selectedPathId) ?? null;
-
-  const selectFinding = useCallback(
-    (findingId: string, options?: { readonly focusInspect?: boolean }) => {
-      focusInspectOnSelectionRef.current = options?.focusInspect ?? true;
-      replaceUrlState({ selectedFindingId: findingId, selectedPathId: null });
-    },
-    [replaceUrlState],
-  );
-
-  const selectPath = useCallback(
-    (pathId: string, options?: { readonly focusInspect?: boolean }) => {
-      focusInspectOnSelectionRef.current = options?.focusInspect ?? true;
-      replaceUrlState({ selectedPathId: pathId, selectedFindingId: null });
-    },
-    [replaceUrlState],
-  );
-
-  const selectRowById = useCallback(
-    (rowId: string, options?: { readonly focusInspect?: boolean }) => {
-      if (ranked.some((row) => row.findingId === rowId)) {
-        selectFinding(rowId, options);
-        return;
-      }
-
-      if (rankedPaths.some((row) => row.pathId === rowId)) {
-        selectPath(rowId, options);
-      }
-    },
-    [ranked, rankedPaths, selectFinding, selectPath],
-  );
-
-  const navigationAnchorRowId = selectedPathId ?? selectedFindingId;
-
-  const runSimulator = useCallback(async (findingId: string) => {
+  async function runSimulator(findingId: string) {
     setSimulatorError(null);
 
     try {
       const explanation = await fetchRemediationScoreExplanation(findingId);
       setSimulatorSummary(explanation.explanationSummary);
-      setSimulatorRuleVersion(explanation.ruleVersion);
-      setSimulatorGeneratedAt(new Date());
     } catch {
       setSimulatorError("Could not load score explanation.");
       setSimulatorSummary(null);
-      setSimulatorRuleVersion(null);
-      setSimulatorGeneratedAt(null);
     }
-  }, []);
-
-  useEffect(() => {
-    setSimulatorSummary(null);
-    setSimulatorRuleVersion(null);
-    setSimulatorGeneratedAt(null);
-    setSimulatorError(null);
-  }, [selectedFindingId, selectedPathId]);
-
-  useRemediationFactoryShortcuts({
-    getNavigationAnchorRowId: () => navigationAnchorRowId,
-    onSelectRowId: (rowId) => selectRowById(rowId, { focusInspect: false }),
-    onFocusInspect: () => {
-      pathInspectPanelRef.current?.focus();
-    },
-    onExplainScore: () => {
-      if (selectedFindingId !== null) {
-        void runSimulator(selectedFindingId);
-      }
-    },
-    explainEnabled: selectedFindingId !== null,
-  });
-
-  useEffect(() => {
-    const activeRowId = selectedPathId ?? selectedFindingId;
-
-    if (activeRowId == null) {
-      return;
-    }
-
-    if (focusInspectOnSelectionRef.current) {
-      pathInspectPanelRef.current?.focus();
-      return;
-    }
-
-    const row = document.querySelector<HTMLElement>(
-      `[${REMEDIATION_FACTORY_ROW_ATTR}="${CSS.escape(activeRowId)}"]`,
-    );
-
-    row?.focus();
-  }, [selectedFindingId, selectedPathId]);
-
-  const hasQueueRows = ranked.length > 0;
-  const hasPathRows = rankedPaths.length > 0;
-
-  const claimDiscipline =
-    "Explainable prioritization and ranked scores are advisory — not sealed-record proof, live scanner output, or cloud apply.";
+  }
 
   return (
-    <div className="space-y-4 p-4" data-testid="remediation-factory-page">
+    <div className="space-y-6 p-4" data-testid="remediation-factory-page">
       <OperatorPageHeader
         navHref={navHref}
         title={OPERATOR_NAV_LINK_LABELS.remediationFactory}
         titleTestId="remediation-factory-page-title"
-        subtitle="Explainable prioritization, wave planning, and executive metrics for operational security review."
+        subtitle="Explainable prioritization, wave planning, and executive metrics. Advisory only — no cloud apply."
         subtitleTestId="remediation-factory-page-lead"
-        claimDiscipline={claimDiscipline}
+        claimDiscipline="Simulator and ranked scores are advisory — not sealed-record proof or live scanner output."
         claimDisciplineTestId="remediation-factory-claim-discipline"
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            <PageContextualHelpButton />
             <RefreshButton
               busy={refreshing}
               label="Refresh"
@@ -265,43 +241,46 @@ export function RemediationFactoryClient() {
           </div>
         }
         metadata={
-          <div className="flex flex-col gap-1">
-            <div className="flex flex-wrap items-center gap-3">
-              <OperatorPageFreshnessMetadata
-                testId="remediation-factory-last-refreshed"
-                lastRefreshedAt={lastRefreshedAt}
-              >
-                {freshnessLabel}
-              </OperatorPageFreshnessMetadata>
-              {staleCue !== null ? (
-                <span data-testid="remediation-factory-stale-cue">
-                  <StatusTag kind="needs-attention" label={staleCue} />
-                </span>
-              ) : null}
-            </div>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-per-source-ages">
-              {perSourceAges}
-            </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <OperatorPageFreshnessMetadata
+              testId="remediation-factory-last-refreshed"
+              lastRefreshedAt={lastRefreshedAt}
+            >
+              {freshnessLabel}
+            </OperatorPageFreshnessMetadata>
+            {staleCue !== null ? (
+              <span data-testid="remediation-factory-stale-cue">
+                <StatusTag kind="needs-attention" label={staleCue} />
+              </span>
+            ) : null}
           </div>
         }
       />
 
+      {metricsQuery.isError ? (
+        <StatusTag kind="needs-attention" label="Executive metrics unavailable" />
+      ) : metricsQuery.data ? (
+        <ExecutiveMetricsGrid metrics={metricsQuery.data} />
+      ) : (
+        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading executive metrics…</p>
+      )}
+
+      <SecureNowArchitectOutcomeMetricsPanel />
+
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
         {rankedQuery.isError ? (
-          <RegionErrorRecovery
-            presentation={remediationFactoryPriorityQueueErrorRecovery()}
-            onRetry={() => void rankedQuery.refetch()}
-          />
-        ) : !hasQueueRows ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY} />
+          <StatusTag kind="needs-attention" label="Priority queue unavailable" />
+        ) : ranked.length === 0 ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper}>No open operational security findings to rank.</p>
         ) : (
-          <RemediationFactoryPriorityTable
+          <PriorityTable
             rows={ranked}
             selectedFindingId={selectedFindingId}
-            onSelect={selectFinding}
-            scopeLabel={scopeLabel}
-            totalCount={ranked.length}
+            onSelect={(findingId) => {
+              setSelectedFindingId(findingId);
+              setSelectedPathId(null);
+            }}
           />
         )}
       </section>
@@ -312,38 +291,26 @@ export function RemediationFactoryClient() {
           <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
         </header>
         {rankedPathsQuery.isError ? (
-          <RegionErrorRecovery
-            presentation={remediationFactoryRankedPathsErrorRecovery()}
-            onRetry={() => void rankedPathsQuery.refetch()}
-          />
-        ) : !hasPathRows ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
+          <StatusTag kind="needs-attention" label={SECURENOW_PATH_RANKED_PATHS_ERROR} />
+        ) : rankedPaths.length === 0 ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_EMPTY}</p>
         ) : (
-          <RemediationFactoryRankedPathsTable
+          <RankedPathsTable
             rows={rankedPaths}
             selectedPathId={selectedPathId}
-            onSelect={selectPath}
-            scopeLabel={scopeLabel}
-            totalCount={rankedPathsTotal}
-            page={rankedPathsPage}
-            pageSize={RANKED_PATHS_PAGE_SIZE}
-            onPageChange={setRankedPathsPage}
+            onSelect={(pathId) => {
+              setSelectedPathId(pathId);
+              setSelectedFindingId(null);
+            }}
           />
         )}
       </section>
 
-      {hasQueueRows || hasPathRows ? (
-        <SecurityEvidencePathInspectPanel
-          findingId={selectedFindingId}
-          pathIdOverride={selectedPathId}
-          panelRef={pathInspectPanelRef}
-          selectedFindingSummary={selectedFindingRow}
-          selectedPathSummary={selectedPathRow}
-          hasInventoryRows={hasQueueRows || hasPathRows}
-        />
-      ) : (
-        <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_INSPECT_PREREQUISITE_EMPTY} />
-      )}
+      <SecurityEvidencePathInspectPanel
+        findingId={selectedFindingId}
+        pathIdOverride={selectedPathId}
+        panelRef={pathInspectPanelRef}
+      />
 
       <section
         className="space-y-3 rounded border border-dashed border-border p-4"
@@ -354,80 +321,24 @@ export function RemediationFactoryClient() {
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority score simulator</h2>
           <StatusTag kind="neutral" label="Simulator — not a live scanner feed" />
         </div>
-        {!hasQueueRows ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_SIMULATOR_PREREQUISITE_EMPTY} />
-        ) : selectedFindingId === null ? (
-          <p className={OPERATOR_TYPOGRAPHY.helper}>Select a row in the priority queue to explain its score.</p>
-        ) : (
-          <>
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              disabled={selectedFindingId === null}
-              onClick={() => selectedFindingId && runSimulator(selectedFindingId)}
-              data-testid="remediation-simulator-explain-button"
-            >
-              Explain selected score
-            </Button>
-            {simulatorError ? <StatusTag kind="needs-attention" label={simulatorError} /> : null}
-            {simulatorSummary !== null ? (
-              <OperatorAdvisorySimulatorProvenanceBlock
-                title="Score explanation"
-                simulatorTag="Simulator — not a live scanner feed"
-                ruleVersion={simulatorRuleVersion}
-                generatedAt={simulatorGeneratedAt}
-                targetLabel={
-                  selectedFindingRow !== null
-                    ? `Finding rank ${selectedFindingRow.rankOrder ?? "—"} · ${selectedFindingRow.controlId ?? "control unknown"}`
-                    : selectedFindingId
-                }
-                body={simulatorSummary}
-                auditTrailRecorded={false}
-                testId="remediation-simulator-output"
-              />
-            ) : null}
-          </>
-        )}
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
+          Select a row above, then run the simulator to view the deterministic score breakdown for that finding.
+        </p>
+        <button
+          type="button"
+          className="rounded bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50"
+          disabled={!selectedFindingId}
+          onClick={() => selectedFindingId && runSimulator(selectedFindingId)}
+        >
+          Explain selected score
+        </button>
+        {simulatorError ? <StatusTag kind="needs-attention" label={simulatorError} /> : null}
+        {simulatorSummary ? (
+          <pre className="overflow-x-auto rounded bg-muted p-3 text-xs" data-testid="remediation-simulator-output">
+            {simulatorSummary}
+          </pre>
+        ) : null}
       </section>
-
-      <details
-        open={urlState.metricsSummaryOpen}
-        onToggle={(event) => {
-          replaceUrlState({ metricsSummaryOpen: (event.target as HTMLDetailsElement).open });
-        }}
-        className="rounded border border-border bg-card p-4"
-        data-testid="remediation-factory-metrics-disclosure"
-      >
-        <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Executive and architect outcome metrics
-        </summary>
-        <div className="mt-4 space-y-4">
-          {metricsQuery.isError ? (
-            <RegionErrorRecovery
-              presentation={remediationFactoryExecutiveMetricsErrorRecovery()}
-              onRetry={() => void metricsQuery.refetch()}
-            />
-          ) : metricsQuery.isLoading && metricsQuery.data === undefined ? (
-            <p className={OPERATOR_TYPOGRAPHY.helper}>Loading executive metrics…</p>
-          ) : (
-            <RemediationFactoryExecutiveMetricsSection
-              metrics={metricsQuery.data}
-              metricsLoaded={metricsQuery.data !== undefined}
-            />
-          )}
-          <SecureNowArchitectOutcomeMetricsPanel
-            fromSnapshotId={urlState.fromSnapshotId}
-            toSnapshotId={urlState.toSnapshotId}
-            onSnapshotPairChange={(pair) => {
-              replaceUrlState({
-                fromSnapshotId: pair.fromSnapshotId,
-                toSnapshotId: pair.toSnapshotId,
-              });
-            }}
-          />
-        </div>
-      </details>
     </div>
   );
 }
