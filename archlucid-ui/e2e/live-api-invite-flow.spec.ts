@@ -11,6 +11,7 @@ import {
   stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
 import { submitAdminInviteFromUsersUi } from "./helpers/live-invite-form-submit";
+import { dismissBlockingModalOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase } from "./helpers/live-api-client";
 
@@ -52,6 +53,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
     await expect(pendingRow).toContainText("Pending");
 
+    await dismissBlockingModalOverlays(page);
     await pendingRow.getByRole("button", { name: "Revoke" }).click();
 
     const revokeDialog = page.getByRole("alertdialog");
