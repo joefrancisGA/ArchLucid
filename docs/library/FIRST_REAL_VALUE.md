@@ -38,7 +38,7 @@ Optional: **`AzureOpenAI:MaxCompletionTokens`** — must be **0** (use product d
 
 **`Echo` completion client:** If **`AgentExecution:CompletionClient=Echo`**, the host does **not** require Azure OpenAI keys (offline completion stack). That is distinct from **`Simulator`** mode but is still a non-production evaluator pattern.
 
-**Local `dotnet run`:** default **http** / **https** launch profiles stay on **Simulator** (`appsettings.Development.json`). Do not put **`AgentExecution:Mode=Real`** or a partial **`AzureOpenAI`** block (endpoint/deployment without an API key) in the always-loaded **`appsettings.Pilot.json`**. To call Azure OpenAI from the API project: set the three keys above (user secrets or **`AZURE_OPENAI_*`**), then **`dotnet run --project ArchLucid.Api --launch-profile http-real`**, or copy **`appsettings.Real.sample.json`** into a gitignored overlay.
+**Local `dotnet run`:** default **http** / **https** launch profiles stay on **Simulator** (`appsettings.Development.json`). Do not put **`AgentExecution:Mode=Real`** or a partial **`AzureOpenAI`** block (endpoint/deployment without an API key) in **`appsettings.Pilot.json`**; that overlay is loaded for non-Development hosts. To call Azure OpenAI from the API project: set the three keys above (user secrets or **`AZURE_OPENAI_*`**), then **`dotnet run --project ArchLucid.Api --launch-profile http-real`**, or copy **`appsettings.Real.sample.json`** into a gitignored overlay.
 
 Full operator key list: [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) (`AzureOpenAI:*`, `AgentExecution:*`).
 
