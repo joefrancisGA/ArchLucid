@@ -1005,13 +1005,12 @@ export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_0
   const brandedTransientFailure = page.getByTestId("branded-transient-failure");
   const main = page.getByRole("main").first();
 
-  if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
-    throw new Error("Review detail error shell is visible (Something went wrong).");
-  }
-
   await expect(async () => {
     await expect(loadingReviewDetail).toHaveCount(0, { timeout: 5_000 });
-    await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+
+    if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
+      throw new Error("Review detail error shell is visible (Something went wrong).");
+    }
 
     // Fail this toPass iteration immediately on hard/transient failure chrome so callers can reload
     // instead of polling a dead SSR error page until timeoutMs (demo-workspace cold starts).

@@ -1,10 +1,10 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
-async function openInviteForm(page: Page): Promise<void> {
+async function openInviteForm(page: Page): Promise<Locator> {
   const inviteForm = page.getByTestId("settings-roles-invite-form");
 
   if (await inviteForm.isVisible().catch(() => false)) {
-    return;
+    return inviteForm;
   }
 
   const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
@@ -24,10 +24,11 @@ async function openInviteForm(page: Page): Promise<void> {
   }
 
   await inviteForm.waitFor({ state: "visible", timeout: 60_000 });
+  return inviteForm;
 }
 
-async function selectInviteRole(page: Page, roleLabel: string): Promise<void> {
-  const roleTrigger = page.getByTestId("settings-roles-invite-role");
+async function selectInviteRole(page: Page, inviteForm: Locator, roleLabel: string): Promise<void> {
+  const roleTrigger = inviteForm.getByTestId("settings-roles-invite-role");
   const hiddenRoleSelect = roleTrigger.locator("xpath=..//select");
 
   if ((await hiddenRoleSelect.count()) > 0) {
@@ -37,6 +38,8 @@ async function selectInviteRole(page: Page, roleLabel: string): Promise<void> {
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     await roleTrigger.click();
+    // Radix SelectContent is portaled outside the form; scope the trigger to the
+    // form, but resolve its option from the page.
     const option = page.getByRole("option", { name: roleLabel, exact: true });
 
     if (await option.isVisible().catch(() => false)) {
@@ -56,15 +59,23 @@ export async function submitAdminInviteFromUsersUi(
   email: string,
   roleLabel = "Reader",
 ): Promise<void> {
-  await openInviteForm(page);
-  await page.getByTestId("settings-roles-invite-email").fill(email);
-  await selectInviteRole(page, roleLabel);
+  const inviteForm = await openInviteForm(page);
+  const emailInput = inviteForm.getByTestId("settings-roles-invite-email");
 
-  const submitButton = page.getByTestId("settings-roles-invite-submit");
+  // The settings surface can remount while its client state hydrates. Wait for the
+  // form-owned input to be editable, then prove the controlled value committed before
+  // selecting the role or evaluating the submit state.
+  await expect(inviteForm).toBeVisible({ timeout: 15_000 });
+  await expect(emailInput).toBeEditable({ timeout: 15_000 });
+  await emailInput.fill(email);
+  await expect(emailInput).toHaveValue(email, { timeout: 15_000 });
+  await selectInviteRole(page, inviteForm, roleLabel);
+
+  const submitButton = inviteForm.getByTestId("settings-roles-invite-submit");
   await submitButton.waitFor({ state: "visible", timeout: 15_000 });
 
   if (!(await submitButton.isEnabled().catch(() => false))) {
-    const emailValue = await page.getByTestId("settings-roles-invite-email").inputValue().catch(() => "");
+    const emailValue = await emailInput.inputValue().catch(() => "");
     throw new Error(
       `Invite submit remained disabled for ${email}; emailValue=${JSON.stringify(emailValue)}, role=${roleLabel}.`,
     );
