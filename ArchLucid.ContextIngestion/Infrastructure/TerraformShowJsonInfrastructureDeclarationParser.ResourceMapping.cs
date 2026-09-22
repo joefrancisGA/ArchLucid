@@ -2063,6 +2063,64 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "indexed", out JsonElement indexed)
+                || TryGetPropertyIgnoreCase(res, "indexed", out indexed))
+            && (indexed.ValueKind == JsonValueKind.True || indexed.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.indexed"] = indexed.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "migrated", out JsonElement migrated)
+                || TryGetPropertyIgnoreCase(res, "migrated", out migrated))
+            && (migrated.ValueKind == JsonValueKind.True || migrated.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.migrated"] = migrated.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "protocol", out JsonElement protocol)
+                || TryGetPropertyIgnoreCase(res, "protocol", out protocol))
+            && protocol.ValueKind == JsonValueKind.String)
+        {
+            string? protocolText = protocol.GetString();
+
+            if (!string.IsNullOrWhiteSpace(protocolText))
+                properties["tf.protocol"] = protocolText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "failover_regions", out JsonElement failoverregionsEl)
+            || TryGetPropertyIgnoreCase(res, "failoverRegions", out failoverregionsEl))
+        {
+            List<string> failoverregionsFields = [];
+
+            if (failoverregionsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in failoverregionsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        failoverregionsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (failoverregionsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = failoverregionsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    failoverregionsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (failoverregionsFields.Count > 0)
+            {
+                string joined = string.Join('|', failoverregionsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.failover_regions"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "hardened", out JsonElement hardened)
                 || TryGetPropertyIgnoreCase(res, "hardened", out hardened))
             && (hardened.ValueKind == JsonValueKind.True || hardened.ValueKind == JsonValueKind.False))

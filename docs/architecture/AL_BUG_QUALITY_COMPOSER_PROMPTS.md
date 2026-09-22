@@ -28,7 +28,6 @@ Owner 2026-09-15: stop shipping synthetic `weekk+` Azure Retail Prices UOM hunts
 Recommended order: **46** (can land immediately), **47**, then **48+49** (one PR preferred), then **50**. Wave 7 is shipped (#3336). Do not re-run it.
 
 ## Wave 8 — implemented (ABQ-51)
-
 Do not re-run. Source-id recognition is `TerraformAzurermResourceTypeCatalog` at azurerm v5.6.0.
 
 | ID | Prompt file | Leftover / flaw |
