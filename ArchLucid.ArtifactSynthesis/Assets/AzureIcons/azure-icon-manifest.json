@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "icons": [
+    {
+      "category": "Compute",
+      "service": "Virtual Machine",
+      "armTypes": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "file": "virtual-machine.png"
+    },
+    {
+      "category": "Compute",
+      "service": "App Service",
+      "armTypes": [
+        "Microsoft.Web/sites"
+      ],
+      "file": "app-service.png"
+    },
+    {
+      "category": "Compute",
+      "service": "Function App",
+      "armTypes": [
+        "Microsoft.Web/sites"
+      ],
+      "kind": "functionapp",
+      "file": "function-app.png"
+    },
+    {
+      "category": "Compute",
+      "service": "AKS",
+      "armTypes": [
+        "Microsoft.ContainerService/managedClusters"
+      ],
+      "file": "aks.png"
+    },
+    {
+      "category": "Compute",
+      "service": "Container Apps",
+      "armTypes": [
+        "Microsoft.App/containerApps"
+      ],
+      "file": "container-apps.png"
+    },
+    {
+      "category": "Storage",
+      "service": "Storage Account",
+      "armTypes": [
+        "Microsoft.Storage/storageAccounts"
+      ],
+      "file": "storage-account.png"
+    },
+    {
+      "category": "Storage",
+      "service": "Managed Disk",
+      "armTypes": [
+        "Microsoft.Compute/disks"
+      ],
+      "file": "managed-disk.png"
+    },
+    {
+      "category": "Databases",
+      "service": "SQL Database",
+      "armTypes": [
+        "Microsoft.Sql/servers",
+        "Microsoft.Sql/servers/databases",
+        "Microsoft.Sql/managedInstances"
+      ],
+      "file": "sql-database.png"
+    },
+    {
+      "category": "Databases",
+      "service": "Cosmos DB",
+      "armTypes": [
+        "Microsoft.DocumentDB/databaseAccounts"
+      ],
+      "file": "cosmos-db.png"
+    },
+    {
+      "category": "Databases",
+      "service": "Redis Cache",
+      "armTypes": [
+        "Microsoft.Cache/Redis"
+      ],
+      "file": "redis-cache.png"
+    },
+    {
+      "category": "Networking",
+      "service": "Virtual Network",
+      "armTypes": [
+        "Microsoft.Network/virtualNetworks"
+      ],
+      "file": "virtual-network.png"
+    },
+    {
+      "category": "Networking",
+      "service": "Load Balancer",
+      "armTypes": [
+        "Microsoft.Network/loadBalancers"
+      ],
+      "file": "load-balancer.png"
+    },
+    {
+      "category": "Networking",
+      "service": "Application Gateway",
+      "armTypes": [
+        "Microsoft.Network/applicationGateways"
+      ],
+      "file": "application-gateway.png"
+    },
+    {
+      "category": "Networking",
+      "service": "Network Security Group",
+      "armTypes": [
+        "Microsoft.Network/networkSecurityGroups"
+      ],
+      "file": "network-security-group.png"
+    },
+    {
+      "category": "Networking",
+      "service": "Public IP",
+      "armTypes": [
+        "Microsoft.Network/publicIPAddresses"
+      ],
+      "file": "public-ip.png"
+    },
+    {
+      "category": "Networking",
+      "service": "Private Endpoint",
+      "armTypes": [
+        "Microsoft.Network/privateEndpoints",
+        "Microsoft.Network/privateLinkServices"
+      ],
+      "file": "private-endpoint.png",
+      "notes": "Microsoft pack labels this icon Private Link; used for private endpoint resources in diagrams."
+    },
+    {
+      "category": "Security",
+      "service": "Key Vault",
+      "armTypes": [
+        "Microsoft.KeyVault/vaults"
+      ],
+      "file": "key-vault.png"
+    },
+    {
+      "category": "Integration",
+      "service": "Service Bus",
+      "armTypes": [
+        "Microsoft.ServiceBus/namespaces"
+      ],
+      "file": "service-bus.png"
+    },
+    {
+      "category": "Integration",
+      "service": "Event Hubs",
+      "armTypes": [
+        "Microsoft.EventHub/namespaces"
+      ],
+      "file": "event-hubs.png"
+    },
+    {
+      "category": "Integration",
+      "service": "API Management",
+      "armTypes": [
+        "Microsoft.ApiManagement/service"
+      ],
+      "file": "api-management.png"
+    },
+    {
+      "category": "Analytics",
+      "service": "Log Analytics",
+      "armTypes": [
+        "Microsoft.OperationalInsights/workspaces"
+      ],
+      "file": "log-analytics.png"
+    },
+    {
+      "category": "Analytics",
+      "service": "Application Insights",
+      "armTypes": [
+        "Microsoft.Insights/components"
+      ],
+      "file": "application-insights.png"
+    },
+    {
+      "category": "Identity",
+      "service": "Managed Identity",
+      "armTypes": [
+        "Microsoft.ManagedIdentity/userAssignedIdentities"
+      ],
+      "file": "managed-identity.png"
+    }
+  ]
+}
