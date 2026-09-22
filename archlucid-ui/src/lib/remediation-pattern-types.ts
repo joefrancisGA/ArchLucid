@@ -15,6 +15,7 @@ export type RemediationPatternVersionRecord = {
   version: string;
   status?: number;
   controlObjective: string;
+  contentJson?: string | null;
   authorActorKey: string;
   approvedByActorKey?: string | null;
   approvedUtc?: string | null;

@@ -63,12 +63,16 @@ export function remediationPatternApprovalBlockedReason(
   version: RemediationPatternVersionRecord,
   principal: CurrentPrincipal,
   canMutate: boolean,
+  hasViewedVersionContent = true,
 ): string | null {
   if (!canMutate)
     return "Execute authority is required to approve patterns.";
 
   if (version.status !== REMEDIATION_PATTERN_STATUS.underReview)
     return "Only versions under review can be approved.";
+
+  if (!hasViewedVersionContent)
+    return "Review the pattern content panel before approving this version.";
 
   if (!canApproveRemediationPatternVersion(version, principal, canMutate))
     return "Approver cannot be the same actor as the pattern author (segregation of duties).";
