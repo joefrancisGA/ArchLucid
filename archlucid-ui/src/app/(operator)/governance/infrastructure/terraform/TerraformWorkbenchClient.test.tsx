@@ -86,6 +86,11 @@ describe("TerraformWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-terraform-audit-unavailable")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-copy-snippet")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-download-advisory-zip")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-open-drift-workbench")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-open-drift-export")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-advisory-reconstructed-tag")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-scope-status")).toHaveTextContent("Scoped");
   });
 
   it("shows empty state when terraform address is missing", async () => {
