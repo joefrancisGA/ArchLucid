@@ -258,6 +258,14 @@
         "Microsoft.Compute/virtualMachineScaleSets"
       ],
       "file": "vm-scale-set.png"
+    },
+    {
+      "category": "Compute",
+      "service": "Container Instances",
+      "armTypes": [
+        "Microsoft.ContainerInstance/containerGroups"
+      ],
+      "file": "container-instances.png"
     }
   ]
 }
