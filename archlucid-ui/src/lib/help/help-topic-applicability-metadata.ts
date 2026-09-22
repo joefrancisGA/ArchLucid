@@ -42,6 +42,7 @@ export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "cloud-connections-gcp",
   "comparison-replay",
   "configuration-reference",
+  "engineering-troubleshooting",
   "specialty-walkthroughs",
 ]);
 

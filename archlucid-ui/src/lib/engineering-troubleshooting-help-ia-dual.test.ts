@@ -25,9 +25,14 @@ describe("engineering-troubleshooting help ia-dual and related guides (TB-2265 /
 
   it("caps related guides at the specialty chrome contract", () => {
     expect(engineeringTroubleshootingHelpRelatedGuides()).toHaveLength(SPECIALTY_HELP_CHROME_RELATED_GUIDES_MAX);
-    expect(ENGINEERING_TROUBLESHOOTING_HELP_RELATED_GUIDES.some((guide) => guide.href === "/help/cli-usage")).toBe(
-      true,
-    );
+    expect(
+      ENGINEERING_TROUBLESHOOTING_HELP_RELATED_GUIDES.some((guide) => guide.href.startsWith("/help/cli-usage")),
+    ).toBe(true);
+    expect(
+      ENGINEERING_TROUBLESHOOTING_HELP_RELATED_GUIDES.every((guide) =>
+        guide.href.includes("returnTo=%2Fhelp%2Fengineering-troubleshooting"),
+      ),
+    ).toBe(true);
     expect(
       ENGINEERING_TROUBLESHOOTING_HELP_RELATED_GUIDES.some(
         (guide) => guide.href === "/help/engineering-troubleshooting",

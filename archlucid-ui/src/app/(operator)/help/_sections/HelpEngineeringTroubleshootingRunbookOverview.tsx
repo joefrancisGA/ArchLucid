@@ -1,24 +1,10 @@
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-
 import {
   ENGINEERING_TROUBLESHOOTING_HELP_OVERVIEW,
   ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW,
-  ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO,
-  ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_TITLE,
+  ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW_HEADING_ID,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { humanizeMarkdownFileReference } from "@/lib/help/help-markdown-presentation";
-import {
-  HELP_ENGINEERING_TROUBLESHOOTING_RUNBOOK_SOURCES_OPEN_PARAM,
-  helpEngineeringTroubleshootingRunbookSourcesDisclosureHrefFromSearch,
-  parseHelpEngineeringTroubleshootingRunbookSourcesOpenFromSearch,
-} from "@/lib/help/help-engineering-troubleshooting-runbook-sources-disclosure-url";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -31,45 +17,18 @@ type HelpEngineeringTroubleshootingRunbookOverviewProps = {
 export function HelpEngineeringTroubleshootingRunbookOverview(
   props: HelpEngineeringTroubleshootingRunbookOverviewProps,
 ): React.ReactElement {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runbookSourcesOpenParam = searchParams.get(HELP_ENGINEERING_TROUBLESHOOTING_RUNBOOK_SOURCES_OPEN_PARAM);
-  const [runbookSourcesOpen, setRunbookSourcesOpenState] = useState(() =>
-    parseHelpEngineeringTroubleshootingRunbookSourcesOpenFromSearch(runbookSourcesOpenParam),
-  );
-
-  const syncRunbookSourcesOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        helpEngineeringTroubleshootingRunbookSourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setRunbookSourcesOpen = useCallback(
-    (open: boolean) => {
-      setRunbookSourcesOpenState(open);
-      syncRunbookSourcesOpenToUrl(open);
-    },
-    [syncRunbookSourcesOpenToUrl],
-  );
-
-  useEffect(() => {
-    setRunbookSourcesOpenState(parseHelpEngineeringTroubleshootingRunbookSourcesOpenFromSearch(runbookSourcesOpenParam));
-  }, [runbookSourcesOpenParam]);
+  void props.majorSections;
+  void props.entry;
 
   return (
     <section
-      aria-labelledby="help-engineering-troubleshooting-runbook-overview-heading"
+      aria-labelledby={ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW_HEADING_ID}
       className="space-y-4 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
       data-testid="help-engineering-troubleshooting-runbook-overview"
     >
       <div className="space-y-1">
         <h2
-          id="help-engineering-troubleshooting-runbook-overview-heading"
+          id={ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW_HEADING_ID}
           className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
         >
           {ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW.title}
@@ -97,20 +56,6 @@ export function HelpEngineeringTroubleshootingRunbookOverview(
           </dd>
         </div>
       </dl>
-
-      <CollapsibleSection
-        title={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_TITLE}
-        summaryLine={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO}
-        sectionTestId="help-engineering-troubleshooting-runbook-source-paths"
-        open={runbookSourcesOpen}
-        onToggle={setRunbookSourcesOpen}
-      >
-        <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-          {props.entry.sourcePaths.map((sourcePath) => (
-            <li key={sourcePath}>{humanizeMarkdownFileReference(sourcePath)}</li>
-          ))}
-        </ul>
-      </CollapsibleSection>
     </section>
   );
 }
