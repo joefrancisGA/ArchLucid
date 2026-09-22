@@ -1274,6 +1274,196 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_data_flow_mode_omits_excluded_azure_resource_types()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "adf-1",
+            "adf1",
+            "Microsoft.DataFactory/factories",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Data));
+        graph.Nodes.Add(CreateTopologyNode(
+            "sql-1",
+            "sql1",
+            "Microsoft.Sql/servers",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Data));
+        graph.Nodes.Add(CreateTopologyNode(
+            "lake-1",
+            "adls-raw",
+            "Microsoft.Storage/storageAccounts",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Storage));
+        graph.Nodes.Add(CreateTopologyNode(
+            "kv-1",
+            "payments-kv",
+            "Microsoft.KeyVault/vaults",
+            "rg-sec",
+            subscriptionId,
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "cs-1",
+            "cs2100120050e1d7e42",
+            "Microsoft.Storage/storageAccounts",
+            "cloud-shell-storage-eastus",
+            subscriptionId,
+            GraphTopologyCategories.Storage));
+        graph.Nodes.Add(CreateTopologyNode(
+            "acr-1",
+            "apps-acr",
+            "Microsoft.ContainerRegistry/registries",
+            "rg-app",
+            subscriptionId,
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "bastion-1",
+            "hub-bastion",
+            "Microsoft.Network/bastionHosts",
+            "rg-net",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+
+        AddDataFlowEdge(graph, "edge-write-sql", "adf-1", "sql-1");
+        AddDataFlowEdge(graph, "edge-write-lake", "adf-1", "lake-1");
+        AddDataFlowEdge(graph, "edge-kv", "adf-1", "kv-1", AzureInventoryRelationshipAssociationTypes.AppToKeyVaultRef);
+        AddDataFlowEdge(graph, "edge-cs", "adf-1", "cs-1");
+        AddDataFlowEdge(graph, "edge-acr", "adf-1", "acr-1");
+        AddDataFlowEdge(graph, "edge-bastion", "adf-1", "bastion-1");
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Nodes.Select(node => node.Label).Should().BeEquivalentTo("adf1", "sql1", "adls-raw");
+    }
+
+    [Fact]
+    public void Compile_data_flow_mode_includes_application_gateway_front_door_and_firewall()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "app-1",
+            "orders-api",
+            "Microsoft.Web/sites",
+            "rg-app",
+            subscriptionId,
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "agw-1",
+            "app-gw",
+            "Microsoft.Network/applicationGateways",
+            "rg-net",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "fd-1",
+            "front-door",
+            "Microsoft.Network/frontDoors",
+            "rg-edge",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "afd-1",
+            "afd-profile",
+            "Microsoft.Cdn/profiles",
+            "rg-edge",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "fw-1",
+            "hub-firewall",
+            "Microsoft.Network/azureFirewalls",
+            "rg-net",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "vnet-1",
+            "corp-vnet",
+            "Microsoft.Network/virtualNetworks",
+            "rg-net",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "listener-1",
+            "http-listener",
+            "Microsoft.Network/applicationGateways/httpListeners",
+            "rg-net",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-agw",
+            FromNodeId = "agw-1",
+            ToNodeId = "app-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.AgwToBackend,
+            Label = AzureInventoryRelationshipAssociationTypes.AgwToBackend,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAgwBackend,
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-fd",
+            FromNodeId = "fd-1",
+            ToNodeId = "app-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin,
+            Label = AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryFrontDoorOrigin,
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-afd",
+            FromNodeId = "afd-1",
+            ToNodeId = "app-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin,
+            Label = AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryFrontDoorOrigin,
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-fw",
+            FromNodeId = "fw-1",
+            ToNodeId = "vnet-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.FirewallToSubnet,
+            Label = AzureInventoryRelationshipAssociationTypes.FirewallToSubnet,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryFirewallSubnet,
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Nodes.Select(node => node.Label).Should().BeEquivalentTo(
+            "orders-api",
+            "app-gw",
+            "front-door",
+            "afd-profile",
+            "hub-firewall");
+        ast.Edges.Should().HaveCount(3);
+        ast.Edges.Should().OnlyContain(edge => edge.Label == "Routes to");
+        ast.Nodes.Should().OnlyContain(node => node.SubgraphId == "data-flow-stage-application");
+    }
+
+    [Fact]
     public void Compile_data_architecture_mode_omits_movement_edges()
     {
         GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: true);
@@ -1384,5 +1574,27 @@ public sealed class DiagramAstFromGraphCompilerTests
         });
 
         return graph;
+    }
+
+    private static void AddDataFlowEdge(
+        GraphSnapshot graph,
+        string edgeId,
+        string fromNodeId,
+        string toNodeId,
+        string? edgeType = null)
+    {
+        string resolvedType = edgeType ?? AzureInventoryRelationshipAssociationTypes.AdfWritesTo;
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = edgeId,
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = resolvedType,
+            Label = resolvedType,
+            Weight = 1,
+            InferenceSource = resolvedType == AzureInventoryRelationshipAssociationTypes.AppToKeyVaultRef
+                ? GraphEdgeInferenceSources.InventoryAppKeyVaultRef
+                : GraphEdgeInferenceSources.InventoryAdfWritesTo,
+        });
     }
 }

@@ -29,6 +29,8 @@ public static class AzureInventoryDataFlowEvidenceCatalog
         Row(AzureInventoryRelationshipAssociationTypes.OperatorConfirmedConnection, AzureInventoryDataFlowEvidenceFamily.HumanConfirmed, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "Confirmed connection"),
         Row(AzureInventoryRelationshipAssociationTypes.ServiceConnectorLink, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "Connected to"),
         Row(AzureInventoryRelationshipAssociationTypes.PeReachableTarget, AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.NetworkPath, "Private network path"),
+        Row(AzureInventoryRelationshipAssociationTypes.AgwToBackend, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.DeclaredWrite, "Routes to"),
+        Row(AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.DeclaredWrite, "Routes to"),
         Excluded(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination),
         Excluded(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget),
         Excluded(AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet),
@@ -39,7 +41,6 @@ public static class AzureInventoryDataFlowEvidenceCatalog
         Excluded(AzureInventoryRelationshipAssociationTypes.PrivateDnsVnetLink),
         Excluded(AzureInventoryRelationshipAssociationTypes.NatGatewayToSubnet),
         Excluded(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet),
-        Excluded(AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin),
         Excluded(AzureInventoryRelationshipAssociationTypes.IdentityToRoleAssignment),
     ];
 
