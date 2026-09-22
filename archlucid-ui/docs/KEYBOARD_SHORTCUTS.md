@@ -167,6 +167,16 @@ Implemented in [`useRemediationFactoryShortcuts.ts`](../src/hooks/useRemediation
 - **Dialog** — Radix Dialog provides focus trap, `DialogTitle` / `DialogDescription`, visible close control, Escape to dismiss.
 - **WCAG 2.1.4 Character Key Shortcuts** — No bare single-letter shortcuts: every shortcut requires **Alt**, **Shift** (for `?`), or **Alt+digit** / **Alt+J/K** on Alerts. Users are not forced to use single printable keys alone.
 
+## Page-specific: Audit evidence lineage lookup (`/governance/audit-evidence`, `/compliance/audit-evidence`)
+
+Implemented in [`AuditEvidenceLookupClient`](../src/app/(operator)/governance/audit-evidence/AuditEvidenceLookupClient.tsx).
+
+| Combo | Action |
+|-------|--------|
+| **Enter** (in Lineage Link field) | Apply pasted lineage URL to identifier fields |
+| **Enter** (with valid identifiers) | Open evidence lineage |
+| **Ctrl+Enter** | Open evidence lineage when identifiers are valid (no-op while primary is disabled) |
+
 ## Component wiring
 
 ```mermaid
