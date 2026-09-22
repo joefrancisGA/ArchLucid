@@ -291,6 +291,15 @@
         "Microsoft.EventGrid/domains"
       ],
       "file": "event-grid-domains.png"
+    },
+    {
+      "category": "Integration",
+      "service": "Event Grid Subscriptions",
+      "armTypes": [
+        "Microsoft.EventGrid/eventSubscriptions"
+      ],
+      "file": "event-grid-subscriptions.png",
+      "notes": "Child subscription resource; often rendered as an edge or metadata rather than a standalone inventory node."
     }
   ]
 }
