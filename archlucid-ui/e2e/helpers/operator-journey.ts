@@ -995,6 +995,12 @@ export async function gotoLiveRunDetailPage(
   });
 }
 
+/** Formats terminal-shell diagnostics so callers can fail before the long readiness retry. */
+export function reviewDetailErrorShellMessage(visibleText: string): string {
+  const compactText = visibleText.replace(/\s+/g, " ").trim().slice(0, 1200);
+  return `Review detail error shell is visible (Something went wrong). Visible text: ${compactText}`;
+}
+
 /** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
 export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
   const loadingReviewDetail = page.getByLabel("Loading review detail");
@@ -1003,10 +1009,31 @@ export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_0
   const loadFailure = page.getByTestId("run-detail-load-failure");
   const brandedNotFound = page.getByTestId("branded-not-found");
   const brandedTransientFailure = page.getByTestId("branded-transient-failure");
+  const main = page.getByRole("main").first();
+  // Detect a terminal/error shell before entering Playwright's retry loop. The demo
+  // workspace wrapper catches this error and re-seeds the scope on the next attempt.
+  await expect(loadingReviewDetail).toHaveCount(0, { timeout: Math.min(timeoutMs, 5_000) });
+  if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
+    const text = (await main.textContent().catch(() => null)) ?? "";
+    throw new Error(reviewDetailErrorShellMessage(text));
+  }
+  if ((await loadFailure.count()) > 0) {
+    throw new Error("Review detail load-failure surface is visible (run-detail-load-failure).");
+  }
+  if ((await brandedNotFound.count()) > 0) {
+    throw new Error("Review detail branded-not-found surface is visible.");
+  }
+  if ((await brandedTransientFailure.count()) > 0) {
+    throw new Error("Review detail branded-transient-failure surface is visible.");
+  }
 
   await expect(async () => {
-    await expect(loadingReviewDetail).toHaveCount(0, { timeout: 5_000 });
-    await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+    // Keep the checks in the readiness assertion as well: a failure shell can replace
+    // the loading surface after the preflight but before the real page mounts.
+    if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
+      const text = (await main.textContent().catch(() => null)) ?? "";
+      throw new Error(reviewDetailErrorShellMessage(text));
+    }
 
     // Fail this toPass iteration immediately on hard/transient failure chrome so callers can reload
     // instead of polling a dead SSR error page until timeoutMs (demo-workspace cold starts).
