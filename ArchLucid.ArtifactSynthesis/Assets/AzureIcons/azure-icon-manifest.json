@@ -189,6 +189,16 @@
         "Microsoft.ManagedIdentity/userAssignedIdentities"
       ],
       "file": "managed-identity.png"
+    },
+    {
+      "category": "Networking",
+      "service": "Front Door",
+      "armTypes": [
+        "Microsoft.Cdn/profiles",
+        "Microsoft.Network/frontDoors",
+        "Microsoft.Cdn/profiles/afdEndpoints"
+      ],
+      "file": "front-door.png"
     }
   ]
 }
