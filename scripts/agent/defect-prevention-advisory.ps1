@@ -40,10 +40,10 @@ try {
     $normalized = $changed -join "`n"
 
     if ($normalized -match '(^|\n)(ArchLucid\.Api/Controllers/|.*Controller\.cs$|.*Endpoint.*\.cs$)') {
-        Write-Advisory 'API change: review authorization, tenant/object scope, validation, stable errors, idempotency, and typed audit events.'
+        Write-Advisory 'API change: review authorization, tenant/object scope, validation, stable errors, idempotency, and typed audit events; add or update a contract test when the wire behavior changes.'
     }
     if ($normalized -match '(^|\n)(ArchLucid\.Persistence|.*Migration.*\.cs$|.*\.sql$)') {
-        Write-Advisory 'Persistence change: document rollout compatibility, retry/partial-failure behavior, backfill, recovery, and query scope/pagination.'
+        Write-Advisory 'Persistence change: document rollout compatibility, retry/partial-failure behavior, backfill, recovery, and query scope/pagination; validate migrations against production-shaped data where practical.'
     }
     if ($normalized -match '(^|\n)archlucid-ui/') {
         Write-Advisory 'UI change: check loading, empty, error, permission-denied, stale-data, and double-submit states.'
@@ -57,9 +57,22 @@ try {
     if ($normalized -match '(Date|Time|Money|Currency|Amount|Rate)') {
         Write-Advisory 'Date/time or numeric domain change: confirm UTC, culture-independent parsing, rounding, and range boundaries.'
     }
+    if ($normalized -match '(^|\n)(ArchLucid\.(Core|Application|Decisioning|KnowledgeGraph|ArtifactSynthesis)/|.*(Validator|Parser|Converter|Resolver)\.cs$)') {
+        Write-Advisory 'Domain transformation change: define the invariant at the boundary and add generative or table-driven cases for malformed, extreme, and unexpected inputs.'
+    }
+    if ($normalized -match '(^|\n)(ArchLucid\.(Api|Worker|Jobs|Integrations\.)|.*(Background|Worker|Job|Handler)\.cs$)') {
+        Write-Advisory 'Service or job change: emit structured, redacted diagnostics with a correlation ID for each failure and retry path.'
+    }
+    if ($normalized -match '(FeatureFlag|FeatureFlags|FeatureManagement|appsettings|Configuration|Options|\.ya?ml$|\.json$)') {
+        Write-Advisory 'Flag or configuration change: identify the safe default, disabled-path behavior, rollout owner, retirement condition, and a fast rollback path.'
+    }
+    if ($normalized -match '(\.csproj$|Directory\.Build\.props$|Directory\.Packages\.props$|\.editorconfig$|\.ruleset$)') {
+        Write-Advisory 'Build or analysis configuration change: preserve Release warning-as-error and analyzer coverage; add a targeted rule only when it prevents a demonstrated recurring defect.'
+    }
 
-    Write-Advisory 'For a bug fix, retain a reproducible failing scenario and check the nearest boundary case.'
+    Write-Advisory 'For a bug fix, retain a reproducible failing scenario, add a focused regression test whenever feasible, and check the nearest boundary case.'
     Write-Advisory 'Record one focused local command or manual scenario that a reviewer can repeat.'
+    Write-Advisory 'After an escaped defect, capture the missed assumption and one concrete preventive action in the defect log or post-incident review.'
 }
 catch {
     Write-Advisory "Unable to generate suggestions: $($_.Exception.Message)"
