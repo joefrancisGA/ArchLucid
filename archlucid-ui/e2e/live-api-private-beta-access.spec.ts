@@ -47,6 +47,7 @@ import {
   resolveArchitectureIdentityIdForRun,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
+  uniquePrivateBetaSystemName,
   liveJsonHeaders,
   waitForArchitectureRunListIncludesRun,
   waitForLiveApiReady,
@@ -354,7 +355,7 @@ test.describe(
       enrichArchitectureRequestBody({
         requestId: `E2E-BETA-ACCESS-${Date.now()}`,
         description: liveE2eArchitectureDescription("Private beta access-path smoke architecture review."),
-        systemName: "PrivateBetaAccessSmoke",
+        systemName: uniquePrivateBetaSystemName("PrivateBetaAccessSmoke"),
         environment: "prod",
         cloudProvider: 1,
         constraints: [] as string[],
