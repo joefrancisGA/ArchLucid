@@ -230,6 +230,24 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
 
     return sortedNodes.slice(0, 200);
   }, [nodeSortDir, nodeSortKey, outline.nodes]);
+  const connectedNodeIds = useMemo(() => {
+    const ids = new Set<string>();
+
+    for (const edge of outline.edges) {
+      ids.add(edge.from);
+      ids.add(edge.to);
+    }
+
+    return ids;
+  }, [outline.edges]);
+  const connectedNodeRows = useMemo(
+    () => nodeRows.filter((node) => connectedNodeIds.has(node.id)),
+    [connectedNodeIds, nodeRows],
+  );
+  const unconnectedNodeRows = useMemo(
+    () => nodeRows.filter((node) => !connectedNodeIds.has(node.id)),
+    [connectedNodeIds, nodeRows],
+  );
   const edgeRows = useMemo(() => {
     const sortedEdges = sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir);
 
@@ -335,7 +353,12 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   </tr>
                 </thead>
                 <tbody>
-                  {nodeRows.map((node) => (
+                  <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
+                    <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
+                      Connected nodes ({connectedNodeRows.length})
+                    </th>
+                  </tr>
+                  {connectedNodeRows.map((node) => (
                     <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
                       <td className="px-3 py-2">
                         <InfraEvidenceDiagramOutlineNodeLabel node={node} />
@@ -360,6 +383,42 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       ) : null}
                     </tr>
                   ))}
+                  {unconnectedNodeRows.length > 0 ? (
+                    <>
+                      <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
+                        <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
+                          Unconnected nodes ({unconnectedNodeRows.length})
+                        </th>
+                      </tr>
+                      {unconnectedNodeRows.map((node) => (
+                        <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
+                          <td className="px-3 py-2">
+                            <InfraEvidenceDiagramOutlineNodeLabel node={node} />
+                          </td>
+                          <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
+                          <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
+                            {formatOutlineCell(node.resourceGroup)}
+                          </td>
+                          {showNeighborhoodActions ? (
+                            <td className="px-3 py-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
+                                aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
+                                onClick={() => {
+                                  onFocusNeighborhood(node);
+                                }}
+                              >
+                                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                              </Button>
+                            </td>
+                          ) : null}
+                        </tr>
+                      ))}
+                    </>
+                  ) : null}
                 </tbody>
               </table>
               {nodeRows.length === 0 ? (
