@@ -250,6 +250,14 @@
         "Microsoft.DBforMySQL/servers"
       ],
       "file": "mysql.png"
+    },
+    {
+      "category": "Compute",
+      "service": "VM Scale Set",
+      "armTypes": [
+        "Microsoft.Compute/virtualMachineScaleSets"
+      ],
+      "file": "vm-scale-set.png"
     }
   ]
 }
