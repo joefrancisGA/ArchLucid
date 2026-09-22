@@ -21,7 +21,7 @@ namespace ArchLucid.Api.Controllers.Findings;
 [Route("v{version:apiVersion}/architecture/finding")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ArchitectureFindingAskController(
+public sealed partial class ArchitectureFindingAskController(
     IAskService askService,
     IScopeContextProvider scopeContextProvider,
     ILogger<ArchitectureFindingAskController> logger) : ControllerBase
@@ -61,7 +61,7 @@ public sealed class ArchitectureFindingAskController(
         catch (ConflictException ex)
         {
             _logger.LogWarning(ex, "Finding ask blocked for finding {FindingId}: inventory guard rejected the request.", findingId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapFindingAskSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

@@ -24,11 +24,17 @@ public static class InsightDensityEngineDistributionCalculator
     public static InsightDensityEngineDistribution Calculate(
         FindingsSnapshot snapshot,
         IInsightDensityGate gate,
-        InsightDensityGateOptions options)
+        InsightDensityGateOptions options,
+        GraphSnapshot? graphSnapshot = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(gate);
         ArgumentNullException.ThrowIfNull(options);
+
+        IInsightDensityGate scoringGate = InsightDensityGateScoringFactory.CreateScoringGate(
+            gate,
+            options,
+            graphSnapshot);
 
         if (snapshot.Findings.Count == 0)
         {
@@ -45,7 +51,7 @@ public static class InsightDensityEngineDistributionCalculator
         foreach (Finding finding in snapshot.Findings)
         {
             InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
-            InsightDensityGateResult result = gate.Score(candidate, candidates);
+            InsightDensityGateResult result = scoringGate.Score(candidate, candidates);
 
             if (!accumulators.TryGetValue(finding.EngineType, out InsightDensityEngineDistributionAccumulator? accumulator))
             {

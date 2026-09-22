@@ -84,6 +84,13 @@ internal sealed partial class CommandRegistry
     {
         Register(
             new CommandDescriptor(
+                "try",
+                "First-value smoke with explicit Career (--real) or Rehearsal (--rehearse) doors.",
+                "try [--rehearse | --real] [--strict-real] [real-mode smoke flags...]"),
+            CliCommandHandlers.HandleTry);
+
+        Register(
+            new CommandDescriptor(
                 "second-run",
                 "Run a second-review workflow from a TOML or JSON file.",
                 "second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>]"),
@@ -131,8 +138,15 @@ internal sealed partial class CommandRegistry
             new CommandDescriptor(
                 "draft",
                 "Create a draft architecture request.",
-                "draft new [--text <intent>] [--system-name <name>] [--business-outcome <text>] [--api-base-url <url>] [--skip-must-questions] [--no-auto-execute]"),
+                "draft new [--text <intent>] [--system-name <name>] [--business-outcome <text>] [--api-base-url <url>] [--skip-must-questions] [--no-auto-execute] · draft clone-snapshot <draftId> [--json]"),
             CliCommandHandlers.HandleDraft);
+
+        Register(
+            new CommandDescriptor(
+                "infeasible",
+                "Infeasibility honesty reference for CLI export paths.",
+                "infeasible honesty [--json]"),
+            CliCommandHandlers.HandleInfeasible);
 
         Register(
             new CommandDescriptor(

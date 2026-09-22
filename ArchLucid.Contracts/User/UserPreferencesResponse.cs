@@ -99,6 +99,34 @@ public sealed class UserPreferencesResponse
         set;
     }
 
+    /// <summary>First-login seat purpose when set: <c>live</c> or <c>training</c>. Unset until the user chooses.</summary>
+    public string? FirstSessionPurpose
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when the user has an explicit stored first-session-purpose row.</summary>
+    public bool FirstSessionPurposeIsExplicit
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Working Career vs Rehearsal door: career (GET default when unset) or rehearsal.</summary>
+    public string WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    } = WorkingCareerRehearsalDoorValues.Default;
+
+    /// <summary>True when the user has an explicit stored Working Career/Rehearsal door row.</summary>
+    public bool WorkingCareerRehearsalDoorIsExplicit
+    {
+        get;
+        set;
+    }
+
     /// <summary>When true, Working-mode review-detail uses the split workbench layout.</summary>
     public bool ProfessionalWorkbenchEnabled
     {
@@ -178,6 +206,20 @@ public sealed class UserPreferencesResponse
 
     /// <summary>True when the user has an explicit stored desk-continuity row.</summary>
     public bool DeskContinuityIsExplicit
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Working pins and recents for inhabit continuity across devices.</summary>
+    public WorkingWorkspaceContinuityDto WorkingWorkspaceContinuity
+    {
+        get;
+        set;
+    } = WorkingWorkspaceContinuityValues.Default;
+
+    /// <summary>True when the user has an explicit stored working-workspace-continuity row.</summary>
+    public bool WorkingWorkspaceContinuityIsExplicit
     {
         get;
         set;

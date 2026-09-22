@@ -4,12 +4,12 @@
  * Three related project surfaces:
  * - Projects recycle bin (`/administration/workspace-settings/recycle-bin`) restores
  *   soft-deleted projects (retention window — not permanent erase).
- * - Architecture drafts (`/architecture/architectures`) is the draft registry
+ * - Architecture drafts (`/architecture/architectures`) is the architecture draft registry
  *   before a review starts.
  * - Architecture packages / reviews (`/architecture/reviews`) is the hub for
  *   architecture packages and review inventory.
  *
- * They stay separate because soft-delete and restore are not the draft list,
+ * They stay separate because soft-delete and restore are not the architecture draft list,
  * and drafts are not finalized architecture packages. Restore residue honesty:
  * soft-delete does not erase architecture packages — restoring a project
  * returns project scope residue; packages and drafts remain distinct objects.

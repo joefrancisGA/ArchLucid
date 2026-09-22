@@ -1,5 +1,6 @@
 function isPreAuthSignInAnonymousProxyPath(normalized: string): boolean {
   return (
+    normalized === "v1/register" ||
     normalized === "v1/auth/routing/evaluate" ||
     normalized === "v1/auth/email-otp/challenge" ||
     normalized === "v1/auth/email-otp/verify" ||

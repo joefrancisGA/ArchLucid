@@ -1,6 +1,9 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import {
+  type GovernanceFindingInspectHrefOptions,
+  resolveGovernanceQueueAuxiliaryFindingHref,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { asReadonlyArray } from "@/lib/continue-last-list-guard";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 
 const REVIEW_FINDING_HREF_PATTERN = /^\/architecture\/reviews\/([^/]+)\/findings\/([^/]+)/i;
@@ -9,6 +12,13 @@ export type GovernanceFindingsContinueLastTarget = {
   readonly findingId: string;
   readonly title: string;
   readonly href: string;
+};
+
+export type ResolveContinueLastGovernanceFindingOptions = {
+  /** When true, resume from recent views even if the queue returned zero rows (assigned-to-me zero state). */
+  readonly allowRecentWithoutLoadedRow?: boolean;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
+  readonly findingsQueueRunId?: string | null;
 };
 
 function findingKeyFromRecentHref(href: string): { readonly runId: string; readonly findingId: string } | null {
@@ -55,11 +65,34 @@ function readRecentFindingKey(): { readonly runId: string; readonly findingId: s
 function toTarget(
   row: GovernanceFindingQueueRow,
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): GovernanceFindingsContinueLastTarget {
   return {
     findingId: row.findingId,
     title: row.title,
-    href: getFindingDetailHref(row.runId, row.findingId, findingsQueueRunId),
+    href: resolveGovernanceQueueAuxiliaryFindingHref(row.runId, row.findingId, {
+      inspectHrefOptions,
+      findingsQueueRunId,
+    }),
+  };
+}
+
+function resolveContinueLastFromRecentViewOnly(
+  options?: ResolveContinueLastGovernanceFindingOptions,
+): GovernanceFindingsContinueLastTarget | null {
+  const recentKey = readRecentFindingKey();
+
+  if (recentKey === null) {
+    return null;
+  }
+
+  return {
+    findingId: recentKey.findingId,
+    title: "Last viewed finding",
+    href: resolveGovernanceQueueAuxiliaryFindingHref(recentKey.runId, recentKey.findingId, {
+      inspectHrefOptions: options?.inspectHrefOptions,
+      findingsQueueRunId: options?.findingsQueueRunId,
+    }),
   };
 }
 
@@ -67,6 +100,8 @@ function toTarget(
 export function resolveContinueLastGovernanceFinding(
   rows: unknown,
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
+  options?: ResolveContinueLastGovernanceFindingOptions,
 ): GovernanceFindingsContinueLastTarget | null {
   const normalizedRows = asReadonlyArray<GovernanceFindingQueueRow>(rows);
 
@@ -77,6 +112,14 @@ export function resolveContinueLastGovernanceFinding(
   const findingRows = normalizedRows.filter((row) => row.recordKind === "finding");
 
   if (findingRows.length === 0) {
+    if (options?.allowRecentWithoutLoadedRow === true) {
+      return resolveContinueLastFromRecentViewOnly({
+        allowRecentWithoutLoadedRow: true,
+        inspectHrefOptions: options.inspectHrefOptions ?? inspectHrefOptions,
+        findingsQueueRunId: options.findingsQueueRunId ?? findingsQueueRunId,
+      });
+    }
+
     return null;
   }
 
@@ -88,13 +131,13 @@ export function resolveContinueLastGovernanceFinding(
     );
 
     if (recentMatch !== undefined) {
-      return toTarget(recentMatch, findingsQueueRunId);
+      return toTarget(recentMatch, findingsQueueRunId, inspectHrefOptions);
     }
 
     const findingIdMatch = findingRows.find((row) => row.findingId === recentKey.findingId);
 
     if (findingIdMatch !== undefined) {
-      return toTarget(findingIdMatch, findingsQueueRunId);
+      return toTarget(findingIdMatch, findingsQueueRunId, inspectHrefOptions);
     }
   }
 
@@ -102,5 +145,5 @@ export function resolveContinueLastGovernanceFinding(
     .slice()
     .sort((left, right) => (right.agingDays ?? -1) - (left.agingDays ?? -1))[0];
 
-  return oldestOpen === undefined ? null : toTarget(oldestOpen, findingsQueueRunId);
+  return oldestOpen === undefined ? null : toTarget(oldestOpen, findingsQueueRunId, inspectHrefOptions);
 }

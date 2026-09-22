@@ -186,23 +186,26 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         TenantScopedSqlExpressionResolver.ResolutionResult resolution =
             TenantScopedSqlExpressionResolver.Resolve(sqlExpression, context.SemanticModel);
 
-        if (!resolution.IsStaticallyResolved || resolution.SqlText is null)
+        IReadOnlyList<string> sqlTexts = resolution.GetSqlTextsToAnalyze().ToList();
+
+        if (sqlTexts.Count == 0)
         {
             ReportUnanalyzableIfScopedTableReferenced(context, registry, resolution, reportLocation);
 
             return;
         }
 
-        AnalyzeResolvedSql(context, registry, resolution, reportLocation);
+        foreach (string sqlText in sqlTexts)
+            AnalyzeResolvedSql(context, registry, resolution, reportLocation, sqlText);
     }
 
     private static void AnalyzeResolvedSql(
         SyntaxNodeAnalysisContext context,
         TenantScopedTableRegistry registry,
         TenantScopedSqlExpressionResolver.ResolutionResult resolution,
-        Location reportLocation)
+        Location reportLocation,
+        string sqlText)
     {
-        string sqlText = resolution.SqlText ?? string.Empty;
         IReadOnlyList<string> targets = TenantScopedQuerySqlInspector.GetTopLevelScopedTargets(sqlText);
 
         foreach (string table in targets)

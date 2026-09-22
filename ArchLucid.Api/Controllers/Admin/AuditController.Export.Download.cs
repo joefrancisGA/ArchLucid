@@ -3,6 +3,7 @@ using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -68,26 +69,23 @@ public sealed partial class AuditController
 
         int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        if (runId is not null && runId.Value != Guid.Empty)
+        try
         {
-            try
-            {
-                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                    runId.Value.ToString("N"),
-                    scope,
-                    authorityQueryService,
-                    manifestHashService,
-                    ct);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+            ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        AuditEventFilter exportFilter = new()
+            IActionResult? sealedGuardResult =
+                await EnsureAuditExportSealedManifestAllowedAsync(runId, scope, ct);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            (IActionResult? careerBlockedResult, AuditExportCareerPostureStamp? postureStamp) =
+                await ResolveAuditCsvCareerPostureAsync(runId, scope, ct);
+
+            if (careerBlockedResult is not null)
+                return careerBlockedResult;
+
+            AuditEventFilter exportFilter = new()
         {
             FromUtc = from,
             ToUtc = to,
@@ -132,7 +130,10 @@ public sealed partial class AuditController
 
             if (f == "csv")
             {
-                string csvName = exportFormatter.BuildAuditExportCsvFileName(from, to);
+                string csvName = exportFormatter.BuildAuditExportCsvFileName(
+                    from,
+                    to,
+                    postureStamp?.RehearsalIncomplete == true);
                 IAsyncEnumerable<AuditEvent> csvStream = repo.StreamFilteredExportAsync(
                     scope.TenantId,
                     scope.WorkspaceId,
@@ -140,14 +141,23 @@ public sealed partial class AuditController
                     exportFilter,
                     ct);
 
-                await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, csvStream, csvName, ct);
+                await AuditEventCsvResponseWriter.WriteAsync(
+                    Response,
+                    exportFormatter,
+                    csvStream,
+                    csvName,
+                    ct,
+                    postureStamp);
                 return new EmptyResult();
             }
         }
 
         if (PrefersCsvResponse(format))
         {
-            string attachmentName = exportFormatter.BuildAuditExportCsvFileName(from, to);
+            string attachmentName = exportFormatter.BuildAuditExportCsvFileName(
+                from,
+                to,
+                postureStamp?.RehearsalIncomplete == true);
             IAsyncEnumerable<AuditEvent> csvStream = repo.StreamFilteredExportAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
@@ -155,7 +165,13 @@ public sealed partial class AuditController
                 exportFilter,
                 ct);
 
-            await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, csvStream, attachmentName, ct);
+            await AuditEventCsvResponseWriter.WriteAsync(
+                Response,
+                exportFormatter,
+                csvStream,
+                attachmentName,
+                ct,
+                postureStamp);
             return new EmptyResult();
         }
 
@@ -166,7 +182,12 @@ public sealed partial class AuditController
             exportFilter,
             ct);
 
-        return Ok(jsonEvents);
+            return Ok(jsonEvents);
+        }
+        catch (ConflictException ex)
+        {
+            return MapAuditExportSealedManifestConflict(ex);
+        }
     }
 
     private bool PrefersCsvResponse(string? format)

@@ -51,11 +51,18 @@ export const CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING = "Related topics" as
 
 export const CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE = "Choose your cloud platform" as const;
 
-export const CLOUD_CONNECTIONS_HELP_TIER_1 = {
-  title: "Tier 1 · Upload inventory",
+export const CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT = {
+  title: "Scheduled agent",
   eyebrow: "Recommended",
   useWhen:
-    "Run packaging scripts from your ArchLucid distribution, then upload the inventory ZIP from the New architecture review wizard. ArchLucid never receives long-lived credentials in your cloud account.",
+    "Deploy an Azure Automation runbook or Function timer in your subscription. It collects read-only inventory and uploads the ZIP on a cadence — no command line or UI pull. ArchLucid never receives long-lived credentials in your cloud account.",
+} as const;
+
+export const CLOUD_CONNECTIONS_HELP_TIER_1 = {
+  title: "Tier 1 · Upload inventory",
+  eyebrow: "Pilot",
+  useWhen:
+    "Run packaging scripts from your ArchLucid distribution, then upload the inventory ZIP from the New architecture review wizard when you need a one-time package.",
 } as const;
 
 export const CLOUD_CONNECTIONS_HELP_TIER_2 = {
@@ -184,6 +191,91 @@ export function cloudConnectionsHelpFollowUpLinks(
 
 export const CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS: readonly CloudConnectionsHelpFollowUpLink[] =
   cloudConnectionsHelpFollowUpLinks("architecture");
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_PAGE_INTRO =
+  "Azure connectors are optional and read-only. Pick a tier below when you need provider inventory in SecureNow — or upload a validated inventory ZIP without a connector.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE = "Start with inventory ZIP upload" as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE =
+  "This guide explains optional read-only Azure connectors and inventory ZIP intake for SecureNow — not where procurement goes for audit lineage citations.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD =
+  "This guide explains optional read-only Azure connectors and how to pick an evidence tier for cloud inventory scans.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT = {
+  title: CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT.title,
+  eyebrow: CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT.eyebrow,
+  useWhen:
+    "Deploy an Azure Automation runbook or Function timer in your subscription. It collects read-only inventory and uploads the ZIP on a cadence — no command line or UI pull. SecureNow never receives long-lived credentials in your cloud account.",
+} as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1 = {
+  title: "Tier 1 · Upload inventory",
+  eyebrow: "Pilot",
+  useWhen:
+    "Run packaging scripts from your SecureNow distribution, then upload the inventory ZIP from Extract and upload when you need a one-time package.",
+} as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
+  openExtractUpload: {
+    label: "Extract and upload",
+    href: "/governance/infrastructure/extract-upload",
+  },
+  openHub: { label: "Open Azure connections", href: "/integrations/cloud-connections" },
+} as const;
+
+export function cloudConnectionsHelpPageIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_PAGE_INTRO
+    : CLOUD_CONNECTIONS_HELP_PAGE_INTRO;
+}
+
+export function cloudConnectionsHelpStartHereCardTitle(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE
+    : CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE;
+}
+
+export function cloudConnectionsHelpClaimDiscipline(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE
+    : CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE;
+}
+
+export function cloudConnectionsHelpOrientationLead(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD
+    : CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD;
+}
+
+export function cloudConnectionsHelpScheduledAgent(productLineId: ProductLineId = "architecture") {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT;
+}
+
+export function cloudConnectionsHelpTier1(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1
+    : CLOUD_CONNECTIONS_HELP_TIER_1;
+}
+
+export function cloudConnectionsHelpPrimaryActions(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS
+    : CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS;
+}
+
+export function cloudConnectionsHelpPrimaryCta(productLineId: ProductLineId = "architecture") {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openExtractUpload;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview;
+}
 
 /** Operator Sources — no self-href to `/help/cloud-connections`. */
 export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollowUpLink[] = [

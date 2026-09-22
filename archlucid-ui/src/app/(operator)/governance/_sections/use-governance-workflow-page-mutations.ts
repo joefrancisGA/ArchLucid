@@ -83,6 +83,9 @@ export function useGovernanceWorkflowPageMutations() {
   const activeReviewDisplayTitle = reviewContextQuery.data?.displayTitle ?? null;
   const reviewContextBlockedReason = reviewContextQuery.blockedReason;
 
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+
   const mutations = useGovernanceWorkflowMutations({
     canMutateWorkflow,
     activeRunId,
@@ -94,6 +97,7 @@ export function useGovernanceWorkflowPageMutations() {
     submitComment,
     setSubmitComment,
     workflowActor,
+    livelihoodReturnPath,
   });
 
   const setPendingReview = useCallback(

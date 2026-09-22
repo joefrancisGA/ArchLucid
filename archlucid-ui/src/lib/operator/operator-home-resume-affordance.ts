@@ -3,25 +3,8 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import type { IncompleteWizardSignal } from "@/lib/unfinished-work-rail";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
+import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import type { RunSummary } from "@/types/authority";
-
-const REVIEW_PATH_PREFIX = "/architecture/reviews/";
-
-function runIdFromReviewHref(href: string): string | null {
-  const path = href.split("?")[0] ?? "";
-
-  if (!path.startsWith(REVIEW_PATH_PREFIX)) {
-    return null;
-  }
-
-  const remainder = path.slice(REVIEW_PATH_PREFIX.length).trim();
-
-  if (remainder.length === 0 || remainder.includes("/")) {
-    return null;
-  }
-
-  return remainder;
-}
 
 export type OperatorHomeResumeAffordancePlan = {
   readonly showContinueLast: boolean;
@@ -62,7 +45,7 @@ export function resolveOperatorHomeResumeAffordancePlan(
 
   if (continueLastKind === "review") {
     const railSurfacesSameRun = railSummary.items.some((item) => {
-      const runId = runIdFromReviewHref(item.href);
+      const runId = resolveRunIdFromWorkingReviewHref(item.href);
 
       return runId !== null && runId === reviewTarget?.runId;
     });

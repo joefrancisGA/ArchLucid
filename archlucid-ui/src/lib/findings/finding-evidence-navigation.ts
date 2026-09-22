@@ -1,5 +1,7 @@
+import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 
 /** Canonical App Router segment for finding evidence trace pages. */
 export const FINDING_EVIDENCE_TRACE_SEGMENT = "evidence-trace";
@@ -30,9 +32,32 @@ export function getFindingDetailHref(
   return `${base}?runId=${encodeURIComponent(queueRunId)}`;
 }
 
-/** Back navigation from finding detail or evidence trace to the policy findings queue. */
-export function resolveFindingsQueueNavHref(findingsQueueRunId?: string | null): string {
-  const queueRunId = (findingsQueueRunId ?? "").trim();
+export type ResolveFindingsQueueNavHrefInput = {
+  readonly findingsQueueRunId?: string | null;
+  readonly architectureId?: string | null;
+  readonly isWorkingMode?: boolean;
+};
+
+/** Back navigation from finding detail or evidence trace to the scoped findings instrument. */
+export function resolveFindingsQueueNavHref(
+  input?: string | null | ResolveFindingsQueueNavHrefInput,
+): string {
+  const normalizedInput: ResolveFindingsQueueNavHrefInput =
+    typeof input === "string" || input === null || input === undefined
+      ? { findingsQueueRunId: input }
+      : input;
+  const queueRunId = (normalizedInput.findingsQueueRunId ?? "").trim();
+  const architectureId = normalizedInput.architectureId?.trim() ?? "";
+  const isWorkingMode = normalizedInput.isWorkingMode === true;
+
+  if (isWorkingMode && architectureId.length > 0) {
+    return resolveWorkingFindingsInstrumentHref({
+      architectureId,
+      runId: queueRunId,
+      filter: "all",
+      isWorkingMode: true,
+    });
+  }
 
   if (queueRunId.length === 0) {
     return GOVERNANCE_FINDINGS_PATH;
@@ -65,6 +90,44 @@ export const FINDING_GOVERNANCE_DISPOSITION_HASH = "governance-disposition-headi
 /** Deep link to record disposition on the evidence trace governance panel. */
 export function getFindingGovernanceDispositionHref(runId: string, findingId: string): string {
   return `${getFindingEvidenceTraceHref(runId, findingId)}#${FINDING_GOVERNANCE_DISPOSITION_HASH}`;
+}
+
+export type QuickDecisionFindingNavOptions = {
+  readonly architectureId?: string | null;
+  readonly isWorkingMode?: boolean;
+};
+
+/** IP-005 — quick-decision Open finding stays on nested focusedFinding when architecture is known. */
+export function resolveQuickDecisionFindingInspectHref(
+  runId: string,
+  findingId: string,
+  options?: QuickDecisionFindingNavOptions,
+): string {
+  const architectureId = options?.architectureId?.trim() ?? "";
+
+  if (options?.isWorkingMode === true && architectureId.length > 0) {
+    return governanceFindingInspectHref(runId, findingId, {
+      architectureId,
+      isWorkingMode: true,
+    });
+  }
+
+  return getFindingDetailHref(runId, findingId);
+}
+
+/** IP-005 — disposition CTA lands on the inhabited finding card when architecture is known. */
+export function resolveQuickDecisionFindingDispositionHref(
+  runId: string,
+  findingId: string,
+  options?: QuickDecisionFindingNavOptions,
+): string {
+  const architectureId = options?.architectureId?.trim() ?? "";
+
+  if (options?.isWorkingMode === true && architectureId.length > 0) {
+    return resolveQuickDecisionFindingInspectHref(runId, findingId, options);
+  }
+
+  return getFindingGovernanceDispositionHref(runId, findingId);
 }
 
 /** @deprecated Prefer {@link getFindingEvidenceTraceHref}. */

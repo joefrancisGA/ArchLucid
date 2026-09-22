@@ -201,6 +201,27 @@ export function useRunSummaryStream(
       es?.close();
     });
 
+    const probeSealedManifestBlock = async (): Promise<boolean> => {
+      try {
+        await getRunSummary(runId);
+
+        return false;
+      } catch (error: unknown) {
+        const blockedReason = runSummaryBlockedReason(toApiLoadFailure(error));
+
+        if (blockedReason !== null) {
+          setStreamBlockedReason(blockedReason);
+          clearFallback();
+          streamPhaseRef.current = "complete";
+          setStreamPhase("complete");
+
+          return true;
+        }
+
+        return false;
+      }
+    };
+
     es.addEventListener("error", () => {
       if (canceled) {
         return;
@@ -209,7 +230,16 @@ export function useRunSummaryStream(
       es?.close();
       sseConnectedRef.current = false;
       setSseConnected(false);
-      startPollingFallback();
+
+      void (async () => {
+        const blocked = await probeSealedManifestBlock();
+
+        if (canceled || blocked) {
+          return;
+        }
+
+        startPollingFallback();
+      })();
     });
 
     return () => {

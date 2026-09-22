@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "description": "Canonical mutation microcases for architecture intelligence benchmark parity (TB-2352 lift / TB-1990). CI verifies count floors and parity with ArchitectureIntelligenceBenchmark.GetMutationTests().",
+  "minimumCaseCount": 8,
+  "minimumChangedFindingsRate": 0.75,
+  "cases": [
+    {
+      "mutationId": "mutate-rto-30m",
+      "applyDelta": "recovery-objective:RTO=30m",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-add-replication",
+      "applyDelta": "add:evidence:replication-enabled",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-remove-trust-boundary",
+      "applyDelta": "remove:TrustBoundary",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-data-regulated",
+      "applyDelta": "data-classification:regulated",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-add-authentication",
+      "applyDelta": "add:authentication:required",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-remove-replication",
+      "applyDelta": "remove:replication",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-remove-rto",
+      "applyDelta": "remove:RecoveryObjective",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-add-public-api",
+      "applyDelta": "add:public-api",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-tighten-rpo",
+      "applyDelta": "recovery-objective:RPO=1m",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-add-unowned-service",
+      "applyDelta": "add:unowned-service",
+      "expectChangedFindings": true
+    },
+    {
+      "mutationId": "mutate-add-private-endpoint",
+      "applyDelta": "add:private-endpoint",
+      "expectChangedFindings": true
+    }
+  ]
+}

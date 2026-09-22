@@ -56,12 +56,13 @@ import {
   GOVERNANCE_APPROVAL_HELP_SOURCES_INTRO,
 } from "@/lib/governance/governance-approval-help-evidence-copy";
 import {
-  FINDINGS_HELP_CLAIM_DISCIPLINE,
   FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING,
   FINDINGS_HELP_FOLLOW_UPS_TITLE,
-  FINDINGS_HELP_SOURCES,
-  FINDINGS_HELP_SOURCES_INTRO,
+  resolveFindingsHelpClaimDiscipline,
+  resolveFindingsHelpSources,
+  resolveFindingsHelpSourcesIntro,
 } from "@/lib/findings/findings-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { FINDINGS_HELP_CLAIM_HEADING_ID } from "@/lib/findings/findings-help-guide-content";
 import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE,
@@ -248,16 +249,18 @@ export function GovernanceApprovalHelpEvidenceOrientationStrip(): React.JSX.Elem
 }
 
 export function FindingsHelpEvidenceOrientationStrip(): React.JSX.Element {
+  const productLineId = resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="findings-help"
       claimTestId="help-findings-claim-discipline"
-      claim={FINDINGS_HELP_CLAIM_DISCIPLINE}
+      claim={resolveFindingsHelpClaimDiscipline(productLineId)}
       claimHeading={FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={FINDINGS_HELP_CLAIM_HEADING_ID}
       sourcesTitle={FINDINGS_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={FINDINGS_HELP_SOURCES_INTRO}
-      sources={FINDINGS_HELP_SOURCES}
+      sourcesIntro={resolveFindingsHelpSourcesIntro(productLineId)}
+      sources={resolveFindingsHelpSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
     />
   );

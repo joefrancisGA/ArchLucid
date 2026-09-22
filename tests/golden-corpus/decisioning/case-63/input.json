@@ -35,5 +35,6 @@
     "warnings": []
   },
   "merge": null,
-  "inventoryFixture": null
+  "inventoryFixture": null,
+  "priorGraphFixture": null
 }

@@ -162,6 +162,18 @@ Before forwarding bundle contents externally:
 
 CLI parity for a fresh bundle from your workstation: `dotnet run --project ArchLucid.Cli -- support-bundle --zip` ([`TROUBLESHOOTING.md`](TROUBLESHOOTING.md#support-bundle-attach-to-tickets)).
 
+## False-hard vs soft infeasible (LN-039)
+
+When an operator reports Career export blocked or an "impossible" verdict feels wrong, classify **before** deep log mining:
+
+| Symptom | Classification | Triage |
+| --- | --- | --- |
+| Export blocked with **uncited hard** / `uncited_hard_infeasible` | **Defect** — false-hard on Working Career | Verify manifest `feasibilityVerdict.kind` is `HardInfeasible` with empty `hardCitations`. Point operator to `/help/false-hard-infeasibility`. Do **not** treat as soft envelope. |
+| **Soft infeasible** with labeled assumptions and cost-of-being-wrong | **Expected product path** | Explain envelope honesty; cite `/help/false-hard-infeasibility`. No code hotfix unless assumptions trail is null. |
+| Evidence-backed finding without source pointer | **Provenance gap** | See `/help/extraction-fidelity`; correlate to extraction intake, not Gate 1 PASS. |
+
+**Correlation id remains primary** for all rows above — do not add PII to logs. Support bundle stamps follow **CG-092** (door/host mode mismatch is separate).
+
 ## Private-beta escalation
 
 | Channel | Owner |

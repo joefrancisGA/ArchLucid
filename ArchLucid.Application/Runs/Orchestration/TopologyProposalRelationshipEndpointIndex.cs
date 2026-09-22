@@ -100,8 +100,8 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     }
 
     internal static string? BuildSyntheticServiceNodeId(string? serviceName) =>
-        string.IsNullOrWhiteSpace(serviceName) ? null : $"svc-{serviceName}";
+        string.IsNullOrWhiteSpace(serviceName) ? null : $"svc-{serviceName.Trim()}";
 
     internal static string? BuildSyntheticDatastoreNodeId(string? datastoreName) =>
-        string.IsNullOrWhiteSpace(datastoreName) ? null : $"ds-{datastoreName}";
+        string.IsNullOrWhiteSpace(datastoreName) ? null : $"ds-{datastoreName.Trim()}";
 }

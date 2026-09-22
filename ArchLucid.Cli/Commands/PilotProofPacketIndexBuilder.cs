@@ -1,3 +1,5 @@
+using ArchLucid.Application.Exports;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>Buyer-safe index for sponsor proof packet folders (Improvement #7).</summary>
@@ -9,7 +11,8 @@ public static class PilotProofPacketIndexBuilder
         string runId,
         bool pilotStrictSatisfied,
         bool demoWarning,
-        string? structuralExecutionModeLabel = null)
+        string? structuralExecutionModeLabel = null,
+        ExportBundleCareerPostureStamp? careerPostureStamp = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
@@ -21,6 +24,9 @@ public static class PilotProofPacketIndexBuilder
             pilotStrictSatisfied,
             demoWarning,
             structuralExecutionMode = structuralExecutionModeLabel ?? "(not captured)",
+            careerPosture = careerPostureStamp?.CareerPosture,
+            workingCareerRehearsalDoor = careerPostureStamp?.WorkingCareerRehearsalDoor,
+            rehearsalIncomplete = careerPostureStamp?.RehearsalIncomplete,
             whatThisProves = new[]
             {
                 "One committed architecture review produced durable findings, governance posture, and audit samples.",
@@ -51,7 +57,8 @@ public static class PilotProofPacketIndexBuilder
     public static string BuildMarkdown(
         string runId,
         bool pilotStrictSatisfied,
-        string? structuralExecutionModeLabel = null)
+        string? structuralExecutionModeLabel = null,
+        ExportBundleCareerPostureStamp? careerPostureStamp = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
@@ -62,12 +69,18 @@ public static class PilotProofPacketIndexBuilder
         string executionLine = PilotProofPacketStructuralExecutionModeFormatter.BuildSponsorCaveatLine(
             structuralExecutionModeLabel);
 
+        string careerPostureLine = careerPostureStamp is null
+            ? string.Empty
+            : $"**Career posture: {careerPostureStamp.CareerPosture}** — door `{careerPostureStamp.WorkingCareerRehearsalDoor}`; rehearsal incomplete: {(careerPostureStamp.RehearsalIncomplete ? "yes" : "no")}.";
+
         return $"""
             # Sponsor proof packet index
 
             Run id: `{runId}`
 
             {executionLine}
+
+            {careerPostureLine}
 
             {strictLine}
 

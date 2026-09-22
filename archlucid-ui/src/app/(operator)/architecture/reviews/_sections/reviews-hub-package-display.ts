@@ -1,4 +1,5 @@
 import { formatRunListTitleWithDisambiguator } from "@/lib/operator/run-home-list-disambiguator";
+import { resolveSystemNotJobWorkingPrimaryListTitle } from "@/lib/system-not-job-run-id-not-in-working-primary-chrome";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import {
   getBuyerSafeReviewsTableLinkForRun,
@@ -15,10 +16,8 @@ import {
   reviewPackageOwnerLabel,
   type ReviewPackageOwnerResolutionContext,
 } from "@/lib/review-package-validation-picker";
-import {
-  architectureIdentityPath,
-  resolveArchitectureReviewHref,
-} from "@/lib/architecture/architecture-routes";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import {
   WORKING_UNLINKED_REVIEW_INBOX_LABEL,
   isUnlinkedArchitectureReviewJob,
@@ -102,7 +101,13 @@ function resolveReviewsHubReviewHref(
     return primaryAction.href;
   }
 
-  return resolveArchitectureReviewHref(run.runId, architectureId);
+  return resolveWorkingInhabitedFindingsLandingHref({
+    runId: run.runId,
+    architectureId,
+    requestId: run.requestId,
+    draftRegistryEntries: ownerContext.draftRegistryEntries,
+    workingMode: true,
+  });
 }
 
 function resolveReviewsHubArchitectureDisplayName(
@@ -270,7 +275,9 @@ export function toReviewsHubReviewRowDisplay(
   const titleParts = splitReviewsHubReviewTitle(reviewTitle);
   const reviewTitlePrimary =
     siblingRuns.length > 1
-      ? formatRunListTitleWithDisambiguator(run, siblingRuns)
+      ? options.isWorkingMode === true
+        ? resolveSystemNotJobWorkingPrimaryListTitle(run, siblingRuns)
+        : formatRunListTitleWithDisambiguator(run, siblingRuns)
       : titleParts.primary;
   const workingPrimaryAction =
     options.isWorkingMode === true && reviewHref !== primaryAction.href

@@ -74,7 +74,7 @@ describe("GlobalSearchBar", () => {
     navigationTestState.replace.mockReset();
     architectWorkspaceChromeMock.value = false;
     workspaceModeMock.mode = "guided";
-    useArchitectureIdentitiesListQueryMock.mockReturnValue({ data: { items: [] } });
+    useArchitectureIdentitiesListQueryMock.mockReturnValue({ data: { items: [] }, isFetched: true });
     useArchitectureDraftRegistryEntriesMock.mockReturnValue([]);
     vi.stubGlobal(
       "fetch",
@@ -335,6 +335,7 @@ describe("GlobalSearchBar", () => {
           },
         ],
       },
+      isFetched: true,
     });
     useArchitectureDraftRegistryEntriesMock.mockReturnValue([
       {
@@ -368,5 +369,35 @@ describe("GlobalSearchBar", () => {
       "/architecture/architectures/architecture-identity-001?draft=draft-payments-1",
     );
     expect(screen.getByText("Draft")).toBeInTheDocument();
+  });
+
+  it("does not show restricted draft hits when the parent architecture is absent from the share-filtered list (AS-094)", async () => {
+    workspaceModeMock.mode = "working";
+    useArchitectureIdentitiesListQueryMock.mockReturnValue({
+      data: { items: [] },
+      isFetched: true,
+    });
+    useArchitectureDraftRegistryEntriesMock.mockReturnValue([
+      {
+        draftId: "draft-restricted-1",
+        displayName: "Secret platform",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-01T00:00:00Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-01T00:00:00Z",
+        parentArchitectureId: "architecture-restricted-001",
+      },
+    ]);
+
+    render(<GlobalSearchBar />);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "secret" } });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("heading", { name: "Drafts" })).not.toBeInTheDocument();
+    });
+    expect(screen.queryByRole("link", { name: /Secret platform/i })).not.toBeInTheDocument();
   });
 });

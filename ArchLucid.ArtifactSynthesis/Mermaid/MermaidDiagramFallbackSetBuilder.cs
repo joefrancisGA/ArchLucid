@@ -1,5 +1,3 @@
-using System.Text;
-
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -15,19 +13,22 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
     private readonly IMermaidDiagramComplexityAnalyzer complexityAnalyzer;
     private readonly IMermaidDiagramDeterministicRepairer deterministicRepairer;
     private readonly IMermaidDiagramStructuralValidator structuralValidator;
+    private readonly IDiagramPeelCatalogProvider peelCatalogProvider;
 
     public MermaidDiagramFallbackSetBuilder(
         IDiagramAstFromGraphCompiler graphCompiler,
         IDiagramRenderer diagramRenderer,
         IMermaidDiagramComplexityAnalyzer complexityAnalyzer,
         IMermaidDiagramDeterministicRepairer deterministicRepairer,
-        IMermaidDiagramStructuralValidator structuralValidator)
+        IMermaidDiagramStructuralValidator structuralValidator,
+        IDiagramPeelCatalogProvider peelCatalogProvider)
     {
         this.graphCompiler = graphCompiler;
         this.diagramRenderer = diagramRenderer;
         this.complexityAnalyzer = complexityAnalyzer;
         this.deterministicRepairer = deterministicRepairer;
         this.structuralValidator = structuralValidator;
+        this.peelCatalogProvider = peelCatalogProvider;
     }
 
     public IReadOnlyList<MermaidDiagramRenderArtifact> BuildFallbackSet(
@@ -39,28 +40,31 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
 
         List<MermaidDiagramRenderArtifact> artifacts = [];
 
-        AddModeArtifact(artifacts, graph, DiagramMode.FullSubscription, "full-machine", thresholds, null);
-        AddModeArtifact(artifacts, graph, DiagramMode.Executive, "executive", thresholds, null);
-        AddModeArtifact(artifacts, graph, DiagramMode.Network, "network", thresholds, null);
-        AddModeArtifact(artifacts, graph, DiagramMode.Identity, "identity", thresholds, null);
-        AddModeArtifact(artifacts, graph, DiagramMode.Data, "data", thresholds, null);
-        AddModeArtifact(artifacts, graph, DiagramMode.Architecture, "cross-boundary", thresholds, null);
+        AddModeArtifact(artifacts, graph, DiagramMode.Executive, InventoryDiagramFallbackArtifactKeys.Executive, thresholds, null);
+        AddModeArtifact(artifacts, graph, DiagramMode.Network, InventoryDiagramFallbackArtifactKeys.Network, thresholds, null);
+        AddModeArtifact(artifacts, graph, DiagramMode.Identity, InventoryDiagramFallbackArtifactKeys.Identity, thresholds, null);
+        AddModeArtifact(artifacts, graph, DiagramMode.Data, InventoryDiagramFallbackArtifactKeys.Data, thresholds, null);
+        AddModeArtifact(artifacts, graph, DiagramMode.Architecture, InventoryDiagramFallbackArtifactKeys.CrossBoundary, thresholds, null);
 
-        List<string> resourceGroups = graph.Nodes
-            .Select(node => DiagramAstGraphNodeClassifier.ReadResourceGroup(node))
-            .Where(resourceGroup => !string.IsNullOrWhiteSpace(resourceGroup))
-            .Select(resourceGroup => resourceGroup!)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(resourceGroup => resourceGroup, StringComparer.Ordinal)
-            .ToList();
+        return artifacts;
+    }
 
-        foreach (string resourceGroup in resourceGroups)
+    public IReadOnlyList<MermaidDiagramRenderArtifact> BuildResourceGroupFallbackSet(
+        GraphSnapshot graph,
+        MermaidDiagramReadabilityThresholds thresholds)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+        ArgumentNullException.ThrowIfNull(thresholds);
+
+        List<MermaidDiagramRenderArtifact> artifacts = [];
+
+        foreach (string resourceGroup in ListResourceGroupNames(graph))
         {
             AddModeArtifact(
                 artifacts,
                 graph,
                 DiagramMode.ResourceGroup,
-                $"rg-{resourceGroup}",
+                InventoryDiagramFallbackArtifactKeys.ForResourceGroup(resourceGroup),
                 thresholds,
                 new DiagramAstCompileOptions { ResourceGroupName = resourceGroup });
         }
@@ -70,7 +74,7 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
 
     public static string BuildIndexMarkdown(IReadOnlyList<MermaidDiagramRenderArtifact> artifacts)
     {
-        StringBuilder builder = new();
+        System.Text.StringBuilder builder = new();
         builder.AppendLine("# Inventory diagram index");
         builder.AppendLine();
         builder.AppendLine("Partitioned render — use a focused variant below.");
@@ -92,25 +96,57 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
         MermaidDiagramReadabilityThresholds thresholds,
         DiagramAstCompileOptions? options)
     {
-        DiagramAst ast = this.graphCompiler.Compile(graph, mode, options);
-        DiagramAst repaired = this.deterministicRepairer.Repair(ast, out _);
-        string mermaid = this.diagramRenderer.Render(repaired);
-        MermaidDiagramComplexityMetrics metrics = this.complexityAnalyzer.Analyze(repaired, mermaid);
-        bool valid = this.structuralValidator.TryValidate(mermaid, out _);
+        Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot catalog = this.peelCatalogProvider
+            .GetCatalogAsync(CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
 
-        MermaidDiagramRenderStatus status = !valid
+        InventoryDiagramPeelBudgetApplier.PeelCompileResult compiled = InventoryDiagramPeelBudgetApplier.CompileWithPeelBudget(
+            graph,
+            mode,
+            options,
+            thresholds,
+            catalog,
+            this.graphCompiler,
+            this.diagramRenderer,
+            this.complexityAnalyzer,
+            this.deterministicRepairer,
+            this.structuralValidator);
+
+        MermaidDiagramRenderStatus status = !compiled.StructurallyValid
             ? MermaidDiagramRenderStatus.Failed
-            : metrics.ExceedsReadableThresholds(thresholds)
+            : compiled.Metrics.ExceedsReadableThresholds(thresholds)
                 ? MermaidDiagramRenderStatus.Partitioned
                 : MermaidDiagramRenderStatus.Succeeded;
 
         artifacts.Add(new MermaidDiagramRenderArtifact
         {
             Key = key,
-            Label = $"{mode} ({key})",
-            Mermaid = mermaid,
+            Label = ResolveFallbackLabel(mode, key, options),
+            Mermaid = compiled.Mermaid,
             Status = status,
-            Metrics = metrics,
+            Metrics = compiled.Metrics,
         });
+    }
+
+    private static IReadOnlyList<string> ListResourceGroupNames(GraphSnapshot graph)
+    {
+        return graph.Nodes
+            .Select(DiagramAstGraphNodeClassifier.ReadResourceGroup)
+            .Where(resourceGroup => !string.IsNullOrWhiteSpace(resourceGroup))
+            .Select(resourceGroup => resourceGroup!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(resourceGroup => resourceGroup, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private static string ResolveFallbackLabel(DiagramMode mode, string key, DiagramAstCompileOptions? options)
+    {
+        if (mode == DiagramMode.ResourceGroup && !string.IsNullOrWhiteSpace(options?.ResourceGroupName))
+        {
+            return options.ResourceGroupName;
+        }
+
+        return $"{mode} ({key})";
     }
 }

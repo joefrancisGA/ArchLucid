@@ -15,6 +15,7 @@ import {
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { feasibilityVerdictKindLabel } from "@/lib/feasibility-verdict-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { summarizeCompareHardCitationDelta } from "@/lib/livelihood-grade-no-compare-hard-citation-delta";
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import type { DiffItem, RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
@@ -31,10 +32,6 @@ export type CompareProvenanceDeltaBandProps = {
 export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProps): ReactElement | null {
   const { isWorkingMode } = useWorkspaceMode();
   const query = useCompareProvenanceTrailsQuery(props.baselineRunId, props.targetRunId);
-
-  if (!isWorkingMode) {
-    return null;
-  }
 
   if (query.isError) {
     const failure = toApiLoadFailure(query.error);
@@ -76,12 +73,24 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
     assumptionDiffs,
   );
 
-  if (!summary.showBand) {
-    return null;
-  }
-
   const baselineSkippedMust = listSkippedMustQuestionKeys(summary.baseline.trail).length;
   const targetSkippedMust = listSkippedMustQuestionKeys(summary.target.trail).length;
+  const hardCitationDelta = summarizeCompareHardCitationDelta(
+    {
+      runLabel: summary.baseline.label,
+      feasibilityVerdictKind: query.data.baseline.feasibilityVerdictKind,
+      hardCitationCount: query.data.baseline.hardCitationCount,
+    },
+    {
+      runLabel: summary.target.label,
+      feasibilityVerdictKind: query.data.target.feasibilityVerdictKind,
+      hardCitationCount: query.data.target.hardCitationCount,
+    },
+  );
+
+  if (!summary.showBand && !hardCitationDelta.showCitationDelta) {
+    return null;
+  }
 
   if (!isWorkingMode) {
     return (
@@ -148,6 +157,12 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
             ? feasibilityVerdictKindLabel(summary.target.feasibilityVerdictKind)
             : "unknown"}
           .
+        </p>
+      ) : null}
+
+      {hardCitationDelta.showCitationDelta && hardCitationDelta.line !== null ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-hard-citation-delta">
+          {hardCitationDelta.line}
         </p>
       ) : null}
 

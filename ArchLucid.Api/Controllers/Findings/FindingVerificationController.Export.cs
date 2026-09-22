@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
@@ -54,12 +55,20 @@ public sealed partial class FindingVerificationController
     [Produces("text/markdown")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExportFindingVerificationMarkdownAsync(
         Guid runId,
         Guid reportId,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult = await EnsureFindingVerificationRunSealedManifestAllowedAsync(
+            runId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -77,6 +86,10 @@ public sealed partial class FindingVerificationController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
+        catch (FindingVerificationRunNotSealedException ex)
+        {
+            return MapFindingVerificationSealedManifestConflict(new ConflictException(ex.Message));
+        }
     }
 
     /// <summary>Exports a verification report as DOCX.</summary>
@@ -84,12 +97,20 @@ public sealed partial class FindingVerificationController
     [Produces("application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExportFindingVerificationDocxAsync(
         Guid runId,
         Guid reportId,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult = await EnsureFindingVerificationRunSealedManifestAllowedAsync(
+            runId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -109,6 +130,10 @@ public sealed partial class FindingVerificationController
         catch (FindingVerificationReportNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (FindingVerificationRunNotSealedException ex)
+        {
+            return MapFindingVerificationSealedManifestConflict(new ConflictException(ex.Message));
         }
     }
 }

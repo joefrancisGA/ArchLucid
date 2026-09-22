@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 import { HelpArchitectureScorecardHeaderActions } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardHeaderActions";
+import { HelpArchitectureScorecardClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardClaimOrientationStrip";
 import { HelpArchitectureScorecardWorkedExampleDisclosure } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardWorkedExampleDisclosure";
 import { HelpArchitectureScorecardSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ArchitectureScorecardHelpClaimDisciplineStrip } from "@/components/help/ArchitectureScorecardHelpClaimDisciplineStrip";
 import { ArchitectureScorecardHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureScorecardHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -271,10 +273,15 @@ export function HelpArchitectureScorecardGuideView(
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         {buyerPolishedShell ? <HelpArchitectureScorecardSourcesOrientationStrip /> : null}
+
+        <div data-testid="help-architecture-scorecard-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-scorecard" showSsoOptional={false} />
+          <HelpArchitectureScorecardClaimOrientationStrip />
+        </div>
       </div>
     </article>
   );

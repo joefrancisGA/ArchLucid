@@ -57,7 +57,7 @@ public sealed class ArchitectureIdentityServiceTests
             .Setup(r => r.GetByIdAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId });
 
-        ArchitectureIdentityService sut = new(
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(
             identityRepository.Object,
             runRepository.Object,
             Mock.Of<IDraftRequestRepository>());
@@ -123,7 +123,7 @@ public sealed class ArchitectureIdentityServiceTests
             .Setup(r => r.GetByIdAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId });
 
-        ArchitectureIdentityService sut = new(
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(
             identityRepository.Object,
             runRepository.Object,
             Mock.Of<IDraftRequestRepository>());
@@ -214,7 +214,7 @@ public sealed class ArchitectureIdentityServiceTests
             .Setup(r => r.GetByIdAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId, DisplayName = "Platform" });
 
-        ArchitectureIdentityService sut = new(
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(
             identityRepository.Object,
             runRepository.Object,
             draftRepository.Object);

@@ -16,7 +16,9 @@
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "description": "Private only network access required"
+          "description": "Private only network access required",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000034/resourceGroups/rg-golden/providers/Microsoft.Authorization/policyAssignments/Private only network access",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000034/resourceGroups/rg-golden/providers/Microsoft.Authorization/policyAssignments/Private only network access"
         }
       },
       {
@@ -27,7 +29,9 @@
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "tf.public_network_access": "enabled"
+          "tf.public_network_access": "enabled",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000034/resourceGroups/rg-golden/providers/Microsoft.Storage/storageAccounts/docs",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000034/resourceGroups/rg-golden/providers/Microsoft.Storage/storageAccounts/docs"
         }
       }
     ],

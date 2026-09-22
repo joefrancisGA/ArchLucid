@@ -389,6 +389,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteActions
+            paletteOpen={open}
             pathname={pathname ?? "/"}
             workingMode={workingMode}
             visibleNavHrefs={visibleHrefs}
@@ -397,8 +398,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
               setOpen(false);
             }}
           />
-          <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
           <CommandPaletteArchitectureIdentitiesGroup enabled={workingMode} onNavigate={navigate} />
+          <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
           <CommandPaletteFindPageSearch
             visibleHrefs={visibleHrefs}

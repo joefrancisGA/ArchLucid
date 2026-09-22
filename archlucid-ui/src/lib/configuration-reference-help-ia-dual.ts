@@ -1,5 +1,8 @@
 import { API_CONTRACTS_HELP_PAGE_TITLE } from "@/lib/api-contracts-help-guide-content";
+import { AUTHENTICATION_SIGN_IN_HELP_TOPIC_LABEL } from "@/lib/authentication-sign-in-help-evidence-copy";
 import {
+  CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING,
+  CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING_ID,
   CONFIGURATION_REFERENCE_HELP_PAGE_TITLE,
 } from "@/lib/configuration-reference-help-guide-content";
 import { ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL } from "@/lib/enterprise-onboarding-help-evidence-copy";
@@ -12,13 +15,10 @@ export type ConfigurationReferenceHelpJobMatrixRow = {
   readonly isCurrent?: boolean;
 };
 
-/** TB-2271 — explicit job split vs enterprise onboarding and API contracts. */
-export const CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING =
-  "Enterprise onboarding, HTTP contracts, or Admin configuration keys?";
-
 export const CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID =
   "help-configuration-reference-job-matrix";
 
+/** Merged wayfinding list — each destination appears exactly once (TB-2271). */
 export const CONFIGURATION_REFERENCE_HELP_JOB_MATRIX: readonly ConfigurationReferenceHelpJobMatrixRow[] =
   [
     {
@@ -32,8 +32,15 @@ export const CONFIGURATION_REFERENCE_HELP_JOB_MATRIX: readonly ConfigurationRefe
       when: "OpenAPI v1, auth schemes, and integrator HTTP behavior — not deployment configuration keys",
     },
     {
+      label: AUTHENTICATION_SIGN_IN_HELP_TOPIC_LABEL,
+      href: inAppHelpHref("authentication-sign-in"),
+      when: "Workforce sign-in flows and session behavior — not a configuration key catalog",
+    },
+    {
       label: CONFIGURATION_REFERENCE_HELP_PAGE_TITLE,
       when: "Admin SSO wizard, identity providers, hosting posture, and collapsed configuration key appendix",
       isCurrent: true,
     },
   ] as const;
+
+export { CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING, CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING_ID };

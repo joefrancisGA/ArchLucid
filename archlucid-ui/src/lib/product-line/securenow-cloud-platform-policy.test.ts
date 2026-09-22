@@ -11,9 +11,14 @@ import {
   effectiveCloudPlatformScopeForProductLine,
   filterCloudProvidersForProductLine,
   isCloudConnectionPathExcludedForProductLine,
+  isIntegrationConnectorExcludedForProductLine,
+  isIntegrationPathExcludedForProductLine,
   isCloudProviderSupportedForProductLine,
   isHelpSearchTopicExcludedForProductLine,
   isHelpTopicExcludedForProductLine,
+  isSecureNowDemoChromeExcluded,
+  isSecureNowTrainingChromeExcluded,
+  isSecureNowWorkspaceFooterTrustLinkExcluded,
   secureNowCloudConnectionsHelpSubtitle,
   secureNowCloudConnectionsHubContextualLead,
   secureNowCloudConnectionsSummary,
@@ -38,6 +43,48 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpSearchTopicExcludedForProductLine("connect-azure", "security")).toBe(false);
   });
 
+  it("excludes architecture-process and billing help from SecureNow", () => {
+    expect(isHelpTopicExcludedForProductLine("billing-and-plans", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("first-architecture-review", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("evidence-intake", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("review-packages", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("review-guide", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("choose-your-next-step", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("accelerator-chooser", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("career-vs-rehearsal", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("architecture-draft-editing", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("architecture-sharing", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("inspect-stored-evidence", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("inspect-stored-evidence", "architecture")).toBe(false);
+    expect(isHelpTopicExcludedForProductLine("slack-integration", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("findings", "security")).toBe(false);
+    expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "security")).toBe(false);
+    expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "architecture")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("billing-and-plans", "architecture")).toBe(false);
+    expect(isHelpSearchTopicExcludedForProductLine("first-review-guide", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("first-review-guide", "architecture")).toBe(false);
+    expect(isHelpSearchTopicExcludedForProductLine("create-first-review", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("how-archlucid-works", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("career-vs-rehearsal", "security")).toBe(true);
+  });
+
+  it("excludes ArchLucid training and simulator chrome from SecureNow", () => {
+    expect(isSecureNowTrainingChromeExcluded("security")).toBe(true);
+    expect(isSecureNowTrainingChromeExcluded("architecture")).toBe(false);
+  });
+
+  it("excludes ArchLucid demo and sample chrome from SecureNow", () => {
+    expect(isSecureNowDemoChromeExcluded("security")).toBe(true);
+    expect(isSecureNowDemoChromeExcluded("architecture")).toBe(false);
+  });
+
+  it("excludes the workspace footer Security and trust link from SecureNow", () => {
+    expect(isSecureNowWorkspaceFooterTrustLinkExcluded("security")).toBe(true);
+    expect(isSecureNowWorkspaceFooterTrustLinkExcluded("architecture")).toBe(false);
+  });
+
   it("blocks AWS and GCP integration routes in the Security shell", () => {
     expect(
       isCloudConnectionPathExcludedForProductLine("/integrations/cloud-connections/aws", "security"),
@@ -51,6 +98,18 @@ describe("securenow-cloud-platform-policy", () => {
     expect(
       isCloudConnectionPathExcludedForProductLine("/integrations/cloud-connections/aws", "architecture"),
     ).toBe(false);
+  });
+
+  it("keeps Slack and Azure Boards out of SecureNow integration surfaces", () => {
+    expect(isIntegrationConnectorExcludedForProductLine("slack", "security")).toBe(true);
+    expect(isIntegrationConnectorExcludedForProductLine("azureBoards", "security")).toBe(true);
+    expect(isIntegrationConnectorExcludedForProductLine("slack", "architecture")).toBe(false);
+    expect(isIntegrationConnectorExcludedForProductLine("teams", "security")).toBe(false);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/slack", "security")).toBe(true);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/azure-boards", "security")).toBe(true);
+    expect(isIntegrationPathExcludedForProductLine("/help/slack-integration", "security")).toBe(true);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/teams", "security")).toBe(false);
+    expect(isIntegrationPathExcludedForProductLine("/integrations/slack", "architecture")).toBe(false);
   });
 
   it("forces Azure-only platform scope for SecureNow", () => {

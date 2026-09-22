@@ -66,43 +66,50 @@ public sealed partial class GovernanceSetupController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSetupGuideBundle(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            scope,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+        try
+        {
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+            IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+                this,
+                scope,
+                _tenantRepository,
+                cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+            if (scopeProblem is not null)
+                return scopeProblem;
 
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            cancellationToken);
-
-        Task<IReadOnlyList<AlertRoutingSubscription>> routingTask =
-            _subscriptionRepository.ListEnabledByScopeAsync(
+            Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
                 cancellationToken);
 
-        await Task.WhenAll(effectiveTask, routingTask).ConfigureAwait(false);
+            Task<IReadOnlyList<AlertRoutingSubscription>> routingTask =
+                _subscriptionRepository.ListEnabledByScopeAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    cancellationToken);
 
-        GovernanceSetupGuideBundleResponse body = new()
+            await Task.WhenAll(effectiveTask, routingTask).ConfigureAwait(false);
+
+            GovernanceSetupGuideBundleResponse body = new()
+            {
+                EffectivePolicyPacks = await effectiveTask.ConfigureAwait(false),
+                AlertRoutingSubscriptions = await routingTask.ConfigureAwait(false),
+            };
+
+            return Ok(body);
+        }
+        catch (ConflictException ex)
         {
-            EffectivePolicyPacks = await effectiveTask.ConfigureAwait(false),
-            AlertRoutingSubscriptions = await routingTask.ConfigureAwait(false),
-        };
-
-        return Ok(body);
+            return MapGovernanceSetupSealedManifestConflict(ex);
+        }
     }
 }

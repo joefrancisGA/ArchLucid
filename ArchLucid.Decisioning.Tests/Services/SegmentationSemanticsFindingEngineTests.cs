@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph;
@@ -69,10 +70,28 @@ public sealed class SegmentationSemanticsFindingEngineTests
         findings[0].Trace!.Notes.Should().Contain("evidence:doc:modules/network/main.tf");
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_from_nsg_arm_property()
+    {
+        const string armResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-golden/providers/Microsoft.Network/networkSecurityGroups/web-nsg";
+
+        GraphSnapshot graph = BuildInternetTo22WithSqlPathFixture(nsgArmResourceId: armResourceId);
+
+        SegmentationSemanticsFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().Contain(armResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
+    }
+
     private static GraphSnapshot BuildInternetTo22WithSqlPathFixture(
         bool includeRuleBlob = true,
         string? ruleBlob = null,
-        string? sourceId = null)
+        string? sourceId = null,
+        string? nsgArmResourceId = null)
     {
         GraphNode nsg = new()
         {
@@ -90,6 +109,11 @@ public sealed class SegmentationSemanticsFindingEngineTests
         {
             nsg.Properties["tf.security_rule"] = ruleBlob
                 ?? "access = allow direction = inbound source_address_prefix = * destination_port_range = 22";
+        }
+
+        if (!string.IsNullOrWhiteSpace(nsgArmResourceId))
+        {
+            nsg.Properties["armResourceId"] = nsgArmResourceId;
         }
 
         GraphNode subnet = new()

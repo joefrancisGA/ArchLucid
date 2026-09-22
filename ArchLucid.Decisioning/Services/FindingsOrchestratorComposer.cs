@@ -17,7 +17,7 @@ internal static class FindingsOrchestratorComposer
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator,
         IOptions<HumanReviewFindingOptions> humanReviewOptions,
-        IInsightDensityGate insightDensityGate,
+        IOptions<InsightDensityGateOptions> insightDensityGateOptions,
         TimeProvider? timeProvider = null,
         IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null,
         IScopeContextProvider? scopeContextProvider = null,
@@ -28,7 +28,7 @@ internal static class FindingsOrchestratorComposer
         ArgumentNullException.ThrowIfNull(engines);
         ArgumentNullException.ThrowIfNull(validator);
         ArgumentNullException.ThrowIfNull(humanReviewOptions);
-        ArgumentNullException.ThrowIfNull(insightDensityGate);
+        ArgumentNullException.ThrowIfNull(insightDensityGateOptions);
 
         IFindingsPolicyStampStage policyStampStage = new FindingsPolicyStampStage(
             scopeContextProvider,
@@ -55,8 +55,10 @@ internal static class FindingsOrchestratorComposer
 
         IFindingsMergeAndGateStage mergeAndGateStage = new FindingsMergeAndGateStage(
             humanReviewOptions,
-            insightDensityGate,
+            insightDensityGateOptions,
             new FindingProvenanceValidator(),
+            Microsoft.Extensions.Options.Options.Create(new FindingSemanticSupportBandOptions()),
+            NoOpFindingSemanticSupportBandLlmJudge.Instance,
             timeProvider);
 
         IFindingsChecklistClusterStage checklistClusterStage = new FindingsChecklistClusterStage();
@@ -74,5 +76,32 @@ internal static class FindingsOrchestratorComposer
             checklistClusterStage,
             decisionGradeFusionStage,
             snapshotEmitStage);
+    }
+
+    internal static FindingsOrchestrator Compose(
+        IEnumerable<IFindingEngine> engines,
+        IFindingPayloadValidator validator,
+        IOptions<HumanReviewFindingOptions> humanReviewOptions,
+        IInsightDensityGate insightDensityGate,
+        TimeProvider? timeProvider = null,
+        IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null,
+        IScopeContextProvider? scopeContextProvider = null,
+        IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
+        IPortfolioRecurrenceCurrentReviewIdentitySource? portfolioRecurrenceCurrentReviewIdentitySource = null,
+        IProseAssumptionFindingGenerator? proseAssumptionFindingGenerator = null)
+    {
+        ArgumentNullException.ThrowIfNull(insightDensityGate);
+
+        return Compose(
+            engines,
+            validator,
+            humanReviewOptions,
+            Options.Create(new InsightDensityGateOptions()),
+            timeProvider,
+            effectfulEngines,
+            scopeContextProvider,
+            effectiveGovernanceLoader,
+            portfolioRecurrenceCurrentReviewIdentitySource,
+            proseAssumptionFindingGenerator);
     }
 }

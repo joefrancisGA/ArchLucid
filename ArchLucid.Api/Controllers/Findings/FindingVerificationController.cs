@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Findings;
@@ -10,7 +11,9 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -35,6 +38,8 @@ public sealed partial class FindingVerificationController(
     IFindingVerificationReportQueryService findingVerificationReportQueryService,
     IFindingVerificationReportExportApplicationService findingVerificationReportExportApplicationService,
     IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IBackgroundJobQueue jobs,
     IOptionsMonitor<FindingVerificationOptions> verificationOptions,
     ILogger<FindingVerificationController> logger) : ControllerBase
@@ -88,6 +93,13 @@ public sealed partial class FindingVerificationController(
 
         if (options.DurableAsyncEnabled && async)
         {
+            IActionResult? sealedGuardResult = await EnsureFindingVerificationRunSealedManifestAllowedAsync(
+                runId,
+                cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             string correlationId = $"finding-verification:{runId:D}:{Guid.NewGuid():N}";
             FindingVerificationJobPayload payload = new(
                 scope.TenantId,
@@ -146,7 +158,7 @@ public sealed partial class FindingVerificationController(
         }
         catch (FindingVerificationRunNotSealedException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapFindingVerificationSealedManifestConflict(new ConflictException(ex.Message));
         }
     }
 }

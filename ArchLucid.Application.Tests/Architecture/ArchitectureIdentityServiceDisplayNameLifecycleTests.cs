@@ -28,7 +28,7 @@ public sealed class ArchitectureIdentityServiceDisplayNameLifecycleTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         DraftRequestResponse draft = await draftRepository.CreateAsync(
             Scope.TenantId,
@@ -87,7 +87,7 @@ public sealed class ArchitectureIdentityServiceDisplayNameLifecycleTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         DraftRequestResponse draft = await draftRepository.CreateAsync(
             Scope.TenantId,
@@ -136,7 +136,7 @@ public sealed class ArchitectureIdentityServiceDisplayNameLifecycleTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         DraftRequestResponse draft = await draftRepository.CreateAsync(
             Scope.TenantId,

@@ -78,6 +78,10 @@ public sealed partial class RunCoverageController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapRunCoverageSealedManifestConflict(ex);
+        }
     }
 
     private async Task<Dictionary<Guid, PolicyPack>> LoadPacksAsync(
@@ -92,31 +96,5 @@ public sealed partial class RunCoverageController(
             cancellationToken);
 
         return packs.ToDictionary(static pack => pack.PolicyPackId);
-    }
-
-    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
-        ScopeContext scope,
-        Guid runId,
-        CancellationToken cancellationToken)
-    {
-        RunDetailDto? detail =
-            await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.GoldenManifest is null)
-            return null;
-
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                _manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        return null;
     }
 }

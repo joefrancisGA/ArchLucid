@@ -5,6 +5,7 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SearchReviewEvidenceHelpClaimDisciplineStrip } from "@/components/help/SearchReviewEvidenceHelpClaimDisciplineStrip";
 import { SearchReviewEvidenceHelpEvidenceOrientationStrip } from "@/components/help/SearchReviewEvidenceHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -104,6 +105,8 @@ export function HelpSearchReviewEvidenceGuideView(
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <div data-testid="help-search-review-evidence-orientation-top">
+            <SponsorSendPathHonestyPanel testIdPrefix="help-search-review-evidence" showSsoOptional={false} />
+
             <SearchReviewEvidenceHelpEvidenceOrientationStrip />
           </div>
 
@@ -122,10 +125,15 @@ export function HelpSearchReviewEvidenceGuideView(
             >
               {SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE}
             </h2>
-            <Button asChild size="sm" variant="primary">
-              <Link href={SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href}>
-                {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label}
-              </Link>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled
+              aria-describedby="help-search-review-evidence-precondition"
+              data-testid="help-search-review-evidence-primary-action"
+            >
+              {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label} (requires a finalized review)
             </Button>
             <p
               className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
@@ -212,7 +220,7 @@ export function HelpSearchReviewEvidenceGuideView(
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

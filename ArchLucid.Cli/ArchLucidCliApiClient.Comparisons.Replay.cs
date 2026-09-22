@@ -180,7 +180,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             int safe = Math.Clamp(maxCount, 1, 100);
-            Gen.ReplayDiagnosticsResponse diag = await _api.ReplayGETAsync(safe, ct);
+            Gen.ReplayDiagnosticsResponse diag = await _api.ReplayGETAsync(safe, null, ct);
 
             return JsonSerializer.Serialize(diag, _jsonOptions);
         }
@@ -196,7 +196,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.ReplayDiagnosticsResponse diag = await _api.ReplayGETAsync(maxCount, ct);
+            Gen.ReplayDiagnosticsResponse diag = await _api.ReplayGETAsync(maxCount, null, ct);
 
             return DeserializeRoundTrip<ReplayDiagnostics>(diag);
         }

@@ -41,10 +41,15 @@ import {
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
 import {
+  INHABIT_WORKING_HOME_UNFINISHED_WORK_CONTINUE_CTA,
+  INHABIT_WORKING_HOME_UNFINISHED_WORK_HEADING,
+} from "@/lib/inhabit/inhabit-working-home-copy";
+import {
   matchesOperatorHomeHeroResumeTarget,
   resolveOperatorHomeHeroResumeTarget,
   resolveRunIdFromHomeReviewHref,
 } from "@/lib/operator/operator-home-hero-resume-target";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import { listHomeAttentionPreviewExcludedRunIds } from "@/lib/operator/home-attention-dedup";
 import { cn } from "@/lib/utils";
@@ -108,7 +113,11 @@ function resolveRailItemStatusTag(item: UnfinishedWorkRailItem): {
   }
 }
 
-function resolveContinueCtaLabel(item: UnfinishedWorkRailItem): string {
+function resolveContinueCtaLabel(item: UnfinishedWorkRailItem, workingMode: boolean): string {
+  if (workingMode && (item.kind === "review-in-progress" || item.kind === "awaiting-disposition")) {
+    return INHABIT_WORKING_HOME_UNFINISHED_WORK_CONTINUE_CTA;
+  }
+
   switch (item.kind) {
     case "review-in-progress":
     case "awaiting-disposition":
@@ -143,9 +152,10 @@ function resolveRailItemResumeTarget(item: UnfinishedWorkRailItem): {
 function UnfinishedWorkRailTableRow(props: {
   readonly item: UnfinishedWorkRailItem;
   readonly suppressContinueAction: boolean;
+  readonly workingMode: boolean;
 }): React.JSX.Element {
   const { item } = props;
-  const continueLabel = resolveContinueCtaLabel(item);
+  const continueLabel = resolveContinueCtaLabel(item, props.workingMode);
   const statusTag = resolveRailItemStatusTag(item);
 
   return (
@@ -186,6 +196,7 @@ function UnfinishedWorkRailTableRow(props: {
 function UnfinishedWorkRailList(props: {
   readonly items: readonly UnfinishedWorkRailItem[];
   readonly heroResumeTarget: ReturnType<typeof resolveOperatorHomeHeroResumeTarget>;
+  readonly workingMode: boolean;
 }): React.JSX.Element {
   if (props.items.length === 0) {
     return <div data-testid="unfinished-work-rail-list" />;
@@ -215,6 +226,7 @@ function UnfinishedWorkRailList(props: {
             <UnfinishedWorkRailTableRow
               key={item.id}
               item={item}
+              workingMode={props.workingMode}
               suppressContinueAction={matchesOperatorHomeHeroResumeTarget(
                 props.heroResumeTarget,
                 resolveRailItemResumeTarget(item),
@@ -231,6 +243,7 @@ function UnfinishedWorkRailList(props: {
  * Cross-session continue rail for operator home — hidden when empty (TB-2209).
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
+  const { isWorkingMode } = useWorkspaceMode();
   const drafts = useArchitectureDraftRegistryEntries();
   const unfinishedWorkHref = useReviewsHubUnfinishedWorkHref();
   const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot, reportHomeAttentionPreviewExcludedRunIds, reportUnfinishedWorkRailCount } =
@@ -259,8 +272,9 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
         drafts,
         runs,
         incompleteWizards,
+        workingMode: isWorkingMode,
       }),
-    [drafts, incompleteWizards, runs],
+    [drafts, incompleteWizards, isWorkingMode, runs],
   );
 
   const items = useMemo(
@@ -298,9 +312,13 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
       aria-labelledby="operator-home-your-work-heading"
     >
       <h2 id="operator-home-your-work-heading" className={OPERATOR_HOME_SECTION_HEADING}>
-        {OPERATOR_HOME_YOUR_WORK_HEADING}
+        {isWorkingMode ? INHABIT_WORKING_HOME_UNFINISHED_WORK_HEADING : OPERATOR_HOME_YOUR_WORK_HEADING}
       </h2>
-      <UnfinishedWorkRailList items={items} heroResumeTarget={heroResumeTarget} />
+      <UnfinishedWorkRailList
+        items={items}
+        heroResumeTarget={heroResumeTarget}
+        workingMode={isWorkingMode}
+      />
       {railSummary.truncated ? (
         <p className="m-0">
           <Link

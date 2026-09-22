@@ -190,7 +190,7 @@ public sealed class EmailOtpRequestFlow(
 
         if (!sent)
         {
-            await _challenges.InvalidateActiveChallengesForEmailAsync(normalizedEmail, now, cancellationToken)
+            await _challenges.DeleteActiveChallengesForEmailAsync(normalizedEmail, cancellationToken)
                 .ConfigureAwait(false);
 
             ArchLucidInstrumentation.RecordEmailOtpDeliveryFailed();

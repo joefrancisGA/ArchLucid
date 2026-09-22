@@ -1,7 +1,13 @@
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
-import { shouldSuppressReadyToFinalizeForSimulatorRehearsal } from "@/lib/governance/simulator-career-honesty";
+import {
+  isRehearsalStructuralExecutionMode,
+  shouldSuppressReadyToFinalizeForSimulatorRehearsal,
+  SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON,
+} from "@/lib/governance/simulator-career-honesty";
+import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { QualityGateModeInput } from "@/lib/governance/agent-output-quality-gate-career-honesty";
@@ -16,12 +22,22 @@ export type RunPipelineFinalizeBlockedHonestyInput = {
   readonly hostQualityGateMode?: QualityGateModeInput;
   readonly aggregateQualityGateOutcome?: number | null;
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 };
 
-/** FC-70 — suppress Ready-to-finalize when career honesty would block sealing. */
-export function shouldSuppressReadyToFinalizeForCareerHonesty(
-  input: RunPipelineFinalizeBlockedHonestyInput,
-): boolean {
+function shouldSuppressRehearsalDoorReadyLabel(input: RunPipelineFinalizeBlockedHonestyInput): boolean {
+  return shouldSuppressReadyToFinalizeForWorkingRehearsalDoor(input);
+}
+
+function allowsLp06RehearsalSimulatorFinalize(input: RunPipelineFinalizeBlockedHonestyInput): boolean {
+  if (!shouldSuppressRehearsalDoorReadyLabel(input)) {
+    return false;
+  }
+
+  return isRehearsalStructuralExecutionMode(input.structuralExecutionMode ?? null);
+}
+
+function shouldBlockSharedCareerFinalizeChecks(input: RunPipelineFinalizeBlockedHonestyInput): boolean {
   if (shouldSuppressReadyToFinalizeForPreCommitGateHonesty(input)) {
     return true;
   }
@@ -49,4 +65,41 @@ export function shouldSuppressReadyToFinalizeForCareerHonesty(
   }
 
   return false;
+}
+
+/** FC-70 — suppress Ready-to-finalize label when career honesty would mislabel the run. */
+export function shouldSuppressReadyToFinalizeForCareerHonesty(
+  input: RunPipelineFinalizeBlockedHonestyInput,
+): boolean {
+  if (shouldSuppressRehearsalDoorReadyLabel(input)) {
+    return true;
+  }
+
+  return shouldBlockSharedCareerFinalizeChecks(input);
+}
+
+/** CG-021 — block finalize mutation (server parity + disabled CTA). LP-06 allows Rehearsal + Simulator. */
+export function shouldBlockFinalizeForCareerHonesty(
+  input: RunPipelineFinalizeBlockedHonestyInput,
+): boolean {
+  if (allowsLp06RehearsalSimulatorFinalize(input)) {
+    return shouldBlockSharedCareerFinalizeChecks(input);
+  }
+
+  if (shouldSuppressRehearsalDoorReadyLabel(input)) {
+    return true;
+  }
+
+  return shouldBlockSharedCareerFinalizeChecks(input);
+}
+
+/** CG-021 — client commit-blocked copy when Career door cannot finalize on Simulator/Fallback. */
+export function resolveCareerFinalizeBlockedReason(
+  input: RunPipelineFinalizeBlockedHonestyInput,
+): string | null {
+  if (!shouldSuppressReadyToFinalizeForSimulatorRehearsal(input)) {
+    return null;
+  }
+
+  return SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON;
 }

@@ -5,6 +5,7 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
 import { ReviewPackagesHelpClaimDisciplineStrip } from "@/components/help/ReviewPackagesHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -171,6 +172,8 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
             </p>
           </section>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="help-review-packages" showSsoOptional={false} />
+
           <section
             className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
             aria-labelledby="help-review-packages-related-heading"
@@ -214,7 +217,7 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
           </div>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
     </article>
   );

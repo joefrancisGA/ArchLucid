@@ -6,7 +6,7 @@ import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-util
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 describe("WizardStepConstraints", () => {
-  it("adds a constraint badge from the draft input and Add button", () => {
+  it("adds a constraint badge from the architecture draft input and Add button", () => {
     render(
       <TooltipProvider delayDuration={0}>
         <WizardFormTestHarness>

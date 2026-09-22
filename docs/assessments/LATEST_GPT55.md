@@ -1,72 +1,64 @@
-﻿# ArchLucid Strategic Release and Market Readiness Assessment (v9)
+﻿> **Scope:** Contributor-reference — clean-slate v3 strategic release and market readiness assessment. Not a buyer assurance attestation, CPA opinion, or live cohort proof.
+> **Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md) § Strategic release and market readiness (v3).
+> **Companion:** [`LATEST_EXPOSURE.md`](LATEST_EXPOSURE.md) (v4 broader exposure R/Y/G — different questions; do not conflate).
 
-**Pass date:** 2026-09-09, **19:20–19:45 UTC (v9)**. **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The v8 pass is superseded by this document and is **not** canonical. v8 is archived at [`../archive/assessments/LATEST_GPT55-2026-09-09-v8-superseded.md`](../archive/assessments/LATEST_GPT55-2026-09-09-v8-superseded.md).
+# ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
-## v9 pass note — the v8 trunk defects closed; a new emission-gate break replaced them
+**Pass date:** 2026-09-13, **01:08 UTC**. **Computed fresh** — no carry-forward ratchet; scores recomputed from evidence on this HEAD (prior pass archived for history only).
 
-This pass was requested after the **QR-01–QR-04** quality-ROI pack and **AS-024 / AS-034** diagram spine work landed on `master`. The v8 three-job red (Decisioning.Tests CS7036, `typed-engine-protected` guard, OpenAPI snapshot) is **closed on trunk**. `ci.yml` now has a `merge_group:` trigger and a draft merge-queue ruleset JSON. `LatestGoldenCorpusCaseNumber` is **70** (mermaid trust-boundary case `#2640`).
+**Prior rolling snapshot archived:** `docs/archive/assessments/LATEST_GPT55-2026-09-13-v44-pre-roi-batch33.md` (history only; not used for scores).
 
-What replaced the old red: the newest **completed** push corset ([34392453288](https://github.com/joefrancisGA/ArchLucid/actions/runs/34392453288), 19:00 UTC) **Failed 10 / Passed 394** in `ArchLucid.Decisioning.Tests` — `FindingsOrchestratorTests` snapshots with **empty `Findings`**, plus `HasKindBProvenance_allows_resolvable_doc_ref` expecting `doc:manifest.json#services` to count as Kind B after DX-70 line-anchor tightening. The QR-04 merge run ([34393999344](https://github.com/joefrancisGA/ArchLucid/actions/runs/34393999344)) was still in progress at inspection; gitleaks, UI typecheck, and **beta-readiness guards were already green**.
+**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Scoped unit tests executed (Vitest sponsor-report-markdown + first-week/optional-setup; Python batch-10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33 drift guards; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export). Real-mode first-review was **not** re-run.
 
-**QR-05** (`security-baseline` `EvidenceRefs`) is **not on `master`** (draft `#2641`). The distribution table is still a **case-69** record. Gate 1 is still **UNKNOWN**. **G4 HOLD — 0 of 3**.
+**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` (ROI batch **33**: review-header-share/meeting-packet/whitelabel/package-print/cto-demo export strips; batch-33 drift guards).
 
-**Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). **Reasoning engine:** Grok 4.6 as a Cursor cloud agent, code-grounded desk review; **no live Azure OpenAI call was made during this pass**; no subagents were used for the assessment itself.
+### Pass delta vs 2026-09-13 pre-batch-33 (`LATEST_GPT55` v44 @ 86.25% → this HEAD)
 
-**Source materials inspected this pass:** `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md` (boundary), `docs/go-to-market/GTM_BACKLOG.md`, `docs/go-to-market/CLAIM_READINESS_STATUS.md`, `docs/library/TECH_BACKLOG.md` (open-count header + P1 block + TB-883/885/599/603), `.cursor/rules/Assessment-Scope-V1_1.mdc`, `docs/quality/insight-density-engine-distribution.md`, `docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`, `docs/quality/pp01-ga-starter-catalog-extension-scoping.md`, `DeterministicInsightDensityGate.cs`, `DeclarationSignalPolicyKeyMap.cs`, `AgentArchitectureFindingProvenanceValidator.cs`, `FindingProvenanceEmissionApplicator.cs`, `AgentArchitectureFindingEmissionGate.cs`, `GoldenCorpusHarnessEngineRegistration.cs` (`LatestGoldenCorpusCaseNumber = 70` on `origin/master`), `.github/workflows/ci.yml` (`merge_group`), `.github/rulesets/golden-cohort-gate-merge-queue.json`, `.github/BRANCH_PROTECTION.md`, `gh run list` / `gh run view` on `ui-typecheck-on-push.yml` and `ci.yml`, `git log origin/master`.
-
-## Executed this pass (runtime evidence, not doc claims)
-
-| # | Command / observation | Result |
-|---|---|---|
-| 1 | `git log origin/master -15 --oneline` | QR-04 + OpenAPI **#2638** (`bfef871c17`); AS-034 case-70 **#2640**; AS-024 **#2633**; QR-02 **#2619**. QR-05 **not** in this log. |
-| 2 | `git show origin/master:.github/workflows/ci.yml` \| merge_group | Present: `merge_group:` trigger; `cancel-in-progress` false on merge_group; fast-core never path-skips on that event. |
-| 3 | `git show origin/master:…/GoldenCorpusHarnessEngineRegistration.cs` | `LatestGoldenCorpusCaseNumber = 70`. Distribution markdown header still says **case-01..case-69**. |
-| 4 | `gh run list --workflow ui-typecheck-on-push.yml --branch master --limit 8` | Newest completed **failure** [34392453288](https://github.com/joefrancisGA/ArchLucid/actions/runs/34392453288). QR-04 push [34393999344](https://github.com/joefrancisGA/ArchLucid/actions/runs/34393999344) **in progress** (gitleaks ✓, UI typecheck ✓, beta-readiness guards ✓; push corset / OpenAPI / jwt-bearer still running). |
-| 5 | `gh run view 34392453288 --log-failed` | Decisioning.Tests **10 failed / 394 passed**. Pattern: `snapshot.Findings` empty (`effectful-1`, `good-payload`, promote-anchored, payload-conflict, withheld-band, partial-failure, dedupe). Provenance hold test expected `provenance-hold:` but notes were `evidence:doc:manifest.json#services`. Kind B test: `HasKindBProvenance` false for `doc:manifest.json#services`. |
-| 6 | `gh run list --workflow ci.yml --branch master --limit 8` | Still **8/8 failure/cancelled** (last full dispatch 2026-08-28). No new full-matrix measurement this pass. |
-| 7 | `docs/quality/insight-density-engine-distribution.md` | **23** engines, **47** findings, bands 65/67/72/82/100, `WouldDemoteAt65Count = 0`. `security-baseline` 10/47 at 65 with `No evidence = 10`. Path engines at 72 with `No evidence` on every row. Header not yet case-70. |
-| 8 | `CLAIM_READINESS_STATUS.md` | **G4 HOLD — 0 of 3**. G1/G2/G5/G6 PASS (mechanism). |
-| 9 | `DeclarationSignalPolicyKeyMap.IsThemeEnabled` | Still **exact-id**. Prefix family is vocabulary only (PP-01 Option B catalog slice shipped 2026-08-28; prefix enablement **rejected**). |
-| 10 | `InsightDensityGateEffectiveOptionsMerger` | Real-mode: judge, engine-finding judge, insight generator, novelty/verification preference, **prose-assumption extraction** effective-on unless tenant opts out. |
-| 11 | `.github/rulesets/golden-cohort-gate-merge-queue.json` | Draft only (`enforcement: evaluate`). **Live ruleset still has no `merge_queue` rule** (owner apply). |
-| 12 | `TECH_BACKLOG.md` header | **25** unique open TB rows (P0 0 · P1 2 · P2 15 · P3 8). **TB-885 Done**. **TB-883** still budget-blocked. |
-
-**Verified counts this pass:** **53** catalog engines; **42** harness engines; **70** golden cases on trunk (distribution table still recorded through **69**); **0** real-mode pilot runs; **0** live merge-queue rule.
+| Area | Prior | This pass | Evidence |
+|---|---|---|---|
+| **(A) headline** | **86.25%** | **86.30%** (+0.05 pp) | ROI batch **33**: six review share/meeting-path export strips; batch-33 drift guards |
+| Proof-of-ROI | 100 | **100** | Unchanged (ceiling held) |
+| Comprehension | 100 | **100** | Unchanged (ceiling held) |
+| Governed Review Integrity | 86 | **87** | CAB/meeting packet + whitelabel + demo GRC export honesty at share/send CTAs |
+| Adoption friction | 100 | **100** | Ceiling held (batch 32 closed adoption export tier) |
+| **Unchanged blockers** | G4 0/3; Gate 1 UNKNOWN; G-REAL-06 owner | — | Not penalized in `(A)` per scope rules |
 
 ---
 
 ## 0. Tasks For Human
 
-Sourced from open `GTM_BACKLOG.md` rows plus owner-decision items. Excludes GTM V1.1 items **#2/#3/#5/#6** (**M-90**/**M-44**/**M-91**/**M-92**). **G-REAL-05** / **G-ASSURANCE-02** omitted from `(A)` (they do not reduce the headline).
+Sourced from open `docs/go-to-market/GTM_BACKLOG.md` rows plus owner-gated claim/readiness items. Excludes GTM V1.1 cohort rows **M-90 / M-44 / M-91 / M-92**. Ranked as an execution sequence (revenue/rollout first, then trust, then polish).
 
 | # | Task | Why ranked here | Engine-assistable? | Recommended engine |
-|---|------|-----------------|--------------------|--------------------|
-| 1 | **Enable GitHub merge queue** on `master` using `.github/rulesets/golden-cohort-gate-merge-queue.json` (or UI equivalent) | YAML + draft JSON shipped (`#2638`). Live ruleset still evaluates PR-branch SHAs. Today's empty-Findings break is the same class of two-PR semantic conflict. | Partial — JSON already drafted | **N/A — owner apply** |
-| 2 | **Gate 1** — one observed end-to-end first review on staging (`archlucid pilot ship-gate-evidence --run-id <guid>`) | Only **UNKNOWN** numbered ship gate. | Partial | **Owner + Opus** |
-| 3 | **G-REAL-06** — three real-mode pilot runs, **two pack configurations on the same input** (CIS-Azure vs SOC 2) | Largest commercial uncertainty; the only way density moves from mechanism to proof. | Partial | **Opus** |
-| 4 | **Owner shape: Azure inventory as first-review default** (soft prompt vs hard gate vs wizard step; pilot-tenant scope) | Owner said **Yes — Azure first** (2026-09-09) without intake shape. Largest remaining first-review density lever. | Yes — once shaped | **Composer** for the soft-prompt slice (QR-10) |
-| 5 | **G-REAL-07** — proof packets + run-log rows | Depends on #3. | Partial | **Composer** |
-| 6 | **M-39** — apply proof-packet checklist, ≥3 G4 rows | Depends on #5. | Partial | **Composer** |
-| 7 | **TB-883 monthly AOAI cap + tenant cohort** | Approved with budget **TBD**. | Yes — plan is agent-draftable | **Composer** |
-| 8 | **M-07** — polished operator screenshots | Unblocked on UI typecheck. | Partial | **Composer** |
-| 9 | **M-16** — demo video (run **G-REAL-09** first) | Depends on #8. | Partial | **Composer** |
-| 10 | **G-COMMERCE-01 / M-94** — invoice/SOW commercial readiness | Independent of analysis. | No | N/A — human only |
-
-**Shipped this cycle — do not re-open:** QR-01 (`DefaultGraphBuilder` 3-arg); QR-02 (`typed-engine-scored` guard); QR-03 (OpenAPI Wave 68 snapshot + RoiController 403 schema); QR-04 (`merge_group` + ruleset *draft*); AS-024 inspect→diagram highlight; AS-034 case-70 mermaid; DX-51–DX-76; ADR 0070; PP-01 Option B catalog slice; prose-assumption Real-mode default-on.
+|---|---|---|---|---|
+| 1 | Execute three committed Real-mode pilot runs (**G-REAL-06**) | P0 Stage-1 / G4 blocker. Unlocks proof packets, sponsor send, and every later “we have used this” claim. | Partial — runbooks and checklists already exist; human must operate Real stack and sign results | N/A — human only (live LLM + founder signoff). Drafting recap notes: **Sonnet** |
+| 2 | Collect proof packets and append G4 log (**G-REAL-07**, **M-39**) | Depends on #1. G4 is **HOLD — 0 of 3**. Without packets, sponsor purchase stays a story. | Partial — `collect-first-pilot-proof.ps1` is engineered; human must run `-SponsorHandoff -FailOnHold` | **Composer** for log-row formatting; execution is human |
+| 3 | Invoice / SOW commercial readiness (**G-COMMERCE-01** / **M-94**) | P0 revenue path. Sales-led V1 cannot invoice without tax/entity/payment methods. Independent of G4 but blocks paid close. | Partial — templates exist; entity/tax/banking is owner | N/A — human only |
+| 4 | Close first paid engagement on invoice/SOW (**G-COMMERCE-02** / **M-95**) | Depends on #3 (and is stronger after #2). First dollar is the sponsor-purchase proof. | Partial — order-form / conversion checklist drafting | **Opus** for high-stakes SOW/sponsor narrative |
+| 5 | Owner go/no-go: anonymous Quick Scan AI (**M-110**) + **G-QA-05** | P0 demo-safety. **TB-902** already scored public Quick Scan **YELLOW (sample-only)**. Enabling AI without this decision is the cheapest way to create a public cost/trust incident. | Partial — gate doc already shipped; decision is owner | N/A — human only |
+| 6 | Capture 6–8 operator-workflow screenshots (**M-07**) | P0 public-mention blocker. LinkedIn posts exist; polished product shots do not. Feeds **M-09** deploy and **M-16**. | Partial — shot list / checklist drafting | **Composer** for shot-list; capture is human |
+| 7 | Showcase screenshot capture (**M-108**) | Depends on #6 conceptually; uses canonical Claims-static funnel (**M-107** Done). Needed before paid/SEO creatives. | Partial | **Composer** |
+| 8 | Landing owner sign-off + deploy remaining (**M-09**) | P1 credibility. Copy/engineering largely Done; owner sign-off + **M-07** shots still open. | Partial | **Sonnet** for remaining copy diffs |
+| 9 | Live DOCX visual check of Workspace B export (**G-REAL-09**) | P1. Must happen before **M-16** / **M-19**. Waived at M-06; nobody has viewed the rendered Meridian/Alpine DOCX. | No | N/A — human only |
+| 10 | Short demo video (**M-16**) | Depends on #6 and #9. Controlled-mention quality, not a V1 engineering gate. | Partial — script exists (`DEMO_VIDEO_SCRIPT.md`) | **Fable** for storyboard polish; record is human |
+| 11 | Staging scale micro-drills then launch-load half (**G-SCALE-01** → **G-SCALE-02**) | P1. Required before any public-traffic claim. Harness exists; owner has not recorded a measured drill. | Partial — scripts exist | **Composer** for result tables |
+| 12 | Attach G5 JSON to next RC bundle (**G-REAL-08**) | P1. G5 artifact is **2026-06-25** — PASS but stale for a new cut. | Partial | **Composer** |
+| 13 | CPA SOC 2 program kickoff (**G-REAL-05**) | V1.1 procurement-blocking; **zero `(A)` weight**. Sequence after a paying motion exists so spend is justified. | Partial — RFP draft | **Opus** for assessor RFP framing |
+| 14 | Third-party pen-test vendor SoW (**G-ASSURANCE-02**) | V1.1 procurement-blocking; **zero `(A)` weight**. After #13 scoping or in parallel once budget exists. | Partial — SoW template already in-repo | **Sonnet** for SoW tailoring |
 
 ---
 
 ## 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 77.26%**
+**ArchLucid Assessment – (A) Headline Readiness: 86.30%**
 
-Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_1.mdc`: SOC 2 CPA attestation, third-party pen-test publication, signed design partner, owner-output GTM assets/cohorts, public extension SDK, MCP absence in V1, third-party plugin marketplace, assistive-technology participant testing, and sales-engineer-led LLM onboarding.
+Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6*, and `.cursor/rules/Assessment-Scope-V1_1.mdc`. Reasoning engine: **desk review** (scoped unit tests this pass; **not** a fresh Real-mode Azure OpenAI run). Timestamp: **2026-09-12 16:46 UTC**.
 
-**The headline is not ship-blocked by a numbered gate.** Gate 5 remains **PASS** (UI typecheck green on the in-progress QR-04 run). The attached process risk is a **new** Decisioning.Tests failure cluster on the findings orchestrator / Kind B citation contract — not the v8 compile/OpenAPI/guard trio.
+**Source materials inspected (read-list order):** `docs/library/ASSESSMENT_INPUTS.md`, `docs/library/REPO_DIGEST.md`, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md` (SOC 2 roadmap), `docs/library/ARCHITECTURE_COMPONENTS.md`, `docs/library/SYSTEM_MAP.md`, `docs/library/API_CONTRACTS.md`, `docs/library/CONFIGURATION_REFERENCE.md`, `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`, `docs/library/AUDIT_COVERAGE_MATRIX.md`, `docs/go-to-market/GTM_BACKLOG.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`. Also: `docs/library/CONNECTOR_READINESS_MATRIX.md`, `docs/library/MULTI_CLOUD_ANALYSIS_V1_1.md`, `docs/library/POLICY_PACK_EXPECTATION_FACET.md`, `docs/go-to-market/PRICING_PHILOSOPHY.md`, `docs/go-to-market/CLAIM_READINESS_STATUS.md`, `docs/quality/insight-density-engine-distribution.md`.
 
-**What genuinely improved.** Trunk compiles `Decisioning.Tests`. The required advisory-surface guard matches ADR 0070. OpenAPI Wave 68 metadata is snapshotted. Merge-queue *wiring* exists. Case-70 puts a mermaid trust-boundary on the golden harness. Real-mode prose-assumption extraction is effective-on.
+**Code regions inspected:** `AuthorityRunOrchestrator` (`ArchLucid.Application/Runs/Orchestration/`), `PreCommitGovernanceGate`, `PolicyPackResolver` / `DefaultPolicyPackSeeder` / `DefaultPolicyPackCloudBaselineApplicator`, `SponsorRoiSummaryService` / `DispositionAwareRoiBasisCalculator`, `CostRetailGroundingBuilder` + AWS/GCP lookups, `GraphRagNeighborExpander`, `SelfServiceTrialAiBudgetPolicyProvisioner`, ITSM `NativeEnabled` config, extractor ZIP scripts (`Get-ArchLucidAwsPackage.ps1` / `Get-ArchLucidGcpPackage.ps1`), `archlucid-ui` pricing (`pricing.json`, `/pricing`), billing buyer-polish tests, system-health buyer-polish tests, request-access auth callback.
 
-**What did not improve.** No observed first review. No G4 row. Distribution table not re-recorded through case-70. `security-baseline` still emits ten uncited findings at the demotion threshold. Path engines still score 72 with `No evidence` on every row. Full `ci.yml` matrix still unmeasured-green.
+**This pass runtime:** Vitest sponsor-report-markdown + first-week/optional-setup → **28 passed**; Python batch-10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33 drift guards → **149 OK**; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export → **8 passed**; OpenAPI UI types refresh → **1 passed**.
 
 ---
 
@@ -74,251 +66,335 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 70 | 13 | 9.10 | **390** |
-| 2 | Differentiability / Defensibility vs Frontier AI | 83 | 13 | 10.79 | 221 |
-| 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
-| 4 | Correctness & Evidence Integrity | 73 | 12 | 8.76 | **324** |
-| 5 | AI / Agent Readiness | 76 | 10 | 7.60 | 240 |
-| 6 | Time-to-Value | 73 | 10 | 7.30 | **270** |
-| 7 | Proof-of-ROI Readiness | 76 | 9 | 6.84 | 216 |
-| 8 | Sponsor / Operator Comprehension | 78 | 8 | 6.24 | 176 |
-| 9 | Runtime & First-Review Reliability | 72 | 7 | 5.04 | 196 |
-| 10 | Adoption Friction | 83 | 5 | 4.15 | 85 |
-| | **(A) Headline readiness** | | **100** | **77.26%** | |
+| 1 | Decision-Changing Insight Density | 83 | 13 | 10.79 | 221 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 82 | 13 | 10.66 | 234 |
+| 3 | Governed Review Integrity | 87 | 13 | 11.31 | 169 |
+| 4 | Correctness & Evidence Integrity | 84 | 12 | 10.08 | 192 |
+| 5 | AI / Agent Readiness | 80 | 10 | 8.00 | 200 |
+| 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
+| 7 | Proof-of-ROI Readiness | 100 | 9 | 9.00 | 0 |
+| 8 | Sponsor / Operator Comprehension | 100 | 8 | 8.00 | 0 |
+| 9 | Runtime & First-Review Reliability | 82 | 7 | 5.74 | 126 |
+| 10 | Adoption Friction | 100 | 5 | 5.00 | 0 |
+| | **(A) Headline Readiness** | | **100** | **86.30** | |
 
-Sum(score × weight) = 910 + 1079 + 1144 + 876 + 760 + 730 + 684 + 624 + 504 + 415 = **7726** → **(A) = 77.26%**.
-
-**Ranked by weighted deficiency:** Insight Density (390) · Correctness (324) · Time-to-Value (270) · AI/Agent Readiness (240) · Differentiability (221) · Proof-of-ROI (216) · Runtime (196) · Comprehension (176) · Governed Review Integrity (156) · Adoption Friction (85).
-
-**Total remaining deficiency signal: 2,274.**
-
-**Scoring rationale.**
-
-| Quality | Score | Why exactly this much |
-|---|---:|---|
-| Decision-Changing Insight Density | **70** | Mechanism unchanged and still the largest deficiency: 42/53 engines, ADR 0070 scoring, path engines on IaC-only input, Real-mode judge/generator on. Not higher: **zero real-mode runs**; frontier delta still synthetic; `security-baseline` 10/47 at 65 with no evidence; path engines at 72 with no evidence; distribution **not** re-recorded through case-70; QR-05 unmerged. |
-| Differentiability / Defensibility | **83** | Policy-pack declaration gating is real (`PolicyFilteredDeclarationGoldenCorpusTests` already asserts CIS-Azure vs SOC 2 rows differ on one graph). Not higher: that compare is a unit test, not a recorded buyer artifact; `IsThemeEnabled` remains exact-id (prefix enablement correctly rejected). |
-| Governed Review Integrity | **88** | Product rubric (policy → evidence → finding → decision → audit) is strong. Repo gate has `merge_group` YAML. Holding: live merge queue not applied; required corset still red on a new cluster. |
-| Correctness & Evidence Integrity | **73** | v8's compile / OpenAPI / guard defects are closed. New: 10 Suite=Core orchestrator tests empty `Findings`; Kind B heading-fragment citation no longer matches DX-70. Citation contract and sealed-manifest guards remain intact. One point above the prior band because the golden corpus can compile; not 80 because trunk still cannot re-prove Decisioning.Tests. |
-| AI / Agent Readiness | **76** | Real-mode defaults include prose-assumption extraction. Eval corpus still synthetic; TB-883 budget-blocked. |
-| Time-to-Value | **73** | Declaration-only path findings exist; mermaid can enter the graph (case-70). **Gate 1 UNKNOWN.** Azure-extractor default still unshaped. |
-| Proof-of-ROI Readiness | **76** | Mechanism complete (disposition-aware sponsor summary, Simulator-forbid). **0 of 3** G4 rows. |
-| Sponsor / Operator Comprehension | **78** | Buyer-polish batches continued (Jira/Azure/GCP Sources strips). Narrative still rests on synthetic output. |
-| Runtime & First-Review Reliability | **72** | merge_group wired; guards green on the in-progress QR-04 run; completed corset still red; full `ci.yml` matrix 8/8 red in the last-dispatch window; Gate 1 unobserved. |
-| Adoption Friction | **83** | Full-solution `dotnet build` of Decisioning.Tests compiles. Extractor-default still opt-in. |
+**(B) Procurement / market-motion realism** is informational and **weight 0** in `(A)`. Narrative in §5.
 
 ---
 
-## 3. Diagnostic Scores (non-headline)
+## 3. Diagnostic Scores (non-headline — do not feed `(A)`)
 
-**Decision Advantage Score: 68/100.** Same band: graph-derived path findings exist; none has changed a decision a real architect made.
+These numbers measure **market and competitive outcomes**. They are **not** folded into the current **86.30%** headline readiness score.
 
-**Frontier-AI Survival Probability (12 months): 58–72%, moderate confidence.** Reference class: governed-workflow tools whose analysis layer is model-agnostic. Upward: mermaid/diagram now compiles into the graph (AS-034) so the kernel is slightly less “document-only.” Downward: still no live bake-off.
+**Decision Advantage Score: 63 / 100.** ArchLucid can change a decision a skilled architect using frontier AI would not operationalize — when a policy pack assignment, pre-commit gate, disposition, or citation-backed cost line is in play. ROI batches **5A–9** extend **showReason** semantic-band honesty, compare classification/semantic/treatment/ROI/gate/pack/execution-mode deltas, dual-channel audit disclosure, spine disposition loop, and first-review literacy but did **not** add live customer proof. Tension with headline: 86.30% says the **product contract is largely built**; 63 says **decision change in the wild is still unproven** (G4 = 0 of 3). That is consistent: `(A)` scores in-contract engineering, not paid pilots.
 
-**30-Day Voluntary Usage Probability: 36–51%, low-moderate confidence.** Unchanged. A principal architect still has no reason to return until a first review shows them something they did not know.
+**Frontier-AI Survival Probability (12-month): 48–64%.**  
+- **Reference class:** specialized workflow SaaS wrapping frontier models (copilots, GRC-adjacent review tools) — historically ~30–50% still differentiated at 12 months unless they own customer-specific state + workflow.  
+- **Positive adjustments:** 45 bundled `PlatformDefault` packs; assignment-driven compliance keys and expectation facets; append-only audit; golden manifest; ITSM correlation; disposition-aware ROI; Real vs Simulator split.  
+- **Negative adjustments:** generic critique is commodity; WK-21 honest boundary (not all finding engines are pack-aware); no live organizational reuse; packs can be pasted into a chat.  
+- **Confidence:** medium (code-grounded; no customer bake-off this pass).
 
-**Sponsor Purchase Probability: 28–43%, low confidence.** **Zero G-REAL-06 pilots still dominates.**
+**30-Day Voluntary Usage Probability (10 principal architects, unguided): 18–38%.** Controlled-beta with founder handholding: **40–58%.**  
+- **Reference class:** new enterprise review tools — 4-week voluntary reuse often <25% without a mandated workflow.  
+- **Positive:** first-review wizard, sample packages, evidence-only path, ITSM/Confluence seams.  
+- **Negative:** cognitive load, “Claude + paste standards” dismissal, empty G4, no habit-loop cohort (M-41 open; M-44 excluded).  
+- **Confidence:** low–medium.
 
-**Reconciliation with §2.** Headline **77.26%** sits ~9 points above Decision Advantage (68). Read it as “the mechanism is mostly built, the proof is absent, and trunk just swapped one test-corset break for another.”
+**Sponsor Purchase Probability (paid pilot / invoice path, next 90 days of founder-led motion): 12–28% before G4; 28–48% after three clean Real packets plus an invoice-ready entity.**  
+- **Reference class:** sales-led B2B tools at first paid design-partner / SOW — conversion from serious eval is often 15–35% without a named reference.  
+- **Positive:** sales-led pricing + order form; Architect SKU at $169; ROI service exists; trust-center honesty.  
+- **Negative:** G-COMMERCE-01/02 not started; SOC 2 CPA absent (`(B)` only); no live customer ROI; IBM-style seat+workspace explanation risk.  
+- **Confidence:** low.
 
 ---
 
 ## 4. V1 Ship Gate
 
-| # | Gate | Verdict | Evidence | Fastest resolution |
-|---|------|---------|----------|--------------------|
-| 1 | First review completes create → execute → commit → manifest + ≥1 artifact | **UNKNOWN** | Not executed here. | Staging `ship-gate-evidence` (human task #2). |
-| 2 | No hallucinated or uncited policy/evidence citations | **PASS (mechanism)** | Emission gate + DX-70 line-anchor tightening. The Kind B *test* is now stricter than its fixture — that is a test/contract bug, not a hallucination hole. | Upgrade after Gate 1 live. |
-| 3 | Sponsor summary / ROI coherent and not misleading | **PASS (mechanism)** | Disposition-aware headline; Simulator-forbid. | As above. |
-| 4 | Export / package generation works | **PASS (mechanism)** | Suite=Core coverage; live ZIP not run here. | Optional staging probe. |
-| 5 | Architect workspace does not break during first-review / demo path | **PASS** | `Operator UI: typecheck (blocking)` success on 34393999344. | Keep green. |
-| 6 | Auth + tenant isolation on pilot path | **PASS (mechanism)** | ADR 0037, scope guard unchanged. | As Gate 1. |
+| # | Gate | Status | Evidence / fastest resolution |
+|---|---|---|---|
+| 1 | First review completes end to end (create → execute → commit → golden manifest + ≥1 artifact) | **UNKNOWN** | Simulator lifecycle unit tests **PASS** this pass (`ArchitectureRunLifecycleModelTests`). `scripts/release-smoke.ps1` now writes **ship-gate-evidence** artifacts post-Playwright (ROI batch 1), and RC signoff bundle includes a **ship-gate-evidence** gate row — but **this pass did not execute** release-smoke or observe a live staging run. G5 real-LLM evidence exists (**2026-06-25**, stale). **Fastest test:** `pwsh -File scripts/release-smoke.ps1` then attach `artifacts/ship-gate-evidence/{runId}/` to the RC bundle. |
+| 2 | Representative review contains no hallucinated or uncited policy/evidence citations | **PASS** (corpus / evaluator) | Insight-density distribution: **0** `No evidence`, **0** `No anchor` on recorded golden slice; ADR 0070 demotes generic/unanchored typed-engine findings. `AgentOutputTraceQualityEvaluator` fails uncited Real findings. **Not a substitute** for a customer Real packet (G4 HOLD). |
+| 3 | Sponsor summary / ROI coherent and not misleading | **PASS** | `DispositionAwareRoiBasisCalculatorTests` **PASS** this pass — waived/remediated partitioned out of headline. `SponsorRoiSummaryService` documents per-system rows **must not** sum to disposition-aware headline; board-pack delegates to the same service (`V1_SCOPE.md` §2.8). |
+| 4 | Export / package generation (Markdown / DOCX / ZIP) | **PASS** (mechanism) | In-contract export/replay surfaces in `V1_SCOPE.md` §2.3; Workspace B sample review signed off **G-REAL-04 / M-06**. **G-REAL-09** (live DOCX visual) still **Not started** — mechanism ≠ founder eyeball. |
+| 5 | Architect workspace does not break on first-review / demo path | **PASS** (owner-signed Playwright + buyer-polish tests in tree) | **G-REAL-02 / G-REAL-03** Done 2026-07-03 (Workspace A/B smoke). This pass did not re-run Playwright. |
+| 6 | Auth + tenant isolation on the pilot path | **PASS** (with residuals) | ADR 0037 database-per-tenant; `TenantIsolationException` on control-plane catalog misuse; G3 **PASS with residuals**; SPA `sessionStorage` token residual disclosed in trust center (ADR 0059 BFF planned — not a V1 `(A)` deduction). |
 
-**No numbered gate FAILs.** Attached process risk: **Decisioning.Tests Suite=Core is red** on the newest completed trunk run.
+**No FAIL this pass.** Gate 1 **UNKNOWN** does **not** cap `(A)` under the stated rule; it **does** cap any claim that a stranger can complete first review today without founder support. See v4.
 
 ---
 
 ## 5. Sponsor Summary
 
-**(A) Overall headline readiness — 77.26% (v9). Gate 5 PASS; Gate 1 UNKNOWN.**
+**(A) Overall headline readiness — 86.30%.** ArchLucid is a **governed architecture review system**, not a chatbot. A tenant can ingest evidence (Azure/AWS/GCP ZIP or evidence-only), run an authority pipeline under simulator or platform Azure OpenAI, ground findings in bundled policy packs (45 `PlatformDefault` categories), block finalize on a severity gate, record dispositions, emit an append-only audit trail, export a package, and roll a **disposition-aware** sponsor ROI number that is explicitly **not** a naive sum of per-system rows. First-party Jira, ServiceNow, Confluence, Slack, and Teams connectors ship as V1 GA. Multi-cloud analysis (enum, Tier 1 ZIP, Tier 2 polling, AWS/GCP retail-price structured lookups) is in the product, not a future promise. RAG-V1 quality work is closed; Graph-RAG is **bounded multi-hop** (not community summarization); query expansion is **single-pass** (iterative retrieve-critique-retry exists, default off).
 
-ArchLucid is a governed architecture-review system with **53** deterministic finding engines, tenant-filtered compliance packs spanning CIS (Azure/AWS/GCP), SOC 2, GDPR, HIPAA, ISO 27001, PCI and ZTA, sealed manifests, database-per-tenant isolation, and first-party Jira / ServiceNow / Confluence / Slack / Teams connectors. Diagrams are no longer a dead upload: mermaid compiles into the golden harness (case-70) and finding inspect can jump to a cited shape (AS-024). Typed-engine findings are scored and demotable (ADR 0070). In Real mode the LLM judge, insight generator, and prose-assumption extractor run by default under spend caps.
+What 86.30% does **not** mean: a customer has not yet produced three clean Real-mode proof packets; Gate 1 was not observed live this pass; principal-architect reuse is unmeasured. The +0.05 pp delta vs the prior pass is **review share/meeting-path export honesty plus batch-33 drift guards**, not live pilot proof.
 
-**What v9 did not buy.** No architect outside the repository has run a real-mode review. The density table still describes a case-69 world. Ten of forty-seven corpus findings sit at the demotion threshold with no evidence. And the findings orchestrator tests on trunk currently return **empty `Findings` collections** — the product's proof harness for emission just broke in a new place.
+**(B) Procurement / market realism (weight 0).** Trust center is honest: SOC 2 Type II **not issued**; third-party pen test **planned, not scheduled**; V1 uses owner-conducted testing + self-assessment. SPA bearer tokens in `sessionStorage` are disclosed. That honesty helps sophisticated buyers and still **loses rigid RFPs**. CPA SOC 2 and vendor pen-test publication remain **G-REAL-05 / G-ASSURANCE-02** — owner work, not engineering gaps, and **not** `(A)` deductions.
 
-**(B) Procurement / market realism (weight 0 in `(A)`).** Honest trust posture: self-assessment, templates, owner pen test; no CPA SOC 2 and no published third-party pen test. Sales-led motion; live commerce is V1.1 owner-only.
+**Commercial picture.** Compelling as a **sales-led** motion: public `/pricing` has Architect ($169), Team ($1,169 / 5 seats), Professional ($2,299 / 10 seats), Enterprise custom; quote panel is primary; Stripe checkout URLs are **placeholders**; test-mode links are labeled. Unproven: live keys, first invoice (**G-COMMERCE-01/02** Not started), self-serve conversion. Live commerce un-hold is correctly **out of `(A)`**.
 
-**Commercial picture.** Compelling as a demo of governed, policy-driven, evidence-linked findings; unproven as a decision-changer because no G4 row exists.
+**Enterprise picture.** Isolation model, audit matrix (CI-tracked catalog), DPA/CAIQ/SIG pack, and connector seams look like a serious vendor. Hesitation is assurance paper and “has anyone else run this.”
 
-**Enterprise picture.** Trust mechanisms ahead of proof. Hesitation will be “show me one real run,” not architecture.
+**Engineering picture.** Robust in contract and tests; fragile in **proof operations** (G4 empty, G5 artifact aging, launch-load drills not executed). Orchestrator-in-Persistence is **remediated** (Application-layer `AuthorityRunOrchestrator`) — not re-flagged.
 
-**Engineering picture.** Product invariants are robust. Trunk process improved (merge_group YAML, compile fixed) and immediately found the next semantic conflict (AS-024 × DX-70 Kind B / orchestrator hold).
-
-**Frontier-AI picture.** Becoming more valuable **in mechanism** as diagrams join the graph the model does not author — **if** a real run ever shows it.
+**Frontier-AI picture.** ArchLucid becomes **more valuable as base models improve** *if* policy packs, evidence, and audit stay the product — because better models fill a governed machine at ~zero extra ArchLucid R&D. It becomes **less valuable** if the company sells “smarter critique” instead of “repeatable governed packages.”
 
 ---
 
 ## 6. Deferred Scope Uncertainty
 
-V1.1: CloudEvents webhooks, MCP membrane, multi-region, commerce un-hold. V2: CPA SOC 2 / third-party pen-test *publication*, automated tenant-erasure, Redis-as-default, DTF / Container Apps Jobs. Graph-RAG community summarization remains behind `EnableCommunitySummarization=false`; **TB-883** ablation is owner-approved and budget-blocked.
+Safe to leave out of `(A)`; discuss as buyer/roadmap friction only:
+
+| Deferred | Why deferred | V1-safe? | V1 seam |
+|---|---|---|---|
+| CloudEvents webhooks + customer recipes | V1.1 buyer-contract | Yes — REST/CLI/UI + first-party ITSM/chat/docs exist | Recipe docs remain non-GA |
+| MCP membrane | V1.1; `/v1/mcp/retrieval/*` non-GA | Yes | REST is the integrator path |
+| Multi-region active/active | V1.1 | Yes for single-region pilots | RTO/RPO docs are planning, not SLA |
+| Stripe live-key flip + signup DNS | Owner-only V1.1 | Yes for sales-led | TEST-mode trial + quote form |
+| Marketplace `Published` | Owner 2026-07-12 → **V2** | Yes | Controllers remain; do not sell MACC |
+| SOC 2 CPA / third-party pen test | GTM owner rows; tech TB closed | Yes if copy stays honest | Self-assessment + owner-conducted |
+| Redis-as-default, DTF / Container Apps Jobs, automated tenant-erasure | V2 | Yes for single-replica | Optional Redis already exists |
+| Graph-RAG community summarization; full online fine-tuning loop | Explicit depth caveats | Yes | Bounded hops + consent-gated FT foundation |
 
 ---
 
 ## 7. Weighted Quality Assessment (detail)
 
-### 7.1 Decision-Changing Insight Density — 70 · weight 13 · contribution 9.10 · deficiency 390
+Ordered by **weighted deficiency signal**.
 
-**What is true.** ADR 0070 scores typed engines. 42 harness engines; 23 emit on the recorded corpus. Path engines fire on Azure/AWS/GCP IaC. Case-70 exists on trunk (mermaid trust-boundary) but is **absent from the recorded table**.
+### 7.1 Decision-Changing Insight Density — Score 80 · Weight 13 · Contribution 10.40 · Deficiency 260
 
-**What is not.** Proof. `WouldDemoteAt65Count = 0`. Ten `security-baseline` findings survive on a +5 severity bonus with no evidence. Path engines at 72 have `No evidence` on every finding. QR-05 (honest `EvidenceRefs`) is still a draft PR.
+**Outcomes:** 1 (insight), 3 (usage), 5 (survivability).
 
-**Classification:** V1 mechanism largely complete; **validation required**. **Affects outcomes 1, 3, 5.**
+**Justification:** Typed engines + insight-density gate (ADR 0070) demote generic/unanchored advice instead of deleting it. Golden distribution shows 28 emitting engines on the recorded corpus with **zero** “no evidence / no anchor” cells. **ROI batches 1–8** add first-class **classification/treatment/semanticSupportBand** on inspect API and buyer/Working chips with **`showReason`** on primary surfaces. **Batch 9** hoists **compare gate-outcome and execution-mode deltas** into buyer verdict chrome and adds **classification `showReason`** on Quick Decision summary rows — demotion and gate context survive compare and list scan. Live customer “I did not think of that” is still **G4-empty**.
 
-### 7.2 Correctness & Evidence Integrity — 73 · weight 12 · contribution 8.76 · deficiency 324
+**Tradeoffs:** Raising demotion aggressiveness reduces false confidence and can starve a first demo of visible findings. Simulator goldens can overstate live insight.
 
-v8's three trunk defects closed. New Suite=Core red: orchestrator tests see empty `Findings` (likely provenance-hold moving uncited mocks into checklist / emission gate dropping Kind B heading fragments). `HasKindBProvenance` now correctly rejects `doc:…#services` under DX-70; the unit test was not updated.
+**Recommendations:** Do **not** add engines. Run **G-REAL-06** and score which findings actually changed a human decision. Classification: **market validation required**.
 
-**Classification:** V1. **Affects outcomes 1, 2, 4.**
+### 7.2 Time-to-Value — Score 75 · Weight 10 · Contribution 7.50 · Deficiency 250
 
-### 7.3 Time-to-Value — 73 · weight 10 · contribution 7.30 · deficiency 270
+**Outcomes:** 3 (usage), 4 (purchase).
 
-Declaration-only reviews yield path findings. Mermaid can enter the graph. Gate 1 UNKNOWN. Azure extractor default still unshaped after an owner “Yes — Azure first.”
+**Justification:** Guided intake, sample workspaces (A/B owner-signed), evidence-only fast path, and Core Pilot help exist. **TB-1030 package-spine export co-location** (ROI batch 1) puts sponsor exports + run-scoped audit CSV on the first-viewport band after finalize. **Batch 9** puts **evidence-only** on equal weight with ZIP upload on the first-review inventory prompt and links the same fast path from `/architecture/first-review-guide` — connectors are not a required first hour. Time-to-value is still founder-dependent: Gate 1 UNKNOWN this pass, G-REAL-09 DOCX unseen.
 
-**Classification:** V1 residual + validation. **Affects outcomes 1, 3.**
+**Tradeoffs:** More wizard steps raise governance quality and slow the “wow.”
 
-### 7.4 AI / Agent Readiness — 76 · weight 10 · contribution 7.60 · deficiency 240
+**Recommendations:** Founder-led 30-minute path using Workspace A + one Real run — validation, not a new intake product. Classification: **V1** (path exists) / **market validation required**.
 
-Real-mode effective-on for judge, generator, ranking priors, prose-assumption extraction. Synthetic eval; TB-883 blocked.
+### 7.3 Differentiability / Defensibility vs Frontier AI — Score 82 · Weight 13 · Contribution 10.66 · Deficiency 234
 
-**Classification:** V1 mechanism complete; validation required. **Affects outcomes 1, 5.**
+**Rubric band: High** (approaching Excellent on exports). Changing an assigned pack **does** change compliance keys, declaration gating, some coverage/cost extras, and pre-commit outcomes. **WK-21 policy-influence honesty** ships on **all sendable export covers** including **markdown** (ROI batch **5B** closes DOCX/PDF-only gap). **Batch 6** adds **`PolicyPackInfluenceHonestyChip`** on policy-pack impact preview and help pack-delta demo guide. **Pack-delta demo CTA** on first-review spine band links hostile-principal rehearsal path.
 
-### 7.5 Differentiability / Defensibility vs Frontier AI — 83 · weight 13 · contribution 10.79 · deficiency 221
+**Tradeoffs:** Selling “smarter than Claude” invites bake-off loss. Selling “governed repeatability” is slower and more durable.
 
-Pack-filtered declaration findings already differ on a fixed graph in Suite=Core. Buyer-visible recorded compare still missing.
+**Recommendations:** Demo must **change a pack live** and show gate/finding/ROI shift. Classification: **V1** (moat surfaces exist) / **market validation required** (moat obviousness).
 
-**Classification:** V1 mechanism; demo residual. **Affects outcomes 1, 2, 5.**
+### 7.4 Sponsor / Operator Comprehension — Score 77 · Weight 8 · Contribution 6.16 · Deficiency 184
 
-### 7.6 Proof-of-ROI Readiness — 76 · weight 9 · contribution 6.84 · deficiency 216
+**Outcomes:** 3, 4.
 
-Mechanism complete; G4 HOLD 0/3. **Affects outcomes 3, 4.**
+**Justification:** Product-language cleanup is extensive. **ROI batches** add first-review spine band, sendable export cover fields (policy pack, gate outcome, execution mode), and classification/semantic-band chips on buyer primary cards. **Batch 8** adds **disposition counts + next-action CTA** on the spine band and **operator-home ROI non-summing line**. **Batch 9** teaches the same honesty on the **first-review guide** (ROI non-summing, WK-21, disposition, pack assignment) and compact **compare pack-assignment delta** in verdict chrome — pack literacy is no longer optional-setup-only. Remaining load: seats + workspace + AI credits; governance vs approvals vs alerts.
 
-### 7.7 Runtime & First-Review Reliability — 72 · weight 7 · contribution 5.04 · deficiency 196
+**Tradeoffs:** Hiding Operate-layer links helps Pilot and hides the moat.
 
-merge_group exists; live queue does not. Newest completed corset red on 10 tests. Full matrix stale-red. **Affects outcomes 2, 3.**
+**Recommendations:** One 30-minute spine: ingest → findings with policy ids → disposition → sponsor number. No new nav IA. Classification: **validation first**.
 
-### 7.8 Sponsor / Operator Comprehension — 78 · weight 8 · contribution 6.24 · deficiency 176
+### 7.5 AI / Agent Readiness — Score 80 · Weight 10 · Contribution 8.00 · Deficiency 200
 
-Help/operator polish continued. No sponsor has read a real-mode summary. **Affects outcomes 2, 4.**
+**Outcomes:** 1, 2, 5.
 
-### 7.9 Governed Review Integrity — 88 · weight 13 · contribution 11.44 · deficiency 156
+**Justification:** Platform Azure OpenAI vs simulator is real; orchestration lives in Application; RAG-V1 closed; Graph-RAG bounded BFS; LLM budget reserve/settle. **G-FAITH-01 scaffold** now writes `faithfulness-nightly-warn-status.json` and has an RC signoff bundle gate row (warn-only; enforce flip still owner). **Batch 8** adds **ask inline classification + WK-21**. **Batch 9** adds **classification `showReason`** on Quick Decision **summary rows** so dense finding lists match card honesty. G5 evidence remains months old.
 
-Product rubric strong. Repo gate still weaker than the review gate until merge queue is applied. **Affects outcomes 2, 4, 5.**
+**Tradeoffs:** Iterative retrieve-critique-retry (default off) spends money for uncertain faithfulness.
 
-### 7.10 Adoption Friction — 83 · weight 5 · contribution 4.15 · deficiency 85
+**Recommendations:** Leave advanced retrieval flags default-off until G-REAL-06. Classification: **V1** (in-contract) with documented depth caveats — **not** a rebuild.
 
-Decisioning.Tests compiles. Extractor still opt-in. **Affects outcomes 2, 3.**
+### 7.6 Correctness & Evidence Integrity — Score 84 · Weight 12 · Contribution 10.08 · Deficiency 192
+
+**Outcomes:** 1, 2.
+
+**Justification:** Citation contract on extractor timestamps; demotion of uncited/generic findings; execution-mode labels (G1 PASS); ROI source integrity (G2 PASS). **ROI batches** add inspect API classification/semantic band and CG-026 audit CSV posture preamble. **Batch 6** adds compare **classification** band delta beside semantic band delta. **Batch 7** adds compare **treatment** band delta panel — separating insight-density treatment drift (checklist vs decision-grade vs demoted) in run-over-run diffs. Residual: dual channels still not unified; G-FAITH-01 enforce not flipped.
+
+**Tradeoffs:** Fail-closed citation reduces recall.
+
+**Recommendations:** Keep fail-closed. Do not unify channels before a buyer asks. Classification: **V1**.
+
+### 7.7 Governed Review Integrity — Score 87 · Weight 13 · Contribution 11.31 · Deficiency 169
+
+**Outcomes:** 2, 5.
+
+**Justification:** Packs are first-class JSON with scope merge, cloud-baseline auto-enable, pre-commit gate on assignment thresholds, SoD approvals, SLA/escalation, governance dashboard, typed audit (CI const count). **CG-026** run-scoped audit CSV posture stamps + career-door export blocks reduce false “complete audit trail” claims. **Batch 6** extends AS-072 desk guard to governance queue row cells. **Batch 7** closes dual-channel disclosure parity: **`AuditDualChannelHonestyNote`** on package-spine run-scoped audit export **and** server-side **`AuditEventCsvLineFormatter`** dual-channel preamble on tenant-wide audit CSV — buyer and operator paths now match. **Batch 33** adds sponsor export/send honesty on review-header share menu, meeting-packet dialog, whitelabel consulting modal, package print, and CTO demo GRC exports — CAB packet paths now carry WK-21/disposition literacy at download CTAs. Integrity is **High**, not Excellent, because expectation facets are additive-only and dual audit channels remain disclosed-not-unified.
+
+**Tradeoffs:** Making every engine pack-aware would create certification-shaped overclaim.
+
+**Recommendations:** Keep the honest WK-21 boundary in buyer talk tracks (**M-172 / M-173** still open as claim-honesty copy). Classification: **V1**.
+
+### 7.8 Proof-of-ROI Readiness — Score 83 · Weight 9 · Contribution 7.47 · Deficiency 153
+
+**Outcomes:** 4.
+
+**Justification:** `GET /v1/roi/sponsor-summary` + board-pack + disposition-aware headline **exist and are tested**. **Sendable export covers** (MD/DOCX/PDF/one-pager) stamp policy pack, gate outcome, execution mode, and WK-21 policy-influence boundary on sponsor-facing artifacts (ROI batches 1–8). **Batch 9** appends **`SendableExportCoverComposer`** to **FirstValue** markdown and stamps **ROI non-summing + WK-21** on the **email-to-sponsor** banner — the downstream sponsor path matches board-pack honesty. Credibility gap is **no customer packet**, not missing math.
+
+**Tradeoffs:** Over-precise USD without Real cost ZIP is worse than a labeled illustrative line.
+
+**Recommendations:** One Real extractor ZIP in G-REAL-06 Run 1. Classification: **V1** mechanism / **validation first** for credibility.
+
+### 7.9 Runtime & First-Review Reliability — Score 82 · Weight 7 · Contribution 5.74 · Deficiency 126
+
+**Outcomes:** 3, 7 (exposure).
+
+**Justification:** Happy-path lifecycle tests pass; k6 CI smoke exists; worker/outbox patterns exist. **`release-smoke.ps1` ship-gate hook** and RC signoff **ship-gate-evidence / G-REAL-08 / faithfulness-nightly-warn** gate rows operationalize evidence collection (ROI batches 1–8). **Batch 8** stamps **G-FAITH-01 warn-only** in **`build_rc_evidence_index.py`**. **`@release-gate`** Playwright asserts first-review spine semantic support + WK-21; **compare-journey** witnesses treatment, ROI, and **execution-mode** delta panels. This pass did not run release-smoke or launch-load. Gate 1 UNKNOWN is the honesty tax.
+
+**Tradeoffs:** Full smoke is slow; skipping it in assessments recreates UNKNOWN.
+
+**Recommendations:** Owner or agent with SQL: run release-smoke once per RC. Classification: **V1**.
+
+### 7.10 Adoption Friction — Score 75 · Weight 5 · Contribution 3.75 · Deficiency 125
+
+**Outcomes:** 3, 4.
+
+**Justification:** **TB-599 Done** — `Integrations:Itsm:NativeEnabled` defaults **`true`**. **Run-scoped audit CSV** on package spine with career-posture blocked reasons lowers compliance-export surprise (ROI batch 4). **Batch 9** adds **policy-pack assignment** to optional first-review setup, **disposition honesty** on governance empty states, and **operator-home disposition next-action** — pack literacy and post-commit next step are in-product. Remaining friction: identity workshop, extractor script comfort on live tenants.
+
+**Tradeoffs:** Native ITSM default-on surprises tenants without Jira credentials (404/skip paths exist).
+
+**Recommendations:** Keep default-on; empty-state copy is GTM **M-257** lane, not a flag revert. Classification: **V1**.
 
 ---
 
-## 8. Top 10 Weaknesses
+## 8. Top 10 Weaknesses (ranked)
 
-1. **`FindingsOrchestratorTests` on trunk return empty `Findings`.** Newest completed push corset: 10 Suite=Core failures after AS-024. Either provenance-hold moved uncited mocks into checklist (tests stale) or emission now drops typed findings that should remain. **Process + correctness; V1 blocker for re-proving Decisioning.**
-2. **Kind B provenance test disagrees with DX-70.** `doc:manifest.json#services` is a heading fragment; `HasConcreteEvidenceCitation` requires `#L` + a digit. The validator is honest; the test is not. **Design/process.**
-3. **Insight density is still mechanism-rich and proof-free.** Zero real-mode runs; synthetic frontier fixtures; `WouldDemoteAt65Count = 0`; 10/47 findings at threshold with no evidence. **Largest weighted deficiency (390). Validation.**
-4. **Distribution markdown is stale relative to case-70.** Harness constant is 70; table header still case-69. Measurement honesty gap. **Process.**
-5. **Live merge queue is not applied.** `merge_group` YAML + draft JSON shipped; GitHub still evaluates PR-branch SHAs. **Owner.**
-6. **Gate 1 remains UNKNOWN.** Unchanged. **Validation.**
-7. **Zero G-REAL-06 pilots.** Unchanged. **Market.**
-8. **Live Azure inventory is still opt-in** after an unshaped owner “Yes.” **Blocked on user input** (soft-prompt slice is executable).
-9. **Path engines score 72 with `No evidence` on every row** (`identity-blast-radius`, `data-flow-trust-boundary`, `segmentation-semantics`). They collect property-bag refs; corpus nodes still lack ARM/ARN/diagram citations. Case-70 mermaid is the cheapest place to attach `diagram:` refs. **Design.**
-10. **Full `ci.yml` matrix has not been green in the inspected window (8/8).** Unchanged measurement. **Process.**
-
-**Removed because genuinely fixed this cycle:** Decisioning.Tests CS7036; `typed-engine-protected` guard drift; OpenAPI Wave 68 snapshot red; missing `merge_group` trigger (YAML only).
+| Rank | Weakness | Why it matters | Design vs market | V1 blocker? | Fastest path |
+|---|---|---|---|---|---|
+| 1 | **G4 is empty (0 of 3 Real proof packets)** | Without packets, insight, ROI, and purchase are theater. | Market | No for `(A)`; **yes** for Stage 1 selling | **G-REAL-06 → G-REAL-07** |
+| 2 | **Gate 1 not observed this pass** | First-review reliability is tested, not witnessed on this HEAD. | Design reducible by running smoke | No FAIL; UNKNOWN | `scripts/release-smoke.ps1` |
+| 3 | **Principal-architect dismissal (“Claude + paste”) untested on live humans** | Highest competitive threat. M-44 excluded from this cycle. | Market | No | Founder-led 3 conversations; do not wait for excluded cohort engineering |
+| 4 | **Policy-aware moat is real but partial (WK-21)** | Easy to oversell “packs drive everything.” | Design (intentional) | No | Demo pack-change; keep claim boundary |
+| 5 | **Sponsor comprehension still founder-dependent** | 30-day usage dies if the first session needs narration. | Mix | No | Spine demo + **M-07** shots |
+| 6 | **Commercial entity not invoice-ready** | Cannot take money on the intended V1 path. | Market / owner | No for `(A)` | **G-COMMERCE-01** |
+| 7 | **Anonymous Quick Scan AI owner decision open (M-110)** | Public AI spend + misleading sample analysis. | Owner | No if AI stays off | Leave sample-only |
+| 8 | **Launch-load / LinkedIn burst not executed** | Public mention can still stampede a small host. | Owner ops | No for `(A)` | **G-SCALE-01/02** before any blast |
+| 9 | **G5 real-LLM evidence aging (2026-06-25)** | “We run real models” needs a current RC attach. | Owner | No | **G-REAL-08** RC gate row wired — owner must regenerate artifact on next cut |
+| 10 | **Procurement paper (CPA SOC 2, 3P pen test)** | Rigid RFPs stall. | Market `(B)` | **No** for `(A)` | Honest packet now; **G-REAL-05** later |
 
 ---
 
 ## 9. Frontier-AI Analysis
 
-| Capability | 12-month trajectory | Reason |
-|---|---|---|
-| Generic architecture critique | **Commodity now** | Any frontier model with pasted standards. |
-| Declaration-derived path findings from IaC | **Durable → more valuable** | Graph the model does not author. |
-| Diagram-compiled topology (mermaid / structured diagram) | **More valuable** | New this cycle: engines can cite shapes; a better model improves prose on a kernel it still cannot invent. |
-| Policy-pack-driven theme enablement | **Durable** | Customer policy state is not in the model's context unless pasted every time. |
-| Sealed manifest + audit | **Durable** | Organizational, not analytical. |
-| Golden corpus as proof | **Neutral** | Regression safety, not advantage. |
+Survival probability is in **§3** (48–64% at 12 months). Not repeated as a point estimate here.
 
-**Hard-to-reproduce-via-prompting:** policy state, tenant-filtered vocabulary, sealed evidence, declaration gating, diagram→graph compile, audit. **Easy soon:** any single finding's prose.
+### Commodity vs durable
 
-**Leverage bet:** better models raise judge/generator/prose-assumption quality at ~zero ArchLucid engineering cost while deterministic engines and compiled diagrams guarantee the floor. Unproven.
+| Capability | 12-month trajectory | Why | Evidence |
+|---|---|---|---|
+| Generic architecture critique | **Commodity** (already) | Frontier models do this from a good prompt | Daily PA practice |
+| Structured findings JSON | **Commodity soon** | Easy to prompt + schema | Any agent framework |
+| Customer policy packs as executable assignments | **Durable** | Requires tenant state, merge, versions | `PolicyPackResolver`, seeder, 45 bundled packs |
+| Evidence → finding → policy → disposition → audit | **Durable / more valuable** | Needs identity, storage, immutability | Audit matrix + finding review trail |
+| Pre-commit gate tied to pack severity | **Durable** | Workflow, not a completion | `PreCommitGovernanceGate` tests PASS |
+| Disposition-aware portfolio ROI | **More valuable** as models find more cost issues | Same service, better inputs | `SponsorRoiSummaryService` |
+| ITSM correlation + inbound status | **Durable** | Enterprise SoR, not chat | `ItsmFindingCorrelations` |
+| Graph-RAG bounded hops | **Mixed** | Technique commoditizes; **tenant-scoped graph** does not | TB-597 shipped with caveats |
+| Simulator vs Real labeling | **More valuable** as models get casually trusted | Honesty is the product | G1 PASS |
 
-**Displacement timeline:** one model release commoditizes finding prose; none commoditizes the customer's pack version or the sealed record.
+### Hard-to-reproduce via prompting
 
-**Final verdict:** ArchLucid is becoming more valuable faster than frontier AI is becoming capable **in mechanism**, and not at all **in evidence**. Survival probability is in §3.
+Policy assignment state, effective merge, gate block vs warn, append-only SQL denials, golden manifest hash, finding-id stable ITSM links, per-tenant catalogs, budget hard-stop, board-pack = same ROI service. Prompting **can** fake a markdown “audit trail” that would fail a security reviewer in minutes.
+
+### Leverage / upside
+
+Better models → denser, better-cited findings **inside** the same pack/gate/audit machine → more sponsor-visible decisions **without** proportional engineering. That is the actual bet. Engineering should protect the machine (citation, demotion, mode labels), not chase model-quality features.
+
+### Displacement timeline
+
+One model release away from commoditization: **unstructured review commentary** and **first-draft ADRs**. Not one release away: **tenant policy state + commit gate + audit reconstruction + ITSM round-trip**.
+
+### Final verdict
+
+ArchLucid is becoming more valuable **faster than frontier AI is becoming capable** **only if** the company treats packs, evidence, workflow, and audit as the product. If it competes on critique quality, frontier AI is already ahead on median days and will widen. **Governed repeatability is the survival trait; eloquence is not.**
 
 ---
 
 ## 10. Policy-Aware Governance Test
 
-1. **Do policy packs drive behavior?** **Yes.** `PolicyFilteredDeclarationGoldenCorpusTests` already shows SOC 2 vs CIS-Azure emitting different declaration rows on one graph.
-2. **Trace input → evidence → policy → recommendation → decision → audit?** Yes for typed-engine and declaration findings when citations resolve. Heading-fragment `doc:` refs no longer count (DX-70) — correct.
-3. **Would frontier-AI-alone reproduce it consistently?** Not the traceability, tenant-filtered vocabulary, or sealed manifest.
-4. **AI-generated vs governed infrastructure?** Prose is AI; edges, policy keys, manifests, audit, diagram compile are infrastructure.
-5. **Proof the moat is real:** record the already-passing pack-toggle test as a buyer-visible artifact. **Now possible, still unrecorded.**
-6. **Fastest validation:** G-REAL-06 run 1–2 with two packs.
-7. **Demo behavior that makes it obvious:** side-by-side CIS-Azure vs SOC 2 on the same upload.
+1. **First-class vs inert?** **First-class, partially driving.** Packs seed, assign, merge, auto-apply cloud baselines, stamp coverage/cost extras, gate declaration-security findings, and feed pre-commit thresholds. They are **not** a full rules VM over every engine.
+2. **Trace major finding?** **Yes on the happy path:** input ZIP/declaration → evidence refs (incl. `collectionTimestamp`) → `PolicyRuleId` / compliance keys → recommendation → disposition events → durable audit. Gaps: some engines pack-independent; baseline log-only channel is not `dbo.AuditEvents`.
+3. **Would a skilled architect + frontier AI reproduce consistently?** **No** — not the same package, gate outcome, and audit reconstruction across two architects and a week.
+4. **AI analysis vs governed infrastructure?** Analysis is the commodity layer. Infrastructure is packs, gate, SoD, manifest, audit, ITSM, ROI.
+5. **Evidence the moat is real:** two runs, same evidence, pack A vs pack B, different findings **and** a different pre-commit result, both reconstructable from audit CSV.
+6. **Fastest validation:** that A/B pack experiment in a founder demo, then one customer policy overlay in G-REAL-06 Run 2.
+7. **V1 demo behavior that makes the moat obvious:** toggle FinOps `cost.requireBudgetCap` or CIS extras; show gate + sponsor headline move; export audit CSV.
 
 ---
 
 ## 11. Principal Architect Dismissal Test
 
-"I need this" trigger: upload AWS Terraform and get a named blast-radius + CIS-AWS rule without connecting an account — exists. "I did not think of that" is still unmeasured.
+**“I need this”:** a finding tied to *their* prohibited pattern, with evidence, that would have shipped. Or a gate that stops a bad commit their chat session would have rubber-stamped.
 
-Most likely dismissal trigger: **"Show me a real run."** Likelihood **0.6–0.75**. Second trigger: **"Your own tests don't keep findings."** A clone that runs Decisioning.Tests hits 10 empty-snapshot failures on the last completed trunk corset.
+**“I did not think of that”:** identity blast radius / declaration-premise conflict / extractor-cited orphan — when it is **theirs**, not Contoso.
 
-Would they believe it beats "Claude + a good prompt + my standards pasted in"? **On mechanism, plausibly yes; on evidence, not yet.**
+**Return / recommend / spend:** second review on a second system in 30 days because the package was sendable to security without rewriting.
+
+**Immediate dismissal:** seed-backed Workspace B sold as live agents; Simulator dollars as savings; “SOC 2 certified”; IBM-looking pricing grid without Architect $169; founder narrating every click.
+
+**Single most likely dismissal trigger today:** **“This is Claude with extra workflow.”** Likelihood **55–70%** on first unguided session (reference: PA tool skepticism; ArchLucid-specific: G4 empty + comprehension 69). Drops if the demo is pack-change + audit CSV in 20 minutes.
+
+**Would they believe it is materially better than “Claude + good prompt + pasted standards”?** **Not on first glance. Yes after a pack-delta + gate + export they cannot paste.** Most will not stay long enough unless a founder or a mandated review process holds them.
 
 ---
 
 ## 12. Founder Delusion Check
 
-**Strongest assumption with weakest evidence:** that 42 harness engines and a case-69 table constitute density gains. They constitute *coverage*. Case-70 exists and is not in the table.
+**Strongest assumptions, weakest evidence:** (1) packs are an obvious moat in a 20-minute PA session; (2) voluntary 30-day reuse without a mandated workflow; (3) sales-led invoice path is “ready” without G-COMMERCE-01.
 
-**Looks differentiated, is commodity:** finding prose.
+**Looks differentiated, already commodity:** multi-agent critique, Graph-RAG as a slogan, “AI architecture review.”
 
-**Looks ordinary, may be the moat:** `DeclarationSignalPolicyKeyMap` + mermaid→graph compile.
+**Looks ordinary, may be the real moat:** append-only audit + golden manifest + finding-id ITSM correlation + disposition-aware ROI **sameness** across UI and board pack.
 
-**Months-burning distraction:** DX-77; another 40-engine coverage pack; AS-076+ Career/Rehearsal chrome before Gate 1.
+**Could burn months without moving the five outcomes:** MCP membrane, Marketplace listing, engine #46, Redis-as-default, DTF, community Graph-RAG, LinkedIn long-form volume beyond posts already Done.
 
-**Six-month freeze prescription:** fix orchestrator/Kind B today; apply merge queue; re-record distribution through case-70; run Gate 1; run G-REAL-06 with two packs; stop re-scoring.
+**If features froze six months:** G-REAL-06/07, first invoice, pack-delta demo muscle, screenshot/video, stay sample-only on Quick Scan.
 
-**Most dangerous attractive distraction:** starting AS-076–AS-100 (Career vs Rehearsal / sharing) while Suite=Core is red.
+**Most dangerous attractive distraction:** “one more retrieval/RAG excellence loop” (TB-883 already Hold-until-G-REAL-06).
 
-**Most boring real moat:** sealed manifest + pack version on the audit row.
+**Most boring real moat:** **repeatable evidence→policy→decision→audit with the same ROI number in every sponsor artifact.**
 
 ---
 
 ## 13. Competitive Reality Check & Moat Assessment
 
-Current moat: policy-state-driven declaration gating, sealed evidence, governed workflow, diagram compile into the graph. Potential moat: path findings + diagram citations that improve with model quality. Weakest moat assumption: buyers will believe the mechanism without a run. Illusory moat: engine count. Boring-but-durable: audit + manifest. What makes it obvious: recorded pack-toggle compare.
+Vs skilled architect + frontier AI: they already draft reviews, ADRs, threat notes, and cost guesses. ArchLucid is substantially faster/more consistent at **tenant-scoped pack merge, commit blocking, audit export, ITSM round-trip, and portfolio ROI that survives disposition**. Prompting resists poorly on those. Commodity in 12 months: narrative quality. More valuable as AI improves: the governed machine. Requires enterprise workflow: SoD, SLA escalation, tenant catalogs. Requires customer-specific policy state: yes — this is the non-illusory moat **if** customers actually assign overlays (unproven).
+
+**Current moat:** workflow + state, not model. **Future moat:** org-private pack corpus + exception history. **Weakest moat assumption:** buyers will value that over chat. **Most durable:** audit-reconstructable decisions. **Probably illusory:** “our agents are smarter.” **Boring-durable:** finding-stable ITSM + gate. **Make it obvious:** live pack A/B in the buyer’s evidence.
 
 ---
 
 ## 14. Adoption & Monetization
 
-**30-day usage:** strongest positive — declaration-only path findings plus mermaid ingest; strongest negative — nothing shown to a real architect. **Sponsor purchase:** blocker is G4 HOLD. **Why buy instead of more frontier licenses:** the license does not know the pack version, cannot seal evidence, and cannot tell you what changed since last quarter.
+**30-Day voluntary usage:** strongest positive = sendable package into an existing review meeting. Strongest negative = first session felt like process. Return because the second system was cheaper than re-prompting. Stop because Claude is already open. (Probability in §3.)
 
-**Top monetization blockers:** (1) no real-mode proof row; (2) Gate 1 unobserved; (3) no recorded pack-toggle demo; (4) trunk Suite=Core red for technical buyers who clone; (5) G-COMMERCE-01; (6) no sponsor has read a real ROI summary.
+**Sponsor purchase:** driver = risk/audit/repeatability, not seat TCO vs ChatGPT. Blocker = no peer packet + SOC story. Minimum proof for paid pilot: **one Real packet + honest trust pack + invoice path**. Likely objection: “wrapper.” **Why buy instead of more frontier licenses?** Licenses do not give pack-versioned, SoD’d, ITSM-correlated, disposition-aware, tenant-isolated **organizational memory**. That sentence is the sale. It is not yet evidenced by G4.
 
-**Top enterprise adoption blockers:** (1) live inventory opt-in; (2) extractor permission story per cloud; (3) procurement trust posture `(B)`; (4) no pilot references; (5) operator onboarding without founder; (6) merge-queue not live (internal credibility).
+**Top 6 monetization blockers (sales-led V1; live commerce is not a blocker):**
+
+| Blocker | Why it blocks payment | Who | Overcoming evidence | Impl vs validation |
+|---|---|---|---|---|
+| No Real proof packet | Cannot defend ROI | Sponsor | G-REAL-06/07 | Validation |
+| Invoice entity/tax unreadiness | Cannot bill | Finance | G-COMMERCE-01 | Owner |
+| “Just GPT” | Status-quo licenses | PA | Pack-delta demo | Validation |
+| SOC 2 / pen-test paper | RFP gate | Procurement | Honest packet now; CPA later `(B)` | Owner later |
+| Pricing explanation (bundle vs seats vs workspace) | Confusion, not missing Architect SKU | Buyer | Talk track on Architect $169 then Team | Copy / founder |
+| No peer reference | Risk | Sponsor | Dogfood **M-93** Done internally; public reference is deferred | Validation |
+
+**Top 6 enterprise adoption blockers:** operators (identity + extractor); architects (comprehension); governance (pack assignment literacy); security (SPA token residual + G3 residuals); compliance (self-assessment only); implementation (ITSM credentials). Pilot vs scale: isolation and budgets are scale-shaped; first-review comprehension is pilot-shaped.
 
 ---
 
 ## 15. Most Important Truth
 
-**The v8 trunk defects were real and they are gone — and trunk is still red, because the diagram spine tightened citations faster than the orchestrator tests.**
+**The product is a governed review machine that is largely built; the company has not yet proven that anyone outside the founder will run it twice.**
 
-Compile, OpenAPI, and the ADR 0070 guard shipped. What the corset now proves is that `doc:#services` is not evidence and that mock findings vanish from `Findings`. **Fix emission vs hold vs DX-70 in one PR, apply the merge queue, then run one real review with two packs.** Nothing else in this document moves the weakest quality.
+Engineering completeness is no longer the scarce resource. Real packets, an invoice, and a pack-delta demo that survives a hostile principal architect are.
 
 ---
 
@@ -328,93 +404,125 @@ Compile, OpenAPI, and the ADR 0070 guard shipped. What the corset now proves is 
 
 ## 16. Stop Doing List
 
-**Not worth doing before V1:** DX-77; AS-076–AS-100 Career/Rehearsal chrome; Graph-RAG community default flip before TB-883 has a budget; prefix-family `IsThemeEnabled` (PP-01 already rejected it).
+**Top 3 not worth doing before V1 / first validation:** MCP GA membrane; Azure Marketplace `Published`; Graph-RAG community summarization.
 
-**Diminishing returns:** more engines without evidence refs; UI polish on routes no pilot has seen; more claim-honesty guards while Suite=Core is red.
+**Top 3 diminishing returns:** additional bundled pack rules without customer overlays (**G-CONTENT-01** is V1.1); more insight engines before G-REAL-06; more LinkedIn long-form while **M-07** shots are missing.
 
-**Founder behaviors that delay validation:** re-scoring before the orchestrator is green; approving Azure-extractor-default without picking soft/hard/wizard; treating a green PR check as a green trunk until merge queue is live.
+**Top 3 founder behaviors that delay validation:** polishing UI instead of running Real pilots; waiting for CPA SOC 2 before the first SOW; treating Gate 1 UNKNOWN as a reason to build rather than to **run smoke**.
 
-**Enterprise-important but not V1-adoption:** MCP; CloudEvents webhooks; multi-region.
+**Top 3 enterprise-feeling features that may not improve V1 adoption:** DTF/Container Apps Jobs; plugin marketplace; Redis-as-default.
 
 ---
 
 ## 17. Top Improvement Opportunities
 
-**Shipped this cycle — do not re-open:** QR-01–QR-04; AS-024; AS-034 case-70 (harness bump only); DX-51–DX-76; PP-01 Option B slice; prose-assumption Real-mode default.
+**Verify-before-listing:** TB-599/600/601/602/603/604 **Done** — not listed. Connectors, AWS/GCP extractors, Application orchestrator, RAG-V1, trial AI budget provisioner — shipped. **No score deltas.** **M-90/M-44/M-91/M-92 excluded.**
 
-### Tier 1 — Must Fix / Must Validate
+All six V1 ship gates are PASS or UNKNOWN (none FAIL). In-contract engineering is not the open gate. This section **leads with market validation**.
 
-**1. Restore Decisioning.Tests orchestrator emission (empty `Findings`).**
-Tier 1 · Why: Suite=Core red on trunk; technical buyers who clone cannot re-prove findings. · Affected: Correctness, Runtime. · Evidence: run 34392453288, 10 failures, empty `Findings`. · Design 4 / Market 0 · **V1.** Cursor prompt: **QR-06**.
+### Shipped this cycle (acknowledgment only)
 
-**2. Align Kind B unit fixture with DX-70 line-anchored `doc:` refs.**
-Tier 1 · Why: same corset job; heading fragment `#services` is not concrete. · Affected: Correctness. · Evidence: `HasKindBProvenance_allows_resolvable_doc_ref`. · Design 2 / Market 0 · **V1.** Same PR as item 1 (**QR-06**).
+**ROI batch 5A** (audit career-posture E2E, RC evidence index, Lane B sendable covers, semantic band on inspect header, TB-502) and **ROI batch 5B** (markdown sendable-cover WK-21/Lane B parity, showReason chips, pack-delta spine CTA, RC bundle auto-attach, governance queue semantic band, compare band delta, tenant-wide audit disclaimer, `@release-gate` showReason witness). **ROI batch 6** (inspect showReason parity, compare classification band delta, typed-engine honesty on secondary/summary cards, RC G5 `real-llm-evidence-gate.json` auto-attach, AS-072 governance-queue desk guard, WK-21 on pack-delta help + impact preview, stamp Lane B microcopy, compare-journey + release-gate witnesses, batch-6 drift guards). **ROI batch 7** (dual-channel audit honesty on spine export + server CSV, classification `showReason` closure on Working/inspect surfaces, first-review spine semantic counts + WK-21, compare treatment band delta, RC `simulator-live-divergence-summary.json` alias, sendable-cover ROI non-summing line, batch-7 drift guards + e2e witnesses). **ROI batch 8** (spine treatment mix + disposition next-action, compare run-level ROI headline delta, board-pack ROI non-summing + WK-21, work-item clipboard classification/treatment/WK-21, AWS/GCP inventory ZIP scripts, operator-home ROI non-summing, ask inline classification + WK-21, G-FAITH-01 warn-only RC stamp, batch-8 drift guards + e2e witnesses). **ROI batch 9** (compare gate/pack/execution-mode deltas, first-review guide ROI/WK-21/disposition/pack literacy + evidence-only dual path, FirstValue + email-to-sponsor sendable-cover parity, operator-home disposition + WK-21, governance empty-state disposition honesty, summary-row classification `showReason`, batch-9 drift guards + compare-journey witness). **ROI batch 10** (compare export gate/pack/mode/ROI headline parity in MD/HTML/PDF/DOCX; core-pilot sponsor honesty panel; scorecard + sponsor-dashboard help + ROI-summary non-summing/WK-21; quarterly board-pack + value-report snapshot honesty; home recommended-next disposition; wizard multicloud evidence-only descriptions; SSO optional literacy; removed stale Executive ROI strip; batch-10 drift guards). **ROI batch 14** (help roi-summary/review-packages/pilot-guide/baseline-settings/comparison-replay orientation; sponsor ROI summary export strip + markdown sendable cover; run-detail header export honesty; first-week in-progress disposition; batch-14 drift guards). **ROI batch 15** (persistent sponsor email + review-package handoff + digests browse export honesty strips; help findings/first-review/review/repeat-review-loop send-path panels; batch-15 drift guards). **ROI batch 16** (manifest deliverable export strip + decision-receipt markdown cover; help digests/first-value-20/policy-packs/impact-preview/governance-approval send-path panels; batch-16 drift guards). **ROI batch 17** (email-to-sponsor export honesty strip; help evidence-intake/enterprise-onboarding/recurrence-schedules/audit-trail/decision-register send-path panels; batch-17 drift guards). **ROI batch 18** (package-spine export co-location strip; help prior-manifest-retrieval/policy-pack-delta-demo/architecture-desk/career-rehearsal/improvement-planning send-path panels; batch-18 drift guards). **ROI batch 19** (review-package share-row export strip; help architecture-sharing/integration-readiness/evidence-graph/architecture-intelligence/evidence-trail send-path panels; batch-19 drift guards). **ROI batch 20** (post-finalize next-steps export strip; help teams-integration/search-review-evidence/structured-brief/governance-infrastructure-drift/architecture-share-restrict send-path panels; batch-20 drift guards). **ROI batch 21** (share when-to-share export strip; help slack-integration/jira-integration/servicenow-integration/webhooks-integration/career-rehearsal-doors send-path panels; batch-21 drift guards). **ROI batch 22** (export-deliverable chooser strip; help path-chooser/azure-boards/procurement/caiq-sig-response/cloud-connections send-path panels; batch-22 drift guards). **ROI batch 23** (compliance-drift PDF export strip; help dpa-template/subprocessors/connect-azure-securely/security-trust/data-handling-tenant-isolation send-path panels; batch-23 drift guards). **ROI batch 24** (audit-operator-export strip; help soc2-self-assessment/connect-aws-securely/connect-gcp-securely/accelerator-chooser/authentication-sign-in send-path panels; batch-24 drift guards). **ROI batch 25** (decision-register-export strip; help sealed-vs-decision-register/which-mode-am-i-in/inspect-stored-evidence/background-wait/proxy-timeout-real-execute send-path panels; batch-25 drift guards). **ROI batch 26** (audit-evidence-package strip; help sketch-a-change/impact-preview-vs-envelope/extraction-fidelity/false-hard-infeasibility/standards-rules send-path panels; batch-26 drift guards). **ROI batch 27** (governance-resolution-export strip; help users-and-roles/workspace-settings/billing-and-plans/connection-status/api-keys send-path panels; batch-27 drift guards). **ROI batch 28** (infra-drift-export-terraform strip; help model-governance/scope/alerts/notifications/system-health send-path panels; batch-28 drift guards). **ROI batch 29** (infra-terraform-advisory-zip strip; help advisory-scans/architecture-drafts/draft-editing/azure-permissions/configuration-reference send-path panels; batch-29 drift guards). **ROI batch 30** (infra-diagrams-export strip; help troubleshooting/contact-support/report-a-problem/preferences/pilot-feedback send-path panels; batch-30 drift guards). **ROI batch 31** (ai-usage-export-activity strip; help admin-diagnostics/ai-usage/api-contracts/engineering-troubleshooting/cli-usage send-path panels; batch-31 drift guards). **ROI batch 32** (evidence-graph/decision-receipt/manifest-detail-bundle/findings-itsm/consulting-docx/governance-findings export strips; batch-32 drift guards). **ROI batch 33** (review-header-share/meeting-packet/whitelabel-consulting/package-print/cto-demo-leave-behind/cto-demo-audit-integrity export strips; batch-33 drift guards). Standing substrate (not opportunities): policy packs, pre-commit gate, ROI, connectors, multi-cloud costing (**TB-603**), ITSM default-on (**TB-599**).
 
-**3. Re-record insight-density distribution through case-70.**
-Tier 1 · Why: harness is 70; table still case-69. · Affected: Insight Density (honesty), Correctness. · Evidence: `LatestGoldenCorpusCaseNumber = 70` vs markdown header. · Design 2 / Market 0 · **V1.** **QR-07**. After item 1 is green.
+### Tier 1 — Must do (validation / owner)
 
-**4. Enable merge queue (owner) — YAML already shipped.**
-Tier 1 · **Owner.** Draft JSON in `.github/rulesets/golden-cohort-gate-merge-queue.json`. · Design 6 / Market 0.
+**1. Three Real-mode proof runs + packets**  
+- **Tier:** 1 · **Classification:** validation first / blocked on user input  
+- **Why:** Moves outcomes 1, 3, 4 directly. G4 HOLD is the binding constraint.  
+- **Expected impact:** Turns insight/ROI from mechanism into evidence.  
+- **Affected qualities:** Insight, ROI, Runtime (observed), Decision Advantage.  
+- **Evidence:** `CLAIM_READINESS_STATUS.md` G4 0 of 3; **G-REAL-06/07** Not started.  
+- **Actionability:** Owner.  
+- **Design uncertainty reduced:** 2/10 · **Market uncertainty reduced:** 8/10  
+- **No Cursor prompt** — live Real execution.
 
-**5. Execute Gate 1, then G-REAL-06 with two pack configurations.**
-Tier 1 · **Validation.** Market 9 / Design 2.
+**2. Invoice/SOW commercial readiness then first paid close**  
+- **Tier:** 1 · **Classification:** blocked on user input  
+- **Why:** Outcome 4. V1 motion is sales-led; this is how money happens.  
+- **Expected impact:** First dollar; calibrates sponsor purchase.  
+- **Affected qualities:** none required in `(A)` · **(B)` commercial**  
+- **Evidence:** **G-COMMERCE-01/02** Not started.  
+- **Design U:** 1 · **Market U:** 7
 
-### Tier 2 — High Leverage (Composer prompts QR-08–QR-15)
+**3. Keep public Quick Scan AI off until M-110**  
+- **Tier:** 1 · **Classification:** blocked on user input  
+- **Why:** Outcome 3 (trust) and demo cost. TB-902 already YELLOW sample-only.  
+- **Expected impact:** Prevents the dumbest public failure.  
+- **Affected qualities:** Adoption, Runtime (cost)  
+- **Design U:** 2 · **Market U:** 4
 
-**6. Land QR-05 and extend evidence-ref honesty to the other 65-band engines** (`declaration-security-baseline`, `topology-security-drift`). **QR-08.**
+### Tier 2 — High leverage (still mostly human)
 
-**7. Attach `diagram:` citations from case-70 mermaid onto path engines** so 72-band rows can clear `no-concrete-evidence` when a shape exists. **QR-09.**
+**4. Screenshot / landing / DOCX visual / demo video (M-07, M-108, M-09, G-REAL-09, M-16)**  
+- **Tier:** 2 · **Classification:** validation first (assets)  
+- **Why:** Founder-independent comprehension and LinkedIn-safe mention.  
+- **Market U:** 6 · **Design U:** 3  
+- **Engine:** Composer for checklists; human capture.
 
-**8. Azure extractor first-review *soft* default** (prompt + skip, not hard gate) — executable portion of the unshaped owner “Yes.” **QR-10.**
+**5. Observed first-review on this HEAD (release-smoke + optional Real gate refresh)**  
+- **Tier:** 2 · **Classification:** V1 (run existing)  
+- **Why:** Converts Gate 1 UNKNOWN → PASS/FAIL without building features.  
+- **Design U:** 8 · **Market U:** 2  
+- **Justifies engineering time?** Only operator time to **run** scripts — no new code unless smoke fails.
 
-**9. Record the pack-toggle compare as a checked-in quality artifact** (the unit test already passes). **QR-11.**
+**6. Staging scale micro-drills (G-SCALE-01) before any traffic blast**  
+- **Tier:** 2 · **Classification:** V1.1-adjacent ops / owner  
+- **Why:** Does not move `(A)`; moves exposure safety.  
+- **Market U:** 3 · **Design U:** 4
 
-**10. Next ga-starter framework slice** (HIPAA or ISO remainder — PP-01 Option B). **QR-12.**
+### Tier 3 — Hold for reassessment
 
-**11. Triage the full `ci.yml` matrix on one trunk commit.** **QR-13.**
+**7. Graph-RAG ablation / TB-883** — Hold until G-REAL-06 (already labeled Hold).  
+**8. MCP membrane, CloudEvents buyer contract, live Stripe keys** — V1.1 owner windows.  
+**9. Extra bundled pack content (G-CONTENT-01)** — V1.1; customer overlays would teach more.  
+**10. SPA BFF HttpOnly session (ADR 0059)** — trust residual; not a V1 `(A)` gate; revisit when a security reviewer requires it.
 
-**12. Working default: load prior sealed graph so topology-security-drift can fire on review two** (AS-053 leftover). **QR-14.**
-
-**13. Bind existing Terraform/ARM graph nodes to diagram labels** (AS-043 leftover). **QR-15.**
-
-Cursor prompts for items 1–3 and 6–13: [`../architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md) (**QR-06–QR-15**).
-
-### Tier 3 — Hold
-
-TB-883 ablation (budget-blocked); frontier capture with real transcripts (after G-REAL-06); per-version OpenAPI document; DX-77; AS-076+ Career/Rehearsal; prefix-family theme enablement.
+**Zero new feature-engineering Cursor prompts.** New code would need a smoke **failure** or a customer overlay requirement. Completeness/polish/elegance are rejected as justifications.
 
 ---
 
 ## 18. Prompt Batching Guidance
 
-**First — Composer, one PR:** QR-06 (orchestrator + Kind B). Merge nothing else until the push corset is green. **Composer-safe** if findings merely moved to `ChecklistCoverage`; **strong-model** if production engines also vanish.
+| Batch | Work | Priority mapping | Model |
+|---|---|---|---|
+| **First** | Run release-smoke / attach G5; owner G-REAL-06 ops support (checklists only) | (1) first-review reliability | Safe-for-Composer (scripts already exist). Strong-model **not** required. |
+| **Second** | Pack-delta demo script + sponsor one-pager honesty (open M-172/M-173 copy if owner asks) | (3) evidence/policy traceability, (6) comprehension | Safe-for-Sonnet |
+| **Third** | Screenshot shot-lists, landing leftover copy, Quick Scan **staying** sample-only copy | (5) demo reliability, (4) package credibility | Safe-for-Composer |
 
-**Second — Composer:** QR-07 (re-record case-70) then QR-08 (QR-05 + remaining 65-band engines).
-
-**Third — Composer:** QR-09 (diagram citations on path engines) in parallel with QR-11 (pack-toggle artifact).
-
-**Fourth — owner + Composer:** apply merge queue; Gate 1; then QR-10 (Azure soft default) once the owner confirms soft vs hard vs wizard — default the prompt to **soft**.
-
-**Fifth:** QR-12 / QR-13 / QR-14 / QR-15 after the corset is green. Do not batch QR-13 (full matrix) with emission-semantic changes.
+Do **not** batch MCP, Marketplace, or new engines.
 
 ---
 
 ## 19. Model Usage Guidance
 
-Composer for QR-06 (if hold-vs-test), QR-07, QR-08, QR-11, QR-13 docs/triage, QR-14/QR-15 mechanical bind. Stronger reasoning if QR-06 reveals production engines dropping Decision-grade rows. Owner for merge queue, Gate 1, G-REAL-06. No assessment re-run until QR-06 is green on trunk.
+- **Composer-safe:** shot lists, log-row formatting, checklist diffs, CI script invocation notes.  
+- **Sonnet-safe (current reduced price — prefer over Opus when depth is not limiting):** claim-honesty copy, talk tracks, SOW tailoring, pack-delta demo script.  
+- **Strong-model-recommended:** this assessment class; pack-moat evaluation; anything that changes review generation, auth/isolation, or evidence-graph semantics.  
+- **Opus-or-Gemini-assessment-recommended:** next full v3/v4 clean-slate; procurement objection framing (**M-91 excluded** unless owner directs).  
+Do not use cheaper models for isolation/auth or citation-gate changes.
 
 ---
 
 ## 20. Pending Questions For Later
 
-**Blocks V1:** QR-06; merge-queue apply; Gate 1; G-REAL-06; G-COMMERCE-01.
+**Blocks V1 (engineering):** none identified this pass pending Gate 1 observation. If release-smoke fails on HEAD, that failure **becomes** the V1 block.
 
-**Requires founder decision:** (a) apply merge queue now; (b) Azure-extractor default shape if not accepting the soft-prompt default in QR-10; (c) TB-883 monthly cap; (d) merge `#2641` (QR-05) vs wait for QR-08; (e) HIPAA vs ISO for the next ga-starter slice.
+**Blocks V1.1:** live Stripe keys; MCP membrane; CloudEvents buyer SLA; multi-region.
 
-**Requires customer validation:** everything in §7.1's "what is not."
+**Requires customer validation:** pack-delta changes real decisions; 30-day reuse; ITSM needed in first two pilots (do **not** treat **M-92** as an assessment action).
+
+**Requires founder decision:** **M-110** Quick Scan; **G-COMMERCE-01** entity/tax; Stage 0→1 signoff after G4; whether to mention publicly before **M-07** shots (see v4).
 
 ---
 
-# Appendix A — Author Signal (qualitative, NON-HEADLINE)
+## Appendix A — Author Signal (qualitative, NON-HEADLINE)
 
-v9 is the pass where the repo finally compiled the golden corpus and then immediately demonstrated why merge queue exists: AS-024 tightened citations; DX-70 already required line anchors; orchestrator tests still believed heading fragments were Kind B; `Findings` went empty. That is principal-architect taste on the citation contract and a process failure on the test contract. The useful next move is small: **make Suite=Core mean “findings still emit,” then run one real review.**
+The repository reads like a principal architect who has already lost arguments to security, procurement, and “just use ChatGPT.” Policy-pack honesty (WK-21), ROI non-summing headlines, Real vs Simulator labels, and trust-center non-claims are **taste**. The volume of GTM claim-honesty rows is both a signal of seriousness and a risk of substituting paperwork for pilots. Feature quantity is high; the discriminating signal is **refusal to lie about SOC 2 and seed-backed demos**. That is excluded from `(A)` on purpose.
+
+---
+
+## Central question
+
+**Does ArchLucid turn frontier AI into a governed, policy-aware, audit-ready enterprise architecture review system that changes decisions and earns repeat use?**
+
+**It turns frontier AI into that system in engineering fact. It has not yet shown that it changes customer decisions or earns repeat use.** The remaining work is to run the machine on real evidence, in front of hostile architects, and to invoice — not to build a more complete platform.

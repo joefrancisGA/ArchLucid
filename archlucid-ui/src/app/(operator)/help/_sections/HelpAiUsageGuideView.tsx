@@ -5,6 +5,7 @@ import { HelpAiUsageSourcesOrientationStrip } from "@/app/(operator)/help/_secti
 import { AiUsageHelpClaimDisciplineStrip } from "@/components/help/AiUsageHelpClaimDisciplineStrip";
 import { AiUsageHelpEvidenceOrientationStrip } from "@/components/help/AiUsageHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -173,6 +174,10 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
           </p>
         ) : null}
 
+        {buyerPolishedShell ? (
+          <SponsorSendPathHonestyPanel testIdPrefix="help-ai-usage" showSsoOptional={false} />
+        ) : null}
+
         <section
           className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
           data-testid={buyerPolishedShell ? AI_USAGE_HELP_WORKSPACE_TEST_ID : undefined}
@@ -185,6 +190,10 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
               <p className={readingBodyClass} data-testid="help-ai-usage-overview">
                 {AI_USAGE_HELP_OVERVIEW}
               </p>
+            ) : null}
+
+            {!buyerPolishedShell ? (
+              <SponsorSendPathHonestyPanel testIdPrefix="help-ai-usage" showSsoOptional={false} />
             ) : null}
 
             {!buyerPolishedShell ? <AiUsageStartHerePanel /> : null}
@@ -227,7 +236,7 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
             </section>
           </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
         </div>
         </section>
 

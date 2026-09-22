@@ -26,7 +26,8 @@ internal static class GoldenCorpusEffectfulEngineFactory
         IAzureExtractorPackageRepository azurePackageRepository,
         ICloudInventoryExtractorPackageRepository cloudPackageRepository,
         IComplianceRulePackProvider rulePackProvider,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        GoldenCorpusAssignedPackFixtureDocument? assignedPackFixture = null)
     {
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
         ArgumentNullException.ThrowIfNull(azurePackageRepository);
@@ -52,7 +53,7 @@ internal static class GoldenCorpusEffectfulEngineFactory
         IRecurrenceIdentityMatcher identityMatcher = Mock.Of<IRecurrenceIdentityMatcher>();
         IPortfolioRecurrenceFindingEmitter findingEmitter = Mock.Of<IPortfolioRecurrenceFindingEmitter>();
 
-        return
+        List<IEffectfulFindingEngine> engines =
         [
             new OrphanedAzureResourceFindingEngine(scopeContextProvider, azurePackageRepository, timeProvider, freshnessOptions),
             new AdvisorCostRecommendationFindingEngine(scopeContextProvider, azurePackageRepository, timeProvider, freshnessOptions),
@@ -93,6 +94,21 @@ internal static class GoldenCorpusEffectfulEngineFactory
                 identityMatcher,
                 findingEmitter),
         ];
+
+        if (assignedPackFixture is not null)
+        {
+            engines.Insert(
+                6,
+                new PolicyDeclarationInventoryContradictionFindingEngine(
+                    scopeContextProvider,
+                    azurePackageRepository,
+                    cloudPackageRepository,
+                    rulePackProvider,
+                    timeProvider,
+                    freshnessOptions));
+        }
+
+        return engines.ToArray();
     }
 
     private sealed class DisabledPortfolioRecurrenceFindingOptionsResolver : IPortfolioRecurrenceFindingOptionsResolver

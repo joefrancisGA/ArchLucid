@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
@@ -23,45 +24,52 @@ public sealed partial class ArchitectureIntelligenceController
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: true, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        try
         {
-            if (bodyRequired)
-                return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-
-            return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
-        }
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IActionResult? sealedGuardResult = prepared.ContinueFromExistingRun && !string.IsNullOrWhiteSpace(prepared.RunId)
-            ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
-            : !string.IsNullOrWhiteSpace(prepared.RunId)
-                ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
-                : await EnsureArchitectureIntelligenceRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
-
-        await _auditService.LogAsync(
-            new AuditEvent
+            if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: true, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
             {
-                EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    modelId = result.Model.ModelId,
-                    runId = result.RunId,
-                    elementCount = result.Model.Elements.Count,
-                    findingCount = result.ProductFindings.Count,
-                    recommendationCount = result.ProductRecommendations.Count,
-                    sourceCount = prepared.SourceTexts.Count,
-                    publishBlocked = result.PublishBlocked,
-                    publishedToProduct = result.PublishedToProduct,
-                }),
-            },
-            cancellationToken);
+                if (bodyRequired)
+                    return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        return Ok(result);
+                return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
+            }
+
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            IActionResult? sealedGuardResult = prepared.ContinueFromExistingRun && !string.IsNullOrWhiteSpace(prepared.RunId)
+                ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
+                : !string.IsNullOrWhiteSpace(prepared.RunId)
+                    ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
+                    : await EnsureArchitectureIntelligenceRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        modelId = result.Model.ModelId,
+                        runId = result.RunId,
+                        elementCount = result.Model.Elements.Count,
+                        findingCount = result.ProductFindings.Count,
+                        recommendationCount = result.ProductRecommendations.Count,
+                        sourceCount = prepared.SourceTexts.Count,
+                        publishBlocked = result.PublishBlocked,
+                        publishedToProduct = result.PublishedToProduct,
+                    }),
+                },
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Continues a prior run with interview answers (skips re-extraction).</summary>
@@ -75,44 +83,51 @@ public sealed partial class ArchitectureIntelligenceController
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
-
-        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        request ??= new ClosedLoopReasoningRequest();
-        request.RunId = runId;
-        request.ContinueFromExistingRun = true;
-
-        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        try
         {
-            if (bodyRequired)
-                return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+            if (string.IsNullOrWhiteSpace(runId))
+                return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
-            return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
-        }
+            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        await _auditService.LogAsync(
-            new AuditEvent
+            request ??= new ClosedLoopReasoningRequest();
+            request.RunId = runId;
+            request.ContinueFromExistingRun = true;
+
+            if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
             {
-                EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    modelId = result.Model.ModelId,
-                    runId = result.RunId,
-                    continued = true,
-                    framingAnswerCount = prepared.FramingAnswers.Count,
-                    publishedToProduct = result.PublishedToProduct,
-                }),
-            },
-            cancellationToken);
+                if (bodyRequired)
+                    return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        return Ok(result);
+                return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
+            }
+
+            ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        modelId = result.Model.ModelId,
+                        runId = result.RunId,
+                        continued = true,
+                        framingAnswerCount = prepared.FramingAnswers.Count,
+                        publishedToProduct = result.PublishedToProduct,
+                    }),
+                },
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Publishes the latest gated product findings/recommendations for a run into product stores.</summary>
@@ -126,52 +141,59 @@ public sealed partial class ArchitectureIntelligenceController
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
-
-        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        request ??= new ClosedLoopReasoningRequest();
-        request.RunId = runId;
-        request.ContinueFromExistingRun = true;
-        request.PublishToProduct = true;
-
-        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        try
         {
-            if (bodyRequired)
-                return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+            if (string.IsNullOrWhiteSpace(runId))
+                return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
-            return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
-        }
+            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        ArchitectureIntelligencePublishResult publishResult = new()
-        {
-            Published = result.PublishedToProduct,
-            FindingsSnapshotId = result.PublishedFindingsSnapshotId,
-            RecommendationCount = result.PublishedRecommendationCount,
-            SkipReason = result.PublishSkipReason,
-        };
+            request ??= new ClosedLoopReasoningRequest();
+            request.RunId = runId;
+            request.ContinueFromExistingRun = true;
+            request.PublishToProduct = true;
 
-        await _auditService.LogAsync(
-            new AuditEvent
+            if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
             {
-                EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    runId,
-                    published = publishResult.Published,
-                    findingsSnapshotId = publishResult.FindingsSnapshotId,
-                    recommendationCount = publishResult.RecommendationCount,
-                }),
-            },
-            cancellationToken);
+                if (bodyRequired)
+                    return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        return Ok(publishResult);
+                return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
+            }
+
+            ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
+
+            ArchitectureIntelligencePublishResult publishResult = new()
+            {
+                Published = result.PublishedToProduct,
+                FindingsSnapshotId = result.PublishedFindingsSnapshotId,
+                RecommendationCount = result.PublishedRecommendationCount,
+                SkipReason = result.PublishSkipReason,
+            };
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        runId,
+                        published = publishResult.Published,
+                        findingsSnapshotId = publishResult.FindingsSnapshotId,
+                        recommendationCount = publishResult.RecommendationCount,
+                    }),
+                },
+                cancellationToken);
+
+            return Ok(publishResult);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Loads the latest persisted knowledge model for a run.</summary>
@@ -183,38 +205,45 @@ public sealed partial class ArchitectureIntelligenceController
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
-
-        if (!Guid.TryParse(runId, out Guid parsedRunId))
-            return this.BadRequestProblem("RunId must be a GUID.", ProblemTypes.ValidationFailed);
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, parsedRunId, cancellationToken);
-
-        if (detail?.GoldenManifest is not null)
+        try
         {
-            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+            if (string.IsNullOrWhiteSpace(runId))
+                return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (!Guid.TryParse(runId, out Guid parsedRunId))
+                return this.BadRequestProblem("RunId must be a GUID.", ProblemTypes.ValidationFailed);
+
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, parsedRunId, cancellationToken);
+
+            if (detail?.GoldenManifest is not null)
+            {
+                IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            if (_knowledgeModelAccess is null)
+                return this.NotFoundProblem(
+                    "Architecture intelligence persistence is not configured.",
+                    ProblemTypes.ResourceNotFound);
+
+            ArchitectureKnowledgeModel? model = await _knowledgeModelAccess.GetForRunAsync(
+                scope,
+                parsedRunId,
+                cancellationToken);
+
+            if (model is null)
+                return this.NotFoundProblem(
+                    "No architecture knowledge model exists for this run.",
+                    ProblemTypes.RunNotFound);
+
+            return Ok(model);
         }
-
-        if (_knowledgeModelAccess is null)
-            return this.NotFoundProblem(
-                "Architecture intelligence persistence is not configured.",
-                ProblemTypes.ResourceNotFound);
-
-        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess.GetForRunAsync(
-            scope,
-            parsedRunId,
-            cancellationToken);
-
-        if (model is null)
-            return this.NotFoundProblem(
-                "No architecture knowledge model exists for this run.",
-                ProblemTypes.RunNotFound);
-
-        return Ok(model);
+        catch (ConflictException ex)
+        {
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+        }
     }
 }

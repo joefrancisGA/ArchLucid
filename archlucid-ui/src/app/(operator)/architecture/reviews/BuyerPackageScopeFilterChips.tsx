@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
@@ -13,12 +13,12 @@ import type { BuyerPackageScopeFilter } from "./runs-list-types";
 export type BuyerPackageScopeFilterChipsProps = {
   readonly scope: BuyerPackageScopeFilter;
   readonly buyerPipelineLabels: boolean;
+  readonly navigationSearch: string;
 };
 
 export function BuyerPackageScopeFilterChips(props: BuyerPackageScopeFilterChipsProps): React.JSX.Element {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
+  const currentSearch = props.navigationSearch;
   const inFlightLabel = props.buyerPipelineLabels ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight";
   const options: readonly { readonly id: BuyerPackageScopeFilter; readonly label: string }[] = [
     { id: "all", label: "All" },

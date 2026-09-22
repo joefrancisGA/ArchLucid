@@ -61,7 +61,9 @@ At Execute+, shortcuts call the same path as the triage buttons (then **Confirm*
 
 ## Page-specific: Findings (`/governance/findings` and review findings lists)
 
-Focus a finding card or row (`data-finding-id`, typically `role="article"` / `tabIndex={0}`) or a control inside it. Implemented in [`useFindingCardShortcuts`](../src/hooks/useFindingCardShortcuts.ts) via [`FindingKeyboardTriageHost`](../src/components/governance/findings/FindingKeyboardTriageHost.tsx). **Alt+1-3 register only when** the same **`useOperateCapability()`** gate used for disposition confirm is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
+On **Working**, architecture-nested findings (`/architecture/architectures/{id}/findings`) is the inhabited afternoon document — not a pipeline Home. **Alt+N** starts nested review work on the open architecture; **Alt+R** returns to the architecture desk (`/architecture/architectures/{id}`). On load, Working nested findings focuses the first `[data-finding-id]` card (or use **Skip to findings list**) so **Alt+1–3** work immediately.
+
+Focus a finding card or row (`data-finding-id`, typically `role="article"` / `tabIndex={0}`) or a control inside it. Implemented in [`useFindingCardShortcuts`](../src/hooks/useFindingCardShortcuts.ts) via [`FindingKeyboardTriageHost`](../src/components/governance/findings/FindingKeyboardTriageHost.tsx). **Alt+1-3 register only when** the same **`useOperateCapability()`** gate used for disposition confirm is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only. Selected finding persists in the **`focusedFinding`** URL query on refresh (IH-064).
 
 | Shortcut | Action |
 |----------|--------|
@@ -71,6 +73,18 @@ Focus a finding card or row (`data-finding-id`, typically `role="article"` / `ta
 | **Alt+J** | Focus next finding (wraps from last to first) |
 | **Alt+K** | Focus previous finding (stays on first) |
 
+
+## Page-specific: Diagrams (`/governance/infrastructure/diagrams`)
+
+Focus the diagram viewport (`data-testid="architecture-diagram-viewport"`, `tabIndex={0}`) before using zoom shortcuts. The same actions are also labeled buttons above the canvas: **Zoom in**, **Zoom out**, **Reset to 100%**, and **Fit in view**. Implemented in [`ArchitectureDiagramViewer`](../src/components/architecture/ArchitectureDiagramViewer.tsx).
+
+| Combo | Action |
+|-------|--------|
+| **+** or **=** | Zoom in |
+| **−** | Zoom out |
+| **0** | Reset to 100% |
+
+Zoom level persists in the `diagZoom` URL query parameter while you stay on the workbench.
 
 ## Page-specific: Review detail (`/architecture/reviews/[reviewId]`)
 
@@ -96,6 +110,39 @@ Implemented in [`use-tenant-settings-shortcuts.ts`](../src/app/(operator)/admini
 | Combo | Action |
 |-------|--------|
 | **Ctrl+S** | Save tenant cost settings |
+
+## Page-specific: Extract & upload (`/administration/extract-upload`)
+
+Implemented in [`use-extract-upload-shortcuts.ts`](../src/app/(operator)/administration/extract-upload/_sections/use-extract-upload-shortcuts.ts) on [`ExtractUploadSettingsPageClient.tsx`](../src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx). The command palette lists **Focus inventory upload** and **Copy quick-start command** on the same route when those controls are visible.
+
+| Combo | Action |
+|-------|--------|
+| **Ctrl+U** | Focus the inventory upload surface, or activate **Replace inventory** when a package is already accepted |
+| **Ctrl+Shift+C** | Copy the quick-start packager command for the selected cloud provider |
+
+## Page-specific: Remediation patterns (`/governance/remediation-patterns`, `/security/remediation-patterns`)
+
+Implemented in [`use-remediation-patterns-shortcuts.ts`](../src/hooks/use-remediation-patterns-shortcuts.ts) on [`RemediationPatternsClient.tsx`](../src/app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx). **Ctrl+Enter** / **⌘Enter** import only when the YAML import panel is open and import is enabled.
+
+| Combo | Action |
+|-------|--------|
+| **Ctrl+Enter** / **⌘Enter** | Import YAML as Draft (import panel open; valid YAML) |
+| **J** | Select next pattern registry row |
+| **K** | Select previous pattern registry row |
+| **A** | Open approve confirmation when the selected under-review version is approvable |
+
+Focus the pattern registry table (`data-testid="remediation-pattern-registry-table-nav"`) before **J** / **K** row navigation.
+
+## Page-specific: Remediation factory (`/governance/remediation-factory`, `/security/remediation-factory`)
+
+Implemented in [`useRemediationFactoryShortcuts.ts`](../src/hooks/useRemediationFactoryShortcuts.ts) on [`RemediationFactoryClient.tsx`](../src/app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx). The command palette lists row navigation, inspect focus, and score explanation on the same routes.
+
+| Combo | Action |
+|-------|--------|
+| **Alt+J** | Select next row in the priority queue or ranked paths table |
+| **Alt+K** | Select previous row |
+| **Alt+I** | Focus the path inspect panel |
+| **Alt+E** | Explain the selected finding score (simulator) |
 
 ## Discoverability
 
@@ -132,6 +179,16 @@ Implemented in [`use-tenant-settings-shortcuts.ts`](../src/app/(operator)/admini
 - **`aria-keyshortcuts`** on shell nav links matches registry combos (e.g. `Alt+N`). Exposes shortcuts to supporting AT; primary instructions remain titles and the help dialog.
 - **Dialog** — Radix Dialog provides focus trap, `DialogTitle` / `DialogDescription`, visible close control, Escape to dismiss.
 - **WCAG 2.1.4 Character Key Shortcuts** — No bare single-letter shortcuts: every shortcut requires **Alt**, **Shift** (for `?`), or **Alt+digit** / **Alt+J/K** on Alerts. Users are not forced to use single printable keys alone.
+
+## Page-specific: Audit evidence lineage lookup (`/governance/audit-evidence`, `/compliance/audit-evidence`)
+
+Implemented in [`AuditEvidenceLookupClient`](../src/app/(operator)/governance/audit-evidence/AuditEvidenceLookupClient.tsx).
+
+| Combo | Action |
+|-------|--------|
+| **Enter** (in Lineage Link field) | Apply pasted lineage URL to identifier fields |
+| **Enter** (with valid identifiers) | Open evidence lineage |
+| **Ctrl+Enter** | Open evidence lineage when identifiers are valid (no-op while primary is disabled) |
 
 ## Component wiring
 

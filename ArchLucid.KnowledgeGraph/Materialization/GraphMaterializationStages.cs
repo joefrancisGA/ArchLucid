@@ -10,8 +10,8 @@ namespace ArchLucid.KnowledgeGraph.Materialization;
 ///     Canonical registrar for the ordered graph materialization pipeline (TB-2370).
 ///     Stage order: canonical objects → request cost constraints → request actors → declaration identity
     ///     actors → declaration identity path edges → declaration segmentation path edges →
-    ///     request assumptions → request quality attributes → request failure modes →
-    ///     cost projected-spend enrichment.
+///     request assumptions → request assumption connector edges → request quality attributes → request failure modes →
+///     cost projected-spend enrichment.
 /// </summary>
 public static class GraphMaterializationStages
 {
@@ -26,6 +26,7 @@ public static class GraphMaterializationStages
         "declaration-identity-path-edges",
         "declaration-segmentation-path-edges",
         "request-assumptions",
+        "request-assumption-edges",
         "request-quality-attributes",
         "request-failure-modes",
         "cost-projected-spend-enrichment",
@@ -47,6 +48,7 @@ public static class GraphMaterializationStages
             new DeclarationIdentityPathEdgeMaterializationStage(),
             new DeclarationSegmentationPathEdgeMaterializationStage(),
             new RequestAssumptionMaterializationStage(),
+            new RequestAssumptionEdgeMaterializationStage(),
             new RequestQualityAttributeMaterializationStage(),
             new RequestFailureModeMaterializationStage(),
             new CostConstraintProjectedSpendEnrichmentStage(),
@@ -352,6 +354,26 @@ public static class GraphMaterializationStages
                 RequestAssumptionMaterializer.MaterializeFromAssumptionsMetadata(
                     assumptions,
                     context.Snapshot.SnapshotId));
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class RequestAssumptionEdgeMaterializationStage : IGraphMaterializationStage
+    {
+        public string Name => "request-assumption-edges";
+
+        public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
+        {
+            IReadOnlyList<GraphEdge> edges = RequestAssumptionEdgeMaterializer.Materialize(context.Nodes);
+
+            if (edges.Count == 0)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            context.Edges.AddRange(edges);
 
             return Task.CompletedTask;
         }

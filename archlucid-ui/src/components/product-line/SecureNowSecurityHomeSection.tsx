@@ -8,7 +8,7 @@ import {
 
 import { SecureNowHomeDestinationSection } from "@/components/product-line/SecureNowHomeDestinationSection";
 
-/** SecureNow home — operational security and integration destinations. */
+/** SecureNow home — operational security destinations. */
 export function SecureNowSecurityHomeSection(): React.JSX.Element {
   return (
     <SecureNowHomeDestinationSection

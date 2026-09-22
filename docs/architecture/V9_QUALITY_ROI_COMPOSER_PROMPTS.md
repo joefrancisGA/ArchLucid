@@ -1,11 +1,12 @@
 > **Scope:** Copy-paste Composer/Cursor prompts that raise **v9 assessment** weighted qualities at the best credit ROI. Internal engineering only — not buyer-facing copy.
-> **Scores:** [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) (v9, 2026-09-09) §2 / §8 / §17 · **Index:** [`.cursor/prompts/v9-quality-roi-00-index.md`](../../.cursor/prompts/v9-quality-roi-00-index.md)
-> **Predecessor:** [`V8_QUALITY_ROI_COMPOSER_PROMPTS.md`](V8_QUALITY_ROI_COMPOSER_PROMPTS.md) (QR-01–QR-04 shipped; QR-05 still `#2641`)
-> **Do not re-run:** QR-01–QR-04 · DX-01–DX-76 · WK-01–WK-22 · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md)
+> **Scores:** archived [`../archive/assessments/LATEST_GPT55-2026-09-09-v9-superseded.md`](../archive/assessments/LATEST_GPT55-2026-09-09-v9-superseded.md) · current pass [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) (**v10**) · **Index:** [`.cursor/prompts/v9-quality-roi-00-index.md`](../../.cursor/prompts/v9-quality-roi-00-index.md)
+> **Successor:** [`V10_QUALITY_ROI_COMPOSER_PROMPTS.md`](V10_QUALITY_ROI_COMPOSER_PROMPTS.md) (**QR-16–QR-25** — do not start a new v9 run)
+> **Predecessor:** [`V8_QUALITY_ROI_COMPOSER_PROMPTS.md`](V8_QUALITY_ROI_COMPOSER_PROMPTS.md) (QR-01–QR-04 shipped)
+> **Do not re-run:** QR-01–QR-15 · DX-01–DX-76 · WK-01–WK-22 · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md)
 
 # v9 quality-ROI Composer prompts (QR-06–QR-15)
 
-**Created:** 2026-09-09 · **Status:** ready to run (one prompt per chat). **DX-77 is not authorized.**
+**Created:** 2026-09-09 · **Status:** shipped on `master` (QR-06–QR-15). **Do not start a new v9 run.** Current pack: [`V10_QUALITY_ROI_COMPOSER_PROMPTS.md`](V10_QUALITY_ROI_COMPOSER_PROMPTS.md). **DX-77 is not authorized.**
 
 v9 scored **(A) 77.26%**. QR-01–QR-04 closed the v8 compile / guard / OpenAPI trio. The cheapest remaining score movement is **Correctness (73, deficiency 324)** on a new Suite=Core red, then **Insight Density honesty (70, deficiency 390)** without another engine pack.
 

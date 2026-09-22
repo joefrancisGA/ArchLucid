@@ -44,7 +44,10 @@ public sealed class SqlManifestFinalizationRepository : IManifestFinalizationSql
                                       CurrentManifestVersion,
                                       FindingsSnapshotId,
                                       ArtifactBundleId,
-                                      RowVersionStamp
+                                      RowVersionStamp,
+                                      IsSample,
+                                      StructuralExecutionMode,
+                                      WorkingCareerRehearsalDoor
                                FROM dbo.Runs WITH (UPDLOCK, ROWLOCK)
                                WHERE RunId = @RunId
                                  AND TenantId = @TenantId

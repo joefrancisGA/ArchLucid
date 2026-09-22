@@ -141,7 +141,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen:
       "Filter and export recorded decisions, then open the linked review or finding for evidence and audit context.",
     firstPilotNote:
-      "After Pilot proof when sponsors need a workspace-wide decision ledger beyond a single review package.",
+      "After Pilot proof when sponsors need a workspace-wide decision ledger beyond a single architecture package.",
     enterpriseFootnote:
       "Read-only export and filters; disposition and approval writes stay on review detail and workflow surfaces.",
     omitReviewPackageScopeHelp: true,
@@ -331,9 +331,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "infrastructure-diagrams": {
     layerBadge: "Advanced operations",
-    headline: "Render inventory diagrams at scale with honest partitioned fallbacks.",
+    headline: "Render diagrams from snapshot evidence.",
     useWhen: "Choose a snapshot and diagram mode before exporting PNG or Mermaid.",
-    firstPilotNote: "Partitioned views default to Executive when the full graph exceeds readability thresholds.",
+    firstPilotNote: "Full subscription keeps virtual machines, databases, and other backbone resources when the leaf graph is too large. Pick a Resource Group to see every resource in one group.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-diagram-reconcile": {
@@ -352,9 +352,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "infrastructure-ask": {
     layerBadge: "Advanced operations",
-    headline: "Ask grounded questions about inventory evidence.",
+    headline: "Grounded Q&A over structured inventory rows with citation-backed answers.",
     useWhen: "Use canned prompts or your own question when citations and InsufficientEvidence states are acceptable.",
-    firstPilotNote: "Simulator mode is on by default for deterministic, citation-grounded answers.",
+    firstPilotNote: "Answers cite structured inventory rows in scope — insufficient-evidence outcomes are honest.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-remediation": {

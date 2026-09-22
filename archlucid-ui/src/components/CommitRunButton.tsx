@@ -2,10 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { FinalizeReadinessBlockList } from "@/components/reviews/FinalizeReadinessBlockList";
 import { GovernanceRecordCorrectionInlineControl } from "@/components/governance/GovernanceRecordCorrectionInlineControl";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -20,13 +21,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { getRunSummary } from "@/lib/api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { commitArchitectureRunWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { simulatePreCommitSyntheticFindings } from "@/lib/api/pre-finalize-synthetic-simulation-api";
+import type { PreCommitGateResult } from "@/lib/api/pre-finalize-synthetic-simulation-api";
+import { PreCommitGatePreviewStrip } from "@/components/reviews/PreCommitGatePreviewStrip";
+import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import { preFinalizeSyntheticSimulationBlockedReason } from "@/lib/runs/pre-finalize-synthetic-simulation-blocked-reason";
 import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
+import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -54,14 +63,20 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 /** Nav and review-detail copy  —  replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = FINALIZE_REPLAY_COMPARE_NOTE;
 
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
+
 export type CommitRunButtonProps = {
   runId: string;
   /** When true, the review already has a reviewed manifest  —  commit is not offered. */
   disabled: boolean;
   /** Existing server-side finding coverage says finalize will be blocked. */
   commitBlockedReason?: string | null;
+  /** Structured finalize gate blocks from the unified readiness API. */
+  commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   /** Demote to outline when another surface owns the page's single primary CTA (TB-618). */
   buttonVariant?: "primary" | "outline";
+  /** Working nested job parent — finalize success returns to the architecture desk (ADR 0098 / SG-022). */
+  parentArchitectureId?: string | null;
 };
 
 /**
@@ -71,12 +86,17 @@ export function CommitRunButton({
   runId,
   disabled,
   commitBlockedReason = null,
+  commitBlockedBlocks = [],
   buttonVariant = "primary",
+  parentArchitectureId = null,
 }: CommitRunButtonProps) {
   const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
   const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+  const finalizeIdempotencyKeyRef = useRef<string | null>(null);
   const urlFinalizeConfirm = parseReviewFinalizeConfirmOpenFromSearch(searchParams.get("finalizeConfirm"));
   const urlFinalizeSuccess = parseReviewFinalizeSuccessOpenFromSearch(searchParams.get("finalizeSuccess"));
   const [dialogOpen, setDialogOpenState] = useState(urlFinalizeConfirm);
@@ -86,6 +106,7 @@ export function CommitRunButton({
   const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
   const [preflightBusy, setPreflightBusy] = useState(false);
+  const [preflightGatePreview, setPreflightGatePreview] = useState<ReturnType<typeof resolvePreCommitGatePreviewView>>(null);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -136,13 +157,27 @@ export function CommitRunButton({
     setError(null);
     setNotifySponsor(false);
     setPreflightBusy(true);
+    setPreflightGatePreview(null);
 
     try {
-      await simulatePreCommitSyntheticFindings({
+      const gateResult: PreCommitGateResult = await simulatePreCommitSyntheticFindings({
         runId,
         syntheticCount: 0,
         syntheticSeverity: "Critical",
       });
+      const preview = resolvePreCommitGatePreviewView(gateResult);
+      setPreflightGatePreview(preview);
+
+      if (preview?.disposition === "block") {
+        setError({
+          message: preview.detail,
+          problem: null,
+          correlationId: null,
+        });
+
+        return;
+      }
+
       setDialogOpen(true);
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
@@ -172,10 +207,23 @@ export function CommitRunButton({
 
     try {
       await pulseOidcSessionKeepalive();
-      await commitArchitectureRun(runId, {
-        notifySponsor,
-        acknowledgedAssumptionIds: [...readAcknowledgedAssumptionIds(runId)],
-      });
+
+      if (finalizeIdempotencyKeyRef.current === null) {
+        finalizeIdempotencyKeyRef.current = createGovernanceMutationIdempotencyKey();
+      }
+
+      await commitArchitectureRunWith401Resume(
+        runId,
+        {
+          notifySponsor,
+          acknowledgedAssumptionIds: [...readAcknowledgedAssumptionIds(runId)],
+        },
+        {
+          returnPath: livelihoodReturnPath,
+          idempotencyKey: finalizeIdempotencyKeyRef.current,
+        },
+      );
+      finalizeIdempotencyKeyRef.current = null;
       recordFirstTenantFunnelEvent("first_run_committed");
       syncArchitectureDraftRegistryForFinalizedReview(runId);
       await Promise.all([invalidateOperatorHomeRunsCaches(), invalidateTenantTrialStatusCache()]);
@@ -192,6 +240,10 @@ export function CommitRunButton({
       setSuccessModalOpen(true);
       syncFinalizeModalsToUrl(false, true);
     } catch (e: unknown) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(e);
       const blocked = reviewFinalizeMutationBlockedReason(failure);
 
@@ -216,6 +268,17 @@ export function CommitRunButton({
   const preCommitGovernanceBlock =
     error === null ? null : resolvePreCommitGovernanceBlockView(error.problem);
 
+  const parentArchitectureIdTrimmed = parentArchitectureId?.trim() ?? "";
+  const workingFinalizeSuccessDeskHref =
+    isWorkingMode && parentArchitectureIdTrimmed.length > 0
+      ? resolveFinalizeSuccessDeskHref(parentArchitectureIdTrimmed, runId)
+      : null;
+  const workingFindingsInstrumentHref = resolveWorkingFindingsInstrumentHref({
+    architectureId: parentArchitectureIdTrimmed,
+    runId,
+    isWorkingMode,
+  });
+
   if (disabled) {
     return (
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
@@ -224,7 +287,10 @@ export function CommitRunButton({
     );
   }
 
-  if (commitBlockedReason !== null && commitBlockedReason.trim().length > 0) {
+  if (
+    (commitBlockedReason !== null && commitBlockedReason.trim().length > 0)
+    || commitBlockedBlocks.length > 0
+  ) {
     return (
       <div
         className={cn(
@@ -234,10 +300,16 @@ export function CommitRunButton({
         data-testid="commit-blocked-finding-coverage"
         role="alert"
       >
-        <p className="m-0 font-semibold">Finalize is blocked by finding coverage</p>
-        <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason.trim()}</p>
+        <p className="m-0 font-semibold">Finalize is blocked</p>
+        {commitBlockedBlocks.length > 0 ? (
+          <div className="mt-2">
+            <FinalizeReadinessBlockList blocks={commitBlockedBlocks} runId={runId} />
+          </div>
+        ) : (
+          <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason?.trim() ?? ""}</p>
+        )}
         <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
-          Resolve the blocking engine failure or regenerate coverage before finalizing this architecture review.
+          Resolve the listed blockers before finalizing this architecture review.
         </p>
       </div>
     );
@@ -269,6 +341,8 @@ export function CommitRunButton({
           permission to finalize.
         </p>
       </div>
+
+      {preflightGatePreview !== null ? <PreCommitGatePreviewStrip preview={preflightGatePreview} /> : null}
 
       {error !== null ? (
         <>
@@ -400,7 +474,7 @@ export function CommitRunButton({
               variant="secondary"
               onClick={() => {
                 setSuccessModalOpen(false);
-                router.push("/governance/findings");
+                router.push(workingFindingsInstrumentHref);
               }}
             >
               Go to Findings
@@ -410,10 +484,17 @@ export function CommitRunButton({
               variant="default"
               onClick={() => {
                 setSuccessModalOpen(false);
+
+                if (workingFinalizeSuccessDeskHref !== null) {
+                  router.push(workingFinalizeSuccessDeskHref);
+
+                  return;
+                }
+
                 router.refresh();
               }}
             >
-              Close
+              {workingFinalizeSuccessDeskHref !== null ? "Back to architecture desk" : "Close"}
             </Button>
           </DialogFooter>
         </DialogContent>

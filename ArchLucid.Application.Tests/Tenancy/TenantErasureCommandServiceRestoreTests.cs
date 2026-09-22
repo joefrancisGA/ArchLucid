@@ -58,6 +58,56 @@ public sealed class TenantErasureCommandServiceRestoreTests
     }
 
     [Fact]
+    public async Task TryRestoreQuarantineAsync_clears_active_legal_hold_from_erasure_quarantine()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 8, 23, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Restore Tenant",
+            "restore-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                tenantId,
+                now,
+                now.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        (await tenants.TrySetTenantErasureLegalHoldAsync(
+                tenantId,
+                legalHoldUntilUtc: now.AddDays(14),
+                utcNow: now,
+                reason: "litigation",
+                legalHoldSetByUserId: "counsel@example.com",
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        TenantErasureCommandService sut = CreateSut(tenants, clock);
+
+        (await sut.TryRestoreQuarantineAsync(tenantId, "admin", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        TenantRecord? restored = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        restored.Should().NotBeNull();
+        restored!.OffboardedUtc.Should().BeNull();
+        restored.LegalHoldUntilUtc.Should().BeNull();
+        restored.LegalHoldReason.Should().BeNull();
+        restored.LegalHoldSetByUserId.Should().BeNull();
+        restored.LegalHoldSetUtc.Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryRestoreQuarantineAsync_clears_suspend_set_during_offboard()
     {
         Guid tenantId = Guid.NewGuid();

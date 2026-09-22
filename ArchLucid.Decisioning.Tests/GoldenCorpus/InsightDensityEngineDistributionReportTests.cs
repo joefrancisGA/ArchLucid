@@ -6,6 +6,7 @@ using ArchLucid.TestSupport.GoldenCorpus;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
@@ -59,12 +60,14 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph,
                 CancellationToken.None,
                 input!.InventoryFixture,
-                input.PriorGraphFixture);
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
 
             InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
                 snapshot,
                 gate,
-                options);
+                options,
+                graph);
 
             HashSet<string> engineTypesInSnapshot = snapshot.Findings
                 .Select(static finding => finding.EngineType)
@@ -129,8 +132,14 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph.ContextSnapshotId,
                 graph,
                 CancellationToken.None,
-                input!.InventoryFixture,
-                input.PriorGraphFixture);
+                input.InventoryFixture,
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
+
+            IInsightDensityGate scoringGate = InsightDensityGateScoringFactory.CreateScoringGate(
+                gate,
+                options,
+                graph);
 
             List<InsightDensityGateCandidate> candidates = snapshot.Findings
                 .Select(InsightDensityGateCandidate.FromFinding)
@@ -139,7 +148,7 @@ public sealed class InsightDensityEngineDistributionReportTests
             foreach (Finding finding in snapshot.Findings)
             {
                 InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
-                InsightDensityGateResult result = gate.Score(candidate, candidates);
+                InsightDensityGateResult result = scoringGate.Score(candidate, candidates);
 
                 if (!accumulators.TryGetValue(finding.EngineType, out InsightDensityEngineDistributionAccumulator? accumulator))
                 {
@@ -183,8 +192,8 @@ public sealed class InsightDensityEngineDistributionReportTests
 
         markdown.Should().Contain(InsightDensityEngineDistributionMarkdown.ClaimBoundaryMarker);
         markdown.Should().Contain("typed-engine-scored");
-        markdown.Should().Contain("**42** engines");
-        markdown.Should().Contain("registers **42** engines");
+        markdown.Should().Contain("**47** engines");
+        markdown.Should().Contain("registers **47** engines");
         markdown.Should().Contain("WouldDemoteIfUnprotectedCount");
         markdown.Should().Contain("matches production demotion");
         markdown.Should().Contain("WouldDemoteAt65Count");

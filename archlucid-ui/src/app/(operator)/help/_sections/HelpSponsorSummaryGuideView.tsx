@@ -7,6 +7,7 @@ import { HelpSponsorReportClaimOrientationStrip } from "@/app/(operator)/help/_s
 import { HelpSponsorSummaryHeaderActions } from "@/app/(operator)/help/_sections/HelpSponsorSummaryHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,10 @@ import {
   extractMarkdownSectionsByAnchor,
   omitMarkdownSectionsByAnchor,
 } from "@/lib/help/help-markdown-sections";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import {
+  normalizeSponsorReportMarkdownArtifacts,
+  prepareHelpMarkdownForPresentation,
+} from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE } from "@/lib/sponsor/pilot-roi-measurement-help-guide-content";
@@ -63,10 +67,11 @@ export function HelpSponsorSummaryGuideView(
   const pilotRoiRaw = extractMarkdownSectionsByAnchor(markdown, ["pilot-roi-measurement"], false);
 
   const preparedSponsorBrief = prepareHelpMarkdownForPresentation(sponsorBriefRaw, sourceDocPath, presentationOptions);
+  const normalizedSponsorBrief = normalizeSponsorReportMarkdownArtifacts(preparedSponsorBrief);
   const preparedPilotRoi = prepareHelpMarkdownForPresentation(pilotRoiRaw, sourceDocPath, presentationOptions);
 
   const headings = extractHelpMarkdownHeadings(
-    [preparedSponsorBrief, preparedPilotRoi].filter((chunk) => chunk.trim().length > 0).join("\n\n"),
+    [normalizedSponsorBrief, preparedPilotRoi].filter((chunk) => chunk.trim().length > 0).join("\n\n"),
   ).map((heading) =>
     heading.id === "pilot-roi-measurement"
       ? { ...heading, title: PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE }
@@ -159,10 +164,11 @@ export function HelpSponsorSummaryGuideView(
 
           <div className={HELP_PAGE_LAYOUT.contentGrid}>
             <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-              {preparedSponsorBrief.trim().length > 0 ? (
+              {normalizedSponsorBrief.trim().length > 0 ? (
                 <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-sponsor-report-content">
                   <MarketingAccessibilityMarkdownFragment
-                    markdownBody={sponsorBriefRaw}
+                    markdownBody={normalizedSponsorBrief}
+                    preparedMarkdownOverride={normalizedSponsorBrief}
                     tableCaption={`${entry.title} reference table`}
                     presentation="help"
                     sourceDocPath={sourceDocPath}
@@ -178,11 +184,12 @@ export function HelpSponsorSummaryGuideView(
               />
             </div>
 
-            <HelpTopicTableOfContents headings={headings} />
+            <HelpTopicTableOfContents headings={headings} enableScrollSpy />
           </div>
         </div>
 
         <div data-testid="help-sponsor-report-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-sponsor-report" />
           <HelpSponsorReportClaimOrientationStrip />
         </div>
       </div>

@@ -6,7 +6,7 @@ import type { RetrievalHit } from "@/app/(operator)/insights/search-review-evide
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
-import { apiGet } from "@/lib/api";
+import { fetchRetrievalSearchHits } from "@/lib/api/retrieval-search-api";
 import {
   buildDraftIdToArchitectureIdLookup,
   filterGlobalSearchArchitectureDraftHits,
@@ -14,6 +14,7 @@ import {
   type GlobalSearchArchitectureDraftHit,
   type GlobalSearchArchitectureIdentityHit,
 } from "@/lib/global-search-architecture-hits";
+import { filterDraftRegistryEntriesByShareVisibility } from "@/lib/architecture/share-visible-architecture-inventory";
 import {
   findReviewDetailSectionSearchMatches,
   type ReviewDetailSectionSearchMatch,
@@ -68,10 +69,20 @@ export function useGlobalSearchResults(
     architecturePackageScoped;
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
-  const architectureIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 50, {
+  const architectureIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 200, {
     enabled: workingMode && workspaceScoped,
   });
   const architectureDraftEntries = useArchitectureDraftRegistryEntries();
+  const shareVisibleDraftEntries = useMemo(() => {
+    if (!architectureIdentitiesQuery.isFetched || architectureIdentitiesQuery.data === undefined) {
+      return architectureDraftEntries;
+    }
+
+    return filterDraftRegistryEntriesByShareVisibility(
+      architectureDraftEntries,
+      architectureIdentitiesQuery.data.items,
+    );
+  }, [architectureDraftEntries, architectureIdentitiesQuery.data, architectureIdentitiesQuery.isFetched]);
 
   const fetchResults = useCallback(async (q: string) => {
     const trimmed = q.trim();
@@ -135,10 +146,7 @@ export function useGlobalSearchResults(
       setPackageSearchError(false);
 
       try {
-        const params = new URLSearchParams();
-        params.set("q", trimmed);
-        params.set("runId", packageRunId);
-        const data = await apiGet<RetrievalHit[]>(`/v1/retrieval/search?${params.toString()}`);
+        const data = await fetchRetrievalSearchHits({ q: trimmed, runId: packageRunId });
         setPackageHits(filterLivePackageSearchHits(data, packageRunId));
       } catch {
         setPackageHits([]);
@@ -203,17 +211,20 @@ export function useGlobalSearchResults(
       return [];
     }
 
-    const draftIdToArchitectureId = buildDraftIdToArchitectureIdLookup(
-      architectureIdentitiesQuery.data?.items ?? [],
+    const visibleIdentities = architectureIdentitiesQuery.data?.items ?? [];
+    const visibleArchitectureIds = new Set(
+      visibleIdentities.map((identity) => identity.architectureId),
     );
+    const draftIdToArchitectureId = buildDraftIdToArchitectureIdLookup(visibleIdentities);
 
     return filterGlobalSearchArchitectureDraftHits(
-      architectureDraftEntries,
+      shareVisibleDraftEntries,
       trimmedQuery,
       draftIdToArchitectureId,
+      visibleArchitectureIds,
     );
   }, [
-    architectureDraftEntries,
+    shareVisibleDraftEntries,
     architectureIdentitiesQuery.data?.items,
     trimmedQuery,
     workingMode,

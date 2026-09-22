@@ -40,6 +40,8 @@ public static class RunRecordToArchitectureRunMapper
             IsPinned = record.IsPinned,
             RealModeFellBackToSimulator = record.RealModeFellBackToSimulator,
             StructuralExecutionMode = record.StructuralExecutionMode,
+            WorkingCareerRehearsalDoor = record.WorkingCareerRehearsalDoor,
+            ExecutePostureCapturedUtc = record.ExecutePostureCapturedUtc,
             PilotAoaiDeploymentSnapshot = record.PilotAoaiDeploymentSnapshot,
             LastAgentExecutionFailure = AgentExecutionFailureSummaryJson.TryDeserialize(record.LastFailureReason),
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(record)

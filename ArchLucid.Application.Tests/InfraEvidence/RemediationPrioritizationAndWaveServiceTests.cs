@@ -135,10 +135,10 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationPrioritizationRepository prioritizationRepository = new();
 
         RemediationFactoryMetricsService metricsService = new(
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             exceptionRepository,
             matchRepository,
-            instanceRepository,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             prioritizationRepository);
 
         RemediationFactoryMetrics tenantAMetrics =
@@ -178,7 +178,7 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationPatternRepository patternRepository,
         InMemoryRemediationPrioritizationRepository prioritizationRepository) =>
         new(
-            findingRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findingRepository),
             exceptionRepository,
             matchRepository,
             patternRepository,
@@ -190,14 +190,17 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         InMemoryRemediationInstanceRepository instanceRepository)
     {
         RemediationInstanceService instanceService = new(
-            instanceRepository,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             new InMemoryRemediationPatternMatchRepository(),
             new InMemoryRemediationPatternRepository(),
             new InMemoryOperationalSecurityExceptionRepository(),
             new InMemorySnapshotRepository(),
             new InMemoryAdvisoryTerraformService(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IOperationalSecurityFindingRepository>(),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
+                Mock.Of<IOperationalSecurityFindingRepository>()),
+            Mock.Of<IRemediationPathNarrativeBuilder>(),
+            Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>());
@@ -206,7 +209,7 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             waveRepository,
             prioritizationService,
             instanceService,
-            instanceRepository);
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository));
     }
 
     private static ScopeContext CreateScope(Guid tenantId) =>
@@ -282,6 +285,12 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             int pageSize,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(([], 0));
+
+        public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
 
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,
@@ -614,6 +623,24 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             string? subscriptionId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
+
+        public Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            int page,
+            int pageSize,
+            Guid? cloudResourceId = null,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
+
+        public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
+            });
     }
 
     private sealed class InMemoryAdvisoryTerraformService : IAdvisoryTerraformRepresentationService

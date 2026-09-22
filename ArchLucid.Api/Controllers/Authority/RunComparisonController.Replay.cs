@@ -156,7 +156,7 @@ public sealed partial class RunComparisonController
         }
         catch (ConflictException ex)
         {
-            return (this.ConflictProblem(ex.Message, ProblemTypes.Conflict), null);
+            return (MapRunComparisonSealedManifestConflict(ex), null);
         }
     }
 

@@ -82,7 +82,9 @@ public sealed class DocxExportControllerCareerHonestyTests
             DocxExportControllerTestSupport.CreateAgentExecutionTraceRepository(),
             configuration,
             Mock.Of<IAuditService>(),
-            NullLogger<DocxExportController>.Instance)
+            NullLogger<DocxExportController>.Instance,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>())
         {
             ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext(),
         };

@@ -33,4 +33,22 @@ describe("resolveAlertsInboxTriageFirstAlert", () => {
       resolveAlertsInboxTriageFirstAlert([alert({ status: "Acknowledged" })]),
     ).toBeNull();
   });
+
+  it("WA-002: openHref uses nested focusedFinding when architecture is known", () => {
+    const target = resolveAlertsInboxTriageFirstAlert(
+      [
+        alert({
+          alertId: "linked",
+          runId: "run-1",
+          primaryFindingId: "finding-1",
+          severity: "High",
+        }),
+      ],
+      { architectureId: "arch-1", isWorkingMode: true },
+    );
+
+    expect(target?.openHref).toBe(
+      "/architecture/architectures/arch-1/findings?runId=run-1&focusedFinding=finding-1",
+    );
+  });
 });

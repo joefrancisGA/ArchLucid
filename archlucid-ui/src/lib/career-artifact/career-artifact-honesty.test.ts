@@ -174,9 +174,10 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     expect(verdict.headerLines.join(" ")).toMatch(/Skipped required questions: drRpo/i);
   });
 
-  it("blocks Working simulator export without rehearsal banner on artifact (LP-06)", () => {
+  it("blocks Working Career simulator export without rehearsal banner on artifact (CG-021)", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,
+      effectiveWorkingCareerRehearsalDoor: "career",
       structuralExecutionMode: StructuralExecutionModeWire.Simulator,
       transparencyTrail: {
         asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
@@ -187,6 +188,21 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
 
     expect(verdict.canRender).toBe(false);
     expect(verdict.blockedReasons).toContain(SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON);
+  });
+
+  it("allows Working Rehearsal simulator export via door stamp without explicit banner (CG-021)", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      effectiveWorkingCareerRehearsalDoor: "rehearsal",
+      structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [],
+        skipped: [],
+      },
+    });
+
+    expect(verdict.blockedReasons).not.toContain(SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON);
   });
 
   it("allows Working simulator export when rehearsal banner is on the artifact (LP-06)", () => {

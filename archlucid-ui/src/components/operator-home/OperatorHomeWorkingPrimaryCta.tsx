@@ -5,18 +5,20 @@ import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { useWorkingStartHref } from "@/hooks/use-working-start-href";
-import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH } from "@/app/(operator)/_sections/operator-home-page-surface-copy";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
+import {
+  resolveWorkingHomeSingleStartPrimaryLabel,
+} from "@/lib/system-not-job-no-second-start-cta-working";
 import { cn } from "@/lib/utils";
-
-const WORKING_NEW_REVIEW_BRIDGE_COPY =
-  "Open the draft editor to describe your architecture and start a review when ready.";
 
 export type OperatorHomeWorkingPrimaryCtaProps = {
   readonly variant?: "primary" | "outline";
+  /** Buyer-polished Home renders orientation in the intro paragraph below the header. */
+  readonly suppressOrientationCopy?: boolean;
 };
 
 /** Working Overview sole primary — resume last architecture identity, else draft/review, else new work (PC-05 / ADR 0069). */
@@ -28,7 +30,8 @@ export function OperatorHomeWorkingPrimaryCta(
   const drafts = useArchitectureDraftRegistryEntries();
   const latestDraft = drafts[0] ?? null;
   const draftResume = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
-  const workingStartHref = useWorkingStartHref();
+  const orientationCopy =
+    props.suppressOrientationCopy === true ? null : OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH;
 
   if (architectureTarget !== null) {
     return (
@@ -57,13 +60,15 @@ export function OperatorHomeWorkingPrimaryCta(
   return (
     <div className="space-y-2" data-testid="operator-home-working-primary-cta">
       <Button asChild variant={variant} size="sm" className="h-8 w-fit">
-        <Link href={workingStartHref} data-testid="operator-home-working-new-review-primary">
-          {START_REVIEW_LABEL}
+        <Link href={REVIEWS_NEW_GUIDED_INTAKE_HREF} data-testid="operator-home-working-new-review-primary">
+          {resolveWorkingHomeSingleStartPrimaryLabel()}
         </Link>
       </Button>
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-        {WORKING_NEW_REVIEW_BRIDGE_COPY}
-      </p>
+      {orientationCopy !== null ? (
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          {orientationCopy}
+        </p>
+      ) : null}
     </div>
   );
 }

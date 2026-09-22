@@ -348,6 +348,12 @@
     "url": "/help/architecture-drafts"
   },
   {
+    "title": "Two people on one draft",
+    "summary": "Soft edit lease, 409 Keep mine, and offline reconnect when two architects edit the same draft — not live co-editing.",
+    "category": "Operations",
+    "url": "/help/architecture-draft-editing"
+  },
+  {
     "title": "Architecture intelligence",
     "summary": "Closed-loop architecture reasoning, golden harness runs, and publish-to-findings orientation.",
     "category": "Operations",

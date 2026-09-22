@@ -6,6 +6,7 @@ using ArchLucid.Api.Models.Learning;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.ProductLearning;
 using ArchLucid.Api.Services;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
@@ -80,19 +81,26 @@ public sealed partial class LearningController
             MaxRunRefsPerPlan = maxRun
         };
 
-        LearningPlanningReportDocument document =
-            await learningReadService.GetPlanningReportAsync(scope, limits, cancellationToken);
+        try
+        {
+            LearningPlanningReportDocument document =
+                await learningReadService.GetPlanningReportAsync(scope, limits, cancellationToken);
 
-        if (formatNorm == "json")
-            return Ok(document);
+            if (formatNorm == "json")
+                return Ok(document);
 
-        string markdown = LearningPlanningReportMarkdownFormatter.Format(document);
+            string markdown = LearningPlanningReportMarkdownFormatter.Format(document);
 
-        return Ok(
-            new LearningPlanningReportExportResponse
-            {
-                Format = "markdown", FileName = "learning-planning-report-59r.md", Content = markdown
-            });
+            return Ok(
+                new LearningPlanningReportExportResponse
+                {
+                    Format = "markdown", FileName = "learning-planning-report-59r.md", Content = markdown
+                });
+        }
+        catch (ConflictException ex)
+        {
+            return MapLearningPlanningSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Same payload as <see cref="GetPlanningReport" /> as a downloadable <c>.md</c> or <c>.json</c> file.</summary>
@@ -148,18 +156,25 @@ public sealed partial class LearningController
             MaxRunRefsPerPlan = maxRun
         };
 
-        LearningPlanningReportDocument document =
-            await learningReadService.GetPlanningReportAsync(scope, limits, cancellationToken);
-
-        if (formatNorm == "json")
+        try
         {
-            string json = JsonSerializer.Serialize(document, ReportFileJsonOptions);
+            LearningPlanningReportDocument document =
+                await learningReadService.GetPlanningReportAsync(scope, limits, cancellationToken);
 
-            return ApiFileResults.RangeText(Request, json, "application/json", "learning-planning-report-59r.json");
+            if (formatNorm == "json")
+            {
+                string json = JsonSerializer.Serialize(document, ReportFileJsonOptions);
+
+                return ApiFileResults.RangeText(Request, json, "application/json", "learning-planning-report-59r.json");
+            }
+
+            string markdown = LearningPlanningReportMarkdownFormatter.Format(document);
+
+            return ApiFileResults.RangeText(Request, markdown, "text/markdown", "learning-planning-report-59r.md");
         }
-
-        string markdown = LearningPlanningReportMarkdownFormatter.Format(document);
-
-        return ApiFileResults.RangeText(Request, markdown, "text/markdown", "learning-planning-report-59r.md");
+        catch (ConflictException ex)
+        {
+            return MapLearningPlanningSealedManifestConflict(ex);
+        }
     }
 }

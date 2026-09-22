@@ -1,13 +1,15 @@
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
+import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
 };
 
-function escapeMermaidLabel(raw: string): string {
+function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): string {
   const singleLine = raw.replace(/\s+/g, " ").trim();
+  const escaped = singleLine.replace(/"/g, "'").slice(0, 160);
 
-  return singleLine.replace(/"/g, "'").slice(0, 160);
+  return wrapArchitectureDiagramLabelForMermaidSource(escaped, peerResourceNames);
 }
 
 function nodeClassNames(node: ArchitectureDiagramNode): string {
@@ -32,16 +34,23 @@ function mermaidClassDefLines(dark: boolean): string[] {
   ];
 }
 
-function formatTrustBoundarySubgraphLabel(labels: readonly string[]): string {
-  const joined = labels.map((label) => escapeMermaidLabel(label)).filter((label) => label.length > 0).join(" / ");
+function formatTrustBoundarySubgraphLabel(labels: readonly string[], peerResourceNames: readonly string[]): string {
+  const joined = labels
+    .map((label) => escapeMermaidLabel(label, peerResourceNames))
+    .filter((label) => label.length > 0)
+    .join(" / ");
 
   return joined.length > 0 ? joined : "Trust boundary";
 }
 
-function renderNodeLine(node: ArchitectureDiagramNode, indent: string): string {
+function renderNodeLine(
+  node: ArchitectureDiagramNode,
+  indent: string,
+  peerResourceNames: readonly string[],
+): string {
   const className = nodeClassNames(node);
   const suffix = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
-  const label = escapeMermaidLabel(`${node.label}${suffix}`);
+  const label = escapeMermaidLabel(`${node.label}${suffix}`, peerResourceNames);
 
   return `${indent}${node.id}["${label}"]:::${className}`;
 }
@@ -53,6 +62,7 @@ export function architectureDiagramModelToMermaid(
   const lines: string[] = ["flowchart TB"];
   const activeNodes = model.nodes.filter((node) => !node.removed);
   const dark = options.dark ?? false;
+  const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
     return "flowchart TB\n  empty[\"No components available\"]";
@@ -65,21 +75,21 @@ export function architectureDiagramModelToMermaid(
   const hasTrustBoundary = model.trustBoundaryLabels.length > 0 && boundaryNodes.length > 0;
 
   if (hasTrustBoundary) {
-    lines.push(`  subgraph trustBoundary["${formatTrustBoundarySubgraphLabel(model.trustBoundaryLabels)}"]`);
+    lines.push(`  subgraph trustBoundary["${formatTrustBoundarySubgraphLabel(model.trustBoundaryLabels, peerResourceNames)}"]`);
 
     for (const node of boundaryNodes) {
-      lines.push(renderNodeLine(node, "    "));
+      lines.push(renderNodeLine(node, "    ", peerResourceNames));
     }
 
     lines.push("  end");
   } else {
     for (const node of boundaryNodes) {
-      lines.push(renderNodeLine(node, "  "));
+      lines.push(renderNodeLine(node, "  ", peerResourceNames));
     }
   }
 
   for (const node of outsideBoundaryNodes) {
-    lines.push(renderNodeLine(node, "  "));
+    lines.push(renderNodeLine(node, "  ", peerResourceNames));
   }
 
   const activeEdges = model.edges.filter((edge) => !edge.removed);
@@ -93,7 +103,7 @@ export function architectureDiagramModelToMermaid(
     }
 
     const inferredSuffix = edge.provenance === "inferred" ? " (inferred)" : "";
-    const label = escapeMermaidLabel(`${edge.label}${inferredSuffix}`);
+    const label = escapeMermaidLabel(`${edge.label}${inferredSuffix}`, peerResourceNames);
     const edgeStyle = edge.provenance === "inferred" ? "-.->" : "-->";
 
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);

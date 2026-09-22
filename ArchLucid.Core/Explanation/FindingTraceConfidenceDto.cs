@@ -79,4 +79,18 @@ public sealed class FindingTraceConfidenceDto
         get;
         init;
     }
+
+    /// <summary>Insight-density treatment when the gate demotes a finding to checklist coverage.</summary>
+    public FindingTreatment? Treatment
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Decision-grade semantic support band when persisted on the finding (AS-061).</summary>
+    public FindingSemanticSupportBand? SemanticSupportBand
+    {
+        get;
+        init;
+    }
 }

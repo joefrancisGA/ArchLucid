@@ -1,6 +1,9 @@
 /**
  * Teaching chrome surfaces hidden when workspace mode is Working.
  * Guided mode shows these; Working mode keeps live work surfaces only.
+ *
+ * **AS-081:** `WorkingCareerRehearsalChooser` is intentionally **not** listed here — Career / Rehearsal
+ * door chrome is Working-only product intent (ADR 0086), not Guided teaching chrome.
  */
 export const GUIDED_TEACHING_CHROME_SURFACE_IDS = [
   "shell-shortcut-coaches",

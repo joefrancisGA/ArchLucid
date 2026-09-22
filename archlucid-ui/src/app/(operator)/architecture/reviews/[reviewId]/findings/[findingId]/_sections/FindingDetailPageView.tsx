@@ -1,4 +1,5 @@
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { findingInspectPrimaryLabels, findingWhyThisMattersText, findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
 import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
 import { findingSeverityAudienceCopy } from "@/lib/findings/finding-explainability-summary";
@@ -86,7 +87,12 @@ export function FindingDetailPageView(props: Props) {
     inspectPayload !== null ? resolvePolicyTraceExcerptFromInspect(inspectPayload) : null;
 
   const inspectHref = getFindingEvidenceTraceHref(runId, decodedFindingId, findingsQueueRunId);
-  const findingsQueueNavHref = resolveFindingsQueueNavHref(findingsQueueRunId);
+  const { isWorkingMode } = useWorkspaceMode();
+  const findingsQueueNavHref = resolveFindingsQueueNavHref({
+    findingsQueueRunId,
+    architectureId: parentArchitectureId,
+    isWorkingMode,
+  });
   const workingBackInput = { reviewId: runId, architectureId: parentArchitectureId };
   const reviewFindingsHref = resolveWorkingReviewFindingsBackHref(workingBackInput);
   const reviewPackageHref = isDemoRunIdEligibleForStaticFallback(runId)

@@ -32,8 +32,32 @@ export const GOVERNANCE_SETUP_PATH = GOVERNANCE_SETUP_HREF;
 /** Cross-review risk-register queue (left-nav Findings). */
 export const GOVERNANCE_FINDINGS_PATH = "/governance/findings" as const;
 
+/** SecureNow Compliance shell — policy packs hub (same page, Compliance URL namespace). */
+export const SECURENOW_POLICY_PACKS_PATH = "/compliance/policy-packs" as const;
+
+/** SecureNow Compliance shell — standards and rules (same page, Compliance URL namespace). */
+export const SECURENOW_STANDARDS_AND_RULES_PATH = "/compliance/standards-and-rules" as const;
+
+/** SecureNow Compliance shell — tenant findings queue (same page, Compliance URL namespace). */
+export const SECURENOW_FINDINGS_PATH = "/compliance/findings" as const;
+
 /** Personal assigned-to-me open findings queue (TB-2195). */
 export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH = "/governance/findings/assigned-to-me" as const;
+
+/** SecureNow Security shell — personal assigned-to-me queue (same page, Security URL namespace). */
+export const SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH = "/security/assigned-to-me" as const;
+
+/** IE-15 remediation factory — ranked queue and executive metrics. */
+export const GOVERNANCE_REMEDIATION_FACTORY_PATH = "/governance/remediation-factory" as const;
+
+/** SecureNow Security shell — remediation factory (same page, Security URL namespace). */
+export const SECURENOW_REMEDIATION_FACTORY_PATH = "/security/remediation-factory" as const;
+
+/** IE-14 remediation pattern registry — list, version history, YAML import, SoD-gated approve. */
+export const GOVERNANCE_REMEDIATION_PATTERNS_PATH = "/governance/remediation-patterns" as const;
+
+/** SecureNow Security shell — remediation patterns (same page, Security URL namespace). */
+export const SECURENOW_REMEDIATION_PATTERNS_PATH = "/security/remediation-patterns" as const;
 
 /** Cross-review decision register (left-nav). */
 export const GOVERNANCE_DECISION_REGISTER_PATH = "/governance/decision-register" as const;
@@ -76,11 +100,22 @@ export function pathMatchesGovernancePolicyPacks(pathname: string): boolean {
   return (
     pathMatchesRoutePrefix(pathname, GOVERNANCE_POLICY_PACKS_PATH)
     || pathMatchesRoutePrefix(pathname, LEGACY_POLICY_PACKS_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_POLICY_PACKS_PATH)
   );
 }
 
 export function pathMatchesGovernanceResolution(pathname: string): boolean {
-  return pathMatchesRoutePrefix(pathname, GOVERNANCE_STANDARDS_AND_RULES_PATH);
+  return (
+    pathMatchesRoutePrefix(pathname, GOVERNANCE_STANDARDS_AND_RULES_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_STANDARDS_AND_RULES_PATH)
+  );
+}
+
+export function pathMatchesGovernanceFindings(pathname: string): boolean {
+  return (
+    pathMatchesRoutePrefix(pathname, GOVERNANCE_FINDINGS_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_FINDINGS_PATH)
+  );
 }
 
 export function pathMatchesGovernanceAudit(pathname: string): boolean {
@@ -114,7 +149,10 @@ export function pathMatchesGovernanceApprovalQueue(pathname: string): boolean {
 }
 
 export function pathMatchesGovernanceAssignedToMeFindings(pathname: string): boolean {
-  return pathMatchesRoutePrefix(pathname, GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH);
+  return (
+    pathMatchesRoutePrefix(pathname, GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH)
+  );
 }
 
 /** Approval queue href, optionally scoped to a review via `runId`. */

@@ -66,6 +66,22 @@ describe("operator-recent-views", () => {
     );
   });
 
+  it("SG-088: nested review visits collapse to architecture desk recents", () => {
+    const next = recordRecentView(parseStoredRecentViews(null), {
+      href: "/architecture/architectures/architecture-identity-001/reviews/run-nested-1",
+      label: "Architecture",
+      kind: "architecture",
+      architectureId: "architecture-identity-001",
+      parentArchitectureId: "architecture-identity-001",
+    });
+
+    expect(next.entries[0]).toMatchObject({
+      kind: "architecture",
+      href: "/architecture/architectures/architecture-identity-001",
+      architectureId: "architecture-identity-001",
+    });
+  });
+
   it("maps pathname labels", () => {
     expect(recentViewLabelFromPathname("/")).toBeNull();
     expect(recentViewLabelFromPathname("/architecture/reviews/run-1")).toBe("Review");

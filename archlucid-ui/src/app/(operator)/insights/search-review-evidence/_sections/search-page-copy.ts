@@ -1,3 +1,4 @@
+import { resolveSystemNotJobWorkingPeerSearchPageSubtitle } from "@/lib/system-not-job-search-bound-to-open-package";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 /** Search page H1 when no review filter is set (TB-2196). */
@@ -10,8 +11,17 @@ export const SEARCH_PAGE_SUBTITLE = EVIDENCE_TRAIL_SEARCH.pageSubtitle;
 export const SEARCH_PAGE_SUBTITLE_BUYER =
   "Find findings, decisions, and finalized review records across your workspace evidence index.";
 
-export function searchReviewEvidencePageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell ? SEARCH_PAGE_SUBTITLE_BUYER : SEARCH_PAGE_SUBTITLE;
+export function searchReviewEvidencePageSubtitle(
+  buyerPolishedShell: boolean,
+  workingMode = false,
+): string {
+  const guidedCopy = buyerPolishedShell ? SEARCH_PAGE_SUBTITLE_BUYER : SEARCH_PAGE_SUBTITLE;
+
+  if (workingMode) {
+    return resolveSystemNotJobWorkingPeerSearchPageSubtitle(guidedCopy);
+  }
+
+  return guidedCopy;
 }
 
 export const SEARCH_PAGE_LOADING_STATUS = "Loading search review evidence…";

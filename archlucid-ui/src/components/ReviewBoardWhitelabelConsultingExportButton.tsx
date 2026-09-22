@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +20,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { downloadConsultingArchitectureReportDocx } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { consultingDocxMutationBlockedReason } from "@/lib/compare/consulting-docx-mutation-blocked-reason";
 import {
   CONSULTING_DOCX_EXPORT_PERMISSION,
   principalHasPermission,
@@ -154,9 +157,10 @@ export function ReviewBoardWhitelabelConsultingExportButton(
       setOpen(false);
       resetForm();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const failure = toApiLoadFailure(e);
+      const blocked = consultingDocxMutationBlockedReason(failure);
 
-      showError("Could not export consulting DOCX", msg);
+      showError("Could not export consulting DOCX", blocked ?? failure.message);
     } finally {
       setBusy(false);
     }
@@ -197,6 +201,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
             {sealedManifestBlockedReason}
           </p>
         ) : null}
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="whitelabel-consulting-export" />
       </div>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-lg gap-4" data-testid="whitelabel-export-modal">
@@ -250,6 +255,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
               />
             </div>
           </div>
+          <SponsorExportSendHonestyStrip className="w-full max-w-xl" testIdPrefix="whitelabel-consulting-export" />
           <DialogFooter>
             <Button type="button" variant="outline" disabled={busy} onClick={() => onOpenChange(false)}>
               Cancel

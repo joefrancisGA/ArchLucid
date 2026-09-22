@@ -21,7 +21,7 @@ export type StructuralExecutionModeInput =
 /** Marker phrase in within-run Mixed operator badge copy (TB-971). */
 export const EXECUTION_MODE_WITHIN_RUN_MIXED_BADGE_MARKER = "deterministic substitution";
 
-function normalizeStructuralExecutionMode(
+export function normalizeStructuralExecutionModeWire(
   mode: StructuralExecutionModeInput,
 ): StructuralExecutionModeWireValue | null {
   if (mode === StructuralExecutionModeWire.Simulator || mode === 0) {
@@ -47,7 +47,7 @@ function normalizeStructuralExecutionMode(
 export function formatStructuralExecutionModeLabel(
   mode: StructuralExecutionModeInput,
 ): string {
-  switch (normalizeStructuralExecutionMode(mode)) {
+  switch (normalizeStructuralExecutionModeWire(mode)) {
     case StructuralExecutionModeWire.Real:
       return "Real";
     case StructuralExecutionModeWire.Fallback:
@@ -65,7 +65,7 @@ export function formatStructuralExecutionModeLabel(
 export function formatStructuralExecutionModeBuyerLabel(
   mode: StructuralExecutionModeInput,
 ): string {
-  switch (normalizeStructuralExecutionMode(mode)) {
+  switch (normalizeStructuralExecutionModeWire(mode)) {
     case StructuralExecutionModeWire.Real:
       return "Live analysis";
     case StructuralExecutionModeWire.Fallback:
@@ -80,7 +80,7 @@ export function formatStructuralExecutionModeBuyerLabel(
 }
 
 export function structuralExecutionModeBadgeTitle(mode: StructuralExecutionModeInput): string {
-  const normalized = normalizeStructuralExecutionMode(mode);
+  const normalized = normalizeStructuralExecutionModeWire(mode);
   const label = formatStructuralExecutionModeLabel(mode);
 
   switch (normalized) {

@@ -26,7 +26,8 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Category = "Requirement",
                 Name = requirement.RequirementName,
                 Status = requirement.CoverageStatus,
-                Notes = requirement.RequirementText
+                Notes = requirement.RequirementText,
+                IsMandatory = requirement.IsMandatory,
             });
 
         foreach (RequirementCoverageItem requirement in manifest.Requirements.Uncovered)
@@ -36,7 +37,8 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Category = "Requirement",
                 Name = requirement.RequirementName,
                 Status = requirement.CoverageStatus,
-                Notes = requirement.RequirementText
+                Notes = requirement.RequirementText,
+                IsMandatory = requirement.IsMandatory,
             });
 
         foreach (SecurityPostureItem control in manifest.Security.Controls)

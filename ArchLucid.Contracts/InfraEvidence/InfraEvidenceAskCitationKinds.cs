@@ -18,5 +18,7 @@ public static class InfraEvidenceAskCitationKinds
 
     public const string DiagramCorrespondenceId = "DiagramCorrespondenceId";
 
+    public const string DiagramViewPlan = "DiagramViewPlan";
+
     public const string AuditLineageControlId = "AuditLineageControlId";
 }

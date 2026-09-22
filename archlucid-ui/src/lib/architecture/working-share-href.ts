@@ -1,6 +1,6 @@
 import {
   architectureIdentityPath,
-  architectureNestedReviewPath,
+  architectureNestedFindingsPath,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
 
@@ -18,42 +18,89 @@ export type WorkingShareHrefResult = {
 export const WORKING_SHARE_UNLINKED_JOB_TOAST =
   "Link copied. This review is not linked to an architecture desk yet.";
 
-function normalizeSearch(search: WorkingShareHrefInput["search"]): string {
+function appendSearchParams(
+  params: URLSearchParams,
+  search: WorkingShareHrefInput["search"],
+  options?: { readonly omitReviewTab?: boolean },
+): void {
   if (search === null || search === undefined) {
-    return "";
+    return;
   }
 
   if (search instanceof URLSearchParams) {
-    const serialized = search.toString();
+    search.forEach((value, key) => {
+      if (options?.omitReviewTab === true && key === "reviewTab") {
+        return;
+      }
 
-    return serialized.length > 0 ? `?${serialized}` : "";
+      params.set(key, value);
+    });
+
+    return;
   }
 
   if (typeof search === "string") {
-    const trimmed = search.trim();
+    const trimmed = search.trim().replace(/^\?/, "");
 
     if (trimmed.length === 0) {
-      return "";
+      return;
     }
 
-    return trimmed.startsWith("?") ? trimmed : `?${trimmed}`;
+    const parsed = new URLSearchParams(trimmed);
+    parsed.forEach((value, key) => {
+      if (options?.omitReviewTab === true && key === "reviewTab") {
+        return;
+      }
+
+      params.set(key, value);
+    });
+
+    return;
   }
 
-  const params = new URLSearchParams(search);
+  for (const [key, value] of Object.entries(search)) {
+    if (options?.omitReviewTab === true && key === "reviewTab") {
+      continue;
+    }
+
+    params.set(key, value);
+  }
+}
+
+function serializeSearchParams(params: URLSearchParams): string {
   const serialized = params.toString();
 
   return serialized.length > 0 ? `?${serialized}` : "";
 }
 
-/** Working clipboard/share URLs prefer the architecture locator (AO-09). */
+function workingShareFindingsHref(
+  architectureId: string,
+  reviewId: string,
+  search: WorkingShareHrefInput["search"],
+): string {
+  const params = new URLSearchParams();
+  params.set("runId", reviewId);
+  appendSearchParams(params, search, { omitReviewTab: true });
+
+  return `${architectureNestedFindingsPath(architectureId)}${serializeSearchParams(params)}`;
+}
+
+/** Working clipboard/share URLs prefer the architecture afternoon document (AO-09 / IP-004). */
 export function workingShareHref(input: WorkingShareHrefInput): WorkingShareHrefResult {
   const architectureId = input.architectureId?.trim() ?? "";
   const reviewId = input.reviewId?.trim() ?? "";
-  const searchSuffix = normalizeSearch(input.search);
+  const searchSuffix = serializeSearchParams(
+    (() => {
+      const params = new URLSearchParams();
+      appendSearchParams(params, input.search);
+
+      return params;
+    })(),
+  );
 
   if (architectureId.length > 0 && reviewId.length > 0) {
     return {
-      href: `${architectureNestedReviewPath(architectureId, reviewId)}${searchSuffix}`,
+      href: workingShareFindingsHref(architectureId, reviewId, input.search),
       isUnlinkedJob: false,
     };
   }

@@ -2533,6 +2533,155 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_app_service_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "appsvc-1", label: "portal", sourceId: "azurerm_app_service.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-portal")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "appsvc-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_function_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "func-1", label: "processor", sourceId: "azurerm_function_app.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-processor")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "func-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_container_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "ca-1", label: "worker", sourceId: "azurerm_container_app.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-worker")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ca-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_linux_web_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "web-1", label: "portal", sourceId: "azurerm_linux_web_app.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-portal")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "web-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_windows_web_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "win-1", label: "iis", sourceId: "azurerm_windows_web_app.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-iis")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "win-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_web_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "site-1", label: "site", sourceId: "azurerm_web_app.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-site")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "site-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_monitor_action_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "mag-1", label: "alerts", sourceId: "azurerm_monitor_action_group.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-alerts")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "mag-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_workloads_sap_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "sap-1", label: "sap", sourceId: "azurerm_workloads_sap.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sap")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "sap-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_api_management_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "apim-1", label: "apim", sourceId: "azurerm_api_management.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-apim")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "apim-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_api_management_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -2546,6 +2695,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "apim-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_static_site_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "web-1", label: "frontend", sourceId: "azurerm_static_site.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-frontend")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "web-1");
     }
 
     [Fact]
@@ -2565,6 +2730,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_signalr_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "signalr-1", label: "realtime", sourceId: "azurerm_signalr_service.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-realtime")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "signalr-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_signalr_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -2578,6 +2759,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "signalr-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_logic_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "logic-1", label: "workflow", sourceId: "azurerm_logic_app_workflow.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-workflow")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "logic-1");
     }
 
     [Fact]
@@ -2629,6 +2826,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_plan_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "plan-1", label: "hosting", sourceId: "azurerm_service_plan.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-hosting")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "plan-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_service_plan_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -2642,6 +2855,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "plan-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_spring_cloud_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "spring-1", label: "backend", sourceId: "azurerm_spring_cloud_service.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-backend")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "spring-1");
     }
 
     [Fact]
@@ -2693,6 +2922,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_servicebus_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "sb-1", label: "orders", sourceId: "azurerm_servicebus_namespace.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-orders")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "sb-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_servicebus_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -2741,6 +2986,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_container_registry_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "acr-1", label: "acr", sourceId: "azurerm_container_registry.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-acr")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "acr-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_container_registry_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -2770,6 +3031,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "cog-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_fabric_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "sf-1", label: "fabric", sourceId: "azurerm_service_fabric_cluster.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-fabric")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "sf-1");
     }
 
     [Fact]
@@ -2818,6 +3095,358 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "syn-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_route_server_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "rs-1", label: "routes", sourceId: "azurerm_route_server.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-routes")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "rs-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_kubernetes_cluster_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "aks-1", label: "platform", sourceId: "azurerm_kubernetes_cluster.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-platform")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "aks-1");
+    }
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_batch_account_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "batch-1", label: "batch", sourceId: "azurerm_batch_account.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-batch")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "batch-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_traffic_manager_profile_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "tm-1", label: "traffic", sourceId: "azurerm_traffic_manager_profile.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-traffic")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "tm-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_azurerm_lb_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "lb-1", label: "public", sourceId: "azurerm_lb.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-public")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "lb-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_container_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "cg-1", label: "worker", sourceId: "azurerm_container_group.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-worker")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "cg-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_automation_schedule_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "as-1", label: "nightly", sourceId: "azurerm_automation_schedule.nightly"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-nightly")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "as-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_automation_connection_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ac-1", label: "aws", sourceId: "azurerm_automation_connection.aws"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-aws")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ac-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_automation_credential_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "acred-1", label: "aws", sourceId: "azurerm_automation_credential.aws"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-aws")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "acred-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_automation_account_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "aa-1", label: "runbooks", sourceId: "azurerm_automation_account.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-runbooks")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "aa-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_dns_zone_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dns-1", label: "corp", sourceId: "azurerm_dns_zone.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-corp")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "dns-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_web_pubsub_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "wps-1", label: "realtime", sourceId: "azurerm_web_pubsub.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-realtime")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "wps-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_virtual_hub_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vh-1", label: "wan", sourceId: "azurerm_virtual_hub.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-wan")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "vh-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_kubernetes_fleet_manager_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "kf-1", label: "fleet", sourceId: "azurerm_kubernetes_fleet_manager.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-fleet")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "kf-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_relay_namespace_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "relay-1", label: "bridge", sourceId: "azurerm_relay_namespace.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-bridge")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "relay-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_stack_hci_cluster_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "hci-1", label: "edge", sourceId: "azurerm_stack_hci_cluster.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-edge")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "hci-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_voice_services_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vs-1", label: "telephony", sourceId: "azurerm_voice_services_communications_gateway.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-telephony")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "vs-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_notification_hub_namespace_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "nh-1", label: "push", sourceId: "azurerm_notification_hub_namespace.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-push")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "nh-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_healthbot_healthbot_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "hb-1", label: "carebot", sourceId: "azurerm_healthbot_healthbot.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-carebot")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "hb-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_fluid_relay_server_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "fr-1", label: "collab", sourceId: "azurerm_fluid_relay_server.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-collab")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "fr-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_communication_service_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "acs-1", label: "sms", sourceId: "azurerm_communication_service.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sms")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "acs-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_application_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "agw-1", label: "gateway", sourceId: "azurerm_application_gateway.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-gateway")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "agw-1");
     }
 
     [Fact]
@@ -2898,6 +3527,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "vm-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_linux_virtual_machine_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vm-1", label: "worker", sourceId: "azurerm_linux_virtual_machine.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-worker")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "vm-1");
     }
 
     [Fact]
@@ -3139,6 +3784,54 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_cdn_frontdoor_profile_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "fd-1", label: "edge", sourceId: "azurerm_cdn_frontdoor_profile.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-edge")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "fd-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_cdn_profile_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "cdn-1", label: "edge", sourceId: "azurerm_cdn_profile.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-edge")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "cdn-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_cdn_endpoint_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "cdn-ep-1", label: "edge", sourceId: "azurerm_cdn_endpoint.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-edge")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "cdn-ep-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_cdn_profile_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -3200,6 +3893,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "fw-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_firewall_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "fw-1", label: "perimeter", sourceId: "azurerm_firewall.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-perimeter")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "fw-1");
     }
 
     [Fact]
@@ -3299,6 +4008,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_express_route_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "er-1", label: "wan", sourceId: "azurerm_express_route_circuit.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-wan")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "er-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_private_endpoint_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -3392,6 +4117,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "vng-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_virtual_network_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vng-1", label: "vpn", sourceId: "azurerm_virtual_network_gateway.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-vpn")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "vng-1");
     }
 
     [Fact]
@@ -3491,6 +4232,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_bastion_host_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "bastion-1", label: "jump", sourceId: "azurerm_bastion_host.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-jump")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "bastion-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_stream_analytics_job_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -3536,6 +4293,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "nat-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_nat_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "nat-1", label: "egress", sourceId: "azurerm_nat_gateway.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-egress")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "nat-1");
     }
 
     [Fact]
@@ -3632,6 +4405,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "conn-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_api_connection_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "conn-1", label: "sharepoint", sourceId: "azurerm_api_connection.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sharepoint")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "conn-1");
     }
 
     [Fact]
@@ -3987,6 +4776,54 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_orbital_spacecraft_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "orb-1", label: "sat", sourceId: "azurerm_orbital_spacecraft.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sat")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "orb-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_lab_service_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "lab-1", label: "devbox", sourceId: "azurerm_lab_service.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-devbox")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "lab-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_kubernetes_configuration_flux_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "flux-1", label: "gitops", sourceId: "azurerm_kubernetes_configuration_flux.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-gitops")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "flux-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_healthcare_workspace_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -4083,6 +4920,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_load_test_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "lt-1", label: "perf", sourceId: "azurerm_load_test.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-perf")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "lt-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_load_test_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -4112,6 +4965,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "hpc-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dt-1", label: "apm", sourceId: "azurerm_dynatrace_monitor.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-apm")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "dt-1");
     }
 
     [Fact]
@@ -4227,6 +5096,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_api_center_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "apc-1", label: "catalog", sourceId: "azurerm_api_center.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-catalog")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "apc-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_api_center_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -4256,6 +5141,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "ga-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_dashboard_grafana_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "graf-1", label: "metrics", sourceId: "azurerm_dashboard_grafana.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-metrics")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "graf-1");
     }
 
     [Fact]
@@ -4291,6 +5192,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_chaos_studio_target_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "chaos-1", label: "resilience", sourceId: "azurerm_chaos_studio_target.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-resilience")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "chaos-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_chaos_studio_target_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -4320,6 +5237,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "cl-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_confidential_ledger_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "cl-1", label: "ledger", sourceId: "azurerm_confidential_ledger.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-ledger")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "cl-1" &&
+            e.ToNodeId == "ds-1");
     }
 
     [Fact]
@@ -4498,6 +5431,340 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "ds-1");
     }
 
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_palo_alto_local_rulestack_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "pa-1", label: "firewall", sourceId: "azurerm_palo_alto_local_rulestack.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-firewall")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "pa-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_verifiedaccess_instance_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "va-1", label: "ztna", sourceId: "azurerm_verifiedaccess_instance.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ztna")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "va-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_extended_location_custom_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "el-1", label: "edgezone", sourceId: "azurerm_extended_location_custom.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-edgezone")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "el-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_network_security_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "nsg-1", label: "perimeter", sourceId: "azurerm_network_security_group.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-perimeter")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "nsg-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_virtual_network_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "vnet-1", label: "core", sourceId: "azurerm_virtual_network.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-core")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "vnet-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_subnet_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "subnet-1", label: "app", sourceId: "azurerm_subnet.app"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-app")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "subnet-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_public_ip_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "pip-1", label: "gateway", sourceId: "azurerm_public_ip.gateway"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-gateway")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "pip-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_network_interface_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "nic-1", label: "primary", sourceId: "azurerm_network_interface.primary"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-primary")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "nic-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_application_security_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "asg-1", label: "web", sourceId: "azurerm_application_security_group.web"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-web")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "asg-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_route_table_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "rt-1", label: "hub", sourceId: "azurerm_route_table.hub"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-hub")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "rt-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_ip_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "ipg-1", label: "corp-ips", sourceId: "azurerm_ip_group.corp"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-corp-ips")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ipg-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_local_network_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "lng-1", label: "onprem", sourceId: "azurerm_local_network_gateway.onprem"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-onprem")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "lng-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_resource_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "rg-1", label: "corp", sourceId: "azurerm_resource_group.corp"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-corp")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "rg-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_user_assigned_identity_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "id-1", label: "worker", sourceId: "azurerm_user_assigned_identity.worker"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-worker")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "id-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_disk_encryption_set_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "des-1", label: "keys", sourceId: "azurerm_disk_encryption_set.keys"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-keys")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "des-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_management_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "mg-1", label: "corp", sourceId: "azurerm_management_group.corp"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-corp")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "mg-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_firewall_policy_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "fp-1", label: "perimeter", sourceId: "azurerm_firewall_policy.perimeter"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-perimeter")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "fp-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_network_manager_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "nm-1", label: "hub", sourceId: "azurerm_network_manager.hub"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-hub")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "nm-1");
+    }
+
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_point_to_site_vpn_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "p2s-1", label: "remote", sourceId: "azurerm_point_to_site_vpn_gateway.remote"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-remote")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "p2s-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_workloads_orchestrator_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "wo-1", label: "orchestrator", sourceId: "azurerm_workloads_orchestrator.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-orchestrator")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "wo-1");
+    }
+
     [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_oracle_autonomous_database_node_has_compute_category_but_synthetic_datastore_id_used()
     {
@@ -4659,6 +5926,54 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_data_collection_rule_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dcr-1", label: "logs", sourceId: "azurerm_monitor_data_collection_rule.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-logs")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "dcr-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_data_collection_endpoint_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dce-1", label: "logs", sourceId: "azurerm_data_collection_endpoint.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-logs")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "dce-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_cognitive_services_account_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "cog-1", label: "openai", sourceId: "azurerm_cognitive_services_account.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-openai")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "cog-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_cognitive_deployment_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -4672,6 +5987,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "dep-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_cognitive_deployment_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dep-1", label: "gpt4", sourceId: "azurerm_cognitive_deployment.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-gpt4")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "dep-1");
     }
 
     [Fact]

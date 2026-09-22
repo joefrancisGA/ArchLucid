@@ -44,6 +44,14 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.WorkspaceModeGraduationOffer,
             cancellationToken);
+        string? firstSessionPurposeStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.FirstSessionPurpose,
+            cancellationToken);
+        string? workingCareerRehearsalDoorStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.WorkingCareerRehearsalDoor,
+            cancellationToken);
         string? professionalWorkbenchStored = await _userSettingsRepository.TryGetAsync(
             userId,
             UserSettingKeys.ProfessionalWorkbenchEnabled,
@@ -68,6 +76,10 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.DeskContinuity,
             cancellationToken);
+        string? workingWorkspaceContinuityStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.WorkingWorkspaceContinuity,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
@@ -77,6 +89,8 @@ public sealed partial class UserPreferencesController
         string ianaTimeZoneId = IanaTimeZonePreferenceValues.NormalizeOrDefault(ianaTimeZoneStored);
         string workspaceMode = WorkspaceModeValues.ParseOrDefault(workspaceModeStored);
         string workspaceModeGraduationOffer = WorkspaceModeGraduationOfferValues.ParseOrDefault(workspaceModeGraduationOfferStored);
+        string? firstSessionPurpose = FirstSessionPurposeValues.NormalizeOrNull(firstSessionPurposeStored);
+        string workingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.ParseOrDefault(workingCareerRehearsalDoorStored);
         bool professionalWorkbenchEnabled = ProfessionalWorkbenchEnabledValues.ParseOrDefault(professionalWorkbenchStored);
         decimal roiLoadedHourlyCostUsd = RoiLoadedHourlyCostUsdValues.ParseOrDefault(roiLoadedHourlyCostStored);
         bool findingsHideGenericEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsHideGenericStored);
@@ -89,6 +103,8 @@ public sealed partial class UserPreferencesController
         bool findingsShowAdvisoryEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowAdvisoryStored);
         DeskContinuityDto deskContinuity = DeskContinuityValues.NormalizeOrDefault(deskContinuityStored);
         deskContinuity = await EnrichDeskContinuityFromReviewAsync(deskContinuity, cancellationToken);
+        WorkingWorkspaceContinuityDto workingWorkspaceContinuity =
+            WorkingWorkspaceContinuityValues.NormalizeOrDefault(workingWorkspaceContinuityStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -109,6 +125,10 @@ public sealed partial class UserPreferencesController
             WorkspaceModeIsExplicit = WorkspaceModeValues.IsExplicitValue(workspaceModeStored),
             WorkspaceModeGraduationOffer = workspaceModeGraduationOffer,
             WorkspaceModeGraduationOfferIsExplicit = WorkspaceModeGraduationOfferValues.IsExplicitValue(workspaceModeGraduationOfferStored),
+            FirstSessionPurpose = firstSessionPurpose,
+            FirstSessionPurposeIsExplicit = FirstSessionPurposeValues.IsExplicitValue(firstSessionPurposeStored),
+            WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,
+            WorkingCareerRehearsalDoorIsExplicit = WorkingCareerRehearsalDoorValues.IsExplicitValue(workingCareerRehearsalDoorStored),
             ProfessionalWorkbenchEnabled = professionalWorkbenchEnabled,
             ProfessionalWorkbenchEnabledIsExplicit = ProfessionalWorkbenchEnabledValues.IsExplicitValue(professionalWorkbenchStored),
             RoiLoadedHourlyCostUsd = roiLoadedHourlyCostUsd,
@@ -121,6 +141,8 @@ public sealed partial class UserPreferencesController
             FindingsShowAdvisoryEnabledIsExplicit = FindingsVisibilityToggleValues.IsExplicitValue(findingsShowAdvisoryStored),
             DeskContinuity = deskContinuity,
             DeskContinuityIsExplicit = DeskContinuityValues.TryParse(deskContinuityStored) is not null,
+            WorkingWorkspaceContinuity = workingWorkspaceContinuity,
+            WorkingWorkspaceContinuityIsExplicit = WorkingWorkspaceContinuityValues.TryParse(workingWorkspaceContinuityStored) is not null,
         });
     }
 

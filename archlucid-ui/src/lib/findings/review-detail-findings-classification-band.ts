@@ -1,6 +1,10 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
-export type ReviewFindingsClassificationBandId = "decision-grade" | "checklist" | "all";
+export type ReviewFindingsClassificationBandId = "decision-grade" | "checklist" | "uncited" | "all";
+
+export function isUncitedFinding(finding: QuickDecisionFinding): boolean {
+  return (finding.evidenceRefCount ?? 0) === 0;
+}
 
 export const FINDING_CLASSIFICATION_DECISION_GRADE = "DecisionGradeFinding" as const;
 
@@ -37,6 +41,10 @@ export function filterFindingsByClassificationBand(
     return [...findings];
   }
 
+  if (band === "uncited") {
+    return findings.filter((finding) => isUncitedFinding(finding));
+  }
+
   if (band === "checklist") {
     return findings.filter((finding) => isChecklistCoverageFinding(finding) || !isDecisionGradeFinding(finding));
   }
@@ -46,9 +54,10 @@ export function filterFindingsByClassificationBand(
 
 export function countFindingsByClassificationBand(
   findings: readonly QuickDecisionFinding[],
-): { readonly decisionGrade: number; readonly checklist: number } {
+): { readonly decisionGrade: number; readonly checklist: number; readonly uncited: number } {
   let decisionGrade = 0;
   let checklist = 0;
+  let uncited = 0;
 
   for (const finding of findings) {
     if (isDecisionGradeFinding(finding)) {
@@ -56,7 +65,11 @@ export function countFindingsByClassificationBand(
     } else {
       checklist += 1;
     }
+
+    if (isUncitedFinding(finding)) {
+      uncited += 1;
+    }
   }
 
-  return { decisionGrade, checklist };
+  return { decisionGrade, checklist, uncited };
 }

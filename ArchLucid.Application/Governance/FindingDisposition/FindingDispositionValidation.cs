@@ -33,7 +33,7 @@ public static class FindingDispositionValidation
 
         string normalizedFindingId = request.FindingId.Trim();
 
-        if (!HasSubstantiveFindingId(normalizedFindingId))
+        if (!HasSubstantiveText(normalizedFindingId))
             throw new ArgumentException("Finding id is required.", nameof(request));
 
         if (normalizedFindingId.Length > MaxFindingIdLength)
@@ -51,24 +51,40 @@ public static class FindingDispositionValidation
             if (string.IsNullOrWhiteSpace(request.Rationale))
                 throw new ArgumentException("Rationale is required for this disposition.", nameof(request));
 
-            if (request.Rationale.Trim().Length < MinimumRationaleLength)
+            string normalizedRationale = request.Rationale.Trim();
+
+            if (!HasSubstantiveText(normalizedRationale))
+                throw new ArgumentException("Rationale is required for this disposition.", nameof(request));
+
+            if (normalizedRationale.Length < MinimumRationaleLength)
                 throw new ArgumentException(
                     "Rationale must be at least 10 characters for this disposition.",
                     nameof(request));
 
-            if (request.Rationale.Trim().Length > MaximumRationaleLength)
+            if (normalizedRationale.Length > MaximumRationaleLength)
             {
                 throw new ArgumentException(
                     $"Rationale must not exceed {MaximumRationaleLength} characters.",
                     nameof(request));
             }
         }
-        else if (!string.IsNullOrWhiteSpace(request.Rationale)
-            && request.Rationale.Trim().Length > MaximumRationaleLength)
+        else if (!string.IsNullOrWhiteSpace(request.Rationale))
         {
-            throw new ArgumentException(
-                $"Rationale must not exceed {MaximumRationaleLength} characters.",
-                nameof(request));
+            string normalizedOptionalRationale = request.Rationale.Trim();
+
+            if (!HasSubstantiveText(normalizedOptionalRationale))
+            {
+                throw new ArgumentException(
+                    "Rationale must contain visible characters when provided.",
+                    nameof(request));
+            }
+
+            if (normalizedOptionalRationale.Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Rationale must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
         }
 
         if (request.Disposition == Disposition.Accepted)
@@ -78,12 +94,19 @@ public static class FindingDispositionValidation
                     "Trade-off acknowledgment is required when accepting a finding.",
                     nameof(request));
 
-            if (request.TradeOffAcknowledgment.Trim().Length < MinimumRationaleLength)
+            string normalizedTradeOffAcknowledgment = request.TradeOffAcknowledgment.Trim();
+
+            if (!HasSubstantiveText(normalizedTradeOffAcknowledgment))
+                throw new ArgumentException(
+                    "Trade-off acknowledgment is required when accepting a finding.",
+                    nameof(request));
+
+            if (normalizedTradeOffAcknowledgment.Length < MinimumRationaleLength)
                 throw new ArgumentException(
                     "Trade-off acknowledgment must be at least 10 characters.",
                     nameof(request));
 
-            if (request.TradeOffAcknowledgment.Trim().Length > MaximumRationaleLength)
+            if (normalizedTradeOffAcknowledgment.Length > MaximumRationaleLength)
             {
                 throw new ArgumentException(
                     $"Trade-off acknowledgment must not exceed {MaximumRationaleLength} characters.",
@@ -106,6 +129,9 @@ public static class FindingDispositionValidation
             if (string.IsNullOrWhiteSpace(request.EvidenceRequestText))
                 throw new ArgumentException("Evidence request text is required.", nameof(request));
 
+            if (!HasSubstantiveText(request.EvidenceRequestText.Trim()))
+                throw new ArgumentException("Evidence request text is required.", nameof(request));
+
             if (request.EvidenceRequestText.Trim().Length > MaximumRationaleLength)
             {
                 throw new ArgumentException(
@@ -114,12 +140,42 @@ public static class FindingDispositionValidation
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement)
-            && request.ArchitectRestatement.Trim().Length > MaximumRationaleLength)
+        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement))
         {
-            throw new ArgumentException(
-                $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
-                nameof(request));
+            string normalizedArchitectRestatement = request.ArchitectRestatement.Trim();
+
+            if (!HasSubstantiveText(normalizedArchitectRestatement))
+            {
+                throw new ArgumentException(
+                    "Architect restatement must contain visible characters when provided.",
+                    nameof(request));
+            }
+
+            if (normalizedArchitectRestatement.Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason))
+        {
+            string normalizedPreviewOverrideReason = request.PreviewOverrideReason.Trim();
+
+            if (!HasSubstantiveText(normalizedPreviewOverrideReason))
+            {
+                throw new ArgumentException(
+                    "Preview override reason must contain visible characters when provided.",
+                    nameof(request));
+            }
+
+            if (normalizedPreviewOverrideReason.Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
         }
     }
 
@@ -140,17 +196,28 @@ public static class FindingDispositionValidation
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason)
-            && request.PreviewOverrideReason.Trim().Length >= MinimumRationaleLength)
+        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason))
         {
-            if (request.PreviewOverrideReason.Trim().Length > MaximumRationaleLength)
+            string normalizedPreviewOverrideReason = request.PreviewOverrideReason.Trim();
+
+            if (!HasSubstantiveText(normalizedPreviewOverrideReason))
             {
                 throw new ArgumentException(
-                    $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                    "Impact preview override reason is required when marking a finding remediated on a Working desk.",
                     nameof(request));
             }
 
-            return;
+            if (normalizedPreviewOverrideReason.Length >= MinimumRationaleLength)
+            {
+                if (normalizedPreviewOverrideReason.Length > MaximumRationaleLength)
+                {
+                    throw new ArgumentException(
+                        $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                        nameof(request));
+                }
+
+                return;
+            }
         }
 
         throw new ArgumentException(
@@ -162,7 +229,7 @@ public static class FindingDispositionValidation
     /// Rejects blank and invisible-only ids (for example U+200B) that pass
     /// <see cref="string.IsNullOrWhiteSpace(string?)"/> but are not usable finding ids.
     /// </summary>
-    private static bool HasSubstantiveFindingId(string value)
+    private static bool HasSubstantiveText(string value)
     {
         if (string.IsNullOrEmpty(value))
             return false;

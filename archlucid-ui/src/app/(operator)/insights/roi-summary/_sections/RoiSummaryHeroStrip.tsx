@@ -2,14 +2,17 @@
 
 import { cn } from "@/lib/utils";
 
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   computeRoiSummaryPeriodMetrics,
   formatRoiSummaryHoursDisplay,
   formatRoiSummaryUsdWithRateBasis,
   type RoiSummaryPeriodInput,
 } from "@/lib/roi-summary-sponsor-presentation";
+import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
 
 type Props = {
   readonly period: RoiSummaryPeriodInput;
@@ -17,9 +20,14 @@ type Props = {
   readonly windowLabel: string;
   readonly isDefaultRate?: boolean;
   readonly demoDerived?: boolean;
+  readonly roiSectionQualifier?: string | null;
 };
 
 export function RoiSummaryHeroStrip(props: Props) {
+  const heroHeading = resolveRoiTileSectionHeading(
+    "Value at a glance",
+    props.roiSectionQualifier ?? null,
+  );
   const metrics = computeRoiSummaryPeriodMetrics(props.period, props.hourlyUsd);
   const usd = formatRoiSummaryUsdWithRateBasis(
     metrics.hours,
@@ -37,7 +45,7 @@ export function RoiSummaryHeroStrip(props: Props) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 id="roi-summary-hero-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Value at a glance
+            {heroHeading}
           </h2>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.windowLabel}</p>
         </div>
@@ -45,6 +53,11 @@ export function RoiSummaryHeroStrip(props: Props) {
           {metrics.confidence.label}
         </p>
       </div>
+
+      <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="roi-summary-hero-non-summing">
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
+      <PolicyPackInfluenceHonestyChip className="mt-2" />
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <SponsorReportMetricCard

@@ -6,7 +6,7 @@ import type { SponsorProofReadinessCopy } from "@/lib/pilot-proof-readiness";
 type ProofGateState =
   | { status: "skipped" }
   | { status: "loading" }
-  | { status: "error" }
+  | { status: "error"; message: string }
   | { status: "ok" };
 
 export type EmailRunToSponsorReadinessCopyProps = {
@@ -62,9 +62,7 @@ export function EmailRunToSponsorReadinessCopy({
           className={cn("m-0 mt-2 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="email-run-to-sponsor-readiness-error"
         >
-          {buyerPolishedShell
-            ? "Could not load every readiness signal — review outputs before sending to sponsors."
-            : "Could not load every readiness signal — review the Markdown export above before sponsor send."}
+          {proofGate.message}
         </p>
       ) : !readinessCopy ? (
         <p

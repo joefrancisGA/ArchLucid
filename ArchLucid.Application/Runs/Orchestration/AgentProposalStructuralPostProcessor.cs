@@ -162,12 +162,9 @@ public static class AgentProposalStructuralPostProcessor
         ArgumentNullException.ThrowIfNull(results);
         ArgumentNullException.ThrowIfNull(dropLog);
 
-        List<string> confirmedConstraints = request.Constraints
-            .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
-            .Select(static c => c.Trim())
-            .ToList();
+        BriefGroundingRules rules = BriefGroundingRules.FromRequest(request);
 
-        if (confirmedConstraints.Count == 0)
+        if (!rules.HasAnyRules)
             return;
 
         foreach (AgentResult result in results)
@@ -175,51 +172,155 @@ public static class AgentProposalStructuralPostProcessor
             if (result.ProposedChanges is null)
                 continue;
 
-            AgentTopologyProposal proposal = result.ProposedChanges;
-            List<ManifestService> retainedServices = [];
-
-            foreach (ManifestService service in proposal.AddedServices ?? [])
-            {
-                if (ContradictsConfirmedConstraints(service.ServiceName, confirmedConstraints))
-                {
-                    dropLog.Add(
-                        $"Dropped service '{service.ServiceName}' for agent {result.AgentType}: contradicts confirmed constraint.");
-
-                    continue;
-                }
-
-                retainedServices.Add(service);
-            }
-
-            proposal.AddedServices = retainedServices;
+            ApplyBriefGroundingToProposal(result.AgentType, result.ProposedChanges, rules, dropLog);
         }
     }
 
-    private static bool ContradictsConfirmedConstraints(string serviceName, IReadOnlyList<string> confirmedConstraints)
+    private static void ApplyBriefGroundingToProposal(
+        AgentType agentType,
+        AgentTopologyProposal proposal,
+        BriefGroundingRules rules,
+        IList<string> dropLog)
     {
-        if (string.IsNullOrWhiteSpace(serviceName))
+        IReadOnlyList<ManifestService> beforeServices = proposal.AddedServices ?? [];
+        IReadOnlyList<ManifestDatastore> beforeDatastores = proposal.AddedDatastores ?? [];
+        HashSet<string> declaredEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+            beforeServices,
+            beforeDatastores);
+
+        List<ManifestService> retainedServices = [];
+
+        foreach (ManifestService service in beforeServices)
+        {
+            if (TryDescribeBriefGroundingDrop(service.ServiceName, rules, applyHttpsRule: true, out string? reason))
+            {
+                dropLog.Add($"Dropped service '{service.ServiceName}' for agent {agentType}: {reason}.");
+
+                continue;
+            }
+
+            retainedServices.Add(service);
+        }
+
+        proposal.AddedServices = retainedServices;
+
+        List<ManifestDatastore> retainedDatastores = [];
+
+        foreach (ManifestDatastore datastore in beforeDatastores)
+        {
+            if (TryDescribeBriefGroundingDrop(
+                    datastore.DatastoreName,
+                    rules,
+                    applyHttpsRule: false,
+                    out string? reason))
+            {
+                dropLog.Add($"Dropped datastore '{datastore.DatastoreName}' for agent {agentType}: {reason}.");
+
+                continue;
+            }
+
+            retainedDatastores.Add(datastore);
+        }
+
+        proposal.AddedDatastores = retainedDatastores;
+
+        PruneRelationshipsAfterGroundingDrops(
+            proposal,
+            declaredEndpointKeys,
+            retainedServices,
+            retainedDatastores,
+            agentType,
+            dropLog);
+    }
+
+    private static void PruneRelationshipsAfterGroundingDrops(
+        AgentTopologyProposal proposal,
+        HashSet<string> declaredEndpointKeysBefore,
+        IReadOnlyList<ManifestService> retainedServices,
+        IReadOnlyList<ManifestDatastore> retainedDatastores,
+        AgentType agentType,
+        IList<string> dropLog)
+    {
+        IReadOnlyList<ManifestRelationship>? relationships = proposal.AddedRelationships;
+
+        if (relationships is null || relationships.Count == 0)
+            return;
+
+        HashSet<string> declaredEndpointKeysAfter = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+            retainedServices,
+            retainedDatastores);
+
+        List<ManifestRelationship> retainedRelationships = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            bool sourceDeclared = declaredEndpointKeysBefore.Contains(relationship.SourceId);
+            bool targetDeclared = declaredEndpointKeysBefore.Contains(relationship.TargetId);
+
+            if (!sourceDeclared || !targetDeclared)
+            {
+                retainedRelationships.Add(relationship);
+                continue;
+            }
+
+            bool sourceRetained = declaredEndpointKeysAfter.Contains(relationship.SourceId);
+            bool targetRetained = declaredEndpointKeysAfter.Contains(relationship.TargetId);
+
+            if (sourceRetained && targetRetained)
+            {
+                retainedRelationships.Add(relationship);
+                continue;
+            }
+
+            dropLog.Add(
+                $"Dropped relationship '{relationship.SourceId}' -> '{relationship.TargetId}' for agent {agentType}: endpoint removed by brief grounding.");
+        }
+
+        proposal.AddedRelationships = retainedRelationships;
+    }
+
+    private static bool TryDescribeBriefGroundingDrop(
+        string? endpointName,
+        BriefGroundingRules rules,
+        bool applyHttpsRule,
+        out string? reason)
+    {
+        reason = null;
+
+        if (string.IsNullOrWhiteSpace(endpointName))
             return false;
 
-        string normalizedService = serviceName.Trim();
+        string normalizedEndpoint = endpointName.Trim();
 
-        foreach (string constraint in confirmedConstraints)
+        if (applyHttpsRule
+            && rules.RequiresHttps
+            && normalizedEndpoint.Contains("http", StringComparison.OrdinalIgnoreCase)
+            && !normalizedEndpoint.Contains("https", StringComparison.OrdinalIgnoreCase))
         {
-            if (ConstraintRequiresHttps(constraint)
-                && normalizedService.Contains("http", StringComparison.OrdinalIgnoreCase)
-                && !normalizedService.Contains("https", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            reason = "contradicts confirmed HTTPS constraint";
+            return true;
+        }
 
-            if (ConstraintRequiresPrivateNetworking(constraint)
-                && normalizedService.Contains("public", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+        if (rules.RequiresPrivateNetworking
+            && normalizedEndpoint.Contains("public", StringComparison.OrdinalIgnoreCase))
+        {
+            reason = "contradicts confirmed private-networking constraint";
+            return true;
+        }
+
+        if (rules.RequiresEncryptionAtRest
+            && EndpointSuggestsMissingEncryptionAtRest(normalizedEndpoint))
+        {
+            reason = "contradicts confirmed encryption-at-rest capability";
+            return true;
         }
 
         return false;
     }
+
+    private static bool EndpointSuggestsMissingEncryptionAtRest(string endpointName) =>
+        endpointName.Contains("plaintext", StringComparison.OrdinalIgnoreCase)
+        || endpointName.Contains("unencrypted", StringComparison.OrdinalIgnoreCase);
 
     private static bool ConstraintRequiresHttps(string constraint) =>
         constraint.Contains("https", StringComparison.OrdinalIgnoreCase)
@@ -229,4 +330,35 @@ public static class AgentProposalStructuralPostProcessor
         constraint.Contains("private", StringComparison.OrdinalIgnoreCase)
         || constraint.Contains("vnet", StringComparison.OrdinalIgnoreCase)
         || constraint.Contains("private endpoint", StringComparison.OrdinalIgnoreCase);
+
+    private static bool CapabilityRequiresEncryptionAtRest(string capability) =>
+        capability.Contains("encryption", StringComparison.OrdinalIgnoreCase)
+        && capability.Contains("rest", StringComparison.OrdinalIgnoreCase);
+
+    private sealed record BriefGroundingRules(
+        bool RequiresHttps,
+        bool RequiresPrivateNetworking,
+        bool RequiresEncryptionAtRest)
+    {
+        public bool HasAnyRules =>
+            RequiresHttps || RequiresPrivateNetworking || RequiresEncryptionAtRest;
+
+        public static BriefGroundingRules FromRequest(ArchitectureRequest request)
+        {
+            List<string> confirmedConstraints = request.Constraints
+                .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+                .Select(static c => c.Trim())
+                .ToList();
+
+            List<string> confirmedCapabilities = request.RequiredCapabilities
+                .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+                .Select(static c => c.Trim())
+                .ToList();
+
+            return new BriefGroundingRules(
+                confirmedConstraints.Any(ConstraintRequiresHttps),
+                confirmedConstraints.Any(ConstraintRequiresPrivateNetworking),
+                confirmedCapabilities.Any(CapabilityRequiresEncryptionAtRest));
+        }
+    }
 }

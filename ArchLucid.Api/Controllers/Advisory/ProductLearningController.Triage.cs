@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using ArchLucid.Api.Models.ProductLearning;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.ProductLearning;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
@@ -93,19 +94,26 @@ public sealed partial class ProductLearningController
             MaxSummaryChars = 240
         };
 
-        ProductLearningTriageReportDocument document =
-            ProductLearningTriageReportBuilder.Build(full, limits, sinceUtc);
+        try
+        {
+            ProductLearningTriageReportDocument document =
+                ProductLearningTriageReportBuilder.Build(full, limits, sinceUtc);
 
-        if (formatNorm == "json")
-            return Ok(document);
+            if (formatNorm == "json")
+                return Ok(document);
 
-        string markdown = ProductLearningTriageReportMarkdownFormatter.Format(document);
+            string markdown = ProductLearningTriageReportMarkdownFormatter.Format(document);
 
-        return Ok(
-            new ProductLearningReportExportResponse
-            {
-                Format = "markdown", FileName = "product-learning-triage-report.md", Content = markdown
-            });
+            return Ok(
+                new ProductLearningReportExportResponse
+                {
+                    Format = "markdown", FileName = "product-learning-triage-report.md", Content = markdown
+                });
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductLearningSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Same body as <see cref="GetTriageReport" /> as a downloadable file (<c>.md</c> or <c>.json</c>).</summary>
@@ -155,18 +163,25 @@ public sealed partial class ProductLearningController
             MaxSummaryChars = 240
         };
 
-        ProductLearningTriageReportDocument document =
-            ProductLearningTriageReportBuilder.Build(full, limits, sinceUtc);
-
-        if (formatNorm == "json")
+        try
         {
-            string json = JsonSerializer.Serialize(document, ReportFileJsonOptions);
-            return ApiFileResults.RangeText(Request, json, "application/json", "product-learning-triage-report.json");
+            ProductLearningTriageReportDocument document =
+                ProductLearningTriageReportBuilder.Build(full, limits, sinceUtc);
+
+            if (formatNorm == "json")
+            {
+                string json = JsonSerializer.Serialize(document, ReportFileJsonOptions);
+                return ApiFileResults.RangeText(Request, json, "application/json", "product-learning-triage-report.json");
+            }
+
+            string markdown = ProductLearningTriageReportMarkdownFormatter.Format(document);
+
+            return ApiFileResults.RangeText(Request, markdown, "text/markdown", "product-learning-triage-report.md");
         }
-
-        string markdown = ProductLearningTriageReportMarkdownFormatter.Format(document);
-
-        return ApiFileResults.RangeText(Request, markdown, "text/markdown", "product-learning-triage-report.md");
+        catch (ConflictException ex)
+        {
+            return MapProductLearningSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Wider caps than UI list endpoints so exports include a fuller ranked set (still bounded).</summary>

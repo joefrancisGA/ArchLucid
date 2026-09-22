@@ -34,4 +34,48 @@ public sealed class HostedAwsExtractorClientTests
             p => p.GetWebIdentityTokenAsync(It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task CollectZipAsync_rejects_blank_region_before_token_fetch()
+    {
+        Mock<IAwsOidcWebIdentityTokenProvider> tokenProvider = new();
+        HostedAwsExtractorClient client = new(tokenProvider.Object, NullLogger<HostedAwsExtractorClient>.Instance);
+
+        HostedAwsExtractorCollectionRequest request = new()
+        {
+            AccountId = "123456789012",
+            Region = "   ",
+            RoleArn = "arn:aws:iam::123456789012:role/ReadOnly"
+        };
+
+        Func<Task> act = () => client.CollectZipAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+
+        tokenProvider.Verify(
+            p => p.GetWebIdentityTokenAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CollectZipAsync_rejects_blank_account_id_before_token_fetch()
+    {
+        Mock<IAwsOidcWebIdentityTokenProvider> tokenProvider = new();
+        HostedAwsExtractorClient client = new(tokenProvider.Object, NullLogger<HostedAwsExtractorClient>.Instance);
+
+        HostedAwsExtractorCollectionRequest request = new()
+        {
+            AccountId = "   ",
+            Region = "us-east-1",
+            RoleArn = "arn:aws:iam::123456789012:role/ReadOnly"
+        };
+
+        Func<Task> act = () => client.CollectZipAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+
+        tokenProvider.Verify(
+            p => p.GetWebIdentityTokenAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

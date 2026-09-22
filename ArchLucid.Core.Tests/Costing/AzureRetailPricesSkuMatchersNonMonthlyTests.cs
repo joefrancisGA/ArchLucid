@@ -21,6 +21,25 @@ public sealed class AzureRetailPricesSkuMatchersNonMonthlyTests
         AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData("1 Year")]
+    [InlineData("year")]
+    public void TryMonthlyUsdFromRow_rejects_annual_unit_of_measure(string unitOfMeasure)
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = unitOfMeasure,
+            UnitPrice = 1200m,
+        };
+
+        bool ok = AzureRetailPricesCatalogClient.TryMonthlyUsdFromRow(dto, 1, out decimal monthly);
+
+        ok.Should().BeFalse();
+        monthly.Should().Be(0m);
+    }
+
     [Fact]
     public void TryMonthlyUsdFromRow_rejects_nonmonthly_unit_of_measure_false_positive()
     {

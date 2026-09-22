@@ -20,6 +20,8 @@ import {
   useLivelihoodDocumentGuards,
 } from "@/hooks/use-livelihood-document-guards";
 import { postFindingMute } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingMuteMutationBlockedReason } from "@/lib/findings/finding-mute-mutation-blocked-reason";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { cn } from "@/lib/utils";
@@ -64,7 +66,10 @@ export function QuickDecisionFindingMuteDialog(
       close();
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Mute request failed.");
+      const failure = toApiLoadFailure(e);
+      const blocked = findingMuteMutationBlockedReason(failure);
+
+      setError(blocked ?? failure.message);
     } finally {
       setBusy(false);
     }

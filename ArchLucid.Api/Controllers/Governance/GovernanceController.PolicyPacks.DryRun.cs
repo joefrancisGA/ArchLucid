@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
@@ -28,6 +29,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(PolicyPackGovernanceDryRunResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DryRunProposedPolicyPack(
         [FromBody] PolicyPackGovernanceDryRunRequest? request,
         CancellationToken cancellationToken)
@@ -66,21 +68,38 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
-            request.PolicyPackContentJson,
-            string.IsNullOrWhiteSpace(request.TargetRunId) ? null : request.TargetRunId.Trim(),
-            request.TargetManifestId,
-            request.BlockCommitOnCritical,
-            request.BlockCommitMinimumSeverity,
-            request.ProposedPolicyPackId,
-            cancellationToken);
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(request.TargetRunId))
+            {
+                IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(
+                    request.TargetRunId.Trim(),
+                    cancellationToken);
 
-        if (result is null)
-            return this.NotFoundProblem(
-                "The target run or manifest was not found in the current tenant/workspace/project scope.",
-                ProblemTypes.ResourceNotFound);
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
 
-        return Ok(result);
+            PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
+                request.PolicyPackContentJson,
+                string.IsNullOrWhiteSpace(request.TargetRunId) ? null : request.TargetRunId.Trim(),
+                request.TargetManifestId,
+                request.BlockCommitOnCritical,
+                request.BlockCommitMinimumSeverity,
+                request.ProposedPolicyPackId,
+                cancellationToken);
+
+            if (result is null)
+                return this.NotFoundProblem(
+                    "The target run or manifest was not found in the current tenant/workspace/project scope.",
+                    ProblemTypes.ResourceNotFound);
+
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -98,6 +117,7 @@ public sealed partial class GovernanceController
     [Produces("application/json")]
     [ProducesResponseType(typeof(PolicyPackDryRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DryRunPolicyPack(
         [FromRoute] Guid id,
         [FromBody] PolicyPackDryRunRequest? request,
@@ -167,14 +187,28 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
-            id,
-            proposedThresholds,
-            evaluateAgainstRunIds,
-            pageSize,
-            page,
-            cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureDryRunRunIdsSealedManifestReadAllowedAsync(
+                evaluateAgainstRunIds,
+                cancellationToken);
 
-        return Ok(result);
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
+                id,
+                proposedThresholds,
+                evaluateAgainstRunIds,
+                pageSize,
+                page,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 }

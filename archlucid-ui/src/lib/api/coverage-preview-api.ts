@@ -1,5 +1,8 @@
 import { apiPostJson } from "@/lib/api";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { governanceScopeCoverageBlockedReason } from "@/lib/governance/governance-coverage-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 export type CoveragePreviewAssignment = {
   policyPackId: string;
@@ -58,8 +61,15 @@ export type CoveragePreviewRequest = {
 export async function postCoveragePreview(
   body: CoveragePreviewRequest,
 ): Promise<CoveragePreviewResponse> {
-  return apiPostJson<CoveragePreviewResponse>(
-    `/${ApiV1Routes.governance}/coverage/preview`,
-    body,
-  );
+  try {
+    return await apiPostJson<CoveragePreviewResponse>(
+      `/${ApiV1Routes.governance}/coverage/preview`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceScopeCoverageBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

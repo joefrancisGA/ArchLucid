@@ -30,7 +30,7 @@ public sealed partial class DapperFindingInspectReadRepository(ISqlConnectionFac
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
-        bool includeTypedPayload = options?.IncludeTypedPayload ?? true;
+        bool includeTypedPayload = FindingInspectReadRepositoryCore.ResolveIncludeTypedPayload(options);
 
         await using Microsoft.Data.SqlClient.SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 

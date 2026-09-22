@@ -1,3 +1,5 @@
+using System.IO;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Findings;
 
@@ -12,10 +14,9 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData(null, FindingSeverity.Info)]
     [InlineData("", FindingSeverity.Info)]
     [InlineData("  ", FindingSeverity.Info)]
+    [InlineData("  critical  ", FindingSeverity.Critical)]
     [InlineData("critical", FindingSeverity.Critical)]
-    [InlineData("UNKNOWN", FindingSeverity.Info)]
-    [InlineData("999", FindingSeverity.Info)]
-    public void ParseFindingSeverity_maps_or_defaults(string? raw, FindingSeverity expected)
+    public void ParseFindingSeverity_maps_valid_or_blank_values(string? raw, FindingSeverity expected)
     {
         FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity(raw);
 
@@ -24,11 +25,10 @@ public sealed class FindingInspectReadModelMapperTests
 
     [Theory]
     [InlineData(null, FindingHumanReviewStatus.NotRequired)]
+    [InlineData("   ", FindingHumanReviewStatus.NotRequired)]
+    [InlineData("  Pending  ", FindingHumanReviewStatus.Pending)]
     [InlineData("Pending", FindingHumanReviewStatus.Pending)]
-    [InlineData("bad", FindingHumanReviewStatus.NotRequired)]
-    [InlineData("99", FindingHumanReviewStatus.NotRequired)]
-    [InlineData("999", FindingHumanReviewStatus.NotRequired)]
-    public void ParseHumanReview_maps_or_defaults(string? raw, FindingHumanReviewStatus expected)
+    public void ParseHumanReview_maps_valid_or_blank_values(string? raw, FindingHumanReviewStatus expected)
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview(raw);
 
@@ -49,6 +49,7 @@ public sealed class FindingInspectReadModelMapperTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("   ")]
     [InlineData("not-a-level")]
     public void TryParseEvaluationConfidenceLevel_returns_null_for_missing_or_invalid(string? raw)
     {
@@ -65,9 +66,18 @@ public sealed class FindingInspectReadModelMapperTests
         actual.Should().Be(FindingConfidenceLevel.High);
     }
 
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_surrounding_whitespace()
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  High  ");
+
+        actual.Should().Be(FindingConfidenceLevel.High);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("   ")]
     public void ParseDisposition_returns_null_for_blank(string? raw)
     {
         FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition(raw);
@@ -83,6 +93,14 @@ public sealed class FindingInspectReadModelMapperTests
         actual.Should().Be(FindingDisposition.Accepted);
     }
 
+    [Fact]
+    public void ParseDisposition_trims_surrounding_whitespace()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("  Accepted  ");
+
+        actual.Should().Be(FindingDisposition.Accepted);
+    }
+
     [Theory]
     [InlineData("999")]
     [InlineData("-1")]
@@ -93,4 +111,428 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().BeNull();
     }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_enum_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("accepted");
+
+        actual.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_enum_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("pending");
+
+        actual.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_case_insensitive_warning_value()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("warning");
+
+        actual.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_case_insensitive_error_value()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("error");
+
+        actual.Should().Be(FindingSeverity.Error);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_case_insensitive_low_value()
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("low");
+
+        actual.Should().Be(FindingConfidenceLevel.Low);
+    }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_deferred_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("deferred");
+
+        actual.Should().Be(FindingDisposition.Deferred);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_case_insensitive_info_value()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("info");
+
+        actual.Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_case_insensitive_medium_value()
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("medium");
+
+        actual.Should().Be(FindingConfidenceLevel.Medium);
+    }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_needs_evidence_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("needsevidence");
+
+        actual.Should().Be(FindingDisposition.NeedsEvidence);
+    }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_remediated_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("remediated");
+
+        actual.Should().Be(FindingDisposition.Remediated);
+    }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_rejected_as_not_applicable_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("rejectedasnotapplicable");
+
+        actual.Should().Be(FindingDisposition.RejectedAsNotApplicable);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_not_required_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("notrequired");
+
+        actual.Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_approved_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("approved");
+
+        actual.Should().Be(FindingHumanReviewStatus.Approved);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_rejected_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("rejected");
+
+        actual.Should().Be(FindingHumanReviewStatus.Rejected);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_overridden_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("overridden");
+
+        actual.Should().Be(FindingHumanReviewStatus.Overridden);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_case_insensitive_high_value()
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("high");
+
+        actual.Should().Be(FindingConfidenceLevel.High);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_case_insensitive_critical_value()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("critical");
+
+        actual.Should().Be(FindingSeverity.Critical);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_rejects_negative_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("-1");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_rejects_positive_undefined_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("4");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_positive_undefined_numeric_string()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("3").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseHumanReview_rejects_positive_undefined_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("5");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_positive_undefined_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("5").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_defined_numeric_string_to_warning()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("1").Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_zero_as_high()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("0").Should().Be(FindingConfidenceLevel.High);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_one_to_pending()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("1").Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_zero_to_not_required()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("0").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_one_to_deferred()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("1").Should().Be(FindingDisposition.Deferred);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_one_as_medium()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("1").Should().Be(FindingConfidenceLevel.Medium);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_defined_numeric_string_zero_to_info()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("0").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_defined_numeric_string_two_to_error()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("2").Should().Be(FindingSeverity.Error);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_zero_to_accepted()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("0").Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_two_to_approved()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("2").Should().Be(FindingHumanReviewStatus.Approved);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_three_to_rejected()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("3").Should().Be(FindingHumanReviewStatus.Rejected);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_four_to_overridden()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("4").Should().Be(FindingHumanReviewStatus.Overridden);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_two_to_needs_evidence()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("2").Should().Be(FindingDisposition.NeedsEvidence);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_three_to_remediated()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("3").Should().Be(FindingDisposition.Remediated);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_four_to_rejected_as_not_applicable()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("4").Should().Be(FindingDisposition.RejectedAsNotApplicable);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_two_as_low()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("2").Should().Be(FindingConfidenceLevel.Low);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_defined_numeric_string_three_to_critical()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("3").Should().Be(FindingSeverity.Critical);
+    }
+
+    [Fact]
+    public void ParseHumanReview_rejects_negative_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("-1");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_negative_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("-1").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_rejects_fractional_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("1.5");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseHumanReview_rejects_fractional_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("2.5");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_fractional_numeric_string()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("1.5").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_fractional_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("0.5").Should().BeNull();
+        FindingInspectReadModelMapper.ParseDisposition("1.5").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_fractional_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  1.5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_negative_numeric_string()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("-1").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_negative_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  -1  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_negative_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  -1  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_fractional_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  1.5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_fractional_numeric_string_before_rejecting_for_all_fractional_inputs()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  0.5  ").Should().BeNull();
+        FindingInspectReadModelMapper.ParseDisposition("  1.5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  3  ").Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("+0", FindingSeverity.Info)]
+    [InlineData("+1", FindingSeverity.Warning)]
+    public void ParseFindingSeverity_maps_plus_sign_prefixed_numeric_strings(string raw, FindingSeverity expected)
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity(raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("+0", FindingHumanReviewStatus.NotRequired)]
+    [InlineData("+1", FindingHumanReviewStatus.Pending)]
+    public void ParseHumanReview_maps_plus_sign_prefixed_numeric_strings(string raw, FindingHumanReviewStatus expected)
+    {
+        FindingInspectReadModelMapper.ParseHumanReview(raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("+0", FindingConfidenceLevel.High)]
+    [InlineData("+1", FindingConfidenceLevel.Medium)]
+    [InlineData("+999", null)]
+    public void TryParseEvaluationConfidenceLevel_maps_plus_sign_prefixed_numeric_strings(string raw, FindingConfidenceLevel? expected)
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("+0", FindingDisposition.Accepted)]
+    [InlineData("+1", FindingDisposition.Deferred)]
+    [InlineData("+999", null)]
+    public void ParseDisposition_maps_plus_sign_prefixed_numeric_strings(string raw, FindingDisposition? expected)
+    {
+        FindingInspectReadModelMapper.ParseDisposition(raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("UNKNOWN")]
+    [InlineData("999")]
+    [InlineData("+999")]
+    public void ParseFindingSeverity_rejects_unrecognized_or_undefined_values(string raw)
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity(raw);
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Theory]
+    [InlineData("bad")]
+    [InlineData("99")]
+    [InlineData("999")]
+    [InlineData("+999")]
+    public void ParseHumanReview_rejects_unrecognized_or_undefined_values(string raw)
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview(raw);
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
 }

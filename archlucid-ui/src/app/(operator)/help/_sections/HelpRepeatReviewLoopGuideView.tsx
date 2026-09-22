@@ -10,6 +10,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { RepeatReviewLoopHelpClaimDisciplineStrip } from "@/components/help/RepeatReviewLoopHelpClaimDisciplineStrip";
 import { RepeatReviewLoopHelpEvidenceOrientationStrip } from "@/components/help/RepeatReviewLoopHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -313,9 +314,11 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           )}
         </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
         </div>
       </section>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-repeat-review-loop" showSsoOptional={false} />
 
       {buyerPolishedShell ? <HelpRepeatReviewLoopSourcesOrientationStrip /> : null}
     </>

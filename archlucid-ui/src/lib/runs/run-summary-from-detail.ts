@@ -50,6 +50,8 @@ export function runFromDetailToRunSummary(detail: RunDetail): RunSummary {
     runDegradedExecution: detail.runDegradedExecution,
     degradedExecutionAgents: detail.degradedExecutionAgents ?? undefined,
     structuralExecutionMode: run.structuralExecutionMode,
+    workingCareerRehearsalDoor: run.workingCareerRehearsalDoor,
+    executePostureCapturedUtc: run.executePostureCapturedUtc,
     legacyRunStatus: run.legacyRunStatus ?? undefined,
   };
 }
@@ -91,6 +93,10 @@ export function effectiveRunSummaryForPipeline(
     ),
     structuralExecutionMode:
       apiSummary.structuralExecutionMode ?? fromDetail.structuralExecutionMode ?? run.structuralExecutionMode,
+    workingCareerRehearsalDoor:
+      apiSummary.workingCareerRehearsalDoor ?? fromDetail.workingCareerRehearsalDoor ?? run.workingCareerRehearsalDoor,
+    executePostureCapturedUtc:
+      apiSummary.executePostureCapturedUtc ?? fromDetail.executePostureCapturedUtc ?? run.executePostureCapturedUtc,
     legacyRunStatus: apiSummary.legacyRunStatus ?? fromDetail.legacyRunStatus ?? run.legacyRunStatus ?? undefined,
   };
 }

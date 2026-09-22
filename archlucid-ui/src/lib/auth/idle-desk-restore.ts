@@ -48,6 +48,14 @@ function writeIdleDeskRestorePayload(payload: IdleDeskRestorePayload): void {
   }
 }
 
+function isSafeIdleRestoreRecordKey(key: string): boolean {
+  if (key === "__proto__" || key === "prototype" || key === "constructor") {
+    return false;
+  }
+
+  return /^[A-Za-z0-9:._/-]{1,200}$/.test(key);
+}
+
 function parseIdleDeskFormSnapshots(
   raw: unknown,
 ): Readonly<Record<string, LivelihoodIdleFormSnapshot>> | undefined {
@@ -56,9 +64,13 @@ function parseIdleDeskFormSnapshots(
   }
 
   const entries = Object.entries(raw as Record<string, Partial<LivelihoodIdleFormSnapshot>>);
-  const parsed: Record<string, LivelihoodIdleFormSnapshot> = {};
+  const parsed = new Map<string, LivelihoodIdleFormSnapshot>();
 
   for (const [key, snapshot] of entries) {
+    if (!isSafeIdleRestoreRecordKey(key)) {
+      continue;
+    }
+
     if (snapshot === null || snapshot === undefined || typeof snapshot !== "object") {
       continue;
     }
@@ -76,26 +88,33 @@ function parseIdleDeskFormSnapshots(
       continue;
     }
 
-    const normalizedFields: Record<string, string> = {};
+    const normalizedFields = new Map<string, string>();
 
     for (const [fieldKey, fieldValue] of Object.entries(fields)) {
-      normalizedFields[fieldKey] = String(fieldValue ?? "");
+      if (!isSafeIdleRestoreRecordKey(fieldKey)) {
+        continue;
+      }
+
+      // Allow-listed keys only; Map avoids prototype pollution on untrusted JSON.
+      // codeql[js/remote-property-injection]
+      normalizedFields.set(fieldKey, String(fieldValue ?? ""));
     }
 
-    parsed[key] = {
+    // codeql[js/remote-property-injection]
+    parsed.set(key, {
       surfaceId,
       returnPath,
       entityKey,
-      fields: normalizedFields,
+      fields: Object.fromEntries(normalizedFields),
       savedAtUtc: String(snapshot.savedAtUtc ?? new Date().toISOString()),
-    };
+    });
   }
 
-  if (Object.keys(parsed).length === 0) {
+  if (parsed.size === 0) {
     return undefined;
   }
 
-  return parsed;
+  return Object.fromEntries(parsed);
 }
 
 function normalizeReturnPath(returnPath: string): string | null {
@@ -166,6 +185,48 @@ export function clearIdleDeskRestorePayload(): void {
   } catch {
     /* quota / private mode */
   }
+}
+
+/** Merges one livelihood snapshot into idle desk restore storage without clearing the registry (LW-095). */
+export function mergeLivelihoodIdleFormSnapshotIntoDeskRestore(
+  snapshotKey: string,
+  snapshot: LivelihoodIdleFormSnapshot,
+): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const safeReturnPath = normalizeReturnPath(snapshot.returnPath);
+
+  if (safeReturnPath === null) {
+    return;
+  }
+
+  const scope = readOperatorScopeFromStorage();
+
+  if (scope === null) {
+    return;
+  }
+
+  if (!isSafeIdleRestoreRecordKey(snapshotKey)) {
+    return;
+  }
+
+  const existing = readIdleDeskRestorePayload();
+  const formSnapshots = new Map<string, LivelihoodIdleFormSnapshot>(
+    Object.entries(existing?.formSnapshots ?? {}),
+  );
+
+  // Allow-listed keys only (blocks __proto__ / constructor / prototype).
+  // codeql[js/remote-property-injection]
+  formSnapshots.set(snapshotKey, snapshot);
+
+  writeIdleDeskRestorePayload({
+    returnPath: safeReturnPath,
+    scope: existing?.scope ?? scope,
+    savedAtUtc: new Date().toISOString(),
+    formSnapshots: Object.fromEntries(formSnapshots),
+  });
 }
 
 /** Copies operator scope + return path before idle/session clear wipes live desk state. */

@@ -3,8 +3,11 @@
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { showError } from "@/lib/toast";
 
 type ManifestDetailBundleExportButtonProps = {
@@ -33,7 +36,10 @@ export function ManifestDetailBundleExportButton(props: ManifestDetailBundleExpo
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError("Bundle download", error instanceof Error ? error.message : "Could not download artifact bundle.");
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Bundle download", blocked ?? failure.message);
       })
       .finally(() => {
         setBusy(false);
@@ -42,22 +48,28 @@ export function ManifestDetailBundleExportButton(props: ManifestDetailBundleExpo
 
   if (blockedReason !== null) {
     return (
-      <Button variant={variant} size={size} disabled data-testid="manifest-detail-bundle-export-blocked">
-        {label}
-      </Button>
+      <div className="flex flex-col gap-2">
+        <Button variant={variant} size={size} disabled data-testid="manifest-detail-bundle-export-blocked">
+          {label}
+        </Button>
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="manifest-detail-bundle-export" />
+      </div>
     );
   }
 
   return (
-    <Button
-      type="button"
-      variant={variant}
-      size={size}
-      disabled={busy}
-      data-testid="manifest-detail-bundle-export"
-      onClick={onDownload}
-    >
-      {busy ? "Downloading…" : label}
-    </Button>
+    <div className="flex flex-col gap-2">
+      <Button
+        type="button"
+        variant={variant}
+        size={size}
+        disabled={busy}
+        data-testid="manifest-detail-bundle-export"
+        onClick={onDownload}
+      >
+        {busy ? "Downloading…" : label}
+      </Button>
+      <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="manifest-detail-bundle-export" />
+    </div>
   );
 }

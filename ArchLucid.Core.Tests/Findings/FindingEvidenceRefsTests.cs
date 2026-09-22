@@ -53,4 +53,15 @@ public sealed class FindingEvidenceRefsTests
 
         evidenceRefs.Should().BeEmpty();
     }
+
+    [Theory]
+    [InlineData("Microsoft.Web/sites", true)]
+    [InlineData("AWS::Lambda::Function", true)]
+    [InlineData("google_compute_instance", true)]
+    [InlineData("storage-1", false)]
+    [InlineData("Microsoft.Web", false)]
+    public void IsProductShapedInventoryToken_accepts_cloud_product_type_names(string value, bool expected)
+    {
+        FindingEvidenceRefs.IsProductShapedInventoryToken(value).Should().Be(expected);
+    }
 }

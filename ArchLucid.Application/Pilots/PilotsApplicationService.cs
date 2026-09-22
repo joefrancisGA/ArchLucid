@@ -6,6 +6,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -34,7 +35,8 @@ public sealed partial class PilotsApplicationService(
     ValueReportBuilder valueReportBuilder,
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider,
-    IPilotBaselineRepository pilotBaselineRepository) : IPilotsApplicationService
+    IPilotBaselineRepository pilotBaselineRepository,
+    IAuthorityQueryService authorityQueryService) : IPilotsApplicationService
 {
     private readonly FirstValueReportBuilder _firstValueReportBuilder =
         firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
@@ -98,4 +100,7 @@ public sealed partial class PilotsApplicationService(
 
     private readonly IPilotBaselineRepository _pilotBaselineRepository =
         pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 }

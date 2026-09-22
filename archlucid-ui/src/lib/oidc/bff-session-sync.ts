@@ -32,7 +32,15 @@ function resolveExpiresInSeconds(expiresIn: number | undefined): number {
 
   const numericExpiresIn = Number(expiresIn);
 
-  if (!Number.isFinite(numericExpiresIn) || numericExpiresIn <= 0) {
+  if (!Number.isFinite(numericExpiresIn)) {
+    return defaultExpiresInSec;
+  }
+
+  if (numericExpiresIn === 0) {
+    return 0;
+  }
+
+  if (numericExpiresIn < 0) {
     return defaultExpiresInSec;
   }
 

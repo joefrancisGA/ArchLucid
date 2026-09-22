@@ -1,0 +1,385 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "typeName": "ArchLucid.Application.Advisory.AdvisoryWorkflowFacade",
+      "forbiddenPrefix": "ArchLucid.Application.ArchitectureIntelligence",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Advisory.ApplyRecommendationActionFacadeResult",
+      "forbiddenPrefix": "ArchLucid.Application.ArchitectureIntelligence",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.CreatedSampleWorkspaceSeed",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.MeridianAlpineWorkspaceSeed",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.ProductTourWorkspaceSeed",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.RegulatedScenarioWorkspaceSeed",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedCreatedSampleSeeder",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedMeridianAlpineSeeder",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedNorthwindTourSeeder",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedPersistenceChain",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedRetailBaselineSeeder",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedSeederDependencies",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedSeederServiceCollectionExtensions",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedTrialWelcomeSeeder",
+      "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Coordination.CosmosGraphSnapshotOutboxSealedManifestHashGuard",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Coordination.PostCommitProjectionOutboxSealedManifestHashGuard",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Coordination.RetrievalIndexingOutboxSealedManifestHashGuard",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.DataConsistency.HungReviewExecuteWatchdog",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Diagrams.MermaidDiagramGenerator",
+      "forbiddenPrefix": "ArchLucid.Application.Manifests",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.AzureInventorySecurityBaselineFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.ComparisonFindingCorrelationMetadataBuilder",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.DeclarationInventoryContradictionFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.DeclarationInventoryContradictionFindingMapper",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.FindingInspectTrustContextResolver",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.FindingInspectTrustLabelEnricher",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.GraphAwsInventoryReconciliationFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.GraphAzureInventoryReconciliationFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.GraphGcpInventoryReconciliationFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.HeldCheck.HeldCheckSecondPassService",
+      "forbiddenPrefix": "ArchLucid.Application.ArchitectureIntelligence",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.HeldCheck.HeldCheckSecondPassService",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.InventorySecurityBaselineFindingMapper",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.OrphanedAwsResourceFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.OrphanedAzureResourceFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.OrphanedGcpResourceFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.PolicyDeclarationInventoryContradictionFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.PolicyDeclarationInventoryContradictionFindingMapper",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.PortfolioRecurrence.PortfolioRunScanSource",
+      "forbiddenPrefix": "ArchLucid.Application.Roi",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.ProseAssumption.ProseAssumptionContradictionPass",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.ProseAssumption.ProseAssumptionContradictionService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.ProseAssumption.ProseAssumptionInventorySlice",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.SecretsLifecycleFindingEngine",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.ExecuteTimeGovernanceScopeCaptureService",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.FindingEvidenceReferentialIntegrityValidator",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.GovernanceDigestDecisionNeededComposer",
+      "forbiddenPrefix": "ArchLucid.Application.Roi",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.GovernanceDispositionSealedManifestGuard",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.GovernanceMutationCorrectionService",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.ManifestGoldenReadSealedManifestHashGuard",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PolicyPackAssignmentOutcomeRecorder",
+      "forbiddenPrefix": "ArchLucid.Application.ArchitectureIntelligence",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PolicyPackDryRun.Stages.PolicyPackDryRunLoadStage",
+      "forbiddenPrefix": "ArchLucid.Application.Pilots",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PolicyPackSimulateSealedManifestGuard",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.Posture.GovernancePostureSealedManifestHashGuard",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PreCommitGovernanceGate",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PreFinalizeChecklistService",
+      "forbiddenPrefix": "ArchLucid.Application.ArchitectureIntelligence",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PreFinalizeExecuteBaselineDriftEvaluator",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.RecurringArchitectureReviewTriggerService",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.Stickiness.GovernanceStickinessFacade",
+      "forbiddenPrefix": "ArchLucid.Application.Roi",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.InfraEvidence.Branding.ITenantReportBrandingApplyHelper",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.InfraEvidence.Branding.TenantBrandingAdminService",
+      "forbiddenPrefix": "ArchLucid.Application.Pilots",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.InfraEvidence.Branding.TenantBrandingExportMapper",
+      "forbiddenPrefix": "ArchLucid.Application.Pilots",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.InfraEvidence.Branding.TenantBrandingResolver",
+      "forbiddenPrefix": "ArchLucid.Application.Pilots",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.InfraEvidence.Branding.TenantReportBrandingApplyHelper",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.InfraEvidence.Branding.TenantReportBrandingApplyHelper",
+      "forbiddenPrefix": "ArchLucid.Application.Pilots",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Intake.WizardIntakeDraftService",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Integrations.Confluence.ConfluenceFirstValueReportPublisher",
+      "forbiddenPrefix": "ArchLucid.Application.Pilots",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Jobs.AnalysisReportDocxJobPayload",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Jobs.BackgroundJobWorkUnitExecutor",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Notifications.Email.ExecDigestEmailDispatchSealedManifestHashGuard",
+      "forbiddenPrefix": "ArchLucid.Application.ExecDigest",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Notifications.Email.ExecDigestEmailDispatcher",
+      "forbiddenPrefix": "ArchLucid.Application.ExecDigest",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Notifications.Email.IExecDigestEmailDispatcher",
+      "forbiddenPrefix": "ArchLucid.Application.ExecDigest",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Notifications.Email.Models.ExecDigestEmailModel",
+      "forbiddenPrefix": "ArchLucid.Application.ExecDigest",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Operations.OperationCancelService",
+      "forbiddenPrefix": "ArchLucid.Application.Planning",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Operations.OperationQueryService",
+      "forbiddenPrefix": "ArchLucid.Application.Planning",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Operations.OperationRunCancellationMarker",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Tenancy.TenantProvisioningService",
+      "forbiddenPrefix": "ArchLucid.Application.Marketing",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    }
+  ]
+}

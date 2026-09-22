@@ -1,6 +1,8 @@
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
+import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
+
 function isWeakPlaceholderRunId(runId: string | undefined | null): boolean {
   const t = runId?.trim() ?? "";
 
@@ -43,4 +45,20 @@ export function normalizeSeeItMarketingPayload(p: DemoCommitPagePreviewResponse)
     return p;
 
   return getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID);
+}
+
+/**
+ * When live preview JSON is thin, normalization upgrades to the static showcase payload — disclosure must
+ * follow the rendered content, not the upstream fetch status.
+ */
+export function resolveSeeItMarketingRenderPlan(loadResult: {
+  source: SeeItPreviewSource;
+  payload: DemoCommitPagePreviewResponse;
+}): { source: SeeItPreviewSource; payload: DemoCommitPagePreviewResponse } {
+  const payload = normalizeSeeItMarketingPayload(loadResult.payload);
+
+  if (loadResult.source !== "live" || payload === loadResult.payload)
+    return { source: loadResult.source, payload };
+
+  return { source: "snapshot", payload };
 }

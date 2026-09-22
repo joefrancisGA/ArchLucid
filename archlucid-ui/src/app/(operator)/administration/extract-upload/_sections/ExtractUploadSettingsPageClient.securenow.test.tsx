@@ -22,6 +22,7 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+import { EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageClient } from "./ExtractUploadSettingsPageClient";
 
 function baselineArtifactsResponse(payload: {
@@ -69,6 +70,9 @@ describe("ExtractUploadSettingsPageClient (SecureNow)", () => {
 
     const pageText = screen.getByTestId("extract-upload-settings-page").textContent ?? "";
 
+    expect(screen.getByText(EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW)).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-page-shortcuts")).toBeInTheDocument();
     expect(pageText).toContain("SecureNow checkout");
     expect(pageText).not.toMatch(/\bArchLucid\b/);
     expect(pageText).toContain("cloud inventory packager script");

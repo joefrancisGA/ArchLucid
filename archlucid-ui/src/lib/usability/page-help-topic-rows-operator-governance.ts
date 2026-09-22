@@ -10,28 +10,40 @@ import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help
 import { APPROVAL_LINEAGE_HELP_TOPIC_LABEL } from "@/lib/approval-lineage-evidence-copy";
 import { APPROVAL_QUEUE_HELP_TOPIC_LABEL } from "@/lib/approval-queue-evidence-copy";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
+import { AUDIT_EVIDENCE_PAGE_TITLE } from "@/lib/audit-evidence-page-copy";
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
 import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { POLICY_PACKS_HUB_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-hub-evidence-copy";
 import { RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL } from "@/lib/recurrence-schedules-help-evidence-copy";
 import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
 import { RISK_EXCEPTIONS_HELP_TOPIC_LABEL } from "@/lib/risk-exceptions-evidence-copy";
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 
-import type { PageHelpTopic } from "./page-help-topic-rows-operator";
+import type { PageHelpTopic, PageHelpTopicRow } from "./page-help-topic-rows-operator";
 
-export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly { prefix: string; topic: PageHelpTopic }[] = [
+export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow[] = [
   {
     prefix: "/help/alerts",
     topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },
@@ -85,6 +97,34 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly { prefix: string
   {
     prefix: "/governance/standards-and-rules",
     topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
+    topic: { label: AUDIT_EVIDENCE_PAGE_TITLE },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+    topic: { slug: "cloud-connections-azure", label: OPERATOR_NAV_LINK_LABELS.extractUpload },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    topic: { label: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    topic: { label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    topic: { label: GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    topic: { label: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,

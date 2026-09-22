@@ -11,9 +11,6 @@ namespace ArchLucid.Api.Controllers.Findings;
 
 public sealed partial class FindingInspectController
 {
-    private readonly IManifestHashService _manifestHashService =
-        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
-
     private async Task<IActionResult?> EnsureFindingInspectSealedManifestReadAllowedAsync(
         Guid runId,
         CancellationToken cancellationToken)
@@ -36,9 +33,15 @@ public sealed partial class FindingInspectController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapFindingInspectSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps finding inspect read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapFindingInspectSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

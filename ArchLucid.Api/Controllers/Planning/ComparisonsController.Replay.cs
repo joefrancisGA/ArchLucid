@@ -56,6 +56,10 @@ public sealed partial class ComparisonsController
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -104,7 +108,7 @@ public sealed partial class ComparisonsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapComparisonReplaySealedManifestConflict(ex);
         }
 
         if (result is null)
@@ -172,7 +176,7 @@ public sealed partial class ComparisonsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapComparisonReplaySealedManifestConflict(ex);
         }
 
         ReplayComparisonResultHeaders.ApplyMetadata(Response, result);
@@ -245,7 +249,7 @@ public sealed partial class ComparisonsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapComparisonReplaySealedManifestConflict(ex);
         }
 
         if (zipResult is null)

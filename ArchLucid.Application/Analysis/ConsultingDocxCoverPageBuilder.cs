@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -12,6 +13,7 @@ internal static class ConsultingDocxCoverPageBuilder
         ConsultingDocxTemplateOptions options,
         IDocumentLogoProvider logoProvider,
         ConsultingDocxExportBranding? branding,
+        CareerExportCoverageHonestyInput? careerExportHonesty,
         CancellationToken cancellationToken)
     {
         byte[]? brandingLogoBytes = branding?.LogoBytes;
@@ -65,6 +67,24 @@ internal static class ConsultingDocxCoverPageBuilder
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 2);
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, subtitle, "Subtitle");
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 2);
+
+        if (careerExportHonesty is not null)
+        {
+            IReadOnlyList<string> sendableCoverLines =
+                ConsultingDocxSendableExportCoverPresenter.RenderPlainTextLines(careerExportHonesty);
+
+            if (sendableCoverLines.Count > 0)
+            {
+                ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Sendable export cover", 2);
+
+                foreach (string line in sendableCoverLines)
+                {
+                    ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, line, "BodyText");
+                }
+
+                ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 2);
+            }
+        }
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Run ID: {report.Run.RunId}", "BodyText");
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Request ID: {report.Run.RequestId}", "BodyText");

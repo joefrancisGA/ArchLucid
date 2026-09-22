@@ -12,7 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
+import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import type { FindingClassificationValue } from "@/lib/findings/finding-classification-chip-presentation";
+import {
+  resolveFindingClassificationChipReason,
+  resolveFindingClassificationLabel,
+} from "@/lib/findings/finding-classification-chip-presentation";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer/buyer-polish-copy";
 import { askAboutFinding } from "@/lib/api/finding-ask-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -33,6 +41,9 @@ type FindingAskInlinePanelProps = {
   readonly findingId: string;
   readonly runId?: string;
   readonly defaultOpen?: boolean;
+  readonly semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  readonly classification?: FindingClassificationValue;
+  readonly treatment?: number | null;
 };
 
 type AskTurn = {
@@ -170,6 +181,19 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
             <AskRunCoverageHonestyStrip runId={props.runId} />
           ) : null}
           <AskVsFrontierAiDifferentiationStrip variant="compact" />
+          {props.classification !== null && props.classification !== undefined ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-ask-inline-classification-honesty"
+            >
+              <span className="font-medium text-al-text-primary">Classification:</span>{" "}
+              {resolveFindingClassificationLabel(props.classification, props.treatment)}
+              {resolveFindingClassificationChipReason(props.classification, props.treatment) !== null
+                ? ` — ${resolveFindingClassificationChipReason(props.classification, props.treatment)}`
+                : ""}
+            </p>
+          ) : null}
+          <PolicyPackInfluenceHonestyChip className="mt-1" />
           {isBuyerPolishedOperatorShellEnv() ? (
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ASK_GROUNDING_ONCE}</p>
           ) : null}
@@ -188,6 +212,14 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                     Answer
                   </p>
                   <AskAssistantMessageBody content={turn.answer} />
+                  <AskCitedFindingsSemanticSupportBandFootnote
+                    referencedFindingIds={[props.findingId]}
+                    findingBandIndex={
+                      props.semanticSupportBand !== undefined && props.semanticSupportBand !== null
+                        ? [{ findingId: props.findingId, band: props.semanticSupportBand }]
+                        : []
+                    }
+                  />
                 </li>
               ))}
             </ol>

@@ -6,8 +6,6 @@ import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, ty
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
-import { WorkspaceModeSealDefaultEffect } from "@/components/workspace-mode/WorkspaceModeSealDefaultEffect";
 import { OperatorShellStatusQueryGate } from "@/components/shell/OperatorShellStatusQueryGate";
 import {
   AppShellIdleOverlaysDeferred,
@@ -37,6 +35,10 @@ import {
   SyncActiveRunFromPathnameDeferred,
   TrialLimitModalHostDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
+import { AppShellLivelihoodMutationResumeHost } from "@/components/shell/AppShellLivelihoodMutationResumeHost";
+import { OperatorSampleWorkspaceDoorPinHost } from "@/components/shell/OperatorSampleWorkspaceDoorPinHost";
+import { FirstSessionPurposeChooserHost } from "@/components/auth/FirstSessionPurposeChooserHost";
+import { OperatorWorkspaceScopeBootstrapHost } from "@/components/shell/OperatorWorkspaceScopeBootstrapHost";
 import { AppShellSyncCommandPaletteHost } from "@/components/shell/AppShellSyncCommandPaletteHost";
 import { AppShellSyncKeyboardShortcutListener } from "@/components/shell/AppShellSyncKeyboardShortcutListener";
 import { AppShellSyncSessionIdleGuard } from "@/components/shell/AppShellSyncSessionIdleGuard";
@@ -158,14 +160,11 @@ function AppShellDeferChromeBoundary({
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   return (
-    <OperatorQueryProvider>
-      <WorkspaceModeSealDefaultEffect />
-      <OperatorShellStatusQueryGate>
-        <OperatorChromeModeProvider>
-          <AppShellInner>{children}</AppShellInner>
-        </OperatorChromeModeProvider>
-      </OperatorShellStatusQueryGate>
-    </OperatorQueryProvider>
+    <OperatorShellStatusQueryGate>
+      <OperatorChromeModeProvider>
+        <AppShellInner>{children}</AppShellInner>
+      </OperatorChromeModeProvider>
+    </OperatorShellStatusQueryGate>
   );
 }
 
@@ -240,6 +239,10 @@ function AppShellInner({ children }: AppShellClientProps) {
           {!deferChrome ? <OperatorShellAccessRedirectsHostDeferred /> : null}
           <AppShellTelemetryBundleDeferred />
           <AppShellSyncSessionIdleGuard />
+          <AppShellLivelihoodMutationResumeHost />
+          <OperatorWorkspaceScopeBootstrapHost />
+          <FirstSessionPurposeChooserHost />
+          <OperatorSampleWorkspaceDoorPinHost />
           <CommandPaletteWorkActionBridge />
           <AppShellSyncCommandPaletteHost />
           <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />
@@ -348,6 +351,10 @@ function AppShellInner({ children }: AppShellClientProps) {
       <DevTestingShellShortcutsDeferred />
       <DevTestingQuickSwitchPanelDeferred />
       <AppShellSyncSessionIdleGuard />
+      <AppShellLivelihoodMutationResumeHost />
+      <OperatorWorkspaceScopeBootstrapHost />
+      <FirstSessionPurposeChooserHost />
+      <OperatorSampleWorkspaceDoorPinHost />
       <CommandPaletteWorkActionBridge />
       <AppShellSyncCommandPaletteHost />
       <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />

@@ -21,12 +21,23 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.IssuerUri))
+        string issuerUri = request.IssuerUri?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(issuerUri))
         {
             return new IdentityProviderTestLoginResponse
             {
                 Success = false,
                 DiagnosticSummary = "IssuerUri is required."
+            };
+        }
+
+        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
+        {
+            return new IdentityProviderTestLoginResponse
+            {
+                Success = false,
+                DiagnosticSummary = "IssuerUri must be an absolute HTTP(S) URL."
             };
         }
 

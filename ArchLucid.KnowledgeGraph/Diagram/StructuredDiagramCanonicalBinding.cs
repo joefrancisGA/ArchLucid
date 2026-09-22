@@ -22,4 +22,13 @@ public sealed class StructuredDiagramCanonicalBinding
         get;
         init;
     }
+
+    /// <summary>
+    ///     Diagram package evidence item id copied onto the bound canonical node for path-engine citations (QR-15).
+    /// </summary>
+    public string? SourceEvidenceItemId
+    {
+        get;
+        init;
+    }
 }

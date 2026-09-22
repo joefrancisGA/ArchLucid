@@ -9,6 +9,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Summaries;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -62,6 +63,17 @@ public sealed partial class ManifestsController(
     private const string DiagramLayoutDefault = "LR";
     private const string RelationshipLabelsDefault = "type";
     private const string GroupByDefault = "none";
+    private const int SemanticOverlayMaxNodesDefault = 12;
+
+    private ManifestDiagramOptions CreateExportDiagramOptions() =>
+        new()
+        {
+            IncludeSemanticOverlay = true,
+            SemanticOverlayMaxNodes = SemanticOverlayMaxNodesDefault,
+        };
+
+    private string GenerateExportMermaid(GoldenManifest manifest) =>
+        manifestDiagramService.GenerateMermaid(manifest, CreateExportDiagramOptions());
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -112,14 +124,5 @@ public sealed partial class ManifestsController(
         }
 
         return null;
-    }
-
-    private IActionResult GoldenManifestReadConflictProblem(ConflictException ex)
-    {
-        string problemType = ex.Message.Contains("hash", StringComparison.OrdinalIgnoreCase)
-            ? ProblemTypes.DecisionReceiptSealedHashMismatch
-            : ProblemTypes.Conflict;
-
-        return this.ConflictProblem(ex.Message, problemType);
     }
 }

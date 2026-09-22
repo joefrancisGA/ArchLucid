@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { TeamsIntegrationHelpClaimDisciplineStrip } from "@/components/help/TeamsIntegrationHelpClaimDisciplineStrip";
 import { TeamsIntegrationHelpEvidenceOrientationStrip } from "@/components/help/TeamsIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -11,6 +12,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
@@ -21,6 +23,7 @@ import {
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
+  TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID,
   TEAMS_INTEGRATION_HELP_FEATURE_ITEMS,
   TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS,
   TEAMS_INTEGRATION_HELP_HOW_TO_READ_STEPS,
@@ -63,7 +66,12 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { localize } = useLocalizedProductCopy();
-  const contentGridClass = resolveHelpPageContentGridClass(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-teams-integration",
+    TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS,
+    TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -193,9 +201,10 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
             </ul>
           </section>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="help-teams-integration" showSsoOptional={false} />
         </div>
 
-        <HelpTopicTableOfContents headings={TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

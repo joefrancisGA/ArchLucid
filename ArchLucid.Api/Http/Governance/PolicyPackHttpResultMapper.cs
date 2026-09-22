@@ -1,9 +1,18 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Http.Governance;
+
+internal static class PolicyPackSealedManifestConflictMapping
+{
+    internal static IActionResult MapPolicyPackSealedManifestConflict(
+        ControllerBase controller,
+        ConflictException ex) =>
+        controller.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+}
 
 internal static class PolicyPackHttpResultMapper
 {
@@ -51,9 +60,10 @@ internal static class PolicyPackHttpResultMapper
             PolicyPackHttpOutcome.VersionNotFound => controller.ToVersionNotFoundProblem(
                 result.PolicyPackId!.Value,
                 result.VersionKey!),
-            PolicyPackHttpOutcome.Conflict => controller.ConflictProblem(
-                "Policy pack assignment conflicted with the current governance scope.",
-                ProblemTypes.Conflict),
+            PolicyPackHttpOutcome.Conflict => PolicyPackSealedManifestConflictMapping.MapPolicyPackSealedManifestConflict(
+                controller,
+                new ConflictException(
+                    "Policy pack assignment conflicted with the current governance scope.")),
             _ => throw new InvalidOperationException($"Unexpected assign outcome: {result.Outcome}."),
         };
     }

@@ -1,5 +1,9 @@
 import type { AskResponse, ConversationMessage, ConversationThread } from "@/types/conversation";
 import type { PagedResponse } from "@/types/pagination";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { askBlockedReason } from "@/lib/ask/ask-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiGet, apiPostJson } from "./http";
 
 export { askArchLucidStream } from "./ask-sse-stream";
@@ -21,7 +25,14 @@ export async function askArchLucid(payload: {
   if (payload.baseRunId?.trim()) body.baseRunId = payload.baseRunId.trim();
   if (payload.targetRunId?.trim()) body.targetRunId = payload.targetRunId.trim();
 
-  return apiPostJson<AskResponse>("/v1/ask", body);
+  try {
+    return await apiPostJson<AskResponse>("/v1/ask", body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = askBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Loads ComparisonNarrative via POST /v1/ask (base + target runs, advisory prompt). */

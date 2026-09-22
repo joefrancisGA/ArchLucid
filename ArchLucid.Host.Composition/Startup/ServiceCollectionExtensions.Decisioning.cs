@@ -112,6 +112,9 @@ public static partial class ServiceCollectionExtensions
         services.Configure<FindingPayloadRemediationOptions>(configuration.GetSection(FindingPayloadRemediationOptions.SectionPath));
         services.PostConfigure<FindingPayloadRemediationOptions>(static o => o.Normalize());
         services.Configure<InsightDensityGateOptions>(configuration.GetSection(InsightDensityGateOptions.SectionPath));
+        services.Configure<FindingSemanticSupportBandOptions>(
+            configuration.GetSection(FindingSemanticSupportBandOptions.SectionPath));
+        services.TryAddSingleton<IFindingSemanticSupportBandLlmJudge, NoOpFindingSemanticSupportBandLlmJudge>();
         services.Configure<ArchLucid.Application.Findings.OpenCommitmentFindingOptions>(
             configuration.GetSection(ArchLucid.Application.Findings.OpenCommitmentFindingOptions.SectionPath));
         services.Configure<ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions>(

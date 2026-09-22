@@ -32,6 +32,8 @@ public static class CommittedRunHeaderAnchorRegistry
         "StructuralExecutionMode",
         "OtelTraceId",
         "EngineProvenanceJson",
-        "GovernanceScopeJson"
+        "GovernanceScopeJson",
+        "WorkingCareerRehearsalDoor",
+        "ExecutePostureCapturedUtc"
     ];
 }

@@ -1,6 +1,14 @@
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
+import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 import type { HelpSearchPanelGroup, HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
 
@@ -20,6 +28,22 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     description: "Work or school accounts, email one-time codes, invitations, SSO, and account recovery.",
     keywords: ["sign in", "authentication", "email code", "sso", "invitation", "recovery", "passwordless"],
     action: { kind: "route", href: "/help/authentication-sign-in", helpSlug: "authentication-sign-in" },
+  },
+  {
+    id: "first-login-workspace",
+    title: "Your workspace after sign-in",
+    description: "Live tenant workspace by default, optional Training on sample data, and how that differs from Record and Practice.",
+    keywords: [
+      "first login",
+      "training mode",
+      "not live data",
+      "customer intake demo",
+      "live data",
+      "sample workspace",
+      "leave training",
+      "workspace after sign-in",
+    ],
+    action: { kind: "route", href: "/help/first-login-workspace", helpSlug: "first-login-workspace" },
   },
   {
     id: "how-archlucid-works",
@@ -70,6 +94,189 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/glossary", helpSlug: "glossary" },
   },
   {
+    id: "architecture-desk",
+    title: "Architecture desk",
+    description:
+      "Working help — named architecture is the object; reviews are nested jobs. Inbox triage is secondary; clone after spawn opens the next version.",
+    keywords: [
+      "architecture desk",
+      "named architecture",
+      "nested review",
+      "system not job",
+      "inbox",
+      "clone",
+      "spawn lock",
+      "new version",
+      "monday object",
+      "working desk",
+    ],
+    action: { kind: "route", href: "/help/architecture-desk", helpSlug: "architecture-desk" },
+  },
+  {
+    id: "system-gravity",
+    title: "System gravity",
+    description:
+      "Working help — architecture desk is the instrument after spawn; nested review is a job inspector, not Home. System vs job vs inspector.",
+    keywords: [
+      "system gravity",
+      "instrument after spawn",
+      "job inspector",
+      "nested review",
+      "architecture desk",
+      "adr 0098",
+      "record",
+      "practice",
+    ],
+    action: { kind: "route", href: "/help/system-gravity", helpSlug: "system-gravity" },
+  },
+  {
+    id: "false-hard-infeasibility",
+    title: "Hard vs soft infeasibility",
+    description:
+      "Working help — cite law before hard infeasible on Career export. Soft infeasible is an explicit envelope; uncited hard is a defect.",
+    keywords: [
+      "false hard",
+      "hard infeasible",
+      "soft infeasible",
+      "citation required",
+      "impossible without law",
+      "career export",
+      "adr 0093",
+    ],
+    action: { kind: "route", href: "/help/false-hard-infeasibility", helpSlug: "false-hard-infeasibility" },
+  },
+  {
+    id: "extraction-fidelity",
+    title: "Extraction fidelity",
+    description:
+      "Working help — evidence-backed findings need source pointers; NotVerifiable diagrams stay labeled until passage-backed.",
+    keywords: [
+      "extraction fidelity",
+      "evidence source",
+      "notverifiable",
+      "diagram",
+      "passage-backed",
+      "provenance",
+    ],
+    action: { kind: "route", href: "/help/extraction-fidelity", helpSlug: "extraction-fidelity" },
+  },
+  {
+    id: "impact-preview-vs-architecture-envelope",
+    title: "Impact preview vs architecture envelope",
+    description:
+      "Working help — policy cheap envelope vs architecture desk sketch; neither path is draft-to-draft Compare (CE-020 / SN-007).",
+    keywords: [
+      "policy cheap envelope",
+      "architecture sketch envelope",
+      "impact preview vs sketch",
+      "cheap envelope",
+      "architecture envelope",
+      "sn-007",
+      "r12",
+      "sketch a change",
+    ],
+    action: {
+      kind: "route",
+      href: "/help/impact-preview-vs-architecture-envelope",
+      helpSlug: "impact-preview-vs-architecture-envelope",
+    },
+  },
+  {
+    id: "sketch-a-change",
+    title: "Sketch a change",
+    description:
+      "Working help — clone from sealed snapshot after spawn lock; Practice sketch, R12 branch cap, no unseal (CE-019 / ADR 0092).",
+    keywords: [
+      "sketch a change",
+      "architecture sketch envelope",
+      "clone from snapshot",
+      "spawn lock",
+      "cheap envelope sketch",
+      "practice sketch",
+      "ce-019",
+      "adr 0092",
+      "branch cap",
+      "no unseal",
+    ],
+    action: { kind: "route", href: "/help/sketch-a-change", helpSlug: "sketch-a-change" },
+  },
+  {
+    id: "which-mode-am-i-in",
+    title: "Which mode am I in?",
+    description:
+      "Working vs Guided, then Record vs Practice — demo and trial builds use eval chrome, not Working Record gravity.",
+    keywords: [
+      "which mode",
+      "am i in working",
+      "guided or working",
+      "career or rehearsal",
+      "eval chrome",
+      "demo mode",
+      "workspace mode",
+      "adr 0094",
+    ],
+    action: { kind: "route", href: "/help/which-mode-am-i-in", helpSlug: "which-mode-am-i-in" },
+  },
+  {
+    id: "sealed-record-vs-decision-register",
+    title: "Sealed review record vs decision register",
+    description:
+      "A sealed review record is the finalized package for one review; the decision register is the ledger of dispositions.",
+    keywords: [
+      "sealed record",
+      "signed record",
+      "finalized review record",
+      "decision register",
+      "package vs ledger",
+      "signed decision record",
+    ],
+    action: {
+      kind: "route",
+      href: "/help/sealed-record-vs-decision-register",
+      helpSlug: "sealed-record-vs-decision-register",
+    },
+  },
+  {
+    id: "career-vs-rehearsal",
+    title: "Record vs Practice on the Working desk",
+    description:
+      "Working desk review-type chooser — Record for sealed-record evidence, Practice for labeled dry-runs. Simulator is not sponsor proof.",
+    keywords: [
+      "record vs practice",
+      "review type",
+      "working desk",
+      "career",
+      "rehearsal",
+      "record",
+      "practice",
+      "simulator",
+      "sealed record",
+      "finalize",
+      "alt+shift+e",
+    ],
+    action: { kind: "route", href: "/help/career-vs-rehearsal", helpSlug: "career-vs-rehearsal" },
+  },
+  {
+    id: "career-rehearsal-doors",
+    title: "Record and Practice",
+    description: "Working review type — dry-runs in Practice, sealed-record proof in Record. Simulator is not sponsor proof.",
+    keywords: [
+      "record",
+      "practice",
+      "career",
+      "career door",
+      "career-complete",
+      "record-complete",
+      "rehearsal",
+      "working door",
+      "review type",
+      "simulator",
+      "sealed record",
+      "finalize",
+    ],
+    action: { kind: "route", href: "/help/career-rehearsal-doors", helpSlug: "career-rehearsal-doors" },
+  },
+  {
     id: "create-first-review",
     title: "Create your first review",
     description: "Start with a brief, diagram, IaC file, or evidence ZIP.",
@@ -86,6 +293,89 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
       href: `/architecture/reviews/${CUSTOMER_INTAKE_SAMPLE_RUN_ID}`,
       helpSlug: null,
     },
+  },
+];
+
+export const SECURITY_START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "getting-started-help",
+    title: "Getting started",
+    description:
+      "Learn how SecureNow connects cloud evidence, routes alerts, and supports security operations workflows.",
+    keywords: ["getting started", "concepts", "overview", "introduction", "securenow"],
+    action: { kind: "route", href: "/help/getting-started", helpSlug: "getting-started" },
+  },
+  {
+    id: "connect-azure",
+    title: "Connect Azure securely",
+    description: "Workload identity federation, read-only roles, and connection validation.",
+    keywords: ["azure", "federation", "workload identity", "permissions", "cloud connection"],
+    action: { kind: "route", href: inAppHelpHref("cloud-connections-azure"), helpSlug: "cloud-connections-azure" },
+  },
+  {
+    id: "findings-help",
+    title: FINDINGS_HELP_TOPIC_LABEL,
+    description: "Triage cloud-evidence findings, assign remediation owners, and record disposition.",
+    keywords: ["findings", "triage", "remediation", "disposition", "risk register"],
+    action: { kind: "route", href: FINDINGS_HELP_PATH, helpSlug: "findings" },
+  },
+  {
+    id: "assigned-to-me-findings",
+    title: "Assigned to me",
+    description: "Your personal remediation queue for findings assigned to you.",
+    keywords: ["assigned to me", "my findings", "remediation queue", "personal queue"],
+    action: { kind: "route", href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, helpSlug: null },
+  },
+  {
+    id: "authentication-sign-in",
+    title: "Authentication and sign-in",
+    description: "Work or school accounts, email one-time codes, invitations, SSO, and account recovery.",
+    keywords: ["sign in", "authentication", "email code", "sso", "invitation", "recovery", "passwordless"],
+    action: { kind: "route", href: "/help/authentication-sign-in", helpSlug: "authentication-sign-in" },
+  },
+];
+
+export const SECURITY_FINDINGS_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "risk-register",
+    title: "Findings",
+    description: "Track accepted risks, owners, exceptions, and follow-up.",
+    keywords: ["risk", "register", "exceptions", "accepted risk", "findings queue"],
+    action: { kind: "route", href: GOVERNANCE_FINDINGS_PATH, helpSlug: null },
+  },
+  {
+    id: "infra-remediation-workbench",
+    title: "Infrastructure remediation",
+    description: "Track remediation instances, waves, and verification for cloud resources.",
+    keywords: ["remediation", "infrastructure", "instance", "wave", "verify"],
+    action: { kind: "route", href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH, helpSlug: null },
+  },
+  {
+    id: "infra-drift-help",
+    title: "Infrastructure drift",
+    description: "Compare live cloud inventory to expected posture and open remediation follow-up.",
+    keywords: ["drift", "infrastructure", "inventory", "cloud posture"],
+    action: {
+      kind: "route",
+      href: inAppHelpHref("governance-infrastructure-drift"),
+      helpSlug: "governance-infrastructure-drift",
+    },
+  },
+  {
+    id: "remediation-factory",
+    title: "Remediation factory",
+    description:
+      "Rank findings, inspect architect paths, compare outcome metrics, and open factory instances.",
+    keywords: [
+      "remediation factory",
+      "wave",
+      "ranked findings",
+      "ranked paths",
+      "architect metrics",
+      "path inspect",
+      "factory",
+    ],
+    action: { kind: "route", href: "/governance/remediation-factory", helpSlug: null },
   },
 ];
 
@@ -318,6 +608,18 @@ export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
   { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
 ];
 
+export const HELP_SEARCH_PANEL_GROUPS_SECURITY: readonly HelpSearchPanelGroup[] = [
+  { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: SECURITY_START_HERE_TOPICS },
+  { id: "findings-work", heading: "Findings and remediation", topics: SECURITY_FINDINGS_WORK_TOPICS },
+  { id: "governance", heading: "Approval", topics: GOVERNANCE_TOPICS },
+  { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
+  { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
+];
+
+export function resolveHelpSearchPanelGroups(productLineId: ProductLineId): readonly HelpSearchPanelGroup[] {
+  return productLineId === "security" ? HELP_SEARCH_PANEL_GROUPS_SECURITY : HELP_SEARCH_PANEL_GROUPS;
+}
+
 /** Synonyms expand search queries to curated topic ids. */
 export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string[]>> = {
   "proof packet": ["review-artifacts"],
@@ -346,12 +648,42 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   isolation: ["data-handling-help"],
   "data handling": ["data-handling-help", "security-trust-help"],
   privacy: ["data-handling-help", "security-trust-help"],
+  "architecture desk": ["architecture-desk"],
+  "system gravity": ["system-gravity"],
+  "job inspector": ["system-gravity"],
+  "hard infeasible": ["false-hard-infeasibility"],
+  "false hard": ["false-hard-infeasibility"],
+  "extraction fidelity": ["extraction-fidelity"],
+  "policy cheap envelope": ["impact-preview-vs-architecture-envelope"],
+  "architecture sketch envelope": ["impact-preview-vs-architecture-envelope", "sketch-a-change"],
+  "impact preview vs sketch": ["impact-preview-vs-architecture-envelope"],
+  "sketch a change": ["sketch-a-change"],
+  "clone from snapshot": ["sketch-a-change"],
+  "spawn lock clone": ["sketch-a-change"],
+  "cheap envelope": ["impact-preview-vs-architecture-envelope"],
+  "which mode": ["which-mode-am-i-in"],
+  "am i in working": ["which-mode-am-i-in"],
+  inbox: ["architecture-desk"],
+  "nested review": ["architecture-desk"],
+  simulator: ["career-vs-rehearsal", "career-rehearsal-doors"],
+  "career door": ["career-vs-rehearsal", "career-rehearsal-doors"],
+  rehearsal: ["career-vs-rehearsal", "career-rehearsal-doors"],
+  "career-complete": ["career-vs-rehearsal", "career-rehearsal-doors"],
+  "record vs practice": ["career-vs-rehearsal"],
+  "training mode": ["first-login-workspace"],
+  "not live data": ["first-login-workspace"],
+  "customer intake demo": ["first-login-workspace"],
+  "first login": ["first-login-workspace"],
+  "live data": ["first-login-workspace"],
 };
 
-export function collectHelpSearchPanelTopics(isAdmin: boolean): HelpSearchPanelTopic[] {
+export function collectHelpSearchPanelTopics(
+  isAdmin: boolean,
+  productLineId: ProductLineId = "architecture",
+): HelpSearchPanelTopic[] {
   const topics: HelpSearchPanelTopic[] = [];
 
-  for (const group of HELP_SEARCH_PANEL_GROUPS) {
+  for (const group of resolveHelpSearchPanelGroups(productLineId)) {
     for (const topic of group.topics) {
       if (topic.adminOnly === true && !isAdmin) {
         continue;

@@ -5,6 +5,21 @@ import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/findings/finding
 import { FINDING_HUMAN_REVIEW_DISPOSITION_DIVERGENCE_BANNER } from "@/lib/findings/finding-human-review-disposition-divergence";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
 
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    ...rest
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
   useItsmNativeCreateEnabled: () => true,
 }));
@@ -33,6 +48,20 @@ describe("FindingInspectItsmWorkflowPanel", () => {
     expect(screen.getByText(/Inbound sync human review:/i)).toBeInTheDocument();
     expect(screen.getByText("Human review approved")).toBeInTheDocument();
     expect(screen.getByText(FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION)).toBeInTheDocument();
+  });
+
+  it("SG-031: Working ITSM panel links back to the architecture desk when parent id is known", () => {
+    render(
+      <FindingInspectItsmWorkflowPanel
+        findingId="sensitive-data-minimization-risk"
+        parentArchitectureId="architecture-identity-001"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Back to architecture desk" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001",
+    );
   });
 
   it("shows divergence banner on Working desk when ITSM queue state disagrees with disposition trail (LP-17)", () => {

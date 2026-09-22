@@ -1,8 +1,15 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  ARCHITECTURES_LIST_PATH,
+  ARCHITECTURES_NEW_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resolveShowcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 
 export const CORE_PILOT_HELP_START_REVIEW_HREF = "/architecture/reviews/new" as const;
 export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
@@ -14,6 +21,9 @@ export const CORE_PILOT_HELP_WORKING_DESK_SUMMARY_TITLE = "Your review desk" as 
 
 export const CORE_PILOT_HELP_WORKING_DESK_SUMMARY_COPY =
   "Resume drafts, open packages, inspect sealed records, and ask questions across finalized evidence — use the evaluator walkthrough only when you are assessing ArchLucid." as const;
+
+export const CORE_PILOT_HELP_WORKING_STEPPER_REPLACEMENT_COPY =
+  "Resume drafts and child reviews from your architecture desk — the inbox lists cross-architecture jobs when you need them." as const;
 
 export function resolveCorePilotHelpSummaryTitle(workingMode: boolean): string {
   return workingMode ? CORE_PILOT_HELP_WORKING_DESK_SUMMARY_TITLE : CORE_PILOT_HELP_SUMMARY_TITLE;
@@ -77,6 +87,84 @@ export const CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES: readonly CorePilotHelpFirstV
 export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS = CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES;
 
 const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
+export function resolveCorePilotHelpSampleReviewHref(workingMode: boolean): string {
+  return resolveShowcaseSampleReviewPackageHref(workingMode);
+}
+
+export function resolveCorePilotHelpPrimaryActions(workingMode: boolean): {
+  readonly startReview: { readonly href: string; readonly label: string };
+  readonly sampleReview: { readonly href: string; readonly label: string };
+  readonly troubleshooting: { readonly href: string; readonly label: string };
+} {
+  if (!workingMode) {
+    return CORE_PILOT_HELP_PRIMARY_ACTIONS;
+  }
+
+  return {
+    startReview: { href: ARCHITECTURES_NEW_PATH, label: "New review" },
+    sampleReview: {
+      href: resolveCorePilotHelpSampleReviewHref(true),
+      label: "Open sample architecture desk",
+    },
+    troubleshooting: CORE_PILOT_HELP_PRIMARY_ACTIONS.troubleshooting,
+  };
+}
+
+/** SG-058 — Working help workflow steps use architecture nested URLs; Guided keeps evaluator stepper. */
+export function resolveCorePilotHelpWorkflowSteps(
+  workingMode: boolean,
+): readonly CorePilotHelpWorkflowStep[] {
+  if (!workingMode) {
+    return CORE_PILOT_HELP_WORKFLOW_STEPS;
+  }
+
+  return [
+    {
+      stepNumber: 1,
+      title: "Open architecture desk",
+      description:
+        "Start from your architecture portfolio — attach evidence on the named system before you spawn a child review.",
+      expectedOutput: "Architecture desk with evidence linked to the system.",
+      href: ARCHITECTURES_LIST_PATH,
+      ctaLabel: "Open architectures",
+    },
+    {
+      stepNumber: 2,
+      title: "Add evidence",
+      description:
+        "Attach briefs, diagrams, documents, IaC, or optional cloud inventory on the architecture desk or nested architecture draft editor.",
+      expectedOutput: "Evidence linked before analysis runs.",
+      href: ARCHITECTURES_NEW_PATH,
+      ctaLabel: "New review",
+    },
+    {
+      stepNumber: 3,
+      title: "Monitor child review progress",
+      description: "Watch progress on the nested review desk until findings are ready to finalize.",
+      expectedOutput: "Findings ready for your review.",
+      href: ARCHITECTURES_LIST_PATH,
+      ctaLabel: "Open architecture desk",
+    },
+    {
+      stepNumber: 4,
+      title: "Finalize review",
+      description:
+        "Finalize when ready — this locks the finalized review record, findings, and export surfaces on the child review.",
+      expectedOutput: "Finalized review with artifacts and audit trail.",
+      href: ARCHITECTURES_LIST_PATH,
+      ctaLabel: "Open architecture desk",
+    },
+    {
+      stepNumber: 5,
+      title: "Share outputs",
+      description: "Download sponsor exports from the nested review desk when your internal review is complete.",
+      expectedOutput: "Sponsor packet, board materials, or markdown exports.",
+      href: REVIEWS_LIST_PATH,
+      ctaLabel: WORKING_REVIEWS_INBOX_NAV_LABEL,
+    },
+  ];
+}
 
 /** TB-1332: name the curated Claims Intake showcase — not a bare "sample review" label. */
 export const CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL =
@@ -166,6 +254,8 @@ export const CORE_PILOT_HELP_DEFERRED_ITEMS: readonly CorePilotHelpDeferredItem[
 
 /** TB-1334: single post-stepper optional cluster title. */
 export const CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE = "Optional paths for your first review";
+
+export const CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE = "Before sponsor send";
 
 export const CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY =
   "Cloud connectors are optional. You can run an evidence-only review first, then add connectors or advanced topics later.";

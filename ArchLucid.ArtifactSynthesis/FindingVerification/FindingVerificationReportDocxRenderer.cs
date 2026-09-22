@@ -3,6 +3,7 @@ using System.Globalization;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Builders;
 using ArchLucid.ArtifactSynthesis.FindingVerification.Models;
+using ArchLucid.ArtifactSynthesis.Sanitization;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -51,15 +52,16 @@ public static class FindingVerificationReportDocxRenderer
             WordDocumentBuilder.AddSpacer(body);
 
             WordDocumentBuilder.AddHeading(body, "Per-finding results", DocxStyleIds.Heading2);
-            WordDocumentBuilder.AddFourColumnTable(
+            WordDocumentBuilder.AddFiveColumnTable(
                 body,
-                ("Finding ID", "Title", "Status", "Trace"),
+                ("Finding ID", "Title", "Severity", "Status", "Trace"),
                 model.Findings
                     .Select(finding => (
-                        finding.FindingId,
-                        finding.Title ?? string.Empty,
-                        finding.Status,
-                        finding.TraceText))
+                        SanitizeFindingCell(finding.FindingId),
+                        SanitizeFindingCell(finding.Title),
+                        SanitizeFindingCell(finding.Severity),
+                        SanitizeFindingCell(finding.Status),
+                        SanitizeFindingCell(finding.TraceText)))
                     .ToList());
 
             main.Document.Save();
@@ -67,6 +69,9 @@ public static class FindingVerificationReportDocxRenderer
 
         return stream.ToArray();
     }
+
+    private static string SanitizeFindingCell(string? text) =>
+        LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
 
     private static void AppendSummary(Body body, Core.Findings.FindingVerificationReportConfirmedRateSummary summary)
     {

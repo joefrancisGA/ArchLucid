@@ -6,13 +6,18 @@ import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
+import { EMAIL_RUN_TO_SPONSOR_REHEARSAL_ACK_LABEL } from "@/lib/email-run-to-sponsor-rehearsal-gate";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { isProjectedUsdSponsorBadgeVisible } from "@/lib/pilot-proof-readiness";
 import { cn } from "@/lib/utils";
 
@@ -136,6 +141,13 @@ export function EmailRunToSponsorBanner({
         </a>
         .{banner.buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for export-ready collateral."}
       </p>
+      <p
+        className={cn("m-0 mt-2 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="email-run-to-sponsor-roi-non-summing"
+      >
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
+      <PolicyPackInfluenceHonestyChip className="mt-2" />
 
       {banner.proofGate.status === "ok" ? (
         <div className="mt-3">
@@ -161,13 +173,39 @@ export function EmailRunToSponsorBanner({
         </div>
       ) : null}
 
+      {banner.rehearsalEmailGate.requiresRehearsalEmailHonestyAck ? (
+        <div
+          role="group"
+          data-testid="email-run-to-sponsor-rehearsal-email-gate"
+          className={cn("mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.body)}
+        >
+          <p className="m-0 font-semibold">Rehearsal email requires explicit labeling</p>
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
+            Subject and body include rehearsal language. Acknowledge before composing or recording send.
+          </p>
+          <div className="mt-2 flex items-start gap-3">
+            <Checkbox
+              id="email-run-to-sponsor-rehearsal-ack"
+              checked={banner.rehearsalEmailHonestyAcknowledged}
+              onCheckedChange={(checked) => {
+                banner.setRehearsalEmailHonestyAcknowledged(checked === true);
+              }}
+              data-testid="email-run-to-sponsor-rehearsal-ack-checkbox"
+            />
+            <Label htmlFor="email-run-to-sponsor-rehearsal-ack" className={OPERATOR_TYPOGRAPHY.body}>
+              {EMAIL_RUN_TO_SPONSOR_REHEARSAL_ACK_LABEL}
+            </Label>
+          </div>
+        </div>
+      ) : null}
+
       {banner.careerArtifactVerdict !== null && banner.careerArtifactVerdict.blockedReasons.length > 0 ? (
         <div
           role="alert"
           data-testid="email-run-to-sponsor-career-artifact-gap"
           className={cn("mt-3 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50", OPERATOR_TYPOGRAPHY.body)}
         >
-          <p className="m-0 font-semibold">Career artifact honesty blocks sponsor PDF</p>
+          <p className="m-0 font-semibold">Sealed-record honesty blocks sponsor PDF</p>
           {banner.careerArtifactVerdict.blockedReasons.map((reason) => (
             <p key={reason} className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
               {reason}
@@ -266,12 +304,14 @@ export function EmailRunToSponsorBanner({
         markSentBusy={banner.markSentBusy}
         sentToSponsorUtc={banner.sentToSponsorUtc}
         blockSponsorPdf={banner.blockSponsorPdf}
+        blockSponsorEmailSend={banner.blockSponsorEmailSend}
         blockSponsorPdfForExecutionMode={banner.blockSponsorPdfForExecutionMode}
         blockSponsorPdfForAiGate={banner.blockSponsorPdfForAiGate}
         blockSponsorPdfForProjectedDollar={banner.blockSponsorPdfForProjectedDollar}
         blockSponsorPdfForRoi={banner.blockSponsorPdfForRoi}
         onDownloadPdf={banner.onDownloadPdf}
         onMarkSentToSponsor={banner.onMarkSentToSponsor}
+        onComposeEmailToSponsor={banner.onComposeEmailToSponsor}
       />
 
       <div className="mt-3">
@@ -289,7 +329,11 @@ export function EmailRunToSponsorBanner({
       </div>
 
       {banner.markSentError !== null ? (
-        <p className={cn("m-0 mt-2 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+        <p
+          className={cn("m-0 mt-2 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+          role="alert"
+          data-testid="email-run-to-sponsor-mark-sent-blocked-reason"
+        >
           {banner.markSentError}
         </p>
       ) : null}

@@ -18,6 +18,7 @@ const CHANGE_TYPE_INDEX_TO_KEY: readonly string[] = [
   "DependencyChanged",
   "PolicyAssignmentChanged",
   "Unknown",
+  "ResourceUnchanged",
 ];
 
 const CHANGE_TYPE_LABELS: Readonly<Record<string, string>> = {
@@ -38,6 +39,7 @@ const CHANGE_TYPE_LABELS: Readonly<Record<string, string>> = {
   DependencyChanged: "Dependency changed",
   PolicyAssignmentChanged: "Policy assignment changed",
   Unknown: "Unknown",
+  ResourceUnchanged: "Unchanged",
   Modified: "Modified",
   Added: "Added",
   Removed: "Removed",
@@ -53,12 +55,14 @@ export const INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS: readonly { value: 
 
 export const INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS: readonly { value: string; label: string }[] = [
   { value: "", label: "All risk levels" },
+  { value: "none", label: "None" },
+  { value: "unknown", label: "Unknown" },
+  { value: "elevated", label: "Elevated" },
   { value: "critical", label: "Critical" },
   { value: "high", label: "High" },
   { value: "medium", label: "Medium" },
   { value: "low", label: "Low" },
   { value: "info", label: "Info" },
-  { value: "unknown", label: "Unclassified" },
 ];
 
 export function normalizeInfraEvidenceChangeTypeKey(changeType: string | number | null | undefined): string {
@@ -95,6 +99,10 @@ export function formatInfraEvidenceChangeTypeLabel(changeType: string | number |
   return CHANGE_TYPE_LABELS[key] ?? key;
 }
 
+export function isInfraEvidenceResourceRemovedChange(changeType: string | number | null | undefined): boolean {
+  return normalizeInfraEvidenceChangeTypeKey(changeType) === "ResourceRemoved";
+}
+
 export function resolveInfraEvidenceChangeTypeStatusKind(
   changeType: string | number | null | undefined,
 ): EnterpriseStatusKind {
@@ -124,6 +132,9 @@ export function resolveInfraEvidenceChangeTypeStatusKind(
 
     case "Unknown":
       return "draft";
+
+    case "ResourceUnchanged":
+      return "neutral";
 
     default:
       return "neutral";

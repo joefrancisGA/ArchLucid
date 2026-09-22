@@ -1,3 +1,7 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureRequestDraftMutationBlockedReason } from "@/lib/architecture/architecture-request-draft-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiPostJson } from "./http";
 
 /** Matches API minimum for POST /v1/architecture/request/draft. */
@@ -6,9 +10,9 @@ export const ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS = 20;
 /** Body for POST /v1/architecture/request/draft. */
 export type DraftArchitectureRequestInput = {
   freeTextDescription: string;
-  /** Constraints already on the draft — avoids semantic duplicates in new suggestions. */
+  /** Constraints already on the architecture draft — avoids semantic duplicates in new suggestions. */
   currentConstraints?: readonly string[];
-  /** Assumptions already on the draft — avoids semantic duplicates in new suggestions. */
+  /** Assumptions already on the architecture draft — avoids semantic duplicates in new suggestions. */
   currentAssumptions?: readonly string[];
   /** Confirmed assumptions — checked against overview evidence for contradictions. */
   confirmedAssumptions?: readonly string[];
@@ -34,10 +38,17 @@ export type DraftArchitectureRequestResponse = {
 export async function draftArchitectureRequest(
   input: DraftArchitectureRequestInput,
 ): Promise<DraftArchitectureRequestResponse> {
-  return apiPostJson<DraftArchitectureRequestResponse>("/v1/architecture/request/draft", {
-    freeTextDescription: input.freeTextDescription,
-    currentConstraints: input.currentConstraints ?? [],
-    currentAssumptions: input.currentAssumptions ?? [],
-    confirmedAssumptions: input.confirmedAssumptions ?? [],
-  });
+  try {
+    return await apiPostJson<DraftArchitectureRequestResponse>("/v1/architecture/request/draft", {
+      freeTextDescription: input.freeTextDescription,
+      currentConstraints: input.currentConstraints ?? [],
+      currentAssumptions: input.currentAssumptions ?? [],
+      confirmedAssumptions: input.confirmedAssumptions ?? [],
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestDraftMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

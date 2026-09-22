@@ -67,27 +67,34 @@ public sealed partial class GovernanceEnvironmentCatalogController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            scope,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+        try
+        {
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+            IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+                this,
+                scope,
+                _tenantRepository,
+                cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+            if (scopeProblem is not null)
+                return scopeProblem;
 
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        GovernanceEnvironmentCatalog catalog = await _catalogService
-            .GetCatalogAsync(cancellationToken)
-            .ConfigureAwait(false);
+            GovernanceEnvironmentCatalog catalog = await _catalogService
+                .GetCatalogAsync(cancellationToken)
+                .ConfigureAwait(false);
 
-        return Ok(catalog);
+            return Ok(catalog);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceEnvironmentCatalogSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Replaces the environment catalog and allowed transitions for the current scope.</summary>
@@ -110,68 +117,75 @@ public sealed partial class GovernanceEnvironmentCatalogController(
         if (catalogProblem is not null)
             return catalogProblem;
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            scope,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
-
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        GovernanceEnvironmentCatalog existingCatalog = await _catalogService
-            .GetCatalogAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        GovernanceEnvironmentCatalog normalizedRequest = GovernanceEnvironmentCatalogService.NormalizeCatalog(
-            new GovernanceEnvironmentCatalog
-            {
-                Environments = request.Environments,
-                Transitions = request.Transitions,
-            });
-
-        bool isIdenticalRetry = existingCatalog.IsAdministratorConfigured
-            && GovernanceEnvironmentCatalogService.CatalogContentEquals(existingCatalog, normalizedRequest);
-
         try
         {
-            await _catalogService.ReplaceCatalogAsync(request, cancellationToken).ConfigureAwait(false);
-        }
-        catch (ArgumentException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-
-        GovernanceEnvironmentCatalog catalog = await _catalogService
-            .GetCatalogAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        if (!isIdenticalRetry)
-        {
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.GovernanceEnvironmentCatalogReplaced,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        scope.ProjectId,
-                        environmentCount = catalog.Environments.Count,
-                        transitionCount = catalog.Transitions.Count,
-                    }),
-                },
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+            IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+                this,
+                scope,
+                _tenantRepository,
                 cancellationToken).ConfigureAwait(false);
-        }
 
-        return Ok(catalog);
+            if (scopeProblem is not null)
+                return scopeProblem;
+
+            IActionResult? sealedGuardResult =
+                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            GovernanceEnvironmentCatalog existingCatalog = await _catalogService
+                .GetCatalogAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            GovernanceEnvironmentCatalog normalizedRequest = GovernanceEnvironmentCatalogService.NormalizeCatalog(
+                new GovernanceEnvironmentCatalog
+                {
+                    Environments = request.Environments,
+                    Transitions = request.Transitions,
+                });
+
+            bool isIdenticalRetry = existingCatalog.IsAdministratorConfigured
+                && GovernanceEnvironmentCatalogService.CatalogContentEquals(existingCatalog, normalizedRequest);
+
+            try
+            {
+                await _catalogService.ReplaceCatalogAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+            catch (ArgumentException ex)
+            {
+                return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            }
+
+            GovernanceEnvironmentCatalog catalog = await _catalogService
+                .GetCatalogAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!isIdenticalRetry)
+            {
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.GovernanceEnvironmentCatalogReplaced,
+                        DataJson = JsonSerializer.Serialize(new
+                        {
+                            scope.TenantId,
+                            scope.WorkspaceId,
+                            scope.ProjectId,
+                            environmentCount = catalog.Environments.Count,
+                            transitionCount = catalog.Transitions.Count,
+                        }),
+                    },
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            return Ok(catalog);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceEnvironmentCatalogSealedManifestConflict(ex);
+        }
     }
 
     private IActionResult? BadRequestWhenReplaceCatalogInvalid(ReplaceGovernanceEnvironmentCatalogRequest request)

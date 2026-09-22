@@ -6,6 +6,8 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_AUDIT_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
 import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity-preference";
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
@@ -23,7 +25,7 @@ export type OperatorRecentViewEntry = {
   label: string;
   kind: OperatorRecentViewKind;
   visitedAtUtc: string;
-  /** Durable architecture identity id — never a draft id (CA-38). */
+  /** Durable architecture identity id — never an architecture draft id (CA-38). */
   architectureId?: string;
   /** Parent architecture identity for review recents when known. */
   parentArchitectureId?: string;
@@ -64,6 +66,23 @@ export function clearOperatorRecentViewsStorage(): void {
   }
 }
 
+function collapseWorkingReviewRecentEntry(entry: OperatorRecentViewEntry): OperatorRecentViewEntry {
+  const architectureId = entry.parentArchitectureId?.trim() ?? "";
+
+  if (architectureId.length === 0) {
+    return entry;
+  }
+
+  return {
+    ...entry,
+    href: architectureIdentityPath(architectureId),
+    label: entry.label === "Review" ? "Architecture" : entry.label,
+    kind: "architecture",
+    architectureId,
+    parentArchitectureId: architectureId,
+  };
+}
+
 function normalizeRecentViewEntry(entry: OperatorRecentViewEntry): OperatorRecentViewEntry | null {
   const href = entry.href.trim();
   const label = entry.label.trim();
@@ -85,6 +104,20 @@ function normalizeRecentViewEntry(entry: OperatorRecentViewEntry): OperatorRecen
       return null;
     }
 
+    const nestedRoute = parseArchitectureNestedRoute(href.split("?")[0] ?? "");
+    const deskHref = architectureIdentityPath(architectureId);
+
+    if (nestedRoute?.childKind === "reviews") {
+      return {
+        ...entry,
+        href: deskHref,
+        label: label === "Review" ? "Architecture" : label,
+        kind: "architecture",
+        architectureId,
+        parentArchitectureId: architectureId,
+      };
+    }
+
     return {
       ...entry,
       href,
@@ -96,6 +129,23 @@ function normalizeRecentViewEntry(entry: OperatorRecentViewEntry): OperatorRecen
 
   if (entry.kind === "architecture") {
     return null;
+  }
+
+  const nestedRoute = parseArchitectureNestedRoute(href.split("?")[0] ?? "");
+
+  if (nestedRoute?.childKind === "reviews" && nestedRoute.childId !== undefined) {
+    return collapseWorkingReviewRecentEntry({
+      ...entry,
+      href,
+      label,
+      kind: "architecture",
+      architectureId: nestedRoute.architectureId,
+      parentArchitectureId: nestedRoute.architectureId,
+    });
+  }
+
+  if (entry.kind === "review" && entry.parentArchitectureId !== undefined) {
+    return collapseWorkingReviewRecentEntry({ ...entry, href, label });
   }
 
   return {
@@ -216,6 +266,12 @@ export function recentViewLabelFromPathname(pathname: string, search = ""): stri
     return "Architecture";
   }
 
+  const nestedRoute = parseArchitectureNestedRoute(path);
+
+  if (nestedRoute?.childKind === "reviews") {
+    return "Architecture";
+  }
+
   const reviewMatch = /^\/architecture\/reviews\/([^/]+)$/u.exec(path);
 
   if (reviewMatch !== null) {
@@ -261,6 +317,12 @@ export function recentViewKindFromPathname(pathname: string, search = ""): Opera
   const path = pathname.split("?")[0] ?? "";
 
   if (extractArchitectureIdentityIdFromPathname(path, search) !== null) {
+    return "architecture";
+  }
+
+  const nestedRoute = parseArchitectureNestedRoute(path);
+
+  if (nestedRoute?.childKind === "reviews") {
     return "architecture";
   }
 

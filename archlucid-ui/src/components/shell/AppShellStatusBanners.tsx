@@ -1,6 +1,7 @@
 "use client";
 
 import { OperatorOfflineReconnectBanner } from "@/components/operator/OperatorOfflineReconnectBanner";
+import { SampleWorkspaceReturnBanner } from "@/components/operator/SampleWorkspaceReturnBanner";
 import { ScopeChangeConsequenceBanner } from "@/components/ScopeChangeConsequenceBanner";
 import { TenantMigrationMaintenanceBanner } from "@/components/tenancy/TenantMigrationMaintenanceBanner";
 import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
@@ -14,7 +15,10 @@ import { TrialUsageUpgradeNudge } from "@/components/trial/TrialUsageUpgradeNudg
 import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
 import { RealModeAiReadinessShellBanner } from "@/components/usability/RealModeAiReadinessShellBanner";
+import { WorkingSimulatorCloneRehearsalBanner } from "@/components/workspace-mode/WorkingSimulatorCloneRehearsalBanner";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
+import { isSecureNowTrainingChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 type AppShellStatusBannersProps = {
   readonly variant: "minimal" | "full";
@@ -23,6 +27,8 @@ type AppShellStatusBannersProps = {
 /** Operator shell readiness, budget, and trial banners loaded outside the AppShell critical path. */
 export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
   const presenterQuiet = useReviewPresenterChromeActive();
+  const { productLine } = useProductLine();
+  const showTrainingChrome = !isSecureNowTrainingChromeExcluded(productLine);
 
   if (presenterQuiet) {
     return null;
@@ -31,6 +37,7 @@ export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
   return (
     <>
       <OperatorOfflineReconnectBanner />
+      <SampleWorkspaceReturnBanner />
       <TenantMigrationMaintenanceBanner />
       <ScopeChangeConsequenceBanner />
       {variant === "full" ? <CtoDemoStaticFallbackPresenterBanner /> : null}
@@ -38,6 +45,7 @@ export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
       <ServiceBusHealthBanner />
       {variant === "full" ? <SetupHealthShellBanner /> : null}
       {variant === "full" ? <RealModeAiReadinessShellBanner /> : null}
+      {showTrainingChrome ? <WorkingSimulatorCloneRehearsalBanner /> : null}
       <LlmBudgetApproachingLimitBanner />
       <TrialAiBudgetStatusBanner />
       <TrialUsageUpgradeNudge />

@@ -244,6 +244,7 @@ public sealed class DraftRequestServiceBranchTests
             new PatchDraftRequest
             {
                 BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
                 ActorSet = new ActorSet
                 {
                     Actors =

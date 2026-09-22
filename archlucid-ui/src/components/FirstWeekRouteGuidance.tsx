@@ -25,6 +25,7 @@ function GuidanceBody(props: {
   readonly useWhen: string;
   readonly bridgeCopy: string;
   readonly operateDeferralNote: string;
+  readonly dispositionBeforeSponsorNote?: string;
   readonly primaryAction?: { readonly href: string; readonly label: string };
   readonly pagePrimaryOwnedElsewhere?: boolean;
 }) {
@@ -35,6 +36,15 @@ function GuidanceBody(props: {
   return (
     <>
       <p className="m-0 mt-1.5 text-neutral-700 dark:text-neutral-300">{props.bridgeCopy}</p>
+      {props.dispositionBeforeSponsorNote !== undefined &&
+      props.dispositionBeforeSponsorNote.trim().length > 0 ? (
+        <p
+          className={cn("m-0 mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-week-route-guidance-disposition-before-sponsor"
+        >
+          {props.dispositionBeforeSponsorNote}
+        </p>
+      ) : null}
       {props.operateDeferralNote.trim().length > 0 ? (
         <p className={cn("m-0 mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{props.operateDeferralNote}</p>
       ) : null}
@@ -86,6 +96,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           useWhen={config.useWhen}
           bridgeCopy={config.bridgeCopy}
           operateDeferralNote={config.operateDeferralNote}
+          dispositionBeforeSponsorNote={config.dispositionBeforeSponsorNote}
           primaryAction={config.primaryAction}
           pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />
@@ -101,6 +112,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           useWhen={config.useWhen}
           bridgeCopy={config.bridgeCopy}
           operateDeferralNote={config.operateDeferralNote}
+          dispositionBeforeSponsorNote={config.dispositionBeforeSponsorNote}
           primaryAction={config.primaryAction}
           pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />
@@ -116,6 +128,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           useWhen={config.useWhen}
           bridgeCopy={config.bridgeCopy}
           operateDeferralNote={config.operateDeferralNote}
+          dispositionBeforeSponsorNote={config.dispositionBeforeSponsorNote}
           primaryAction={config.primaryAction}
           pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />

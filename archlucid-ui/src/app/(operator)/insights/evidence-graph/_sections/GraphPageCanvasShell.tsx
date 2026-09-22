@@ -1,9 +1,14 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { GraphLoadedExperience } from "@/app/(operator)/insights/evidence-graph/_sections/GraphLoadedExperience";
 import { GraphFetchStatusAlerts } from "@/app/(operator)/insights/evidence-graph/_sections/GraphFetchStatusAlerts";
 import { GraphPickReviewBeforeCanvasStrip } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPickReviewBeforeCanvasStrip";
+import { WorkingGraphPickArchitectureEmptyState } from "@/components/insights/WorkingGraphPickArchitectureEmptyState";
 import { WorkingInsightsArchitectureBindEmptyState } from "@/components/insights/WorkingInsightsArchitectureBindEmptyState";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import { resolveSystemNotJobWorkingGraphShowsUnscopedPeerEmpty } from "@/lib/system-not-job-graph-bound-to-open-package";
 import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePlaceholder";
 import { GraphArchitectureNoteBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphArchitectureNoteBanner";
 import type { useGraphPage } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page";
@@ -16,6 +21,17 @@ export type GraphPageCanvasShellProps = {
 
 export function GraphPageCanvasShell(props: GraphPageCanvasShellProps): React.JSX.Element {
   const { vm } = props;
+  const pathname = usePathname() ?? "/";
+  const showUnscopedWorkingGraphEmpty = resolveSystemNotJobWorkingGraphShowsUnscopedPeerEmpty({
+    workingMode: vm.workingMode,
+    pathname,
+    pinnedArchitectureId: vm.pinnedArchitectureId,
+    lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+  });
+
+  if (showUnscopedWorkingGraphEmpty) {
+    return <WorkingGraphPickArchitectureEmptyState />;
+  }
 
   return (
     <>
@@ -78,6 +94,7 @@ export function GraphPageCanvasShell(props: GraphPageCanvasShellProps): React.JS
             onPresentationViewChange={vm.setPresentationView}
             sampleGraphActive={vm.sampleGraphActive}
             operatorListFirst={vm.workingMode}
+            pinnedArchitectureId={vm.pinnedArchitectureId}
           />
         </>
       ) : null}

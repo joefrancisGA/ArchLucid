@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -46,6 +47,70 @@ public sealed class DanglingDeclarationReferenceFindingEngineTests
 
         payload.ReferenceKind.Should().Be(DanglingDeclarationReferenceKind.KeyVaultUri);
         payload.SourceNodeId.Should().Be("func-checkout");
+        finding.EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_from_source_arm_property()
+    {
+        const string armResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.Web/sites/checkout-func";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "func-checkout",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "checkout-func",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["appSettings"] =
+                            "KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection",
+                        ["resourceId"] = armResourceId,
+                    },
+                },
+            ],
+        };
+
+        DanglingDeclarationReferenceFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_label_only_graph_node_does_not_pass_concrete_citation_helper()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "func-checkout",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "checkout-func",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["appSettings"] =
+                            "KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection",
+                    },
+                },
+            ],
+        };
+
+        DanglingDeclarationReferenceFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeFalse();
     }
 
     [Fact]

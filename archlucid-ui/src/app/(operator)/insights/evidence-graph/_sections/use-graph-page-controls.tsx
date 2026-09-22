@@ -63,6 +63,7 @@ export function useGraphPageControls(state: GraphPageState) {
     getGraphSavedViewPayload,
     loadGraphSavedView,
     graphLoadRequested,
+    pinnedArchitectureId,
   } = state;
 
   const showBuyerPresentationTabs =
@@ -102,6 +103,7 @@ export function useGraphPageControls(state: GraphPageState) {
       sampleGraphActive={sampleGraphActive}
       showPresentationTabs={showBuyerPresentationTabs}
       compactEmptyWorkspace={buyerEmptyWorkspaceFocus}
+      pinnedArchitectureId={pinnedArchitectureId}
     />
   );
 
@@ -190,6 +192,7 @@ export function useGraphPageControls(state: GraphPageState) {
             presentationView={presentationView}
             onPresentationViewChange={setPresentationView}
             sampleGraphActive={sampleGraphActive}
+            pinnedArchitectureId={pinnedArchitectureId}
           />
         ) : null}
       </Tabs>

@@ -33,6 +33,7 @@ import { SocraticIntakeWizardStepScope } from "./SocraticIntakeWizardStepScope";
 import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
 import { GuidedIntakeAlreadySubmittedCallout } from "./GuidedIntakeAlreadySubmittedCallout";
 import { INTAKE_WIZARD_STEPPER_STEPS } from "./guided-intake-steps";
+import { SocraticIntakeWizardGuards } from "./SocraticIntakeWizardGuards";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
@@ -160,6 +161,15 @@ export function SocraticIntakeWizard() {
 
   return (
     <div className="w-full" data-testid="socratic-intake-wizard">
+      <SocraticIntakeWizardGuards
+        answers={answers}
+        businessOutcome={businessOutcome}
+        draftId={draftId}
+        freeTextIntent={freeTextIntent}
+        isSubmitBlocked={isSubmitBlocked}
+        step={step}
+        systemName={systemName}
+      />
       {/* Flex gap, not space-y: child `m-0` beats Tailwind v4 space-y (`:where()`, 0 specificity). */}
       <div className="flex min-w-0 flex-col gap-4">
       {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (

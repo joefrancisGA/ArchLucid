@@ -13,7 +13,7 @@ export {
   resolveHardInfeasibleCitationExportBlockedReason,
 };
 
-const SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD =
+export const SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD =
   "This verdict is soft infeasible within the stated operating envelope — treat as a bounded decision record, not a failed review.";
 
 function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] {
@@ -86,7 +86,7 @@ export function formatFeasibilityVerdictMarkdownSection(
   const display = resolveFeasibilityVerdictForDisplay(verdict);
 
   if (blockedReason !== null) {
-    lines.push(`> **Career export blocked:** ${blockedReason}`);
+    lines.push(`> **Record export blocked:** ${blockedReason}`);
     lines.push("");
   }
 

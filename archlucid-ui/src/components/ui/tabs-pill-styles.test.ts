@@ -9,10 +9,11 @@ describe("tabs-pill-styles", () => {
   });
 
   it("matches Reviews hub filter chip shell for active and idle triggers", () => {
-    expect(tabsPillTriggerClass(true)).toMatch(/rounded-full/);
+    expect(tabsPillTriggerClass(true)).toMatch(/rounded-md/);
     expect(tabsPillTriggerClass(true)).toMatch(/bg-neutral-100/);
-    expect(tabsPillTriggerClass(false)).toMatch(/rounded-full/);
+    expect(tabsPillTriggerClass(false)).toMatch(/rounded-md/);
     expect(tabsPillTriggerClass(false)).toMatch(/bg-neutral-100/);
+    expect(tabsPillTriggerClass(true)).not.toMatch(/-mb-px/);
     expect(tabsPillTriggerClass(true)).not.toMatch(/font-medium/);
   });
 });

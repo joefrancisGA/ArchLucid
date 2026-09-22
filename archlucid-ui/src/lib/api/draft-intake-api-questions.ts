@@ -1,5 +1,9 @@
 import type { DraftQuestionsResponse, DraftRequestResponse } from "@/types/draft-intake";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
@@ -20,19 +24,33 @@ export async function answerDraftQuestion(
   answer: string,
   options?: AnswerDraftQuestionOptions,
 ): Promise<DraftRequestResponse> {
-  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/answer`, {
-    questionKey,
-    answer,
-    presenterCapture: options?.presenterCapture === true,
-    responderLabel: options?.responderLabel,
-  });
+  try {
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/answer`, {
+      questionKey,
+      answer,
+      presenterCapture: options?.presenterCapture === true,
+      responderLabel: options?.responderLabel,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function skipDraftQuestion(
   draftId: string,
   questionKey: string,
 ): Promise<DraftRequestResponse> {
-  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/skip`, {
-    questionKey,
-  });
+  try {
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/skip`, {
+      questionKey,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

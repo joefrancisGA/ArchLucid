@@ -9,14 +9,29 @@ let searchParams = new URLSearchParams(
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  usePathname: () => "/governance/infrastructure/terraform",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" }),
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   downloadInfraEvidenceTerraformAdvisoryZip: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
-  fetchCloudResourceEvidenceHub: vi.fn(async () => ({
+vi.mock("@/lib/infra-evidence/infra-evidence-resource-hub-cache", () => ({
+  fetchCachedInfraEvidenceResourceHub: vi.fn(async () => ({
     cloudResourceId: "11111111-1111-1111-1111-111111111111",
     externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
     terraformAddress: "azurerm_public_ip.gateway",
@@ -47,6 +62,9 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     recentChanges: [],
     evidencePointers: [],
   })),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
   formatInfraEvidenceHubApiError: (error: unknown) => String(error),
 }));
 
@@ -54,7 +72,10 @@ describe("TerraformWorkbenchClient", () => {
   it("renders advisory mapping and hub links for scoped resource", async () => {
     render(<TerraformWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-terraform-workbench")).toBeInTheDocument();
+    const workbench = await screen.findByTestId("infra-terraform-workbench");
+    expect(workbench).toBeInTheDocument();
+    expect(workbench.className).not.toMatch(/mx-auto/);
+    expect(workbench).toHaveClass("w-full");
     expect(screen.getByText("azurerm_public_ip.gateway")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-open-primary-hub")).toHaveAttribute(
       "href",
@@ -65,11 +86,16 @@ describe("TerraformWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-terraform-audit-unavailable")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-copy-snippet")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-download-advisory-zip")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-open-drift-workbench")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-open-drift-export")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-advisory-reconstructed-tag")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-scope-status")).toHaveTextContent("Scoped");
   });
 
   it("shows empty state when terraform address is missing", async () => {
-    const { fetchCloudResourceEvidenceHub } = await import("@/lib/infra-evidence/infra-evidence-hub-api");
-    vi.mocked(fetchCloudResourceEvidenceHub).mockResolvedValueOnce({
+    const { fetchCachedInfraEvidenceResourceHub } = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    vi.mocked(fetchCachedInfraEvidenceResourceHub).mockResolvedValueOnce({
       cloudResourceId: "11111111-1111-1111-1111-111111111111",
       externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
       terraformAddress: null,

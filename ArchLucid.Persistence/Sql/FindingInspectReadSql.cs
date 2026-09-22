@@ -27,6 +27,9 @@ internal static class FindingInspectReadSql
                                                          fr.RemediationDueUtc,
                                                          fr.ReasoningTrace,
                                                          fr.ReasoningTraceDigestSha256,
+                                                         fr.Treatment,
+                                                         fr.Classification,
+                                                         ssb.SemanticSupportBand AS SemanticSupportBandOverlay,
                                                          r.RunId,
                                                          r.CurrentManifestVersion,
                                                          r.GoldenManifestId,
@@ -43,6 +46,12 @@ internal static class FindingInspectReadSql
                                                         AND dt.TenantId = r.TenantId
                                                         AND dt.WorkspaceId = r.WorkspaceId
                                                         AND dt.ProjectId = r.ScopeProjectId
+                                                     LEFT JOIN dbo.FindingSemanticSupportBandOverlays ssb
+                                                         ON ssb.FindingsSnapshotId = fr.FindingsSnapshotId
+                                                        AND ssb.FindingId = fr.FindingId
+                                                        AND ssb.TenantId = fr.TenantId
+                                                        AND ssb.WorkspaceId = fr.WorkspaceId
+                                                        AND ssb.ProjectId = fr.ProjectId
                                                      WHERE fr.FindingId = @FindingId
                                                        AND fr.TenantId = @TenantId
                                                        AND fr.WorkspaceId = @WorkspaceId
@@ -75,6 +84,9 @@ internal static class FindingInspectReadSql
                                                             fr.RemediationDueUtc,
                                                             fr.ReasoningTrace,
                                                             fr.ReasoningTraceDigestSha256,
+                                                            fr.Treatment,
+                                                            fr.Classification,
+                                                            ssb.SemanticSupportBand AS SemanticSupportBandOverlay,
                                                             r.RunId,
                                                             r.CurrentManifestVersion,
                                                             r.GoldenManifestId,
@@ -91,6 +103,12 @@ internal static class FindingInspectReadSql
                                                            AND dt.TenantId = r.TenantId
                                                            AND dt.WorkspaceId = r.WorkspaceId
                                                            AND dt.ProjectId = r.ScopeProjectId
+                                                        LEFT JOIN dbo.FindingSemanticSupportBandOverlays ssb
+                                                            ON ssb.FindingsSnapshotId = fr.FindingsSnapshotId
+                                                           AND ssb.FindingId = fr.FindingId
+                                                           AND ssb.TenantId = fr.TenantId
+                                                           AND ssb.WorkspaceId = fr.WorkspaceId
+                                                           AND ssb.ProjectId = fr.ProjectId
                                                         WHERE fr.FindingId = @FindingId
                                                           AND fr.TenantId = @TenantId
                                                           AND fr.WorkspaceId = @WorkspaceId

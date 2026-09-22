@@ -32,5 +32,17 @@ describe("first-15 package spine honesty guard (TB-1031)", () => {
 
     expect(source).toContain("TB-1031");
     expect(source).toContain("15 minutes without founder narration");
+    expect(source).toContain("RunDetailPackageSpineExportCoLocationStrip.tsx");
+    expect(source).toContain("export-markdown-sendable-cover.ts");
+  });
+
+  it("package spine export co-location strip anchors deliverables on the review detail spine", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/components/reviews/RunDetailPackageSpineExportCoLocationStrip.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("run-detail-package-spine-export-co-location");
+    expect(source).toContain("#artifacts-exports");
   });
 });

@@ -4,6 +4,10 @@ import Link from "next/link";
 
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import {
+  SYSTEM_NOT_JOB_SEALED_CHILD_BACK_DOM_TEST_ID,
+  SYSTEM_NOT_JOB_SEALED_CHILD_BACK_LABEL,
+} from "@/lib/system-not-job-sealed-child-not-second-desk";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureIdentityDetail } from "@/types/architecture-identity";
 import { cn } from "@/lib/utils";
@@ -46,8 +50,12 @@ export function WorkingNestedArchitectureIdentityChrome(
         {displayName}
       </Link>
       <span className="shrink-0 text-al-text-secondary">{statusLabel}</span>
-      <Link href={deskHref} className={cn(OPERATOR_LINK.inline, "ml-auto shrink-0")}>
-        Open desk
+      <Link
+        href={deskHref}
+        className={cn(OPERATOR_LINK.inline, "ml-auto shrink-0")}
+        data-testid={SYSTEM_NOT_JOB_SEALED_CHILD_BACK_DOM_TEST_ID}
+      >
+        {SYSTEM_NOT_JOB_SEALED_CHILD_BACK_LABEL}
       </Link>
     </div>
   );

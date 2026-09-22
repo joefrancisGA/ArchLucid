@@ -20,8 +20,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 TryAddResource(res, moduleAddress, declaration, results, labelTotals, labelSeen);
         }
 
-        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
-            children.ValueKind != JsonValueKind.Array)
+        if ((!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children)
+                && !TryGetPropertyIgnoreCase(module, "childModules", out children))
+            || children.ValueKind != JsonValueKind.Array)
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
@@ -56,12 +57,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 if (string.IsNullOrWhiteSpace(tfType))
                     continue;
 
-                if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
-                    continue;
-
-                string name = (nameEl.GetString() ?? string.Empty).Trim();
-
-                if (string.IsNullOrWhiteSpace(name))
+                if (!TryResolveTerraformResourceLabel(res, out string name))
                     continue;
 
                 string labelKey = BuildTerraformLabelKey(moduleAddress, tfType, name);
@@ -69,8 +65,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
-        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
-            children.ValueKind != JsonValueKind.Array)
+        if ((!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children)
+                && !TryGetPropertyIgnoreCase(module, "childModules", out children))
+            || children.ValueKind != JsonValueKind.Array)
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
@@ -79,8 +76,10 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
     private static string ResolveModuleAddress(JsonElement module)
     {
-        if (!TryGetPropertyIgnoreCase(module, "address", out JsonElement addressElement) ||
-            addressElement.ValueKind != JsonValueKind.String)
+        if ((!TryGetPropertyIgnoreCase(module, "address", out JsonElement addressElement)
+                && !TryGetPropertyIgnoreCase(module, "moduleAddress", out addressElement)
+                && !TryGetPropertyIgnoreCase(module, "module_address", out addressElement))
+            || addressElement.ValueKind != JsonValueKind.String)
             return string.Empty;
 
         string? address = addressElement.GetString();

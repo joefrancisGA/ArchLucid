@@ -14,6 +14,7 @@ import { useQueueStatusElapsed } from "@/hooks/use-queue-status-elapsed";
 import {
   LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
 } from "@/lib/operations/long-operation-wait-copy";
+import { WorkingExecuteStartHonestyNotices } from "@/components/governance/WorkingExecuteStartHonestyNotices";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
@@ -25,6 +26,8 @@ import {
   OperatorErrorCallout,
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
+import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
+
 import { RunProgressTrackerStagesView } from "./RunProgressTrackerStagesView";
 import { useRunProgressTracker } from "./use-run-progress-tracker";
 
@@ -139,6 +142,12 @@ export function RunProgressTracker({
         {renderDoThisNextReferenceCopy(tracker.liveStatus)}
       </div>
 
+      {tracker.showQuietEnginesCompletenessHint ? (
+        <div className="mt-3" data-testid="run-progress-quiet-engines">
+          <GovernanceFindingsQueueQuietEnginesHint scopedRunId={runId} />
+        </div>
+      ) : null}
+
       {tracker.terminalFailureDiagnosis !== null && !deferFailureRecoveryToDoThisNext ? (
         tracker.terminalFailureDiagnosis.severity === "warning" ? (
           <OperatorWarningCallout>
@@ -154,15 +163,18 @@ export function RunProgressTracker({
       ) : null}
 
       {tracker.showPipelineTerminalFailure && !deferFailureRecoveryToDoThisNext ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
-          <ReRunReviewButton
-            runId={runId}
-            retryCount={diagnosticContext?.retryCount ?? initialSummary?.retryCount ?? null}
-            data-testid="run-progress-re-run-review"
-          />
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Re-invokes agent execution for this review with the same intake.
-          </p>
+        <div className="mt-3 space-y-2" data-testid="run-progress-terminal-failure-actions">
+          <WorkingExecuteStartHonestyNotices />
+          <div className="flex flex-wrap items-center gap-2">
+            <ReRunReviewButton
+              runId={runId}
+              retryCount={diagnosticContext?.retryCount ?? initialSummary?.retryCount ?? null}
+              data-testid="run-progress-re-run-review"
+            />
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Re-invokes agent execution for this review with the same intake.
+            </p>
+          </div>
         </div>
       ) : null}
 
@@ -205,6 +217,7 @@ export function RunProgressTracker({
         pipelineTerminalFailure={tracker.showPipelineTerminalFailure}
         suppressIntakeDescription={deferFailureRecoveryToDoThisNext}
         suppressStageCountLine={deferFailureRecoveryToDoThisNext && tracker.buyerAssessmentCopy}
+        careerHonestyPresentation={tracker.careerHonestyPresentation}
       />
 
       {tracker.pipelineDebugEnabled ? (

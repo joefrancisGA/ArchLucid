@@ -10,6 +10,7 @@ import {
   formatRoiSummaryWindowTitle,
   type RoiSummaryPeriodInput,
 } from "@/lib/roi-summary-sponsor-presentation";
+import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
 
 export type RoiTelemetryCardProps = {
   window: "rolling30" | "pilotToDate";
@@ -17,6 +18,7 @@ export type RoiTelemetryCardProps = {
   hourlyUsd: number;
   isDefaultRate: boolean;
   demoDerived?: boolean;
+  roiSectionQualifier?: string | null;
 };
 
 /**
@@ -31,10 +33,13 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
     metrics.showUsdEstimate,
     { isDefaultRate: props.isDefaultRate, demoDerived: props.demoDerived },
   );
-  const title = formatRoiSummaryWindowTitle(
-    props.window,
-    props.period.report.fromUtc,
-    props.period.report.toUtc,
+  const title = resolveRoiTileSectionHeading(
+    formatRoiSummaryWindowTitle(
+      props.window,
+      props.period.report.fromUtc,
+      props.period.report.toUtc,
+    ),
+    props.roiSectionQualifier ?? null,
   );
   const blockLabel = props.period.blocks.exact
     ? String(metrics.blocksCounted)

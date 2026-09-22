@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Decisioning.Findings;
@@ -73,7 +74,7 @@ public static class CareerExportCoverageHonestyComposer
         return measurementFloorBlockedReason;
     }
 
-    public static string FormatMarkdown(CareerExportCoverageHonestyInput input)
+    public static string FormatMarkdown(CareerExportCoverageHonestyInput input, TimeProvider? timeProvider = null)
     {
         ArgumentNullException.ThrowIfNull(input);
 
@@ -85,6 +86,37 @@ public static class CareerExportCoverageHonestyComposer
         if (classificationMarkdown.Length > 0)
         {
             sections.Add(classificationMarkdown);
+        }
+
+        string semanticSupportMarkdown = CareerExportSemanticSupportBandMarkdownFormatter
+            .FormatMarkdown(input.FindingsSnapshot?.Findings)
+            .Trim();
+
+        if (semanticSupportMarkdown.Length > 0)
+        {
+            sections.Add(semanticSupportMarkdown);
+        }
+
+        string estateGapMarkdown = ArchitectureInventoryEstateGapCopy
+            .FormatCareerExportMarkdown(input.ArchitectureInventoryBound)
+            .Trim();
+
+        if (estateGapMarkdown.Length > 0)
+        {
+            sections.Add(estateGapMarkdown);
+        }
+
+        // Production callers omit the clock; TimeProvider.System is the same pattern as other Application composers.
+        TimeProvider clock = timeProvider ?? TimeProvider.System;
+        string freshnessMarkdown = ArchitectureInventorySnapshotFreshnessCopy
+            .FormatCareerExportMarkdown(
+                input.ArchitectureInventorySnapshotCapturedUtc,
+                clock.GetUtcNow().UtcDateTime)
+            .Trim();
+
+        if (freshnessMarkdown.Length > 0)
+        {
+            sections.Add(freshnessMarkdown);
         }
 
         if (honesty.SponsorHonestyMarkdown.Length > 0)

@@ -115,7 +115,7 @@ Work:
    - Register engine + stage in the same composition module as checklist-cluster
    - InsightDensityPreferredEngineTypes: add "decision-grade-fusion"
    - Golden harness: register like checklist-cluster-synthesis (placeholder engine + stage if the harness runs stages; if the harness only calls AnalyzeAsync, add a golden that feeds pre-classified Decision-grade rows through the Applicator in a dedicated test — do not fake GraphSnapshot coverage). Update GoldenCorpusHarnessEngineInventory: registered + absent = 51. If the harness cannot fire fusion honestly from AnalyzeAsync, list it absent-with-reason "post-gate synthesis; needs Decision-grade members" (same shape as checklist-cluster-synthesis) and cover Apply() with unit tests + one golden case that records Applicator output in expected findings — XML-comment the choice.
-   - FINDING_ENGINE_OUTPUT_REFERENCE.md: add the row; claimBoundary: fusion does not create evidence, only joins Decision-grade rows that already passed the gate. Resolve the existing <<<<<<< HEAD conflict: keep secrets-lifecycle AND portfolio-recurrence; portfolio-recurrence is default on (DX-11).
+   - FINDING_ENGINE_OUTPUT_REFERENCE.md: add the row; claimBoundary: fusion does not create evidence, only joins Decision-grade rows that already passed the gate. Keep secrets-lifecycle AND portfolio-recurrence; portfolio-recurrence is default on (DX-11).
 
 4. Tests (concrete types, null checks, no ConfigureAwait(false)):
    - Two Decision-grade preferred-engine findings sharing node nsg-1 → one fused finding; constituents still present; EvidenceRefs unioned

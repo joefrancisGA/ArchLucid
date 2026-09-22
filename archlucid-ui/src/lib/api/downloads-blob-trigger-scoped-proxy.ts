@@ -1,5 +1,7 @@
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { scopedProxyDownloadBlockedReason } from "@/lib/api/scoped-proxy-download-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
@@ -17,6 +19,7 @@ export type ScopedProxyFileGetOptions = {
   readonly accept: string;
   readonly defaultFileName?: string;
   readonly expectedContentTypePrefixes?: readonly string[];
+  readonly resolveBlockedReason?: (failure: ApiLoadFailureState) => string | null;
 };
 
 async function fetchScopedProxyFileGet(
@@ -42,7 +45,10 @@ async function fetchScopedProxyFileGet(
   if (!response.ok) {
     const errText = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason =
+      options.resolveBlockedReason?.(failure) ?? scopedProxyDownloadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   if (options.expectedContentTypePrefixes && options.expectedContentTypePrefixes.length > 0) {

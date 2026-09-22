@@ -21,16 +21,7 @@ public sealed class PreCommitGateHostedAppsettingsTests
     {
         Skip.IfNot(File.Exists(StagingJsonPath), $"Expected {StagingJsonPath} (copy from ArchLucid.Api via csproj).");
 
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddJsonFile(StagingJsonPath, optional: false, reloadOnChange: false)
-            .Build();
-
-        PreCommitGovernanceGateOptions? options = configuration
-            .GetSection(PreCommitGovernanceGateOptions.SectionPath)
-            .Get<PreCommitGovernanceGateOptions>();
-
-        options.Should().NotBeNull();
-        options!.PreCommitGateEnabled.Should().BeTrue();
+        ReadOptions(StagingJsonPath).PreCommitGateEnabled.Should().BeTrue();
     }
 
     [SkippableFact]
@@ -38,8 +29,24 @@ public sealed class PreCommitGateHostedAppsettingsTests
     {
         Skip.IfNot(File.Exists(ProductionJsonPath), $"Expected {ProductionJsonPath} (copy from ArchLucid.Api via csproj).");
 
+        ReadOptions(ProductionJsonPath).PreCommitGateEnabled.Should().BeTrue();
+    }
+
+    private static string DevelopmentJsonPath =>
+        Path.Combine(FindRepoRoot(), "ArchLucid.Api", "appsettings.Development.json");
+
+    [SkippableFact]
+    public void Development_appsettings_enables_pre_commit_gate()
+    {
+        Skip.IfNot(File.Exists(DevelopmentJsonPath), $"Expected {DevelopmentJsonPath}.");
+
+        ReadOptions(DevelopmentJsonPath).PreCommitGateEnabled.Should().BeTrue();
+    }
+
+    private static PreCommitGovernanceGateOptions ReadOptions(string path)
+    {
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddJsonFile(ProductionJsonPath, optional: false, reloadOnChange: false)
+            .AddJsonFile(path, optional: false, reloadOnChange: false)
             .Build();
 
         PreCommitGovernanceGateOptions? options = configuration
@@ -47,6 +54,22 @@ public sealed class PreCommitGateHostedAppsettingsTests
             .Get<PreCommitGovernanceGateOptions>();
 
         options.Should().NotBeNull();
-        options!.PreCommitGateEnabled.Should().BeTrue();
+
+        return options!;
+    }
+
+    private static string FindRepoRoot()
+    {
+        DirectoryInfo? dir = new(AppContext.BaseDirectory);
+
+        while (dir is not null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "ArchLucid.sln")))
+                return dir.FullName;
+
+            dir = dir.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repo root (ArchLucid.sln).");
     }
 }

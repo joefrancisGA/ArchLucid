@@ -85,6 +85,7 @@ diagram:{evidenceItemId}:{shapeOrEdgeId}
 
 ## Related
 
+- [ADR 0101](../architecture/adrs/0101-ai-diagram-assist-compiles-to-existing-controls.md) — AI diagram assist compiles to view plans and model patches; does not relax pixel or NotVerifiable rules
 - [`CONTEXT_INGESTION.md`](CONTEXT_INGESTION.md) — connector pipeline
 - [`API_CONTRACTS.md`](API_CONTRACTS.md) — `ContextDocumentRequest` validation
 - [`EVIDENCE_INTAKE_OPERATOR_GUIDE.md`](customer-facing/EVIDENCE_INTAKE_OPERATOR_GUIDE.md) — operator-facing intake

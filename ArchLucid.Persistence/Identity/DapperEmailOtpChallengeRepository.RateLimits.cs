@@ -119,6 +119,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            SELECT TOP (1) CreatedUtc
                            FROM dbo.EmailOtpChallenges
                            WHERE NormalizedEmail = @NormalizedEmail
+                             AND CompletedUtc IS NULL
+                             AND InvalidatedUtc IS NULL
                            ORDER BY CreatedUtc DESC;
                            """;
 

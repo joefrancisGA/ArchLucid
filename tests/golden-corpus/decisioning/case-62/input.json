@@ -15,7 +15,10 @@
         "category": "compute",
         "sourceType": null,
         "sourceId": null,
-        "properties": {},
+        "properties": {
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000062/resourceGroups/rg-golden/providers/Microsoft.Web/sites/billing-api-golden-62",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000062/resourceGroups/rg-golden/providers/Microsoft.Web/sites/billing-api-golden-62"
+        },
         "reasoningTrace": null
       }
     ],
@@ -23,5 +26,6 @@
     "warnings": []
   },
   "merge": null,
-  "inventoryFixture": null
+  "inventoryFixture": null,
+  "priorGraphFixture": null
 }

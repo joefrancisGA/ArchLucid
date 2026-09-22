@@ -57,7 +57,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -107,7 +107,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
     }
 
@@ -132,6 +132,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureRiskExceptionRunSealedManifestAllowedAsync(
+            riskExceptionId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             await _facade.RevokeRiskExceptionAsync(riskExceptionId, cancellationToken);
@@ -140,7 +147,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -184,6 +191,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureRiskExceptionRunSealedManifestAllowedAsync(
+            riskExceptionId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             RiskExceptionRecord record =
@@ -197,7 +211,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

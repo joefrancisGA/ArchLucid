@@ -111,7 +111,9 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
             traceNotes.Add($"evidence:graph-node:{targetNode.NodeId.Trim()}");
         }
 
-        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+            graphSnapshot,
+            relatedNodeIds);
 
         return new Finding
         {

@@ -32,7 +32,7 @@ public sealed class ArchitectureIdentityServiceListAndEnsureTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         await identityRepository.CreateAsync(Scope, "Alpha", null);
         await identityRepository.CreateAsync(Scope, "Beta", null);
@@ -58,7 +58,7 @@ public sealed class ArchitectureIdentityServiceListAndEnsureTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord created = await identityRepository.CreateAsync(Scope, "Scoped", null);
 
@@ -80,7 +80,7 @@ public sealed class ArchitectureIdentityServiceListAndEnsureTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         DraftRequestResponse firstDraft = await draftRepository.CreateAsync(
             Scope.TenantId,
@@ -134,7 +134,7 @@ public sealed class ArchitectureIdentityServiceListAndEnsureTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         DraftRequestResponse draft = await draftRepository.CreateAsync(
             Scope.TenantId,
@@ -157,7 +157,7 @@ public sealed class ArchitectureIdentityServiceListAndEnsureTests
 
         secondEnsure.ArchitectureId.Should().Be(firstEnsure.ArchitectureId);
 
-        var page = await identityRepository.ListAsync(Scope, 1, 50, includeArchived: true, CancellationToken.None);
+        var page = await identityRepository.ListAsync(Scope, 1, 50, includeArchived: true, actorOidForShareFilter: null, CancellationToken.None);
 
         page.TotalCount.Should().Be(1);
     }
@@ -197,7 +197,7 @@ public sealed class ArchitectureIdentityServiceListAndEnsureTests
             .Setup(r => r.GetByIdAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId });
 
-        ArchitectureIdentityService sut = new(
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(
             identityRepository.Object,
             runRepository.Object,
             draftRepository.Object);

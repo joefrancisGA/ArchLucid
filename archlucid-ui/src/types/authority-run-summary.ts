@@ -17,6 +17,10 @@ export type RunSummaryWireExtensions = {
   artifactCount?: number | null;
   /** INV-002 persisted structural execution mode when merged from run detail. */
   structuralExecutionMode?: components["schemas"]["StructuralExecutionMode"] | number | null;
+  /** CG-019: Working door captured at first execute start. Career honesty prefers this over the live chooser. */
+  workingCareerRehearsalDoor?: string | null;
+  /** CG-019: UTC when the Working door stamp was captured. */
+  executePostureCapturedUtc?: string | null;
   /** Architecture request id when returned by list/detail endpoints (used for restore from archive). */
   requestId?: string | null;
   /** Creator identity when returned by list/detail endpoints. */
@@ -43,6 +47,10 @@ export type RunSummaryWireExtensions = {
   legacyRunStatus?: string | null;
   /** List/detail merge: last-modified timestamp when the API returns it for recency ordering. */
   lastModifiedUtc?: string | null;
+  /** Detail merge: typed-engine success count when critical-page bundle projects pipeline coverage. */
+  enginesSucceeded?: number | null;
+  /** Detail merge: typed-engine attempt count when critical-page bundle projects pipeline coverage. */
+  enginesAttempted?: number | null;
 };
 
 /**

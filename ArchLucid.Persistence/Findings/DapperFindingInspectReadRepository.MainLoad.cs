@@ -1,5 +1,4 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -16,14 +15,18 @@ public sealed partial class DapperFindingInspectReadRepository
         bool includeTypedPayload,
         CancellationToken ct)
     {
-        string sql = includeTypedPayload
-            ? FindingInspectReadSql.MainInspectWithTypedPayload
-            : FindingInspectReadSql.MainInspectWithoutTypedPayload;
+        string sql = FindingInspectReadRepositoryCore.ResolveMainInspectSql(includeTypedPayload);
 
         return await connection.QuerySingleOrDefaultAsync<MainRow>(
             new CommandDefinition(
                 sql,
-                new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
+                new
+                {
+                    FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(findingId),
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
                 cancellationToken: ct));
     }
 }

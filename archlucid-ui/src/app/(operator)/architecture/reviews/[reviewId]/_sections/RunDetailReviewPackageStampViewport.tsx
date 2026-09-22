@@ -6,10 +6,16 @@ import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDeta
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
+import { RunDetailReviewPackageSemanticSupportBandSummary } from "./RunDetailReviewPackageSemanticSupportBandSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
+import { RunDetailFirstReviewSpineBand } from "@/components/reviews/RunDetailFirstReviewSpineBand";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
+import { FirstReviewAzureInventoryZipPromptStrip } from "@/components/reviews/FirstReviewAzureInventoryZipPromptStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
@@ -17,13 +23,16 @@ import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-ass
 import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
+import { deriveFirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
 
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly architectureRequestId?: string | null;
   readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;
   readonly pipelineTerminalFailure?: boolean;
+
   readonly enginesSucceeded?: number | null;
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly runCompleted: boolean;
@@ -41,9 +50,12 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
   readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
+  readonly azureInventoryEvidencePresent?: boolean;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
+  readonly workingCareerRehearsalDoor?: string | null;
   readonly preCommitGateEnabled?: boolean | null;
+  readonly unmappedFindingCount?: number;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -51,6 +63,11 @@ export function RunDetailReviewPackageStampViewport(
   props: RunDetailReviewPackageStampViewportProps,
 ): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
+  const honestyWorkingCareerRehearsalDoor = resolveHonestyWorkingCareerRehearsalDoor({
+    stampedDoor: props.workingCareerRehearsalDoor,
+    liveDoor: effectiveDoor,
+  });
   const feasibilityVerdict = props.feasibilityVerdict ?? null;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
   const pipelineTerminalFailure = props.pipelineTerminalFailure === true;
@@ -61,6 +78,11 @@ export function RunDetailReviewPackageStampViewport(
     judgeConfiguredCap: props.judgeConfiguredCap ?? null,
     judgeEffectiveCap: props.judgeEffectiveCap ?? null,
   };
+  const firstReviewSpineSummary = deriveFirstReviewSpineBandSummary({
+    feasibilityVerdict,
+    structuralExecutionMode: props.structuralExecutionMode,
+    findings: props.quickDecisionFindings ?? [],
+  });
 
   if (props.hasGoldenManifest) {
     if (feasibilityVerdict === null) {
@@ -69,9 +91,20 @@ export function RunDetailReviewPackageStampViewport(
 
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
+        {firstReviewSpineSummary !== null ? (
+          <RunDetailFirstReviewSpineBand
+            summary={firstReviewSpineSummary}
+            unmappedFindingCount={props.unmappedFindingCount}
+          />
+        ) : null}
         {!pipelineTerminalFailure ? (
           <>
-            <RunDetailPreFinalizeGateHonestyStrip />
+            <RunDetailPreFinalizeGateHonestyStrip
+              findings={props.quickDecisionFindings}
+              manifestFinalized={props.hasGoldenManifest}
+              structuralExecutionMode={props.structuralExecutionMode}
+              workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
+            />
             <RunDetailQualityGateModeStrip
               runId={props.runId}
               structuralExecutionMode={props.structuralExecutionMode}
@@ -93,11 +126,17 @@ export function RunDetailReviewPackageStampViewport(
           preCommitGateEnabled={props.preCommitGateEnabled}
           structuralExecutionMode={props.structuralExecutionMode}
           isSample={props.isSample}
+          effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
         />
         <RunDetailReviewPackageClassificationSummary
           findings={props.quickDecisionFindings ?? []}
           withheldFindingCount={props.withheldFindingCount}
           catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        />
+        <PolicyPackInfluenceHonestyChip unmappedFindingCount={props.unmappedFindingCount} />
+        <RunDetailReviewPackageSemanticSupportBandSummary
+          findings={props.quickDecisionFindings ?? []}
+          structuralExecutionMode={props.structuralExecutionMode}
         />
         <RunDetailInsightDensityMeasurementDenominatorStrip
           enginesSucceeded={props.enginesSucceeded}
@@ -131,16 +170,36 @@ export function RunDetailReviewPackageStampViewport(
 
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
+      {firstReviewSpineSummary !== null ? (
+        <RunDetailFirstReviewSpineBand
+          summary={firstReviewSpineSummary}
+          unmappedFindingCount={props.unmappedFindingCount}
+          runId={props.runId}
+        />
+      ) : null}
       {!pipelineTerminalFailure ? (
         <>
-          <RunDetailPreFinalizeGateHonestyStrip />
-          <RunDetailQualityGateModeStrip
-            runId={props.runId}
-            structuralExecutionMode={props.structuralExecutionMode}
-            isSample={props.isSample}
-          />
+            <RunDetailPreFinalizeGateHonestyStrip
+              findings={props.quickDecisionFindings}
+              manifestFinalized={props.hasGoldenManifest}
+              structuralExecutionMode={props.structuralExecutionMode}
+              workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
+            />
+            <RunDetailQualityGateModeStrip
+              runId={props.runId}
+              structuralExecutionMode={props.structuralExecutionMode}
+              isSample={props.isSample}
+            />
         </>
       ) : null}
+      <FirstReviewAzureInventoryZipPromptStrip
+        runId={props.runId}
+        architectureRequestId={props.architectureRequestId}
+        manifestFinalized={false}
+        azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
+        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+      />
       <RunDetailCareerArtifactHonestyStrip
         artifactKind="finalize"
         runId={props.runId}
@@ -155,11 +214,17 @@ export function RunDetailReviewPackageStampViewport(
         preCommitGateEnabled={props.preCommitGateEnabled}
         structuralExecutionMode={props.structuralExecutionMode}
         isSample={props.isSample}
+        effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
       />
       <RunDetailReviewPackageClassificationSummary
         findings={props.quickDecisionFindings ?? []}
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+      />
+      <PolicyPackInfluenceHonestyChip unmappedFindingCount={props.unmappedFindingCount} />
+      <RunDetailReviewPackageSemanticSupportBandSummary
+        findings={props.quickDecisionFindings ?? []}
+        structuralExecutionMode={props.structuralExecutionMode}
       />
       <RunDetailInsightDensityMeasurementDenominatorStrip
         actorNodeCount={measurementFloorOptions.actorNodeCount}

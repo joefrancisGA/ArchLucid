@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/enterprise-table";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { downloadArtifactFile } from "@/lib/api/downloads-blob-trigger-artifact-single";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import { artifactPreviewHref } from "@/lib/artifact-preview-href";
 import { showError } from "@/lib/toast";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -183,10 +185,10 @@ export function ArtifactListTable(props: {
               className={OPERATOR_LINK.nav}
               onClick={() => {
                 void downloadArtifactFile(manifestId, artifact.artifactId).catch((error: unknown) => {
-                  showError(
-                    "Artifact download",
-                    error instanceof Error ? error.message : "Download failed.",
-                  );
+                  const failure = toApiLoadFailure(error);
+                  const blocked = artifactBundleMutationBlockedReason(failure);
+
+                  showError("Artifact download", blocked ?? failure.message);
                 });
               }}
             >

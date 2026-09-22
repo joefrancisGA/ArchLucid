@@ -158,6 +158,10 @@ public sealed class TenantHomepageSettingsController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);

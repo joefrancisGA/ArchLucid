@@ -3,8 +3,11 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Cli.Commands;
+using ArchLucid.Contracts.User;
 
 using FluentAssertions;
 
@@ -192,6 +195,91 @@ public sealed class ProofPacketCommandTests : IDisposable
     }
 
     [Fact]
+    public async Task RunAsync_aborts_when_simulator_working_career_unlabeled()
+    {
+        using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
+        await using ProofPacketLoopbackApi api = await ProofPacketLoopbackApi.StartAsync(listenCts.Token);
+        api.PilotRunDeltasJson =
+            """
+            {"isDemoTenant":false,"structuralExecutionMode":"Simulator","workingCareerRehearsalDoor":"career","proofPackageCompleteness":{"runInCommittedStatus":true},"findingsBySeverity":[]}
+            """;
+
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", api.BaseUrl.TrimEnd('/'));
+
+        StringWriter errWriter = new(CultureInfo.InvariantCulture);
+        TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
+
+        try
+        {
+            Directory.SetCurrentDirectory(_emptyCwd);
+            Console.SetError(errWriter);
+
+            int exit = await ProofPacketCommand.RunAsync(
+                ["--runId", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "blocked-career.zip")],
+                listenCts.Token);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            errWriter.ToString().Should().Contain("Simulator rehearsal cannot be career-complete");
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+            Console.SetError(prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_stamps_rehearsal_in_artifact_manifest_for_simulator_rehearsal_door()
+    {
+        using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
+        await using ProofPacketLoopbackApi api = await ProofPacketLoopbackApi.StartAsync(listenCts.Token);
+        api.PilotRunDeltasJson =
+            """
+            {"isDemoTenant":false,"structuralExecutionMode":"Simulator","workingCareerRehearsalDoor":"rehearsal","proofPackageCompleteness":{"runInCommittedStatus":true},"findingsBySeverity":[]}
+            """;
+
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", api.BaseUrl.TrimEnd('/'));
+
+        string zipPath = Path.Combine(_emptyCwd, "rehearsal-stamped.zip");
+        StringWriter errWriter = new(CultureInfo.InvariantCulture);
+        TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
+
+        try
+        {
+            Directory.SetCurrentDirectory(_emptyCwd);
+            Console.SetError(errWriter);
+
+            int exit = await ProofPacketCommand.RunAsync(
+                ["--runId", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--skip-claim-lint"],
+                listenCts.Token);
+
+            exit.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
+
+            await using FileStream zipFs = new(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            await using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
+
+            ZipArchiveEntry manifestEntry = zip.GetEntry("artifact-manifest.json")!;
+            await using Stream manifestStream = await manifestEntry.OpenAsync(listenCts.Token);
+            using JsonDocument doc = await JsonDocument.ParseAsync(manifestStream, cancellationToken: listenCts.Token);
+
+            doc.RootElement.GetProperty("careerPosture").GetString()
+                .Should()
+                .Be(ExportBundleCareerPostureResolver.CareerPostureRehearsal);
+            doc.RootElement.GetProperty("workingCareerRehearsalDoor").GetString()
+                .Should()
+                .Be(WorkingCareerRehearsalDoorValues.Rehearsal);
+            doc.RootElement.GetProperty("rehearsalIncomplete").GetBoolean().Should().BeTrue();
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+            Console.SetError(prevErr);
+        }
+    }
+
+    [Fact]
     public async Task RunAsync_aborts_when_commit_gate_fails()
     {
         using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
@@ -244,7 +332,7 @@ public sealed class ProofPacketCommandTests : IDisposable
             get; set;
         } =
             """
-            {"isDemoTenant":false,"proofPackageCompleteness":{"runInCommittedStatus":true},"findingsBySeverity":[]}
+            {"isDemoTenant":false,"structuralExecutionMode":"Real","workingCareerRehearsalDoor":"career","proofPackageCompleteness":{"runInCommittedStatus":true},"findingsBySeverity":[]}
             """;
 
         public string FirstValueReportMarkdown

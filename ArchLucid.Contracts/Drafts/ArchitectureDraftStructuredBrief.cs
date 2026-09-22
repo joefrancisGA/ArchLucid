@@ -50,6 +50,14 @@ public sealed class ArchitectureDraftStructuredBrief
         set;
     } = [];
 
+    /// <summary>Inherited inline requirements from a prior package (TB-2350).</summary>
+    [JsonPropertyName("confirmedInlineRequirements")]
+    public List<string> ConfirmedInlineRequirements
+    {
+        get;
+        set;
+    } = [];
+
     [JsonPropertyName("suggestedConstraints")]
     public List<string> SuggestedConstraints
     {

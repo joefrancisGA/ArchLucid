@@ -9,7 +9,11 @@ import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { GovernanceFindingDetailPane } from "@/components/governance/findings/GovernanceFindingDetailPane";
 import { FindingDispositionRestoreButton } from "@/components/governance/findings/FindingDispositionRestoreButton";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
-import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
+import { FindingDispositionHistorySection } from "@/components/governance/findings/FindingDispositionHistorySection";
+import {
+  governanceFindingInspectHref,
+  type GovernanceFindingInspectHrefOptions,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SeverityTag } from "@/components/ui/severity-tag";
@@ -17,12 +21,17 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
+export const INHABIT_FINDING_TRIAGE_PANEL_DESCRIPTION =
+  "Stay on this architecture's findings document while you inspect evidence. Use previous and next to move through findings without opening review-detail as home." as const;
+
 export type GovernanceFindingTriagePanelProps = {
   readonly open: boolean;
   readonly row: GovernanceFindingQueueRow | null;
   readonly activeIndex: number;
   readonly totalCount: number;
   readonly buyerPolishedShell: boolean;
+  readonly inhabitedFindingsDocument?: boolean;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
   readonly canGoPrevious: boolean;
   readonly canGoNext: boolean;
   readonly onOpenChange: (open: boolean) => void;
@@ -51,8 +60,12 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
     return null;
   }
 
-  const inspectHref = governanceFindingInspectHref(row.runId, row.findingId);
+  const inspectHref = governanceFindingInspectHref(row.runId, row.findingId, props.inspectHrefOptions);
   const positionLabel = `${activeIndex + 1} of ${totalCount}`;
+  const panelDescription =
+    props.inhabitedFindingsDocument === true
+      ? `${INHABIT_FINDING_TRIAGE_PANEL_DESCRIPTION} (${positionLabel}).`
+      : `Stay in the queue while you review evidence. Use previous and next to move through findings (${positionLabel}).`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
@@ -73,7 +86,7 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
             id="governance-finding-triage-panel-description"
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           >
-            Stay in the queue while you review evidence. Use previous and next to move through findings ({positionLabel}).
+            {panelDescription}
           </p>
         </DialogHeader>
 
@@ -121,6 +134,11 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
           />
 
           <FindingDispositionRestoreButton findingId={row.findingId} runId={row.runId} />
+
+          <FindingDispositionHistorySection
+            findingId={row.findingId}
+            testId="governance-finding-triage-disposition-history"
+          />
 
           {row.latestDisposition !== null && row.latestDisposition !== undefined && row.latestDisposition.trim().length > 0 ? (
             <FindingDispositionRecordCorrectionControl

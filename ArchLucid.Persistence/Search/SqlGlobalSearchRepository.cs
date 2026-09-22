@@ -35,7 +35,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
 
         // One command with three result sets: a single round trip instead of three sequential queries.
         const string sql = """
-                           SELECT TOP (@Take) RunId, Description, ProjectId AS AuthorityProjectSlug, CreatedUtc
+                           SELECT TOP (@Take) RunId, Description, ProjectId AS AuthorityProjectSlug, CreatedUtc, ArchitectureId
                            FROM dbo.Runs
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -44,7 +44,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
                              AND (Description LIKE @Like ESCAPE '\' OR CAST(RunId AS NVARCHAR(36)) LIKE @Like ESCAPE '\')
                            ORDER BY CreatedUtc DESC;
 
-                           SELECT TOP (@Take) r.RunId, fr.FindingId, fr.Title, fr.Severity
+                           SELECT TOP (@Take) r.RunId, r.ArchitectureId, fr.FindingId, fr.Title, fr.Severity
                            FROM dbo.FindingRecords AS fr
                            INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                            INNER JOIN dbo.Runs AS r ON r.FindingsSnapshotId = fs.FindingsSnapshotId
@@ -119,6 +119,12 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
             init;
         }
 
+        public Guid? ArchitectureId
+        {
+            get;
+            init;
+        }
+
         public GlobalSearchRunHit ToHit()
         {
             return new GlobalSearchRunHit
@@ -127,6 +133,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
                 Description = Description,
                 AuthorityProjectSlug = AuthorityProjectSlug,
                 CreatedUtc = new DateTimeOffset(DateTime.SpecifyKind(CreatedUtc, DateTimeKind.Utc)),
+                ArchitectureId = ArchitectureId,
             };
         }
     }
@@ -134,6 +141,12 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
     private sealed class FindingRow
     {
         public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public Guid? ArchitectureId
         {
             get;
             init;
@@ -162,6 +175,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
             return new GlobalSearchFindingHit
             {
                 RunId = RunId,
+                ArchitectureId = ArchitectureId,
                 FindingId = FindingId,
                 Title = Title,
                 Severity = Severity,

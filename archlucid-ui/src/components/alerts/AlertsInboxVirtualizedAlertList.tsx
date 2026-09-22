@@ -5,6 +5,7 @@ import { useRef } from "react";
 
 import { AlertsInboxAlertCard } from "@/components/alerts/AlertsInboxAlertCard";
 import type { AlertActionKind } from "@/components/alerts/AlertsInboxAlertCard";
+import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 import { ALERTS_INBOX_CARD_ROW_ESTIMATE_PX } from "@/components/alerts/alerts-inbox-virtualization";
 import type { AlertRecord } from "@/types/alerts";
 
@@ -18,6 +19,7 @@ export type AlertsInboxVirtualizedAlertListProps = {
   readonly onPendingAction: (alertId: string, action: AlertActionKind) => void;
   readonly onArchiveAlert: (alertId: string) => void;
   readonly onOpenRoutingDelivery: (alertId: string, findingDetailHref: string | null) => void;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
 };
 
 export function AlertsInboxVirtualizedAlertList(props: AlertsInboxVirtualizedAlertListProps): React.JSX.Element {
@@ -59,6 +61,7 @@ export function AlertsInboxVirtualizedAlertList(props: AlertsInboxVirtualizedAle
                 onPendingAction={props.onPendingAction}
                 onArchiveAlert={props.onArchiveAlert}
                 onOpenRoutingDelivery={props.onOpenRoutingDelivery}
+                inspectHrefOptions={props.inspectHrefOptions}
               />
             </div>
           );

@@ -57,6 +57,7 @@ public sealed class MermaidDiagramRenderPipeline : IMermaidDiagramRenderPipeline
                     ? MermaidDiagramFallbackSetBuilder.BuildIndexMarkdown(fallbacks)
                     : null,
                 CollapseReport = repairCollapse,
+                RepairedAst = repaired,
             };
         }
 
@@ -122,6 +123,7 @@ public sealed class MermaidDiagramRenderPipeline : IMermaidDiagramRenderPipeline
                     ? MermaidDiagramFallbackSetBuilder.BuildIndexMarkdown(fallbacks)
                     : null,
                 CollapseReport = repairCollapse,
+                RepairedAst = repaired,
             };
         }
 
@@ -131,6 +133,7 @@ public sealed class MermaidDiagramRenderPipeline : IMermaidDiagramRenderPipeline
             PrimaryMermaid = mermaid,
             Metrics = metrics,
             CollapseReport = repairCollapse,
+            RepairedAst = repaired,
         };
     }
 

@@ -1,5 +1,7 @@
 using ArchLucid.Application.Notifications.Email.Models;
+using ArchLucid.Application.Operator;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 
@@ -42,6 +44,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         int resolvedFindingCount,
         Guid sourceRunId,
         IReadOnlyList<string> toMailboxes,
+        Guid? architectureId,
         CancellationToken cancellationToken)
     {
         if (tenantId == Guid.Empty)
@@ -68,7 +71,9 @@ public sealed class RecurrenceCompletionEmailDispatcher(
             : emailOptions.OperatorBaseUrl.TrimEnd('/');
 
         string runHex = triggeredRunId.ToString("N");
-        string runDetailUrl = operatorBase is null ? $"/reviews/{runHex}" : $"{operatorBase}/reviews/{runHex}";
+        string runDetailUrl = operatorBase is null
+            ? WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(runHex, architectureId)
+            : WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(operatorBase, runHex, architectureId);
         string compareUrl = RecurrenceCompletionOperatorLinks.BuildCompareUrl(operatorBase, sourceRunId, triggeredRunId);
 
         RecurrenceCompletionEmailModel model = new()
@@ -112,9 +117,11 @@ public sealed class RecurrenceCompletionEmailDispatcher(
             {
                 if (_logger.IsEnabled(LogLevel.Error))
                 {
-                    _logger.LogError(
+                    // Mailbox is reduced to domain inside Core (EmailDomainForLogs).
+                    // codeql[cs/exposure-of-sensitive-information]
+                    SanitizedLoggerEmailDispatchExtensions.LogErrorRecurrenceEmailSendFailed(
+                        _logger,
                         ex,
-                        "Recurrence completion email send failed for tenant {TenantId}, schedule {ScheduleId}, mailbox {Mailbox}.",
                         tenantId,
                         scheduleId,
                         mailbox);

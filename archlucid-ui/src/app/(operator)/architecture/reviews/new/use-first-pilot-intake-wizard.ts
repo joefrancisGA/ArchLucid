@@ -13,6 +13,7 @@ import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persiste
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import { type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { getPriorPackageSemanticCounts } from "@/lib/api/draft-intake-api-crud";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import {
@@ -26,7 +27,11 @@ import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-
 import { readIncrementalRereviewFromSearch } from "@/lib/review-quality/incremental-rereview-handoff";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { evaluatePolicyPackCloudMismatch } from "@/lib/review-quality/review-intake-quality-gates";
-import { priorPackageInheritedTitle, readPriorRunIdFromSearch } from "@/lib/second-review-prior-package";
+import {
+  priorPackageInheritedSemanticSummary,
+  priorPackageInheritedTitle,
+  readPriorRunIdFromSearch,
+} from "@/lib/second-review-prior-package";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
 import {
   buildEvidenceBackedIntakeBrief,
@@ -73,12 +78,16 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { isSimulator } = useAgentExecutionMode();
   const exampleTemplatePrefillAppliedRef = useRef(false);
   const priorPackagePrefillAppliedRef = useRef(false);
-  const priorRunId = useMemo(() => readPriorRunIdFromSearch(searchParams), [searchParams]);
+  const priorRunIdFromSearch = useMemo(() => readPriorRunIdFromSearch(searchParams), [searchParams]);
+  const isSecondReviewContinuation = searchParams?.get("intent")?.trim() === "revised-clone";
+  const priorRunIdForTitlePrefill = isSecondReviewContinuation ? priorRunIdFromSearch : null;
+  const priorRunId = priorRunIdFromSearch;
   const incrementalRereview = useMemo(
     () => readIncrementalRereviewFromSearch(new URLSearchParams(searchParams?.toString() ?? "")),
     [searchParams],
   );
   const [inheritedPriorTitle, setInheritedPriorTitle] = useState<string | null>(null);
+  const [inheritedSemanticSummary, setInheritedSemanticSummary] = useState<string | null>(null);
 
   const exampleTemplate = useMemo(
     () =>
@@ -199,12 +208,16 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     setBriefText(exampleTemplate.briefText);
   }, [exampleTemplate]);
 
-  const priorSummaryQuery = useRunSummaryQuery(priorRunId ?? "", {
-    enabled: priorRunId !== null,
+  const priorSummaryQuery = useRunSummaryQuery(priorRunIdForTitlePrefill ?? "", {
+    enabled: priorRunIdForTitlePrefill !== null,
   });
 
   useEffect(() => {
-    if (priorRunId === null || priorPackagePrefillAppliedRef.current || priorSummaryQuery.data === undefined) {
+    if (
+      priorRunIdForTitlePrefill === null ||
+      priorPackagePrefillAppliedRef.current ||
+      priorSummaryQuery.data === undefined
+    ) {
       return;
     }
 
@@ -217,7 +230,33 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
     setInheritedPriorTitle(inheritedTitle);
     setRunTitle((current) => (current.trim().length > 0 ? current : inheritedTitle));
-  }, [priorRunId, priorSummaryQuery.data]);
+  }, [priorRunIdForTitlePrefill, priorSummaryQuery.data]);
+
+  useEffect(() => {
+    if (priorRunIdForTitlePrefill === null) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void getPriorPackageSemanticCounts(priorRunIdForTitlePrefill)
+      .then((counts) => {
+        if (cancelled || counts === null) {
+          return;
+        }
+
+        setInheritedSemanticSummary(priorPackageInheritedSemanticSummary(counts));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setInheritedSemanticSummary(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [priorRunIdForTitlePrefill]);
 
   const resolvedBrief = useMemo(
     () => buildEvidenceBackedIntakeBrief(runTitle, evidenceFiles, briefText),
@@ -318,6 +357,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         briefWithScope,
         FIRST_PILOT_REQUIRED_CAPABILITIES,
         focusedPilotModeEnabled,
+        priorRunId,
       );
 
       return projectUniversalIntakeAnswersOntoCreateRunPayload(
@@ -338,6 +378,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       l0Answers,
       l0SkippedQuestionKeys,
       limitedEvidenceAnalysisAcknowledged,
+      priorRunId,
       resolvedBrief,
       runTitle,
       scopeBullets,
@@ -364,6 +405,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     exampleTemplate,
     incrementalRereview,
     inheritedPriorTitle,
+    inheritedSemanticSummary,
     runTitle,
     setRunTitle,
     briefText,

@@ -61,6 +61,45 @@ public sealed class InMemoryAuthenticationIdentityLinkProposalRepositoryCoverage
     }
 
     [Fact]
+    public async Task InsertAsync_throws_when_proposal_id_already_exists()
+    {
+        InMemoryAuthenticationIdentityLinkProposalRepository sut = new();
+        Guid id = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        AuthenticationIdentityLinkProposalRecord first = new()
+        {
+            Id = id,
+            UserId = Guid.NewGuid(),
+            ProviderType = AuthenticationProviderType.TenantOidc,
+            NormalizedIssuer = "https://login.example",
+            Subject = "sub-dup",
+            Status = AuthenticationIdentityLinkProposalStatus.PendingConfirmation,
+            CreatedUtc = now,
+            ExpiresUtc = now.AddHours(1),
+        };
+
+        await sut.InsertAsync(first, CancellationToken.None);
+
+        Func<Task> duplicate = () => sut.InsertAsync(
+            new AuthenticationIdentityLinkProposalRecord
+            {
+                Id = id,
+                UserId = Guid.NewGuid(),
+                ProviderType = AuthenticationProviderType.TenantOidc,
+                NormalizedIssuer = "https://login.other",
+                Subject = "sub-other",
+                Status = AuthenticationIdentityLinkProposalStatus.PendingConfirmation,
+                CreatedUtc = now,
+                ExpiresUtc = now.AddHours(2),
+            },
+            CancellationToken.None);
+
+        await duplicate.Should().ThrowAsync<DuplicateAuthenticationIdentityLinkProposalException>();
+        (await sut.GetByIdAsync(id, CancellationToken.None))!.Subject.Should().Be("sub-dup");
+    }
+
+    [Fact]
     public async Task TryUpdateStatusAsync_allows_pending_to_expired_transition()
     {
         InMemoryAuthenticationIdentityLinkProposalRepository sut = new();

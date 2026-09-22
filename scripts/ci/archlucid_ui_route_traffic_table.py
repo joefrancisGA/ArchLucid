@@ -55,7 +55,7 @@ def parse_hit_pct(value: str) -> float:
 def parse_rows(table_text: str) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for line in table_text.splitlines():
-        if not line.startswith("| ") or line.startswith("| ID") or line.startswith("|----"):
+        if not line.startswith("| ") or line.startswith("| ID |") or line.startswith("|----"):
             continue
         parts = [part.strip() for part in line.strip("|").split("|")]
         done = DEFAULT_DONE

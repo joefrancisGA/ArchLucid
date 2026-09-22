@@ -205,6 +205,33 @@ public static class WordDocumentBuilder
         body.AppendChild(table);
     }
 
+    public static void AddFiveColumnTable(
+        Body body,
+        (string A, string B, string C, string D, string E) header,
+        IReadOnlyList<(string A, string B, string C, string D, string E)> rows)
+    {
+        Table table = CreateTableGrid();
+        table.AppendChild(
+            new TableRow(
+                CreateHeaderCell(header.A),
+                CreateHeaderCell(header.B),
+                CreateHeaderCell(header.C),
+                CreateHeaderCell(header.D),
+                CreateHeaderCell(header.E)));
+
+        foreach ((string a, string b, string c, string d, string e) in rows)
+
+            table.AppendChild(
+                new TableRow(
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(a))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(b))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(c))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(d))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(e)))))));
+
+        body.AppendChild(table);
+    }
+
     private static bool IsHighSeverity(string severity)
     {
         string s = severity.ToUpperInvariant();

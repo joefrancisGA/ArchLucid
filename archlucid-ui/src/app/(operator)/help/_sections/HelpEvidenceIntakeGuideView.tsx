@@ -7,6 +7,7 @@ import { HelpEvidenceIntakeRelatedGuidesLinks } from "@/app/(operator)/help/_sec
 import { HelpEvidenceIntakeVerifyIntakePanel } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeVerifyIntakePanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -144,6 +145,8 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
 
           {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-evidence-intake" showSsoOptional={false} />
 
         <div data-testid="help-evidence-intake-orientation-bottom">
           <HelpEvidenceIntakeClaimOrientationStrip />

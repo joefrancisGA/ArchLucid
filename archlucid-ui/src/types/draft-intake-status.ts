@@ -1,4 +1,4 @@
-/** Lifecycle state for a draft request (ADR 0048). */
+/** Lifecycle state for an architecture draft request (ADR 0048). */
 export type DraftRequestStatus =
   | "Drafting"
   | "Admitted"

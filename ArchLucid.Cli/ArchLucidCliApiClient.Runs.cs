@@ -29,8 +29,8 @@ public sealed partial class ArchLucidApiClient
                 return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
             Gen.SubmitAgentResultRequest req = new() { Result = genResult };
-            Gen.Body75? body = MapToOpenApiRequestBody<Gen.Body75>(req, GenNumericEnumBridgeJson);
-            Gen.SubmitAgentResultResponse parsed = await _api.ResultPOSTAsync(runId, body, ct);
+            Gen.Body76? body = MapToOpenApiRequestBody<Gen.Body76>(req, GenNumericEnumBridgeJson);
+            Gen.SubmitAgentResultResponse parsed = await _api.ResultPOSTAsync(runId, null, body, ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);
         }
@@ -109,7 +109,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             System.Collections.Generic.ICollection<Gen.ArtifactDescriptorResponse> artifacts =
-                await _api.ArtifactsAllAsync(runGuid, ct);
+                await _api.ArtifactsAllAsync(runGuid, null, ct);
 
             return artifacts
                 .Where(a => a.ArtifactId is not null)
@@ -131,7 +131,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.RunDetailsResponse details = await _api.ReviewAsync(runId, ct);
+            Gen.RunDetailsResponse details = await _api.ReviewAsync(runId, null, ct);
 
             return DeserializeRoundTrip<GetRunResult>(details);
         }
@@ -144,13 +144,35 @@ public sealed partial class ArchLucidApiClient
     }
 
     /// <summary>
+    ///     Lightweight run summary including parent <c>architectureId</c> when linked (SG-095 / SG-109).
+    /// </summary>
+    public async Task<GetRunSummaryResult?> GetRunSummaryAsync(string runId, CancellationToken ct = default)
+    {
+        try
+        {
+            if (!Guid.TryParse(runId, out Guid runGuid))
+                return null;
+
+            Gen.RunSummaryResponse summary = await _api.SummaryGET7Async(runGuid, null, ct);
+
+            return DeserializeRoundTrip<GetRunSummaryResult>(summary);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"GetRunSummary({runId})", ex);
+
+            return null;
+        }
+    }
+
+    /// <summary>
     ///     Get manifest by version.
     /// </summary>
     public async Task<object?> GetManifestAsync(string version, CancellationToken ct = default)
     {
         try
         {
-            Gen.GoldenManifest manifest = await _api.ManifestAsync(version, ct);
+            Gen.GoldenManifest manifest = await _api.ManifestAsync(version, null, ct);
 
             return JsonSerializer.SerializeToElement(manifest, _jsonOptions);
         }

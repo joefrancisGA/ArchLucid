@@ -121,6 +121,15 @@ public sealed class TenantTrialFacade(
         if (tenant is null)
             return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.TenantNotFound };
 
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
+        {
+            return new TenantTrialLinkEntraResult
+            {
+                Outcome = TenantTrialHttpOutcome.Conflict,
+                Message = "Tenant must be converted before binding Entra directory.",
+            };
+        }
+
         TenantTrialIdentityLinkPrecheckResult precheck = await _abuseGuard
             .ValidateIdentityLinkAsync(body, scope.TenantId, cancellationToken)
             .ConfigureAwait(false);

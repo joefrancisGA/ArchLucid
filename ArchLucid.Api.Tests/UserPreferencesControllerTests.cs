@@ -46,6 +46,10 @@ public sealed class UserPreferencesControllerTests
         body.WorkspaceModeIsExplicit.Should().BeFalse();
         body.WorkspaceModeGraduationOffer.Should().Be(WorkspaceModeGraduationOfferValues.Default);
         body.WorkspaceModeGraduationOfferIsExplicit.Should().BeFalse();
+        body.FirstSessionPurpose.Should().BeNull();
+        body.FirstSessionPurposeIsExplicit.Should().BeFalse();
+        body.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Default);
+        body.WorkingCareerRehearsalDoorIsExplicit.Should().BeFalse();
         body.FindingsHideGenericEnabled.Should().BeFalse();
         body.FindingsHideGenericEnabledIsExplicit.Should().BeFalse();
         body.FindingsShowLowConfidenceEnabled.Should().BeTrue();
@@ -323,6 +327,132 @@ public sealed class UserPreferencesControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredFirstSessionPurpose()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync(
+                "jwt:user-1",
+                UserSettingKeys.FirstSessionPurpose,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("training");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.FirstSessionPurpose.Should().Be(FirstSessionPurposeValues.Training);
+        body.FirstSessionPurposeIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetFirstSessionPurpose_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetFirstSessionPurpose(
+            new SetFirstSessionPurposeRequest { Purpose = "live" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.FirstSessionPurpose,
+                "live",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SetFirstSessionPurpose_ReturnsBadRequestWhenInvalid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetFirstSessionPurpose(
+            new SetFirstSessionPurposeRequest { Purpose = "practice" },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                It.IsAny<string>(),
+                UserSettingKeys.FirstSessionPurpose,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredWorkingCareerRehearsalDoor()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync(
+                "jwt:user-1",
+                UserSettingKeys.WorkingCareerRehearsalDoor,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("rehearsal");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Rehearsal);
+        body.WorkingCareerRehearsalDoorIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetWorkingCareerRehearsalDoor_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetWorkingCareerRehearsalDoor(
+            new SetWorkingCareerRehearsalDoorRequest { Door = "rehearsal" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.WorkingCareerRehearsalDoor,
+                "rehearsal",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SetWorkingCareerRehearsalDoor_ReturnsBadRequestWhenInvalid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetWorkingCareerRehearsalDoor(
+            new SetWorkingCareerRehearsalDoorRequest { Door = "simulator" },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                It.IsAny<string>(),
+                UserSettingKeys.WorkingCareerRehearsalDoor,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task SetFindingsVisibilityPreferences_ReturnsNoContentWhenValid()
     {
         Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
@@ -409,6 +539,62 @@ public sealed class UserPreferencesControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredWorkingWorkspaceContinuity()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkingWorkspaceContinuity, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                """{"favoriteReviews":[{"runId":"run-1","pinnedAtUtc":"2026-09-13T12:00:00Z"}],"recentViewEntries":[{"href":"/architecture/architectures/arch-1","label":"Architecture","kind":"architecture","visitedAtUtc":"2026-09-13T12:01:00Z","architectureId":"arch-1"}],"updatedAtUtc":"2026-09-13T12:02:00Z"}""");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.WorkingWorkspaceContinuity.FavoriteReviews.Should().HaveCount(1);
+        body.WorkingWorkspaceContinuity.FavoriteReviews[0].RunId.Should().Be("run-1");
+        body.WorkingWorkspaceContinuity.RecentViewEntries.Should().HaveCount(1);
+        body.WorkingWorkspaceContinuityIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetWorkingWorkspaceContinuity_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetWorkingWorkspaceContinuity(
+            new SetWorkingWorkspaceContinuityRequest
+            {
+                Continuity = new WorkingWorkspaceContinuityDto
+                {
+                    FavoriteReviews =
+                    [
+                        new FavoriteReviewEntryDto
+                        {
+                            RunId = "run-42",
+                            PinnedAtUtc = "2026-09-13T12:00:00Z",
+                        },
+                    ],
+                    UpdatedAtUtc = "2026-09-13T12:00:00Z",
+                },
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.WorkingWorkspaceContinuity,
+                It.Is<string>(json => json.Contains("run-42")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task SetDeskContinuity_ReturnsNoContentWhenValid()
     {
         Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
@@ -462,6 +648,12 @@ public sealed class UserPreferencesControllerTests
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkspaceModeGraduationOffer, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
         repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.FirstSessionPurpose, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkingCareerRehearsalDoor, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.ProfessionalWorkbenchEnabled, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
         repository
@@ -478,6 +670,9 @@ public sealed class UserPreferencesControllerTests
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.DeskContinuity, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkingWorkspaceContinuity, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 
         return repository;

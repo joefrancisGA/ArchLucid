@@ -14,8 +14,11 @@ import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-arti
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import type { SponsorReviewCoverageHonestyInputs } from "@/lib/sponsor/sponsor-review-coverage-honesty";
+import { formatArchitectureInventoryEstateGapCareerExportMarkdown } from "@/lib/architecture/architecture-inventory-estate-gap-copy";
+import { formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown } from "@/lib/architecture/architecture-inventory-snapshot-freshness";
 import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { formatCareerExportFindingTrustMarkdownSection } from "@/lib/findings/format-career-export-finding-trust-markdown-section";
+import { formatCareerExportSemanticSupportBandMarkdownSection } from "@/lib/findings/finding-semantic-support-band-export";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
@@ -39,6 +42,10 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly findingsSnapshot?: unknown;
   readonly contextSnapshot?: unknown;
   readonly exportFindings?: readonly QuickDecisionFinding[];
+  /** When false, career exports must label the unbound inventory estate gap (AS-051). */
+  readonly architectureInventoryBound?: boolean | null;
+  /** Bound snapshot captured-at; used for AS-052 stale honesty when older than 7 days. */
+  readonly architectureInventorySnapshotCapturedUtc?: string | null;
 };
 
 export type CareerExportCoverageHonesty = {
@@ -185,6 +192,22 @@ export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHon
     sections.push(classificationMarkdown.trim());
   }
 
+  const estateGapMarkdown = formatArchitectureInventoryEstateGapCareerExportMarkdown(
+    input.architectureInventoryBound,
+  ).trim();
+
+  if (estateGapMarkdown.length > 0) {
+    sections.push(estateGapMarkdown);
+  }
+
+  const freshnessMarkdown = formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(
+    input.architectureInventorySnapshotCapturedUtc,
+  ).trim();
+
+  if (freshnessMarkdown.length > 0) {
+    sections.push(freshnessMarkdown);
+  }
+
   const skippedMustMarkdown = formatSkippedMustExportHeaderMarkdown(input);
 
   if (skippedMustMarkdown.trim().length > 0) {
@@ -207,6 +230,15 @@ export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHon
 
   if (findingTrustMarkdown.trim().length > 0) {
     sections.push(findingTrustMarkdown.trim());
+  }
+
+  const semanticSupportMarkdown = formatCareerExportSemanticSupportBandMarkdownSection(
+    input.exportFindings ?? [],
+    input.structuralExecutionMode,
+  );
+
+  if (semanticSupportMarkdown.trim().length > 0) {
+    sections.push(semanticSupportMarkdown.trim());
   }
 
   if (honesty.blockedForWorkingCareerExport && honesty.measurementFloorBlockedReason !== null) {

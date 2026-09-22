@@ -18,7 +18,9 @@ public static class RunSummaryOnePagerDocumentFactory
         string? activeTrialExportNotice = null,
         int sealedFindingCount = 0,
         string? careerExportHonestyPlainText = null,
+        string? sendableExportCoverPlainText = null,
         string? architectRestatementMarkdown = null)
+
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -60,6 +62,9 @@ public static class RunSummaryOnePagerDocumentFactory
             CareerExportHonestyPlainText = string.IsNullOrWhiteSpace(careerExportHonestyPlainText)
                 ? null
                 : careerExportHonestyPlainText.Trim(),
+            SendableExportCoverPlainText = string.IsNullOrWhiteSpace(sendableExportCoverPlainText)
+                ? null
+                : sendableExportCoverPlainText.Trim(),
             ArchitectRestatementMarkdown = string.IsNullOrWhiteSpace(architectRestatementMarkdown)
                 ? null
                 : architectRestatementMarkdown.Trim(),

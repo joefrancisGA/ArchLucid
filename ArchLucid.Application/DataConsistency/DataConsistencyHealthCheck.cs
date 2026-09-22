@@ -18,7 +18,11 @@ public sealed class DataConsistencyHealthCheck(
         ArgumentNullException.ThrowIfNull(context);
         _healthState.TrySnapshot(out bool hasRun, out DataConsistencyReport? report, out string? error);
         if (!hasRun)
-            return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation has not run yet."));
+        {
+            // Leader-elected reconciliation: non-leader Worker/Combined replicas never record local state.
+            return Task.FromResult(HealthCheckResult.Healthy(
+                "Data consistency reconciliation enabled; no iteration has run on this replica yet."));
+        }
         if (error is not null)
             return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation failed: " + error));
         if (report is null)

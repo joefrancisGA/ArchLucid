@@ -3,6 +3,7 @@ import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer/buyer-golden-sp
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 import type {
   EvidenceCoverageSummary,
@@ -37,7 +38,8 @@ export type RunDetailPresentation = {
 
   readonly findingCoverageSummary: FindingCoverageSummary | null;
   readonly commitBlockedReason: string | null;
-  readonly finalizeAssumptionGateApplies: boolean;
+  readonly finalizeReadinessBlocks: readonly FinalizeReadinessBlock[];
+  readonly finalizeReadinessEnabled: boolean;
   readonly requestAssumptionTexts: readonly string[];
 
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
@@ -76,6 +78,7 @@ export type RunDetailPresentation = {
   readonly submittedArchitectureText: string | null;
   readonly hasSubmittedArchitecture: boolean;
   readonly architectureEditHref: string | null;
+  readonly architectureTabSubmittedHelperText: string;
 
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: ReturnType<typeof buildRunDetailEvidencePresentation>["evidenceInventoryItems"];
@@ -126,6 +129,7 @@ export async function buildRunDetailPresentation(
     deriveRecommendedWorkspaceActions,
     deriveReviewDisplayTitle,
     deriveReviewHeaderPresentation,
+    deriveWorkingInstrumentReviewHeaderPresentation,
     deriveReviewOwnerLabel,
     deriveReviewStatusSummary,
     deriveReviewTemplateLabel,
@@ -154,6 +158,9 @@ export async function buildRunDetailPresentation(
 
   const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, model.headline);
   const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
+  const architectureId = model.resolvedDetail.run.architectureId?.trim() ?? "";
+  const useWorkingInstrumentHeader =
+    model.buyerPolishedArtifactTable !== true && architectureId.length > 0 && systemName !== null;
   const highestSeverity =
     deriveHighestUnresolvedSeverityLabel(quickDecisionFindings) ??
     model.explanationSummary?.riskPosture ??
@@ -172,6 +179,8 @@ export async function buildRunDetailPresentation(
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     blockingFindingCount: blockingApprovalCount,
+    workingDesk: model.buyerPolishedArtifactTable !== true,
+    effectiveWorkingCareerRehearsalDoor: model.progressForPipelineUi.workingCareerRehearsalDoor,
   });
 
   const evidenceGapsCount = filterUnresolvedFindings(quickDecisionFindings).filter(
@@ -229,7 +238,8 @@ export async function buildRunDetailPresentation(
 
     findingCoverageSummary,
     commitBlockedReason: governancePresentation.commitBlockedReason,
-    finalizeAssumptionGateApplies: governancePresentation.finalizeAssumptionGateApplies,
+    finalizeReadinessBlocks: governancePresentation.finalizeReadinessBlocks,
+    finalizeReadinessEnabled: governancePresentation.finalizeReadinessEnabled,
     requestAssumptionTexts: governancePresentation.requestAssumptionTexts,
 
     ...findingsPresentation,
@@ -237,13 +247,19 @@ export async function buildRunDetailPresentation(
     reviewDisplayTitle,
     systemName,
     architectureSummaryTitle: systemName !== null && systemName !== reviewDisplayTitle ? systemName : null,
-    reviewHeaderPresentation: deriveReviewHeaderPresentation({
-      reviewTitle: reviewDisplayTitle,
-      systemName,
-      runId: model.resolvedDetail.run.runId,
-      templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
-      manifestId: model.manifestId,
-    }),
+    reviewHeaderPresentation: useWorkingInstrumentHeader
+      ? deriveWorkingInstrumentReviewHeaderPresentation({
+          architectureDisplayName: systemName,
+          reviewTitle: reviewDisplayTitle,
+          runId: model.resolvedDetail.run.runId,
+        })
+      : deriveReviewHeaderPresentation({
+          reviewTitle: reviewDisplayTitle,
+          systemName,
+          runId: model.resolvedDetail.run.runId,
+          templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
+          manifestId: model.manifestId,
+        }),
     reviewOwnerLabel: deriveReviewOwnerLabel(model.resolvedDetail.run),
     templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
     packageVersionLabel: derivePackageVersionLabel(

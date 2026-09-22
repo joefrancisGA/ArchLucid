@@ -44,13 +44,15 @@ Do **not** collapse desktop review workspace tabs behind **More**. Do **not** re
 
 | Residual | Why |
 |----------|-----|
-| Concurrent desk / work lease without presence | Problem 5 from the 2026-09-09 diagnosis — **wave 23** |
+| Concurrent desk / work lease without presence | Problem 5 from the 2026-09-09 diagnosis — livelihood UX **wave 23** [`lost-write-00-index.md`](lost-write-00-index.md) (**LW-001–LW-100**) |
+| **AS-094 hub/search share filter** | API shipped; hub still uses draft list — **V12-01** (highest token ROI) |
 | Intake wizard + architecture-rename dirty-form guards | Still in LP-11 deferred inventory |
 | Stop-analysis confirm | FP leftover; not a disposition write |
 | Findings-queue list DTO row versions (N+1) | FP residual |
 | IE-01–IE-22 collector/snapshot implementation | Bind consumes; does not ship the plane |
 | G-REAL-06 Real-mode default host config | Owner/GTM |
 | CPA SOC 2 / third-party pen test | G-REAL-05 / G-ASSURANCE-02 |
+| Diagram **usability** (intent-to-view, NL patches, vision accept desk) | **DAU-01–DAU-12** [`diagram-ai-usability-00-index.md`](diagram-ai-usability-00-index.md) — not an AS leftover |
 
 ## Relationship to prior sets
 
@@ -191,3 +193,5 @@ Suggested Cloud Agent branch per prompt: `cursor/as-<short-name>-c28a` is the *w
 ## Global constraints (every prompt)
 
 See each file’s **Constraints**. In short: no desktop **More** menu; no merge of `DraftRequests`/`Runs`; no 40th engine; no finding-comment chat; no live presence; no Simulator **host** default flip; no G-REAL-06; no second Azure collector; vision default off; optional RestrictToShares is in-tenant only (no RLS); no GTM **M-90 / M-44 / M-91 / M-92**; no reopen **TB-135 / TB-136**; TB-645 vocabulary; focused Vitest; scoped compile only for C#.
+
+**Wave 23 (shipped):** [`lost-write-00-index.md`](lost-write-00-index.md) (**LW-001–100**). **Waves 24–30 (ready):** [`livelihood-gravity-00-index.md`](livelihood-gravity-00-index.md). Issue 1 is [`career-gravity-00-index.md`](career-gravity-00-index.md) (**CG-001–100**). Do not re-run AS or LW.

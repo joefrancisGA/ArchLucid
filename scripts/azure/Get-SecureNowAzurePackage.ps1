@@ -9,7 +9,11 @@
     - **Never collected:** Key Vault secret values, connection strings, certificates/private keys, arbitrary user PII beyond resource tags.
     - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans, SQL databases, Virtual Machines, and Storage Accounts inventoried in `resources.json`; HTTPS GET only — no RBAC beyond Reader-style ARM read access (same as other catalog probes).
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
-    - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via Azure CLI **`az rest`** calls to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC plus `az` on PATH required; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
+    - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via **`Invoke-AzRestMethod`** (preferred; reuses **Connect-AzAccount**) or Azure CLI **`az rest`** fallback to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
+    - `-IncludeAppSettingsHosts` emits `app-settings-hosts.json` via POST `config/appsettings/list` and `config/connectionstrings/list` (setting names + parsed hosts + Key Vault URI host/secret name only — never values).
+    - `-IncludeDependencyObservations` emits `dependency-observations.json` via Log Analytics query API (aggregated counts only — no query text or SQL statements).
+    - `-IncludeSqlDatabasePrincipals` emits `sql-database-principals.json` via `sys.database_principals` (Entra user/app names only — no table or permission harvest).
+    - Console progress: a heartbeat line is written every 10 seconds while a step is in flight (override with ARCHLUCID_EXTRACTOR_PROGRESS_HEARTBEAT_SECONDS; 0 disables).
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
 #Requires -Version 7.0
@@ -39,6 +43,15 @@ param(
 
     [Parameter(Mandatory = $false)]
     [switch] $IncludeRetailPrices,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeAppSettingsHosts,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeDependencyObservations,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeSqlDatabasePrincipals,
 
     [Parameter(Mandatory = $false)]
     [switch] $DryRun
@@ -79,7 +92,7 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
             }
 
             $first = $false
-            $json = $resource | ConvertTo-Json -Depth 10 -Compress
+            $json = $resource | ConvertTo-Json -Depth 25 -Compress
             $writer.Write($json)
         }
 
@@ -90,57 +103,18 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
     }
 }
 
-function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
-{
-    if ($null -eq $AzResource) { throw [System.ArgumentNullException]::new("AzResource") }
-
-    $props = @{
-        provisioningState = $AzResource.Properties.provisioningState
-    }
-
-    if ([string]::Equals($AzResource.ResourceType, "Microsoft.Compute/virtualMachines",
-            [System.StringComparison]::OrdinalIgnoreCase))
-    {
-
-        try
-        {
-
-            [string]$vs = "$( $AzResource.Properties.hardwareProfile.vmSize )".Trim()
-
-            if (-not ([string]::IsNullOrWhiteSpace($vs)))
-            {
-
-                $props["vmSize"] = $vs
-
-            }
-
-        }
-
-        catch
-        {
-
-        }
-
-    }
-
-    return [ordered]@{
-        resourceType = $AzResource.ResourceType
-        resourceId = $AzResource.ResourceId
-        name = $AzResource.Name
-        location = $AzResource.Location
-        sku = $AzResource.Sku
-        tags = $AzResource.Tags
-        properties = $props
-    }
-
-}
-
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorQuickStart.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.RetailPrices.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorTelemetry.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorProgressHeartbeat.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorJson.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
+
+Set-ArchLucidExtractorConsoleBrandName -BrandName 'SecureNow Azure extractor'
 
 function Get-ArchLucidExtractorInventoryResources
 {
@@ -388,6 +362,7 @@ if ($DryRun)
 
 $extractionStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $telemetry = New-ArchLucidExtractorTelemetryContext
+$progressHeartbeat = Start-ArchLucidExtractorProgressHeartbeat -InitialStep 'Starting'
 
 $scopeDescriptor = if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
 {
@@ -415,6 +390,8 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
 
     try
     {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step SubscriptionContext
+
         Set-ArchLucidAzureExtractorSubscriptionContext `
             -SubscriptionId $SubscriptionId `
             -TenantId $TenantId
@@ -437,6 +414,8 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
             -Message ("Unable to access subscription '{0}'. Sign in with Connect-AzAccount -Tenant '<tenant-id>' -UseDeviceAuthentication and ensure Reader (or equivalent) RBAC at subscription scope. {1}" -f $SubscriptionId, $authFailure) `
             -Context @{ subscriptionId = $SubscriptionId }
 
+        Stop-ArchLucidExtractorProgressHeartbeat -Handle $progressHeartbeat
+
         exit 1
     }
 }
@@ -451,6 +430,9 @@ $switchesUsed = @()
 if ($IncludeCost) { $switchesUsed += "IncludeCost" }
 if ($IncludeAdvisor) { $switchesUsed += "IncludeAdvisor" }
 if ($IncludeRetailPrices) { $switchesUsed += "IncludeRetailPrices" }
+if ($IncludeAppSettingsHosts) { $switchesUsed += "IncludeAppSettingsHosts" }
+if ($IncludeDependencyObservations) { $switchesUsed += "IncludeDependencyObservations" }
+if ($IncludeSqlDatabasePrincipals) { $switchesUsed += "IncludeSqlDatabasePrincipals" }
 
 $outputDir = Split-Path -Parent $OutputPath
 if (-not (Test-Path -LiteralPath $outputDir))
@@ -463,6 +445,8 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 
 try
 {
+    Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step Inventory
+
     $resources = Get-ArchLucidExtractorInventoryResources `
         -Telemetry $telemetry `
         -SubscriptionId $SubscriptionId `
@@ -472,11 +456,19 @@ try
     # SECURITY BOUNDARY: Explicitly filter out Key Vault secrets to ensure we strictly grab structural ARM metadata and NEVER request data plane or secret contents.
     $resources = @($resources) | Where-Object { $_.resourceType -ne "Microsoft.KeyVault/vaults/secrets" }
 
+    $inventoryForAssociationDerivation = @($resources)
+    $resources = @($resources) | Where-Object { -not (Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $_.resourceType) }
+    [string[]]$privateLinkOnlyNicArmIds = @(Get-ArchLucidAzurePrivateLinkOnlyNicArmIds -InventoryResources @($inventoryForAssociationDerivation))
+    $resources = @($resources) | Where-Object {
+        -not (Test-ArchLucidAzureInventoryNeverShowResource -Resource $_ -PrivateLinkOnlyNicArmIds $privateLinkOnlyNicArmIds)
+    }
+
     $manifest = [ordered]@{
         schemaVersion = $schemaVersion
         scriptVersion = $scriptVersion
         collectionTimestamp = $collectionTimestamp
         subscriptionId = if ([string]::IsNullOrWhiteSpace($SubscriptionId)) { $null } else { $SubscriptionId }
+        subscriptionName = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId $SubscriptionId
         managementGroupId = if ([string]::IsNullOrWhiteSpace($ManagementGroupId)) { $null } else { $ManagementGroupId }
         scope = $scopeDescriptor
         switchesUsed = $switchesUsed
@@ -495,6 +487,8 @@ try
 
         try
         {
+            Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step ActualCostSummary
+
             $manifest["actualCostSummary"] =
                 $(Get-ArchLucidActualCostSummary -SubscriptionId $SubscriptionId)
 
@@ -553,6 +547,8 @@ try
 
         try
         {
+            Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step PolicyCompliance
+
             $policyCompliance = New-ArchLucidPolicyComplianceDocument `
                 -SubscriptionId $SubscriptionId `
                 -ScopeDescriptor $scopeDescriptor `
@@ -601,6 +597,8 @@ try
     }
 
     try {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step PolicyDefinitions
+
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
         {
             $policyData.policyDefinitions = @(Get-AzPolicyDefinition -ManagementGroupName $ManagementGroupId)
@@ -643,15 +641,209 @@ try
     }
 
     $policyPath = Join-Path $staging "policy.json"
-    Write-Utf8NoBom $policyPath ($policyData | ConvertTo-Json -Depth 10)
+    Write-Utf8NoBom $policyPath ($policyData | ConvertTo-Json -Depth 25)
 
-  # Schema v2 optional inventory siblings (empty arrays when not yet collected per resource type).
-  Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
-  Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
-  Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
-  Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
-  Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
+    [System.Diagnostics.Stopwatch]$securityInventoryWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
+    try
+    {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step SecurityInventory
+
+        [object[]]$roleAssignmentRows = @(Get-ArchLucidAzureRoleAssignmentCompanionRows `
+            -SubscriptionId $SubscriptionId `
+            -ResourceGroupScope $ResourceGroupScope `
+            -ManagementGroupId $ManagementGroupId)
+
+        [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($inventoryForAssociationDerivation))
+
+        if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+        {
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
+                    -SubscriptionId $subId `
+                    -ResourceGroupScope $ResourceGroupScope)
+
+                foreach ($argRow in @($argRows))
+                {
+                    $networkAssociationRows += $argRow
+                }
+            }
+        }
+        else
+        {
+            [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
+                -SubscriptionId $SubscriptionId `
+                -ResourceGroupScope $ResourceGroupScope)
+
+            foreach ($argRow in @($argRows))
+            {
+                $networkAssociationRows += $argRow
+            }
+        }
+
+        [object[]]$avdSessionHostAssociationRows = @(Get-ArchLucidAzureAvdSessionHostAssociationRows -InventoryResources @($inventoryForAssociationDerivation))
+
+        foreach ($avdRow in @($avdSessionHostAssociationRows))
+        {
+            $networkAssociationRows += $avdRow
+        }
+
+        if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+        {
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                [object[]]$avdArgRows = @(Get-ArchLucidAzureAvdSessionHostAssociationRowsViaResourceGraph `
+                    -SubscriptionId $subId `
+                    -ResourceGroupScope $ResourceGroupScope)
+
+                foreach ($avdArgRow in @($avdArgRows))
+                {
+                    $networkAssociationRows += $avdArgRow
+                }
+            }
+        }
+        else
+        {
+            [object[]]$avdArgRows = @(Get-ArchLucidAzureAvdSessionHostAssociationRowsViaResourceGraph `
+                -SubscriptionId $SubscriptionId `
+                -ResourceGroupScope $ResourceGroupScope)
+
+            foreach ($avdArgRow in @($avdArgRows))
+            {
+                $networkAssociationRows += $avdArgRow
+            }
+        }
+
+        [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
+        [object[]]$effectiveNetworkControlRows = @(Get-ArchLucidAzureEffectiveNetworkControlCompanionRows -InventoryResources @($resources))
+        [object[]]$policyAssignmentRows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($policyData.policyAssignments))
+        [object[]]$diagnosticSettingRows = @(Get-ArchLucidAzureDiagnosticSettingCompanionRows -InventoryResources @($resources))
+        [object[]]$defenderSummaryRows = @(Get-ArchLucidAzureDefenderSummaryCompanionRows `
+            -SubscriptionId $SubscriptionId `
+            -ManagementGroupId $ManagementGroupId)
+        [object[]]$adfLinkedServiceRows = @(Get-ArchLucidAzureAdfLinkedServiceCompanionRows -InventoryResources @($resources))
+        [object[]]$adfDatasetRows = @(Get-ArchLucidAzureAdfDatasetCompanionRows -InventoryResources @($resources))
+        [object[]]$adfPipelineFlowRows = @(Get-ArchLucidAzureAdfPipelineFlowCompanionRows -InventoryResources @($resources))
+        [object[]]$adfTriggerRows = @(Get-ArchLucidAzureAdfTriggerCompanionRows -InventoryResources @($resources))
+        [object[]]$adfIntegrationRuntimeRows = @(Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows -InventoryResources @($resources))
+        [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows -InventoryResources @($resources))
+        [object[]]$eventGridSubscriptionRows = @(Get-ArchLucidAzureEventGridSubscriptionCompanionRows -InventoryResources @($resources) -SubscriptionId $SubscriptionId)
+        [object[]]$logicAppConnectionRows = @(Get-ArchLucidAzureLogicAppConnectionCompanionRows -InventoryResources @($resources))
+        [object[]]$messagingAssociationRows = @(Get-ArchLucidAzureMessagingAssociationCompanionRows -InventoryResources @($resources))
+        [object[]]$serviceConnectorRows = @(Get-ArchLucidAzureServiceConnectorCompanionRows -InventoryResources @($resources))
+        [object[]]$appSettingHostRows = @()
+        [object[]]$dependencyObservationRows = @()
+        [object[]]$sqlDatabasePrincipalRows = @()
+
+        if ($IncludeAppSettingsHosts)
+        {
+            $appSettingHostRows = @(Get-ArchLucidAzureAppSettingHostCompanionRows -InventoryResources @($resources))
+        }
+
+        if ($IncludeDependencyObservations)
+        {
+            $dependencyObservationRows = @(Get-ArchLucidAzureDependencyObservationCompanionRows -InventoryResources @($resources))
+        }
+
+        if ($IncludeSqlDatabasePrincipals)
+        {
+            $sqlDatabasePrincipalRows = @(Get-ArchLucidAzureSqlDatabasePrincipalCompanionRows -InventoryResources @($resources))
+        }
+
+        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $roleAssignmentRows)
+        Write-Utf8NoBom (Join-Path $staging "network-associations.json") (ConvertTo-ArchLucidJsonArray -Items $networkAssociationRows)
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") (ConvertTo-ArchLucidJsonArray -Items $federatedCredentialRows)
+        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") (ConvertTo-ArchLucidJsonArray -Items $effectiveNetworkControlRows)
+        Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $policyAssignmentRows)
+        Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") (ConvertTo-ArchLucidJsonArray -Items $diagnosticSettingRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") (ConvertTo-ArchLucidJsonArray -Items $defenderSummaryRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") (ConvertTo-ArchLucidJsonArray -Items $adfLinkedServiceRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") (ConvertTo-ArchLucidJsonArray -Items $adfDatasetRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") (ConvertTo-ArchLucidJsonArray -Items $adfPipelineFlowRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") (ConvertTo-ArchLucidJsonArray -Items $adfTriggerRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") (ConvertTo-ArchLucidJsonArray -Items $adfIntegrationRuntimeRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") (ConvertTo-ArchLucidJsonArray -Items $adfDataflowRows)
+        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") (ConvertTo-ArchLucidJsonArray -Items $eventGridSubscriptionRows)
+        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") (ConvertTo-ArchLucidJsonArray -Items $logicAppConnectionRows)
+        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") (ConvertTo-ArchLucidJsonArray -Items $messagingAssociationRows)
+        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") (ConvertTo-ArchLucidJsonArray -Items $serviceConnectorRows)
+
+        if ($IncludeAppSettingsHosts)
+        {
+            Write-Utf8NoBom (Join-Path $staging "app-settings-hosts.json") (ConvertTo-ArchLucidJsonArray -Items $appSettingHostRows)
+        }
+
+        if ($IncludeDependencyObservations)
+        {
+            Write-Utf8NoBom (Join-Path $staging "dependency-observations.json") ($dependencyObservationRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        }
+
+        if ($IncludeSqlDatabasePrincipals)
+        {
+            Write-Utf8NoBom (Join-Path $staging "sql-database-principals.json") ($sqlDatabasePrincipalRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        }
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step SecurityInventory `
+            -Outcome Succeeded `
+            -Stopwatch $securityInventoryWatch `
+            -Context @{
+                roleAssignmentCount = $roleAssignmentRows.Count
+                networkAssociationCount = $networkAssociationRows.Count
+                federatedCredentialCount = $federatedCredentialRows.Count
+                effectiveNetworkControlCount = $effectiveNetworkControlRows.Count
+                policyAssignmentCount = $policyAssignmentRows.Count
+                diagnosticSettingCount = $diagnosticSettingRows.Count
+                defenderSummaryCount = $defenderSummaryRows.Count
+                adfLinkedServiceCount = $adfLinkedServiceRows.Count
+                adfDatasetCount = $adfDatasetRows.Count
+                adfPipelineFlowCount = $adfPipelineFlowRows.Count
+                adfTriggerCount = $adfTriggerRows.Count
+                adfIntegrationRuntimeCount = $adfIntegrationRuntimeRows.Count
+                adfDataflowCount = $adfDataflowRows.Count
+                eventGridSubscriptionCount = $eventGridSubscriptionRows.Count
+                logicAppConnectionCount = $logicAppConnectionRows.Count
+                messagingAssociationCount = $messagingAssociationRows.Count
+                serviceConnectorCount = $serviceConnectorRows.Count
+                appSettingHostCount = $appSettingHostRows.Count
+            }
+    }
+    catch
+    {
+        Add-ArchLucidExtractorWarning `
+            -Telemetry $telemetry `
+            -Step SecurityInventory `
+            -Message ("Failed to collect role assignments or network associations; companion files will contain empty arrays. {0}" -f $_.Exception.Message) `
+            -Context @{ scope = $scopeDescriptor }
+
+        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") "[]"
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step SecurityInventory `
+            -Outcome Skipped `
+            -Stopwatch $securityInventoryWatch `
+            -Detail $_.Exception.Message `
+            -Context @{ scope = $scopeDescriptor }
+    }
     $retailReadmeTail = ""
 
     if ($IncludeRetailPrices)
@@ -660,6 +852,8 @@ try
 
         try
         {
+            Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step RetailPrices
+
             $retailUtc = (Get-Date).ToUniversalTime().ToString("o")
 
             $retailDoc = New-ArchLucidRetailPricesDocument `
@@ -705,7 +899,18 @@ Retail pack: `retail-prices.json` was added for this run (USD consumption rows f
 
         $costReadmeTail = @"
 
-Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCostSummary` (**ActualCost** at subscription scope via Microsoft Cost Management / `az rest`). Assign **Cost Management Reader** (or equivalent) when you need spend rows; insufficient access yields `actualCostSummary: null` and a warning instead of failing the extractor.
+Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCostSummary` (**ActualCost** at subscription scope via Microsoft Cost Management / `Invoke-AzRestMethod` or `az rest`). Assign **Cost Management Reader** (or equivalent) when you need spend rows; insufficient access yields `actualCostSummary: null` and a warning instead of failing the extractor.
+"@
+
+    }
+
+    $appSettingsReadmeTail = ""
+
+    if ($IncludeAppSettingsHosts)
+    {
+        $appSettingsReadmeTail = @"
+
+App setting hosts: `-IncludeAppSettingsHosts` added `app-settings-hosts.json` using POST `config/appsettings/list` and `config/connectionstrings/list` (requires `microsoft.web/sites/config/list/action` or equivalent on each site). We persist setting names, parsed hostnames, and Key Vault URI host/secret name only — never setting values, passwords, or secret payloads.
 "@
 
     }
@@ -724,12 +929,18 @@ Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCos
         $readmeExtra += [Environment]::NewLine + $costReadmeTail.TrimEnd() + [Environment]::NewLine
     }
 
+    if (-not ([string]::IsNullOrWhiteSpace($appSettingsReadmeTail)))
+    {
+
+        $readmeExtra += [Environment]::NewLine + $appSettingsReadmeTail.TrimEnd() + [Environment]::NewLine
+    }
+
     $readme = @"
 SecureNow Azure extractor output (read-only inventory).
 Schema version: $schemaVersion
 Collection UTC: $collectionTimestamp
 $readmeExtra
-Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md section 2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
+Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Without `-IncludeAppSettingsHosts`, no `app-settings-hosts.json` companion is written. Without `-IncludeDependencyObservations`, no `dependency-observations.json` companion is written. Without `-IncludeSqlDatabasePrincipals`, no `sql-database-principals.json` companion is written. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md section 2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
 Upload this ZIP to SecureNow via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/trust-center.md (SecureNow, from ArchLucid).
 "@
 
@@ -756,6 +967,8 @@ Upload this ZIP to SecureNow via POST /v1/azure-extractor/upload (ExecuteAuthori
 
     try
     {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step PackageWrite
+
         if (Test-Path -LiteralPath $OutputPath) { Remove-Item -LiteralPath $OutputPath -Force }
         Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $OutputPath -CompressionLevel Optimal
 
@@ -807,5 +1020,6 @@ catch
 }
 finally
 {
+    Stop-ArchLucidExtractorProgressHeartbeat -Handle $progressHeartbeat
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
 }

@@ -56,6 +56,15 @@ import { SearchReviewEvidenceBuyerChrome } from "./SearchReviewEvidenceBuyerChro
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
 import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
 import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
+import { WorkingNestedSearchUnboundEmptyState } from "@/components/insights/WorkingNestedSearchUnboundEmptyState";
+import { WorkingPeerSearchHonestyEmptyState } from "@/components/insights/WorkingPeerSearchHonestyEmptyState";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
+import {
+  resolveSystemNotJobWorkingNestedSearchShowsUnboundEmpty,
+  resolveSystemNotJobWorkingPeerSearchShowsHonestyStrip,
+} from "@/lib/system-not-job-search-bound-to-open-package";
+
 import { SearchPickReviewBeforeSearchStrip } from "./SearchPickReviewBeforeSearchStrip";
 import { SearchNextReviewFooterClient } from "./SearchNextReviewFooterClient";
 
@@ -78,9 +87,16 @@ function searchEmptyStateActions(scopedRunId: string) {
 
 export function SearchPageView({ model }: SearchPageViewProps) {
   const router = useRouter();
-  const pathname = usePathname() ?? SEARCH_REVIEW_EVIDENCE_PATH;
+  const pathname = usePathname() ?? model.basePathname ?? SEARCH_REVIEW_EVIDENCE_PATH;
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
+  const workingMode = workspaceMounted && isWorkingMode;
+  const pinnedArchitectureId = model.pinnedArchitectureId?.trim() ?? "";
+  const architectureIdentityQuery = useArchitectureIdentityQuery(
+    pinnedArchitectureId,
+    workingMode && pinnedArchitectureId.length > 0,
+  );
   const {
     buyerShell,
     confidence,
@@ -101,8 +117,19 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
   const pageTitle = searchPageTitle(runId);
   const scopedRunId = runId.trim();
-  const pageSubtitle = searchReviewEvidencePageSubtitle(buyerShell === true);
+  const pageSubtitle = searchReviewEvidencePageSubtitle(buyerShell === true, workingMode);
   const showVocabularyRails = buyerShell !== true;
+  const showNestedSearchUnboundEmpty = resolveSystemNotJobWorkingNestedSearchShowsUnboundEmpty({
+    workingMode,
+    pathname,
+    pinnedArchitectureId,
+    scopedRunId,
+  });
+  const showPeerSearchHonestyStrip = resolveSystemNotJobWorkingPeerSearchShowsHonestyStrip({
+    workingMode,
+    pathname,
+    pinnedArchitectureId,
+  });
   const searchReviewSteps = resolveSearchReviewEvidenceSteps({
     reviewPicked: scopedRunId.length > 0,
     queryConfigured: query.trim().length > 0,
@@ -152,6 +179,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
       <SearchReviewEvidenceBuyerChrome />
 
+      {showPeerSearchHonestyStrip ? <WorkingPeerSearchHonestyEmptyState /> : null}
+
       {showVocabularyRails ? (
         <OperatorRelatedSurfacesDisclosure testId="search-related-surfaces-disclosure">
           <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
@@ -164,7 +193,12 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       )}
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
-      {scopedRunId.length === 0 ? (
+      {showNestedSearchUnboundEmpty ? (
+        <WorkingNestedSearchUnboundEmptyState
+          architectureId={pinnedArchitectureId}
+          architectureDisplayName={architectureIdentityQuery.data?.displayName}
+        />
+      ) : scopedRunId.length === 0 ? (
         <SearchPickReviewBeforeSearchStrip selectedReviewId={runId} onSelectReview={setRunId} />
       ) : (
         <>
@@ -195,7 +229,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         </>
       )}
 
-      {scopedRunId.length > 0 ? (
+      {!showNestedSearchUnboundEmpty && scopedRunId.length > 0 ? (
         <>
       <Card className="max-w-xl border-neutral-200 dark:border-neutral-700" data-testid="search-review-evidence-form">
         <CardContent className="grid gap-4 p-4">

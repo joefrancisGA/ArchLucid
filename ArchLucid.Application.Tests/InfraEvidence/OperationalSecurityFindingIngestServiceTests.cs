@@ -97,6 +97,64 @@ public sealed class OperationalSecurityFindingIngestServiceTests
         detail.Finding.Should().BeNull();
     }
 
+    [Fact]
+    public async Task IngestBatchAsync_same_natural_key_in_different_project_creates_distinct_finding()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository,
+            Mock.Of<IAuditService>(),
+            NullLogger<OperationalSecurityFindingIngestService>.Instance);
+
+        ScopeContext firstScope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext secondScope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+        };
+
+        OperationalSecurityFindingIngestItem item = CreateItem("scanner-shared", "finding-shared");
+
+        OperationalSecurityFindingBatchIngestResult first =
+            await sut.IngestBatchAsync(firstScope, [item], "actor@test");
+        OperationalSecurityFindingBatchIngestResult second =
+            await sut.IngestBatchAsync(secondScope, [item], "actor@test");
+
+        first.IngestedCount.Should().Be(1);
+        second.IngestedCount.Should().Be(1);
+        second.DeduplicatedCount.Should().Be(0);
+        repository.StoredFindings.Should().HaveCount(2);
+        repository.StoredFindings.Select(row => row.ProjectId).Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public async Task TryGetDetailAsync_foreign_project_returns_not_found()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository,
+            Mock.Of<IAuditService>(),
+            NullLogger<OperationalSecurityFindingIngestService>.Instance);
+
+        ScopeContext sourceScope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        OperationalSecurityFindingBatchIngestResult ingest =
+            await sut.IngestBatchAsync(sourceScope, [CreateItem("scanner-project", "finding-project")], "actor@test");
+
+        ScopeContext foreignProject = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+        };
+
+        OperationalSecurityFindingDetailResult detail =
+            await sut.TryGetDetailAsync(foreignProject, ingest.Items[0].FindingId!.Value);
+
+        detail.Succeeded.Should().BeFalse();
+        detail.Finding.Should().BeNull();
+    }
+
     private static OperationalSecurityFindingIngestItem CreateItem(string sourceSystem, string sourceFindingId) =>
         new()
         {
@@ -163,6 +221,12 @@ public sealed class OperationalSecurityFindingIngestServiceTests
             int pageSize,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(([], 0));
+
+        public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
 
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,

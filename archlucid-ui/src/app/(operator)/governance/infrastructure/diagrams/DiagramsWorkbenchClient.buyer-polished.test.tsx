@@ -17,6 +17,15 @@ vi.mock("@/hooks/use-tenant-branding-presentation-query", () => ({
   useTenantBrandingPresentationQuery: () => ({ data: null }),
 }));
 
+vi.mock("@/lib/use-iana-time-zone-preference", () => ({
+  useIanaTimeZonePreference: () => ({
+    ianaTimeZoneId: "America/New_York",
+    mounted: true,
+    accountSyncState: "idle",
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: vi.fn(async () => ({
     items: [
@@ -85,7 +94,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
       },
     ],
   })),
-  downloadInfraEvidenceMermaidPng: vi.fn(async () => undefined),
+  downloadInfraEvidenceMermaidPng: vi.fn(async () => ({ usedBrowserFallback: false })),
   formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
 }));
 
@@ -124,26 +133,44 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS } from "@/lib/design-tokens";
 import { DiagramsWorkbenchClient } from "./DiagramsWorkbenchClient";
 
 describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
-  it("renders skip link, claim discipline, picker sections, and sources strip", async () => {
-    searchParams = new URLSearchParams();
+  it("renders skip link, picker sections, and sources strip", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("infra-diagrams-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-page-title")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    );
     expect(screen.getByTestId("governance-infrastructure-diagrams-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
+
+    const snapshotLabel = screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL);
+    const modeLabel = screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL);
+
+    expect(snapshotLabel).toHaveClass("font-semibold");
+    expect(modeLabel).toHaveClass("font-semibold");
+
+    expect(screen.getByLabelText("Subscription, snapshot, and diagram type selection")).toHaveClass(
+      "items-start",
+      "md:grid-cols-2",
+    );
+    expect(screen.getByTestId("infra-diagrams-snapshot-id-readout")).toHaveClass("col-start-1");
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {

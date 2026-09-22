@@ -17,12 +17,12 @@ export const GLOSSARY_TERMS = {
   },
   golden_manifest: {
     term: "Sealed review record",
-    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*.",
+    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). Write-locked and hash-anchored at finalize — not a PKI digital signature. Former terms: *signed review record*, *signed manifest*, *golden manifest*.",
     docLink: "/help/glossary#term-sealed-review-record",
   },
   review_package: {
-    term: "Architecture package",
-    definition: "A formal architecture review with sealed review record, evidence trail, findings, approval records, and deliverables — the unit buyers open from the reviews list.",
+    term: "Review package",
+    definition: "A governed architecture review with sealed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {
@@ -42,7 +42,7 @@ export const GLOSSARY_TERMS = {
   },
   decision_trace: {
     term: "Decision trace",
-    definition: "A structured log of decisioning for a ru — ules, applied findings, and outcom — sed for provenance and replay.",
+    definition: "A structured log of decisioning for a run—rules, applied findings, and outcome—used for provenance and replay.",
     docLink: "/docs/library/GLOSSARY.md#decision-trace",
   },
   provenance: {
@@ -51,23 +51,23 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-evidence-trail",
   },
   effective_governance: {
-    term: "Effective policy",
+    term: "Effective governance",
     definition: "The merged policy content for this scope, used for alerts, compliance, and advisory decisions.",
     docLink: "/docs/library/GLOSSARY.md#effective-governance",
   },
   policy_pack: {
     term: "Policy pack",
-    definition: "A versioned bundle of rules, thresholds, and policy mappings applied to reviews (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose.",
+    definition: "A versioned bundle of rules, thresholds, and governance mappings applied to reviews (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose.",
     docLink: "/help/glossary#term-policy-pack",
   },
   knowledge_graph: {
     term: "Knowledge graph",
-    definition: "A typed graph of nodes and edges built from a context snapsho — sed by finding engines and the graph UI.",
+    definition: "A typed graph of nodes and edges built from a context snapshot—used by finding engines and the graph UI.",
     docLink: "/docs/library/GLOSSARY.md#knowledge-graph",
   },
   artifact_bundle: {
     term: "Artifact bundle",
-    definition: "An exportable artifact aimed at a specific audience (sponsor report, architecture board packet, security appendix, diligence bundle). Distinct from a raw finding row: deliverables are packaged outputs.",
+    definition: "An exportable artifact aimed at a specific audience (sponsor summary, architecture board packet, security appendix, diligence bundle). Distinct from a raw finding row: deliverables are packaged outputs.",
     docLink: "/help/glossary#term-deliverable",
   },
   scope: {
@@ -82,7 +82,7 @@ export const GLOSSARY_TERMS = {
   },
   hosting_role: {
     term: "Hosting role",
-    definition: "Whether a process runs API, worker, or combine — ontrols which services and background jobs are active.",
+    definition: "Whether a process runs API, worker, or combined—controls which services and background jobs are active.",
     docLink: "/docs/library/GLOSSARY.md#hosting-role",
   },
   outbox: {
@@ -100,12 +100,12 @@ export const GLOSSARY_TERMS = {
     definition: "The persisted, replayable ledger of authenticated actions across reviews, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific.",
   },
   governance_workflow: {
-    term: "Approval workflow",
-    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to approval state.",
+    term: "Governance workflow",
+    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
   },
   architecture_manifest: {
     term: "Sealed review record",
-    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for approval review and sponsor export.",
+    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
@@ -120,7 +120,7 @@ export const GLOSSARY_TERMS = {
   },
   approval_request: {
     term: "Approval request",
-    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to approval state.",
+    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
     docLink: "/docs/library/GLOSSARY.md#governance-workflow",
   },
   governance_resolution: {

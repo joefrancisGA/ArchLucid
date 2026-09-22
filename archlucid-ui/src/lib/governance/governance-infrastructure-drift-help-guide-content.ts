@@ -1,4 +1,8 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
@@ -9,7 +13,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE_HEADING,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL,
@@ -66,24 +73,34 @@ export type GovernanceInfrastructureDriftHelpTileItem = {
   readonly detail: string;
 };
 
-export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TILE_ITEMS: readonly GovernanceInfrastructureDriftHelpTileItem[] = [
-  {
-    label: "Current snapshot",
-    detail: "The inventory capture you are reviewing — pick this first before choosing a diff.",
-  },
-  {
-    label: "Diff vs other snapshot",
-    detail: "The baseline snapshot ArchLucid compares against the current capture.",
-  },
-  {
-    label: "Drift rows",
-    detail: "Property-level adds, updates, and deletes with risk and change-type labels.",
-  },
-  {
-    label: "Advisory Terraform",
-    detail: "Exports are reconstructed from snapshot evidence and require human review before any apply.",
-  },
-] as const;
+export function governanceInfrastructureDriftHelpTileItems(
+  productLineId: ProductLineId,
+): readonly GovernanceInfrastructureDriftHelpTileItem[] {
+  const productName = productLineDisplayName(productLineId);
+
+  return [
+    {
+      label: "Current snapshot",
+      detail: "The inventory capture you are reviewing — pick this first before choosing a diff.",
+    },
+    {
+      label: "Diff vs other snapshot",
+      detail: `The baseline snapshot ${productName} compares against the current capture.`,
+    },
+    {
+      label: "Drift rows",
+      detail: "Property-level adds, updates, and deletes with risk and change-type labels.",
+    },
+    {
+      label: "Advisory Terraform",
+      detail: "Exports are reconstructed from snapshot evidence and require human review before any apply.",
+    },
+  ] as const;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TILE_ITEMS =
+  governanceInfrastructureDriftHelpTileItems("architecture");
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_SECTION_TITLE = "Reading the drift table";
 
@@ -122,6 +139,44 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_HOW_IT_WORKS_STEPS = [
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_HEADING_ID =
   "help-governance-infrastructure-drift-claim-discipline-heading" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_APPLICABILITY_WORKING =
+  "Working Architecture seats expose the drift workbench after read-only cloud connections capture at least two inventory snapshots for the same subscription scope." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_APPLICABILITY_SECURENOW =
+  "SecureNow (Security) uses infrastructure compliance workspaces — snapshot drift comparison is an Architecture cloud-connection workflow, not a SecureNow-only buyer surface." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY_HEADING = "When drift load or export fails" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY = {
+  whatFailed: "Drift rows, snapshot pickers, or advisory Terraform export could not load for the selected scope.",
+  whatIsIntact:
+    "Captured inventory snapshots remain stored — a failed diff or export does not delete prior captures or cloud connection credentials.",
+  nextStep:
+    "Confirm cloud connections health, pick a different snapshot pair, then retry export from the drift workbench. Open troubleshooting if the inline error repeats after scope refresh.",
+} as const;
+
+export type GovernanceInfrastructureDriftHelpRelatedLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING_ID =
+  "help-governance-infrastructure-drift-related-topics" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING = "Related topics" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_LINKS: readonly GovernanceInfrastructureDriftHelpRelatedLink[] =
+  [
+    { label: "Cloud connections", href: inAppHelpHref("cloud-connections") },
+    { label: "Connect Azure securely", href: inAppHelpHref("connect-azure-securely") },
+    { label: "Advisory Terraform workbench", href: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH },
+  ] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_HELP_RETURN = {
+  label: HELP_TOPIC_BREADCRUMB_HUB_LABEL,
+  href: HELP_HUB_CANONICAL_PATH,
+} as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-drift-workbench-shows", title: "What the drift workbench shows" },
   { level: 2, id: "how-drift-compare-works", title: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL },
@@ -132,6 +187,17 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS: readonly HelpM
     title: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE_HEADING,
   },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
+  { level: 2, id: "help-governance-infrastructure-drift-applicability", title: "Scope and seat applicability" },
+  {
+    level: 2,
+    id: "help-governance-infrastructure-drift-error-recovery",
+    title: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY_HEADING,
+  },
+  {
+    level: 2,
+    id: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING_ID,
+    title: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING,
+  },
 ];
 
 /** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */

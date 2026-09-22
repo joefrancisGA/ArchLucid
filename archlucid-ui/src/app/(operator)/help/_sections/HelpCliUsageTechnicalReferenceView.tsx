@@ -5,6 +5,7 @@ import { HelpCliUsageHeaderActions } from "@/app/(operator)/help/_sections/HelpC
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -166,6 +167,8 @@ export function HelpCliUsageTechnicalReferenceView(
             </div>
           </section>
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-cli-usage" showSsoOptional={false} />
 
         <div className={HELP_PAGE_LAYOUT.technicalReferenceGrid}>
           <div

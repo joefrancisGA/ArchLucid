@@ -17,7 +17,9 @@ import {
   GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID,
   GOVERNANCE_AUDIT_SKIP_LINK_LABEL,
 } from "@/lib/governance-audit-page-copy";
+
 import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
+import { AUDIT_CSV_TENANT_WIDE_SCOPE_DISCLAIMER } from "@/lib/audit/audit-export-career-posture";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -49,6 +51,7 @@ import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemo
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 
 import { AuditTrailIntegrityNote } from "@/components/audit/AuditTrailIntegrityNote";
+import { AuditDualChannelHonestyNote } from "@/components/audit/AuditDualChannelHonestyNote";
 import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
 import { AuditPageBreadcrumb } from "./AuditPageBreadcrumb";
@@ -223,6 +226,16 @@ export function AuditPageView(props: AuditPageViewProps) {
       ) : null}
 
       {!buyerPolishedShell ? <AuditTrailIntegrityNote /> : null}
+      <AuditDualChannelHonestyNote className="mt-2" />
+      {scopedRunId.length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+          data-testid="audit-csv-tenant-wide-scope-disclaimer"
+        >
+          {AUDIT_CSV_TENANT_WIDE_SCOPE_DISCLAIMER}
+        </p>
+      ) : null}
 
       {props.ctoDemoAuditFilterActive ? (
         <div

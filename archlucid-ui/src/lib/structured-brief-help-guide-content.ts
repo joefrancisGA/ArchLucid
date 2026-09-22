@@ -1,6 +1,8 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/structured-brief-help-evidence-copy";
+import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/structured-brief-help-evidence-copy";
 import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
@@ -52,7 +54,7 @@ export const STRUCTURED_BRIEF_HELP_CONCEPT_ITEMS: readonly StructuredBriefHelpCo
   },
   {
     label: "Assumptions",
-    detail: "Facts you are treating as true for this draft even if they are not verified yet.",
+    detail: "Facts you are treating as true for this architecture draft even if they are not verified yet.",
     examples: ["Single-region deployment for pilot", "Entra ID is the identity provider"],
     antiPatterns: ["Users will understand the UI"],
   },
@@ -75,14 +77,54 @@ export const STRUCTURED_BRIEF_HELP_HOW_TO_READ_STEPS = [
   "Write the architecture overview first — suggestions need enough context to be useful.",
   "Run Suggest from overview. If it queues, open In progress in the header to follow the request — you can leave this page and return from that list. Then confirm each constraint, assumption, and capability you want review engines to treat as fact.",
   "Add quality attributes — numeric when measurable, qualitative when a number does not apply.",
-  "Save the draft, then open Start a review when the readiness message clears.",
+  "Save the architecture draft, then open Start a review when the readiness message clears.",
 ] as const;
 
 export const STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID = "help-structured-brief-claim-discipline-heading" as const;
+
+export const STRUCTURED_BRIEF_HELP_APPLICABILITY =
+  "Structured brief fields appear on create and edit architecture for Architecture product workflows — constraints, assumptions, capabilities, and quality attributes must be confirmed before review engines treat them as facts." as const;
+
+export const STRUCTURED_BRIEF_HELP_ERROR_RECOVERY_HEADING = "When structured brief save or suggest fails" as const;
+
+export const STRUCTURED_BRIEF_HELP_ERROR_RECOVERY = {
+  whatFailed: "Suggest from overview, field save, or architecture draft persistence could not complete.",
+  whatIsIntact:
+    "Confirmed structured brief rows already saved on the draft remain stored — a failed suggest or save does not discard prior confirmed facts.",
+  nextStep:
+    "Retry save from the architecture draft, check In progress for queued suggest jobs, then open troubleshooting if the inline error repeats after refresh.",
+} as const;
+
+export type StructuredBriefHelpRelatedLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+export const STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING_ID = "help-structured-brief-related-topics" as const;
+
+export const STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING = "Related topics" as const;
+
+export const STRUCTURED_BRIEF_HELP_RELATED_LINKS: readonly StructuredBriefHelpRelatedLink[] = [
+  { label: "First architecture review", href: inAppHelpHref("first-architecture-review") },
+  { label: "Architecture drafts", href: inAppHelpHref("architecture-drafts") },
+  { label: "Evidence intake", href: inAppHelpHref("evidence-intake") },
+] as const;
+
+export const STRUCTURED_BRIEF_HELP_HELP_RETURN = {
+  label: HELP_TOPIC_BREADCRUMB_HUB_LABEL,
+  href: HELP_HUB_CANONICAL_PATH,
+} as const;
 
 export const STRUCTURED_BRIEF_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "structured-brief-overview", title: "Overview" },
   { level: 2, id: "field-concepts", title: "Field concepts" },
   { level: 2, id: "step-by-step", title: "Step-by-step" },
   { level: 2, id: STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID, title: STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "help-structured-brief-applicability", title: "Scope and applicability" },
+  { level: 2, id: "help-structured-brief-error-recovery", title: STRUCTURED_BRIEF_HELP_ERROR_RECOVERY_HEADING },
+  {
+    level: 2,
+    id: STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING_ID,
+    title: STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING,
+  },
 ] as const;

@@ -1,34 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
-import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
   EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import {
+  deleteInfraEvidenceSnapshot,
   downloadInfraEvidenceTerraformAdvisoryZip,
   fetchInfraEvidenceDiffChanges,
   fetchInfraEvidenceDiffsForSnapshot,
+  fetchInfraEvidenceSnapshotInventoryRows,
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -39,15 +47,35 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   formatInfraEvidenceChangeTypeLabel,
-  INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS,
-  INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS,
   resolveInfraEvidenceChangeTypeStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
 import {
+  buildDriftResourceChangeGroup,
+  findDriftResourceChangeGroupByChangeId,
+  groupDriftChangesByResource,
+  resolveDriftResourceGroupKey,
+  sortDriftResourceChangeGroups,
+  summarizeDriftResourceGroupChangeTypes,
+  summarizeDriftResourceGroupProperties,
+} from "@/lib/infra-evidence/group-drift-changes-by-resource";
+import {
+  clearDriftSnapshotsTableFilters,
+  filterDriftSnapshots,
+  hasActiveDriftSnapshotsTableFilters,
+  parseDriftSnapshotsTableFilterState,
+  sortDriftSnapshots,
+  toggleDriftSnapshotsTableSort,
+  type DriftSnapshotsTableFilterState,
+  type DriftSnapshotsTableSortKey,
+} from "@/lib/infra-evidence/infra-evidence-drift-snapshots-table-filter";
+import {
+  clearDriftTableFilters,
   filterDriftChanges,
+  hasActiveDriftTableFilters,
   parseDriftTableFilterState,
   sortDriftChanges,
   toggleDriftTableSort,
+  type DriftTableFilterState,
   type DriftTableSortKey,
 } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
@@ -64,11 +92,6 @@ import {
   parseInfraDriftResourceIdDisclosureOpenFromSearch,
 } from "@/lib/infra-evidence/infra-drift-resource-id-disclosure-url";
 import {
-  INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM,
-  infraDriftSnapshotIdentifiersDisclosureHrefFromSearch,
-  parseInfraDriftSnapshotIdentifiersOpenFromSearch,
-} from "@/lib/infra-evidence/infra-drift-snapshot-identifiers-disclosure-url";
-import {
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   hasStaleInfraEvidenceAuditUrlParams,
@@ -81,8 +104,9 @@ import {
   DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
+import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -90,52 +114,85 @@ import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evide
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
 import {
+  formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_HELPER,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGES_TABLE_ARIA_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_TABLE_ARIA_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_FRESHNESS_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
+  formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { DRIFT_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-drift-page-shortcuts";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
+import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatInfraEvidenceDiffLabel,
-  formatInfraEvidenceScopeFreshnessLine,
   formatInfraEvidenceSnapshotLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import { filterInfraEvidenceDiffsAfterAnchorSnapshot } from "@/lib/infra-evidence/infra-evidence-drift-diff-filter";
+import {
+  infraEvidenceSnapshotsShareSubscription,
+  resolveInfraEvidenceDiffOtherSnapshot,
+  resolveInfraEvidenceSnapshotSubscriptionLabel,
+} from "@/lib/infra-evidence/infra-evidence-drift-subscription-scope";
 import { cn } from "@/lib/utils";
-import { showError } from "@/lib/toast";
 
 import { DriftBreadcrumb } from "./DriftBreadcrumb";
+import { DriftCrossSubscriptionDiffConfirmDialog } from "./DriftCrossSubscriptionDiffConfirmDialog";
 import { DriftChangeDetail } from "./DriftChangeDetail";
+import { DriftChangeRiskCell } from "./DriftChangeRiskCell";
 import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
+import { DriftChangesPagination } from "./DriftChangesPagination";
+import {
+  DRIFT_CHANGES_TABLE_COLUMN_COUNT,
+  DRIFT_INVENTORY_TABLE_COLUMN_COUNT,
+  DriftChangesTableHead,
+} from "./DriftChangesTableHead";
 import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
 import { DriftSnapshotIdentifiers } from "./DriftSnapshotIdentifiers";
+import { DriftSnapshotsTable } from "./DriftSnapshotsTable";
 
 const cnCard =
   "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
@@ -143,21 +200,13 @@ const cnCard =
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
-const DRIFT_CHANGES_TABLE_COLUMN_COUNT = 6;
+const cnPickerField = cn(cnField, "w-full max-w-md");
+
 const SNAPSHOTS_PAGE_SIZE = 50;
-const CHANGES_PAGE_SIZE = 100;
 
-function sortDirectionForColumn(
-  sortBy: DriftTableSortKey,
-  column: DriftTableSortKey,
-  sortDir: "asc" | "desc",
-): "ascending" | "descending" | "none" {
-  if (sortBy !== column) {
-    return "none";
-  }
-
-  return sortDir === "asc" ? "ascending" : "descending";
-}
+type PendingDriftSubscriptionConfirmation =
+  | { readonly kind: "snapshot"; readonly snapshotId: string }
+  | { readonly kind: "diff"; readonly diffId: string };
 
 export function DriftWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
@@ -166,17 +215,12 @@ export function DriftWorkbenchClient() {
   const searchParams = useSearchParams();
   const driftResourceIdOpenParam = searchParams.get(INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const driftChangeIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM);
-  const driftSnapshotIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM);
   const [driftResourceIdOpen, setDriftResourceIdOpenState] = useState(() =>
     parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam),
   );
   const [driftChangeIdentifiersOpen, setDriftChangeIdentifiersOpenState] = useState(() =>
     parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam),
   );
-  const [driftSnapshotIdentifiersOpen, setDriftSnapshotIdentifiersOpenState] = useState(() =>
-    parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
-  );
-
   const syncDriftResourceIdOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(infraDriftResourceIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
@@ -211,23 +255,6 @@ export function DriftWorkbenchClient() {
     [syncDriftChangeIdentifiersOpenToUrl],
   );
 
-  const syncDriftSnapshotIdentifiersOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(infraDriftSnapshotIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setDriftSnapshotIdentifiersOpen = useCallback(
-    (open: boolean) => {
-      setDriftSnapshotIdentifiersOpenState(open);
-      syncDriftSnapshotIdentifiersOpenToUrl(open);
-    },
-    [syncDriftSnapshotIdentifiersOpenToUrl],
-  );
-
   useEffect(() => {
     setDriftResourceIdOpenState(parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam));
   }, [driftResourceIdOpenParam]);
@@ -236,13 +263,9 @@ export function DriftWorkbenchClient() {
     setDriftChangeIdentifiersOpenState(parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam));
   }, [driftChangeIdentifiersOpenParam]);
 
-  useEffect(() => {
-    setDriftSnapshotIdentifiersOpenState(
-      parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
-    );
-  }, [driftSnapshotIdentifiersOpenParam]);
-
   const changeDrawerRef = useRef<HTMLElement | null>(null);
+  const snapshotsSectionRef = useRef<HTMLElement | null>(null);
+  const userClearedDiffRef = useRef(false);
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
@@ -250,6 +273,10 @@ export function DriftWorkbenchClient() {
   const urlChangeId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_CHANGE_ID_PARAM));
   const urlDiffId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_DIFF_ID_PARAM));
   const tableFilterState = useMemo(() => parseDriftTableFilterState(searchParams), [searchParams]);
+  const snapshotTableFilterState = useMemo(
+    () => parseDriftSnapshotsTableFilterState(searchParams),
+    [searchParams],
+  );
 
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [snapshotsTotalCount, setSnapshotsTotalCount] = useState(0);
@@ -257,8 +284,8 @@ export function DriftWorkbenchClient() {
   const [diffs, setDiffs] = useState<InfraEvidenceDiffSummary[]>([]);
   const [changes, setChanges] = useState<InfraEvidenceDiffChange[]>([]);
   const [changesTotalCount, setChangesTotalCount] = useState(0);
-  const [changesHasMore, setChangesHasMore] = useState(false);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>("");
+  const [anchorSnapshotId, setAnchorSnapshotId] = useState<string>("");
   const [selectedDiffId, setSelectedDiffId] = useState<string>("");
   const [selectedChangeId, setSelectedChangeId] = useState<string | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
@@ -266,40 +293,153 @@ export function DriftWorkbenchClient() {
   const [loadingChanges, setLoadingChanges] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
   const [exportReceipt, setExportReceipt] = useState<{ snapshotId: string; exportedAtUtc: string } | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [subscriptionConfirmOpen, setSubscriptionConfirmOpen] = useState(false);
+  const [subscriptionConfirmDescription, setSubscriptionConfirmDescription] = useState("");
+  const [pendingSubscriptionConfirmation, setPendingSubscriptionConfirmation] =
+    useState<PendingDriftSubscriptionConfirmation | null>(null);
+  const [pendingDeleteSnapshotId, setPendingDeleteSnapshotId] = useState<string | null>(null);
+  const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null);
+  const [snapshotsReloadNonce, setSnapshotsReloadNonce] = useState(0);
+  const [workbenchRetryNonce, setWorkbenchRetryNonce] = useState(0);
+
+  const retryWorkbenchLoad = useCallback(() => {
+    setLoadError(null);
+    setWorkbenchRetryNonce((value) => value + 1);
+    setSnapshotsReloadNonce((value) => value + 1);
+  }, []);
+
+  const scopeStatusBadge = useMemo(() => {
+    if (urlCloudResourceId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL}
+          data-testid="infra-drift-scope-status"
+        />
+      );
+    }
+
+    if (selectedSnapshotId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label="Snapshot selected"
+          data-testid="infra-drift-scope-status"
+        />
+      );
+    }
+
+    return (
+      <StatusTag
+        kind="needs-attention"
+        label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL}
+        data-testid="infra-drift-scope-status"
+      />
+    );
+  }, [selectedSnapshotId, urlCloudResourceId]);
 
   const selectedSnapshot = useMemo(
     () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
     [selectedSnapshotId, snapshots],
   );
-  const selectedDiff = useMemo(
-    () => diffs.find((diff) => diff.diffId === selectedDiffId) ?? null,
-    [diffs, selectedDiffId],
+  const anchorSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === anchorSnapshotId) ?? null,
+    [anchorSnapshotId, snapshots],
   );
+  const visibleDiffs = useMemo(() => {
+    if (anchorSnapshot == null) {
+      return [];
+    }
+
+    return filterInfraEvidenceDiffsAfterAnchorSnapshot(diffs, anchorSnapshot, snapshots);
+  }, [anchorSnapshot, diffs, snapshots]);
+  const selectedDiff = useMemo(
+    () => visibleDiffs.find((diff) => diff.diffId === selectedDiffId) ?? null,
+    [selectedDiffId, visibleDiffs],
+  );
+
+  const visibleSnapshots = useMemo(() => {
+    const filtered = filterDriftSnapshots(snapshots, snapshotTableFilterState);
+
+    return sortDriftSnapshots(filtered, snapshotTableFilterState.sortBy, snapshotTableFilterState.sortDir);
+  }, [snapshots, snapshotTableFilterState]);
+
+  const snapshotPickerOptions = useMemo(
+    () => sortDriftSnapshots(snapshots, "captured", "desc"),
+    [snapshots],
+  );
+  const isViewingSnapshotInventory = selectedSnapshotId.length > 0 && selectedDiffId.length === 0;
+  const changesTableColumnCount = isViewingSnapshotInventory
+    ? DRIFT_INVENTORY_TABLE_COLUMN_COUNT
+    : DRIFT_CHANGES_TABLE_COLUMN_COUNT;
+
+  const effectiveTableFilterState = useMemo(() => {
+    if (!isViewingSnapshotInventory) {
+      return tableFilterState;
+    }
+
+    const inventorySortBy =
+      tableFilterState.sortBy === "change"
+      || tableFilterState.sortBy === "property"
+      || tableFilterState.sortBy === "risk"
+        ? "resource"
+        : tableFilterState.sortBy;
+
+    return {
+      ...tableFilterState,
+      riskFilter: "",
+      changeTypeFilter: "",
+      propertyFilter: "",
+      riskyOnly: false,
+      sortBy: inventorySortBy,
+    };
+  }, [isViewingSnapshotInventory, tableFilterState]);
 
   const visibleChanges = useMemo(() => {
-    const filtered = filterDriftChanges(changes, tableFilterState);
+    const filtered = filterDriftChanges(changes, effectiveTableFilterState, selectedDiff);
 
-    return sortDriftChanges(filtered, tableFilterState.sortBy, tableFilterState.sortDir);
-  }, [changes, tableFilterState]);
+    return sortDriftChanges(filtered, effectiveTableFilterState.sortBy, effectiveTableFilterState.sortDir);
+  }, [changes, effectiveTableFilterState, selectedDiff]);
 
-  const selectedChange = useMemo(
-    () => visibleChanges.find((row) => row.changeId === selectedChangeId) ?? null,
-    [selectedChangeId, visibleChanges],
+  const visibleResourceGroups = useMemo(() => {
+    const groups = isViewingSnapshotInventory
+      ? visibleChanges.map((change) => buildDriftResourceChangeGroup(resolveDriftResourceGroupKey(change), [change]))
+      : groupDriftChangesByResource(visibleChanges);
+
+    return sortDriftResourceChangeGroups(groups, effectiveTableFilterState.sortBy, effectiveTableFilterState.sortDir);
+  }, [effectiveTableFilterState.sortBy, effectiveTableFilterState.sortDir, isViewingSnapshotInventory, visibleChanges]);
+
+  const hasActiveSnapshotTableFilters = useMemo(
+    () => hasActiveDriftSnapshotsTableFilters(snapshotTableFilterState),
+    [snapshotTableFilterState],
   );
 
-  const scopeFreshnessLine = useMemo(
-    () => formatInfraEvidenceScopeFreshnessLine({ snapshot: selectedSnapshot, selectedDiff }),
-    [selectedDiff, selectedSnapshot],
+  const hasActiveTableFilters = useMemo(() => {
+    if (isViewingSnapshotInventory) {
+      return (
+        effectiveTableFilterState.resourceFilter.trim().length > 0
+        || effectiveTableFilterState.resourceGroupFilter.trim().length > 0
+        || effectiveTableFilterState.resourceTypeFilter.trim().length > 0
+      );
+    }
+
+    return hasActiveDriftTableFilters(tableFilterState);
+  }, [effectiveTableFilterState, isViewingSnapshotInventory, tableFilterState]);
+
+  const selectedResourceGroup = useMemo(
+    () => findDriftResourceChangeGroupByChangeId(visibleResourceGroups, selectedChangeId ?? ""),
+    [selectedChangeId, visibleResourceGroups],
   );
 
   const deepLinkedChangeMissing = useMemo(() => {
-    if (urlChangeId.length === 0 || loadingChanges || selectedDiffId.length === 0) {
+    if (urlChangeId.length === 0 || loadingChanges || isViewingSnapshotInventory) {
       return false;
     }
 
     return !visibleChanges.some((row) => row.changeId === urlChangeId);
-  }, [loadingChanges, selectedDiffId.length, urlChangeId, visibleChanges]);
+  }, [isViewingSnapshotInventory, loadingChanges, urlChangeId, visibleChanges]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
   const hasStaleAuditUrlParams = useMemo(
@@ -326,6 +466,7 @@ export function DriftWorkbenchClient() {
       readonly diffId?: string | null;
       readonly changeId?: string | null;
       readonly tableFilters?: Partial<typeof tableFilterState>;
+      readonly snapshotTableFilters?: Partial<typeof snapshotTableFilterState>;
     }) => {
       router.replace(driftWorkbenchHrefFromSearch(searchParams, patch), { scroll: false });
     },
@@ -338,6 +479,7 @@ export function DriftWorkbenchClient() {
       readonly diffId?: string | null;
       readonly changeId?: string | null;
       readonly tableFilters?: Partial<typeof tableFilterState>;
+      readonly snapshotTableFilters?: Partial<typeof snapshotTableFilterState>;
     }) => {
       router.push(driftWorkbenchHrefFromSearch(searchParams, patch), { scroll: false });
     },
@@ -375,10 +517,13 @@ export function DriftWorkbenchClient() {
       return;
     }
 
+    const selectedGroup = findDriftResourceChangeGroupByChangeId(visibleResourceGroups, urlChangeId);
+    const rowChangeId = selectedGroup?.representativeChange.changeId ?? urlChangeId;
+
     document
-      .querySelector(`[data-testid="infra-drift-change-row-${urlChangeId}"]`)
+      .querySelector(`[data-testid="infra-drift-change-row-${rowChangeId}"]`)
       ?.scrollIntoView({ block: "nearest" });
-  }, [selectedChangeId, urlChangeId, visibleChanges.length]);
+  }, [selectedChangeId, urlChangeId, visibleResourceGroups]);
 
   useEffect(() => {
     let cancelled = false;
@@ -398,14 +543,7 @@ export function DriftWorkbenchClient() {
           setSnapshotsTotalCount(response.totalCount ?? items.length);
           setSnapshotsHasMore(response.hasMore === true);
 
-          if (items.length > 0) {
-            const preferredSnapshotId =
-              urlSnapshotId.length > 0 && items.some((item) => item.snapshotId === urlSnapshotId)
-                ? urlSnapshotId
-                : items[0].snapshotId;
-
-            setSelectedSnapshotId((current) => (current.length > 0 ? current : preferredSnapshotId));
-          } else if (tableFilterState.snapshotsPage === 1) {
+          if (items.length === 0 && tableFilterState.snapshotsPage === 1) {
             setSelectedSnapshotId("");
           }
         }
@@ -425,7 +563,41 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [tableFilterState.snapshotsPage, urlSnapshotId]);
+  }, [tableFilterState.snapshotsPage, urlSnapshotId, snapshotsReloadNonce, workbenchRetryNonce]);
+
+  const pendingDeleteSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === pendingDeleteSnapshotId) ?? null,
+    [pendingDeleteSnapshotId, snapshots],
+  );
+
+  const handleConfirmDeleteSnapshot = useCallback(async () => {
+    if (pendingDeleteSnapshotId == null || pendingDeleteSnapshotId.length === 0) {
+      return;
+    }
+
+    setDeletingSnapshotId(pendingDeleteSnapshotId);
+    setLoadError(null);
+
+    try {
+      await deleteInfraEvidenceSnapshot(pendingDeleteSnapshotId);
+
+      if (selectedSnapshotId === pendingDeleteSnapshotId) {
+        setSelectedSnapshotId("");
+        pushDriftUrl({ snapshotId: "" });
+      }
+
+      if (anchorSnapshotId === pendingDeleteSnapshotId) {
+        setAnchorSnapshotId("");
+      }
+
+      setPendingDeleteSnapshotId(null);
+      setSnapshotsReloadNonce((value) => value + 1);
+    } catch (error: unknown) {
+      setLoadError(formatInfraEvidenceApiError(error));
+    } finally {
+      setDeletingSnapshotId(null);
+    }
+  }, [anchorSnapshotId, pendingDeleteSnapshotId, pushDriftUrl, selectedSnapshotId]);
 
   useEffect(() => {
     if (urlSnapshotId.length === 0) {
@@ -433,6 +605,7 @@ export function DriftWorkbenchClient() {
     }
 
     setSelectedSnapshotId(urlSnapshotId);
+    setAnchorSnapshotId(urlSnapshotId);
   }, [urlSnapshotId]);
 
   useEffect(() => {
@@ -453,18 +626,11 @@ export function DriftWorkbenchClient() {
 
         if (!cancelled) {
           setDiffs(rows);
-          const preferredDiffId =
-            urlDiffId.length > 0 && rows.some((row) => row.diffId === urlDiffId)
-              ? urlDiffId
-              : rows[0]?.diffId ?? "";
-
-          setSelectedDiffId(preferredDiffId);
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setLoadError(formatInfraEvidenceApiError(error));
           setDiffs([]);
-          setSelectedDiffId("");
         }
       } finally {
         if (!cancelled) {
@@ -478,13 +644,47 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedSnapshotId, urlDiffId]);
+  }, [selectedSnapshotId, workbenchRetryNonce]);
 
   useEffect(() => {
-    if (selectedDiffId.length === 0) {
+    if (selectedSnapshotId.length === 0) {
+      return;
+    }
+
+    if (urlDiffId.length === 0) {
+      userClearedDiffRef.current = false;
+      setSelectedDiffId("");
+      return;
+    }
+
+    if (userClearedDiffRef.current) {
+      return;
+    }
+
+    if (visibleDiffs.some((row) => row.diffId === urlDiffId)) {
+      setSelectedDiffId(urlDiffId);
+    }
+  }, [selectedSnapshotId, urlDiffId, visibleDiffs]);
+
+  useEffect(() => {
+    if (selectedDiffId.length === 0 || loadingDiffs) {
+      return;
+    }
+
+    if (visibleDiffs.some((row) => row.diffId === selectedDiffId)) {
+      return;
+    }
+
+    userClearedDiffRef.current = true;
+    setSelectedDiffId("");
+    setSelectedChangeId(null);
+    replaceDriftUrl({ diffId: "", changeId: "", tableFilters: { changesPage: 1 } });
+  }, [loadingDiffs, replaceDriftUrl, selectedDiffId, visibleDiffs]);
+
+  useEffect(() => {
+    if (selectedSnapshotId.length === 0) {
       setChanges([]);
       setChangesTotalCount(0);
-      setChangesHasMore(false);
       setSelectedChangeId(null);
       return;
     }
@@ -496,19 +696,26 @@ export function DriftWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, CHANGES_PAGE_SIZE, {
-          cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
-        });
+        const response = isViewingSnapshotInventory
+          ? await fetchInfraEvidenceSnapshotInventoryRows(
+              selectedSnapshotId,
+              tableFilterState.changesPage,
+              tableFilterState.changesPageSize,
+              {
+                cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+              },
+            )
+          : await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, tableFilterState.changesPageSize, {
+              cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+              includeUnchanged: tableFilterState.includeUnchanged,
+            });
 
         if (!cancelled) {
           const items = response.items ?? [];
-          setChanges((current) =>
-            tableFilterState.changesPage > 1 ? [...current, ...items] : items,
-          );
+          setChanges(items);
           setChangesTotalCount(response.totalCount ?? items.length);
-          setChangesHasMore(response.hasMore === true);
 
-          if (urlChangeId.length > 0) {
+          if (!isViewingSnapshotInventory && urlChangeId.length > 0) {
             setSelectedChangeId(urlChangeId);
           } else {
             setSelectedChangeId(null);
@@ -519,7 +726,6 @@ export function DriftWorkbenchClient() {
           setLoadError(formatInfraEvidenceApiError(error));
           setChanges([]);
           setChangesTotalCount(0);
-          setChangesHasMore(false);
         }
       } finally {
         if (!cancelled) {
@@ -533,23 +739,33 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedDiffId, tableFilterState.changesPage, urlChangeId, urlCloudResourceId]);
+  }, [
+    isViewingSnapshotInventory,
+    selectedDiffId,
+    selectedSnapshotId,
+    tableFilterState.changesPage,
+    tableFilterState.changesPageSize,
+    tableFilterState.includeUnchanged,
+    urlChangeId,
+    urlCloudResourceId,
+    workbenchRetryNonce,
+  ]);
 
   useEffect(() => {
     if (urlChangeId.length === 0 || loadingChanges) {
       return;
     }
 
-    if (visibleChanges.some((row) => row.changeId === urlChangeId)) {
+    if (findDriftResourceChangeGroupByChangeId(visibleResourceGroups, urlChangeId) != null) {
       window.requestAnimationFrame(() => {
         changeDrawerRef.current?.focus();
       });
     }
-  }, [loadingChanges, urlChangeId, visibleChanges]);
+  }, [loadingChanges, urlChangeId, visibleResourceGroups]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (visibleChanges.length === 0) {
+      if (visibleResourceGroups.length === 0) {
         return;
       }
 
@@ -577,14 +793,16 @@ export function DriftWorkbenchClient() {
 
       const currentIndex = selectedChangeId == null
         ? -1
-        : visibleChanges.findIndex((row) => row.changeId === selectedChangeId);
+        : visibleResourceGroups.findIndex((group) =>
+            group.changes.some((change) => change.changeId === selectedChangeId),
+          );
       const nextIndex = event.key === "ArrowDown"
-        ? Math.min(currentIndex + 1, visibleChanges.length - 1)
+        ? Math.min(currentIndex + 1, visibleResourceGroups.length - 1)
         : Math.max(currentIndex - 1, 0);
-      const nextRow = visibleChanges[nextIndex];
+      const nextGroup = visibleResourceGroups[nextIndex];
 
-      if (nextRow != null) {
-        activateChange(nextRow.changeId, "push");
+      if (nextGroup != null) {
+        activateChange(nextGroup.representativeChange.changeId, "push");
       }
     };
 
@@ -593,7 +811,7 @@ export function DriftWorkbenchClient() {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [activateChange, clearSelectedChange, selectedChangeId, visibleChanges]);
+  }, [activateChange, clearSelectedChange, selectedChangeId, visibleResourceGroups]);
 
   const runExport = useCallback(async () => {
     if (selectedSnapshotId.length === 0) {
@@ -601,6 +819,7 @@ export function DriftWorkbenchClient() {
     }
 
     setExportBusy(true);
+    setExportError(null);
 
     try {
       await downloadInfraEvidenceTerraformAdvisoryZip(selectedSnapshotId);
@@ -609,24 +828,33 @@ export function DriftWorkbenchClient() {
         exportedAtUtc: new Date().toISOString(),
       });
     } catch (error: unknown) {
-      showError("Could not download Terraform advisory export", formatInfraEvidenceApiError(error));
+      setExportError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE,
+          formatInfraEvidenceApiError(error),
+        ),
+      );
     } finally {
       setExportBusy(false);
     }
   }, [selectedSnapshotId]);
 
   const selectionAnnouncement = useMemo(() => {
-    if (selectedChange == null) {
+    if (selectedResourceGroup == null) {
       return null;
     }
 
+    if (selectedResourceGroup.changes.length > 1) {
+      return `Showing ${selectedResourceGroup.changes.length} drift changes for this resource.`;
+    }
+
+    const selectedChange = selectedResourceGroup.representativeChange;
     const propertyLabel = selectedChange.property ?? formatInfraEvidenceChangeTypeLabel(selectedChange.changeType);
 
     return `Showing drift change ${propertyLabel}.`;
-  }, [selectedChange]);
+  }, [selectedResourceGroup]);
 
   const snapshotsShowingLine = formatInventoryShowingLine(snapshots.length, snapshotsTotalCount, snapshotsHasMore);
-  const changesShowingLine = formatInventoryShowingLine(changes.length, changesTotalCount, changesHasMore);
   const exportDisabledReason =
     selectedSnapshotId.length === 0 ? GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT : null;
 
@@ -636,35 +864,238 @@ export function DriftWorkbenchClient() {
     });
   };
 
-  const renderSortableHeader = (column: DriftTableSortKey, label: string) => (
-    <EnterpriseTableHeaderCell sortDirection={sortDirectionForColumn(tableFilterState.sortBy, column, tableFilterState.sortDir)}>
-      <button
-        type="button"
-        className="inline-flex items-center gap-1 text-left"
-        onClick={() => handleSortColumn(column)}
-      >
-        {label}
-      </button>
-    </EnterpriseTableHeaderCell>
+  const handleTableFiltersChange = (patch: Partial<DriftTableFilterState>) => {
+    pushDriftUrl({
+      tableFilters: patch,
+    });
+  };
+
+  const handleClearTableFilters = () => {
+    pushDriftUrl({
+      tableFilters: clearDriftTableFilters(tableFilterState),
+    });
+  };
+
+  const handleSnapshotSortColumn = (column: DriftSnapshotsTableSortKey) => {
+    pushDriftUrl({
+      snapshotTableFilters: toggleDriftSnapshotsTableSort(snapshotTableFilterState, column),
+    });
+  };
+
+  const handleSnapshotTableFiltersChange = (patch: Partial<DriftSnapshotsTableFilterState>) => {
+    pushDriftUrl({
+      snapshotTableFilters: patch,
+    });
+  };
+
+  const handleClearSnapshotTableFilters = () => {
+    pushDriftUrl({
+      snapshotTableFilters: clearDriftSnapshotsTableFilters(snapshotTableFilterState),
+    });
+  };
+
+  const requestSubscriptionConfirmation = useCallback(
+    (
+      pending: PendingDriftSubscriptionConfirmation,
+      anchorSnapshot: InfraEvidenceSnapshotSummary,
+      nextSnapshot: InfraEvidenceSnapshotSummary,
+    ) => {
+      setPendingSubscriptionConfirmation(pending);
+      setSubscriptionConfirmDescription(
+        formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription(
+          resolveInfraEvidenceSnapshotSubscriptionLabel(anchorSnapshot),
+          resolveInfraEvidenceSnapshotSubscriptionLabel(nextSnapshot),
+        ),
+      );
+      setSubscriptionConfirmOpen(true);
+    },
+    [],
   );
+
+  const applySnapshotSelect = useCallback(
+    (nextSnapshotId: string) => {
+      setSelectedSnapshotId(nextSnapshotId);
+      setAnchorSnapshotId(nextSnapshotId);
+      setSelectedDiffId("");
+      setSelectedChangeId(null);
+      pushDriftUrl({
+        snapshotId: nextSnapshotId,
+        diffId: "",
+        changeId: "",
+        tableFilters: { changesPage: 1 },
+      });
+    },
+    [pushDriftUrl],
+  );
+
+  const applySnapshotClear = useCallback(() => {
+    userClearedDiffRef.current = true;
+    setSelectedSnapshotId("");
+    setAnchorSnapshotId("");
+    setSelectedDiffId("");
+    setSelectedChangeId(null);
+    pushDriftUrl({
+      snapshotId: "",
+      diffId: "",
+      changeId: "",
+      tableFilters: { changesPage: 1 },
+    });
+  }, [pushDriftUrl]);
+
+  const applyDiffSelect = useCallback(
+    (nextDiffId: string) => {
+      userClearedDiffRef.current = false;
+      setSelectedDiffId(nextDiffId);
+      setSelectedChangeId(null);
+      pushDriftUrl({ diffId: nextDiffId, changeId: "", tableFilters: { changesPage: 1 } });
+    },
+    [pushDriftUrl],
+  );
+
+  const handleSnapshotSelect = useCallback(
+    (nextSnapshotId: string) => {
+      if (nextSnapshotId === selectedSnapshotId) {
+        return;
+      }
+
+      const nextSnapshot = snapshots.find((snapshot) => snapshot.snapshotId === nextSnapshotId) ?? null;
+
+      if (nextSnapshot == null) {
+        applySnapshotSelect(nextSnapshotId);
+        return;
+      }
+
+      const subscriptionAnchor = anchorSnapshot ?? selectedSnapshot;
+
+      if (subscriptionAnchor != null && !infraEvidenceSnapshotsShareSubscription(subscriptionAnchor, nextSnapshot)) {
+        requestSubscriptionConfirmation({ kind: "snapshot", snapshotId: nextSnapshotId }, subscriptionAnchor, nextSnapshot);
+        return;
+      }
+
+      applySnapshotSelect(nextSnapshotId);
+    },
+    [anchorSnapshot, applySnapshotSelect, requestSubscriptionConfirmation, selectedSnapshot, selectedSnapshotId, snapshots],
+  );
+
+  const handleSnapshotPickerChange = useCallback(
+    (nextSnapshotId: string) => {
+      if (nextSnapshotId.length === 0) {
+        applySnapshotClear();
+        return;
+      }
+
+      handleSnapshotSelect(nextSnapshotId);
+    },
+    [applySnapshotClear, handleSnapshotSelect],
+  );
+
+  const handleDiffSelect = useCallback(
+    (nextDiffId: string) => {
+      if (nextDiffId.length === 0) {
+        const restoreSnapshotId =
+          anchorSnapshotId.length > 0 ? anchorSnapshotId : selectedSnapshotId;
+
+        userClearedDiffRef.current = true;
+        setSelectedDiffId("");
+        setSelectedChangeId(null);
+
+        if (restoreSnapshotId.length > 0 && restoreSnapshotId !== selectedSnapshotId) {
+          setSelectedSnapshotId(restoreSnapshotId);
+        }
+
+        pushDriftUrl({
+          snapshotId: restoreSnapshotId.length > 0 ? restoreSnapshotId : null,
+          diffId: "",
+          changeId: "",
+          tableFilters: { changesPage: 1 },
+        });
+
+        window.requestAnimationFrame(() => {
+          snapshotsSectionRef.current?.scrollIntoView({ block: "nearest" });
+        });
+        return;
+      }
+
+      if (nextDiffId === selectedDiffId) {
+        return;
+      }
+
+      const nextDiff = visibleDiffs.find((diff) => diff.diffId === nextDiffId) ?? null;
+
+      if (nextDiff == null || anchorSnapshot == null) {
+        applyDiffSelect(nextDiffId);
+        return;
+      }
+
+      const otherSnapshot = resolveInfraEvidenceDiffOtherSnapshot(nextDiff, anchorSnapshotId, snapshots);
+
+      if (otherSnapshot != null && !infraEvidenceSnapshotsShareSubscription(anchorSnapshot, otherSnapshot)) {
+        requestSubscriptionConfirmation({ kind: "diff", diffId: nextDiffId }, anchorSnapshot, otherSnapshot);
+        return;
+      }
+
+      applyDiffSelect(nextDiffId);
+    },
+    [
+      anchorSnapshot,
+      anchorSnapshotId,
+      applyDiffSelect,
+      pushDriftUrl,
+      requestSubscriptionConfirmation,
+      selectedDiffId,
+      selectedSnapshotId,
+      snapshots,
+      visibleDiffs,
+    ],
+  );
+
+  const handleSubscriptionConfirm = useCallback(() => {
+    const pending = pendingSubscriptionConfirmation;
+
+    setSubscriptionConfirmOpen(false);
+    setPendingSubscriptionConfirmation(null);
+
+    if (pending == null) {
+      return;
+    }
+
+    if (pending.kind === "snapshot") {
+      applySnapshotSelect(pending.snapshotId);
+      return;
+    }
+
+    applyDiffSelect(pending.diffId);
+  }, [applyDiffSelect, applySnapshotSelect, pendingSubscriptionConfirmation]);
+
+  const handleSubscriptionConfirmOpenChange = useCallback((open: boolean) => {
+    setSubscriptionConfirmOpen(open);
+
+    if (!open) {
+      setPendingSubscriptionConfirmation(null);
+    }
+  }, []);
 
   const renderChangesEmptyState = () => {
     if (loadingChanges) {
       return (
         <EnterpriseTableRow>
-          <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>Loading changes…</EnterpriseTableCell>
+          <EnterpriseTableCell colSpan={changesTableColumnCount}>Loading changes…</EnterpriseTableCell>
         </EnterpriseTableRow>
       );
     }
 
-    if (selectedDiffId.length === 0) {
+    if (isViewingSnapshotInventory) {
       return (
         <EnterpriseTableRow>
-          <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>
+          <EnterpriseTableCell colSpan={changesTableColumnCount}>
             <EnterpriseCompactEmptyState
-              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE}
-              description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY}
-              testId="infra-drift-changes-empty-unselected"
+              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_TITLE}
+              description={
+                urlCloudResourceId.length > 0
+                  ? GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY
+                  : GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY
+              }
+              testId="infra-drift-changes-empty-inventory"
             />
           </EnterpriseTableCell>
         </EnterpriseTableRow>
@@ -673,7 +1104,7 @@ export function DriftWorkbenchClient() {
 
     return (
       <EnterpriseTableRow>
-        <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>
+        <EnterpriseTableCell colSpan={changesTableColumnCount}>
           <EnterpriseCompactEmptyState
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE}
             description={
@@ -705,25 +1136,19 @@ export function DriftWorkbenchClient() {
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
         title={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
-        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE : undefined}
+        subtitleTestId="infra-drift-page-lead"
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-drift-claim-discipline"
         titleTestId="infra-drift-page-title"
-        breadcrumb={<DriftBreadcrumb />}
+        metadata={<DriftBreadcrumb />}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
-          </div>
+          <InfraEvidenceWorkbenchHeaderActions
+            shortcutsTestId="infra-drift-page-shortcuts"
+            shortcuts={DRIFT_WORKBENCH_PAGE_SHORTCUTS}
+            scopeStatusBadge={scopeStatusBadge}
+          />
         }
       />
-
-      {!buyerPolishedShell ? (
-        <LayerHeader
-          pageKey="infrastructure-drift"
-          density="compact"
-          collapsibleGuidance={GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY}
-        />
-      ) : null}
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}
@@ -802,119 +1227,193 @@ export function DriftWorkbenchClient() {
             description={loadError}
             testId="infra-drift-load-error-panel"
             footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => window.location.reload()}>
-                Reload page
+              <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+                Retry load
               </Button>
             }
           />
         ) : null}
 
-        {scopeFreshnessLine != null ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="infra-drift-scope-freshness"
-          >
-            <span className="font-medium text-al-text-primary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_FRESHNESS_LABEL}:</span>{" "}
-            {scopeFreshnessLine}
-          </p>
-        ) : null}
+        <section
+          ref={snapshotsSectionRef}
+          className={cn("flex flex-col gap-3", cnCard)}
+          aria-label={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}
+        >
+          <div>
+            <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}</h2>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY}
+            </p>
+          </div>
 
-        <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Drift workbench controls">
-          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
-            <div className="grid gap-2">
-              <Label htmlFor="infra-drift-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL}</Label>
-              <select
-                id="infra-drift-snapshot-picker"
-                className={cnField}
-                data-testid="infra-drift-snapshot-picker"
-                disabled={loadingSnapshots || (snapshots.length === 0 && !loadingSnapshots)}
-                value={selectedSnapshotId}
-                onChange={(event) => {
-                  const nextSnapshotId = event.target.value;
-                  setSelectedSnapshotId(nextSnapshotId);
-                  pushDriftUrl({ snapshotId: nextSnapshotId, diffId: "", changeId: "", tableFilters: { changesPage: 1 } });
-                }}
-              >
-                {loadingSnapshots ? <option value="">Loading snapshots…</option> : null}
-                {!loadingSnapshots && snapshots.length === 0 ? <option value="">No snapshots in scope</option> : null}
-                {snapshots.map((snapshot) => (
-                  <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                    {formatInfraEvidenceSnapshotLabel(snapshot)}
-                  </option>
-                ))}
-              </select>
-              {snapshotsShowingLine != null ? (
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshots-showing-line">
-                  {snapshotsShowingLine}
-                </p>
+          <div className="grid max-w-md gap-2">
+            <Label htmlFor="infra-drift-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL}</Label>
+            <select
+              id="infra-drift-snapshot-picker"
+              className={cnPickerField}
+              data-testid="infra-drift-snapshot-picker"
+              disabled={loadingSnapshots || snapshotPickerOptions.length === 0}
+              value={selectedSnapshotId}
+              onChange={(event) => {
+                handleSnapshotPickerChange(event.target.value);
+              }}
+            >
+              <option value="">{GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER}</option>
+              {loadingSnapshots ? <option value="" disabled>Loading inventory files…</option> : null}
+              {!loadingSnapshots && snapshotPickerOptions.length === 0 ? (
+                <option value="" disabled>No inventory files yet</option>
               ) : null}
-              {snapshotsHasMore ? (
+              {snapshotPickerOptions.map((snapshot) => (
+                <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                  {formatInfraEvidenceSnapshotLabel(snapshot)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <DriftSnapshotsTable
+            snapshots={visibleSnapshots}
+            selectedSnapshotId={selectedSnapshotId}
+            loading={loadingSnapshots}
+            tableFilterState={snapshotTableFilterState}
+            hasActiveFilters={hasActiveSnapshotTableFilters}
+            onSelectSnapshot={handleSnapshotSelect}
+            onSortColumn={handleSnapshotSortColumn}
+            onTableFiltersChange={handleSnapshotTableFiltersChange}
+            onClearFilters={handleClearSnapshotTableFilters}
+            deletingSnapshotId={deletingSnapshotId}
+            onDeleteSnapshot={(snapshotId) => {
+              setPendingDeleteSnapshotId(snapshotId);
+            }}
+          />
+
+          {snapshotsShowingLine != null ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshots-showing-line">
+              {snapshotsShowingLine}
+            </p>
+          ) : null}
+
+          {snapshotsHasMore ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="infra-drift-load-more-snapshots"
+              disabled={loadingSnapshots}
+              onClick={() => {
+                pushDriftUrl({
+                  tableFilters: { snapshotsPage: tableFilterState.snapshotsPage + 1 },
+                });
+              }}
+            >
+              {loadingSnapshots ? "Loading…" : "Load more snapshots"}
+            </Button>
+          ) : null}
+
+          {selectedSnapshotId.length > 0 ? (
+            <div className="flex flex-col gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-selected-snapshot-summary">
+                <span className="font-medium text-al-text-primary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL}:</span>{" "}
+                {selectedSnapshot != null ? formatInfraEvidenceSnapshotLabel(selectedSnapshot) : selectedSnapshotId}
+              </p>
+
+              <div className="flex flex-wrap items-start gap-3">
                 <Button
                   type="button"
-                  size="sm"
                   variant="outline"
-                  data-testid="infra-drift-load-more-snapshots"
-                  disabled={loadingSnapshots}
-                  onClick={() => {
-                    pushDriftUrl({
-                      tableFilters: { snapshotsPage: tableFilterState.snapshotsPage + 1 },
-                    });
+                  size="sm"
+                  data-testid="infra-drift-export-terraform"
+                  disabled={exportBusy || exportDisabledReason != null}
+                  title={exportDisabledReason ?? undefined}
+                  aria-describedby={
+                    exportDisabledReason != null
+                      ? "infra-drift-export-disabled-reason"
+                      : exportError != null
+                        ? "infra-drift-export-error"
+                        : undefined
+                  }
+                  onClick={() => void runExport()}
+                >
+                  {exportBusy ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                      Exporting…
+                    </span>
+                  ) : (
+                    "Export advisory Terraform"
+                  )}
+                </Button>
+                {exportDisabledReason != null ? (
+                  <p id="infra-drift-export-disabled-reason" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    {exportDisabledReason}
+                  </p>
+                ) : null}
+              </div>
+
+              <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
+
+              <DriftSnapshotIdentifiers snapshotId={selectedSnapshotId} diffId={selectedDiffId} />
+
+              {exportReceipt != null ? (
+                <div
+                  className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
+                  data-testid="infra-drift-export-receipt"
+                  role="status"
+                >
+                  <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE}
+                  </p>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {formatAbsoluteUpdatedAtTitle(exportReceipt.exportedAtUtc)}
+                  </p>
+                </div>
+              ) : null}
+
+              {exportError != null ? (
+                <OperatorMutationInlineError message={exportError} testId="infra-drift-export-error" />
+              ) : null}
+            </div>
+          ) : null}
+        </section>
+
+        {selectedSnapshotId.length > 0 ? (
+          <section className={cn("flex flex-col gap-3", cnCard)} aria-label={GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE}>
+            <div>
+              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE}
+              </h2>
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="grid min-w-[16rem] max-w-xl gap-2">
+                <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
+                <select
+                  id="infra-drift-diff-picker"
+                  className={cn(cnField, "w-full")}
+                  data-testid="infra-drift-diff-picker"
+                  disabled={loadingDiffs || visibleDiffs.length === 0}
+                  value={selectedDiffId}
+                  onChange={(event) => {
+                    handleDiffSelect(event.target.value);
                   }}
                 >
-                  {loadingSnapshots ? "Loading…" : "Load more snapshots"}
-                </Button>
-              ) : null}
-            </div>
+                  <option value="">Select a diff…</option>
+                  {loadingDiffs ? <option value="" disabled>Loading diffs…</option> : null}
+                  {!loadingDiffs && diffs.length === 0 ? <option value="" disabled>No diffs for this snapshot</option> : null}
+                  {!loadingDiffs && diffs.length > 0 && visibleDiffs.length === 0 ? (
+                    <option value="" disabled>No later inventory captures to compare</option>
+                  ) : null}
+                  {visibleDiffs.map((diff) => (
+                    <option key={diff.diffId} value={diff.diffId}>
+                      {formatInfraEvidenceDiffLabel(diff, anchorSnapshotId, snapshots)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
-              <select
-                id="infra-drift-diff-picker"
-                className={cnField}
-                data-testid="infra-drift-diff-picker"
-                disabled={loadingDiffs || diffs.length === 0}
-                value={selectedDiffId}
-                onChange={(event) => {
-                  const nextDiffId = event.target.value;
-                  setSelectedDiffId(nextDiffId);
-                  pushDriftUrl({ diffId: nextDiffId, changeId: "", tableFilters: { changesPage: 1 } });
-                }}
-              >
-                {loadingDiffs ? <option value="">Loading diffs…</option> : null}
-                {!loadingDiffs && diffs.length === 0 ? <option value="">No diffs for this snapshot</option> : null}
-                {diffs.map((diff) => (
-                  <option key={diff.diffId} value={diff.diffId}>
-                    {formatInfraEvidenceDiffLabel(diff, selectedSnapshotId, snapshots)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex min-w-[14rem] flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                data-testid="infra-drift-export-terraform"
-                disabled={exportBusy || exportDisabledReason != null}
-                title={exportDisabledReason ?? undefined}
-                aria-describedby={exportDisabledReason != null ? "infra-drift-export-disabled-reason" : undefined}
-                onClick={() => void runExport()}
-              >
-                {exportBusy ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                    Exporting…
-                  </span>
-                ) : (
-                  "Export advisory Terraform"
-                )}
-              </Button>
-              {exportDisabledReason != null ? (
-                <p id="infra-drift-export-disabled-reason" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  {exportDisabledReason}
-                </p>
-              ) : null}
               {selectedDiffId.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-drift-open-ask">
                   <Link
@@ -931,96 +1430,68 @@ export function DriftWorkbenchClient() {
                 </Button>
               ) : null}
             </div>
-          </div>
 
-          {selectedSnapshotId.length > 0 ? (
-            <DriftSnapshotIdentifiers
-              snapshotId={selectedSnapshotId}
-              diffId={selectedDiffId}
-              open={driftSnapshotIdentifiersOpen}
-              onToggle={setDriftSnapshotIdentifiersOpen}
-            />
-          ) : null}
+            {selectedDiffId.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="infra-drift-include-unchanged"
+                      data-testid="infra-drift-include-unchanged"
+                      checked={tableFilterState.includeUnchanged}
+                      onCheckedChange={(checked) => {
+                        handleTableFiltersChange({
+                          includeUnchanged: checked === true,
+                          changesPage: 1,
+                        });
+                      }}
+                    />
+                    <Label htmlFor="infra-drift-include-unchanged" className="cursor-pointer font-normal">
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL}
+                    </Label>
+                  </div>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER}
+                  </p>
+                </div>
 
-          {exportReceipt != null ? (
-            <div
-              className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
-              data-testid="infra-drift-export-receipt"
-              role="status"
-            >
-              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE}
-              </p>
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {new Date(exportReceipt.exportedAtUtc).toLocaleString()}
-              </p>
-            </div>
-          ) : null}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="infra-drift-risky-only"
+                      data-testid="infra-drift-risky-only"
+                      checked={tableFilterState.riskyOnly}
+                      onCheckedChange={(checked) => {
+                        const riskyOnly = checked === true;
+                        const riskFilter = tableFilterState.riskFilter.trim().toLowerCase();
+                        const clearsRiskFilter = riskyOnly && (riskFilter === "none" || riskFilter === "unknown");
 
-          <div className="grid gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800 md:grid-cols-3" aria-label="Drift table filters">
-            <label className="grid gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL}</span>
-              <select
-                className={cnField}
-                data-testid="infra-drift-risk-filter"
-                value={tableFilterState.riskFilter}
-                onChange={(event) => {
-                  pushDriftUrl({
-                    tableFilters: { riskFilter: event.target.value, changesPage: 1 },
-                  });
-                }}
-              >
-                {INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS.map((option) => (
-                  <option key={option.value || "all"} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL}
-              </span>
-              <select
-                className={cnField}
-                data-testid="infra-drift-change-type-filter"
-                value={tableFilterState.changeTypeFilter}
-                onChange={(event) => {
-                  pushDriftUrl({
-                    tableFilters: { changeTypeFilter: event.target.value, changesPage: 1 },
-                  });
-                }}
-              >
-                {INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS.map((option) => (
-                  <option key={option.value || "all"} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL}
-              </span>
-              <Input
-                className={cnField}
-                data-testid="infra-drift-resource-filter"
-                value={tableFilterState.resourceFilter}
-                onChange={(event) => {
-                  pushDriftUrl({
-                    tableFilters: { resourceFilter: event.target.value, changesPage: 1 },
-                  });
-                }}
-              />
-            </label>
-          </div>
-          <p className={cn("m-0 flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <span>Row shortcuts:</span>
-            <KeyboardShortcutBadge shortcut="↑" />
-            <KeyboardShortcutBadge shortcut="↓" />
-            <KeyboardShortcutBadge shortcut="Esc" />
-          </p>
-        </section>
+                        handleTableFiltersChange({
+                          riskyOnly,
+                          riskFilter: clearsRiskFilter ? "" : tableFilterState.riskFilter,
+                          changesPage: 1,
+                        });
+                      }}
+                    />
+                    <Label htmlFor="infra-drift-risky-only" className="cursor-pointer font-normal">
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_LABEL}
+                    </Label>
+                  </div>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_HELPER}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
+            <p className={cn("m-0 flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span>Row shortcuts:</span>
+              <KeyboardShortcutBadge shortcut="↑" />
+              <KeyboardShortcutBadge shortcut="↓" />
+              <KeyboardShortcutBadge shortcut="Esc" />
+            </p>
+          </section>
+        ) : null}
 
         {!loadingSnapshots && snapshots.length === 0 ? (
           <EnterpriseCompactEmptyState
@@ -1043,101 +1514,175 @@ export function DriftWorkbenchClient() {
           />
         ) : null}
 
-        <EnterpriseTable ariaLabel="Inventory drift changes">
-          <EnterpriseTableHead>
-            <EnterpriseTableHeadRow>
-              {renderSortableHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL)}
-              {renderSortableHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL)}
-              {renderSortableHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL)}
-              {renderSortableHeader("change", "Change")}
-              {renderSortableHeader("property", "Property")}
-              {renderSortableHeader("risk", "Risk")}
-            </EnterpriseTableHeadRow>
-          </EnterpriseTableHead>
-          <EnterpriseTableBody>
-            {visibleChanges.length === 0 ? renderChangesEmptyState() : null}
-            {visibleChanges.map((row) => (
-              <EnterpriseTableRow
-                key={row.changeId}
-                data-testid={`infra-drift-change-row-${row.changeId}`}
-                selected={selectedChangeId === row.changeId}
-                tabIndex={0}
-                aria-selected={selectedChangeId === row.changeId}
-                onClick={() => {
-                  activateChange(row.changeId, "push");
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    activateChange(row.changeId, "push");
-                  }
-                }}
-              >
-                <DriftChangeResourceCells azureResourceId={row.azureResourceId} />
-                <EnterpriseTableCell>
-                  <StatusTag
-                    kind={resolveInfraEvidenceChangeTypeStatusKind(row.changeType)}
-                    label={formatInfraEvidenceChangeTypeLabel(row.changeType)}
-                  />
-                </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.property ?? "—"}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  {row.riskClassification != null ? (
-                    <SeverityTag severity={row.riskClassification} />
-                  ) : (
-                    "—"
-                  )}
-                </EnterpriseTableCell>
-              </EnterpriseTableRow>
-            ))}
-          </EnterpriseTableBody>
-        </EnterpriseTable>
-
-        {changesShowingLine != null || changesHasMore ? (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            {changesShowingLine != null ? (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-changes-showing-line">
-                {changesShowingLine}
-              </p>
-            ) : <span />}
-            {changesHasMore ? (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                data-testid="infra-drift-load-more-changes"
-                disabled={loadingChanges}
-                onClick={() => {
-                  pushDriftUrl({
-                    tableFilters: { changesPage: tableFilterState.changesPage + 1 },
-                  });
-                }}
-              >
-                {loadingChanges ? "Loading…" : "Load more changes"}
-              </Button>
-            ) : null}
-          </div>
-        ) : null}
-
-        {selectedChange != null ? (
-          <DriftChangeDetail
-            selectedChange={selectedChange}
-            changeDrawerRef={changeDrawerRef}
-            changeIdentifiersOpen={driftChangeIdentifiersOpen}
-            onChangeIdentifiersToggle={setDriftChangeIdentifiersOpen}
-            hubHref={
-              selectedChange.cloudResourceId != null
-                ? resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {
-                    tab: "drift",
-                    ...workbenchHubScopePatch,
-                  })
-                : null
-            }
+        {!loadingDiffs && selectedSnapshotId.length > 0 && diffs.length > 0 && visibleDiffs.length === 0 ? (
+          <EnterpriseCompactEmptyState
+            title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE}
+            description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_BODY}
+            testId="infra-drift-diffs-empty-later-than-anchor"
           />
         ) : null}
 
+        {selectedSnapshotId.length > 0 ? (
+        <>
+        <EnterpriseTable
+          ariaLabel={
+            isViewingSnapshotInventory
+              ? GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_TABLE_ARIA_LABEL
+              : GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGES_TABLE_ARIA_LABEL
+          }
+        >
+          <DriftChangesTableHead
+            tableFilterState={tableFilterState}
+            hasActiveFilters={hasActiveTableFilters}
+            showDiffColumns={!isViewingSnapshotInventory}
+            onSortColumn={handleSortColumn}
+            onTableFiltersChange={handleTableFiltersChange}
+            onClearFilters={handleClearTableFilters}
+          />
+          <EnterpriseTableBody data-testid="infra-drift-changes-body">
+            {visibleResourceGroups.length === 0 ? renderChangesEmptyState() : null}
+            {visibleResourceGroups.map((group) => {
+              const rowChange = group.representativeChange;
+              const isSelected =
+                !isViewingSnapshotInventory
+                && group.changes.some((change) => change.changeId === selectedChangeId);
+
+              return (
+                <Fragment key={group.groupKey}>
+                  <EnterpriseTableRow
+                    data-testid={`infra-drift-change-row-${rowChange.changeId}`}
+                    selected={isSelected}
+                    tabIndex={isViewingSnapshotInventory ? undefined : 0}
+                    aria-selected={isViewingSnapshotInventory ? undefined : isSelected}
+                    aria-expanded={isViewingSnapshotInventory ? undefined : isSelected}
+                    onClick={
+                      isViewingSnapshotInventory
+                        ? undefined
+                        : () => {
+                            activateChange(rowChange.changeId, "push");
+                          }
+                    }
+                    onKeyDown={
+                      isViewingSnapshotInventory
+                        ? undefined
+                        : (event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              activateChange(rowChange.changeId, "push");
+                            }
+                          }
+                    }
+                  >
+                    <DriftChangeResourceCells azureResourceId={rowChange.azureResourceId} />
+                    {!isViewingSnapshotInventory ? (
+                      <>
+                        <EnterpriseTableCell>
+                          <StatusTag
+                            kind={resolveInfraEvidenceChangeTypeStatusKind(rowChange.changeType)}
+                            label={summarizeDriftResourceGroupChangeTypes(group)}
+                          />
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>{summarizeDriftResourceGroupProperties(group)}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <DriftChangeRiskCell change={rowChange} />
+                        </EnterpriseTableCell>
+                      </>
+                    ) : null}
+                  </EnterpriseTableRow>
+                  {isSelected && selectedResourceGroup != null ? (
+                    <EnterpriseTableRow data-testid={`infra-drift-change-detail-row-${rowChange.changeId}`}>
+                      <EnterpriseTableCell
+                        colSpan={changesTableColumnCount}
+                        className="bg-neutral-50 p-0 dark:bg-neutral-900/40"
+                      >
+                        <DriftChangeDetail
+                          selectedChanges={selectedResourceGroup.changes}
+                          changeDrawerRef={changeDrawerRef}
+                          changeIdentifiersOpen={driftChangeIdentifiersOpen}
+                          onChangeIdentifiersToggle={setDriftChangeIdentifiersOpen}
+                          variant="inline"
+                          hubHref={
+                            rowChange.cloudResourceId != null
+                              ? resourceHubFilterHrefFromSearch(rowChange.cloudResourceId, "", {
+                                  tab: "drift",
+                                  ...workbenchHubScopePatch,
+                                })
+                              : null
+                          }
+                        />
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  ) : null}
+                </Fragment>
+              );
+            })}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
+
+        <DriftChangesPagination
+          page={tableFilterState.changesPage}
+          pageSize={tableFilterState.changesPageSize}
+          totalCount={changesTotalCount}
+          disabled={loadingChanges}
+          onPageChange={(page) => {
+            pushDriftUrl({
+              tableFilters: { changesPage: page },
+            });
+          }}
+          onPageSizeChange={(pageSize) => {
+            pushDriftUrl({
+              tableFilters: { changesPage: 1, changesPageSize: pageSize },
+            });
+          }}
+        />
+
+        </>
+        ) : null}
+
         <DriftClaimOrientationStrip />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-drift-build-provenance-limitation" />
       </main>
+
+      <DriftCrossSubscriptionDiffConfirmDialog
+        open={subscriptionConfirmOpen}
+        description={subscriptionConfirmDescription}
+        onOpenChange={handleSubscriptionConfirmOpenChange}
+        onConfirm={handleSubscriptionConfirm}
+      />
+
+      <AlertDialog
+        open={pendingDeleteSnapshotId != null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDeleteSnapshotId(null);
+          }
+        }}
+      >
+        <AlertDialogContent data-testid="infra-drift-delete-snapshot-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDeleteSnapshot != null
+                ? `${formatInfraEvidenceSnapshotLabel(pendingDeleteSnapshot)}. ${GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY}`
+                : GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingSnapshotId != null}>Cancel</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="destructive"
+              data-testid="infra-drift-delete-snapshot-confirm"
+              disabled={deletingSnapshotId != null}
+              onClick={() => {
+                void handleConfirmDeleteSnapshot();
+              }}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </OperatorPageContainer>
   );
 }

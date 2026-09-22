@@ -41,6 +41,19 @@ public interface IAzureInventorySnapshotRepository
         int pageSize,
         string? subscriptionId,
         CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        int page,
+        int pageSize,
+        Guid? cloudResourceId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AzureInventorySnapshotMaterializeWriteRequest
@@ -75,6 +88,12 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
         init;
     }
 
+    public string? CompletenessWarningsJson
+    {
+        get;
+        init;
+    }
+
     public int ErrorCount
     {
         get;
@@ -94,6 +113,18 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
     }
 
     public string? CollectorVersion
+    {
+        get;
+        init;
+    }
+
+    public string? SubscriptionId
+    {
+        get;
+        init;
+    }
+
+    public string? SubscriptionName
     {
         get;
         init;
@@ -136,6 +167,12 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
     } = [];
 
     public IReadOnlyList<AzureInventoryUnknownResourceWrite> UnknownResources
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderSummaryWrite> DefenderSummaries
     {
         get;
         init;

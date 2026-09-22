@@ -39,9 +39,11 @@ public sealed partial class DraftRequestsController(
     IDraftIntakeReasoningService draftIntakeReasoningService,
     IDecisionReceiptService decisionReceiptService,
     IAuditService auditService,
+    IArchitectureWorkLeaseService architectureWorkLeaseService,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IRunDetailQueryService runDetailQueryService) : ControllerBase
+    IRunDetailQueryService runDetailQueryService,
+    IPriorPackageSemanticMergeService priorPackageSemanticMergeService) : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -52,11 +54,17 @@ public sealed partial class DraftRequestsController(
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
+    private readonly IPriorPackageSemanticMergeService _priorPackageSemanticMergeService =
+        priorPackageSemanticMergeService ?? throw new ArgumentNullException(nameof(priorPackageSemanticMergeService));
+
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IArchitectureWorkLeaseService _architectureWorkLeaseService =
+        architectureWorkLeaseService ?? throw new ArgumentNullException(nameof(architectureWorkLeaseService));
 
     private readonly IDraftRequestService _draftRequestService =
         draftRequestService ?? throw new ArgumentNullException(nameof(draftRequestService));
@@ -105,6 +113,10 @@ public sealed partial class DraftRequestsController(
 
             return CreatedAtAction(nameof(GetDraft), new { draftId = created.DraftId }, created);
         }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
@@ -119,34 +131,47 @@ public sealed partial class DraftRequestsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDraft(Guid draftId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult =
-            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        DraftGetHangDiagnostics.Log(
-            "controller_get_draft_entered",
-            ("correlationId", HttpContext.TraceIdentifier),
-            ("draftId", draftId),
-            ("tenantId", scope.TenantId));
+            DraftGetHangDiagnostics.Log(
+                "controller_get_draft_entered",
+                ("correlationId", HttpContext.TraceIdentifier),
+                ("draftId", draftId),
+                ("tenantId", scope.TenantId));
 
-        long startedMs = Environment.TickCount64;
-        DraftRequestResponse? draft = await _draftRequestService.GetAsync(scope, draftId, cancellationToken);
+            long startedMs = Environment.TickCount64;
+            DraftRequestResponse? draft = await _draftRequestService.GetAsync(scope, draftId, cancellationToken);
 
-        DraftGetHangDiagnostics.Log(
-            "controller_get_draft_completed",
-            ("correlationId", HttpContext.TraceIdentifier),
-            ("draftId", draftId),
-            ("durationMs", Environment.TickCount64 - startedMs),
-            ("found", draft is not null));
+            DraftGetHangDiagnostics.Log(
+                "controller_get_draft_completed",
+                ("correlationId", HttpContext.TraceIdentifier),
+                ("draftId", draftId),
+                ("durationMs", Environment.TickCount64 - startedMs),
+                ("found", draft is not null));
 
-        if (draft is null)
-            return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+            if (draft is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
 
-        return Ok(draft);
+            draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
+                scope,
+                draftId,
+                _actorContext.GetActorId(),
+                cancellationToken);
+
+            return Ok(draft);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Patches a draft while <see cref="DraftRequestStatus.Drafting" />.</summary>
@@ -165,6 +190,11 @@ public sealed partial class DraftRequestsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult = await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -185,7 +215,7 @@ public sealed partial class DraftRequestsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDraftRequestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

@@ -287,7 +287,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
         Mock<IAzureInventoryDiffRepository> diffRepository = new();
         Mock<IAdvisoryTerraformRepresentationRepository> terraformRepository = new();
         Mock<IDiagramInfrastructureReconciliationService> diagramReconciliation = new();
-        Mock<IRemediationInstanceRepository> remediationRepository = new();
+        Mock<IProjectScopedRemediationInstanceRepository> remediationRepository = new();
         Mock<IAuthorityQueryService> authorityQuery = new();
         Mock<ICloudResourceAuditLineageResolver> auditLineageResolver = new();
         Mock<IArchitectureDiagramReconciliationRepository> reconciliationRepository = new();
@@ -312,8 +312,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
             });
 
         remediationRepository
-            .Setup(repo => repo.ListByCloudResourceIdPagedAsync(
-                It.IsAny<Guid>(),
+            .Setup(repo => repo.ListByCloudResourceIdPagedInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
                 It.IsAny<Guid>(),
                 It.IsAny<int>(),
                 It.IsAny<int>(),
@@ -339,7 +339,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             diffRepository.Object,
             terraformRepository.Object,
             diagramReconciliation.Object,
-            operationalRepository,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(operationalRepository),
             remediationRepository.Object,
             reconciliationRepository.Object,
             authorityQueryService ?? authorityQuery.Object,
@@ -455,6 +455,12 @@ public sealed class CloudResourceEvidenceHubServiceTests
             return Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(
                 (pageItems, filtered.Count));
         }
+
+        public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
 
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,

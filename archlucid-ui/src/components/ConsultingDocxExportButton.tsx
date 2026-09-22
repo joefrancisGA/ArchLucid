@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadConsultingArchitectureReportDocx } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { consultingDocxMutationBlockedReason } from "@/lib/compare/consulting-docx-mutation-blocked-reason";
@@ -86,6 +87,7 @@ export function ConsultingDocxExportButton(props: ConsultingDocxExportButtonProp
           {sealedManifestBlockedReason}
         </p>
       ) : null}
+      <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="consulting-docx-export" />
     </div>
   );
 }

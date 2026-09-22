@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
@@ -89,6 +90,12 @@ function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): Rea
     <>
       {pipelineTimelineFailure ? (
         <>
+          <div className="space-y-2" data-testid="run-detail-pipeline-timeline-blocked-reason">
+            <OperatorApiProblem failure={pipelineTimelineFailure} />
+            {blockedReason ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{blockedReason}</p>
+            ) : null}
+          </div>
           <AuthorityPipelineTimeline
             items={null}
             loadErrorMessage={blockedReason ?? pipelineTimelineFailure.message}

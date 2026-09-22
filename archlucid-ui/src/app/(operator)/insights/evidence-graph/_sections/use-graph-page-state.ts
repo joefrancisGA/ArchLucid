@@ -34,6 +34,7 @@ export type UseGraphPageStateOptions = {
 export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
   const router = useRouter();
   const pathname = usePathname() ?? options.basePathname ?? EVIDENCE_GRAPH_PATH;
+  const pinnedArchitectureIdOption = options.pinnedArchitectureId?.trim() ?? "";
   const searchParams = useSearchParams();
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
@@ -179,7 +180,8 @@ export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      const nextHref = graphRunIdHrefFromSearch(searchParams.toString(), runId, pathname);
+      const effectiveRunId = urlRunId.length === 0 ? "" : runId;
+      const nextHref = graphRunIdHrefFromSearch(searchParams.toString(), effectiveRunId, pathname);
 
       if (`${window.location.pathname}${window.location.search}` !== nextHref) {
         router.replace(nextHref, { scroll: false });
@@ -189,7 +191,7 @@ export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
     return () => {
       window.clearTimeout(handle);
     };
-  }, [pathname, router, runId, searchParams]);
+  }, [pathname, router, runId, searchParams, urlRunId]);
 
   useLayoutEffect(() => {
     setGraph(null);
@@ -377,6 +379,7 @@ export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
     architectureBindPending: architectureBind.bindPending,
     showArchitectureDeskEmpty: architectureBind.showArchitectureDeskEmpty,
     architectureBindResult: architectureBind.bindResult,
+    pinnedArchitectureId: pinnedArchitectureIdOption.length > 0 ? pinnedArchitectureIdOption : null,
   };
 }
 

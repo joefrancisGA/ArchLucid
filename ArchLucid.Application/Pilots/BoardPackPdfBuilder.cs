@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.ExecDigest;
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Rendering;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
@@ -79,6 +80,9 @@ public sealed class BoardPackPdfBuilder(
         combined.AppendLine();
         combined.AppendLine(
             "This pack combines the **weekly sponsor digest pipeline** (one representative ISO week inside the quarter) with the **tenant value-report metrics** for the full quarter window. Figures come only from existing builders — no ad-hoc ROI math.");
+        combined.AppendLine();
+        combined.AppendLine($"**Sponsor ROI honesty:** {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
+        combined.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
         combined.AppendLine();
         combined.AppendLine("---");
         combined.AppendLine();

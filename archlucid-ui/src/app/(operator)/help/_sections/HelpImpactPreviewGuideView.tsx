@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpImpactPreviewClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpImpactPreviewClaimOrientationStrip";
 import { HelpImpactPreviewHeaderActions } from "@/app/(operator)/help/_sections/HelpImpactPreviewHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -200,8 +201,10 @@ export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProp
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-impact-preview" showSsoOptional={false} />
 
         <div data-testid="help-impact-preview-orientation-bottom">
           <HelpImpactPreviewClaimOrientationStrip />

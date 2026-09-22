@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 
 import { ReviewPackageShareWhenToSharePreview } from "@/components/ReviewPackageShareWhenToSharePreview";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
@@ -27,6 +28,8 @@ export function RunDetailReviewPackageShareRow(props: RunDetailReviewPackageShar
         <ShareableReviewLinkButton runId={props.runId} isCommitted manifestVersion={props.manifestId} />
         {props.completedUtc ? <ReviewSealedIndicatorChip sealedUtc={props.completedUtc} /> : null}
       </div>
+
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="review-package-share-row-export" />
     </>
   );
 }

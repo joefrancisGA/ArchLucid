@@ -163,7 +163,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const situation = useHelpPageSituation();
   const { productLine } = useLocalizedProductCopy();
   const allTopics = useMemo(
-    () => localizeHelpSearchPanelTopics(listHelpSearchPanelTopics(isAdmin), productLine),
+    () => localizeHelpSearchPanelTopics(listHelpSearchPanelTopics(isAdmin, productLine), productLine),
     [isAdmin, productLine],
   );
   const collapseStartHere = useMemo(() => shouldCollapseHelpStartHereGroup(pathname), [pathname]);
@@ -177,7 +177,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   );
   const visibleGroups = useMemo(
     () =>
-      listHelpSearchPanelGroups(isAdmin).map((group) => ({
+      listHelpSearchPanelGroups(isAdmin, productLine).map((group) => ({
         ...group,
         topics: localizeHelpSearchPanelTopics(group.topics, productLine),
       })),

@@ -15,6 +15,16 @@ vi.mock("@/lib/sponsor-banner-telemetry", () => ({
   recordSponsorBannerFirstCommitBadge: vi.fn(),
 }));
 
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
+}));
+
 import { downloadFirstValueReportPdf, markSponsorPackSent } from "@/lib/api";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
@@ -87,6 +97,7 @@ function stubFetchForBannerMocks(init?: {
 
 describe("EmailRunToSponsorBanner", () => {
   beforeEach(() => {
+    effectiveDoorMock.value = "career";
     stubFetchForBannerMocks();
   });
 
@@ -108,6 +119,8 @@ describe("EmailRunToSponsorBanner", () => {
       "data-readiness-classification",
       "Sendable",
     );
+    expect(screen.getByTestId("email-run-to-sponsor-roi-non-summing")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-influence-honesty-chip")).toBeInTheDocument();
   });
 
   it("renders blocked readiness for demo-flagged completeness", async () => {
@@ -476,6 +489,57 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
   });
 
+  it("blocks sponsor PDF for Working Career simulator without rehearsal banner (CG-022)", async () => {
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        structuralExecutionMode: "Real",
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "Sendable",
+          proofSendability: "Sendable",
+          publishingTier: "Complete",
+          roiEvidenceConfidence: "Strong",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: {
+            runId: "run-42",
+            structuralExecutionMode: "Simulator",
+            workingCareerRehearsalDoor: "career",
+          },
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 35,
+          workingDesk: true,
+          structuralExecutionMode: "Simulator",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toHaveTextContent(
+      /Simulator practice cannot be record-complete/i,
+    );
+    expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
+    expect(screen.queryByTestId("email-run-to-sponsor-execution-mode-gap")).not.toBeInTheDocument();
+  });
+
   it("blocks sponsor PDF when career artifact honesty fails (FC-48)", async () => {
     stubFetchForBannerMocks();
 
@@ -584,6 +648,29 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.getByTestId("email-run-to-sponsor-sent-badge")).toHaveTextContent("Sent to sponsor");
   });
 
+  it("surfaces sponsor pack-sent blocked reason when mark sent returns a sealed-hash conflict", async () => {
+    vi.mocked(markSponsorPackSent).mockRejectedValueOnce(
+      new Error("This review's sealed manifest hash no longer matches the stored golden record."),
+    );
+
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("email-run-to-sponsor-mark-sent"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-mark-sent-blocked-reason")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-mark-sent-blocked-reason")).toHaveTextContent(
+      /sealed manifest hash/i,
+    );
+    expect(screen.queryByTestId("email-run-to-sponsor-sent-badge")).toBeNull();
+  });
+
   it("demotes sponsor proof pack ZIP when Do this next owns the page primary", async () => {
     render(<EmailRunToSponsorBanner {...bannerProps} pagePrimaryOwnedElsewhere />);
 
@@ -592,5 +679,120 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     expect(screen.getByTestId("email-run-to-sponsor-proof-pack-zip").className).toContain("border-neutral-300");
+  });
+
+  it("blocks compose and mark-sent until rehearsal honesty is acknowledged (CG-029)", async () => {
+    effectiveDoorMock.value = "rehearsal";
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        structuralExecutionMode: "Real",
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "Sendable",
+          proofSendability: "Sendable",
+          publishingTier: "Complete",
+          roiEvidenceConfidence: "Strong",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    const locationAssign = vi.fn();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...window.location, href: "", assign: locationAssign },
+    });
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: {
+            runId: "run-42",
+            structuralExecutionMode: "Simulator",
+            workingCareerRehearsalDoor: "rehearsal",
+          },
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 41,
+          workingDesk: true,
+          structuralExecutionMode: "Simulator",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-rehearsal-email-gate")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-compose-email")).toBeDisabled();
+    expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
+
+    fireEvent.click(screen.getByLabelText(/rehearsal practice/i));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-compose-email")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("email-run-to-sponsor-compose-email"));
+
+    expect(window.location.href).toContain("subject=");
+    expect(decodeURIComponent(window.location.href)).toContain("[Rehearsal]");
+  });
+
+  it("blocks unlabeled Career email when Working Career door is Simulator (CG-029)", async () => {
+    effectiveDoorMock.value = "career";
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        structuralExecutionMode: "Real",
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "Sendable",
+          proofSendability: "Sendable",
+          publishingTier: "Complete",
+          roiEvidenceConfidence: "Strong",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: {
+            runId: "run-42",
+            structuralExecutionMode: "Simulator",
+            workingCareerRehearsalDoor: "career",
+          },
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 35,
+          workingDesk: true,
+          structuralExecutionMode: "Simulator",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-compose-email")).toBeDisabled();
+    expect(screen.queryByTestId("email-run-to-sponsor-rehearsal-email-gate")).toBeNull();
   });
 });

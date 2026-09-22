@@ -90,6 +90,10 @@ public sealed partial class ManifestFinalizationService
             _authorityQueryService,
             _manifestHashService,
             cancellationToken);
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            locked.IsSample,
+            locked.StructuralExecutionMode,
+            locked.WorkingCareerRehearsalDoor);
         object outboxPayload = new
         {
             schemaVersion = 1,
@@ -102,7 +106,10 @@ public sealed partial class ManifestFinalizationService
             projectId = scope.ProjectId,
             findingsSnapshotId = request.ExpectedFindingsSnapshotId,
             artifactBundleId = request.ExpectedArtifactBundleId,
-            manifestVersion = request.Contract.Metadata.ManifestVersion
+            manifestVersion = request.Contract.Metadata.ManifestVersion,
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
         byte[] payloadUtf8 = JsonSerializer.SerializeToUtf8Bytes(outboxPayload, IntegrationEventJson.Options);
         string messageId = $"{request.RunId:N}:{IntegrationEventTypes.ManifestFinalizedV1}";

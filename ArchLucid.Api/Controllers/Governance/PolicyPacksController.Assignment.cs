@@ -44,6 +44,11 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         PolicyPackAssignHttpResult result;
 
         try
@@ -61,7 +66,7 @@ public sealed partial class PolicyPacksController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(ex);
         }
 
         return this.MapAssign(result);
@@ -81,6 +86,11 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         PolicyPackHttpResult<bool> result;
 
         try
@@ -90,7 +100,7 @@ public sealed partial class PolicyPacksController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(ex);
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
@@ -107,10 +117,10 @@ public sealed partial class PolicyPacksController
 
         if (result.Outcome == PolicyPackHttpOutcome.Conflict)
         {
-            return this.ConflictProblem(
-                result.Message
-                    ?? "Organization-required policy pack assignments cannot be archived.",
-                ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(
+                new ConflictException(
+                    result.Message
+                        ?? "Organization-required policy pack assignments cannot be archived."));
         }
 
         return NoContent();
@@ -136,6 +146,11 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         PolicyPackHttpResult<bool> result;
 
         try
@@ -148,7 +163,7 @@ public sealed partial class PolicyPacksController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(ex);
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
@@ -165,10 +180,10 @@ public sealed partial class PolicyPacksController
 
         if (result.Outcome == PolicyPackHttpOutcome.Conflict)
         {
-            return this.ConflictProblem(
-                result.Message
-                    ?? "Organization-required policy pack assignments cannot be disabled.",
-                ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(
+                new ConflictException(
+                    result.Message
+                        ?? "Organization-required policy pack assignments cannot be disabled."));
         }
 
         return NoContent();
@@ -194,6 +209,11 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         PolicyPackHttpResult<bool> result;
 
         try
@@ -206,7 +226,7 @@ public sealed partial class PolicyPacksController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(ex);
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
@@ -223,10 +243,10 @@ public sealed partial class PolicyPacksController
 
         if (result.Outcome == PolicyPackHttpOutcome.Conflict)
         {
-            return this.ConflictProblem(
-                result.Message
-                    ?? "Organization-required policy pack assignments cannot be set while the platform pack is inactive.",
-                ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(
+                new ConflictException(
+                    result.Message
+                        ?? "Organization-required policy pack assignments cannot be set while the platform pack is inactive."));
         }
 
         return NoContent();

@@ -83,6 +83,8 @@ partial class AgentExecutionCompositionModule
             services.AddScoped<IAgentHandler, CriticAgentHandler>();
             services.RemoveAll<IInsightDensityLlmJudge>();
             services.AddScoped<IInsightDensityLlmJudge, PremiumInsightDensityLlmJudge>();
+            services.RemoveAll<IFindingSemanticSupportBandLlmJudge>();
+            services.AddScoped<IFindingSemanticSupportBandLlmJudge, PremiumFindingSemanticSupportBandLlmJudge>();
             services.RemoveAll<IInsightFindingGenerator>();
             services.AddScoped<IInsightFindingGenerator, PremiumInsightFindingGenerator>();
             services.RemoveAll<IProseAssumptionFindingGenerator>();

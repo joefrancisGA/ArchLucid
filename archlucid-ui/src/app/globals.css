@@ -237,12 +237,6 @@ body {
 
 /* Operator type scale — keep in sync with OPERATOR_TYPE_SCALE in design-tokens.ts */
 @layer utilities {
-  /* Skip offscreen paint/layout for dense EnterpriseTable rows (perf wave 8). */
-  .content-visibility-auto {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 48px;
-  }
-
   .text-page-title {
     @apply text-xl font-semibold leading-7 tracking-tight text-al-text-primary;
   }
@@ -560,5 +554,20 @@ kbd {
 
   table, pre, figure {
     page-break-inside: avoid;
+  }
+
+  /* CG-023: print-only rehearsal honesty when execute stamp is not career-complete */
+  .package-print-rehearsal-honesty-strip,
+  [data-testid="package-print-rehearsal-honesty-strip"] {
+    display: block !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 2pt solid #92400e !important;
+    background: #fffbeb !important;
+    color: #451a03 !important;
+    margin: 0 0 12pt 0 !important;
+    padding: 8pt 10pt !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

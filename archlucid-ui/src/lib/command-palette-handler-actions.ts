@@ -1,9 +1,24 @@
 import {
+  resolveSystemNotJobPaletteCloneNewVersionVisible,
+  SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_EVENT,
+  SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER,
+} from "@/lib/system-not-job-palette-clone-new-version";
+import {
+  isCommandPaletteExtractUploadCopyQuickStartAvailable,
+  isCommandPaletteExtractUploadFocusAvailable,
   isCommandPaletteFinalizeReviewAvailable,
   isCommandPaletteReviewSaveAvailable,
   isCommandPaletteRoomElicitationAvailable,
   isCommandPaletteTenantCostSettingsSaveAvailable,
 } from "@/lib/command-palette-work-action-dom";
+import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
+import { isRemediationFactoryRoutePath } from "@/lib/product-line/securenow-remediation-factory-route";
+import {
+  COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_NEXT_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_PREV_EVENT,
+} from "@/lib/remediation-factory/remediation-factory-command-palette-events";
 
 export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-draft";
 export const COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT = "archlucid-command-palette-save-tenant-cost-settings";
@@ -23,12 +38,19 @@ export const COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT = "archlucid-command-palett
 export const COMMAND_PALETTE_ALERT_RESOLVE_EVENT = "archlucid-command-palette-alert-resolve";
 export const COMMAND_PALETTE_ALERT_SUPPRESS_EVENT = "archlucid-command-palette-alert-suppress";
 export const COMMAND_PALETTE_ROOM_ELICITATION_EVENT = "archlucid-command-palette-room-elicitation";
+export const COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT = "archlucid-command-palette-extract-upload-focus";
+export const COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT =
+  "archlucid-command-palette-extract-upload-copy-quick-start";
+export const COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT = SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_EVENT;
 
 export type CommandPaletteHandlerActionId =
   | "action-save-draft"
   | "action-save-tenant-cost-settings"
   | "action-finalize-review"
   | "action-room-elicitation"
+  | "action-extract-upload-focus"
+  | "action-extract-upload-copy-quick-start"
+  | "action-clone-from-snapshot"
   | "action-undo-mutation"
   | "action-finding-next"
   | "action-finding-prev"
@@ -40,7 +62,11 @@ export type CommandPaletteHandlerActionId =
   | "action-alert-prev"
   | "action-alert-acknowledge"
   | "action-alert-resolve"
-  | "action-alert-suppress";
+  | "action-alert-suppress"
+  | "action-remediation-factory-next"
+  | "action-remediation-factory-prev"
+  | "action-remediation-factory-inspect"
+  | "action-remediation-factory-explain";
 
 export type CommandPaletteHandlerAvailabilityContext = {
   readonly reversibleUndoAvailable?: boolean;
@@ -55,7 +81,10 @@ export type CommandPaletteHandlerAction = {
 
 const architectureDraftPathPattern = /^\/architecture\/architectures(\/|$)/;
 const reviewDetailPathPattern = /^\/architecture\/reviews\/[^/]+/;
-const findingsQueuePathPattern = /^\/governance\/findings(\/|$)/;
+const nestedReviewDetailPathPattern = /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+/;
+const nestedArchitectureFindingsPathPattern =
+  /^\/architecture\/architectures\/[^/]+\/findings(\/|$)/;
+const findingsQueuePathPattern = /^\/(?:governance|compliance)\/findings(\/|$)/;
 const alertsPathPattern = /^\/governance\/alerts(\/|$)/;
 const workspaceSettingsPathPattern = /^\/administration\/workspace-settings(\/|$)/;
 
@@ -68,11 +97,16 @@ export function isArchitectureDraftWorkPath(pathname: string): boolean {
 }
 
 export function isFindingsWorkPath(pathname: string): boolean {
-  return findingsQueuePathPattern.test(pathname) || reviewDetailPathPattern.test(pathname);
+  return (
+    findingsQueuePathPattern.test(pathname)
+    || nestedArchitectureFindingsPathPattern.test(pathname)
+    || reviewDetailPathPattern.test(pathname)
+    || nestedReviewDetailPathPattern.test(pathname)
+  );
 }
 
 export function isReviewDetailWorkPath(pathname: string): boolean {
-  return reviewDetailPathPattern.test(pathname);
+  return reviewDetailPathPattern.test(pathname) || nestedReviewDetailPathPattern.test(pathname);
 }
 
 export function isAlertsWorkPath(pathname: string): boolean {
@@ -92,7 +126,7 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
   {
     id: "action-save-draft",
     label: "Save changes",
-    searchValue: "action save draft architecture workspace review disposition remediation",
+    searchValue: "action save architecture draft workspace review disposition remediation",
     isAvailable: (pathname) =>
       isArchitectureDraftWorkPath(pathname)
       || (isReviewDetailWorkPath(pathname) && isCommandPaletteReviewSaveAvailable()),
@@ -109,7 +143,8 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     label: "Finalize review",
     searchValue: "action finalize review commit seal scorecard ready",
     isAvailable: (pathname) =>
-      isReviewDetailWorkPath(pathname) && isCommandPaletteFinalizeReviewAvailable(),
+      (isReviewDetailWorkPath(pathname) || nestedArchitectureFindingsPathPattern.test(pathname))
+      && isCommandPaletteFinalizeReviewAvailable(),
   },
   {
     id: "action-room-elicitation",
@@ -117,6 +152,26 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     searchValue: "action room elicitation meeting mediate must questions presenter",
     isAvailable: (pathname) =>
       isReviewDetailWorkPath(pathname) && isCommandPaletteRoomElicitationAvailable(),
+  },
+  {
+    id: "action-extract-upload-focus",
+    label: "Focus inventory upload",
+    searchValue: "action extract upload focus inventory replace zip",
+    isAvailable: (pathname) =>
+      isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadFocusAvailable(),
+  },
+  {
+    id: "action-extract-upload-copy-quick-start",
+    label: "Copy quick-start command",
+    searchValue: "action extract upload copy quick start packager command",
+    isAvailable: (pathname) =>
+      isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadCopyQuickStartAvailable(),
+  },
+  {
+    id: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.id,
+    label: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.label,
+    searchValue: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.searchValue,
+    isAvailable: (pathname) => resolveSystemNotJobPaletteCloneNewVersionVisible(pathname),
   },
   {
     id: "action-undo-mutation",
@@ -191,6 +246,30 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     searchValue: "action alert suppress alt+3 triage",
     isAvailable: (pathname) => isAlertsWorkPath(pathname),
   },
+  {
+    id: "action-remediation-factory-next",
+    label: "Select next remediation row",
+    searchValue: "action remediation factory next alt+j ranked queue",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-prev",
+    label: "Select previous remediation row",
+    searchValue: "action remediation factory previous alt+k ranked queue",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-inspect",
+    label: "Focus path inspect",
+    searchValue: "action remediation factory inspect alt+i path panel",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-explain",
+    label: "Explain selected finding score",
+    searchValue: "action remediation factory explain alt+e simulator score",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
 ];
 
 const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
@@ -198,6 +277,9 @@ const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-save-tenant-cost-settings": COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT,
   "action-finalize-review": COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   "action-room-elicitation": COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
+  "action-extract-upload-focus": COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT,
+  "action-extract-upload-copy-quick-start": COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT,
+  "action-clone-from-snapshot": COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT,
   "action-undo-mutation": COMMAND_PALETTE_UNDO_MUTATION_EVENT,
   "action-finding-next": COMMAND_PALETTE_FINDING_NEXT_EVENT,
   "action-finding-prev": COMMAND_PALETTE_FINDING_PREV_EVENT,
@@ -210,6 +292,10 @@ const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-alert-acknowledge": COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT,
   "action-alert-resolve": COMMAND_PALETTE_ALERT_RESOLVE_EVENT,
   "action-alert-suppress": COMMAND_PALETTE_ALERT_SUPPRESS_EVENT,
+  "action-remediation-factory-next": COMMAND_PALETTE_REMEDIATION_FACTORY_NEXT_EVENT,
+  "action-remediation-factory-prev": COMMAND_PALETTE_REMEDIATION_FACTORY_PREV_EVENT,
+  "action-remediation-factory-inspect": COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT,
+  "action-remediation-factory-explain": COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
 };
 
 export function dispatchCommandPaletteHandlerAction(actionId: CommandPaletteHandlerActionId): void {

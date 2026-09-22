@@ -31,7 +31,7 @@ namespace ArchLucid.Api.Controllers.Findings;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class FindingRemediationAssignmentController(
+public sealed partial class FindingRemediationAssignmentController(
     IFindingRecordRemediationAssignmentRepository remediationAssignmentRepository,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
@@ -90,64 +90,63 @@ public sealed class FindingRemediationAssignmentController(
         if (string.IsNullOrWhiteSpace(assignee))
             assignee = null;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
         try
         {
-            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureFindingRemediationAssignmentSealedManifestAllowedAsync(request.RunId, scope, ct);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            bool updated = await _remediationAssignmentRepository.TryUpdateAssignmentAsync(
                 request.RunId,
+                trimmedId,
                 scope,
-                _authorityQueryService,
-                _manifestHashService,
-                ct);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        bool updated = await _remediationAssignmentRepository.TryUpdateAssignmentAsync(
-            request.RunId,
-            trimmedId,
-            scope,
-            assignee,
-            request.RemediationDueUtc,
-            ct);
-
-        if (!updated)
-        {
-            return this.NotFoundProblem(
-                $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.FindingRemediationAssignmentUpdated,
-                RunId = request.RunId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        findingId = trimmedId,
-                        assignedToUserId = assignee,
-                        remediationDueUtc = request.RemediationDueUtc
-                    })
-            },
-            ct);
-
-        if (assignee is not null)
-        {
-            await _assignmentEmailDispatcher.TryDispatchAsync(
-                scope.TenantId,
-                request.RunId,
-                trimmedId,
-                trimmedId,
                 assignee,
                 request.RemediationDueUtc,
                 ct);
-        }
 
-        return NoContent();
+            if (!updated)
+            {
+                return this.NotFoundProblem(
+                    $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.FindingRemediationAssignmentUpdated,
+                    RunId = request.RunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            findingId = trimmedId,
+                            assignedToUserId = assignee,
+                            remediationDueUtc = request.RemediationDueUtc
+                        })
+                },
+                ct);
+
+            if (assignee is not null)
+            {
+                await _assignmentEmailDispatcher.TryDispatchAsync(
+                    scope.TenantId,
+                    request.RunId,
+                    trimmedId,
+                    trimmedId,
+                    assignee,
+                    request.RemediationDueUtc,
+                    ct);
+            }
+
+            return NoContent();
+        }
+        catch (ConflictException ex)
+        {
+            return MapFindingRemediationAssignmentSealedManifestConflict(ex);
+        }
     }
 }

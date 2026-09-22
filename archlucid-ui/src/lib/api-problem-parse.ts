@@ -48,6 +48,7 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
   const type = readTrimmedString(record, "type");
   const instance = readTrimmedString(record, "instance");
   const errorCode = readTrimmedString(record, "errorCode") ?? fromExt.errorCode;
+  const code = readTrimmedString(record, "code") ?? fromExt.code;
   const supportHint = readTrimmedString(record, "supportHint") ?? fromExt.supportHint;
   const correlationId =
     readTrimmedString(record, "correlationId") ?? fromExt.correlationId;
@@ -92,6 +93,10 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   if (errorCode) {
     problem.errorCode = errorCode;
+  }
+
+  if (code) {
+    problem.code = code;
   }
 
   if (supportHint) {

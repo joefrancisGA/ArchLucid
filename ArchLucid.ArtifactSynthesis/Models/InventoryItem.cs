@@ -25,4 +25,10 @@ public class InventoryItem
         get;
         set;
     } = null!;
+
+    public bool? IsMandatory
+    {
+        get;
+        set;
+    }
 }

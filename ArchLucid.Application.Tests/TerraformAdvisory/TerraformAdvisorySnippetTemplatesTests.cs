@@ -28,6 +28,7 @@ public sealed class TerraformAdvisorySnippetTemplatesTests
             "1",
             DateTimeOffset.Parse("2026-05-06T03:04:05Z"),
             "sub-1",
+            null,
             "scope",
             [],
             "az",

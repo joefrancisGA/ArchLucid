@@ -5,6 +5,7 @@ import { HelpBaselineSettingsSourcesOrientationStrip } from "@/app/(operator)/he
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { BaselineSettingsHelpClaimDisciplineStrip } from "@/components/help/BaselineSettingsHelpClaimDisciplineStrip";
 import { BaselineSettingsHelpEvidenceOrientationStrip } from "@/components/help/BaselineSettingsHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -160,7 +161,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             title={BASELINE_SETTINGS_HELP_PAGE_TITLE}
             titleTestId="help-baseline-settings-page-title"
             subtitle={baselineSettingsHelpPageSubtitle(buyerPolishedShell)}
-            subtitleClassName={cn("max-w-3xl", HELP_PAGE_LAYOUT.readingBody)}
+            subtitleClassName={cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
             navHref={BASELINE_SETTINGS_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
@@ -269,6 +270,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-baseline-settings-baseline-vs-roi">
                 {BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_BODY}
               </p>
+              <SponsorSendPathHonestyPanel testIdPrefix="help-baseline-settings" showSsoOptional={false} />
               <ul className={cn("m-0 list-disc space-y-1 pl-5", HELP_PAGE_LAYOUT.readingBody)}>
                 {BASELINE_SETTINGS_HELP_USED_IN_SURFACES.map((surface) => (
                   <li key={surface.href}>

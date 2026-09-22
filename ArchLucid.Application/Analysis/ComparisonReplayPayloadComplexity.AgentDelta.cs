@@ -37,7 +37,7 @@ internal static partial class ComparisonReplayPayloadComplexity
             if (delta.ValueKind != JsonValueKind.Object)
                 continue;
 
-            if (SumListLengths(delta, AgentDeltaListProperties) > 0 || DeltaIndicatesPresenceChange(delta))
+            if (SumListLengths(delta, AgentDeltaListProperties) > 0 || DeltaIndicatesMaterialChange(delta))
                 substantiveAgents++;
         }
 
@@ -61,6 +61,9 @@ internal static partial class ComparisonReplayPayloadComplexity
         return bump;
     }
 
+    private static bool DeltaIndicatesMaterialChange(JsonElement delta) =>
+        DeltaIndicatesPresenceChange(delta) || DeltaIndicatesConfidenceChange(delta);
+
     private static bool DeltaIndicatesPresenceChange(JsonElement delta)
     {
         if (delta.TryGetProperty("leftExists", out JsonElement left) &&
@@ -70,5 +73,24 @@ internal static partial class ComparisonReplayPayloadComplexity
             return left.GetBoolean() != right.GetBoolean();
 
         return false;
+    }
+
+    private static bool DeltaIndicatesConfidenceChange(JsonElement delta)
+    {
+        double? leftConfidence = TryReadNullableDouble(delta, "leftConfidence");
+        double? rightConfidence = TryReadNullableDouble(delta, "rightConfidence");
+
+        return leftConfidence != rightConfidence;
+    }
+
+    private static double? TryReadNullableDouble(JsonElement delta, string propertyName)
+    {
+        if (!delta.TryGetProperty(propertyName, out JsonElement prop) || prop.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (prop.TryGetDouble(out double value))
+            return value;
+
+        return null;
     }
 }

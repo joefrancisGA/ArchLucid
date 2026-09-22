@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Ask;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Ask;
@@ -189,7 +190,7 @@ public sealed class AskContextPreparer(
                 _manifestHashService);
         }
 
-        object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
+        object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult, detail.FindingsSnapshot);
         string contextJson = JsonSerializer.Serialize(context, ContractJson.CamelCaseIgnoreNullCompact);
         contextJson = TokenAwareContextBudget.TruncateToTokenBudget(contextJson, out bool contextTruncated);
 
@@ -207,6 +208,9 @@ public sealed class AskContextPreparer(
             detail,
             cancellationToken);
 
+        IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry> findingBandIndex =
+            AskCitedFindingsSemanticSupportBandHonesty.BuildDecisionGradeFindingBandIndex(detail.FindingsSnapshot);
+
         return new AskPreparedContext(
             thread,
             question,
@@ -219,7 +223,8 @@ public sealed class AskContextPreparer(
             contextJson,
             retrievalContext,
             retrievalDegraded,
-            scope);
+            scope,
+            findingBandIndex);
     }
 
     private async Task<AskPreparedContext> PrepareWorkspaceContextAsync(
@@ -248,7 +253,8 @@ public sealed class AskContextPreparer(
             contextJson,
             retrievalContext,
             retrievalDegraded,
-            scope);
+            scope,
+            []);
     }
 
     private async Task<(string Context, bool Degraded)> BuildRetrievalContextAsync(

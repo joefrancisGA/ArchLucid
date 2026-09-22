@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { FirstReviewHelpClaimDisciplineStrip } from "@/components/help/FirstReviewHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -149,6 +150,8 @@ export function HelpFirstReviewEvidenceChecklistGuideView(
 
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-first-review" showSsoOptional={false} />
     </article>
   );
 }

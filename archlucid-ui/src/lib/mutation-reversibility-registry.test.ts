@@ -7,6 +7,7 @@ import {
   mutationSupportsUndoWindow,
   MUTATION_REVERSIBILITY_REGISTRY,
   MUTATION_UNDO_WINDOW_SECONDS,
+  MUTATION_UNDO_WINDOW_VISIBLE_COPY,
 } from "@/lib/mutation-reversibility-registry";
 
 describe("mutation-reversibility-registry (TB-2148)", () => {
@@ -48,6 +49,17 @@ describe("mutation-reversibility-registry (TB-2148)", () => {
   it("keeps finding disposition undo window at 300 seconds", () => {
     expect(MUTATION_UNDO_WINDOW_SECONDS).toBe(300);
     expect(getMutationReversibilityEntry("governance_bulk_disposition").undoWindowSeconds).toBe(300);
+    expect(getMutationReversibilityEntry("governance_bulk_disposition").confirmationLead).toContain("300 seconds");
+    expect(MUTATION_UNDO_WINDOW_VISIBLE_COPY).toContain("300 seconds");
+    expect(getMutationReversibilityEntry("governance_bulk_disposition").confirmationLead.toLowerCase()).not.toMatch(
+      /unlimited undo/,
+    );
+  });
+
+  it("finalize confirmation says the snapshot cannot be unsealed", () => {
+    expect(getMutationReversibilityEntry("governance_architecture_review_finalize").confirmationLead).toMatch(
+      /cannot be unsealed/i,
+    );
   });
 
   it("enables undo window only for reversible mutations", () => {

@@ -71,4 +71,11 @@ public sealed class ArchitectureIdentityRecord
         get;
         set;
     }
+
+    /// <summary>When false (default), the architecture remains visible to all workspace readers (AS-088 grandfather).</summary>
+    public bool RestrictToShares
+    {
+        get;
+        set;
+    }
 }

@@ -116,10 +116,300 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         draftValidator.Should().Contain("HasUnconfirmedStructuredBriefPlaceholders");
 
+        string submit = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Drafts",
+                "DraftAdmissionService.SubmitAndHeal.cs"));
+
+        submit.Should().Contain("ArchitectureDraftReviewReadinessValidator.EnsureReviewReady");
+
+        string projector = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftRequestProjector.cs"));
+
+        projector.Should().Contain("IsConfirmedBriefEntry");
+
         string apiValidator = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Validators", "ArchitectureRequestValidator.cs"));
 
         apiValidator.Should().Contain("PolicyPackCloudTargetMismatchEvaluator");
+    }
+
+    [Fact]
+    public void TB2344_request_actors_materialize_and_security_engines_read_graph_nodes()
+    {
+        string materializer = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestActorMaterializer.cs"));
+
+        materializer.Should().Contain("GraphNodeTypes.TrustBoundary");
+        materializer.Should().Contain("TrustOrigin.External");
+
+        string stages = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
+
+        stages.Should().Contain("request-actors");
+        stages.Should().Contain("RequestActorMaterializer.MaterializeFromActorsJson");
+
+        string externalExposure = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ExternalExposureFindingEngine.cs"));
+
+        externalExposure.Should().Contain("GraphNodeTypes.TrustBoundary");
+        externalExposure.Should().Contain("actorNodeId");
+
+        string request = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Requests", "ArchitectureRequest.cs"));
+
+        request.Should().Contain("DraftActors");
+    }
+
+    [Fact]
+    public void TB2345_quality_attribute_nodes_feed_dr_rpo_topology_analyzer()
+    {
+        string materializer = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestQualityAttributeMaterializer.cs"));
+
+        materializer.Should().Contain("rtoHours");
+        materializer.Should().Contain("theme");
+
+        string stages = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
+
+        stages.Should().Contain("request-quality-attributes");
+        stages.Should().Contain("RequestQualityAttributeMaterializer.MaterializeFromQualityAttribute");
+
+        string analyzer = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Analysis", "DrRpoTopologyAnalyzer.cs"));
+
+        analyzer.Should().Contain("GraphNodeTypes.QualityAttribute");
+        analyzer.Should().Contain("DrRpoQualityAttributeParser");
+
+        File.Exists(Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Analysis", "DrRpoQualityAttributeParser.cs"))
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void TB2347_assumption_nodes_materialize_with_connector_edges()
+    {
+        string materializer = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestAssumptionMaterializer.cs"));
+
+        materializer.Should().Contain("structured-brief");
+
+        string edgeMaterializer = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.KnowledgeGraph",
+                "Materialization",
+                "RequestAssumptionEdgeMaterializer.cs"));
+
+        edgeMaterializer.Should().Contain("GraphEdgeTypes.RelatesTo");
+        edgeMaterializer.Should().Contain("StructuredBriefAssumptionLink");
+
+        string stages = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
+
+        stages.Should().Contain("request-assumption-edges");
+        stages.Should().Contain("RequestAssumptionEdgeMaterializer.Materialize");
+    }
+
+    [Fact]
+    public void TB2346_required_capability_coverage_blocks_finalize_scorecard()
+    {
+        string signals = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Finalization",
+                "FinalizeQualityFindingSignals.cs"));
+
+        signals.Should().Contain("IsOpenRequiredCapabilityCoverageJobView");
+        signals.Should().Contain("required-capability-coverage");
+
+        string evaluator = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Finalization",
+                "FinalizeQualityScorecardEvaluator.cs"));
+
+        evaluator.Should().Contain("MissingRequiredCapabilityCount");
+        evaluator.Should().Contain("MissingRequiredCapabilities");
+
+        string dto = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Governance", "FinalizeQualityScorecardCountsDto.cs"));
+
+        dto.Should().Contain("MissingRequiredCapabilityCount");
+    }
+
+    [Fact]
+    public void TB2351_manifest_diagram_service_emits_semantic_overlay_subgraphs()
+    {
+        string service = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Diagrams", "ManifestDiagramService.cs"));
+
+        service.Should().Contain("AppendSemanticOverlay");
+        service.Should().Contain("\"actors\", \"Actors\"");
+        service.Should().Contain("DiagramSemantics");
+
+        string projection = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Decisioning",
+                "Manifest",
+                "AuthorityCommitProjectionBuilder.cs"));
+
+        projection.Should().Contain("MapDiagramSemantics");
+        projection.Should().Contain("DiagramSemantics");
+    }
+
+    [Fact]
+    public void TB2350_prior_package_semantics_merge_service_and_create_stage()
+    {
+        string mergeService = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "PriorPackageSemanticMergeService.cs"));
+
+        mergeService.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+        mergeService.Should().Contain("ConfirmedInlineRequirements");
+        mergeService.Should().Contain("IsConfirmedBriefEntry");
+
+        string createStage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Drafts",
+                "Stages",
+                "DraftRequestCreateStage.cs"));
+
+        createStage.Should().Contain("MergePriorPackageSemanticsAsync");
+
+        string orchestrator = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "ArchitectureRunCreateOrchestrator.cs"));
+
+        orchestrator.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+    }
+
+    [Fact]
+    public void TB2349_brief_grounding_runs_in_structural_post_processor_enricher()
+    {
+        string enricher = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Agents",
+                "Evidence",
+                "AgentProposalStructuralPostProcessorEnricher.cs"));
+
+        enricher.Should().Contain("ApplyBriefGrounding");
+        enricher.Should().Contain("StructuralGroundingDropLog");
+
+        string postProcessor = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "AgentProposalStructuralPostProcessor.cs"));
+
+        postProcessor.Should().Contain("ApplyBriefGroundingToProposal");
+        postProcessor.Should().Contain("PruneRelationshipsAfterGroundingDrops");
+        postProcessor.Should().Contain("IsConfirmedBriefEntry");
+    }
+
+    [Fact]
+    public void TB2352_closed_loop_strengthening_runs_before_manifest_persist()
+    {
+        string decisioningStage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "Pipeline",
+                "Stages",
+                "AuthorityPipelineDecisioningStage.cs"));
+
+        int strengthenIndex = decisioningStage.IndexOf("TryStrengthenManifestAsync", StringComparison.Ordinal);
+        int saveManifestIndex = decisioningStage.IndexOf("SaveManifestAsync", StringComparison.Ordinal);
+        int computeHashIndex = decisioningStage.IndexOf("ComputeHash", StringComparison.Ordinal);
+
+        strengthenIndex.Should().BeGreaterThan(0);
+        saveManifestIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeLessThan(saveManifestIndex);
+
+        string strengtheningPass = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "AuthorityClosedLoopStrengtheningPass.cs"));
+
+        strengtheningPass.Should().Contain("IClosedLoopManifestMerger");
+        strengtheningPass.Should().Contain("PublishToProduct = true");
+
+        string manifestMerger = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "ClosedLoopManifestMerger.cs"));
+
+        manifestMerger.Should().Contain("ClosedLoopRecommendationBriefGroundingFilter");
+        manifestMerger.Should().Contain("ClosedLoopManifestTopologyMerger");
+
+        string scoreSync = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "ClosedLoopStrengtheningScoreSyncService.cs"));
+
+        scoreSync.Should().Contain("ClosedLoopManifestFindingsProjector");
+        scoreSync.Should().Contain("ClosedLoopRequiredCapabilityFindingsRefresher");
+    }
+
+    [Fact]
+    public void TB2370_graph_materialization_pipeline_is_canonical_and_default_builder_uses_it()
+    {
+        string stages = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
+
+        stages.Should().Contain("CreateDefaultPipeline");
+        stages.Should().Contain("DefaultStageOrder");
+        stages.Should().Contain("request-actors");
+        stages.Should().Contain("request-quality-attributes");
+        stages.Should().Contain("request-assumption-edges");
+
+        string builder = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Builders", "DefaultGraphBuilder.cs"));
+
+        builder.Should().Contain("GraphMaterializationStages.CreateDefaultPipeline");
+    }
+
+    [Fact]
+    public void TB2352_lift_mutation_microcases_manifest_matches_benchmark_ids()
+    {
+        string mutationManifest = File.ReadAllText(
+            Path.Combine(RepoRoot, "tests", "eval-corpus", "mutation-microcases.json"));
+
+        mutationManifest.Should().Contain("mutate-rto-30m");
+        mutationManifest.Should().Contain("mutate-add-private-endpoint");
+        mutationManifest.Should().Contain("\"minimumCaseCount\": 8");
+
+        string pairs = File.ReadAllText(
+            Path.Combine(RepoRoot, "tests", "eval-corpus", "agent-structural-eval-pairs.json"));
+
+        pairs.Should().Contain("closedLoopStrengtheningScenarios");
+        pairs.Should().Contain("mutationMicrocasesManifest");
     }
 
     [Fact]

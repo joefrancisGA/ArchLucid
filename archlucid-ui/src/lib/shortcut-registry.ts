@@ -11,10 +11,11 @@ import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } 
 
 import { ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { DRIFT_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-drift-page-shortcuts";
+import { REMEDIATION_FACTORY_PAGE_SHORTCUTS } from "@/lib/remediation-factory/remediation-factory-page-shortcuts";
 
 export const WORKING_MODE_NEW_REVIEW_ROUTE = ARCHITECTURES_NEW_PATH;
 
-/** Shift+? / help overlay — Guided mode may still say wizard; Working uses draft editor (LI-06). */
+/** Shift+? / help overlay — Guided mode may still say wizard; Working uses architecture draft editor (LI-06). */
 export const GUIDED_ALT_N_SHORTCUT_DESCRIPTION = `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the guided new-review wizard`;
 
 export const WORKING_ALT_N_SHORTCUT_DESCRIPTION = `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — resume in-flight review, last architecture, or new architecture`;
@@ -124,7 +125,7 @@ export function findShortcutByKey(combo: string): ShortcutEntry | undefined {
   return SHORTCUTS.find((entry) => normalizeCombo(entry.key) === needle);
 }
 
-/** Help overlay and keyboard map descriptions — Working Alt+N is the draft editor, not the wizard. */
+/** Help overlay and keyboard map descriptions — Working Alt+N is the architecture draft editor, not the wizard. */
 export function resolveShortcutDescription(
   entry: ShortcutEntry,
   workingMode: boolean,
@@ -265,7 +266,7 @@ export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
     key: "ctrl+shift+s",
     label: "Save architecture draft",
-    description: "Save the architecture draft from the review workbench when a draft editor is open",
+    description: "Save the architecture draft from the review workbench when a architecture draft editor is open",
   },
   {
     key: "alt+m",
@@ -283,8 +284,22 @@ export const WORKSPACE_SETTINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
 ];
 
+export const EXTRACT_UPLOAD_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "ctrl+u",
+    label: "Focus upload",
+    description:
+      "Focus the inventory upload surface or activate Replace inventory on Extract & upload",
+  },
+  {
+    key: "ctrl+shift+c",
+    label: "Copy quick-start command",
+    description: "Copy the quick-start packager command for the selected cloud provider",
+  },
+];
+
 /** Working architecture identity desk — documented before nested job shortcuts (AO-43 / AD-10). */
-export { DRIFT_WORKBENCH_PAGE_SHORTCUTS };
+export { DRIFT_WORKBENCH_PAGE_SHORTCUTS, REMEDIATION_FACTORY_PAGE_SHORTCUTS };
 
 export const ARCHITECTURE_DESK_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
@@ -299,8 +314,8 @@ export const ARCHITECTURE_DESK_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
   {
     key: "alt+shift+d",
-    label: "Continue draft",
-    description: "Open the current draft on this architecture desk when one exists",
+    label: "Continue architecture draft",
+    description: "Open the current architecture draft on this architecture desk when one exists",
   },
   {
     key: "alt+shift+i",
@@ -309,8 +324,8 @@ export const ARCHITECTURE_DESK_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
   {
     key: "ctrl+shift+s",
-    label: "Save draft",
-    description: "Save architecture draft changes when a draft editor control is available on the desk",
+    label: "Save architecture draft",
+    description: "Save architecture draft changes when a architecture draft editor control is available on the desk",
   },
 ];
 

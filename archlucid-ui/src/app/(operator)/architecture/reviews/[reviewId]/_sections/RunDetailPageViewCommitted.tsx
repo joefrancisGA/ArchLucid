@@ -32,7 +32,7 @@ import {
   RunDetailTechnologyBaselineSection,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
-import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
+import { resolveRunDetailSponsorBriefingSection } from "./resolve-run-detail-sponsor-briefing-section";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,
@@ -115,6 +115,8 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
         <RunDetailPreFinalizeChecklistSection
           runId={m.resolvedDetail.run.runId}
           manifestFinalized={Boolean(m.manifestId)}
+          workingCareerRehearsalDoor={m.progressForPipelineUi.workingCareerRehearsalDoor}
+          structuralExecutionMode={m.resolvedDetail.run.structuralExecutionMode}
         />
       ) : null}
 
@@ -259,6 +261,8 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
         manifestSummary: m.manifestSummaryForUi ?? m.manifestSummary,
         progressSummary: m.progressForPipelineUi,
         graphSnapshot: m.resolvedDetail.graphSnapshot,
+        structuralExecutionMode: m.resolvedDetail.run.structuralExecutionMode,
+        workingCareerRehearsalDoor: m.progressForPipelineUi.workingCareerRehearsalDoor,
       })}
 
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>

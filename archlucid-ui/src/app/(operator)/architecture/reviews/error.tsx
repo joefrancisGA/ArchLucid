@@ -9,6 +9,7 @@ import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ErrorRecoveryCareerHonestyStrip } from "@/components/usability/ErrorRecoveryCareerHonestyStrip";
 import { reportClientError } from "@/lib/error-telemetry";
 
 /**
@@ -49,6 +50,7 @@ export default function RunsSegmentError({
             {error.message}
           </pre>
         ) : null}
+        <ErrorRecoveryCareerHonestyStrip />
         <OperatorErrorUiReferenceLine />
         {digest.length > 0 ? (
           <div className="mt-2 flex flex-wrap items-center gap-2">

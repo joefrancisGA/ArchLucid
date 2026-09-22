@@ -87,6 +87,97 @@ public sealed class FindingDispositionApplyChangePreviewAttestationTests
     }
 
     [Fact]
+    public void Validate_rejects_zero_width_space_only_preview_override_reason_when_provided()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Preview override reason*");
+    }
+
+    [Fact]
+    public async Task RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = FindingDispositionServiceTestFactory.Create(trailRepository, isWorkingDesk: false);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Func<Task> act = () => sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*Preview override reason*");
+    }
+
+    [Fact]
+    public async Task RecordAsync_guided_remediated_rejects_overlong_preview_override_reason()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = FindingDispositionServiceTestFactory.Create(trailRepository, isWorkingDesk: false);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('o', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        Func<Task> act = () => sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public async Task RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = FindingDispositionServiceTestFactory.Create(trailRepository, isWorkingDesk: false);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
+            Rationale = "Remediation shipped in release 2.4.",
+            ImpactPreviewCompleted = true,
+        };
+
+        FindingDispositionEventDto result = await sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
+
+        result.Rationale.Should().Be("Remediation shipped in release 2.4.");
+        result.Rationale.Should().NotContain("Impact preview completed");
+    }
+
+    [Fact]
+    public async Task RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = FindingDispositionServiceTestFactory.Create(trailRepository, isWorkingDesk: false);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
+            Rationale = "Remediation shipped in release 2.4.",
+            PreviewOverrideReason = "Record an override and continue without a completed impact preview",
+        };
+
+        FindingDispositionEventDto result = await sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
+
+        result.Rationale.Should().Be("Remediation shipped in release 2.4.");
+        result.Rationale.Should().NotContain("Impact preview override");
+    }
+
+    [Fact]
     public async Task RecordAsync_working_remediated_rejects_session_storage_only_attestation()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();

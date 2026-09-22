@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
 
@@ -33,12 +34,18 @@ public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImag
         {
             Directory.CreateDirectory(tempDir);
             string inputPath = Path.Combine(tempDir, "diagram.mmd");
+            string configPath = Path.Combine(tempDir, "mermaid-config.json");
             string outputPath = Path.Combine(tempDir, "diagram.png");
-            await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken);
+            await File.WriteAllTextAsync(
+                inputPath,
+                MermaidInlineCommentStripper.Strip(mermaidDiagram),
+                Encoding.UTF8,
+                cancellationToken);
+            await ArchitectureDiagramMermaidCliConfigWriter.WriteLightModeConfigAsync(configPath, cancellationToken);
             ProcessStartInfo psi = new()
             {
                 FileName = "mmdc",
-                Arguments = $"-i \"{inputPath}\" -o \"{outputPath}\" -b transparent",
+                Arguments = $"-i \"{inputPath}\" -o \"{outputPath}\" -c \"{configPath}\" -b transparent",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,

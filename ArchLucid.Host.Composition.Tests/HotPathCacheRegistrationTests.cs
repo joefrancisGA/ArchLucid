@@ -42,6 +42,28 @@ public sealed class HotPathCacheRegistrationTests
     }
 
     [Fact]
+    public void RegisterHotPathReadCaching_memory_provider_with_multi_replica_warning_registers_coherence_logger()
+    {
+        ServiceCollection services = [];
+        services.AddLogging();
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["HotPathCache:Enabled"] = "true",
+                    ["HotPathCache:Provider"] = "Memory",
+                    ["HotPathCache:ExpectedApiReplicaCount"] = "2",
+                })
+            .Build();
+
+        ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);
+
+        services.Should().Contain(static d => d.ImplementationType == typeof(HotPathMemoryReplicaCoherenceHostedLogger));
+        services.Should().NotContain(static d => d.ImplementationType == typeof(HotPathRedisDistributedCacheHostedLogger));
+    }
+
+    [Fact]
     public void RegisterHotPathReadCaching_AutoMultiReplicaWithRedis_resolves_to_redis_l2()
     {
         ServiceCollection services = [];

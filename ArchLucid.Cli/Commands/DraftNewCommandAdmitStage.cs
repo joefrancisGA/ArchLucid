@@ -85,6 +85,7 @@ internal static class DraftNewCommandAdmitStage
             SystemName = systemName,
             BusinessOutcome = businessOutcome,
             ActorSet = DraftIntakeDefaultActorFactory.CreatePrimaryOperatorActorSet(),
+            ExpectedUpdatedUtc = created.Value.UpdatedUtc,
         };
 
         ArchLucidApiClient.DraftApiResult<DraftRequestResponse> patched =

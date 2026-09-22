@@ -25,6 +25,9 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         if (report.CompareQualityDelta is not null)
             summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
 
+        if (report.CompareVerdictChromeDelta is not null)
+            summaryMarkdown = CompareVerdictChromeExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
         byte[] pdf = QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
@@ -44,6 +47,9 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
                     if (report.CompareQualityDelta is not null)
                         AppendCompareQualityDelta(column, report.CompareQualityDelta);
+
+                    if (report.CompareVerdictChromeDelta is not null)
+                        AppendCompareVerdictChromeDelta(column, report.CompareVerdictChromeDelta);
 
                     if (!EndToEndComparisonExportProfile.IsShort(p))
                     {
@@ -227,5 +233,10 @@ public static class EndToEndReplayComparisonPdfExportFormatter
     private static void AppendCompareQualityDelta(ColumnDescriptor column, CompareQualityDeltaCounts delta)
     {
         AppendList(column, "Compare Quality Delta", CompareQualityDeltaExportFormatter.BuildPlainTextLines(delta));
+    }
+
+    private static void AppendCompareVerdictChromeDelta(ColumnDescriptor column, CompareVerdictChromeDelta delta)
+    {
+        AppendList(column, "Compare Verdict Chrome Delta", CompareVerdictChromeExportFormatter.BuildPlainTextLines(delta));
     }
 }

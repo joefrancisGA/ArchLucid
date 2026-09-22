@@ -127,6 +127,21 @@ public sealed class RunExportBlobPushOutboxProcessor(
         IManifestHashService manifestHashService =
             scope.ServiceProvider.GetRequiredService<IManifestHashService>();
 
+        RunDetailDto? manifestCompareDetail = await authorityQueryService
+            .GetRunDetailForManifestCompareAsync(scopeContext, entry.RunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (manifestCompareDetail?.GoldenManifest is null)
+        {
+            Logger.LogWarning(
+                "Skipping run export blob push for run {RunId}: run detail no longer found.",
+                entry.RunId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxProcessedSuccess();
+
+            return;
+        }
+
         await RunExportBlobPushSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
             entry.RunId,
             scopeContext,

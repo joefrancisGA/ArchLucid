@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { InlineGuidance } from "@/components/InlineGuidance";
@@ -13,13 +14,16 @@ import {
   formatOperatorHomeRecommendedNextTitle,
   OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY } from "@/lib/buyer-copy/onboarding";
+import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import {
   listIncompleteWizardSignals,
   resolveRecommendedUnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
+import { resolveSystemNotJobWorkingResumeReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -54,6 +58,7 @@ export function OperatorHomeRecommendedNextCard(
   props: OperatorHomeRecommendedNextCardProps,
 ): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
+  const { isWorkingMode } = useWorkspaceMode();
   const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
@@ -101,11 +106,16 @@ export function OperatorHomeRecommendedNextCard(
     });
 
     if (inProgressRun?.runId !== undefined && inProgressRun.runId.trim().length > 0) {
-      return `/architecture/reviews/${encodeURIComponent(inProgressRun.runId)}`;
+      return resolveSystemNotJobWorkingResumeReviewHref({
+        runId: inProgressRun.runId,
+        requestId: inProgressRun.requestId,
+        workingMode: isWorkingMode,
+        draftRegistryEntries: drafts,
+      });
     }
 
-    return "/architecture/reviews/new";
-  }, [recommendedItem, runs]);
+    return isWorkingMode ? null : "/architecture/reviews/new";
+  }, [drafts, isWorkingMode, recommendedItem, runs]);
 
   if (recommendedItem === null && fallbackHref === null) {
     return null;
@@ -115,7 +125,12 @@ export function OperatorHomeRecommendedNextCard(
   const title = recommendedItem?.title ?? "your architecture review";
   const actionLabel =
     recommendedItem?.actionLabel ??
-    (workspacePhase === "active-reviews" ? "Continue review" : "Start review");
+    (recommendedItem?.kind === "awaiting-disposition"
+      ? "Record dispositions"
+      : workspacePhase === "active-reviews"
+        ? "Continue review"
+        : "Start review");
+  const showDispositionHelper = recommendedItem?.kind === "awaiting-disposition";
 
   return (
     <section
@@ -141,6 +156,17 @@ export function OperatorHomeRecommendedNextCard(
           </Link>
         </Button>
       </div>
+      {showDispositionHelper ? (
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+          data-testid="operator-home-recommended-next-disposition"
+        >
+          {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}{" "}
+          <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.optional}>
+            Open findings queue
+          </Link>
+        </p>
+      ) : null}
     </section>
   );
 }

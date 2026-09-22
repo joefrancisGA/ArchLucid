@@ -95,4 +95,29 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(mermaid).not.toContain("subgraph trustBoundary");
   });
+
+  it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {
+    const longLabel =
+      "Azure Kubernetes Service (AKS) Cluster with extended operations and governance description";
+    const longName: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "aks_cluster",
+          label: longLabel,
+          kind: "system",
+          provenance: "asserted",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: [],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(longName);
+
+    expect(mermaid).toContain("\\n");
+    expect(mermaid).toContain("Azure Kubernetes");
+    expect(mermaid).toContain("aks_cluster[\"");
+  });
 });

@@ -68,6 +68,11 @@ public sealed class DefaultRequestContentSafetyPrecheck : IRequestContentSafetyP
                 doc.Content,
                 $"{nameof(request.Documents)}.{nameof(ContextDocumentRequest.Content)}",
                 reasons);
+
+            PromptInjectionPatternSignals.AccumulateForField(
+                doc.SourceDocumentUrl,
+                $"{nameof(request.Documents)}.{nameof(ContextDocumentRequest.SourceDocumentUrl)}",
+                reasons);
         }
 
         return Task.FromResult(new RequestContentSafetyResult { IsAllowed = reasons.Count == 0, Reasons = reasons });

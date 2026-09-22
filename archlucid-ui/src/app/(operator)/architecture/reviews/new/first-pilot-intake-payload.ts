@@ -21,7 +21,10 @@ export function buildFirstPilotPayload(
   brief: string,
   requiredCapabilities: string[],
   focusedPilotModeEnabled: boolean,
+  priorRunId?: string | null,
 ): CreateArchitectureRunRequestPayload {
+  const trimmedPriorRunId = priorRunId?.trim() ?? "";
+
   return {
     requestId: getOrCreateWizardRequestId(),
     description: brief.trim(),
@@ -32,5 +35,6 @@ export function buildFirstPilotPayload(
     requiredCapabilities,
     assumptions: [],
     policyReferences: applyFocusedPilotModePolicyReferences([], focusedPilotModeEnabled),
+    ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
   };
 }

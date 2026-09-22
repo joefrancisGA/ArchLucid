@@ -14,6 +14,7 @@ import {
   compareManualReviewIdsDisclosureHrefFromSearch,
   parseCompareManualReviewIdsOpenFromSearch,
 } from "@/lib/insights/compare-manual-review-ids-disclosure-url";
+import { COMPARE_RUN_PICKERS_REQUIRE_COMMITTED_MANIFESTS } from "@/lib/system-not-job-compare-labeled-envelope-runs";
 import { firstWhyDisabledCtaReason, whyDisabledBusy, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -135,12 +136,24 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     collapseBelowResults = false,
   } = props;
 
-  const compareActionsDisabled = loading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked;
+  const compareActionsDisabled =
+    loading ||
+    !leftTrim ||
+    !rightTrim ||
+    sameCanonicalRunIdsBlocked ||
+    leftSummaryBlockedReason !== null ||
+    rightSummaryBlockedReason !== null;
   const compareDisabledReason = firstWhyDisabledCtaReason([
     loading ? whyDisabledBusy("Comparison") : null,
     !leftTrim || !rightTrim ? whyDisabledIncompleteInput("Choose a baseline and updated review to continue.") : null,
     sameCanonicalRunIdsBlocked
       ? { kind: "prerequisite", message: "These two selections resolve to the same review." }
+      : null,
+    leftSummaryBlockedReason !== null
+      ? { kind: "prerequisite", message: leftSummaryBlockedReason }
+      : null,
+    rightSummaryBlockedReason !== null
+      ? { kind: "prerequisite", message: rightSummaryBlockedReason }
       : null,
   ]);
   const showSummarizeForSponsor = (pairAligned && !loading) || aiLoading;
@@ -157,7 +170,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           onChange={onLeftRunIdChange}
           inputId="compare-left-run-id"
           forCompare
-          committedOnly={useBuyerFacingRunLabels}
+          committedOnly={COMPARE_RUN_PICKERS_REQUIRE_COMMITTED_MANIFESTS}
           onRunPicked={onLeftRunPicked}
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
           architectureId={architectureId.length > 0 ? architectureId : undefined}
@@ -184,7 +197,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           onChange={onRightRunIdChange}
           inputId="compare-right-run-id"
           forCompare
-          committedOnly={useBuyerFacingRunLabels}
+          committedOnly={COMPARE_RUN_PICKERS_REQUIRE_COMMITTED_MANIFESTS}
           onRunPicked={onRightRunPicked}
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
           architectureId={architectureId.length > 0 ? architectureId : undefined}
@@ -217,8 +230,8 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             Advanced: enter review IDs manually
           </summary>
           <p className={cn("mt-2 m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Type or paste a review ID in either field above when the review is not in the recent list (for example an
-            in-progress or archived review).
+            Type or paste a sealed review ID in either field above when the review is not in the recent list. Compare
+            lists committed manifests only — rehearsal-stamped envelope runs and Career seals both qualify.
           </p>
         </details>
         {sameCanonicalRunIdsBlocked ? (

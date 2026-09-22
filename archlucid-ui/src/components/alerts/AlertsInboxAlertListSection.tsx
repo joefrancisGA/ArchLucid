@@ -1,7 +1,10 @@
+"use client";
+
 import { AlertsInboxAlertCard } from "@/components/alerts/AlertsInboxAlertCard";
 import { AlertsInboxContinueLastViewedRow } from "@/components/alerts/AlertsInboxContinueLastViewedRow";
 import { AlertsTriageFirstOpenAlertStrip } from "@/components/alerts/AlertsTriageFirstOpenAlertStrip";
 import { AlertsInboxListStates } from "@/components/alerts/AlertsInboxListStates";
+import { useWorkingFindingInspectHrefOptions } from "@/hooks/use-working-finding-inspect-href-options";
 import { resolveAlertsInboxTriageFirstAlert } from "@/lib/resolve-alerts-inbox-triage-first-alert";
 import { resolveContinueLastAlert, writeAlertsInboxLastViewedId } from "@/lib/resolve-continue-last-alert";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
@@ -42,12 +45,17 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
     toggleAlertSelected,
     visibleAlerts,
   } = controller;
+  const inspectHrefOptions = useWorkingFindingInspectHrefOptions();
 
   const showPagination =
     !loading &&
     failure === null &&
     (visibleAlerts.length > 0 || canGoPrevious || hasMore);
-  const triageFirstAlert = resolveAlertsInboxTriageFirstAlert(visibleAlerts);
+  const triageFirstAlert = resolveAlertsInboxTriageFirstAlert(
+    visibleAlerts,
+    inspectHrefOptions,
+    scopedRunFilterActive ? scopedRunId : null,
+  );
   const continueLastAlert = useMemo(() => resolveContinueLastAlert(visibleAlerts), [visibleAlerts]);
 
   function rememberAlert(alertId: string): void {
@@ -69,6 +77,7 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
     const findingDetailHref = alertPrimaryFindingDetailHref(
       alert,
       scopedRunFilterActive ? scopedRunId : null,
+      inspectHrefOptions,
     );
     openRoutingDelivery(alertId, findingDetailHref);
   }
@@ -108,6 +117,7 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
               canMutateAlertInbox={canMutateAlertInbox}
               selectedAlertIds={selectedAlertIds}
               archiveBusyAlertId={archiveBusyAlertId}
+              inspectHrefOptions={inspectHrefOptions}
               onToggleSelected={toggleAlertSelected}
               onPendingAction={(alertId, action) => {
                 rememberAlert(alertId);
@@ -131,6 +141,7 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
               canMutateAlertInbox={canMutateAlertInbox}
               selected={selectedAlertIds.includes(alert.alertId)}
               archiveBusyAlertId={archiveBusyAlertId}
+              inspectHrefOptions={inspectHrefOptions}
               onToggleSelected={toggleAlertSelected}
               onPendingAction={(alertId, action) => {
                 rememberAlert(alertId);

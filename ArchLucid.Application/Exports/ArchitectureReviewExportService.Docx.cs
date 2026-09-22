@@ -104,6 +104,8 @@ public sealed partial class ArchitectureReviewExportService
                 $"<p><strong>Manifest version:</strong> {HtmlEncode(documentModel.ManifestVersion)}</p>");
         }
 
+        ArchitectureReviewBoardSendableExportCoverRenderer.AppendHtml(html, documentModel);
+
         html.AppendLine("<h2>Summary</h2>");
         html.AppendLine(CultureInfo.InvariantCulture, $"<p>{HtmlEncode(summary)}</p>");
         html.AppendLine("</body>");

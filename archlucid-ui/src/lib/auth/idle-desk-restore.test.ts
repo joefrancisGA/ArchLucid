@@ -4,6 +4,7 @@ import {
   clearIdleDeskRestorePayload,
   consumeIdleDeskRestoreFormSnapshot,
   IDLE_DESK_RESTORE_STORAGE_KEY,
+  mergeLivelihoodIdleFormSnapshotIntoDeskRestore,
   persistIdleDeskRestoreBeforeSessionClear,
   readIdleDeskRestorePayload,
   restoreIdleDeskScopeAfterSignIn,
@@ -75,6 +76,91 @@ describe("idle-desk-restore (DR-12)", () => {
 
     expect(readIdleDeskRestorePayload()).toBeNull();
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+  });
+
+  it("merges one livelihood snapshot without requiring the in-memory registry (LW-095)", () => {
+    const returnPath = "/governance/workflow";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey("governance-approval-rationale", "approval-3");
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore(snapshotKey, {
+      surfaceId: "governance-approval-rationale",
+      returnPath,
+      entityKey: "approval-3",
+      fields: { reviewComment: "Held for security review." },
+      savedAtUtc: "2026-09-11T00:00:00.000Z",
+    });
+
+    expect(
+      readIdleDeskRestorePayload()?.formSnapshots?.[snapshotKey]?.fields.reviewComment,
+    ).toBe("Held for security review.");
+  });
+
+  it("drops prototype-polluting snapshot keys from idle restore JSON", () => {
+    const formSnapshots = Object.create(null) as Record<string, unknown>;
+    formSnapshots["__proto__"] = {
+      surfaceId: "evil",
+      returnPath: "/architecture/reviews/run-1",
+      entityKey: "evil",
+      fields: { x: "nope" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    };
+    formSnapshots["finding-inspect-disposition:run-1:finding-1"] = {
+      surfaceId: "finding-inspect-disposition",
+      returnPath: "/architecture/reviews/run-1",
+      entityKey: "run-1:finding-1",
+      fields: { rationale: "ok" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    };
+
+    localStorage.setItem(
+      IDLE_DESK_RESTORE_STORAGE_KEY,
+      JSON.stringify({
+        returnPath: "/architecture/reviews/run-1",
+        scope: SAMPLE_SCOPE,
+        savedAtUtc: "2026-09-08T12:00:00.000Z",
+        formSnapshots,
+      }),
+    );
+
+    const payload = readIdleDeskRestorePayload();
+
+    expect(Object.prototype.hasOwnProperty.call(payload?.formSnapshots ?? {}, "__proto__")).toBe(
+      false,
+    );
+    expect(payload?.formSnapshots?.["finding-inspect-disposition:run-1:finding-1"]?.fields.rationale).toBe(
+      "ok",
+    );
+  });
+
+  it("drops prototype-polluting keys when merging a livelihood snapshot", () => {
+    const returnPath = "/architecture/reviews/run-1";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey(
+      "finding-inspect-disposition",
+      "run-1:finding-1",
+    );
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore(snapshotKey, {
+      surfaceId: "finding-inspect-disposition",
+      returnPath,
+      entityKey: "run-1:finding-1",
+      fields: { rationale: "ok" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore("__proto__", {
+      surfaceId: "evil",
+      returnPath,
+      entityKey: "evil",
+      fields: { x: "nope" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    const payload = readIdleDeskRestorePayload();
+
+    expect(payload?.formSnapshots?.[snapshotKey]?.fields.rationale).toBe("ok");
+    expect(Object.prototype.hasOwnProperty.call(payload?.formSnapshots ?? {}, "__proto__")).toBe(
+      false,
+    );
   });
 
   it("persists dirty livelihood form snapshots before session clear (WS-18)", () => {

@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/reviews")]
 [EnableRateLimiting("expensive")]
-public sealed class ReviewsDemoController(OperatorDemoReviewService operatorDemoReviewService) : ControllerBase
+public sealed partial class ReviewsDemoController(OperatorDemoReviewService operatorDemoReviewService) : ControllerBase
 {
     private readonly OperatorDemoReviewService _operatorDemoReviewService =
         operatorDemoReviewService ?? throw new ArgumentNullException(nameof(operatorDemoReviewService));
@@ -45,7 +45,7 @@ public sealed class ReviewsDemoController(OperatorDemoReviewService operatorDemo
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapReviewsDemoSealedManifestConflict(ex);
         }
         catch (RunNotFoundException ex)
         {

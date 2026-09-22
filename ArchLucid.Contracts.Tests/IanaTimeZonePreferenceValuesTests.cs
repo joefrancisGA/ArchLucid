@@ -8,10 +8,10 @@ namespace ArchLucid.Contracts.Tests;
 public sealed class IanaTimeZonePreferenceValuesTests
 {
     [Fact]
-    public void NormalizeOrDefault_ReturnsUtcForBlank()
+    public void NormalizeOrDefault_ReturnsEasternForBlank()
     {
-        IanaTimeZonePreferenceValues.NormalizeOrDefault(null).Should().Be("UTC");
-        IanaTimeZonePreferenceValues.NormalizeOrDefault("   ").Should().Be("UTC");
+        IanaTimeZonePreferenceValues.NormalizeOrDefault(null).Should().Be("America/New_York");
+        IanaTimeZonePreferenceValues.NormalizeOrDefault("   ").Should().Be("America/New_York");
     }
 
     [Fact]

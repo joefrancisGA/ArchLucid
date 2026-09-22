@@ -89,7 +89,7 @@ public sealed class LouvainGraphCommunityDetector : IGraphCommunityDetector
 
     private static Dictionary<string, int> BuildNodeIndex(IReadOnlyList<GraphNode> nodes)
     {
-        Dictionary<string, int> nodeIndexById = new(StringComparer.Ordinal);
+        Dictionary<string, int> nodeIndexById = new(StringComparer.OrdinalIgnoreCase);
 
         for (int index = 0; index < nodes.Count; index++)
         {

@@ -20,7 +20,16 @@ public sealed partial class ExportsController
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -34,11 +43,17 @@ public sealed partial class ExportsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps export replay <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapExportReplaySealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedForExportRecordAsync(
         string exportRecordId,

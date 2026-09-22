@@ -24,6 +24,12 @@ describe("CreateWorkspaceForm (TB-1467)", () => {
     expect(screen.getByTestId("create-workspace-data-region")).toBeInTheDocument();
   });
 
+  it("defaults includeDemoSeed to false without a demo-seed checkbox (LS-008 / LS-022)", () => {
+    render(<CreateWorkspaceForm {...defaultProps} />);
+
+    expect(screen.queryByTestId("create-workspace-demo-seed")).toBeNull();
+  });
+
   it("does not leave dataRegionLabel orphaned without a wired control", () => {
     const source = readFileSync(
       join(process.cwd(), "src/app/(operator)/auth/bootstrap/CreateWorkspaceForm.tsx"),

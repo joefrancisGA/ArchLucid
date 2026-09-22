@@ -95,7 +95,7 @@ public sealed partial class GovernancePostureController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernancePostureSealedManifestConflict(ex);
         }
     }
 }

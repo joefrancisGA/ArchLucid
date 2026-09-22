@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
@@ -10,6 +11,8 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Findings;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Time.Testing;
 
 namespace ArchLucid.Application.Tests.Exports;
 
@@ -178,6 +181,39 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
+    public void FormatMarkdown_includes_inventory_estate_gap_when_architecture_inventory_is_unbound()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            architectureInventoryBound: false);
+
+        string markdown = CareerExportCoverageHonestyComposer.FormatMarkdown(input);
+
+        markdown.Should().Contain(ArchitectureInventoryEstateGapCopy.UnboundEstateGapLine);
+        markdown.Should().Contain(ArchitectureInventoryEstateGapCopy.CareerExportHeading);
+    }
+
+    [Fact]
+    public void FormatMarkdown_includes_inventory_freshness_when_bound_snapshot_is_stale()
+    {
+        DateTime captured = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            architectureInventoryBound: true,
+            architectureInventorySnapshotCapturedUtc: captured);
+
+        FakeTimeProvider clock = new();
+        clock.SetUtcNow(new DateTimeOffset(2026, 1, 10, 0, 0, 0, TimeSpan.Zero));
+
+        string markdown = CareerExportCoverageHonestyComposer.FormatMarkdown(input, clock);
+
+        markdown.Should().Contain(ArchitectureInventorySnapshotFreshnessCopy.CareerExportHeading);
+        markdown.Should().Contain(ArchitectureInventorySnapshotFreshnessCopy.FormatStaleLine(captured));
+    }
+
+    [Fact]
     public void FormatPlainText_strips_markdown_headings()
     {
         CareerExportCoverageHonestyInput input = CreateInput(
@@ -222,7 +258,9 @@ public sealed class CareerExportCoverageHonestyComposerTests
         AgentOutputQualityGateMode hostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null,
         int actorNodeCount = 1,
-        int? judgeSkippedByCap = null)
+        int? judgeSkippedByCap = null,
+        bool? architectureInventoryBound = null,
+        DateTime? architectureInventorySnapshotCapturedUtc = null)
     {
         SponsorReviewCoverageHonestyContext coverageContext = new(
             RunId: "run-1",
@@ -243,6 +281,9 @@ public sealed class CareerExportCoverageHonestyComposerTests
             hostQualityGateMode,
             null,
             aggregateQualityGateOutcome,
-            judgeSkippedByCap);
+            judgeSkippedByCap,
+            null,
+            architectureInventoryBound,
+            architectureInventorySnapshotCapturedUtc);
     }
 }

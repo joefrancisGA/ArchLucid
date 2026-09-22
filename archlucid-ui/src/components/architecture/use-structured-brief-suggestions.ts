@@ -278,7 +278,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
     suggestFromOverviewMutation.mutate();
   }, [input.suggestFromOverviewNonce, suggestFromOverviewMutation]);
 
-  // Returning to this draft should finish applying a queued Suggest from overview that kept running
+  // Returning to this architecture draft should finish applying a queued Suggest from overview that kept running
   // after the operator left the page.
   useEffect(() => {
     if (resumeStartedRef.current) {

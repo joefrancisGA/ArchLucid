@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.AgentRuntime.PromptInjection;
+using ArchLucid.Application.Ask;
 
 namespace ArchLucid.Host.Core.Services.Ask;
 
@@ -14,7 +15,8 @@ internal static class AskUserPromptComposer
         string? retrievalContext,
         bool retrievalDegraded,
         string? historyText,
-        string question)
+        string question,
+        IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry>? findingBandIndex = null)
     {
         StringBuilder sb = new();
         sb.Append(AskUserPromptStaticPrefix.ArchitectUserPrefix);
@@ -27,7 +29,8 @@ internal static class AskUserPromptComposer
                 retrievalContext,
                 retrievalDegraded,
                 historyText,
-                question));
+                question,
+                findingBandIndex));
 
         return sb.ToString();
     }
@@ -38,11 +41,21 @@ internal static class AskUserPromptComposer
         string? retrievalContext,
         bool retrievalDegraded,
         string? historyText,
-        string question)
+        string question,
+        IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry>? findingBandIndex)
     {
         body.AppendLine("Structured Context:");
         body.AppendLine(CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(contextJson));
         body.AppendLine();
+
+        string semanticSupportConstraint =
+            AskCitedFindingsSemanticSupportBandHonesty.BuildPromptConstraintSection(findingBandIndex ?? []);
+
+        if (semanticSupportConstraint.Length > 0)
+        {
+            body.AppendLine(semanticSupportConstraint);
+        }
+
         body.AppendLine("Retrieved Evidence:");
         body.AppendLine(
             string.IsNullOrWhiteSpace(retrievalContext)

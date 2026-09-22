@@ -134,4 +134,38 @@ public sealed class ScopeResolutionGuardTests
 
         ScopeResolutionGuard.RequiresTrustedScopeRejection(resolution).Should().BeTrue();
     }
+
+    [Fact]
+    public void RequiresTrustedScopeRejection_true_when_workspace_claim_is_empty_guid()
+    {
+        ScopeResolution resolution = ScopeResolution.Create(
+            new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.NewGuid(),
+            },
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim),
+            new ScopeDimensionResolution(Guid.Empty, ScopeSource.Claim),
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim));
+
+        ScopeResolutionGuard.RequiresTrustedScopeRejection(resolution).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequiresTrustedScopeRejection_true_when_project_claim_is_empty_guid()
+    {
+        ScopeResolution resolution = ScopeResolution.Create(
+            new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.Empty,
+            },
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim),
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim),
+            new ScopeDimensionResolution(Guid.Empty, ScopeSource.Claim));
+
+        ScopeResolutionGuard.RequiresTrustedScopeRejection(resolution).Should().BeTrue();
+    }
 }

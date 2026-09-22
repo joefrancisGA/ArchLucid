@@ -24,7 +24,9 @@ public sealed class RequirementExpectationFindingEngine(IGraphCoverageAnalyzer a
 
         List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
 
-        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, scopeNodeIds);
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+            graphSnapshot,
+            scopeNodeIds);
 
         Finding finding = new()
         {

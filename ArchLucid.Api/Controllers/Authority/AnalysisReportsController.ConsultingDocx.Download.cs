@@ -38,6 +38,11 @@ public sealed partial class AnalysisReportsController
         if (loaded.Error is not null)
             return loaded.Error;
 
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         if (Guid.TryParse(runId, out Guid runGuid))
         {
             await ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
@@ -120,13 +125,7 @@ public sealed partial class AnalysisReportsController
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Consulting DOCX export blocked for run '{RunId}'.", runId);
 
-            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
-                ? ProblemTypes.DecisionReceiptSealedHashMismatch
-                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
-                    ? ProblemTypes.DecisionReceiptSealedIncomplete
-                    : ProblemTypes.Conflict;
-
-            return this.ConflictProblem(ex.Message, problemType);
+            return MapAnalysisReportExportSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

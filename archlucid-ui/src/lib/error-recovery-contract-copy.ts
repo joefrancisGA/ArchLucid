@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+
 export type ErrorRecoveryContractPresentation = {
   readonly whatFailed: string;
   readonly whatIsIntact: string;
@@ -11,7 +14,10 @@ export type ErrorRecoveryContractScenario =
   | "review-package-workspace-mismatch"
   | "governance-mutation"
   | "architecture-draft-load"
-  | "in-flight-cancel-failure";
+  | "architecture-draft-offline-replay-conflict"
+  | "livelihood-mutation-resume-failed"
+  | "in-flight-cancel-failure"
+  | "review-detail-segment-error";
 
 export const ERROR_RECOVERY_CONTRACT_MARKERS = {
   root: "operator-error-recovery-contract",
@@ -20,17 +26,25 @@ export const ERROR_RECOVERY_CONTRACT_MARKERS = {
   nextStep: "operator-error-recovery-next-step",
 } as const;
 
-const API_PROBLEM_RECOVERY: ErrorRecoveryContractPresentation = {
-  whatFailed: "ArchLucid could not complete this request.",
-  whatIsIntact: "Your workspace data and in-progress drafts were not changed by this failed request.",
-  nextStep: "Retry the action, then open troubleshooting if the error repeats.",
-};
+function apiProblemRecovery(productLineId: ProductLineId): ErrorRecoveryContractPresentation {
+  const productName = productLineDisplayName(productLineId);
 
-const CONNECTIVITY_RECOVERY: ErrorRecoveryContractPresentation = {
-  whatFailed: "ArchLucid could not reach the API from this browser session.",
-  whatIsIntact: "Saved workspace configuration and committed reviews remain on the server when connectivity returns.",
-  nextStep: "Confirm network access, then retry or check system health.",
-};
+  return {
+    whatFailed: `${productName} could not complete this request.`,
+    whatIsIntact: "Your workspace data and in-progress drafts were not changed by this failed request.",
+    nextStep: "Retry the action, then open troubleshooting if the error repeats.",
+  };
+}
+
+function connectivityRecovery(productLineId: ProductLineId): ErrorRecoveryContractPresentation {
+  const productName = productLineDisplayName(productLineId);
+
+  return {
+    whatFailed: `${productName} could not reach the API from this browser session.`,
+    whatIsIntact: "Saved workspace configuration and committed reviews remain on the server when connectivity returns.",
+    nextStep: "Confirm network access, then retry or check system health.",
+  };
+}
 
 const REVIEW_PACKAGE_LOAD_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "This architecture review could not be loaded in the current workspace.",
@@ -54,13 +68,40 @@ const ARCHITECTURE_DRAFT_LOAD_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "This architecture draft could not be loaded.",
   whatIsIntact:
     "Typed work in this browser may still be recoverable from offline recovery until you reload successfully.",
-  nextStep: "Retry loading the draft, or return to the architectures list.",
+  nextStep: "Retry loading the architecture draft, or return to the architectures list.",
 };
 
 const IN_FLIGHT_CANCEL_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "Could not cancel this in-flight operation.",
   whatIsIntact: "The operation may still be running on the server until cancel succeeds.",
   nextStep: "Try cancel again in a moment, or open the operation to check its status.",
+};
+
+const REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "This review desk could not render.",
+  whatIsIntact:
+    "The architecture package on the server is unchanged. Typed livelihood fields registered on this page may still restore after Retry when idle snapshots were preserved.",
+  nextStep:
+    "Choose Retry to reload this review desk. Retry does not change execute posture or mark a practice run record-complete. Open reviews only if Retry keeps failing.",
+};
+
+const ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "This architecture draft changed in another browser session or from offline replay.",
+  whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
+  nextStep:
+    "Refresh the architecture draft to load the latest version, then re-apply any edits you still need.",
+};
+
+const ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_WORKING_RECOVERY: ErrorRecoveryContractPresentation = {
+  ...ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY,
+  nextStep: "Keep your edits, load the server copy, or retry save after you choose.",
+};
+
+const LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "Your saved action could not finish after sign-in.",
+  whatIsIntact:
+    "The server may have applied part of this request. Your on-screen work and other reviews are unchanged unless the action already succeeded.",
+  nextStep: "Retry once, discard the saved action, or re-run the change manually from this page.",
 };
 
 export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
@@ -72,23 +113,30 @@ export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPres
 /** Resolves the three-part operator error recovery copy for a guarded golden-path surface. */
 export function errorRecoveryContractForScenario(
   scenario: ErrorRecoveryContractScenario,
-  context?: { readonly failureSummary?: string | null },
+  context?: {
+    readonly failureSummary?: string | null;
+    readonly workingMode?: boolean;
+    readonly productLineId?: ProductLineId;
+  },
 ): ErrorRecoveryContractPresentation {
+  const productLineId = context?.productLineId ?? "architecture";
+
   switch (scenario) {
     case "api-problem": {
       const summary = context?.failureSummary?.trim() ?? "";
+      const base = apiProblemRecovery(productLineId);
 
       if (summary.length > 0) {
         return {
-          ...API_PROBLEM_RECOVERY,
+          ...base,
           whatFailed: summary,
         };
       }
 
-      return API_PROBLEM_RECOVERY;
+      return base;
     }
     case "connectivity":
-      return CONNECTIVITY_RECOVERY;
+      return connectivityRecovery(productLineId);
     case "review-package-load":
       return REVIEW_PACKAGE_LOAD_RECOVERY;
     case "review-package-workspace-mismatch":
@@ -118,6 +166,24 @@ export function errorRecoveryContractForScenario(
       }
 
       return IN_FLIGHT_CANCEL_FAILURE_RECOVERY;
+    }
+    case "review-detail-segment-error":
+      return REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY;
+    case "architecture-draft-offline-replay-conflict":
+      return context?.workingMode === true
+        ? ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_WORKING_RECOVERY
+        : ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY;
+    case "livelihood-mutation-resume-failed": {
+      const summary = context?.failureSummary?.trim() ?? "";
+
+      if (summary.length > 0) {
+        return {
+          ...LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY,
+          whatFailed: summary,
+        };
+      }
+
+      return LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY;
     }
     default: {
       const exhaustive: never = scenario;

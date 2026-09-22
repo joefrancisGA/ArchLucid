@@ -34,9 +34,10 @@ namespace ArchLucid.Api.Controllers.Governance;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class GovernancePreCommitSimulationController(
+public sealed partial class GovernancePreCommitSimulationController(
     IPreCommitGovernanceGate gate,
     IPreFinalizeChecklistService preFinalizeChecklistService,
+    IFinalizeReadinessService finalizeReadinessService,
     IAuditService auditService,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
@@ -97,37 +98,98 @@ public sealed class GovernancePreCommitSimulationController(
         if (tenantProblem is not null)
             return tenantProblem;
 
-        Guid runGuid = Guid.Parse(runIdNormalized);
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (run is null)
-        {
-            return this.NotFoundProblem(
-                $"Run '{runIdNormalized}' was not found.",
-                ProblemTypes.RunNotFound);
-        }
-
         try
         {
-            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runGuid,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
+            Guid runGuid = Guid.Parse(runIdNormalized);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run is null)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{runIdNormalized}' was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            IActionResult? sealedGuardResult =
+                await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            PreFinalizeChecklistResult checklist =
+                await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);
+
+            return Ok(checklist);
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPreCommitSimulationSealedManifestConflict(ex);
         }
+    }
 
-        PreFinalizeChecklistResult checklist =
-            await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);
+    // idempotency-posture: dry-run-no-persist
+    [HttpGet("readiness/{runId}")]
+    [ProducesResponseType(typeof(FinalizeReadinessResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetReadinessAsync(
+        [FromRoute] string runId,
+        [FromQuery] IReadOnlyList<string>? acknowledgedAssumptionIds = null,
+        CancellationToken cancellationToken = default)
+    {
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                .ToBadRequestProblemOrNull(this);
 
-        return Ok(checklist);
+        if (runIdValidation is not null)
+            return runIdValidation;
+
+        if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
+            return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
+
+        if (Guid.Parse(runIdNormalized) == Guid.Empty)
+            return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        try
+        {
+            Guid runGuid = Guid.Parse(runIdNormalized);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run is null)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{runIdNormalized}' was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            IActionResult? sealedGuardResult =
+                await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            FinalizeReadinessResult readiness = await finalizeReadinessService
+                .BuildAsync(runIdNormalized, acknowledgedAssumptionIds, cancellationToken)
+                .ConfigureAwait(false);
+
+            return Ok(readiness);
+        }
+        catch (ConflictException ex)
+        {
+            return MapPreCommitSimulationSealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: dry-run-no-persist
@@ -180,64 +242,63 @@ public sealed class GovernancePreCommitSimulationController(
         if (tenantProblem is not null)
             return tenantProblem;
 
-        Guid runGuid = Guid.Parse(runIdNormalized);
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (run is null)
-        {
-            return this.NotFoundProblem(
-                $"Run '{runIdNormalized}' was not found.",
-                ProblemTypes.RunNotFound);
-        }
-
         try
         {
-            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runGuid,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
+            Guid runGuid = Guid.Parse(runIdNormalized);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run is null)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{runIdNormalized}' was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            IActionResult? sealedGuardResult =
+                await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
+                runIdNormalized,
+                body.SyntheticSeverity,
+                body.SyntheticCount,
                 cancellationToken);
+
+            Guid? auditRunId = runGuid;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.GovernancePreCommitSimulationEvaluated,
+                    RunId = auditRunId,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        runId = runIdNormalized,
+                        syntheticSeverity = body.SyntheticSeverity,
+                        syntheticCount = body.SyntheticCount,
+                        blocked = outcome.Blocked,
+                        warnOnly = outcome.WarnOnly,
+                        reason = outcome.Reason,
+                        policyPackId = outcome.PolicyPackId,
+                        minimumBlockingSeverity = outcome.MinimumBlockingSeverity,
+                        blockingFindingIdCount = outcome.BlockingFindingIds.Count,
+                        blockingFindingIdsSample = outcome.BlockingFindingIds.Take(10).ToArray(),
+                        warningsCount = outcome.Warnings.Count
+                    })
+                },
+                cancellationToken);
+
+            return Ok(outcome);
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPreCommitSimulationSealedManifestConflict(ex);
         }
-
-        PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
-            runIdNormalized,
-            body.SyntheticSeverity,
-            body.SyntheticCount,
-            cancellationToken);
-
-        Guid? auditRunId = runGuid;
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernancePreCommitSimulationEvaluated,
-                RunId = auditRunId,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    runId = runIdNormalized,
-                    syntheticSeverity = body.SyntheticSeverity,
-                    syntheticCount = body.SyntheticCount,
-                    blocked = outcome.Blocked,
-                    warnOnly = outcome.WarnOnly,
-                    reason = outcome.Reason,
-                    policyPackId = outcome.PolicyPackId,
-                    minimumBlockingSeverity = outcome.MinimumBlockingSeverity,
-                    blockingFindingIdCount = outcome.BlockingFindingIds.Count,
-                    blockingFindingIdsSample = outcome.BlockingFindingIds.Take(10).ToArray(),
-                    warningsCount = outcome.Warnings.Count
-                })
-            },
-            cancellationToken);
-
-        return Ok(outcome);
     }
 
     /// <remarks>

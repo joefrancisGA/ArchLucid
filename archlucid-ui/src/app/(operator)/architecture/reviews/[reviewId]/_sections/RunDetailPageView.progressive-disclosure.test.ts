@@ -19,10 +19,10 @@ describe("RunDetailPageView progressive disclosure", () => {
     expectSourceNotContains(source, 'from "./RunDetailBreadcrumb"', "run-detail-page-view");
   });
 
-  it("defers sticky primary actions (no inline sticky actions mount on the composition root)", () => {
-    // Sticky chrome was removed from the composition root; keep the marker so a reintroduction is intentional.
-    expectSourceContains(source, "stickyActions={null}", "run-detail-page-view");
-    expectSourceNotContains(source, "<RunDetailWorkspaceStickyActions", "run-detail-page-view");
+  it("mounts deferred sticky actions with unified finalize readiness wiring", () => {
+    expectSourceContains(source, "RunDetailWorkspaceStickyActionsResolvedDeferred", "run-detail-page-view");
+    expectSourceNotContains(source, "stickyActions={null}", "run-detail-page-view");
+    expectSourceNotContains(source, 'from "./RunDetailWorkspaceStickyActions"', "run-detail-page-view");
   });
 
   it("prioritizes first-screen proof status in overview tab", () => {

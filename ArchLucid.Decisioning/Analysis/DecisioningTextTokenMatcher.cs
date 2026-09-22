@@ -39,7 +39,8 @@ internal static class DecisioningTextTokenMatcher
             }
 
             if (IsStandaloneToken(haystack, index, token.Length)
-                && !IsEmbeddedInCompoundIdentifier(haystack, index, token.Length))
+                && !IsEmbeddedInCompoundIdentifier(haystack, index, token.Length)
+                && !IsNegatedNonPrefix(haystack, index))
             {
                 return true;
             }
@@ -124,5 +125,17 @@ internal static class DecisioningTextTokenMatcher
     private static bool IsCompoundIdentifierDelimiter(char connector)
     {
         return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+';
+    }
+
+    private static bool IsNegatedNonPrefix(string haystack, int tokenIndex)
+    {
+        if (tokenIndex >= 4
+            && haystack.AsSpan(tokenIndex - 4, 4).Equals("non-", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return tokenIndex >= 4
+            && haystack.AsSpan(tokenIndex - 4, 4).Equals("non ", StringComparison.Ordinal);
     }
 }

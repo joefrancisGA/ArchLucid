@@ -1,5 +1,7 @@
 /** UI types for IE-UX-04 Infrastructure Ask workbench. */
 
+import type { DiagramViewPlan } from "@/lib/infra-evidence/diagram-view-plan-types";
+
 export type InfraEvidenceAskCitation = {
   kind: string;
   id: string;
@@ -16,7 +18,6 @@ export type InfraEvidenceAskRequest = {
   assessmentId?: string | null;
   auditEvidenceSnapshotId?: string | null;
   controlId?: string | null;
-  useSimulator?: boolean;
 };
 
 export type InfraEvidenceAskResponse = {
@@ -25,6 +26,7 @@ export type InfraEvidenceAskResponse = {
   insufficientEvidence: boolean;
   citations: InfraEvidenceAskCitation[];
   simulatorLabel: string | null;
+  viewPlan: DiagramViewPlan | null;
 };
 
 export const INFRA_EVIDENCE_ASK_CANNED_QUESTIONS: readonly string[] = [

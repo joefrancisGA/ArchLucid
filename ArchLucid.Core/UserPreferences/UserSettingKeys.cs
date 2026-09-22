@@ -21,8 +21,14 @@ public static class UserSettingKeys
     /// <summary>Operator workspace mode: <c>guided</c> (default) or <c>working</c>.</summary>
     public const string WorkspaceMode = "WorkspaceMode";
 
+    /// <summary>Working Career vs Rehearsal door: <c>career</c> or <c>rehearsal</c>.</summary>
+    public const string WorkingCareerRehearsalDoor = "WorkingCareerRehearsalDoor";
+
     /// <summary>Post-seal Working-mode graduation offer: <c>pending</c>, <c>dismissed</c>, or <c>remind-next</c>.</summary>
     public const string WorkspaceModeGraduationOffer = "WorkspaceModeGraduationOffer";
+
+    /// <summary>First-login seat purpose: <c>live</c> (tenant workspace) or <c>training</c> (sample teaching).</summary>
+    public const string FirstSessionPurpose = "FirstSessionPurpose";
 
     /// <summary>Whether Working-mode review-detail uses the split workbench layout: <c>true</c> or <c>false</c>.</summary>
     public const string ProfessionalWorkbenchEnabled = "ProfessionalWorkbenchEnabled";
@@ -41,4 +47,7 @@ public static class UserSettingKeys
 
     /// <summary>JSON blob of Working desk continuity (last-open review/draft and visit watermark).</summary>
     public const string DeskContinuity = "DeskContinuity";
+
+    /// <summary>JSON blob of Working pins and recents for cross-device inhabit continuity (IH-066).</summary>
+    public const string WorkingWorkspaceContinuity = "WorkingWorkspaceContinuity";
 }

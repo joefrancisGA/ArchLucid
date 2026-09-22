@@ -10,6 +10,13 @@ import { invalidateRunsByProjectPagedCache } from "@/lib/runs-by-project-paged-c
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
+/** Invalidates scoped pilot value report queries after committed-run counts change (TB-562). */
+export async function invalidatePilotValueReportCache(): Promise<void> {
+  await getOperatorQueryClient().invalidateQueries({
+    queryKey: ["operator", "pilots", "value-report"],
+  });
+}
+
 /** Invalidates operator-home runs, commit context, and delta caches after run lifecycle writes (TB-562). */
 export async function invalidateOperatorHomeRunsCaches(): Promise<void> {
   markOperatorHomeRunsSnapshotStale();
@@ -19,11 +26,16 @@ export async function invalidateOperatorHomeRunsCaches(): Promise<void> {
     invalidateRunsByProjectPagedCache(),
     invalidateCorePilotCommitContextCache(),
     invalidatePilotRecentDeltasCache(),
+    invalidatePilotValueReportCache(),
     getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.userAttentionSummary }),
   ]);
 }
 
 /** Invalidates sponsor ROI summary and dashboard bundle after portfolio or demo seed changes (TB-562). */
 export async function invalidateOperatorSponsorRoiCaches(): Promise<void> {
-  await Promise.all([invalidateSponsorRoiSummaryCache(), invalidateSponsorDashboardBundleCache()]);
+  await Promise.all([
+    invalidateSponsorRoiSummaryCache(),
+    invalidateSponsorDashboardBundleCache(),
+    invalidatePilotValueReportCache(),
+  ]);
 }

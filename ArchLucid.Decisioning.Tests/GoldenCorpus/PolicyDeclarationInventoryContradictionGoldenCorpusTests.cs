@@ -20,8 +20,8 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 /// <summary>
 ///     DX-36 sibling: proves three-way policy-declaration-inventory contradiction on the case-37 graph +
-///     pinned inventory fixture with a filtered assigned pack (cis-az-006). Merge harness uses the default
-///     unfiltered pack — sibling test only, mirroring WK-22 policy-filtered declaration tests.
+///     pinned inventory fixture with a filtered assigned pack (cis-az-006). Merge harness case-73 covers
+///     the positive path; this test keeps pack-negative control without changing case-01..case-72 stability.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class PolicyDeclarationInventoryContradictionGoldenCorpusTests

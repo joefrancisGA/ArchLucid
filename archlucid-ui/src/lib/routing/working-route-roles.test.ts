@@ -12,6 +12,20 @@ import {
 const APP_DIR = join(process.cwd(), "src", "app");
 
 describe("working route roles (AO-39)", () => {
+  it("SG-042 / ADR 0098: reviewTab query keeps nested review routes as nestedJob, not locator", () => {
+    expect(
+      classifyWorkingRoutePathname(
+        "/architecture/architectures/arch-1/reviews/review-1?reviewTab=findings",
+      ),
+    ).toBe("nestedJob");
+    expect(classifyWorkingRoutePathname("/architecture/architectures/arch-1/reviews/review-1")).toBe(
+      "nestedJob",
+    );
+    expect(classifyWorkingRoutePathname("/architecture/reviews/review-1?reviewTab=findings")).toBe(
+      "legacyPeerJob",
+    );
+  });
+
   it("classifies representative routes into the five Working roles", () => {
     expect(classifyWorkingRoutePathname("/")).toBe("locator");
     expect(classifyWorkingRoutePathname("/architecture/architectures/arch-1")).toBe("locator");

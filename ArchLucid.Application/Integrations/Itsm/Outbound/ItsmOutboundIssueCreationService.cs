@@ -128,13 +128,23 @@ public sealed class ItsmOutboundIssueCreationService(
             inspect.AssignedToUserId,
             inspect.RemediationDueUtc);
 
+        RunSummaryDto? runSummary = await _authorityQueryService
+            .GetRunSummaryAsync(scope, inspect.RunId, ct)
+            .ConfigureAwait(false);
+        ItsmOutboundCareerHonestyStamp careerHonesty = runSummary is not null
+            ? ItsmOutboundCareerHonestyPresenter.Resolve(runSummary)
+            : ItsmOutboundCareerHonestyStamp.CareerReal;
+        (summary, description) = ItsmOutboundCareerHonestyPresenter.Apply(summary, description, careerHonesty);
+
         ExternalTicketCreateContext createContext = new(
             scope,
             inspect,
             tenantRow,
             severity,
             summary,
-            description);
+            description,
+            careerHonesty.IncludeCareerCompleteCustomField,
+            careerHonesty.RehearsalLabel);
 
         return await connector.TryCreateForFindingAsync(createContext, ct).ConfigureAwait(false);
     }

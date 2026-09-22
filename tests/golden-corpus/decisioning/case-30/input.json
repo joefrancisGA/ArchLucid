@@ -27,7 +27,10 @@
         "category": "network",
         "sourceType": null,
         "sourceId": null,
-        "properties": {},
+        "properties": {
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000030/resourceGroups/rg-golden/providers/Microsoft.Network/virtualNetworks/vpc",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000030/resourceGroups/rg-golden/providers/Microsoft.Network/virtualNetworks/vpc"
+        },
         "reasoningTrace": null
       },
       {
@@ -39,7 +42,9 @@
         "sourceId": null,
         "properties": {
           "controlId": "AC-2",
-          "status": "missing"
+          "status": "missing",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000030/resourceGroups/rg-golden/providers/Microsoft.Authorization/policyAssignments/MFA",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000030/resourceGroups/rg-golden/providers/Microsoft.Authorization/policyAssignments/MFA"
         },
         "reasoningTrace": null
       },

@@ -1,7 +1,6 @@
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatIanaTimeZoneOptionLabel, toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
 import { EXEC_DIGEST_HOUR_OPTIONS } from "@/lib/exec-digest-schedule-form";
-
-import { resolveBrowserTimeZoneId } from "./advisory-schedule-timezone";
 
 /** Customer-facing frequency choices mapped to five-field UTC cron. */
 export type AdvisoryScheduleFrequency = "daily" | "weekdays" | "weekly" | "monthly" | "custom";
@@ -70,7 +69,7 @@ export const ADVISORY_SCHEDULE_DAY_OF_MONTH_OPTIONS: readonly {
 const DEFAULT_AUTHORITY_PROJECT_SLUG = "default";
 
 export function createDefaultAdvisoryScheduleFormState(
-  timeZoneId: string = resolveBrowserTimeZoneId(),
+  timeZoneId: string = DEFAULT_IANA_TIME_ZONE_ID,
 ): AdvisoryScheduleFormState {
   return {
     frequency: "daily",

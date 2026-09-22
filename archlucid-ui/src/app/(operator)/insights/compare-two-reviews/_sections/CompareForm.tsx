@@ -32,7 +32,7 @@ import { COMPARE_CLAIM_DISCIPLINE } from "@/lib/compare-evidence-copy";
 import {
   COMPARE_PAGE_SUBTITLE_BUYER,
   COMPARE_PAGE_LEAD,
-  COMPARE_BUYER_OVERVIEW,
+  compareBuyerOverview,
   COMPARE_START_HERE_HELPER,
   COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID,
   COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -43,9 +43,11 @@ import {
 } from "@/lib/compare-two-reviews-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 
 export type CompareFormProps = {
   readonly basePathname?: string;
@@ -114,6 +116,7 @@ export function CompareForm(props: CompareFormProps = {}) {
     loadBuyerSampleComparison,
     showRelatedReviewLinks,
     showContinueLastComparisonRow,
+    architectureId,
   } = useCompareForm({ basePathname: props.basePathname });
 
   const pageBody = (
@@ -203,7 +206,7 @@ export function CompareForm(props: CompareFormProps = {}) {
           className={cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
           data-testid="compare-two-reviews-overview"
         >
-          {COMPARE_BUYER_OVERVIEW}
+          {compareBuyerOverview(resolveProductLineIdFromEnv())}
         </p>
       ) : null}
       <section
@@ -234,7 +237,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(rightTrim)}`}
+              href={resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId)}
             >
               Open updated review
             </Link>

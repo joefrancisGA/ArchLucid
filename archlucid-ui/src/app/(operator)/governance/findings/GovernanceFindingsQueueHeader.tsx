@@ -10,16 +10,18 @@ import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobR
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
+import { RefreshButton } from "@/components/ui/refresh-button";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import {
   GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
   GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
 } from "@/lib/governance-findings-page-copy";
-import {
-  GOVERNANCE_ASSIGNED_TO_ME_CLAIM_DISCIPLINE,
-} from "@/lib/governance/governance-assigned-to-me-evidence-copy";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID,
   GOVERNANCE_ASSIGNED_TO_ME_SKIP_LINK_LABEL,
@@ -28,7 +30,7 @@ import type { GovernanceApprovalProvenance } from "@/lib/governance/governance-a
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
-import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
+import { resolveGovernanceFindingsClaimDiscipline } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;
@@ -50,6 +52,14 @@ export type GovernanceFindingsQueueHeaderProps = {
   readonly scopedRunId: string | null;
   readonly loading: boolean;
   readonly currentJobId: GovernanceJobId;
+  readonly workingMode?: boolean;
+  readonly pathname?: string | null;
+  readonly scopedArchitectureId?: string | null;
+  readonly architectureDisplayName?: string | null;
+  readonly scopedRunTitle?: string | null;
+  readonly onRefresh?: () => void;
+  readonly queueRefreshing?: boolean;
+  readonly queueLastRefreshedAt?: Date | null;
 };
 
 export function GovernanceFindingsQueueHeader({
@@ -67,17 +77,35 @@ export function GovernanceFindingsQueueHeader({
   scopedRunId,
   loading,
   currentJobId,
+  workingMode = false,
+  pathname = null,
+  scopedArchitectureId = null,
+  architectureDisplayName = null,
+  scopedRunTitle = null,
+  onRefresh,
+  queueRefreshing = false,
+  queueLastRefreshedAt = null,
 }: GovernanceFindingsQueueHeaderProps) {
+  const { productLine } = useProductLine();
   const skipLinkTargetId = isAssignedToMe
     ? GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID
     : GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID;
   const skipLinkLabel = isAssignedToMe
     ? GOVERNANCE_ASSIGNED_TO_ME_SKIP_LINK_LABEL
     : GOVERNANCE_FINDINGS_SKIP_LINK_LABEL;
-  const claimDiscipline =
-    isAssignedToMe && buyerPolishedShell
-      ? GOVERNANCE_ASSIGNED_TO_ME_CLAIM_DISCIPLINE
-      : GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE;
+  const claimDiscipline = resolveGovernanceFindingsClaimDiscipline(
+    isAssignedToMe,
+    productLine,
+    buyerPolishedShell,
+    {
+      workingMode,
+      pathname,
+      scopedArchitectureId,
+      architectureDisplayName,
+      scopedRunId,
+      scopedRunTitle,
+    },
+  );
   const claimDisciplineTestId = isAssignedToMe
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";
@@ -104,7 +132,7 @@ export function GovernanceFindingsQueueHeader({
         <LayerHeader pageKey="governance-findings" density="compact" />
       ) : null}
 
-      {!isAssignedToMe && !buyerPolishedShell ? <FindingsKeyboardTriageCoach /> : null}
+      {workingMode || !buyerPolishedShell ? <FindingsKeyboardTriageCoach /> : null}
 
       <OperatorPageHeader
         navHref={navHref}
@@ -126,6 +154,18 @@ export function GovernanceFindingsQueueHeader({
             assignedToMeHeaderMetadata
           ) : !loading ? (
             <>
+              {!isAssignedToMe && buyerPolishedShell ? (
+                <OperatorPageFreshnessMetadata
+                  testId="governance-findings-queue-last-refreshed"
+                  lastRefreshedAt={queueLastRefreshedAt}
+                >
+                  {operatorFreshnessMetadataWithClockLabel({
+                    prefix: "Last refreshed",
+                    lastRefreshedAt: queueLastRefreshedAt,
+                    refreshingLabel: queueRefreshing ? "Refreshing findings queue…" : null,
+                  })}
+                </OperatorPageFreshnessMetadata>
+              ) : null}
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-open"
@@ -170,7 +210,22 @@ export function GovernanceFindingsQueueHeader({
             </>
           ) : undefined
         }
-        actions={assignedToMeHeaderActions}
+        actions={
+          isAssignedToMe ? (
+            assignedToMeHeaderActions
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <PageContextualHelpButton />
+              {buyerPolishedShell && onRefresh !== undefined ? (
+                <RefreshButton
+                  busy={queueRefreshing}
+                  data-testid="governance-findings-queue-refresh-button"
+                  onClick={onRefresh}
+                />
+              ) : null}
+            </div>
+          )
+        }
       />
       {!isAssignedToMe ? <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" /> : null}
       {!isAssignedToMe && !buyerPolishedShell ? (

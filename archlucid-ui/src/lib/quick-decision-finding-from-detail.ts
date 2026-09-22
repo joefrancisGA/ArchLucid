@@ -4,6 +4,7 @@ import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/findings/finding-enforcement-tier";
 import { collectEvidenceRefSnippets } from "@/lib/findings/finding-evidence-ref-snippet";
 import { coercePolicyRuleIdFromFindingWire } from "@/lib/findings/finding-policy-evidence-citations";
+import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-wire-snapshots";
 import {
   coerceArchitectureFindingSeverity,
@@ -54,8 +55,14 @@ export type QuickDecisionFinding = {
   humanReviewStatus?: number | null;
   /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
+  treatment?: number | null;
   /** LP-05: sealed typed snapshot vs advisory agent stream (WK-09 / WK-19). */
   streamBand?: "sealed" | "agent";
+  /** AS-059 / ADR 0085 semantic support band when present on the wire. */
+  semanticSupportBand?: ReturnType<typeof normalizeFindingSemanticSupportBand>;
+  /** Overlay scorer stamp when present (`as057-v1` or `as099-llm-finalize-v1`). */
+  semanticSupportBandScorerVersion?: string | null;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -141,6 +148,9 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     evidenceRefCount,
     enforcementTier: "PolicyViolation",
     policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,
+    classification: row.classification ?? null,
+    treatment:
+      typeof row.treatment === "number" && Number.isFinite(row.treatment) ? Math.trunc(row.treatment) : null,
   };
 }
 
@@ -274,6 +284,17 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           ? classificationRaw
           : null;
 
+      const treatmentRaw = fr.treatment;
+      const treatment =
+        typeof treatmentRaw === "number" && Number.isFinite(treatmentRaw) ? Math.trunc(treatmentRaw) : null;
+
+      const semanticSupportBand = normalizeFindingSemanticSupportBand(fr.semanticSupportBand);
+      const scorerVersionRaw = fr.semanticSupportBandScorerVersion;
+      const semanticSupportBandScorerVersion =
+        typeof scorerVersionRaw === "string" && scorerVersionRaw.trim().length > 0
+          ? scorerVersionRaw.trim()
+          : null;
+
       out.push({
         findingId,
         title,
@@ -298,6 +319,9 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         assignedToUserId,
         humanReviewStatus,
         classification,
+        treatment,
+        semanticSupportBand,
+        semanticSupportBandScorerVersion,
       });
     }
   }

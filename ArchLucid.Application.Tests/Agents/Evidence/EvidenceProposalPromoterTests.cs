@@ -45,6 +45,60 @@ public sealed class EvidenceProposalPromoterTests
     }
 
     [Fact]
+    public async Task PromoteAsync_WhenCatalogEntryIdCollidesWithExistingEntry_ThrowsBeforeInsert()
+    {
+        Mock<IAgentResultRepository> agentResults = new();
+        agentResults
+            .Setup(r => r.TryGetEvidenceProposalAsync(It.IsAny<ScopeContext>(), "r2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EvidenceProposalListItem
+            {
+                ResultId = "r2",
+                RunId = Guid.NewGuid().ToString(),
+                AgentType = "Topology",
+                ProposedEvidenceJson =
+                    """{"type":"Policy","title":"encrypt-data","description":"Use CMK for storage.","rationale":"Gap"}""",
+                CreatedUtc = DateTime.UtcNow,
+                IsPromoted = false,
+            });
+
+        Mock<ITenantCuratedEvidenceRepository> curated = new();
+        curated
+            .Setup(c => c.ListByTenantAsync(TenantScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantCuratedEvidenceEntryRow
+                {
+                    EntryType = "Policy",
+                    CatalogEntryId = "policy-encrypt-data",
+                    Title = "Encrypt Data",
+                    Description = "Existing entry.",
+                    Rationale = "Prior promotion.",
+                },
+            ]);
+
+        EvidenceProposalPromoter sut = BuildSut(agentResults.Object, curated.Object);
+
+        Func<Task> act = () => sut.PromoteAsync("r2");
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*catalog entry with id 'policy-encrypt-data'*");
+
+        curated.Verify(
+            c => c.InsertPromotedEntryAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PromoteAsync_WhenInvalidJson_Throws()
     {
         Mock<IAgentResultRepository> agentResults = new();

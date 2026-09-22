@@ -11,11 +11,14 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -34,7 +37,9 @@ public sealed class RunSummaryOnePagerExportService(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingReviewTrailRepository findingReviewTrailRepository,
-    IConfiguration configuration) : IRunSummaryOnePagerExportService
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IRunSummaryOnePagerExportService
 
 {
     private const string SponsorReportPrompt =
@@ -74,6 +79,13 @@ public sealed class RunSummaryOnePagerExportService(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
+
 
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
@@ -124,7 +136,9 @@ public sealed class RunSummaryOnePagerExportService(
             scope,
             workingDesk: true,
             _configuration,
-            cancellationToken);
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
 
         CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
 
@@ -153,6 +167,13 @@ public sealed class RunSummaryOnePagerExportService(
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
 
+        string? sendableExportCoverPlainText = string.Join(
+            Environment.NewLine,
+            SendableExportCoverComposer.RenderPlainTextLines(careerExportHonesty));
+
+        if (string.IsNullOrWhiteSpace(sendableExportCoverPlainText))
+            sendableExportCoverPlainText = null;
+
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
@@ -160,6 +181,7 @@ public sealed class RunSummaryOnePagerExportService(
                 topTitles,
                 activeTrialExportNotice,
                 careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
+                sendableExportCoverPlainText: sendableExportCoverPlainText,
                 architectRestatementMarkdown: architectRestatementMarkdownText);
 
 

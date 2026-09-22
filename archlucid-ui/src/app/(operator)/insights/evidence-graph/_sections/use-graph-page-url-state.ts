@@ -50,9 +50,13 @@ export function useGraphPageUrlState(options: {
   }, [setGraphLoadRequested, urlLoadRequested]);
 
   useEffect(() => {
-    if (urlRunId.length === 0) return;
     setRunId(urlRunId);
-    setGraphLoadRequested(true);
+
+    if (urlRunId.length > 0) {
+      setGraphLoadRequested(true);
+    } else {
+      setGraphLoadRequested(false);
+    }
   }, [urlRunId, setRunId, setGraphLoadRequested]);
 
   useEffect(() => {

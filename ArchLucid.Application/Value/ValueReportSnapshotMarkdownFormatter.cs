@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.ValueReports;
 
@@ -38,6 +39,9 @@ public sealed class ValueReportSnapshotMarkdownFormatter(ExportFormatterService 
         sb.AppendLine($"| ROI vs baseline (%) | {snapshot.RoiAnnualizedPercentVersusRoiBaseline.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine();
         sb.AppendLine($"_LLM cost note:_ {snapshot.EstimatedLlmCostMethodologyNote}");
+        sb.AppendLine();
+        sb.AppendLine($"**Sponsor ROI honesty:** {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
+        sb.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
 
         return sb.ToString();
     }

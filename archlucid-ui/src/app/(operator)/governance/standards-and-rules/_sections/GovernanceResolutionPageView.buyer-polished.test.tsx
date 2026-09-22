@@ -70,6 +70,30 @@ function buildModel(overrides: Partial<GovernanceResolutionPageViewModel> = {}):
 
     blockedReason: null,
 
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
+    blockedReason: null,
+
     lastRefreshedAt: null,
     load: vi.fn(async () => undefined),
     ...overrides,
@@ -77,6 +101,31 @@ function buildModel(overrides: Partial<GovernanceResolutionPageViewModel> = {}):
 }
 
 describe("GovernanceResolutionPageView buyer-polished shell", () => {
+  it("renders context strip, refresh control, and keyboard affordance", () => {
+    render(<GovernanceResolutionPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("standards-rules-context-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("standards-rules-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("standards-rules-keyboard-affordance")).toHaveTextContent(/page help/i);
+  });
+
+  it("renders error recovery contract on load failure", () => {
+    render(
+      <GovernanceResolutionPageView
+        model={buildModel({
+          failure: {
+            message: "Could not load standards and rules.",
+            correlationId: "corr-1",
+            problem: null,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("standards-rules-load-failure")).toBeInTheDocument();
+    expect(screen.getAllByTestId("operator-error-recovery-contract").length).toBeGreaterThan(0);
+  });
+
   it("renders standards/rules inspection content instead of approval workflow", () => {
     render(<GovernanceResolutionPageView model={buildModel()} />);
 
@@ -160,7 +209,7 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
 
     expect(screen.queryByTestId("standards-rules-governance-status-banner")).not.toBeInTheDocument();
     expect(screen.queryByTestId("standards-rules-review-context-row")).not.toBeInTheDocument();
-    expect(screen.getByTestId("standards-rules-load-failure-retry")).toBeInTheDocument();
+    expect(screen.getByTestId("standards-rules-load-retry")).toBeInTheDocument();
     expect(screen.getByTestId("governance-resolution-export-rules")).toBeDisabled();
     expect(screen.queryByTestId("standards-rules-table")).not.toBeInTheDocument();
   });

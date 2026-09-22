@@ -44,20 +44,18 @@ export function useExtractUploadSettings() {
   const extractUploadSteps = useMemo(
     () =>
       resolveExtractUploadPackageSteps({
-        scenarioSelected: selectedDemoScenarioId.trim().length > 0,
-        packageUploaded: packageId !== null || selectedFileLabel !== null,
-        inventoryParsed: hasBaselineArtifacts === true || packageId !== null,
+        packageAccepted: packageId !== null,
+        inventoryParsed: hasBaselineArtifacts === true,
       }),
-    [hasBaselineArtifacts, packageId, selectedDemoScenarioId, selectedFileLabel],
+    [hasBaselineArtifacts, packageId],
   );
   const extractUploadEmphasizedStepId = useMemo(
     () =>
       resolveExtractUploadPackageEmphasizedStepId({
-        scenarioSelected: selectedDemoScenarioId.trim().length > 0,
-        packageUploaded: packageId !== null || selectedFileLabel !== null,
-        inventoryParsed: hasBaselineArtifacts === true || packageId !== null,
+        packageAccepted: packageId !== null,
+        inventoryParsed: hasBaselineArtifacts === true,
       }),
-    [hasBaselineArtifacts, packageId, selectedDemoScenarioId, selectedFileLabel],
+    [hasBaselineArtifacts, packageId],
   );
 
   async function onUpload(file: File) {

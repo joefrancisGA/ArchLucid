@@ -11,6 +11,7 @@ public static class DraftRequestSummaryMapper
 
         return FromDocument(
             draft.DraftId,
+            draft.ArchitectureId,
             draft.Status,
             draft.Document,
             draft.SpawnedRunId,
@@ -21,6 +22,7 @@ public static class DraftRequestSummaryMapper
 
     public static DraftRequestSummaryResponse FromDocument(
         Guid draftId,
+        Guid? architectureId,
         DraftRequestStatus status,
         DraftRequestDocument document,
         string? spawnedRunId,
@@ -34,6 +36,7 @@ public static class DraftRequestSummaryMapper
         return new DraftRequestSummaryResponse
         {
             DraftId = draftId,
+            ArchitectureId = architectureId,
             Status = status,
             SystemName = string.IsNullOrWhiteSpace(document.SystemName) ? null : document.SystemName.Trim(),
             FreeTextIntent = document.FreeTextIntent.Trim(),

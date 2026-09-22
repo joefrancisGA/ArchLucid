@@ -23,6 +23,7 @@ import { parseBuyerPackageScopeFilter } from "./buyer-package-scope-url";
 import {
   parseRunsListSearchQuery,
   runsListClearSearchHrefFromSearch,
+  runsListEffectiveSearchFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
 import {
@@ -34,6 +35,10 @@ import {
   parseRunsListInspectorRunIdFromSearch,
   runsListCompareInspectorHrefFromSearch,
 } from "@/lib/runs/runs-list-compare-inspector-url";
+import {
+  runsListNextPageHrefFromSearch,
+  runsListPreviousPageHrefFromSearch,
+} from "@/lib/runs/runs-list-pagination-url";
 
 import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
@@ -68,6 +73,7 @@ export type UseRunsListResult = {
   pages: number;
   previousHref: string;
   nextHref: string;
+  navigationSearch: string;
   onRowActivate: (run: RunSummary, e: MouseEvent<HTMLTableRowElement>) => void;
   showBuyerPackageCards: boolean;
   showCompareSelection: boolean;
@@ -162,14 +168,14 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
       router.replace(
         runsListCompareInspectorHrefFromSearch(
-          searchParams.toString(),
+          runsListEffectiveSearchFromSearch(searchParams.toString(), filterText),
           { inspectorRunId, compareRunIds },
           pathname,
         ),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [filterText, pathname, router, searchParams],
   );
 
   const setSelectedRun = useCallback(
@@ -253,8 +259,9 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       list = list.filter((run) => {
         const idMatch = run.runId.toLowerCase().includes(query);
         const desc = (run.description ?? "").toLowerCase();
+        const displayName = (run.displayName ?? "").toLowerCase();
 
-        return idMatch || desc.includes(query);
+        return idMatch || desc.includes(query) || displayName.includes(query);
       });
     }
 
@@ -287,6 +294,16 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     });
   }, [safeRuns, filterText, sortOrder, buyerPolished, buyerPackageScope]);
 
+  useEffect(() => {
+    if (selectedRun === null) {
+      return;
+    }
+
+    if (!filteredSorted.some((run) => run.runId === selectedRun.runId)) {
+      setSelectedRun(null);
+    }
+  }, [filteredSorted, selectedRun, setSelectedRun]);
+
   const workQueueSections = useMemo(
     () => partitionRunsIntoWorkQueueSections(filteredSorted),
     [filteredSorted],
@@ -299,12 +316,22 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
   }, [page, pages, totalCount]);
 
-  const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
-  const previousHref = `/architecture/reviews?${baseQuery}&page=1`;
-  const nextHref =
-    nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0
-      ? `/architecture/reviews?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
-      : `/architecture/reviews?${baseQuery}&page=${page + 1}`;
+  const currentSearch = searchParams.toString();
+  const navigationSearch = runsListEffectiveSearchFromSearch(currentSearch, filterText);
+  const previousHref = runsListPreviousPageHrefFromSearch(
+    navigationSearch,
+    pathname,
+    projectId,
+    pageSize,
+  );
+  const nextHref = runsListNextPageHrefFromSearch(
+    navigationSearch,
+    pathname,
+    projectId,
+    pageSize,
+    page + 1,
+    nextCursor,
+  );
 
   const onRowActivate = useCallback((run: RunSummary, e: MouseEvent<HTMLTableRowElement>) => {
     if (shouldIgnoreRunsListRowActivation(e.target)) {
@@ -323,6 +350,15 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     !listNarrowingActive;
 
   const showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards;
+
+  useEffect(() => {
+    if (showCompareSelection || compareSelection.length === 0) {
+      return;
+    }
+
+    setCompareSelection([]);
+    setCompareSelectionNotice(null);
+  }, [compareSelection.length, setCompareSelection, showCompareSelection]);
 
   const toggleCompareSelection = useCallback((runId: string) => {
     setCompareSelection((current) => {
@@ -382,6 +418,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     pages,
     previousHref,
     nextHref,
+    navigationSearch,
     onRowActivate,
     showBuyerPackageCards,
     showCompareSelection,

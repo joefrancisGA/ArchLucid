@@ -4,6 +4,7 @@
 export const CAREER_ARTIFACT_DECISION_GRADE_READY_GUARDED_PATHS = [
   "components/findings/FindingClassificationChip.tsx",
   "components/findings/FindingInsightDensityBand.tsx",
+  "components/findings/FindingSemanticSupportBandChip.tsx",
   "components/findings/QuickDecisionWorkspacePrimaryFindingCard.tsx",
   "components/findings/QuickDecisionWorkspaceSecondaryFindingCard.tsx",
   "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageClassificationSummary.tsx",

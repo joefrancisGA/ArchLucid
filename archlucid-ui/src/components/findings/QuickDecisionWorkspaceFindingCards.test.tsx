@@ -1,12 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
+
 import { QuickDecisionWorkspacePrimaryFindingCard } from "@/components/findings/QuickDecisionWorkspacePrimaryFindingCard";
 import { QuickDecisionWorkspaceSecondaryFindingCard } from "@/components/findings/QuickDecisionWorkspaceSecondaryFindingCard";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
   useArchitectWorkspaceChrome: () => true,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: true, mode: "working" }),
 }));
 
 function buildFinding(wireJson: string): QuickDecisionFinding {
@@ -26,8 +32,8 @@ function buildFinding(wireJson: string): QuickDecisionFinding {
 
 const cardContext = {
   runId: "run-1",
-  reviewId: "review-1",
-  packageId: "package-1",
+  architectureId: "architecture-identity-001",
+  allFindings: [],
 };
 
 describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
@@ -73,5 +79,51 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
     );
 
     expect(screen.queryByTestId("finding-workspace-record-correction-finding-1")).not.toBeInTheDocument();
+  });
+
+  it("IP-005: primary card Open finding uses nested focusedFinding when architecture is known", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={finding}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    const openFinding = screen.getByRole("link", { name: "Open finding" });
+
+    expect(openFinding).toHaveAttribute(
+      "href",
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-1&focusedFinding=finding-1`,
+    );
+    expect(openFinding.getAttribute("href")).not.toContain("/architecture/reviews/run-1/findings/");
+  });
+
+  it("shows checklist-demoted classification chip on primary card", () => {
+    const finding = {
+      ...buildFinding(JSON.stringify({})),
+      classification: "ChecklistCoverage" as const,
+      treatment: 1,
+    };
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={finding}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-classification-chip-finding-1")).toHaveTextContent("Checklist-demoted");
   });
 });

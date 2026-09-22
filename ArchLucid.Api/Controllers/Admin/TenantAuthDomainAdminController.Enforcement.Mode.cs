@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Identity;
@@ -39,6 +40,10 @@ public sealed partial class TenantAuthDomainAdminController
                     request.AllowEmailOtpRecovery,
                     cancellationToken)
                 .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
@@ -93,6 +98,10 @@ public sealed partial class TenantAuthDomainAdminController
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
@@ -135,6 +144,10 @@ public sealed partial class TenantAuthDomainAdminController
                 .ConfigureAwait(false);
 
             return Ok(readiness);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

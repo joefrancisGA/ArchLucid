@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Mermaid;
@@ -19,7 +20,9 @@ public sealed class MermaidDiagramComplexityAnalyzer : IMermaidDiagramComplexity
 
         int crossSubgraphEdges = 0;
 
-        foreach (DiagramEdge edge in ast.Edges)
+        List<DiagramEdge> visibleEdges = DiagramEdgeVisibility.VisibleEdges(ast.Edges).ToList();
+
+        foreach (DiagramEdge edge in visibleEdges)
         {
             IncrementDegree(degree, edge.FromNodeId);
             IncrementDegree(degree, edge.ToNodeId);
@@ -38,12 +41,12 @@ public sealed class MermaidDiagramComplexityAnalyzer : IMermaidDiagramComplexity
 
         int textSize = renderedMermaid is null ? 0 : Encoding.UTF8.GetByteCount(renderedMermaid);
         int maxDegree = degree.Count == 0 ? 0 : degree.Values.Max();
-        int layoutEstimate = ast.Nodes.Count * 8 + ast.Edges.Count * 12 + ast.Subgraphs.Count * 20 + textSize;
+        int layoutEstimate = ast.Nodes.Count * 8 + visibleEdges.Count * 12 + ast.Subgraphs.Count * 20 + textSize;
 
         return new MermaidDiagramComplexityMetrics
         {
             NodeCount = ast.Nodes.Count,
-            EdgeCount = ast.Edges.Count,
+            EdgeCount = visibleEdges.Count,
             SubgraphCount = ast.Subgraphs.Count,
             MaxDegree = maxDegree,
             CrossSubgraphEdgeCount = crossSubgraphEdges,

@@ -29,6 +29,7 @@ public sealed class AzureArmResourceCostMapperTests
     [InlineData("Microsoft.Sql/servers/databases", RuntimePlatform.SqlServer)]
     [InlineData("Microsoft.Sql/servers/databases/extra-segment", RuntimePlatform.SqlServer)]
     [InlineData("Microsoft.Sql/managedInstances", RuntimePlatform.SqlServer)]
+    [InlineData("Microsoft.Sql/managedInstances/my-instance/databases/db1", RuntimePlatform.SqlServer)]
     [InlineData("Microsoft.Storage/storageAccounts", RuntimePlatform.BlobStorage)]
     [InlineData("Microsoft.Cache/redis", RuntimePlatform.Redis)]
     [InlineData("Microsoft.KeyVault/vaults", RuntimePlatform.KeyVault)]

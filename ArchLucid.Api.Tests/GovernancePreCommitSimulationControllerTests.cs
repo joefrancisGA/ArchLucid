@@ -557,6 +557,7 @@ public sealed class GovernancePreCommitSimulationControllerTests
         IPreCommitGovernanceGate? gate = null,
         IRunRepository? runRepository = null,
         IPreFinalizeChecklistService? checklistService = null,
+        IFinalizeReadinessService? finalizeReadinessService = null,
         ITenantRepository? tenantRepository = null,
         IScopeContextProvider? scopeProvider = null)
     {
@@ -566,6 +567,7 @@ public sealed class GovernancePreCommitSimulationControllerTests
         return new GovernancePreCommitSimulationController(
             gate ?? Mock.Of<IPreCommitGovernanceGate>(),
             checklistService ?? Mock.Of<IPreFinalizeChecklistService>(),
+            finalizeReadinessService ?? Mock.Of<IFinalizeReadinessService>(),
             Mock.Of<IAuditService>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             scopeProvider ?? scopeMock.Object,

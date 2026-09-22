@@ -14,8 +14,31 @@ export { BUYER_OPERATOR_HOME_PAGE_SUBTITLE };
 
 export const OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR = OPERATOR_HOME_PAGE_SUBTITLE;
 
+/** Empty working Home — start language only; resume copy implies existing drafts or reviews. */
+export const OPERATOR_HOME_WORKING_EMPTY_PAGE_SUBTITLE =
+  "Start architecture drafts, add evidence, and begin your first review from this workspace.";
+
+/** Working Home when at least one review is still in progress. */
 export const OPERATOR_HOME_WORKING_PAGE_SUBTITLE =
-  "Resume drafts, triage findings, and continue reviews already in progress.";
+  "Resume architecture drafts, triage findings, and continue reviews already in progress.";
+
+/** Working Home when reviews exist but none are still in progress. */
+export const OPERATOR_HOME_WORKING_COMPLETED_PAGE_SUBTITLE =
+  "Open completed reviews, triage findings, and start new architecture work.";
+
+function resolveOperatorHomeWorkingPageSubtitle(
+  metrics?: OperatorHomeWorkspaceMetricsSnapshot,
+): string {
+  if (metrics === undefined || !metrics.hasReviews) {
+    return OPERATOR_HOME_WORKING_EMPTY_PAGE_SUBTITLE;
+  }
+
+  if (metrics.reviewPackagesActive > 0) {
+    return OPERATOR_HOME_WORKING_PAGE_SUBTITLE;
+  }
+
+  return OPERATOR_HOME_WORKING_COMPLETED_PAGE_SUBTITLE;
+}
 
 function formatOperatorHomePressureSubtitle(metrics: OperatorHomeWorkspaceMetricsSnapshot): string | null {
   if (!metrics.hasReviews) {
@@ -55,13 +78,14 @@ export function operatorHomePageSubtitle(
   }
 
   if (workingMode) {
+    const workingSubtitle = resolveOperatorHomeWorkingPageSubtitle(metrics);
     const pressureLine = metrics !== undefined ? formatOperatorHomePressureSubtitle(metrics) : null;
 
     if (pressureLine !== null) {
-      return `${OPERATOR_HOME_WORKING_PAGE_SUBTITLE} · ${pressureLine}`;
+      return `${workingSubtitle} · ${pressureLine}`;
     }
 
-    return OPERATOR_HOME_WORKING_PAGE_SUBTITLE;
+    return workingSubtitle;
   }
 
   const pressureLine = metrics !== undefined ? formatOperatorHomePressureSubtitle(metrics) : null;

@@ -1,5 +1,30 @@
 # Breaking changes
 
+## 2026-09-10 — Draft PATCH omit-token is 409 (ADR 0088)
+
+### Who is affected
+
+API, CLI, and UI clients that `PATCH /v1/architecture/draft/{draftId}` **without** `expectedUpdatedUtc` and **without** `forceOverwrite: true`. In-repo callers: older CLI `DraftNewCommandAdmitStage` builds, v1 offline queue replay, and any integrator that treated omit-token as last-write-wins.
+
+### What changed
+
+| Area | Before | After |
+|------|--------|--------|
+| Omit `expectedUpdatedUtc` with `forceOverwrite` false/absent | HTTP **200** last-write-wins | HTTP **409** `errorCode` **`draft_cas_token_missing`** |
+| Stale `expectedUpdatedUtc` | HTTP **409** | HTTP **409** `errorCode` **`draft_cas_stale`** (unchanged status; code now distinct) |
+| `forceOverwrite: true` | Skips CAS | Still skips CAS; Required audit follows (LW-015) |
+
+JSON schema still marks both fields optional (OpenAPI). Fail-closed is **server behavior**, not a new required JSON property (so Keep mine can omit the token).
+
+### Migration steps
+
+1. Send `expectedUpdatedUtc` from the last GET/create/`updatedUtc` on every draft PATCH.
+2. On 409, branch on `errorCode`: `draft_cas_stale` → Keep mine / Keep server; `draft_cas_token_missing` → this client never had a version (reload or Keep mine). Do not assume “another session” for omit-token.
+3. Rebuild CLI so admit-stage PATCH copies `created.UpdatedUtc`.
+4. Offline queue v2 stores the token on the entry; v1 leftovers must not omit-token PATCH.
+
+See `docs/architecture/LOST_WRITE_CAS_COMPAT.md` and ADR 0088.
+
 ## 2026-04-08 — Phase 7 ArchLucid rename (application configuration and CLI)
 
 ### Who is affected

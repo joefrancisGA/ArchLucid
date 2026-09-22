@@ -10,12 +10,21 @@ import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/ope
 import { clearOperatorShellStatusScopeAgnosticCaches } from "@/lib/operator/operator-shell-status-scope-cache";
 import { clearOperatorHomeRunsSnapshotStale } from "@/lib/operator/operator-home-lifecycle-notify";
 import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
+import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { readDedicatedWorkspaceScope } from "@/lib/operator/operator-dedicated-workspace-storage";
+import { isSampleWorkspaceVisitActive } from "@/lib/operator/operator-sample-workspace-visit";
+import {
+  isSampleWorkspaceScope,
+  resolveDedicatedWorkspaceCandidate,
+} from "@/lib/operator/operator-workspace-scope-model";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { registrationScopeHeaders } from "@/lib/registration-session";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getScopeHeaders } from "@/lib/scope";
 
-const STORAGE_KEY = "archlucid_operator_scope_v1";
+export const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
+
+const STORAGE_KEY = OPERATOR_SCOPE_STORAGE_KEY;
 
 /** Fired when {@link writeOperatorScopeToStorage} or {@link clearOperatorScopeStorage} mutates scope. */
 export const ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT = "archlucid:operator-scope-changed";
@@ -71,7 +80,7 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
   }
 }
 
-function notifyOperatorScopeChanged(): void {
+function refreshOperatorScopeDependentClientState(): void {
   if (typeof window === "undefined") {
     return;
   }
@@ -85,6 +94,41 @@ function notifyOperatorScopeChanged(): void {
   clearHasSeenWelcomeOnboarding();
   clearOperatorHomeDisclosureStorage();
   clearOperatorHomeRunsSnapshotStale();
+}
+
+function notifyOperatorScopeChanged(): void {
+  refreshOperatorScopeDependentClientState();
+}
+
+/** Sibling-tab scope writes: refresh shell state and drop stale operator lists (LW-085 / LW-086). */
+export function refreshOperatorScopeFromCrossTabStorage(): void {
+  refreshOperatorScopeDependentClientState();
+  void invalidateOperatorHomeRunsCaches();
+}
+
+export function subscribeOperatorScopeStorageChanges(onChange: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  const onCustomEvent = () => {
+    onChange();
+  };
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === OPERATOR_SCOPE_STORAGE_KEY) {
+      // refresh dispatches ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, which invokes onChange once.
+      refreshOperatorScopeFromCrossTabStorage();
+    }
+  };
+
+  window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onCustomEvent);
+  window.addEventListener("storage", onStorage);
+
+  return () => {
+    window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onCustomEvent);
+    window.removeEventListener("storage", onStorage);
+  };
 }
 
 export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {
@@ -129,7 +173,8 @@ export function clearOperatorScopeStorage(): void {
 /**
  * Resolves the scope headers the browser should send to `/api/proxy`, matching
  * `buildUpstreamHeaders` in `app/api/proxy/[...path]/route.ts` (server fallback when a header is absent).
- * Priority: explicit operator selection (localStorage) → post-registration session (unsigned only) → dev defaults.
+ * Priority: explicit operator selection (localStorage) → dedicated workspace (signed-in) →
+ * post-registration session (unsigned only) → dev defaults (unsigned local demo only).
  */
 export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
   if (typeof window === "undefined") {
@@ -138,24 +183,57 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
 
   const fromOperator = readOperatorScopeFromStorage();
   if (fromOperator !== null) {
-    const headers = {
-      "x-tenant-id": fromOperator.tenantId,
-      "x-workspace-id": fromOperator.workspaceId,
-      "x-project-id": fromOperator.projectId,
-    };
-    writeOperatorScopeCookieFromHeaders(headers);
+    const signedInStickyDemoScope =
+      isLikelySignedIn()
+      && isSampleWorkspaceScope(fromOperator)
+      && !isSampleWorkspaceVisitActive();
 
-    return headers;
+    if (!signedInStickyDemoScope) {
+      const headers = {
+        "x-tenant-id": fromOperator.tenantId,
+        "x-workspace-id": fromOperator.workspaceId,
+        "x-project-id": fromOperator.projectId,
+      };
+      writeOperatorScopeCookieFromHeaders(headers);
+
+      return headers;
+    }
   }
 
-  if (!isLikelySignedIn()) {
-    const reg = registrationScopeHeaders();
+  if (isLikelySignedIn()) {
+    const dedicated =
+      readDedicatedWorkspaceScope()
+      ?? resolveDedicatedWorkspaceCandidate();
 
-    if (reg !== null) {
-      writeOperatorScopeCookieFromHeaders(reg);
+    if (dedicated !== null && !isSampleWorkspaceScope(dedicated)) {
+      const headers = {
+        "x-tenant-id": dedicated.tenantId,
+        "x-workspace-id": dedicated.workspaceId,
+        "x-project-id": dedicated.projectId,
+      };
+      writeOperatorScopeCookieFromHeaders(headers);
 
-      return reg;
+      return headers;
     }
+  }
+
+  const reg = registrationScopeHeaders();
+
+  if (reg !== null) {
+    writeOperatorScopeCookieFromHeaders(reg);
+
+    return reg;
+  }
+
+  if (isLikelySignedIn()) {
+    const pendingHeaders = {
+      "x-tenant-id": "",
+      "x-workspace-id": "",
+      "x-project-id": "",
+    };
+    writeOperatorScopeCookieFromHeaders(pendingHeaders);
+
+    return pendingHeaders;
   }
 
   const devDefaults = getScopeHeaders();
@@ -164,14 +242,14 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
   return devDefaults;
 }
 
-/** Display strings for the header when labels are missing. Dev-default UUIDs use neutral copy (no "development" leak in screenshots). */
+/** Display strings for the header when labels are missing. Local dev uses an explicit live-workspace label. */
 export function defaultLabelsForScopeIds(
   workspaceId: string,
   projectId: string,
 ): { workspace: string; project: string } {
   const ws =
     workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID
-      ? "Claims Intake Workspace"
+      ? "Development workspace"
       : workspaceId.slice(0, 8) + "…";
   const pr =
     projectId.trim() === DEV_SCOPE_PROJECT_ID ? "Primary project" : projectId.slice(0, 8) + "…";

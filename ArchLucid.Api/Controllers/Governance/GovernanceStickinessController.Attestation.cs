@@ -23,6 +23,12 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(null, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             RealizedValueAttestationResponse response =
@@ -32,7 +38,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
     }
 
@@ -64,6 +70,12 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(null, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             await _facade.UpsertRealizedValueAttestationAsync(request!, cancellationToken);
@@ -72,7 +84,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
         catch (ArgumentException ex)
         {

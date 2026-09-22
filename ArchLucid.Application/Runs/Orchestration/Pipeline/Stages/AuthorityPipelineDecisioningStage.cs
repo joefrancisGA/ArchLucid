@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
@@ -21,6 +22,8 @@ public sealed class AuthorityPipelineDecisioningStage(
     IAuthorityPipelineStagePersistence stagePersistence,
     IAuditService auditService,
     IAuthorityClosedLoopStrengtheningPass closedLoopStrengtheningPass,
+    IClosedLoopStrengtheningScoreSyncService closedLoopScoreSyncService,
+    IManifestHashService manifestHashService,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ILogger<AuthorityPipelineDecisioningStage> logger) : IAuthorityPipelineDecisioningStage
 {
@@ -35,6 +38,12 @@ public sealed class AuthorityPipelineDecisioningStage(
 
     private readonly IAuthorityClosedLoopStrengtheningPass _closedLoopStrengtheningPass =
         closedLoopStrengtheningPass ?? throw new ArgumentNullException(nameof(closedLoopStrengtheningPass));
+
+    private readonly IClosedLoopStrengtheningScoreSyncService _closedLoopScoreSyncService =
+        closedLoopScoreSyncService ?? throw new ArgumentNullException(nameof(closedLoopScoreSyncService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IOptionsMonitor<AuthorityPipelineOptions> _authorityPipelineOptions =
         authorityPipelineOptions ?? throw new ArgumentNullException(nameof(authorityPipelineOptions));
@@ -63,6 +72,54 @@ public sealed class AuthorityPipelineDecisioningStage(
         ApplyScope(manifest, scope);
 
         await _stagePersistence.SaveTraceAsync(trace, context.UnitOfWork, cancellationToken);
+
+        await _closedLoopStrengtheningPass.TryStrengthenManifestAsync(
+            scope,
+            run,
+            context.Request,
+            manifest,
+            cancellationToken);
+
+        if (context.FindingsSnapshot is not null && context.GraphSnapshot is not null)
+        {
+            ClosedLoopStrengtheningScoreSyncResult scoreSyncResult = _closedLoopScoreSyncService.SyncScoreSignals(
+                manifest,
+                context.GraphSnapshot,
+                context.FindingsSnapshot);
+
+            if (scoreSyncResult.ProjectedFindingCount > 0
+                || scoreSyncResult.EnrichedGraphNodeCount > 0
+                || scoreSyncResult.MutedRequiredCapabilityFinding
+                || scoreSyncResult.UpdatedRequiredCapabilityFinding)
+            {
+                await _stagePersistence.SaveFindingsAsync(
+                    context.FindingsSnapshot,
+                    context.UnitOfWork,
+                    cancellationToken);
+
+                await _stagePersistence.SaveGraphAsync(
+                    context.GraphSnapshot,
+                    scope,
+                    context.UnitOfWork,
+                    cancellationToken);
+            }
+
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Closed-loop score sync for run {RunId}: projected {ProjectedFindingCount} finding(s), "
+                    + "enriched {EnrichedGraphNodeCount} graph node(s), mutedCapability={MutedCapability}, "
+                    + "updatedCapability={UpdatedCapability}.",
+                    run.RunId,
+                    scoreSyncResult.ProjectedFindingCount,
+                    scoreSyncResult.EnrichedGraphNodeCount,
+                    scoreSyncResult.MutedRequiredCapabilityFinding,
+                    scoreSyncResult.UpdatedRequiredCapabilityFinding);
+            }
+        }
+
+        manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
+
         await _stagePersistence.SaveManifestAsync(manifest, context.UnitOfWork, cancellationToken);
 
         await _auditService.LogAsync(
@@ -84,13 +141,6 @@ public sealed class AuthorityPipelineDecisioningStage(
 
         context.Manifest = manifest;
         context.Trace = trace;
-
-        await _closedLoopStrengtheningPass.TryStrengthenManifestAsync(
-            scope,
-            run,
-            context.Request,
-            manifest,
-            cancellationToken);
 
         if (trace is not RuleAuditTraceDto)
             throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");

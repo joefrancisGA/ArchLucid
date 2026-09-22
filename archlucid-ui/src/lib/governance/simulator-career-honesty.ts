@@ -1,3 +1,11 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import {
+  FINDING_SEMANTIC_SUPPORT_BAND_LABELS,
+  resolveDecisionGradeSemanticSupportBand,
+  semanticSupportBandShortReason,
+  semanticSupportBandStatusTagKind,
+  type FindingSemanticSupportBandValue,
+} from "@/lib/findings/semantic-support-band-presentation";
 import {
   StructuralExecutionModeWire,
   type StructuralExecutionModeInput,
@@ -8,9 +16,20 @@ import {
 } from "@/lib/simulator-mode-chrome-copy";
 
 import type { CareerArtifactKind } from "@/lib/career-artifact/career-artifact-honesty";
+import {
+  DEFAULT_WORKING_CAREER_REHEARSAL_DOOR,
+  type WorkingCareerRehearsalDoorId,
+} from "@/lib/governance/working-career-rehearsal-door";
 
 export const SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON =
-  "Simulator rehearsal cannot be career-complete without explicit rehearsal labeling on the artifact.";
+  "Simulator practice cannot be record-complete without explicit practice labeling on the artifact.";
+
+/** CG-030 — review-detail Ready label suppression when Record review type meets Simulator execute. */
+export const WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_TITLE =
+  "Simulator cannot read as record-complete";
+
+export const WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_COPY =
+  "Ready-to-finalize labels stay off while structural execute is Simulator or Fallback on the Record review type. Switch to Practice for dry-runs or re-execute in Real mode.";
 
 export const SIMULATOR_REHEARSAL_GUIDED_WARNING =
   "Simulator rehearsal — not production customer evidence.";
@@ -38,6 +57,7 @@ export function shouldBlockWorkingCareerForSimulatorRehearsal(input: {
   readonly isSample?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 }): boolean {
   if (input.workingDesk !== true) {
     return false;
@@ -51,7 +71,19 @@ export function shouldBlockWorkingCareerForSimulatorRehearsal(input: {
     return false;
   }
 
-  return input.simulatorRehearsalBannerOnArtifact !== true;
+  if (input.simulatorRehearsalBannerOnArtifact === true) {
+    return false;
+  }
+
+  const effectiveDoor =
+    input.effectiveWorkingCareerRehearsalDoor ?? DEFAULT_WORKING_CAREER_REHEARSAL_DOOR;
+
+  // CG-021 / LP-06: Rehearsal door may finalize as rehearsal-incomplete on Simulator/Fallback.
+  if (effectiveDoor === "rehearsal") {
+    return false;
+  }
+
+  return true;
 }
 
 export function formatSimulatorRehearsalCareerBlockedReason(input: {
@@ -59,6 +91,7 @@ export function formatSimulatorRehearsalCareerBlockedReason(input: {
   readonly isSample?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
   readonly artifactKind?: CareerArtifactKind;
 }): string | null {
   if (!shouldBlockWorkingCareerForSimulatorRehearsal(input)) {
@@ -73,6 +106,63 @@ export function shouldSuppressReadyToFinalizeForSimulatorRehearsal(input: {
   readonly isSample?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 }): boolean {
   return shouldBlockWorkingCareerForSimulatorRehearsal(input);
+}
+
+export const SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL =
+  "Practice — not record support";
+
+export const SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_REASON =
+  "Simulator practice does not judge Real citation overlap for sealed-record surfaces.";
+
+export type PresentedSemanticSupportBand = {
+  readonly displayBand: FindingSemanticSupportBandValue;
+  readonly label: string;
+  readonly reason: string;
+  readonly statusTagKind: EnterpriseStatusKind;
+  readonly isRehearsalPresentation: boolean;
+};
+
+export function shouldPresentSemanticSupportBandAsRehearsal(
+  structuralExecutionMode?: StructuralExecutionModeInput,
+): boolean {
+  return isRehearsalStructuralExecutionMode(structuralExecutionMode ?? null);
+}
+
+/** AS-068: Simulator must not show career-looking Supported chips from wire bands. */
+export function presentDecisionGradeSemanticSupportBand(input: {
+  readonly wireBand: unknown;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+}): PresentedSemanticSupportBand {
+  const resolvedBand = resolveDecisionGradeSemanticSupportBand(input.wireBand);
+
+  if (!shouldPresentSemanticSupportBandAsRehearsal(input.structuralExecutionMode)) {
+    return {
+      displayBand: resolvedBand,
+      label: FINDING_SEMANTIC_SUPPORT_BAND_LABELS[resolvedBand],
+      reason: semanticSupportBandShortReason(resolvedBand),
+      statusTagKind: semanticSupportBandStatusTagKind(resolvedBand),
+      isRehearsalPresentation: false,
+    };
+  }
+
+  if (resolvedBand === "NotScored") {
+    return {
+      displayBand: "NotScored",
+      label: FINDING_SEMANTIC_SUPPORT_BAND_LABELS.NotScored,
+      reason: SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_REASON,
+      statusTagKind: semanticSupportBandStatusTagKind("NotScored"),
+      isRehearsalPresentation: true,
+    };
+  }
+
+  return {
+    displayBand: "NotScored",
+    label: SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL,
+    reason: SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_REASON,
+    statusTagKind: "needs-attention",
+    isRehearsalPresentation: true,
+  };
 }

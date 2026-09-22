@@ -2,7 +2,7 @@ using ArchLucid.Contracts.Drafts;
 
 namespace ArchLucid.Application.Drafts;
 
-/// <summary>LK-12: draft PATCH fail-closed on stale <see cref="DraftRequestResponse.UpdatedUtc"/>.</summary>
+/// <summary>ADR 0088: draft PATCH fail-closed on missing or stale <see cref="DraftRequestResponse.UpdatedUtc"/>.</summary>
 public static class DraftPatchStaleUpdatedUtcGuard
 {
     public static void EnsurePatchNotStaleOrThrow(
@@ -19,7 +19,9 @@ public static class DraftPatchStaleUpdatedUtcGuard
 
         if (!expectedUpdatedUtc.HasValue)
         {
-            return;
+            throw new ConflictException(
+                $"Draft '{existing.DraftId}' PATCH omitted expectedUpdatedUtc; send the last known updatedUtc or forceOverwrite.",
+                DraftPatchCasConflictCodes.TokenMissing);
         }
 
         DateTime expected = DateTime.SpecifyKind(expectedUpdatedUtc.Value, DateTimeKind.Utc);
@@ -28,7 +30,8 @@ public static class DraftPatchStaleUpdatedUtcGuard
         if (expected != actual)
         {
             throw new ConflictException(
-                $"Draft '{existing.DraftId}' changed since this tab loaded it; choose keep mine or load the server copy.");
+                $"Draft '{existing.DraftId}' changed since this tab loaded it; choose keep mine or load the server copy.",
+                DraftPatchCasConflictCodes.Stale);
         }
     }
 }

@@ -154,6 +154,23 @@ public sealed class ArchitectureRun
         set;
     } = StructuralExecutionMode.Simulator;
 
+    /// <summary>
+    ///     Working Career vs Rehearsal door captured at first execute start (CG-019). Null on legacy rows.
+    ///     Career honesty reads this stamp, not the live chooser.
+    /// </summary>
+    public string? WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UTC when <see cref="WorkingCareerRehearsalDoor" /> was first captured; null until execute stamps it.</summary>
+    public DateTime? ExecutePostureCapturedUtc
+    {
+        get;
+        set;
+    }
+
     /// <summary>Azure OpenAI deployment name captured when simulator fallback was recorded (nullable).</summary>
     public string? PilotAoaiDeploymentSnapshot
     {

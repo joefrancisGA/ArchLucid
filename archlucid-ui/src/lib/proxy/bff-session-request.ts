@@ -1,11 +1,29 @@
 import type { NextRequest } from "next/server";
 
+function resolveConfiguredBffOrigins(): readonly string[] {
+  const configuredOrigins = process.env.ARCHLUCID_BFF_ALLOWED_ORIGINS ?? "";
+
+  return configuredOrigins
+    .split(",")
+    .map((candidate) => candidate.trim())
+    .filter((candidate) => candidate.length > 0)
+    .flatMap((candidate) => {
+      try {
+        const parsed = new URL(candidate);
+
+        return parsed.origin === candidate ? [parsed.origin] : [];
+      } catch {
+        return [];
+      }
+    });
+}
+
 /** Blocks cross-site session establishment and teardown (login CSRF / session swap). */
 export function isSameOriginBffRequest(request: NextRequest): boolean {
   const origin = request.headers.get("origin")?.trim() ?? "";
 
   if (origin.length > 0) {
-    return origin === request.nextUrl.origin;
+    return origin === request.nextUrl.origin || resolveConfiguredBffOrigins().includes(origin);
   }
 
   const secFetchSite = request.headers.get("sec-fetch-site")?.trim().toLowerCase() ?? "";

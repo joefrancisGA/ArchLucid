@@ -82,6 +82,7 @@ public static class PipelineCompositionModule
         services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonManifestsDiffSlice>();
         services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonExportsDiffSlice>();
         services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonFindingLifecycleDiffSlice>();
+        services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonVerdictChromeDiffSlice>();
         services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonInterpretationDiffSlice>();
         services.AddScoped<EndToEndReplayComparisonReportComposer>();
         services.AddScoped<IEndToEndReplayComparisonService, EndToEndReplayComparisonService>();

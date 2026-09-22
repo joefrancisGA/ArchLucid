@@ -4,6 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
+import { useCareerFinalizeBlockedReason } from "@/hooks/use-career-finalize-blocked-reason";
+import { useUnsupportedSemanticSupportFinalizeBlockedReason } from "@/hooks/use-unsupported-semantic-support-finalize-blocked-reason";
+import { mergeFinalizeCommitBlockedReasons } from "@/lib/findings/semantic-support-band-finalize-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
 import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
 import { deriveReviewFailureRequiresWorkspaceAiProbe } from "@/lib/derive-review-failure-requires-workspace-ai-probe";
@@ -15,7 +19,9 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
+import { FinalizeReadinessChecklistParityBanner } from "@/components/reviews/FinalizeReadinessChecklistParityBanner";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
+import { RunDetailPackageSpineExportCoLocationStrip } from "@/components/reviews/RunDetailPackageSpineExportCoLocationStrip";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
@@ -23,6 +29,7 @@ import type {
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { summarizePolicyPackFindingImpact } from "@/lib/group-findings-by-policy-pack";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
@@ -31,11 +38,14 @@ import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/l
 import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
+  readonly parentArchitectureId?: string | null;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
-  readonly finalizeAssumptionGateApplies: boolean;
+  readonly serverFinalizeReadinessBlocks?: readonly FinalizeReadinessBlock[];
+  readonly finalizeReadinessEnabled: boolean;
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
   readonly transparencyTrail?: TransparencyTrail | null;
@@ -60,6 +70,11 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
   readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
+  readonly architectureRequestId?: string | null;
+  readonly azureInventoryEvidencePresent?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -103,15 +118,39 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const sessionAiReadiness = useSessionAiReadiness({ requireLiveProbe });
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
+  const commitBlockedState = useAssumptionAwareCommitBlockedReason({
     runId: props.runId,
     serverCommitBlockedReason: props.commitBlockedReason,
-    finalizeAssumptionGateApplies: props.finalizeAssumptionGateApplies,
+    serverFinalizeReadinessBlocks: props.serverFinalizeReadinessBlocks,
+    finalizeReadinessEnabled: props.finalizeReadinessEnabled,
     findings: props.quickDecisionFindings,
     blockingFindingCount: props.blockingFindingCount,
     requestAssumptionTexts: props.requestAssumptionTexts,
     transparencyTrail: props.transparencyTrail,
+    degradedFindingCoverage: props.degradedFindingCoverage,
+    degradedFindingCoverageFailedEngineLabels: props.degradedFindingCoverageFailedEngineLabels,
+    blockDegradedFindingCoverageOnWorking: props.buyerPolishedArtifactTable !== true,
   });
+  const unsupportedSemanticSupportCommitBlockedReason =
+    useUnsupportedSemanticSupportFinalizeBlockedReason({
+      findings: props.quickDecisionFindings,
+      manifestFinalized: props.hasGoldenManifest,
+      structuralExecutionMode: props.structuralExecutionMode,
+    });
+  const careerFinalizeBlockedReason = useCareerFinalizeBlockedReason({
+    manifestFinalized: props.hasGoldenManifest,
+    structuralExecutionMode: props.structuralExecutionMode ?? props.pipelineSummary?.structuralExecutionMode,
+    workingCareerRehearsalDoor: props.pipelineSummary?.workingCareerRehearsalDoor,
+    transparencyTrail: props.transparencyTrail,
+  });
+  const effectiveCommitBlockedReason = mergeFinalizeCommitBlockedReasons(
+    commitBlockedState.blockedReason,
+    commitBlockedState.readinessUnavailable || commitBlockedState.blocks.length > 0
+      ? null
+      : unsupportedSemanticSupportCommitBlockedReason,
+    careerFinalizeBlockedReason,
+  );
+  const effectiveCommitBlockedBlocks = commitBlockedState.blocks;
 
   useEffect(() => {
     let canceled = false;
@@ -221,15 +260,21 @@ export function RunDetailReviewPackageDoThisNextResolved(
       isDeadLettered: props.isDeadLettered,
     },
   );
+  const policyPackImpact = useMemo(
+    () => summarizePolicyPackFindingImpact(props.quickDecisionFindings),
+    [props.quickDecisionFindings],
+  );
 
   return (
     <>
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
+        architectureRequestId={props.architectureRequestId}
         manifestVersion={props.manifestId}
         suppressMeasurementDenominator={suppressMeasurementDenominator}
         pipelineTerminalFailure={suppressMeasurementDenominator}
+
         enginesSucceeded={props.enginesSucceeded}
         feasibilityVerdict={props.feasibilityVerdict ?? null}
         runCompleted={props.runCompleted ?? false}
@@ -247,20 +292,51 @@ export function RunDetailReviewPackageDoThisNextResolved(
         proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
         proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
         pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
+        azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
+        structuralExecutionMode={props.structuralExecutionMode}
+        workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
+        unmappedFindingCount={policyPackImpact.unmappedFindingCount}
       />
+      {commitBlockedState.readinessChecklistMismatch
+      && commitBlockedState.checklistReadyToFinalize !== null
+      && commitBlockedState.readinessReadyToFinalize !== null ? (
+        <FinalizeReadinessChecklistParityBanner
+          checklistReadyToFinalize={commitBlockedState.checklistReadyToFinalize}
+          readinessReadyToFinalize={commitBlockedState.readinessReadyToFinalize}
+        />
+      ) : null}
       <FinalizeReadinessStrip
+        runId={props.runId}
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined
             ? null
-            : assumptionAwareCommitBlockedReason
+            : effectiveCommitBlockedReason
         }
+        commitBlockedBlocks={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? []
+            : effectiveCommitBlockedBlocks
+        }
+        readinessLoading={commitBlockedState.readinessLoading}
       />
+      {props.hasGoldenManifest && (props.manifestId ?? "").trim().length > 0 ? (
+        <RunDetailPackageSpineExportCoLocationStrip
+          runId={props.runId}
+          manifestId={props.manifestId ?? ""}
+          progressSummary={props.pipelineSummary ?? null}
+          structuralExecutionMode={props.structuralExecutionMode}
+          workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
+          enginesSucceeded={props.enginesSucceeded ?? null}
+        />
+      ) : null}
       <ReviewPackageDoThisNextStrip
         next={next}
         runId={props.runId}
+        parentArchitectureId={props.parentArchitectureId ?? null}
         retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
         hasGoldenManifest={props.hasGoldenManifest}
-        commitBlockedReason={assumptionAwareCommitBlockedReason}
+        commitBlockedReason={effectiveCommitBlockedReason}
+        commitBlockedBlocks={effectiveCommitBlockedBlocks}
         sessionAiReadiness={sessionAiReadiness}
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}

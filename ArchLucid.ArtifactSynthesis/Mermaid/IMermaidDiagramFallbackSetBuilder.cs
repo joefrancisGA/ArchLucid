@@ -8,4 +8,8 @@ public interface IMermaidDiagramFallbackSetBuilder
     IReadOnlyList<MermaidDiagramRenderArtifact> BuildFallbackSet(
         GraphSnapshot graph,
         MermaidDiagramReadabilityThresholds thresholds);
+
+    IReadOnlyList<MermaidDiagramRenderArtifact> BuildResourceGroupFallbackSet(
+        GraphSnapshot graph,
+        MermaidDiagramReadabilityThresholds thresholds);
 }

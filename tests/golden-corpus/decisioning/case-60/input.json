@@ -16,7 +16,9 @@
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "trustOrigin": "External"
+          "trustOrigin": "External",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000060/resourceGroups/rg-golden/providers/Microsoft.Network/loadBalancers/external-ingress-lb",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000060/resourceGroups/rg-golden/providers/Microsoft.Network/loadBalancers/external-ingress-lb"
         },
         "reasoningTrace": null
       },
@@ -31,7 +33,9 @@
           "resourceType": "aws::lambda::function",
           "tf.functionname": "orders-api",
           "tf.runtime": "nodejs20.x",
-          "category": "compute"
+          "category": "compute",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000060/resourceGroups/rg-golden/providers/Microsoft.Web/sites/orders-api",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000060/resourceGroups/rg-golden/providers/Microsoft.Web/sites/orders-api"
         },
         "reasoningTrace": null
       },
@@ -43,7 +47,9 @@
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "category": "data"
+          "category": "data",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000060/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-orders-prod",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000060/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-orders-prod"
         },
         "reasoningTrace": null
       }

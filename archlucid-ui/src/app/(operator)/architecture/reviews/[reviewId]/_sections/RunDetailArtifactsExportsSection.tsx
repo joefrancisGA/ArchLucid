@@ -28,6 +28,11 @@ import { downloadArchitectureRequestJson } from "@/lib/api/downloads-blob-trigge
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
 import { downloadRunExportZip } from "@/lib/api/downloads-blob-trigger-run-export";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
+import { architectureRequestJsonMutationBlockedReason } from "@/lib/runs/architecture-request-json-mutation-blocked-reason";
+import { runExportZipMutationBlockedReason } from "@/lib/runs/run-export-zip-mutation-blocked-reason";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-blob-urls";
 import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -55,6 +60,7 @@ import { RunDetailExportHistoryCallout } from "./RunDetailExportHistoryCallout";
 import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExportRecordComparisonHistoryCallout";
 import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
 import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -162,10 +168,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError(
-          "Evidence bundle",
-          error instanceof Error ? error.message : "Could not download artifact bundle.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Evidence bundle", blocked ?? failure.message);
       })
       .finally(() => {
         setBundleBusy(false);
@@ -181,10 +187,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunExportZip(runId)
       .catch((error: unknown) => {
-        showError(
-          "Review export",
-          error instanceof Error ? error.message : "Could not download review export.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = runExportZipMutationBlockedReason(failure);
+
+        showError("Review export", blocked ?? failure.message);
       })
       .finally(() => {
         setReviewExportBusy(false);
@@ -200,10 +206,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunPackageExport(runId, "docx")
       .catch((error: unknown) => {
-        showError(
-          "Architecture review report",
-          error instanceof Error ? error.message : "Could not download DOCX export.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = runPackageExportMutationBlockedReason(failure);
+
+        showError("Architecture review report", blocked ?? failure.message);
       })
       .finally(() => {
         setDocxExportBusy(false);
@@ -219,10 +225,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError(
-          "Artifact bundle",
-          error instanceof Error ? error.message : "Could not download artifact bundle.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Artifact bundle", blocked ?? failure.message);
       })
       .finally(() => {
         setBundleBusy(false);
@@ -302,10 +308,10 @@ export function RunDetailArtifactsExportsSection(
 
                   void downloadArchitectureRequestJson(requestId)
                     .catch((error: unknown) => {
-                      showError(
-                        "Architecture request JSON",
-                        error instanceof Error ? error.message : "Download failed.",
-                      );
+                      const failure = toApiLoadFailure(error);
+                      const blocked = architectureRequestJsonMutationBlockedReason(failure);
+
+                      showError("Architecture request JSON", blocked ?? failure.message);
                     })
                     .finally(() => {
                       setRequestJsonBusy(false);
@@ -428,6 +434,7 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           <div className="mt-4 flex flex-col gap-3">
+            <SponsorExportSendHonestyStrip testIdPrefix="run-detail-exports" />
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex max-w-[14rem] flex-col gap-1">
@@ -552,6 +559,8 @@ export function RunDetailArtifactsExportsSection(
                 <RunScopedAuditExportButton
                   runId={runId}
                   manifestVersion={sealedManifestVersion}
+                  progressSummary={props.progressSummary ?? null}
+                  enginesSucceeded={props.enginesSucceeded ?? null}
                 />
                 <Link
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}

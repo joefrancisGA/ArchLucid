@@ -94,10 +94,6 @@ public sealed partial class GovernanceStickinessController
             TradeOffAcknowledgment = body.TradeOffAcknowledgment,
             RevisitDueUtc = body.RevisitDueUtc,
             EvidenceRequestText = body.EvidenceRequestText,
-            ImpactPreviewCompleted = body.ImpactPreviewCompleted,
-            PreviewOverrideReason = body.PreviewOverrideReason,
-            ArchitectRestatement = body.ArchitectRestatement,
-            ExpectedCurrentDispositionRowVersionBase64 = body.ExpectedCurrentDispositionRowVersionBase64,
         };
 
         try
@@ -111,20 +107,13 @@ public sealed partial class GovernanceStickinessController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
-        catch (FindingDispositionConflictException ex)
-        {
-            return this.ConflictProblem(
-                ex.Message,
-                ProblemTypes.Conflict,
-                extensions: new Dictionary<string, object?>
-                {
-                    ["currentDisposition"] = ex.CurrentDisposition,
-                });
-        }
-
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+        catch (FindingDispositionConflictException ex)
+        {
+            return MapFindingDispositionConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -141,8 +130,6 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecordBulkFindingDispositionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IFindingReviewTrailAppendService logs FindingReviewDispositionRecorded via IAuditService.")]
     public async Task<IActionResult> RecordBulkDisposition(
@@ -178,26 +165,26 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureBulkDispositionSealedManifestAllowedAsync(
+            request!.FindingIds,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RecordBulkFindingDispositionResponse response;
 
         try
         {
             response = await _facade.RecordBulkDispositionAsync(request, cancellationToken);
         }
-        catch (FindingDispositionConflictException ex)
-        {
-            return this.ConflictProblem(
-                ex.Message,
-                ProblemTypes.Conflict,
-                extensions: new Dictionary<string, object?>
-                {
-                    ["currentDisposition"] = ex.CurrentDisposition,
-                });
-        }
-
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+        catch (FindingDispositionConflictException ex)
+        {
+            return MapFindingDispositionConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -210,6 +197,12 @@ public sealed partial class GovernanceStickinessController
 
         return Ok(response);
     }
+
+    private IActionResult MapFindingDispositionConflict(FindingDispositionConflictException ex) =>
+        this.ConflictProblem(
+            ex.Message,
+            ProblemTypes.Conflict,
+            extensions: new Dictionary<string, object?> { ["currentDisposition"] = ex.CurrentDisposition });
 
     [HttpGet("findings/{findingId}/dispositions")]
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
@@ -238,7 +231,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
     }
 
@@ -313,7 +306,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
     }
 }

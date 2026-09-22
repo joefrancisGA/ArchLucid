@@ -4,19 +4,23 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
 import { deriveAuditLineageCheckboxPresentation } from "@/lib/audit-evidence-lineage-presentation";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
+import { auditEvidencePackageBlockedReason } from "@/lib/governance/audit-evidence-package-blocked-reason";
 import { downloadAuditEvidencePackageZip } from "@/lib/governance/audit-evidence-package-api";
 import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION,
@@ -31,14 +35,15 @@ import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL,
+  AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE,
 } from "@/lib/audit-evidence-page-copy";
 
 import {
   auditEvidenceLineageChainHrefFromSearch,
   parseAuditEvidenceLineageChainOpenFromSearch,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
-import { showError } from "@/lib/toast";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 
 import { cn } from "@/lib/utils";
 
@@ -61,6 +66,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
   const [packageDownloadBusy, setPackageDownloadBusy] = useState(false);
+  const [packageDownloadError, setPackageDownloadError] = useState<string | null>(null);
   const [chainExpanded, setChainExpandedState] = useState(() =>
     parseAuditEvidenceLineageChainOpenFromSearch(lineageChainOpenParam),
   );
@@ -103,13 +109,19 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
 
   const onDownloadEvidencePackage = useCallback(async () => {
     setPackageDownloadBusy(true);
+    setPackageDownloadError(null);
 
     try {
       await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
     } catch (error: unknown) {
-      showError(
-        "Audit evidence package download failed",
-        error instanceof Error ? error.message : String(error),
+      const failure = toApiLoadFailure(error);
+      const blocked = auditEvidencePackageBlockedReason(failure);
+
+      setPackageDownloadError(
+        formatGovernanceInfrastructureInlineActionError(
+          AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE,
+          blocked ?? (error instanceof Error ? error.message : String(error)),
+        ),
       );
     } finally {
       setPackageDownloadBusy(false);
@@ -117,40 +129,42 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   }, [props.assessmentId, props.snapshotId]);
 
   return (
-    <div className="space-y-4 p-4" data-testid="audit-evidence-control-lineage-page">
-      {buyerPolishedShell ? (
-        <a
-          href={`#${AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
-
-      <OperatorPageHeader
-        title={AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE}
-        subtitle={AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD}
-        claimDiscipline={AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="audit-evidence-control-lineage-claim-discipline"
-        titleTestId="audit-evidence-control-lineage-page-title"
-        breadcrumb={buyerPolishedShell ? <AuditEvidenceControlLineageBreadcrumb /> : undefined}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={packageDownloadBusy}
-              data-testid="audit-evidence-package-download"
-              onClick={() => {
-                void onDownloadEvidencePackage();
-              }}
-            >
-              {packageDownloadBusy ? "Preparing package…" : "Download evidence package (ZIP)"}
-            </Button>
-            <PageContextualHelpButton />
-          </div>
-        }
-      />
+    <div className="space-y-6 p-4" data-testid="audit-evidence-control-lineage-page">
+      <header className="space-y-2">
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
+          <a className="underline" href={AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH}>Audit evidence lineage</a>
+        </p>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Audit control evidence lineage</h1>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
+          Chain of custody from control through requirements, evaluation, and collected evidence. Read-only.
+        </p>
+        <p className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          assessmentId={props.assessmentId} · snapshotId={props.snapshotId} · controlId={props.controlId}
+        </p>
+        <div className="flex max-w-xl flex-col gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="self-start"
+            disabled={packageDownloadBusy}
+            data-testid="audit-evidence-package-download"
+            aria-describedby={packageDownloadError != null ? "audit-evidence-package-download-error" : undefined}
+            onClick={() => {
+              void onDownloadEvidencePackage();
+            }}
+          >
+            {packageDownloadBusy ? "Preparing bundle…" : "Download evidence bundle (ZIP)"}
+          </Button>
+          {packageDownloadError != null ? (
+            <OperatorMutationInlineError
+              message={packageDownloadError}
+              testId="audit-evidence-package-download-error"
+            />
+          ) : null}
+          <SponsorExportSendHonestyStrip testIdPrefix="audit-evidence-package" />
+        </div>
+      </header>
 
       <main
         id={buyerPolishedShell ? AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID : undefined}

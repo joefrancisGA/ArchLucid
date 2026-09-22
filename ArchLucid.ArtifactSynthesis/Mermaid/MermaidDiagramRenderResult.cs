@@ -1,3 +1,5 @@
+using ArchLucid.ArtifactSynthesis.Models;
+
 namespace ArchLucid.ArtifactSynthesis.Mermaid;
 
 public sealed class MermaidDiagramRenderResult
@@ -43,4 +45,10 @@ public sealed class MermaidDiagramRenderResult
         get;
         init;
     } = [];
+
+    public DiagramAst? RepairedAst
+    {
+        get;
+        init;
+    }
 }

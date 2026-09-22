@@ -7,7 +7,16 @@ import {
   subscribeAssumptionAckChanges,
   writeAcknowledgedAssumptionIds,
 } from "@/lib/review-quality/review-assumption-ack-store";
+import {
+  hydrateAcknowledgedAssumptionIdsFromServer,
+  pushAcknowledgedAssumptionIdsToServer,
+} from "@/lib/review-quality/review-assumption-ack-sync";
 
+/**
+ * Acknowledgements are cached in localStorage for instant paint and cross-strip notification,
+ * then hydrated from and pushed to the server so the finalize gate (TB-2345 item 49) sees the same
+ * set regardless of browser or device.
+ */
 export function useReviewAssumptionAcknowledgements(runId: string): {
   readonly acknowledgedIds: ReadonlySet<string>;
   readonly setAssumptionAcknowledged: (assumptionId: string, acknowledged: boolean) => void;
@@ -19,9 +28,22 @@ export function useReviewAssumptionAcknowledgements(runId: string): {
   useEffect(() => {
     setAcknowledgedIds(readAcknowledgedAssumptionIds(runId));
 
-    return subscribeAssumptionAckChanges(runId, () => {
+    let cancelled = false;
+
+    void hydrateAcknowledgedAssumptionIdsFromServer(runId).then((merged) => {
+      if (!cancelled && merged !== null) {
+        setAcknowledgedIds(merged);
+      }
+    });
+
+    const unsubscribe = subscribeAssumptionAckChanges(runId, () => {
       setAcknowledgedIds(readAcknowledgedAssumptionIds(runId));
     });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, [runId]);
 
   const setAssumptionAcknowledged = useCallback(
@@ -36,6 +58,7 @@ export function useReviewAssumptionAcknowledgements(runId: string): {
 
       writeAcknowledgedAssumptionIds(runId, next);
       setAcknowledgedIds(next);
+      void pushAcknowledgedAssumptionIdsToServer(runId, next);
     },
     [acknowledgedIds, runId],
   );

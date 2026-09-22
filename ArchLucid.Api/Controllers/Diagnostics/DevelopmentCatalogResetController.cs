@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Diagnostics;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagnostics;
 using ArchLucid.Core.Audit;
@@ -83,6 +84,10 @@ public sealed class DevelopmentCatalogResetController(
         try
         {
             result = await _resetService.ResetToFreshInstallAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

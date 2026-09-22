@@ -4,8 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { memo, type ReactElement } from "react";
 
+import { FindingDispositionHistorySection } from "@/components/governance/findings/FindingDispositionHistorySection";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
+import { governanceQueueRowToSemanticSupportChipFinding } from "@/lib/governance/governance-finding-queue-row-semantic-support";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
@@ -38,6 +42,7 @@ import {
   governanceFindingDetailKeyboardActivate,
   governanceFindingInspectHref,
   navigateGovernanceFindingDetail,
+  type GovernanceFindingInspectHrefOptions,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 
@@ -46,6 +51,8 @@ export type GovernanceFindingRowProps = {
   readonly buyerPolishedShell: boolean;
   readonly variant: "buyer" | "operational";
   readonly showNewSinceLastVisit?: boolean;
+  readonly inhabitedFindingsDocument?: boolean;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
   readonly onOpenRow?: () => void;
   readonly onOpenFinding?: (row: GovernanceFindingQueueRow) => void;
 };
@@ -55,15 +62,21 @@ function GovernanceFindingRowComponent({
   buyerPolishedShell,
   variant,
   showNewSinceLastVisit = false,
+  inhabitedFindingsDocument = false,
+  inspectHrefOptions,
   onOpenRow,
   onOpenFinding,
 }: GovernanceFindingRowProps): ReactElement {
   const router = useRouter();
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const rowIsDecision = row.recordKind === "decision";
   const buyerVariant = variant === "buyer";
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+  const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
   const evidenceTraceHref =
-    row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
+    row.recordKind === "finding"
+      ? governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)
+      : null;
 
   if (buyerVariant) {
     return (
@@ -103,7 +116,7 @@ function GovernanceFindingRowComponent({
             ) : null}
             <Link
               className={OPERATOR_LINK.inline}
-              href={governanceFindingInspectHref(row.runId, row.findingId)}
+              href={governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)}
               onClick={(event) => {
                 if (row.recordKind === "finding" && onOpenFinding !== undefined) {
                   event.preventDefault();
@@ -137,6 +150,13 @@ function GovernanceFindingRowComponent({
               />
             </div>
           ) : null}
+          {semanticSupportChipFinding !== null ? (
+            <FindingSemanticSupportBandChip
+              finding={semanticSupportChipFinding}
+              structuralExecutionMode={structuralExecutionMode}
+              className="mt-2"
+            />
+          ) : null}
         </CardHeader>
         <CardContent className={cn("grid gap-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
           <div>
@@ -169,6 +189,12 @@ function GovernanceFindingRowComponent({
           {row.recordKind === "finding" ? (
             <FindingListDispositionRowActions findingId={row.findingId} compact />
           ) : null}
+          {row.recordKind === "finding" && inhabitedFindingsDocument ? (
+            <FindingDispositionHistorySection
+              findingId={row.findingId}
+              testId={`governance-row-disposition-history-${row.findingId}`}
+            />
+          ) : null}
           {row.recordKind === "finding"
           && row.latestDisposition !== null
           && row.latestDisposition !== undefined
@@ -197,7 +223,7 @@ function GovernanceFindingRowComponent({
         <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
           <Link
             className={OPERATOR_LINK.inline}
-            href={governanceFindingInspectHref(row.runId, row.findingId)}
+            href={governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)}
           >
             {row.title}
           </Link>
@@ -227,11 +253,24 @@ function GovernanceFindingRowComponent({
           </>
         ) : null}
         <GovernanceFindingOperationalHeaderMeta row={row} buyerPolishedShell={buyerPolishedShell} />
+        {semanticSupportChipFinding !== null ? (
+          <FindingSemanticSupportBandChip
+            finding={semanticSupportChipFinding}
+            structuralExecutionMode={structuralExecutionMode}
+            className="mt-2"
+          />
+        ) : null}
       </CardHeader>
       <CardContent className={cn("grid gap-2 pt-0 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="operational" />
         {row.recordKind === "finding" ? (
           <FindingListDispositionRowActions findingId={row.findingId} compact />
+        ) : null}
+        {row.recordKind === "finding" && inhabitedFindingsDocument ? (
+          <FindingDispositionHistorySection
+            findingId={row.findingId}
+            testId={`governance-row-disposition-history-${row.findingId}`}
+          />
         ) : null}
         {row.recordKind === "finding"
         && row.latestDisposition !== null

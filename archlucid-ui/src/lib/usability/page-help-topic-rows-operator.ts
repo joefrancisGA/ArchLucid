@@ -22,6 +22,9 @@ import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-cop
 import { TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/troubleshooting-help-evidence-copy";
 import { USERS_AND_ROLES_HELP_TOPIC_LABEL } from "@/lib/users-and-roles-help-evidence-copy";
 import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-copy";
+import { CAREER_REHEARSAL_HELP_TOPIC_LABEL } from "@/lib/career-rehearsal-help-evidence-copy";
+import { WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL } from "@/lib/governance/working-career-rehearsal-help-evidence-copy";
+import { SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL } from "@/lib/system-not-job-help-system-not-job-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
 
 import { PAGE_HELP_TOPIC_ROWS_OPERATOR_ARCHITECTURE } from "./page-help-topic-rows-operator-architecture";
@@ -38,6 +41,13 @@ export type PageHelpTopic = {
   /** Optional hash on the resolved help href (e.g. getting-started#how-archlucid-works). */
   readonly hashFragment?: string;
   readonly label: string;
+};
+
+export type PageHelpTopicRow = {
+  readonly prefix: string;
+  readonly topic: PageHelpTopic;
+  /** When true, only `path === prefix` matches (not child routes). */
+  readonly exactMatchOnly?: boolean;
 };
 
 const PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE: readonly { prefix: string; topic: PageHelpTopic }[] = [
@@ -91,6 +101,18 @@ const PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE: readonly { prefix: string; topic: Page
     topic: { slug: "preferences", label: PREFERENCES_HELP_TOPIC_LABEL },
   },
   {
+    prefix: "/help/architecture-desk",
+    topic: { slug: "architecture-desk", label: SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/career-vs-rehearsal",
+    topic: { slug: "career-vs-rehearsal", label: CAREER_REHEARSAL_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/career-rehearsal-doors",
+    topic: { slug: "career-rehearsal-doors", label: WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL },
+  },
+  {
     prefix: "/help/notifications",
     topic: { slug: "notifications", label: NOTIFICATIONS_HELP_TOPIC_LABEL },
   },
@@ -119,7 +141,7 @@ const PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE: readonly { prefix: string; topic: Page
   { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } },
 ];
 
-export const PAGE_HELP_TOPIC_ROWS_OPERATOR: readonly { prefix: string; topic: PageHelpTopic }[] = [
+export const PAGE_HELP_TOPIC_ROWS_OPERATOR: readonly PageHelpTopicRow[] = [
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE,
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR_ARCHITECTURE,
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR_PILOT,

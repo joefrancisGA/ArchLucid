@@ -7,6 +7,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.TechnologyLedger;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -35,7 +36,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed class TechnologyLedgerController(
+public sealed partial class TechnologyLedgerController(
     ITechnologyLedgerRunCommandService technologyLedgerRunCommandService,
     IAuthorityQueryService authorityQueryService,
     IScopeContextProvider scopeContextProvider,
@@ -80,6 +81,10 @@ public sealed class TechnologyLedgerController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapTechnologyLedgerSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Updates approval fields on a single Technology Ledger entry.</summary>
@@ -97,6 +102,22 @@ public sealed class TechnologyLedgerController(
     {
         if (request is null || !request.HasChanges())
             return this.BadRequestProblem("At least one patch field must be provided.", ProblemTypes.ValidationFailed);
+
+        if (request.Rationale is not null
+            && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(request.Rationale))
+        {
+            return this.BadRequestProblem(
+                $"Rationale must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.TechnologyName is not null
+            && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(request.TechnologyName))
+        {
+            return this.BadRequestProblem(
+                $"TechnologyName must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         try
         {
@@ -158,7 +179,7 @@ public sealed class TechnologyLedgerController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapTechnologyLedgerSealedManifestConflict(ex);
         }
         catch (RunNotFoundException ex)
         {
@@ -174,29 +195,4 @@ public sealed class TechnologyLedgerController(
         }
     }
 
-    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
-        ScopeContext scope,
-        Guid runId,
-        CancellationToken cancellationToken)
-    {
-        RunDetailDto? detail =
-            await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.GoldenManifest is null)
-            return null;
-
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                _manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        return null;
-    }
 }

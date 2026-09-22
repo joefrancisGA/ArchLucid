@@ -1,6 +1,6 @@
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
-import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import type { RunSummary } from "@/types/authority";
 
 const REVIEW_PATH_PREFIX = "/architecture/reviews/";
@@ -36,17 +36,25 @@ function runIdFromRecentHref(href: string): string | null {
 function buildContinueLastReviewPackageHref(
   runId: string,
   runs: readonly RunSummary[],
-  options?: ResolveContinueLastReviewPackageOptions,
+  options?: ResolveContinueLastReviewPackageOptions & {
+    readonly architectureId?: string | null;
+  },
 ): string {
   const trimmedRunId = runId.trim();
   const run = runs.find((item) => item.runId === trimmedRunId);
+  const architectureId =
+    options?.architectureId?.trim()
+    ?? run?.requestId?.trim()
+    ?? "";
 
   if (options?.workingMode === true) {
-    return resolveWorkingRunReviewLocator({
+    return resolveWorkingInhabitedFindingsLandingHref({
       runId: trimmedRunId,
+      architectureId: architectureId.length > 0 ? architectureId : null,
       requestId: run?.requestId,
       draftRegistryEntries: options.draftRegistryEntries,
-    }).href;
+      workingMode: true,
+    });
   }
 
   return `${REVIEW_PATH_PREFIX}${encodeURIComponent(trimmedRunId)}`;
@@ -75,10 +83,15 @@ function readRecentReviewPackageEntry(
         continue;
       }
 
+      const architectureId = entry.architectureId?.trim() ?? entry.parentArchitectureId?.trim() ?? "";
+
       return {
         runId,
         label: entry.label,
-        href: buildContinueLastReviewPackageHref(runId, runs, options),
+        href: buildContinueLastReviewPackageHref(runId, runs, {
+          ...options,
+          architectureId: architectureId.length > 0 ? architectureId : null,
+        }),
         visitedAtUtc: entry.visitedAtUtc,
       };
     }
@@ -101,10 +114,15 @@ export function resolveContinueLastReviewPackageTarget(
     const accessible = runs.some((run) => run.runId === trimmedServerReviewId);
 
     if (accessible) {
+      const run = runs.find((item) => item.runId === trimmedServerReviewId);
+
       return {
         runId: trimmedServerReviewId,
         label: "Review",
-        href: buildContinueLastReviewPackageHref(trimmedServerReviewId, runs, options),
+        href: buildContinueLastReviewPackageHref(trimmedServerReviewId, runs, {
+          ...options,
+          architectureId: run?.requestId ?? null,
+        }),
         visitedAtUtc: new Date().toISOString(),
       };
     }

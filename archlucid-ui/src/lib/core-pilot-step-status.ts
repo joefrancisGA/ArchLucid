@@ -1,4 +1,5 @@
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import type { FirstReviewAzureInventoryZipPromptScope } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
 import { CORE_PILOT_STEP_COUNT } from "@/lib/core-pilot-steps";
 import type { CorePilotProgressSnapshot } from "@/lib/usability/core-pilot-progress-tracker";
 
@@ -7,6 +8,7 @@ export type CorePilotStepDerivedStatus = "done" | "in-progress" | "not-started" 
 export type CorePilotStepStatusContext = CorePilotCommitContext & {
   /** Optional-step indices the operator explicitly skipped (persisted client-side). */
   readonly optionalStepsSkipped: readonly boolean[];
+  readonly azureInventoryPromptScope: FirstReviewAzureInventoryZipPromptScope;
 };
 
 /** Steps 0–2 are required for first-review completion; 3–6 are optional enrichments. */
@@ -113,6 +115,9 @@ export function buildCorePilotProgressFromStatuses(
 export function buildCorePilotStepStatusContext(
   commitContext: CorePilotCommitContext,
   optionalStepsSkipped: readonly boolean[],
+  azureInventoryPromptScope: FirstReviewAzureInventoryZipPromptScope = {
+    runId: commitContext.latestRunId,
+  },
 ): CorePilotStepStatusContext {
   const paddedSkips = Array.from({ length: CORE_PILOT_STEP_COUNT }, (_, index) =>
     optionalStepsSkipped[index] === true,
@@ -121,6 +126,7 @@ export function buildCorePilotStepStatusContext(
   return {
     ...commitContext,
     optionalStepsSkipped: paddedSkips,
+    azureInventoryPromptScope,
   };
 }
 

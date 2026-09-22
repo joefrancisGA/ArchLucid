@@ -11,6 +11,7 @@ import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { AcceleratorChooserHelpClaimDisciplineStrip } from "@/components/help/AcceleratorChooserHelpClaimDisciplineStrip";
 import { AcceleratorChooserHelpSourcesOrientationStrip } from "@/components/help/AcceleratorChooserHelpSourcesOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -406,6 +407,8 @@ export function HelpAcceleratorChooserGuideView(
           </section>
           </section>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="help-accelerator-chooser" showSsoOptional={false} />
+
           {buyerPolishedShell ? null : (
           <section
             className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -432,7 +435,7 @@ export function HelpAcceleratorChooserGuideView(
           </div>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
       </div>
     </article>
   );

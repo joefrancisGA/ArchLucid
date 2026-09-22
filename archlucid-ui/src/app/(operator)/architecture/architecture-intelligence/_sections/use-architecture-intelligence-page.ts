@@ -24,6 +24,7 @@ export type UseArchitectureIntelligencePageResult = {
   loadingInboundContext: boolean;
   productContextLoadFailed: boolean;
   productContextLoadFailure: ApiLoadFailureState | null;
+  productContextBlockedReason: string | null;
   loadingAction: ArchitectureIntelligenceLoadingAction;
   retryProductContextLoad: () => void;
   showReasoningWorkspace: boolean;
@@ -89,6 +90,7 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
     loadingInboundContext: productContext.loadingInboundContext,
     productContextLoadFailed: productContext.productContextLoadFailed,
     productContextLoadFailure: productContext.productContextLoadFailure,
+    productContextBlockedReason: productContext.productContextBlockedReason,
     loadingAction: productContext.loadingAction,
     retryProductContextLoad: productContext.retryProductContextLoad,
     showReasoningWorkspace: productContext.showReasoningWorkspace,

@@ -769,6 +769,38 @@ public sealed class ReadOnlyController(IAuditService auditService) : ControllerB
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task AL0003_reports_when_expression_bodied_HttpPost_lacks_IAudit_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class ExpressionBodyController : ControllerBase
+{
+    [HttpPost("x")]
+    public IActionResult {|#0:Post|}() => Ok();
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.ExpressionBodyController.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
     private static Solution MarkAssemblyAsArchLucidApi(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 }

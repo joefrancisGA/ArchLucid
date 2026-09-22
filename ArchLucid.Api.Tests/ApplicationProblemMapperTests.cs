@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
@@ -57,6 +58,22 @@ public sealed class ApplicationProblemMapperTests
         MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.Conflict);
         p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("corr-409");
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_DraftCasConflict_attaches_stable_error_code()
+    {
+        ConflictException ex = new("omitted", DraftPatchCasConflictCodes.TokenMissing);
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/draft/x", "corr-cas");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Title.Should().Be("Draft CAS token missing");
+        p.Extensions["errorCode"].Should().Be(DraftPatchCasConflictCodes.TokenMissing);
+        p.Extensions["code"].Should().Be(DraftPatchCasConflictCodes.TokenMissing);
     }
 
     [SkippableFact]

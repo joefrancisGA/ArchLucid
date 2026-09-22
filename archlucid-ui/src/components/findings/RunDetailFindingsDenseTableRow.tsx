@@ -5,6 +5,8 @@ import type { CSSProperties, ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingCounterfactualLine } from "@/components/findings/FindingCounterfactualLine";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
@@ -15,7 +17,7 @@ import {
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
@@ -25,12 +27,15 @@ import {
   severityKindFromNumericValue,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsDenseTableRowProps = {
   readonly runId: string;
+  readonly architectureId?: string | null;
   readonly finding: QuickDecisionFinding;
   readonly showDensityScore: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly isFocused?: boolean;
   readonly style?: CSSProperties;
   readonly onOpenRow?: () => void;
@@ -39,7 +44,10 @@ export type RunDetailFindingsDenseTableRowProps = {
 export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTableRowProps): ReactElement {
   const { runId, finding, showDensityScore, isFocused, style, onOpenRow } = props;
   const { isWorkingMode } = useWorkspaceMode();
-  const href = getFindingDetailHref(runId, finding.findingId);
+  const href = resolveQuickDecisionFindingInspectHref(runId, finding.findingId, {
+    architectureId: props.architectureId,
+    isWorkingMode,
+  });
   const showDecisionGradeHonesty =
     isWorkingMode && finding.classification === FINDING_CLASSIFICATION_DECISION_GRADE;
   const badgeLabel = severityBadgeLabel(finding.severityValue);
@@ -78,8 +86,23 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         </Link>
         <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
-          <div className="mt-1">
-            <FindingClassificationChip classification={finding.classification} findingId={finding.findingId} />
+          <div className="mt-1 space-y-1">
+            <FindingClassificationChip
+              classification={finding.classification}
+              treatment={finding.treatment}
+              findingId={finding.findingId}
+              showReason
+            />
+            {showDecisionGradeHonesty ? (
+              <div className="flex flex-wrap items-center gap-1">
+                <FindingTrustChip finding={finding} />
+                <FindingSemanticSupportBandChip
+                  finding={finding}
+                  showReason
+                  structuralExecutionMode={props.structuralExecutionMode}
+                />
+              </div>
+            ) : null}
             {showDecisionGradeHonesty ? (
               <p
                 className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}

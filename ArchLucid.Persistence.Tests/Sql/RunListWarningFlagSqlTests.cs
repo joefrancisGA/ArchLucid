@@ -39,8 +39,9 @@ public sealed class RunListWarningFlagSqlTests
     {
         const string joins = RunListWarningFlagSql.LeftJoinAggregates;
 
-        joins.Should().Contain("UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))");
-        joins.Should().Contain("UPPER(LTRIM(RTRIM(ar.RequestId)))");
+        joins.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ArchitectureRequestId))");
+        joins.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(ar.RequestId))");
+        joins.Should().Contain("STRING_AGG");
     }
 
     [Fact]

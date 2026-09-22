@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { FirstValue20HelpClaimDisciplineStrip } from "@/components/help/FirstValue20HelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -193,6 +194,8 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
             ))}
           </ul>
         </section>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-first-value-20" showSsoOptional={false} />
 
         <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-first-value-20-content">
           <MarketingAccessibilityMarkdownFragment

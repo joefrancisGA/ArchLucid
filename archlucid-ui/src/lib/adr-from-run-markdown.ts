@@ -145,8 +145,14 @@ export function buildMadrMarkdownFromRun(
             const trustBullet =
               trustLine !== null ? `\n- **Trust label:** ${trustLine}` : "";
             const provenanceKind = f.provenanceKind ?? "Unknown";
+            const semanticSupportBullet =
+              f.semanticSupportBand !== null
+              && f.semanticSupportBand !== undefined
+              && f.semanticSupportBand.trim().length > 0
+                ? `\n- **Semantic support:** ${f.semanticSupportBand} (scorer ${f.semanticSupportBandScorerVersion ?? "unknown"})`
+                : "";
 
-            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
+            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
           .join("\n");
 

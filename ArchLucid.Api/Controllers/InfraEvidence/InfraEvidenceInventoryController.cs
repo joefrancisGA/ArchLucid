@@ -22,7 +22,7 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/infra-evidence/azure-inventory")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class InfraEvidenceInventoryController(
+public sealed partial class InfraEvidenceInventoryController(
     IAzureInventoryBaselineService baselineService,
     IAzureInventoryDriftClassificationService driftClassificationService,
     IAzureInventoryDriftApprovalService driftApprovalService,
@@ -97,7 +97,7 @@ public sealed class InfraEvidenceInventoryController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapInventorySealedManifestConflict(ex);
         }
     }
 
@@ -176,7 +176,7 @@ public sealed class InfraEvidenceInventoryController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapInventorySealedManifestConflict(ex);
         }
     }
 }

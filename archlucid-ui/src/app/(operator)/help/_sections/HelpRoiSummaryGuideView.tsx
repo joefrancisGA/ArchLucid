@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 import { HelpRoiSummaryHeaderActions } from "@/app/(operator)/help/_sections/HelpRoiSummaryHeaderActions";
+import { HelpRoiSummaryClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpRoiSummaryClaimOrientationStrip";
 import { HelpRoiSummarySourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpRoiSummarySourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
 import { RoiSummaryHelpClaimDisciplineStrip } from "@/components/help/RoiSummaryHelpClaimDisciplineStrip";
 import { RoiSummaryHelpEvidenceOrientationStrip } from "@/components/help/RoiSummaryHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -325,6 +327,11 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
         </div>
 
         {buyerPolishedShell ? <HelpRoiSummarySourcesOrientationStrip /> : null}
+
+        <div data-testid="help-roi-summary-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-roi-summary" showSsoOptional={false} />
+          <HelpRoiSummaryClaimOrientationStrip />
+        </div>
       </div>
     </article>
   );

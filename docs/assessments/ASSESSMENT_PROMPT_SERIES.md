@@ -179,7 +179,7 @@ For each quality provide: Score · Weight · Weighted contribution · Weighted d
 * **Proof-of-ROI Readiness** — credibility (not mere presence) of the ROI story: `GET /v1/roi/sponsor-summary` + board-pack export, cost evidence, savings basis labels, disposition-aware totals, and (for AWS/GCP) whether cost findings carry structured retail-price grounding or only illustrative framing (**TB-603**).
 * **Sponsor / Architect Comprehension** — understandable to architects, executives, and governance stakeholders without excessive explanation.
 * **Runtime & First-Review Reliability** — does first review generation, commit, manifest, and export work reliably end to end? (UI breakage is also a **ship gate** below.)
-* **Adoption Friction** — effort to configure identity, ingest evidence, run the pilot path, validate security, and fit existing operations; account for `Integrations:Itsm:NativeEnabled` defaulting `false` out of the box (**TB-599**).
+* **Adoption Friction** — effort to configure identity, ingest evidence, run the pilot path, validate security, and fit existing operations; account for `Integrations:Itsm:NativeEnabled` defaulting **`true`** out of the box (**TB-599**; deployments may opt out with `false`).
 
 ## Differentiability Rubric
 

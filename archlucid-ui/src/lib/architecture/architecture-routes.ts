@@ -1,13 +1,13 @@
 ﻿/** Architecture draft list. */
 export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;
 
-/** Query param for opening a draft editor under an architecture identity desk (ADR 0074). */
+/** Query param for opening a architecture draft editor under an architecture identity desk (ADR 0074). */
 export const ARCHITECTURE_DRAFT_QUERY_PARAM = "draft" as const;
 
 /** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{draftId}`). */
 export const ARCHITECTURES_NEW_PATH = "/architecture/architectures/new" as const;
 
-/** Route segment for the unsaved new-draft workspace — not a server draft id. */
+/** Route segment for the unsaved new-architecture draft workspace — not a server draft id. */
 export const ARCHITECTURE_NEW_DRAFT_SEGMENT = "new" as const;
 
 /** Architecture reviews list (hub). */
@@ -39,7 +39,7 @@ export function architectureIdentityPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;
 }
 
-/** Opens the nested draft editor under a durable architecture identity desk (ADR 0077 / AO-05). */
+/** Opens the nested architecture draft editor under a durable architecture identity desk (ADR 0077 / AO-05). */
 export function architectureIdentityDraftHref(architectureId: string, draftId: string): string {
   return architectureNestedDraftPath(architectureId, draftId);
 }
@@ -78,11 +78,27 @@ export function parseArchitectureNestedAskArchitectureId(pathname: string): stri
   return parseArchitectureNestedToolArchitectureId(pathname, "ask");
 }
 
-export type ArchitectureNestedToolSegment = "ask" | "compare" | "graph" | "findings" | "search";
+export type ArchitectureNestedToolSegment =
+  | "ask"
+  | "compare"
+  | "graph"
+  | "findings"
+  | "search"
+  | "impact-preview";
 
 /** Working nested Compare tool — ADR 0079 / SY-38. */
 export function architectureNestedComparePath(architectureId: string): string {
   return `${architectureIdentityPath(architectureId.trim())}/compare`;
+}
+
+/** Working nested Impact preview — policy cheap envelope on the architecture desk (SN-007 / ADR 0092). */
+export function architectureNestedImpactPreviewPath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/impact-preview`;
+}
+
+/** Parses `/architecture/architectures/{id}/impact-preview` for nested policy envelope routes (SN-007). */
+export function parseArchitectureNestedImpactPreviewArchitectureId(pathname: string): string | null {
+  return parseArchitectureNestedToolArchitectureId(pathname, "impact-preview");
 }
 
 /** Working nested Evidence graph tool — ADR 0079 / SY-40. */
@@ -131,6 +147,7 @@ export function parseArchitectureNestedDeskArchitectureId(pathname: string): str
     "graph",
     "findings",
     "search",
+    "impact-preview",
   ];
 
   for (const segment of segments) {

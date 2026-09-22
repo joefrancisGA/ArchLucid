@@ -417,6 +417,26 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "private-beta proxy ESM boundary",
+        ("python", "scripts/ci/check_private_beta_proxy_esm_boundary.py"),
+        None,
+    ),
+    GuardCommand(
+        "Quick Scan sample-only marketing copy",
+        ("python", "scripts/ci/check_quick_scan_sample_only.py"),
+        None,
+    ),
+    GuardCommand(
+        "private-beta claim boundary",
+        ("python", "scripts/ci/check_private_beta_claim_boundary.py"),
+        None,
+    ),
+    GuardCommand(
+        "Azure extractor Pester isolation",
+        ("python", "scripts/ci/check_azure_extractor_pester_isolation.py"),
+        None,
+    ),
+    GuardCommand(
         "auth beta-readiness invite callout surfaces",
         ("python", "scripts/ci/check_auth_beta_readiness_invite_callout_surfaces.py"),
         None,
@@ -429,6 +449,11 @@ GUARDS: tuple[GuardCommand, ...] = (
     GuardCommand(
         "insight-density advisory surfaces",
         ("python", "scripts/ci/check_insight_density_advisory_surfaces.py"),
+        None,
+    ),
+    GuardCommand(
+        "insight-density distribution zero gaps",
+        ("python", "scripts/ci/assert_insight_density_distribution_zero_gaps.py"),
         None,
     ),
     GuardCommand(
@@ -479,8 +504,13 @@ def resolve_strict_mode(*, base_ref: str, force_strict: bool, force_advisory: bo
     return bool(payload.get("buyerSurfaceChanged")), [str(path) for path in changed_paths]
 
 
+def _resolve_guard_argv(argv: tuple[str, ...]) -> list[str]:
+    """Use the active interpreter when guards invoke `python` (Linux agents often lack `python`)."""
+    return [sys.executable if part == "python" else part for part in argv]
+
+
 def run_guard(root: Path, guard: GuardCommand, *, strict: bool) -> tuple[int, str]:
-    argv = list(guard.argv)
+    argv = _resolve_guard_argv(guard.argv)
 
     if not strict and guard.advisory_flag is not None:
         argv.append(guard.advisory_flag)

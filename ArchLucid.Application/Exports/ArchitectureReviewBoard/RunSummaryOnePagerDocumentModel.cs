@@ -105,6 +105,12 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public string? SendableExportCoverPlainText
+    {
+        get;
+        init;
+    }
+
     public string? ArchitectRestatementMarkdown
     {
         get;

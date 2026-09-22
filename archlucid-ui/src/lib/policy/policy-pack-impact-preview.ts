@@ -1,5 +1,5 @@
 import type { components } from "@/lib/openapi-schemas";
-import type { PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
+import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
 
 import { mergeComplianceRuleKeySets } from "@/lib/policy/policy-pack-compliance-rule-key-diff";
 
@@ -76,6 +76,68 @@ export function buildPolicyImpactPreviewSimulateRequest(
   }
 
   return body;
+}
+
+export function resolvePolicyPackDisplayName(
+  packs: readonly PolicyPack[],
+  packId: string,
+): string {
+  const trimmedPackId = packId.trim();
+
+  if (trimmedPackId.length === 0) {
+    return "—";
+  }
+
+  const match = packs.find((pack) => pack.policyPackId.trim() === trimmedPackId);
+
+  if (match !== undefined && match.name.trim().length > 0) {
+    return match.name.trim();
+  }
+
+  return trimmedPackId;
+}
+
+export function resolveInitialPackComparisonIds(
+  packs: readonly PolicyPack[],
+  selectedPackId: string,
+  urlPackAId?: string | null,
+  urlPackBId?: string | null,
+): { readonly packAId: string; readonly packBId: string } {
+  const trimmedSelected = selectedPackId.trim();
+  const trimmedUrlA = urlPackAId?.trim() ?? "";
+  const trimmedUrlB = urlPackBId?.trim() ?? "";
+  const publishedPackIds = packs
+    .map((pack) => pack.policyPackId.trim())
+    .filter((packId) => packId.length > 0);
+
+  if (publishedPackIds.length === 0) {
+    return { packAId: trimmedSelected, packBId: "" };
+  }
+
+  if (trimmedUrlA.length > 0 && publishedPackIds.includes(trimmedUrlA)) {
+    const packBId =
+      trimmedUrlB.length > 0 && publishedPackIds.includes(trimmedUrlB) && trimmedUrlB !== trimmedUrlA
+        ? trimmedUrlB
+        : (publishedPackIds.find((packId) => packId !== trimmedUrlA) ?? "");
+
+    return { packAId: trimmedUrlA, packBId };
+  }
+
+  const packAId =
+    trimmedSelected.length > 0 && publishedPackIds.includes(trimmedSelected)
+      ? trimmedSelected
+      : (publishedPackIds[0] ?? "");
+  const packBId =
+    publishedPackIds.find((packId) => packId !== packAId) ??
+    (publishedPackIds.length > 1 ? (publishedPackIds[1] ?? "") : "");
+
+  return { packAId, packBId };
+}
+
+export function extractComplianceRuleKeys(content: PolicyPackContentDocument | null): string[] {
+  return (content?.complianceRuleKeys ?? [])
+    .filter((key) => (key ?? "").trim().length > 0)
+    .map((key) => key.trim());
 }
 
 export function summarizePolicyImpactGateResult(

@@ -14,3 +14,8 @@ export function governanceResolutionBlockedReason(failure: ApiLoadFailureState |
 export function governanceEnvironmentCatalogBlockedReason(failure: ApiLoadFailureState | null): string | null {
   return compareRunPairBlockedReason(failure);
 }
+
+/** Wave-108 suggestion 1292: surface lifecycle/sealed-hash governance activations list 409 copy. */
+export function governanceActivationsBlockedReason(failure: ApiLoadFailureState | null): string | null {
+  return compareRunPairBlockedReason(failure);
+}

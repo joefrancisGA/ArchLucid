@@ -1,11 +1,17 @@
 using ArchLucid.Api.Formatters;
-using ArchLucid.Application.Reporting;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -13,6 +19,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -35,6 +42,12 @@ public sealed partial class AuditController(
     IScopeContextProvider scopeProvider,
     ExportFormatterService exportFormatter,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : ControllerBase
 {
 }

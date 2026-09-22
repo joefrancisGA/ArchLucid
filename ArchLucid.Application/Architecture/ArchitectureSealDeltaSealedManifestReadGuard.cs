@@ -26,7 +26,7 @@ public static class ArchitectureSealDeltaSealedManifestReadGuard
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
         ArchitectureIdentityDetail? detail = await architectureIdentityService
-            .GetIdentityAsync(scope, architectureId, cancellationToken)
+            .GetIdentityAsync(scope, architectureId, actorOidForShareFilter: null, cancellationToken)
             .ConfigureAwait(false);
 
         if (detail is null)

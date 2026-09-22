@@ -147,6 +147,24 @@ public sealed class OutboundWebhookDryRunServiceTests
     }
 
     [SkippableFact]
+    public async Task ProbeWithBodyAsync_propagates_caller_cancellation()
+    {
+        CapturingHandler handler = new();
+        using HttpClient http = new(handler);
+        OutboundWebhookDryRunService service = new(http);
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+
+        Func<Task> act = () => service.ProbeWithBodyAsync(
+            new Uri("https://example.com/webhook"),
+            sharedSecret: null,
+            OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8(),
+            cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
     public async Task ProbeWithBodyAsync_rejects_private_network_connect_endpoint_at_socket_connect()
     {
         using HttpClient http = CreateWebhookProbeHttpClientWithConnectGuard();
@@ -234,7 +252,7 @@ public sealed class OutboundWebhookDryRunServiceTests
 
         private async ValueTask<int> ReadAsyncCore(Memory<byte> buffer, CancellationToken cancellationToken)
         {
-            int read = await base.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+            int read = await base.ReadAsync(buffer, cancellationToken);
             onBytesRead(Position);
 
             return read;

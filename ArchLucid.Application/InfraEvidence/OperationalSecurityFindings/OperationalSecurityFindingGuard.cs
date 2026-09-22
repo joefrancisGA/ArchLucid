@@ -99,6 +99,7 @@ public static class OperationalSecurityFindingGuard
             item.AssessmentId,
             item.InventoryDiffId,
             item.AuditEvidenceSnapshotId,
+            item.PathId,
             Metadata = item.Metadata
                 .OrderBy(pair => pair.Key, StringComparer.Ordinal)
                 .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal),

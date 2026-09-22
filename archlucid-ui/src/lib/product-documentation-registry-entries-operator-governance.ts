@@ -48,6 +48,15 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "decision register orientation",
   },
   {
+    "slug": "sealed-record-vs-decision-register",
+    "title": "Sealed review record vs decision register",
+    "summary": "A sealed review record is the finalized package for one review; the decision register is the ledger of dispositions.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-09-12",
+    "releaseApplicability": "Desk-IA help (DI-023 / ADR 0095)",
+  },
+  {
     "slug": "standards-and-rules",
     "title": "Standards & rules",
     "summary": "Effective policy resolution rows, enforcement mode, and linked evidence for a review.",
@@ -86,6 +95,40 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     ],
     "lastReviewed": "2026-08-09",
     "releaseApplicability": "policy alerts orientation",
+  },
+  {
+    "slug": "career-vs-rehearsal",
+    "title": "Record vs Practice on the Working desk",
+    "summary": "Choose Record for sealed-record evidence or Practice for labeled dry-runs — Simulator output is not sponsor proof.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/go-to-market/CAREER_VS_REHEARSAL_WORKING_DOORS.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Working desk Career vs Rehearsal doors (AS-076+)",
+  },
+  {
+    "slug": "security-evidence-paths",
+    "title": "Security evidence paths",
+    "summary": "Read architect path summaries, confidence bands, weakest hops, and cut points in the remediation factory Path inspect panel.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/SECURITY_EVIDENCE_PATHS_OPERATOR_GUIDE.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "SecureNow remediation factory path inspect (SA-16/SA-21)",
+    "pdfStatus": "customer",
+  },
+  {
+    "slug": "architecture-sharing",
+    "title": "Architecture sharing inside your tenant",
+    "summary": "Optional restrict-to-shares hides a package from unshared workspace members — still one tenant, not chat or a second tenant.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/architecture/adrs/0087-architecture-share-acl-inside-tenant.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Optional RestrictToShares inside tenant (AS-086+)",
   },
   {
     "slug": "pilot-feedback",

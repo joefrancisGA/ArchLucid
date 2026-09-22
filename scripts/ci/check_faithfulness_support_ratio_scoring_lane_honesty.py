@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TB-1229 / M-209: Anti-faithfulness-as-commit-gate / support-ratio-as-legal-truth honesty CI."""
+"""TB-1229 / M-209 / AS-067: Anti-faithfulness-as-commit-gate / support-band-as-seal-truth honesty CI."""
 
 from __future__ import annotations
 
@@ -64,6 +64,16 @@ _CAVEAT_MARKERS: tuple[str, ...] = (
     "honesty guard",
     "non-claim",
     "≠",
+    "as-065",
+    "as-067",
+    "adr 0085",
+    "opt-in",
+    "default off",
+    "heuristic signal",
+    "not legal truth",
+    "not semantically verified",
+    "unsupported hold",
+    "pilotstrict hold",
 )
 
 
@@ -121,6 +131,36 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
             re.IGNORECASE,
         ),
         "Nightly/offline eval is async quality signal — not per-package faithfulness seal (TB-1228).",
+    ),
+    ClaimPattern(
+        re.compile(
+            r"\b(?:seal(?:ed)?|package|manifest|golden[-\s]manifest|review\s+record|commit|finalize)\b"
+            r"[^.\n]{0,80}\bsemantically\s+verified\b",
+            re.IGNORECASE,
+        ),
+        "Seal/package is not semantically verified by default — support band is heuristic/async (ADR 0085 / AS-067).",
+    ),
+    ClaimPattern(
+        re.compile(
+            r"\bsemantically\s+verified\b[^.\n]{0,80}\b(?:seal(?:ed)?|package|manifest|golden[-\s]manifest|review\s+record|commit)\b",
+            re.IGNORECASE,
+        ),
+        "Seal/package is not semantically verified by default — support band is heuristic/async (ADR 0085 / AS-067).",
+    ),
+    ClaimPattern(
+        re.compile(
+            r"\bfaithfulness[-\s]gated\b[^.\n]{0,80}\b(?:seal(?:ed)?|package|manifest|finalize|commit|review)\b",
+            re.IGNORECASE,
+        ),
+        "Finalize is not faithfulness-gated by default — only opt-in PilotStrict Unsupported hold (AS-065, default off).",
+    ),
+    ClaimPattern(
+        re.compile(
+            r"\b(?:support\s+band|semantic\s+support\s+band)\b[^.\n]{0,100}\b(?:proves?|means?|guarantees?|confirms?)\b"
+            r"[^.\n]{0,60}\b(?:seal|package|manifest|conformity|legal\s+truth|auditor)\b",
+            re.IGNORECASE,
+        ),
+        "Support band is not legal truth or seal verification (ADR 0085 / AS-067).",
     ),
 )
 

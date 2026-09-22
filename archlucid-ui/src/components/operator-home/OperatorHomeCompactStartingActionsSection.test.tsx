@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/architecture/architecture-routes";
 
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => [],
@@ -26,10 +26,10 @@ describe("OperatorHomeCompactStartingActionsSection (LD-06)", () => {
   it("shows a single new-review CTA in Working mode without dual-path cards", () => {
     render(<OperatorHomeCompactStartingActionsSection workingMode />);
 
-    expect(screen.getByTestId("operator-home-working-new-review-primary")).toHaveAttribute(
-      "href",
-      ARCHITECTURES_NEW_PATH,
-    );
+    const primary = screen.getByTestId("operator-home-working-new-review-primary");
+
+    expect(primary).toHaveAttribute("href", REVIEWS_NEW_GUIDED_INTAKE_HREF);
+    expect(primary).toHaveTextContent("New review");
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
   });
 
@@ -56,7 +56,7 @@ describe("OperatorHomeCompactStartingActionsSection (LD-06)", () => {
 
     expect(screen.getByTestId("operator-home-working-new-review-primary")).toHaveAttribute(
       "href",
-      ARCHITECTURES_NEW_PATH,
+      REVIEWS_NEW_GUIDED_INTAKE_HREF,
     );
   });
 });

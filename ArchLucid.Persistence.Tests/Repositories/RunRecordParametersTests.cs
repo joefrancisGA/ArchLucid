@@ -35,6 +35,18 @@ public sealed class RunRecordParametersTests
             .Be(nameof(StructuralExecutionMode.Real));
 
     [Fact]
+    public void Insert_binds_the_working_career_rehearsal_door_as_its_label() =>
+        Read<string>(RunRecordParameters.Insert(RunWithDoor()), "WorkingCareerRehearsalDoor")
+            .Should()
+            .Be("rehearsal");
+
+    [Fact]
+    public void Update_binds_the_working_career_rehearsal_door_as_its_label() =>
+        Read<string>(RunRecordParameters.Update(RunWithDoor()), "WorkingCareerRehearsalDoor")
+            .Should()
+            .Be("rehearsal");
+
+    [Fact]
     public void Insert_carries_the_scope_triple_and_run_identity()
     {
         object parameters = RunRecordParameters.Insert(Run());
@@ -172,6 +184,14 @@ public sealed class RunRecordParametersTests
             CreatedUtc = new DateTime(2026, 8, 11, 10, 0, 0, DateTimeKind.Utc),
             StructuralExecutionMode = StructuralExecutionMode.Real,
         };
+
+    private static RunRecord RunWithDoor()
+    {
+        RunRecord run = Run();
+        run.WorkingCareerRehearsalDoor = "rehearsal";
+        run.ExecutePostureCapturedUtc = new DateTime(2026, 9, 11, 4, 0, 0, DateTimeKind.Utc);
+        return run;
+    }
 
     private static ScopeContext Scope() =>
         new()

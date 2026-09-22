@@ -80,7 +80,55 @@ internal static class GoldenCorpusVsdxTopologyGraphFactory
             .Where(static node => !string.Equals(node.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        return WrapCaseGraph(71, nodes, build.Edges);
+        GraphSnapshot graph = WrapCaseGraph(71, nodes, build.Edges);
+        ApplyCase71DiagramEvidenceBindings(graph);
+
+        return graph;
+    }
+
+    internal static void ApplyCase71DiagramEvidenceBindings(GraphSnapshot graph)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            if (IsDiagramBackedNode(node))
+            {
+                node.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = Case71DocumentId;
+            }
+        }
+
+        const string subscriptionId = "00000000-0000-4000-8000-000000000071";
+
+        StampArmResourceId(
+            graph,
+            "diagram-node:1",
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg-golden-71/providers/Microsoft.ApiManagement/service/api-gateway-golden-71");
+
+        StampArmResourceId(
+            graph,
+            "diagram-node:2",
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg-golden-71/providers/Microsoft.Sql/servers/sql-database-golden-71");
+    }
+
+    private static bool IsDiagramBackedNode(GraphNode node)
+    {
+        return string.Equals(node.SourceType, StructuredDiagramGraphSourceTypes.StructuredDiagram, StringComparison.Ordinal)
+            || node.NodeId.StartsWith("diagram-node:", StringComparison.Ordinal);
+    }
+
+    private static void StampArmResourceId(GraphSnapshot graph, string nodeId, string armResourceId)
+    {
+        GraphNode? node = graph.Nodes.FirstOrDefault(candidate =>
+            string.Equals(candidate.NodeId, nodeId, StringComparison.OrdinalIgnoreCase));
+
+        if (node is null)
+        {
+            return;
+        }
+
+        node.Properties["armResourceId"] = armResourceId;
+        node.Properties["resourceId"] = armResourceId;
     }
 
     private static byte[] BuildMinimalVsdxPackage(string pageXml)

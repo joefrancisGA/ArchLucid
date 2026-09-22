@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { Button } from "@/components/ui/button";
 import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -101,6 +102,12 @@ export function HelpPilotRoiMeasurementSection(
           ))}
         </dl>
       </div>
+
+      <SponsorSendPathHonestyPanel
+        showSsoOptional={false}
+        testIdPrefix="help-pilot-roi-measurement"
+        title="Before you cite ROI to sponsors"
+      />
 
       <p
         className={cn("m-0 rounded-md border border-neutral-200 bg-al-surface-raised p-3", OPERATOR_TYPOGRAPHY.body)}

@@ -24,7 +24,7 @@ public sealed class ArchitectureIdentityServiceArchiveTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord active = await identityRepository.CreateAsync(Scope, "Active", null);
         ArchitectureIdentityRecord archived = await identityRepository.CreateAsync(Scope, "Archived", null);
@@ -43,7 +43,7 @@ public sealed class ArchitectureIdentityServiceArchiveTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord active = await identityRepository.CreateAsync(Scope, "Active", null);
         ArchitectureIdentityRecord archived = await identityRepository.CreateAsync(Scope, "Archived", null);
@@ -66,7 +66,7 @@ public sealed class ArchitectureIdentityServiceArchiveTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord archived = await identityRepository.CreateAsync(Scope, "Archived", null);
         await identityRepository.TrySetArchivedAsync(Scope, archived.ArchitectureId, archived: true);
@@ -83,7 +83,7 @@ public sealed class ArchitectureIdentityServiceArchiveTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord created = await identityRepository.CreateAsync(Scope, "Payments", null);
 
@@ -110,7 +110,7 @@ public sealed class ArchitectureIdentityServiceArchiveTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord created = await identityRepository.CreateAsync(Scope, "Scoped", null);
 

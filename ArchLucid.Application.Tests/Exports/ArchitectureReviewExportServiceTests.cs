@@ -92,7 +92,9 @@ public sealed class ArchitectureReviewExportServiceTests
                 tenantReviewBoardCoverLogoStore: null,
                 SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
                 new ArchitectureReviewDocxBuilder(),
-                new ArchitectureReviewPdfBuilder());
+                new ArchitectureReviewPdfBuilder(),
+                Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
         Mock<IScopeContextProvider> scopeMock = new();
         scopeMock.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
         scopeContextProvider = scopeMock.Object;
@@ -110,7 +112,9 @@ public sealed class ArchitectureReviewExportServiceTests
             tenantReviewBoardCoverLogoStore: null,
             SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
             new ArchitectureReviewDocxBuilder(),
-            new ArchitectureReviewPdfBuilder());
+            new ArchitectureReviewPdfBuilder(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }
 
     [Fact]

@@ -11,10 +11,14 @@ import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
 } from "@/lib/claim-discipline-test-helpers";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
+  PREFERENCES_HELP_CANONICAL_PATH,
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
   PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
-  PREFERENCES_HELP_SOURCES,
+  preferencesHelpSources,
 } from "@/lib/preferences-help-evidence-copy";
 import {
   PREFERENCES_HELP_CHANGES_SECTION_TITLE,
@@ -101,7 +105,10 @@ describe("HelpPreferencesGuideView", () => {
       expect(within(screen.getByTestId("help-preferences-tile-items")).getByText(item.label)).toBeInTheDocument();
     }
 
-    for (const source of PREFERENCES_HELP_SOURCES) {
+    for (const source of filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(preferencesHelpSources(resolveProductLineIdFromEnv())),
+      PREFERENCES_HELP_CANONICAL_PATH,
+    )) {
       const sourcesRegion = within(screen.getByTestId("help-preferences-sources"));
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);

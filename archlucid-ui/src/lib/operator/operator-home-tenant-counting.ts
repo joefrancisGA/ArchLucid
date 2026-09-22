@@ -23,6 +23,7 @@ export type OperatorHomeTenantCountingSnapshot = {
 export type DeriveOperatorHomeTenantCountingSnapshotInput = {
   readonly displayItems: readonly RunSummary[];
   readonly previewItems: readonly RunSummary[];
+  readonly runsDashboardTotalCount?: number;
   readonly excludeShowcaseRunId?: string | undefined;
   readonly awaitingApprovalCount?: number;
   readonly awaitingApprovalRunIds?: readonly string[];
@@ -35,7 +36,8 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
   const previewTenantItems = filterTenantOverviewRuns(input.previewItems);
   const awaitingApprovalCount = input.awaitingApprovalCount ?? 0;
-  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length, awaitingApprovalCount);
+  const reviewPackagesTotal = input.runsDashboardTotalCount ?? tenantItems.length;
+  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({
     previewItems: previewTenantItems,
     excludeShowcaseRunId: input.excludeShowcaseRunId,

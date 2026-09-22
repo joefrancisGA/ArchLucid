@@ -1,3 +1,4 @@
+import { comparisonDriftReportBlockedReason } from "@/lib/compare/comparison-drift-blocked-reason";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
 /** Proxy URL for comparison drift report file download (markdown/html/docx). */
@@ -36,5 +37,6 @@ export async function downloadComparisonDriftReport(options: {
         : format === "html"
           ? ["text/html"]
           : ["text/markdown"],
+    resolveBlockedReason: comparisonDriftReportBlockedReason,
   });
 }

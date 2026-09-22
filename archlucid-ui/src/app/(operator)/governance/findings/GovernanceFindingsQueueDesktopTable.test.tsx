@@ -6,12 +6,18 @@ import { GovernanceFindingsQueueDesktopTable } from "@/app/(operator)/governance
 import { GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS } from "@/app/(operator)/governance/findings/governance-findings-queue-virtualization";
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
-    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
-  };
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal);
 });
+
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({
+    mode: "Simulator",
+    isSimulator: true,
+    isLoading: false,
+  }),
+}));
 
 function sampleRow(index: number): GovernanceFindingQueueRow {
   return {

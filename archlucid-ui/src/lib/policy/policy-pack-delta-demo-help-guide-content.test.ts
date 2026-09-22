@@ -7,6 +7,8 @@ import {
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_OFFLINE_TESTS,
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST,
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_SUMMARY,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC,
   POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
   POLICY_PACK_DELTA_DEMO_HELP_SOURCES,
@@ -42,5 +44,10 @@ describe("policy-pack-delta-demo-help-guide-content", () => {
   it("states claim discipline without implying certification", () => {
     expect(POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not certification");
     expect(POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
+  });
+
+  it("documents in-app Pack A vs Pack B impact preview pickers", () => {
+    expect(POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE.toLowerCase()).toContain("pack a");
+    expect(POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_SUMMARY.toLowerCase()).toContain("pack b");
   });
 });

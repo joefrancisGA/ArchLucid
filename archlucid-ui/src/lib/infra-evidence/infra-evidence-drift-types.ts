@@ -12,6 +12,8 @@ export type InfraEvidenceSnapshotSummary = {
   snapshotId: string;
   subscriptionId: string | null;
   subscriptionName: string | null;
+  /** Bound architecture display name when returned by the snapshots API. */
+  architectureName?: string | null;
   capturedUtc: string | null;
   captureStatus: number;
   resourceCount: number;
@@ -40,7 +42,11 @@ export type InfraEvidenceDiffChange = {
   oldValue: string | null;
   newValue: string | null;
   riskClassification: string | null;
+  securitySignificance: string | null;
+  architectureSignificance: string | null;
   evidenceReference: string | null;
+  changedByDisplayName: string | null;
+  changedByKind: string | null;
 };
 
 export type InfraEvidenceBaselineRecord = {

@@ -8,7 +8,10 @@ import { PolicyPackAssignFromReviewStrip } from "@/components/governance/PolicyP
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
+import { InhabitedFindingsFocusCoordinator } from "@/components/governance/InhabitedFindingsFocusCoordinator";
 import { WorkingFindingsKeyboardHint } from "@/components/governance/findings/WorkingFindingsKeyboardHint";
+import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
+import { usePathname } from "next/navigation";
 import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -18,6 +21,17 @@ import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(opera
 export function GovernanceFindingsQueueResultsSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
+  const pathname = usePathname();
+  const inhabitedFindingsDocument =
+    resolveInhabitedFindingsDocumentPresentation({
+      workingMode: props.isWorkingMode,
+      pathname,
+      scopedArchitectureId: props.scopedArchitectureId,
+      architectureDisplayName: props.architectureDisplayName,
+      scopedRunId: props.scopedRunId,
+      scopedRunTitle: props.scopedRunContextTitle,
+    }) !== null;
+
   return (
     <>
       {props.loading ? (
@@ -33,6 +47,15 @@ export function GovernanceFindingsQueueResultsSection(
               : props.filterNoMatchPreset.description
           }
         />
+      ) : null}
+
+      {!props.loading && props.isAssignedToMe && props.rows.length === 0 ? (
+        <div className="space-y-3" data-testid="governance-assigned-to-me-zero-row-resume">
+          {props.continueLastFinding !== null ? (
+            <GovernanceFindingsContinueLastViewedRow target={props.continueLastFinding} />
+          ) : null}
+          <WorkingFindingsKeyboardHint />
+        </div>
       ) : null}
 
       {!props.loading && props.displayedRows.length > 0 ? (
@@ -97,9 +120,18 @@ export function GovernanceFindingsQueueResultsSection(
             />
           ) : null}
           <WorkingFindingsKeyboardHint />
+          {inhabitedFindingsDocument ? (
+            <InhabitedFindingsFocusCoordinator
+              enabled={inhabitedFindingsDocument}
+              hasFindingCards={props.displayedRows.some((row) => row.recordKind === "finding")}
+            />
+          ) : null}
           <GovernanceFindingsList
             displayedRows={props.displayedRows}
             buyerPolishedShell={props.buyerPolishedShell}
+            inhabitedFindingsDocument={inhabitedFindingsDocument}
+            scopedArchitectureId={props.scopedArchitectureId}
+            isWorkingMode={props.isWorkingMode}
             groupByResource={props.groupByResource}
             queueMode={props.mode}
             selectedFindingIds={props.selectedFindingIds}

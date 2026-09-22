@@ -17,10 +17,12 @@ public static class TopologyHintStableObjectIds
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(trimmedHint);
 
-        if (!trimmedHint.Contains('/'))
-            return NormalizeInternalWhitespace(trimmedHint);
+        string normalizedSeparators = trimmedHint.Replace('\\', '/');
 
-        string[] segments = trimmedHint.Split(
+        if (!normalizedSeparators.Contains('/'))
+            return NormalizeInternalWhitespace(normalizedSeparators);
+
+        string[] segments = normalizedSeparators.Split(
             '/',
             StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 

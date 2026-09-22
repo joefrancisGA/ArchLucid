@@ -49,6 +49,13 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
     pageSize: 100,
     hasMore: false,
   })),
+  fetchInfraEvidenceSnapshotInventoryRows: vi.fn(async () => ({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 100,
+    hasMore: false,
+  })),
   downloadInfraEvidenceTerraformAdvisoryZip: vi.fn(async () => undefined),
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
@@ -84,6 +91,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
@@ -99,12 +107,12 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
       `#${GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("infra-drift-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-page-lead")).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD);
     expect(screen.getByTestId("governance-infrastructure-drift-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
-    expect(await screen.findByTestId("infra-drift-snapshot-picker")).toBeInTheDocument();
+    expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-copy-scoped-link")).toBeInTheDocument();
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {

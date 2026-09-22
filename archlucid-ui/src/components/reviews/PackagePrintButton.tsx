@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { PACKAGE_PRINT_BUTTON_LABEL, printPackagePage } from "@/lib/package-print-view";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -21,7 +22,7 @@ export function PackagePrintButton(props: PackagePrintButtonProps): React.ReactE
 
   if (blockedReason !== null) {
     return (
-      <div className="inline-flex flex-col items-start gap-1">
+      <div className="inline-flex flex-col items-start gap-2">
         <Button
           type="button"
           variant="outline"
@@ -33,22 +34,26 @@ export function PackagePrintButton(props: PackagePrintButtonProps): React.ReactE
           {PACKAGE_PRINT_BUTTON_LABEL}
         </Button>
         <WhyDisabledCtaHint id={hintId} reason={whyDisabledPolicy(blockedReason)} testId={hintId} />
+        <SponsorExportSendHonestyStrip className="max-w-xl print:hidden" testIdPrefix="package-print-export" />
       </div>
     );
   }
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      className="print:hidden"
-      data-testid="package-print-pdf"
-      onClick={() => {
-        printPackagePage();
-      }}
-    >
-      {PACKAGE_PRINT_BUTTON_LABEL}
-    </Button>
+    <div className="inline-flex flex-col items-start gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="print:hidden"
+        data-testid="package-print-pdf"
+        onClick={() => {
+          printPackagePage();
+        }}
+      >
+        {PACKAGE_PRINT_BUTTON_LABEL}
+      </Button>
+      <SponsorExportSendHonestyStrip className="max-w-xl print:hidden" testIdPrefix="package-print-export" />
+    </div>
   );
 }

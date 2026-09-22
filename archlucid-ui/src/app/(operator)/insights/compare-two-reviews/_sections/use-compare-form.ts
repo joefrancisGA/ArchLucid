@@ -102,5 +102,6 @@ export function useCompareForm(options: UseCompareFormOptions = {}) {
       (diff.lastComparedPair !== null &&
         (diff.lastComparedPair.left.length > 0 || diff.lastComparedPair.right.length > 0)),
     showContinueLastComparisonRow: diff.showContinueLastComparisonRow,
+    architectureId: selection.architectureId,
   };
 }

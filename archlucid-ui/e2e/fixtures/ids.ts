@@ -10,6 +10,9 @@ import {
 /** Stable IDs for deterministic Playwright payloads (57R). */
 export const FIXTURE_RUN_ID = "e2e-fixture-run-001";
 
+/** Uncommitted review fixture for finalize readiness E2E (no golden manifest on run header). */
+export const FIXTURE_PRE_FINALIZE_RUN_ID = "e2e-fixture-pre-finalize-run";
+
 /**
  * Finding slug aligned with `breadcrumb-map` for {@link FIXTURE_RUN_ID} on mock/local fixtures.
  * Live API + SQL E2E should prefer {@link SHOWCASE_DEMO_RUN_ID} + {@link SCREENSHOT_FINDING_ID} (see `smoke.spec.ts`).

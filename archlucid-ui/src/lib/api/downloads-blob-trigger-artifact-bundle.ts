@@ -1,3 +1,5 @@
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
+import { traceabilityBundleExportBlockedReason } from "@/lib/runs/traceability-bundle-export-blocked-reason";
 import { getBundleDownloadUrl, getTraceabilityBundleDownloadUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -7,6 +9,7 @@ export async function downloadArtifactBundleZip(manifestId: string): Promise<voi
     accept: "application/zip, application/json",
     defaultFileName: `artifact-bundle-${manifestId}.zip`,
     expectedContentTypePrefixes: ["application/zip"],
+    resolveBlockedReason: artifactBundleMutationBlockedReason,
   });
 }
 
@@ -16,5 +19,6 @@ export async function downloadTraceabilityBundleZip(runId: string): Promise<void
     accept: "application/zip, application/json",
     defaultFileName: `traceability-bundle-${runId}.zip`,
     expectedContentTypePrefixes: ["application/zip"],
+    resolveBlockedReason: traceabilityBundleExportBlockedReason,
   });
 }

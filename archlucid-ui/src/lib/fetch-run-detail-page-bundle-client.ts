@@ -1,5 +1,10 @@
 import type { ApiResponseWithTrace } from "@/lib/api";
-import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { apiGet } from "@/lib/api/http";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { runDetailPageBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
+import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
+import { workspaceContextBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import {
   tryStaticRunDetailCriticalPageBundle,
@@ -35,12 +40,31 @@ export async function fetchRunDetailCriticalPageBundle(
     }
   }
 
-  const data = await apiGetSealedManifestAware<RunDetailCriticalPageBundle>(
+  const data = await fetchRunDetailCriticalPageBundleSealedManifestAware<RunDetailCriticalPageBundle>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/critical-page-bundle`,
     options,
   );
 
   return { data, traceId: null };
+}
+
+async function fetchRunDetailCriticalPageBundleSealedManifestAware<T>(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<T> {
+  try {
+    return await apiGet<T>(path, options);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+
+    if (isApiNotFoundFailure(failure)) {
+      throw error;
+    }
+
+    const blockedReason = runDetailPageBundleBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type RunDetailTimelinesBundle = {
@@ -56,10 +80,17 @@ export async function fetchRunDetailTimelinesBundle(
     return { pipelineTimeline: [], stageTimeline: [] };
   }
 
-  return apiGetSealedManifestAware<RunDetailTimelinesBundle>(
-    `/v1/authority/reviews/${encodeURIComponent(runId)}/timelines-bundle`,
-    options,
-  );
+  try {
+    return await apiGet<RunDetailTimelinesBundle>(
+      `/v1/authority/reviews/${encodeURIComponent(runId)}/timelines-bundle`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runDetailTimelinesBundleBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function fetchRunDetailWorkspaceContextBundle(
@@ -74,8 +105,15 @@ export async function fetchRunDetailWorkspaceContextBundle(
     }
   }
 
-  return apiGetSealedManifestAware<RunDetailWorkspaceContextBundle>(
-    `/v1/authority/reviews/${encodeURIComponent(runId)}/workspace-context-bundle`,
-    options,
-  );
+  try {
+    return await apiGet<RunDetailWorkspaceContextBundle>(
+      `/v1/authority/reviews/${encodeURIComponent(runId)}/workspace-context-bundle`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = workspaceContextBundleBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

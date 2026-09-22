@@ -73,7 +73,7 @@ public sealed partial class GovernanceController
         catch (ConflictException ex)
         {
             logger.LogWarning(ex, "Governance mutation correction failed: lifecycle conflict.");
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

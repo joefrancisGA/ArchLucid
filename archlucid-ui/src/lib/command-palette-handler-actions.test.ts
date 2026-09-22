@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT,
   COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   COMMAND_PALETTE_FINDING_NEXT_EVENT,
   COMMAND_PALETTE_HANDLER_ACTIONS,
@@ -12,6 +13,7 @@ import {
   isReviewDetailWorkPath,
 } from "@/lib/command-palette-handler-actions";
 import {
+  isCommandPaletteCloneFromSnapshotAvailable,
   isCommandPaletteFinalizeReviewAvailable,
 } from "@/lib/command-palette-work-action-dom";
 import { resolveVisibleCommandPaletteHandlerActions } from "@/lib/resolve-visible-command-palette-actions";
@@ -21,8 +23,13 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     expect(isArchitectureDraftWorkPath("/architecture/architectures/new")).toBe(true);
     expect(isArchitectureDraftWorkPath("/architecture/reviews")).toBe(false);
     expect(isFindingsWorkPath("/governance/findings")).toBe(true);
+    expect(isFindingsWorkPath("/compliance/findings")).toBe(true);
     expect(isFindingsWorkPath("/architecture/reviews/run-1")).toBe(true);
     expect(isFindingsWorkPath("/architecture/reviews/abc/findings/f-1")).toBe(true);
+    expect(
+      isFindingsWorkPath("/architecture/architectures/arch-1/reviews/run-1/findings/f-1"),
+    ).toBe(true);
+    expect(isFindingsWorkPath("/architecture/architectures/arch-1/findings")).toBe(true);
     expect(isFindingsWorkPath("/")).toBe(false);
     expect(isAlertsWorkPath("/governance/alerts")).toBe(true);
     expect(isAlertsWorkPath("/governance/findings")).toBe(false);
@@ -69,6 +76,7 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
 
     expect(saveAction?.isAvailable("/architecture/reviews/run-1/findings/f-1")).toBe(true);
     expect(isReviewDetailWorkPath("/architecture/reviews/run-1/findings/f-1")).toBe(true);
+    expect(isReviewDetailWorkPath("/architecture/architectures/arch-1/reviews/run-1")).toBe(true);
   });
 
   it("shows finalize review only when the on-page CTA is available", () => {
@@ -81,6 +89,9 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
 
     expect(isCommandPaletteFinalizeReviewAvailable()).toBe(true);
     expect(finalizeAction?.isAvailable("/architecture/reviews/run-1")).toBe(true);
+    expect(
+      finalizeAction?.isAvailable("/architecture/architectures/arch-1/reviews/run-1"),
+    ).toBe(true);
     expect(finalizeAction?.isAvailable("/governance/findings")).toBe(false);
   });
 
@@ -95,6 +106,33 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     window.removeEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalize);
 
     expect(seen).toEqual(["finalize"]);
+  });
+
+  it("SN-033: shows clone from snapshot only on architecture routes with a visible spawn-locked CTA", () => {
+    const cloneAction = COMMAND_PALETTE_HANDLER_ACTIONS.find((action) => action.id === "action-clone-from-snapshot");
+
+    expect(cloneAction?.label).toBe("Sketch a change");
+    expect(cloneAction?.isAvailable("/architecture/architectures/arch-1")).toBe(false);
+
+    document.body.innerHTML =
+      '<button data-testid="architecture-spawn-lock-clone-snapshot" type="button">Sketch a change</button>';
+
+    expect(isCommandPaletteCloneFromSnapshotAvailable()).toBe(true);
+    expect(cloneAction?.isAvailable("/architecture/architectures/arch-1")).toBe(true);
+    expect(cloneAction?.isAvailable("/architecture/reviews/run-1")).toBe(false);
+  });
+
+  it("dispatches clone from snapshot as a window event", () => {
+    const seen: string[] = [];
+    const onClone = () => {
+      seen.push("clone");
+    };
+
+    window.addEventListener(COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT, onClone);
+    dispatchCommandPaletteHandlerAction("action-clone-from-snapshot");
+    window.removeEventListener(COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT, onClone);
+
+    expect(seen).toEqual(["clone"]);
   });
 
   it("dispatches finding next as a window event", () => {

@@ -4,26 +4,47 @@ import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/
 
 import { useCallback, useState } from "react";
 
+import { AuditDualChannelHonestyNote } from "@/components/audit/AuditDualChannelHonestyNote";
 import { principalRolesAllowAuditCsvExport } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { downloadAuditExportCsv } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
+import {
+  resolveAuditExportCareerBlockedReason,
+  resolveAuditExportCareerPosture,
+} from "@/lib/audit/audit-export-career-posture";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { buildRunScopedAuditExportParams } from "@/lib/runs/run-scoped-audit-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { showError } from "@/lib/toast";
+import type { RunSummary } from "@/types/authority";
 
 export type RunScopedAuditExportButtonProps = {
   readonly runId: string;
   readonly manifestVersion?: string | null;
+  readonly progressSummary?: RunSummary | null;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly workingCareerRehearsalDoor?: string | null;
+  readonly liveDoor?: WorkingCareerRehearsalDoorId | null;
+  readonly enginesSucceeded?: number | null;
 };
 
 /** One-click run-scoped audit CSV export from review detail (Requires Auditor or Admin on API). */
 export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProps): React.JSX.Element | null {
-  const { runId, manifestVersion = null } = props;
+  const {
+    runId,
+    manifestVersion = null,
+    progressSummary = null,
+    structuralExecutionMode,
+    workingCareerRehearsalDoor,
+    liveDoor,
+    enginesSucceeded = null,
+  } = props;
   const { currentPrincipal } = useOperatorNavAuthority();
   const [busy, setBusy] = useState(false);
   const [roleHintVisible, setRoleHintVisible] = useState(false);
@@ -48,14 +69,38 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
       return;
     }
 
+    const careerBlockedReason = resolveAuditExportCareerBlockedReason({
+      runId: trimmedRunId,
+      progressSummary,
+      structuralExecutionMode,
+      workingCareerRehearsalDoor,
+      liveDoor,
+      enginesSucceeded,
+    });
+
+    if (careerBlockedReason !== null) {
+      setBlockedReason(careerBlockedReason);
+
+      return;
+    }
+
     setBusy(true);
     setRoleHintVisible(false);
     setBlockedReason(null);
 
     try {
       const params = buildRunScopedAuditExportParams(trimmedRunId);
+      const auditExportPosture = resolveAuditExportCareerPosture({
+        progressSummary,
+        structuralExecutionMode,
+        workingCareerRehearsalDoor,
+        liveDoor,
+      });
 
-      await downloadAuditExportCsv(params);
+      await downloadAuditExportCsv({
+        ...params,
+        auditExportPosture,
+      });
     } catch (error: unknown) {
       if (isApiRequestError(error) && error.httpStatus === 403) {
         setRoleHintVisible(true);
@@ -74,7 +119,17 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
     } finally {
       setBusy(false);
     }
-  }, [exportRoleOk, manifestVersion, sealedManifestBlockedReason, trimmedRunId]);
+  }, [
+    enginesSucceeded,
+    exportRoleOk,
+    liveDoor,
+    manifestVersion,
+    progressSummary,
+    sealedManifestBlockedReason,
+    structuralExecutionMode,
+    trimmedRunId,
+    workingCareerRehearsalDoor,
+  ]);
 
   if (trimmedRunId.length === 0) {
     return null;
@@ -125,6 +180,9 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
           {auditExportExecuteRankAuditorRoleNote} Requires Auditor or Admin role for CSV export.
         </p>
       ) : null}
+      <div data-testid="run-scoped-audit-export-dual-channel-honesty">
+        <AuditDualChannelHonestyNote className="mt-1" />
+      </div>
     </div>
   );
 }

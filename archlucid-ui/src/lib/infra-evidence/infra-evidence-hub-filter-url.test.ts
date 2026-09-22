@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   parseResourceHubTabFromSearch,
+  parseResourceExplorerNamePrefixFromSearch,
+  parseResourceExplorerResourceTypeFromSearch,
   buildInfrastructureAskHref,
   buildResourceHubAuditLineageHref,
   buildResourceHubExplorerHref,
@@ -26,6 +28,14 @@ describe("infra-evidence-hub-filter-url", () => {
     ).toBe(
       "/governance/infrastructure/resources?namePrefix=gateway&resourceType=Microsoft.Network%2FpublicIPAddresses&resourceGroup=rg-net",
     );
+  });
+
+  it("clamps top explorer filter params to fifty characters", () => {
+    const longPrefix = "a".repeat(80);
+    const longType = "Microsoft.Network/" + "b".repeat(80);
+
+    expect(parseResourceExplorerNamePrefixFromSearch(longPrefix)).toHaveLength(50);
+    expect(parseResourceExplorerResourceTypeFromSearch(longType)).toHaveLength(50);
   });
 
   it("defaults hub tab to overview and omits tab param", () => {

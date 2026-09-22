@@ -91,6 +91,7 @@ public sealed class RealModeSmokeCommandOptions
                     break;
 
                 case "--allow-simulator":
+                case "--rehearse":
                     allowSimulator = true;
                     break;
 

@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -13,6 +14,12 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory connectionFactory)
     : ICloudResourceIdentityDirectory
 {
+    private static readonly string VisibleExplorerResourceTypePredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("ResourceType");
+
+    private static readonly string VisibleExplorerAzureResourceIdPredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("ExternalResourceIdNormalized");
+
     public async Task<CloudResourceIdentityRecord> UpsertOnSnapshotAsync(
         ScopeContext scope,
         CloudProvider provider,
@@ -322,6 +329,8 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                   AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
                                   AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                   AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                                  AND {VisibleExplorerResourceTypePredicate}
+                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                   {workQueueFilter};
                                 """;
 
@@ -341,6 +350,8 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                  AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
                                  AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                  AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                                 AND {VisibleExplorerResourceTypePredicate}
+                                 AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
                                ORDER BY LastSeenUtc DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;

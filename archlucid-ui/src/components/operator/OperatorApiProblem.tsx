@@ -17,6 +17,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { OperatorReportProblemAction } from "@/components/support/OperatorReportProblemAction";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { isReportProblemEnabledForApiProblemFailure } from "@/lib/report-problem-surfaces";
@@ -47,6 +48,7 @@ function isFromFailure(props: OperatorApiProblemProps): props is OperatorApiProb
  * Pass **`failure`** to thread a full {@link ApiLoadFailureState} from `toApiLoadFailure` (includes 429 / Retry-After).
  */
 export function OperatorApiProblem(props: OperatorApiProblemProps) {
+  const { productLine } = useProductLine();
   const variant = props.variant ?? "error";
 
   let problem: ApiProblemDetails | null;
@@ -122,7 +124,10 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
         <p className={cn("mt-2.5 leading-normal", OPERATOR_TYPOGRAPHY.body)}>{hint}</p>
       ) : null}
       <OperatorErrorRecoveryContract
-        presentation={errorRecoveryContractForScenario("api-problem", { failureSummary: heading })}
+        presentation={errorRecoveryContractForScenario("api-problem", {
+          failureSummary: heading,
+          productLineId: productLine,
+        })}
       />
       <OperatorErrorUiReferenceLine />
       <div className="mt-2.5 flex flex-wrap items-center gap-2">

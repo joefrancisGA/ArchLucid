@@ -119,4 +119,63 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize("/path%252525252525252525").Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/signin/..#fragment")]
+    [InlineData("/signin/..%23fragment")]
+    [InlineData("/app/foo/..#bar")]
+    [InlineData("/signin/..%23/evil")]
+    public void TryNormalize_rejects_dot_dot_path_traversal_before_fragment_delimiter(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/reviews/1#findings")]
+    [InlineData("/architecture/reviews/123?tab=findings#section")]
+    public void TryNormalize_accepts_safe_relative_paths_with_fragment(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
+    }
+
+    [Theory]
+    [InlineData("/architecture/reviews?notify=user@example.com")]
+    [InlineData("/reviews/1?cc=team@contoso.com")]
+    [InlineData("/reviews/1#notes@team")]
+    public void TryNormalize_accepts_at_sign_in_query_or_fragment_not_path(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
+    }
+
+    [Theory]
+    [InlineData("/\u2216\u2216evil.example")]
+    [InlineData("/%E2%88%96%E2%88%96evil.example")]
+    [InlineData("/\u29F7\u29F7evil.example")]
+    [InlineData("/%E2%A7%B7%E2%A7%B7evil.example")]
+    [InlineData("/\u2AFD\u2AFDevil.example")]
+    [InlineData("/%E2%AB%BD%E2%AB%BDevil.example")]
+    public void TryNormalize_rejects_more_unicode_slash_homoglyph_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/\u2572\u2572evil.example")]
+    [InlineData("/%E2%95%B2%E2%95%B2evil.example")]
+    [InlineData("/\u29FA\u29FAevil.example")]
+    [InlineData("/%E2%A7%BA%E2%A7%BAevil.example")]
+    public void TryNormalize_rejects_remaining_unicode_slash_homoglyph_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/signin/\u3002\u3002/other")]
+    [InlineData("/signin/%E3%80%82%E3%80%82/other")]
+    [InlineData("/signin/\u06D4\u06D4/other")]
+    [InlineData("/signin/\u3002\u3002#fragment")]
+    public void TryNormalize_rejects_additional_unicode_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
 }

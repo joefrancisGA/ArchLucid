@@ -1,8 +1,12 @@
 using System.Reflection;
 
+using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.ArtifactSynthesis.Graphviz;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
@@ -16,12 +20,14 @@ using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Composition.Tests;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Persistence.Diagrams;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,7 +48,7 @@ public sealed class InfraEvidenceCompositionModuleTests
     public void InfraEvidenceCompositionModule_registers_cloud_resource_and_audit_evidence_services()
     {
         ServiceCollection services = [];
-        InfraEvidenceCompositionModule.Register(services);
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
 
         services.Should().Contain(static d => d.ServiceType == typeof(ICloudResourceEvidenceHubService));
         services.Should().Contain(static d => d.ServiceType == typeof(ICloudResourceExplorerQueryService));
@@ -50,6 +56,49 @@ public sealed class InfraEvidenceCompositionModuleTests
         services.Should().Contain(static d => d.ServiceType == typeof(ITenantBrandingCacheInvalidator));
         services.Should().Contain(static d => d.ServiceType == typeof(ISecurityCrosswalkService));
         services.Should().Contain(static d => d.ServiceType == typeof(MermaidDiagramReadabilityThresholds));
+    }
+
+    [Fact]
+    public void RepositoryDiagramPeelCatalogProvider_validates_with_scoped_repository()
+    {
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddScoped<IDiagramPeelCatalogRepository, InMemoryDiagramPeelCatalogRepository>();
+        services.AddSingleton<IDiagramPeelCatalogProvider, RepositoryDiagramPeelCatalogProvider>();
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        IDiagramPeelCatalogProvider peelCatalogProvider =
+            provider.GetRequiredService<IDiagramPeelCatalogProvider>();
+
+        peelCatalogProvider.Should().BeOfType<RepositoryDiagramPeelCatalogProvider>();
+    }
+
+    [Fact]
+    public async Task RepositoryDiagramPeelCatalogProvider_loads_catalog_via_scoped_repository()
+    {
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddScoped<IDiagramPeelCatalogRepository, InMemoryDiagramPeelCatalogRepository>();
+        services.AddSingleton<IDiagramPeelCatalogProvider, RepositoryDiagramPeelCatalogProvider>();
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        IDiagramPeelCatalogProvider peelCatalogProvider =
+            provider.GetRequiredService<IDiagramPeelCatalogProvider>();
+
+        Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot snapshot =
+            await peelCatalogProvider.GetCatalogAsync(CancellationToken.None);
+
+        snapshot.Entries.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -142,6 +191,82 @@ public sealed class InfraEvidenceCompositionModuleTests
     }
 
     [Fact]
+    public async Task InMemory_composition_resolves_tenant_branding_cache_after_platform_pipeline_registers_memory_cache()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        TenantBrandingResolvedProfileCache brandingCache =
+            serviceScope.ServiceProvider.GetRequiredService<TenantBrandingResolvedProfileCache>();
+        IMemoryCache memoryCache = serviceScope.ServiceProvider.GetRequiredService<IMemoryCache>();
+
+        Guid tenantId = scope.TenantId;
+        ResolvedTenantBrandingProfile profile = new()
+        {
+            TenantId = tenantId,
+            CompanyDisplayName = "Acme Corp",
+            IsProductBrand = false,
+        };
+
+        brandingCache.Set(tenantId, profile);
+
+        brandingCache.TryGet(tenantId, out ResolvedTenantBrandingProfile? cached).Should().BeTrue();
+        cached.Should().BeEquivalentTo(profile);
+        memoryCache.Should().NotBeNull("Authority pipeline registers IMemoryCache before InfraEvidence branding cache");
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins()
+    {
+        ServiceCollection services = [];
+        MermaidDiagramReadabilityThresholds hostConfigured = new() { MaxNodes = 4242 };
+        services.AddSingleton(hostConfigured);
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        MermaidDiagramReadabilityThresholds resolved =
+            provider.GetRequiredService<MermaidDiagramReadabilityThresholds>();
+
+        resolved.MaxNodes.Should().Be(400,
+            "MS DI last-wins singleton registration; repeated Register() supplies default thresholds, not an earlier host override");
+        resolved.Should().NotBeSameAs(hostConfigured);
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type()
+    {
+        ServiceCollection services = [];
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+
+        int inventorySelectorRegistrations = services.Count(
+            static descriptor => descriptor.ServiceType == typeof(InventoryAuditEvidenceSelector));
+
+        inventorySelectorRegistrations.Should().Be(2,
+            "repeated Register duplicates scoped selector descriptors, but registry wiring stays typed");
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        using IServiceScope scope = provider.CreateScope();
+        IAuditEvidenceSelectorRegistry registry =
+            scope.ServiceProvider.GetRequiredService<IAuditEvidenceSelectorRegistry>();
+
+        registry.ListDescriptors().Should().HaveCount(9,
+            "AuditEvidenceSelectorRegistry injects one instance per selector type; collection does not enumerate IEnumerable<IAuditEvidenceSelector>");
+    }
+
+    [Fact]
     public async Task InMemory_composition_cloud_resource_hub_resolves_upserted_identity()
     {
         ScopeContext scope = CreateDefaultScope();
@@ -201,10 +326,13 @@ public sealed class InfraEvidenceCompositionModuleTests
     private static void RegisterInfraEvidenceSnapshotMermaidServiceTestDoubles(IServiceCollection services)
     {
         services.AddScoped(_ => Mock.Of<IAzureInventorySnapshotGraphResolver>());
-        services.AddScoped(_ => Mock.Of<IDiagramAstFromGraphCompiler>());
-        services.AddScoped(_ => Mock.Of<IMermaidDiagramRenderPipeline>());
+        services.AddScoped(_ => Mock.Of<IMermaidDiagramInventoryRenderOrchestrator>());
+        services.AddScoped(_ => Mock.Of<IMermaidDiagramFallbackSetBuilder>());
         services.AddScoped(_ => Mock.Of<IBrandedDiagramExportService>());
         services.AddScoped(_ => Mock.Of<IDiagramImageRenderer>());
+        services.AddSingleton<IDiagramAstGraphvizDotEmitter, DiagramAstGraphvizDotEmitter>();
+        services.AddSingleton<IDiagramForestLayoutSvgRenderer, DiagramForestLayoutSvgRenderer>();
+        services.AddScoped(_ => Mock.Of<IGraphvizLayoutRenderer>());
         services.AddScoped(_ => Mock.Of<IArchitectureDiagramReconciliationRepository>());
         services.AddScoped(_ => Mock.Of<IAuthorityQueryService>());
         services.AddScoped(_ => Mock.Of<IManifestHashService>());

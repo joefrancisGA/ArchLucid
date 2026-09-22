@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -47,6 +48,7 @@ public sealed class SponsorOnePagerPdfBuilder(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository,
     IConfiguration configuration,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
@@ -65,6 +67,10 @@ public sealed class SponsorOnePagerPdfBuilder(
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
+
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -116,9 +122,13 @@ public sealed class SponsorOnePagerPdfBuilder(
             scope,
             workingDesk: true,
             _configuration,
-            cancellationToken);
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
         IReadOnlyList<string> coverageHonestyLines =
             CareerExportCoverageHonestyComposer.RenderPlainTextLines(careerExportHonesty);
+        IReadOnlyList<string> sendableCoverLines =
+            SendableExportCoverComposer.RenderPlainTextLines(careerExportHonesty);
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
@@ -163,6 +173,40 @@ public sealed class SponsorOnePagerPdfBuilder(
                         {
                             column.Item().PaddingTop(2).Text(line).FontSize(9);
                         }
+
+                        column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                    }
+
+                    IReadOnlyList<string> feasibilityCitationLines =
+                        SponsorFeasibilityHardCitationHonestyFormatter.RenderPlainTextLines(careerExportHonesty.CoverageContext.Verdict);
+
+                    if (feasibilityCitationLines.Count > 0)
+                    {
+                        column.Item().PaddingTop(8).Text("Feasibility citation honesty").Bold().FontSize(12);
+
+                        foreach (string line in feasibilityCitationLines)
+                        {
+                            column.Item().PaddingTop(2).Text(line).FontSize(9);
+                        }
+
+                        column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                    }
+
+                    if (sendableCoverLines.Count > 0)
+                    {
+                        column.Item().PaddingTop(8).Text("Sendable export cover").Bold().FontSize(12);
+
+                        foreach (string line in sendableCoverLines)
+                        {
+                            column.Item().PaddingTop(2).Text(line).FontSize(9).FontColor(Colors.Grey.Darken2);
+                        }
+
+                        column.Item()
+                            .PaddingTop(4)
+                            .Text("Cover fields mirror the review-package stamp: policy pack, gate outcome, and execution mode before findings.")
+                            .FontSize(8)
+                            .FontColor(Colors.Grey.Darken2)
+                            .Italic();
 
                         column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     }

@@ -150,21 +150,30 @@ function Get-LocalUiSiteSpecs {
         [ValidateRange(1, 65535)]
         [int] $SecurityPort = 3001,
 
+        [bool] $IncludeArchitecture = $true,
+
         [bool] $IncludeSecurity = $true
     )
 
-    if ($IncludeSecurity -and $ArchitecturePort -eq $SecurityPort) {
+    if (-not $IncludeArchitecture -and -not $IncludeSecurity) {
+        throw 'At least one UI product line must be included.'
+    }
+
+    if ($IncludeArchitecture -and $IncludeSecurity -and $ArchitecturePort -eq $SecurityPort) {
         throw 'Architecture and Security UI ports must differ.'
     }
 
     [System.Collections.Generic.List[object]] $sites = [System.Collections.Generic.List[object]]::new()
-    $sites.Add([pscustomobject]@{
-            Name           = 'Architecture'
-            ProductLine    = 'architecture'
-            Port           = $ArchitecturePort
-            RootUrl        = ('http://127.0.0.1:{0}/' -f $ArchitecturePort)
-            ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $ArchitecturePort)
-        })
+
+    if ($IncludeArchitecture) {
+        $sites.Add([pscustomobject]@{
+                Name           = 'Architecture'
+                ProductLine    = 'architecture'
+                Port           = $ArchitecturePort
+                RootUrl        = ('http://127.0.0.1:{0}/' -f $ArchitecturePort)
+                ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $ArchitecturePort)
+            })
+    }
 
     if ($IncludeSecurity) {
         $sites.Add([pscustomobject]@{

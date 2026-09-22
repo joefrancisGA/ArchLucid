@@ -12,6 +12,7 @@ import {
   getGovernanceJobRouter,
   type GovernanceJobId,
 } from "@/lib/governance/governance-job-router";
+import { SECURENOW_GOVERNANCE_JOB_RECORD_DECISIONS_WHEN_TO_USE } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("governance-job-router (TB-2199 / TB-2230)", () => {
@@ -21,8 +22,14 @@ describe("governance-job-router (TB-2199 / TB-2230)", () => {
     expect(options).toHaveLength(4);
     expect(options[0]).toEqual(GOVERNANCE_JOB_APPROVE_GOVERNANCE);
     expect(options[1]).toEqual(GOVERNANCE_JOB_TRIAGE_FINDINGS);
-    expect(options[2]).toEqual(GOVERNANCE_JOB_ASSIGNED_TO_ME_FINDINGS);
-    expect(options[3]).toEqual(GOVERNANCE_JOB_RECORD_DECISIONS);
+    expect(options[2]).toMatchObject({
+      ...GOVERNANCE_JOB_ASSIGNED_TO_ME_FINDINGS,
+      whenToUse: GOVERNANCE_JOB_ASSIGNED_TO_ME_FINDINGS.whenToUse,
+    });
+    expect(options[3]).toMatchObject({
+      ...GOVERNANCE_JOB_RECORD_DECISIONS,
+      whenToUse: GOVERNANCE_JOB_RECORD_DECISIONS.whenToUse,
+    });
   });
 
   it("getGovernanceJobRouter returns heading and options", () => {
@@ -80,5 +87,17 @@ describe("governance-job-router (TB-2199 / TB-2230)", () => {
       "assigned-to-me-findings",
       "record-decisions",
     ]);
+  });
+
+  it("uses SecureNow copy for assigned-to-me and decision-register jobs only", () => {
+    const secureNowOptions = buildGovernanceJobRouterOptions("security");
+    const architectureOptions = buildGovernanceJobRouterOptions("architecture");
+
+    expect(secureNowOptions[2]?.whenToUse).toContain("across issues");
+    expect(secureNowOptions[2]?.whenToUse).not.toContain("workspace");
+    expect(secureNowOptions[3]?.whenToUse).toBe(SECURENOW_GOVERNANCE_JOB_RECORD_DECISIONS_WHEN_TO_USE);
+
+    expect(architectureOptions[2]?.whenToUse).toBe(GOVERNANCE_JOB_ASSIGNED_TO_ME_FINDINGS.whenToUse);
+    expect(architectureOptions[3]?.whenToUse).toBe(GOVERNANCE_JOB_RECORD_DECISIONS.whenToUse);
   });
 });

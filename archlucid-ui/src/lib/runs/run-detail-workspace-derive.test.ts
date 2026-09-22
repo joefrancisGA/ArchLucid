@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { MAX_REVIEW_WORKSPACE_H1_CHARS } from "@/lib/review-display-title";
 import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
@@ -11,6 +12,7 @@ import {
   derivePrimaryConcernLabel,
   deriveRecommendedWorkspaceActions,
   deriveReviewHeaderPresentation,
+  deriveWorkingInstrumentReviewHeaderPresentation,
   deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
   isReviewPipelineIncomplete,
@@ -98,6 +100,31 @@ describe("run-detail-workspace-derive", () => {
 
     expect(status.label).toBe("Review complete");
     expect(status.kind).toBe("review-complete");
+  });
+
+  it("uses rehearsal complete copy on Working Career + Simulator (CG-033)", () => {
+    const status = deriveRunDetailWorkspaceStatus({
+      run: {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        hasContextSnapshot: true,
+        hasGraphSnapshot: true,
+        hasFindingsSnapshot: true,
+        structuralExecutionMode: "Simulator",
+        completedUtc: "2026-01-02T00:00:00Z",
+      } as RunSummary,
+      manifestId: null,
+      manifestStatus: null,
+      showProgressTracker: false,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: false,
+      workingDesk: true,
+      effectiveWorkingCareerRehearsalDoor: "career",
+    });
+
+    expect(status.label).toBe("Sealed record blocked — not complete");
+    expect(status.statusTagKind).toBe("blocked");
   });
 
   it("distinguishes quality-gate reject from execution failed (TB-965)", () => {
@@ -363,6 +390,17 @@ describe("run-detail-workspace-derive", () => {
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
+  it("SG-016 / ADR 0098: Working instrument header keeps architecture name as H1", () => {
+    const presentation = deriveWorkingInstrumentReviewHeaderPresentation({
+      architectureDisplayName: "Payments platform",
+      reviewTitle: "Q3 card capture migration",
+      runId: "run-abc-123",
+    });
+
+    expect(presentation.h1Title).toBe("Payments platform");
+    expect(presentation.eyebrowLabel).toBe("Q3 card capture migration");
+  });
+
   it("suppresses duplicate eyebrow text and rejects document metadata titles", () => {
     const presentation = deriveReviewHeaderPresentation({
       reviewTitle: "> Reviewed: 2026-07-26",
@@ -456,7 +494,7 @@ describe("run-detail-workspace-derive", () => {
     );
 
     expect(systemName).not.toBeNull();
-    expect(systemName!.length).toBeLessThanOrEqual(80);
+    expect(systemName!.length).toBeLessThanOrEqual(MAX_REVIEW_WORKSPACE_H1_CHARS);
     expect(systemName).not.toContain("**");
   });
 

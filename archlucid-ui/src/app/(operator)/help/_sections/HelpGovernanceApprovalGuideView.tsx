@@ -6,6 +6,7 @@ import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections
 import { HelpGovernanceApprovalSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalSourcesOrientationStrip";
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { GovernanceApprovalHelpClaimDisciplineStrip } from "@/components/help/GovernanceApprovalHelpClaimDisciplineStrip";
 import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/components/help/GovernanceApprovalHelpEvidenceOrientationStrip";
@@ -402,7 +403,12 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
         ) : null}
 
-        {buyerPolishedShell ? <HelpGovernanceApprovalSourcesOrientationStrip /> : null}
+        {buyerPolishedShell ? (
+          <>
+            <SponsorSendPathHonestyPanel testIdPrefix="help-governance-approval" showSsoOptional={false} />
+            <HelpGovernanceApprovalSourcesOrientationStrip />
+          </>
+        ) : null}
       </div>
     </article>
   );

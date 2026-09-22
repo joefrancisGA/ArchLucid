@@ -5,7 +5,7 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-09-07
+**Last reviewed:** 2026-09-13
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history. Historical ADRs removed 2026-08-02 are listed in [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02). **Completed decisions roll-up:** [`completed_adrs.md`](completed_adrs.md).
 
@@ -80,7 +80,25 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0082](0082-decision-grade-provenance-fail-closed.md) | Decision-grade finding **provenance fail-closed** at emission and commit — ProvenanceKind A/B required; checklist/advisory exempt (**Status: Proposed** 2026-09-08; LP-01 / TB-1221 gates) |
 | [0083](0083-promote-activate-submit-same-tx-audit.md) | Promote / activate / submit Required durable audit **co-commits** with domain writes — same SQL UoW pattern as TB-956 approve/reject (**Status: Proposed** 2026-09-08; LP-08 contract, LP-09 wiring) |
 | [0084](0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) | Architecture review **decide inputs** include structured diagrams and bound inventory snapshots — ESI inspect stays separate; pixel-only is **NotVerifiable**, not silent drop (**Status: Proposed** 2026-09-09; AS-001 / wave 22 kernel) |
-| [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
+| [0085](0085-semantic-support-band-working-career-not-commit-gate.md) | Semantic **support band** on Working career surfaces — Supported / Unchecked / Unsupported / NotScored; structural provenance (0082) stays persist gate; default finalize **warns** on Unchecked, does not block on LLM faithfulness (**Status: Proposed** 2026-09-09; AS-056 / TB-1228) |
+| [0086](0086-working-career-vs-rehearsal-doors.md) | Working **Career vs Rehearsal** doors — explicit chrome; host `AgentExecution:Mode` default may stay Simulator; Working must not present Simulator as unlabeled career work (**Status: Accepted** 2026-09-12; AS-076; **not** G-REAL-06) |
+| [0087](0087-architecture-scoped-sharing-restrict-to-shares.md) | Optional **RestrictToShares** per architecture inside the tenant — View / Decide / Admin user grants; default workspace-visible; **no SQL RLS**; not chat or presence (**Status: Proposed** 2026-09-10; AS-086; amends 0074 §6 only) |
+| [0088](0088-draft-patch-cas-mandatory.md) | Draft PATCH **CAS is mandatory** unless audited `forceOverwrite` — omit `expectedUpdatedUtc` is 409, not last-write-wins (**Status: Proposed** 2026-09-10; LW-001) |
+| [0089](0089-livelihood-mutation-401-resume.md) | Livelihood **mutating** writes resume after 401 from `localStorage` with the same idempotency key — not GET, not auth bootstrap (**Status: Proposed** 2026-09-10; LW-007) |
+| [0090](0090-architecture-work-lease-without-presence.md) | Soft exclusive **work-lease** on a draft (acquire / heartbeat / release / steal-with-confirm) — not live presence; ADR 0088 CAS still required (**Status: Proposed** 2026-09-10; LW-008) |
+| [0091](0091-career-is-working-default-day.md) | Working production **Career is the default execute gravity** — Rehearsal is explicit; unlabeled Simulator is not the day’s work; host `AgentExecution:Mode` default stays Simulator (**Status: Accepted** 2026-09-12; CG-001; **not** G-REAL-06; does not rewrite 0086) |
+| [0092](0092-working-cheap-what-if-envelope.md) | Working **labeled what-if envelope** without Career seal — cheap Rehearsal-stamped sketch; Career what-if stays R12 full run; **no** draft-diff Compare; kernels unmerged (**Status: Accepted** 2026-09-12; SN-001 / CE; **not** G-REAL-06; does not rewrite 0068/R12) |
+| [0093](0093-false-hard-citation-working-career.md) | Working Career **hard infeasible** requires citation — uncited hard demoted or withheld on export; extends ADR 0050/R5; does not replace 0082; no 40th engine (**Status: Accepted** 2026-09-12; LN-001; **not** G-REAL-06) |
+| [0094](0094-working-one-execute-gravity.md) | Working production **one execute gravity** — Career default per 0091; operator-experience is density not Mode; Guided/demo/trial remain eval; host `AgentExecution:Mode` stays Simulator (**Status: Accepted** 2026-09-12; MG-001; **not** G-REAL-06; does not delete Guided) |
+| [0095](0095-sealed-record-governance-home.md) | Sealed review records **Governance inventory home** — list at `/governance/sealed-records`; desk remains Monday-morning; no tab collapse; legacy redirects (**Status: Accepted** 2026-09-12; DI-001; does not merge kernels) |
+| [0096](0096-career-real-never-owns-the-tab.md) | Career **Real** execute never owns the tab — async operations (202 + poll); no `GET /v1/runs/{runId}/progress`; no fake percentComplete; Working not stay-on-this-page (**Status: Accepted** 2026-09-12; DW-001; **not** G-REAL-06) |
+| [0097](0097-record-and-practice-user-facing-labels.md) | Working operator chrome uses **Record / Practice** user labels — stored tokens stay `career` / `rehearsal`; parse aliases `record` / `practice`; help slug `career-rehearsal-doors` unchanged (**Status: Accepted** 2026-09-12; RP wave) |
+| [0098](0098-working-instrument-after-spawn-is-desk.md) | Working instrument after spawn is the architecture desk — nested review-detail is a job inspector (**Status: Proposed**; SG wave; **not** G-REAL-06) |
+| [0099](0099-semantic-support-llm-judge-default-on-finalize.md) | Semantic support Premium LLM judge **default-on for Real finalize** — emit stays heuristic; warn-not-block; Simulator skip (**Status: Accepted** 2026-09-13; LY wave; supersedes LN-025 skip for finalize only; **not** G-REAL-06) |
+| [0100](0100-working-inhabit-architecture-findings-document.md) | Working **inhabits** the architecture — pre-seal afternoon is document-grade findings work on that identity; nested review-detail stays a job inspector (**Status: Proposed**; IH wave; **not** G-REAL-06; does not rewrite 0068/0098) |
+| [0101](0101-ai-diagram-assist-compiles-to-existing-controls.md) | AI diagram assist **compiles into existing controls** — view plans, model patches, narration, camera/path over compiled AST; not LLM Mermaid SoT (**Status: Proposed** 2026-09-13; DAU wave) |
+| [0102](0102-first-login-live-workspace-explicit-training.md) | First login lands on **live tenant workspace**; **Training** is an explicit once-per-user choice; silent Customer Intake Demo scope is not the signed-in default (**Status: Proposed** 2026-09-20; live-seat wave) |
+| [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, and Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.

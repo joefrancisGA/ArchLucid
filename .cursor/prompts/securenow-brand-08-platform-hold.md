@@ -14,7 +14,7 @@ Do **not**:
 - Change `security@archlucid.net`, `support@archlucid.net`, `sales@archlucid.net`, `archlucid.com`, `archlucid.net`, or `security.txt` canonical URLs
 - Rebrand Architecture chrome, `/why-archlucid`, review-board packets, or getting-started for the Architecture process
 - Invent “SecureNow Inc.” or treat SecureNow as the DPA contracting party
-- Add `ArchLucid.Host.Security` or a second Next.js app (that is **PL-05**)
+- Add `ArchLucid.Host.Security` or a second Next.js app (that is **PL-05** / **OP-07**)
 - Start SOC 2 CPA or third-party pen-test programs (**TB-135** / **TB-136** stay Done on tech; GTM **G-REAL-05** / **G-ASSURANCE-02** are owner work)
 - Hide desktop review tabs behind **More**
 

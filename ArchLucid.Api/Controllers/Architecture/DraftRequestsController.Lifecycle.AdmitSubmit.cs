@@ -55,6 +55,10 @@ public sealed partial class DraftRequestsController
 
             return Ok(result);
         }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
@@ -110,7 +114,7 @@ public sealed partial class DraftRequestsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDraftRequestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

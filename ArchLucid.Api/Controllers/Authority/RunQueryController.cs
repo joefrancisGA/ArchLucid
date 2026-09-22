@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Services.Authority;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
@@ -39,6 +40,9 @@ public sealed partial class RunQueryController(
     ITraceabilityBundleExportApplicationService traceabilityBundleExport,
     IAuthorityQueryService authorityQueryService,
     IScopeContextProvider scopeProvider,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
 }

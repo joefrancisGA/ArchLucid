@@ -2,7 +2,7 @@
 # ─────────────────────────────────────────────────────────────────
 # Merges with docker-compose.yml and adds profile `demo-hosted` so you can
 # start the same full stack as `full-stack` with:
-#   - ArchLucid:AgentExecution:Mode=Simulator (explicit; default is already Simulator)
+#   - ArchLucid:AgentExecution:Mode=Simulator (explicit; default is already Simulator; ADR 0086 / AS-085)
 #   - UI build: NEXT_PUBLIC_DEMO_URL for /get-started "Try the live demo" (points at your public demo host)
 #
 # Local:

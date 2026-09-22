@@ -1,29 +1,35 @@
 /** `/architecture/reviews` hub — page header and section copy. */
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
+import {
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
+} from "@/lib/system-not-job-reviews-hub-inbox-copy";
 
 export const REVIEWS_HUB_PAGE_TITLE = "Reviews";
 
 export const REVIEWS_HUB_PAGE_SUBTITLE =
   "Create, refine, evaluate, and approve architecture reviews.";
 
-/** Working inbox title — cross-architecture triage, not Monday morning (AO-26 / AO-14). */
-export const WORKING_REVIEWS_HUB_PAGE_TITLE = WORKING_REVIEWS_INBOX_NAV_LABEL;
+/** Working inbox title — cross-architecture triage, not Monday morning (SN-011 / ADR 0079). */
+export const WORKING_REVIEWS_HUB_PAGE_TITLE = SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE;
 
-export const WORKING_REVIEWS_HUB_PAGE_SUBTITLE =
-  "Cross-architecture review jobs in this workspace — open an architecture desk to continue work.";
+export const WORKING_REVIEWS_HUB_PAGE_SUBTITLE = SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE;
 
-export const WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY =
-  "Reviews appear here after you start a job from an architecture desk. Open Architectures to pick a system and start or resume work.";
+export const WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY = SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY;
 
 export const WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
-  "Continue the draft from the header, or open Architectures to pick a system and start a review.";
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY;
 
 export const WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
-  "Pick an architecture ready for review below, or open Architectures to browse named systems.";
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;
 
 /** Working empty/header primary — routes to architecture portfolio, not orphan review intake (AO-26). */
-export const WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL = "Open architectures";
+export const WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL =
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL;
 
 export const WORKING_REVIEWS_HUB_HEADER_OPEN_ARCHITECTURES_LABEL = WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL;
 
@@ -77,7 +83,7 @@ export const REVIEWS_HUB_RESUME_DRAFTS_TITLE = "Architectures ready for review";
 export const REVIEWS_HUB_RESUME_DRAFTS_BODY =
   "Architecture drafts appear here as inputs — continue editing or start a review when ready.";
 
-export const REVIEWS_HUB_RESUME_DRAFTS_VIEW_ALL_LABEL = "View all drafts";
+export const REVIEWS_HUB_RESUME_DRAFTS_VIEW_ALL_LABEL = "View all architecture drafts";
 
 export const REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL = "Continue editing";
 
@@ -109,9 +115,9 @@ export const REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL = "Explore the sample revi
 /** Empty inventory copy when architecture drafts exist but no review runs yet. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 
-/** Empty inventory when exactly one draft — header Continue owns the draft chooser. */
+/** Empty inventory when exactly one architecture draft — header Continue owns the architecture draft chooser. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
-  "Architecture reviews are where findings, evidence, approvals, and approval decisions are recorded. Continue the draft from the header, or start a review from a description or imported documents.";
+  "Architecture reviews are where findings, evidence, approvals, and approval decisions are recorded. Continue the architecture draft from the header, or start a review from a description or imported documents.";
 
 /** Empty inventory when multiple drafts — supporting strip lists architectures ready for review. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =

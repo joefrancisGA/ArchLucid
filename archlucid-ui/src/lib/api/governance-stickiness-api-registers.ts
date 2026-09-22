@@ -1,4 +1,13 @@
+import { formatExportSealedManifestAwareApiError } from "./export-sealed-manifest-conflict";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiGet } from "./http";
+import { governanceAssignedToMeCountBlockedReason } from "@/lib/governance/governance-assigned-to-me-count-blocked-reason";
+import { governancePostureBlockedReason } from "@/lib/governance/governance-posture-blocked-reason";
+import {
+  decisionsNeededSummaryBlockedReason,
+  reviewsAwaitingActionBlockedReason,
+} from "@/lib/governance/governance-stickiness-register-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type ArchitectureDecisionRegisterFilters,
   type ArchitectureDecisionRegisterResponse,
@@ -44,9 +53,17 @@ export async function getGovernanceAssignedToMeFindingsCount(
   }
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGetSealedManifestAware<GovernanceAssignedToMeFindingsCountResponse>(
-    `${governanceStickinessBase()}/risk-register/assigned-to-me-count${suffix}`,
-  );
+
+  try {
+    return await apiGet<GovernanceAssignedToMeFindingsCountResponse>(
+      `${governanceStickinessBase()}/risk-register/assigned-to-me-count${suffix}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceAssignedToMeCountBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Risk and decision registers for the policy findings queue. */
@@ -91,9 +108,16 @@ export async function getArchitectureDecisionRegister(
 }
 
 export async function getGovernanceReviewsAwaitingAction(): Promise<GovernanceReviewsAwaitingActionResponse> {
-  return apiGetSealedManifestAware<GovernanceReviewsAwaitingActionResponse>(
-    `${governanceStickinessBase()}/reviews-awaiting-action`,
-  );
+  try {
+    return await apiGet<GovernanceReviewsAwaitingActionResponse>(
+      `${governanceStickinessBase()}/reviews-awaiting-action`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewsAwaitingActionBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function getGovernanceDecisionsNeededSummary(
@@ -102,14 +126,30 @@ export async function getGovernanceDecisionsNeededSummary(
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGetSealedManifestAware<GovernanceDecisionsNeededSummary>(
-    `${governanceStickinessBase()}/decisions-needed-summary${suffix}`,
-  );
+
+  try {
+    return await apiGet<GovernanceDecisionsNeededSummary>(
+      `${governanceStickinessBase()}/decisions-needed-summary${suffix}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = decisionsNeededSummaryBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function getGovernancePosture(projectId?: string): Promise<ArchitecturePostureSummary> {
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGetSealedManifestAware(`${governanceStickinessBase()}/posture${suffix}`);
+
+  try {
+    return await apiGet<ArchitecturePostureSummary>(`${governanceStickinessBase()}/posture${suffix}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governancePostureBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

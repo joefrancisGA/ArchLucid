@@ -16,18 +16,20 @@ import {
   IMPACT_PREVIEW_GOVERNANCE_HREF,
 } from "@/lib/impact-preview-page-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 
 export type ImpactPreviewEvidenceBasisSectionProps = {
   readonly baselineRunId: string | null;
   readonly linkedRunIds: readonly string[];
   readonly policyRulesLabel: string;
+  readonly architectureId?: string | null;
 };
 
 export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBasisSectionProps): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const baselineHref =
     props.baselineRunId !== null
-      ? `/architecture/reviews/${encodeURIComponent(props.baselineRunId)}`
+      ? resolveSystemNotJobWorkingReviewOpenHref(props.baselineRunId, props.architectureId)
       : null;
 
   return (

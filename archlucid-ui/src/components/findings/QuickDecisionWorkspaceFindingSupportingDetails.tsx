@@ -34,12 +34,15 @@ export type QuickDecisionWorkItemContext = {
 /** Review-wide context every workspace finding card needs, independent of the finding being rendered. */
 export type QuickDecisionWorkspaceCardContext = {
   readonly runId: string;
+  /** IR-005 — parent architecture identity for inhabited in-page cards. */
+  readonly architectureId?: string | null;
   /** Sibling findings passed through to the work-item affordance for batch actions. */
   readonly allFindings: readonly QuickDecisionFinding[];
   /** When false, work-item / ITSM chrome stays hidden until a committed manifest exists (TB-1854). */
   readonly packageCommitted?: boolean;
   readonly providerNeutralWorkItems?: boolean;
   readonly architectureWorkItemContext?: QuickDecisionWorkItemContext | null;
+  readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
 };
 
 export type QuickDecisionWorkspaceFindingSupportingDetailsProps = {

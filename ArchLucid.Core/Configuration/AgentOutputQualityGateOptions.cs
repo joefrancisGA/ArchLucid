@@ -85,6 +85,16 @@ public sealed class AgentOutputQualityGateOptions
     }
 
     /// <summary>
+    ///     AS-065 / TB-1228 opt-in: when true, Working Real PilotStrict holds finalize on Unsupported
+    ///     decision-grade semantic support bands. Defaults to false; Simulator never honors this hold.
+    /// </summary>
+    public bool PilotStrictHoldOnUnsupportedSemanticSupport
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     When true, the heuristic semantic evaluator applies stricter length / overlap / proposed-change checks (production-like posture).
     /// </summary>
     public bool HeuristicEvaluatorTightenedThresholds

@@ -6,6 +6,10 @@ import type {
   RecommendationLearningRollbackRequest,
 } from "@/types/recommendation-learning-operational";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { recommendationLearningMutationBlockedReason } from "@/lib/internal/recommendation-learning-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
 export type RecommendationLearningOpsPageBundle = {
@@ -27,7 +31,14 @@ export async function fetchRecommendationLearningStatus(): Promise<Recommendatio
 }
 
 export async function previewRecommendationLearningRebuild(): Promise<RecommendationLearningPreview> {
-  return apiPostJson<RecommendationLearningPreview>("/v1/recommendation-learning/preview", {});
+  try {
+    return await apiPostJson<RecommendationLearningPreview>("/v1/recommendation-learning/preview", {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recommendationLearningMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function fetchRecommendationLearningHistory(take = 20): Promise<RecommendationLearningProfileHistoryItem[]> {
@@ -39,7 +50,14 @@ export async function fetchRecommendationLearningHistory(take = 20): Promise<Rec
 export async function rollbackRecommendationLearningProfile(
   request: RecommendationLearningRollbackRequest,
 ): Promise<LearningProfile> {
-  return apiPostJson<LearningProfile>("/v1/recommendation-learning/rollback", request);
+  try {
+    return await apiPostJson<LearningProfile>("/v1/recommendation-learning/rollback", request);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recommendationLearningMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Loads persisted profile without recomputing weights. */

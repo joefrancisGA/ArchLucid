@@ -22,7 +22,41 @@ public static class AzureExtractorPackageInventoryReader
             List<JsonElement> diagnosticSettings = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DiagnosticSettings);
             List<JsonElement> networkAssociations = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.NetworkAssociations);
             List<JsonElement> policyAssignments = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.PolicyAssignments);
+            (bool federatedCredentialsFilePresent, List<AzureInventoryFederatedCredentialRow> federatedCredentials) =
+                ReadFederatedCredentials(archive);
+            (bool entraGroupMembershipsFilePresent, List<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships) =
+                ReadEntraGroupMemberships(archive);
             List<JsonElement> defenderSummary = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSummary);
+            (bool effectiveNetworkControlsFilePresent, List<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls) =
+                ReadEffectiveNetworkControls(archive);
+            (bool adfLinkedServicesFilePresent, List<AzureInventoryAdfLinkedServiceRow> adfLinkedServices) =
+                ReadAdfLinkedServices(archive);
+            (bool adfDatasetsFilePresent, List<AzureInventoryAdfDatasetRow> adfDatasets) =
+                ReadAdfDatasets(archive);
+            (bool adfPipelineFlowsFilePresent, List<AzureInventoryAdfPipelineFlowRow> adfPipelineFlows) =
+                ReadAdfPipelineFlows(archive);
+            (bool adfTriggersFilePresent, List<AzureInventoryAdfTriggerRow> adfTriggers) =
+                ReadAdfTriggers(archive);
+            (bool adfIntegrationRuntimesFilePresent, List<AzureInventoryAdfIntegrationRuntimeRow> adfIntegrationRuntimes) =
+                ReadAdfIntegrationRuntimes(archive);
+            (bool adfDataflowsFilePresent, List<AzureInventoryAdfDataflowRow> adfDataflows) =
+                ReadAdfDataflows(archive);
+            (bool eventGridSubscriptionsFilePresent, List<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptions) =
+                ReadEventGridSubscriptions(archive);
+            (bool logicAppConnectionsFilePresent, List<AzureInventoryLogicAppConnectionRow> logicAppConnections) =
+                ReadLogicAppConnections(archive);
+            (bool messagingAssociationsFilePresent, List<AzureInventoryMessagingAssociationRow> messagingAssociations) =
+                ReadMessagingAssociations(archive);
+            (bool paasChildAssociationsFilePresent, List<AzureInventoryPaasChildAssociationRow> paasChildAssociations) =
+                ReadPaasChildAssociations(archive);
+            (bool serviceConnectorLinksFilePresent, List<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinks) =
+                ReadServiceConnectorLinks(archive);
+            (bool appSettingHostsFilePresent, List<AzureInventoryAppSettingHostRow> appSettingHosts) =
+                ReadAppSettingHosts(archive);
+            (bool dependencyObservationsFilePresent, List<AzureInventoryDependencyObservationRow> dependencyObservations) =
+                ReadDependencyObservations(archive);
+            (bool sqlDatabasePrincipalsFilePresent, List<AzureInventorySqlDatabasePrincipalRow> sqlDatabasePrincipals) =
+                ReadSqlDatabasePrincipals(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -31,7 +65,41 @@ public static class AzureExtractorPackageInventoryReader
                 DiagnosticSettings = diagnosticSettings,
                 NetworkAssociations = networkAssociations,
                 PolicyAssignments = policyAssignments,
+                FederatedCredentials = federatedCredentials,
+                FederatedCredentialsFilePresent = federatedCredentialsFilePresent,
+                EntraGroupMemberships = entraGroupMemberships,
+                EntraGroupMembershipsFilePresent = entraGroupMembershipsFilePresent,
                 DefenderSummary = defenderSummary,
+                EffectiveNetworkControls = effectiveNetworkControls,
+                EffectiveNetworkControlsFilePresent = effectiveNetworkControlsFilePresent,
+                AdfLinkedServices = adfLinkedServices,
+                AdfLinkedServicesFilePresent = adfLinkedServicesFilePresent,
+                AdfDatasets = adfDatasets,
+                AdfDatasetsFilePresent = adfDatasetsFilePresent,
+                AdfPipelineFlows = adfPipelineFlows,
+                AdfPipelineFlowsFilePresent = adfPipelineFlowsFilePresent,
+                AdfTriggers = adfTriggers,
+                AdfTriggersFilePresent = adfTriggersFilePresent,
+                AdfIntegrationRuntimes = adfIntegrationRuntimes,
+                AdfIntegrationRuntimesFilePresent = adfIntegrationRuntimesFilePresent,
+                AdfDataflows = adfDataflows,
+                AdfDataflowsFilePresent = adfDataflowsFilePresent,
+                EventGridSubscriptions = eventGridSubscriptions,
+                EventGridSubscriptionsFilePresent = eventGridSubscriptionsFilePresent,
+                LogicAppConnections = logicAppConnections,
+                LogicAppConnectionsFilePresent = logicAppConnectionsFilePresent,
+                MessagingAssociations = messagingAssociations,
+                MessagingAssociationsFilePresent = messagingAssociationsFilePresent,
+                PaasChildAssociations = paasChildAssociations,
+                PaasChildAssociationsFilePresent = paasChildAssociationsFilePresent,
+                ServiceConnectorLinks = serviceConnectorLinks,
+                ServiceConnectorLinksFilePresent = serviceConnectorLinksFilePresent,
+                AppSettingHosts = appSettingHosts,
+                AppSettingHostsFilePresent = appSettingHostsFilePresent,
+                DependencyObservations = dependencyObservations,
+                DependencyObservationsFilePresent = dependencyObservationsFilePresent,
+                SqlDatabasePrincipals = sqlDatabasePrincipals,
+                SqlDatabasePrincipalsFilePresent = sqlDatabasePrincipalsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -52,46 +120,73 @@ public static class AzureExtractorPackageInventoryReader
             return [];
 
         using Stream stream = entry.Open();
-        using JsonDocument document = JsonDocument.Parse(stream);
 
-        if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            throw new JsonException("resources.json root must be a JSON array.");
-
-        List<AzureExtractorExtendedResourceRow> rows = [];
-
-        foreach (JsonElement row in document.RootElement.EnumerateArray())
+        try
         {
-            if (row.ValueKind is not JsonValueKind.Object)
-                continue;
+            using JsonDocument document = JsonDocument.Parse(stream);
 
-            AzureExtractorExtendedResourceRow? mapped = MapResourceRow(row);
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                throw new JsonException("resources.json root must be a JSON array.");
 
-            if (mapped is not null)
-                rows.Add(mapped);
+            List<AzureExtractorExtendedResourceRow> rows = [];
+
+            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            {
+                if (row.ValueKind is not JsonValueKind.Object)
+                    continue;
+
+                AzureExtractorExtendedResourceRow? mapped = MapResourceRow(row);
+
+                if (mapped is not null)
+                    rows.Add(mapped);
+            }
+
+            return rows;
         }
-
-        return rows;
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException("resources.json is not valid JSON.");
+        }
     }
 
     private static AzureExtractorExtendedResourceRow? MapResourceRow(JsonElement row)
     {
-        string? azureResourceId = TryReadString(row, "resourceId") ?? TryReadString(row, "id");
+        string? azureResourceId = TryReadString(row, "resourceId")
+            ?? TryReadString(row, "ResourceId")
+            ?? TryReadString(row, "id")
+            ?? TryReadString(row, "Id");
 
         if (string.IsNullOrWhiteSpace(azureResourceId))
-            azureResourceId = TryReadString(row, "name");
+            azureResourceId = TryReadString(row, "name") ?? TryReadString(row, "Name");
 
-        string? resourceType = TryReadString(row, "resourceType") ?? TryReadString(row, "type");
+        string? resourceType = TryReadString(row, "resourceType")
+            ?? TryReadString(row, "ResourceType")
+            ?? TryReadString(row, "type")
+            ?? TryReadString(row, "Type");
 
         if (string.IsNullOrWhiteSpace(azureResourceId) || string.IsNullOrWhiteSpace(resourceType))
             return null;
 
-        string name = TryReadString(row, "name") ?? azureResourceId.Split('/').LastOrDefault() ?? azureResourceId;
-        string? location = TryReadString(row, "location");
-        string? resourceGroup = TryReadString(row, "resourceGroup") ?? ExtractResourceGroup(azureResourceId);
+        string name = TryReadString(row, "name")
+            ?? TryReadString(row, "Name")
+            ?? azureResourceId.Split('/').LastOrDefault()
+            ?? azureResourceId;
+        string? location = TryReadString(row, "location") ?? TryReadString(row, "Location");
+        string? resourceGroup = TryReadString(row, "resourceGroup")
+            ?? TryReadString(row, "ResourceGroup")
+            ?? ExtractResourceGroup(azureResourceId);
+
+        if (!string.IsNullOrWhiteSpace(resourceGroup))
+            resourceGroup = resourceGroup.Trim();
         string? skuName = ExtractSku(row);
-        IReadOnlyDictionary<string, string> tags = ReadStringDictionary(row, "tags");
+        IReadOnlyDictionary<string, string> tags = ReadStringDictionary(row, "tags", "Tags");
         IReadOnlyDictionary<string, string> properties = ReadProperties(row);
-        bool isUnknown = row.TryGetProperty("isUnknownType", out JsonElement unknownFlag)
+        bool isUnknown = (row.TryGetProperty("isUnknownType", out JsonElement unknownFlag)
+                          || row.TryGetProperty("IsUnknownType", out unknownFlag))
                          && unknownFlag.ValueKind is JsonValueKind.True;
 
         return new AzureExtractorExtendedResourceRow
@@ -99,13 +194,213 @@ public static class AzureExtractorPackageInventoryReader
             AzureResourceId = azureResourceId.Trim(),
             ResourceType = resourceType.Trim(),
             Name = name.Trim(),
-            Location = location,
+            Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim(),
             ResourceGroup = resourceGroup,
             SkuName = skuName,
             Tags = tags,
             Properties = properties,
             IsUnknownType = isUnknown,
         };
+    }
+
+    private static (bool FilePresent, List<AzureInventoryFederatedCredentialRow> Rows) ReadFederatedCredentials(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryFederatedCredentialRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.FederatedCredentials,
+            AzureInventoryFederatedCredentialParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryEntraGroupMembershipRow> Rows) ReadEntraGroupMemberships(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryEntraGroupMembershipRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
+            AzureInventoryEntraGroupMembershipParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfLinkedServiceRow> Rows) ReadAdfLinkedServices(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAdfLinkedServiceRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfLinkedServices,
+            AzureInventoryAdfLinkedServiceParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfDatasetRow> Rows) ReadAdfDatasets(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAdfDatasetRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfDatasets,
+            AzureInventoryAdfDatasetParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfPipelineFlowRow> Rows) ReadAdfPipelineFlows(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAdfPipelineFlowRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfPipelineFlows,
+            AzureInventoryAdfPipelineFlowParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfTriggerRow> Rows) ReadAdfTriggers(ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAdfTriggerRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfTriggers,
+            AzureInventoryAdfTriggerParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfIntegrationRuntimeRow> Rows) ReadAdfIntegrationRuntimes(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAdfIntegrationRuntimeRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes,
+            AzureInventoryAdfIntegrationRuntimeParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfDataflowRow> Rows) ReadAdfDataflows(ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAdfDataflowRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AdfDataflows,
+            AzureInventoryAdfDataflowParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryEventGridSubscriptionRow> Rows) ReadEventGridSubscriptions(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryEventGridSubscriptionRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.EventGridSubscriptions,
+            AzureInventoryEventGridSubscriptionParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryLogicAppConnectionRow> Rows) ReadLogicAppConnections(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryLogicAppConnectionRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.LogicAppConnections,
+            AzureInventoryLogicAppConnectionParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryMessagingAssociationRow> Rows) ReadMessagingAssociations(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryMessagingAssociationRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.MessagingAssociations,
+            AzureInventoryMessagingAssociationParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryPaasChildAssociationRow> Rows) ReadPaasChildAssociations(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryPaasChildAssociationRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.PaasChildAssociations,
+            AzureInventoryPaasChildAssociationParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryServiceConnectorLinkRow> Rows) ReadServiceConnectorLinks(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryServiceConnectorLinkRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.ServiceConnectorLinks,
+            AzureInventoryServiceConnectorLinkParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAppSettingHostRow> Rows) ReadAppSettingHosts(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAppSettingHostRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AppSettingsHosts,
+            AzureInventoryAppSettingHostParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryDependencyObservationRow> Rows) ReadDependencyObservations(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryDependencyObservationRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.DependencyObservations,
+            AzureInventoryDependencyObservationParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventorySqlDatabasePrincipalRow> Rows) ReadSqlDatabasePrincipals(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventorySqlDatabasePrincipalRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.SqlDatabasePrincipals,
+            AzureInventorySqlDatabasePrincipalParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<TRow> Rows) ReadCompanionRows<TRow>(
+        ZipArchive archive,
+        string entryName,
+        TryParseCompanionRow<TRow> tryParse)
+        where TRow : class
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, entryName);
+
+        if (entry is null)
+        {
+            return (false, []);
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+            JsonElement[] elements = CloneCompanionArrayRows(document.RootElement, entryName);
+            List<TRow> rows = [];
+
+            foreach (JsonElement element in elements)
+            {
+                if (!tryParse(element, out TRow? row, out _))
+                {
+                    continue;
+                }
+
+                if (row is not null)
+                {
+                    rows.Add(row);
+                }
+            }
+
+            return (true, rows);
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{entryName} is not valid JSON.");
+        }
+    }
+
+    private delegate bool TryParseCompanionRow<TRow>(JsonElement element, out TRow? row, out string? errorMessage)
+        where TRow : class;
+
+    private static (bool FilePresent, List<AzureInventoryEffectiveNetworkControlRow> Rows) ReadEffectiveNetworkControls(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryEffectiveNetworkControlRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.EffectiveNetworkControls,
+            AzureInventoryEffectiveNetworkControlParser.TryParse);
     }
 
     private static List<JsonElement> ReadOptionalArray(ZipArchive archive, string entryName)
@@ -116,12 +411,31 @@ public static class AzureExtractorPackageInventoryReader
             return [];
 
         using Stream stream = entry.Open();
-        using JsonDocument document = JsonDocument.Parse(stream);
 
-        if (document.RootElement.ValueKind is not JsonValueKind.Array)
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            return CloneCompanionArrayRows(document.RootElement, entryName).ToList();
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{entryName} is not valid JSON.");
+        }
+    }
+
+    private static JsonElement[] CloneCompanionArrayRows(JsonElement root, string entryName)
+    {
+        if (!AzureExtractorJsonArrayRoot.TryCloneRows(root, out JsonElement[] rows))
+        {
             throw new JsonException($"{entryName} root must be a JSON array.");
+        }
 
-        return document.RootElement.EnumerateArray().Select(static element => element.Clone()).ToList();
+        return rows;
     }
 
     private static ZipArchiveEntry? FindEntry(ZipArchive archive, string entryName) =>
@@ -143,23 +457,47 @@ public static class AzureExtractorPackageInventoryReader
 
     private static string? ExtractSku(JsonElement row)
     {
-        if (!row.TryGetProperty("sku", out JsonElement sku))
+        if (!row.TryGetProperty("sku", out JsonElement sku) && !row.TryGetProperty("Sku", out sku))
             return null;
 
         if (sku.ValueKind is JsonValueKind.String)
-            return sku.GetString();
+        {
+            string? skuText = sku.GetString();
 
-        if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("name", out JsonElement skuName))
-            return skuName.GetString();
+            return string.IsNullOrWhiteSpace(skuText) ? null : skuText.Trim();
+        }
+
+        if (sku.ValueKind is JsonValueKind.Object)
+        {
+            if (sku.TryGetProperty("name", out JsonElement skuName) || sku.TryGetProperty("Name", out skuName))
+            {
+                string? skuText = skuName.GetString();
+
+                return string.IsNullOrWhiteSpace(skuText) ? null : skuText.Trim();
+            }
+        }
 
         return null;
     }
 
-    private static IReadOnlyDictionary<string, string> ReadStringDictionary(JsonElement row, string propertyName)
+    private static IReadOnlyDictionary<string, string> ReadStringDictionary(JsonElement row, params string[] propertyNames)
     {
-        if (!row.TryGetProperty(propertyName, out JsonElement dictionary) || dictionary.ValueKind is not JsonValueKind.Object)
-            return new Dictionary<string, string>();
+        foreach (string propertyName in propertyNames)
+        {
+            if (!row.TryGetProperty(propertyName, out JsonElement dictionary))
+                continue;
 
+            if (dictionary.ValueKind is not JsonValueKind.Object)
+                return new Dictionary<string, string>();
+
+            return ReadStringDictionaryValues(dictionary);
+        }
+
+        return new Dictionary<string, string>();
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadStringDictionaryValues(JsonElement dictionary)
+    {
         Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (JsonProperty property in dictionary.EnumerateObject())
@@ -180,7 +518,11 @@ public static class AzureExtractorPackageInventoryReader
 
     private static IReadOnlyDictionary<string, string> ReadProperties(JsonElement row)
     {
-        if (!row.TryGetProperty("properties", out JsonElement properties) || properties.ValueKind is not JsonValueKind.Object)
+        if (!row.TryGetProperty("properties", out JsonElement properties)
+            && !row.TryGetProperty("Properties", out properties))
+            return new Dictionary<string, string>();
+
+        if (properties.ValueKind is not JsonValueKind.Object)
             return new Dictionary<string, string>();
 
         Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);
@@ -268,11 +610,215 @@ public sealed class AzureExtractorPackageInventoryReadResult
         init;
     } = [];
 
+    public IReadOnlyList<AzureInventoryFederatedCredentialRow> FederatedCredentials
+    {
+        get;
+        init;
+    } = [];
+
+    public bool FederatedCredentialsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryEntraGroupMembershipRow> EntraGroupMemberships
+    {
+        get;
+        init;
+    } = [];
+
+    public bool EntraGroupMembershipsFilePresent
+    {
+        get;
+        init;
+    }
+
     public IReadOnlyList<JsonElement> DefenderSummary
     {
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryEffectiveNetworkControlRow> EffectiveNetworkControls
+    {
+        get;
+        init;
+    } = [];
+
+    public bool EffectiveNetworkControlsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfLinkedServiceRow> AdfLinkedServices
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfLinkedServicesFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfDatasetRow> AdfDatasets
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfDatasetsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfPipelineFlowRow> AdfPipelineFlows
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfPipelineFlowsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfTriggerRow> AdfTriggers
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfTriggersFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow> AdfIntegrationRuntimes
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfIntegrationRuntimesFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfDataflowRow> AdfDataflows
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfDataflowsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryEventGridSubscriptionRow> EventGridSubscriptions
+    {
+        get;
+        init;
+    } = [];
+
+    public bool EventGridSubscriptionsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryLogicAppConnectionRow> LogicAppConnections
+    {
+        get;
+        init;
+    } = [];
+
+    public bool LogicAppConnectionsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryMessagingAssociationRow> MessagingAssociations
+    {
+        get;
+        init;
+    } = [];
+
+    public bool MessagingAssociationsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryPaasChildAssociationRow> PaasChildAssociations
+    {
+        get;
+        init;
+    } = [];
+
+    public bool PaasChildAssociationsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryServiceConnectorLinkRow> ServiceConnectorLinks
+    {
+        get;
+        init;
+    } = [];
+
+    public bool ServiceConnectorLinksFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAppSettingHostRow> AppSettingHosts
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AppSettingHostsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryDependencyObservationRow> DependencyObservations
+    {
+        get;
+        init;
+    } = [];
+
+    public bool DependencyObservationsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventorySqlDatabasePrincipalRow> SqlDatabasePrincipals
+    {
+        get;
+        init;
+    } = [];
+
+    public bool SqlDatabasePrincipalsFilePresent
+    {
+        get;
+        init;
+    }
 
     public static AzureExtractorPackageInventoryReadResult Failed(string error) =>
         new() { Succeeded = false, Error = error };

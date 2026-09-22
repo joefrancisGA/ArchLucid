@@ -1,14 +1,17 @@
+using ArchLucid.Application.Operator;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -26,7 +29,9 @@ public static class CareerExportCoverageHonestyMaterialLoader
         ScopeContext scope,
         bool workingDesk,
         IConfiguration configuration,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IRunRepository? runRepository = null,
+        IArchitectureInventoryBindingRepository? architectureInventoryBindingRepository = null)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(agentExecutionTraceRepository);
@@ -57,6 +62,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
         AgentOutputQualityGateMode? recordedQualityGateMode = null;
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null;
         FindingsSnapshot? findingsSnapshot = null;
+        string? ruleSetId = null;
+        string? ruleSetVersion = null;
 
         if (Guid.TryParse(detail.Run.RunId.Trim(), out Guid runGuid))
         {
@@ -72,6 +79,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
             judgeSkippedByCap = ResolveJudgeSkippedByCap(
                 findingsSnapshot?.InsightDensityCuration?.JudgeSkippedByCap);
             isSampleRun = exportDetail?.Run.IsSample ?? false;
+            ruleSetId = exportDetail?.GoldenManifest?.RuleSetId?.Trim();
+            ruleSetVersion = exportDetail?.GoldenManifest?.RuleSetVersion?.Trim();
 
             IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository
                 .GetByRunIdAsync(scope, detail.Run.RunId.Trim(), cancellationToken)
@@ -79,6 +88,13 @@ public static class CareerExportCoverageHonestyMaterialLoader
             recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(traces);
             aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(traces);
         }
+
+        bool? architectureInventoryBound = await ResolveArchitectureInventoryBoundAsync(
+            detail,
+            scope,
+            runRepository,
+            architectureInventoryBindingRepository,
+            cancellationToken);
 
         return new CareerExportCoverageHonestyInput(
             coverageContext,
@@ -94,7 +110,43 @@ public static class CareerExportCoverageHonestyMaterialLoader
             recordedQualityGateMode,
             aggregateQualityGateOutcome,
             judgeSkippedByCap,
-            findingsSnapshot);
+            findingsSnapshot,
+            architectureInventoryBound,
+            WorkingCareerRehearsalDoor: detail.Run.WorkingCareerRehearsalDoor,
+            RuleSetId: ruleSetId,
+            RuleSetVersion: ruleSetVersion);
+    }
+
+    internal static async Task<bool?> ResolveArchitectureInventoryBoundAsync(
+        ArchitectureRunDetail detail,
+        ScopeContext scope,
+        IRunRepository? runRepository,
+        IArchitectureInventoryBindingRepository? architectureInventoryBindingRepository,
+        CancellationToken cancellationToken)
+    {
+        if (runRepository is null || architectureInventoryBindingRepository is null)
+        {
+            return null;
+        }
+
+        ArgumentNullException.ThrowIfNull(detail);
+
+        Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveAsync(
+            runRepository,
+            scope,
+            detail.Run.RunId.Trim(),
+            cancellationToken).ConfigureAwait(false);
+
+        if (architectureId is null)
+        {
+            return null;
+        }
+
+        ArchitectureInventoryBindingRecord? binding = await architectureInventoryBindingRepository
+            .TryGetByArchitectureIdAsync(scope, architectureId.Value, cancellationToken)
+            .ConfigureAwait(false);
+
+        return binding is not null;
     }
 
     private static int? ResolveJudgeSkippedByCap(int? judgeSkippedByCap)

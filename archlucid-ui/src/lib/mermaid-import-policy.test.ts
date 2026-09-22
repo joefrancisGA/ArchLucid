@@ -6,8 +6,7 @@ import { describe, expect, it } from "vitest";
 const SRC_ROOT = join(process.cwd(), "src");
 
 const MERMAID_DYNAMIC_IMPORTERS = [
-  join(SRC_ROOT, "components", "architecture", "ArchitectureDiagramViewer.tsx"),
-  join(SRC_ROOT, "components", "help", "MermaidDiagram.tsx"),
+  join(SRC_ROOT, "lib", "mermaid", "mermaid-safe-render.ts"),
 ] as const;
 
 function collectSourceFiles(dir: string): string[] {

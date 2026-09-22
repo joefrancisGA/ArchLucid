@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Operator;
 using ArchLucid.Core.Audit;
@@ -26,7 +27,7 @@ namespace ArchLucid.Api.Controllers.Operator;
 [Route("v{version:apiVersion}/operator/saved-views")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class OperatorSavedViewsController(
+public sealed partial class OperatorSavedViewsController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IAuditService auditService,
@@ -151,9 +152,13 @@ public sealed class OperatorSavedViewsController(
 
             return CreatedAtAction(nameof(ListSavedViews), new { surface }, created);
         }
+        catch (ConflictException ex)
+        {
+            return MapOperatorSavedViewsSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapOperatorSavedViewsSealedManifestConflict(new ConflictException(ex.Message));
         }
     }
 

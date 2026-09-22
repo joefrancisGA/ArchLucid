@@ -17,7 +17,10 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepository : IPlatfor
 
         PlatformTenantAuthRecoveryGrantRecord stored = PlatformTenantAuthRecoveryGrantRepositoryCore.PrepareInsert(grant);
 
-        _byId[stored.GrantId] = stored;
+        if (!_byId.TryAdd(stored.GrantId, stored))
+        {
+            throw new DuplicatePlatformTenantAuthRecoveryGrantException(stored.GrantId);
+        }
 
         return Task.FromResult(stored);
     }

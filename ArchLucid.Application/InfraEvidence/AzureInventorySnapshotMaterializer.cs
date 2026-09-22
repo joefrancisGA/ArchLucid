@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
@@ -45,6 +46,11 @@ public sealed class AzureInventorySnapshotMaterializer(
             }
 
             using MemoryStream zipStream = new(packageBytes, writable: false);
+            zipStream.Position = 0;
+            (AzureExtractorNormalizedManifest? manifest, _) =
+                AzureExtractorManifestReader.TryReadNormalizedFromZip(zipStream);
+
+            zipStream.Position = 0;
             AzureExtractorPackageInventoryReadResult inventory =
                 AzureExtractorPackageInventoryReader.TryReadFromZip(zipStream);
 
@@ -62,13 +68,25 @@ public sealed class AzureInventorySnapshotMaterializer(
             List<AzureInventoryResourcePropertyWrite> properties = [];
             List<AzureInventoryTagWrite> tags = [];
             List<AzureInventoryUnknownResourceWrite> unknowns = [];
-            List<AzureInventoryResourceRelationshipWrite> relationships = [];
             List<AzureInventoryRoleAssignmentWrite> roleAssignments = [];
             List<AzureInventoryDiagnosticConfigurationWrite> diagnostics = [];
-            Dictionary<string, Guid> resourceRowIdsByArmId = new(StringComparer.OrdinalIgnoreCase);
+            List<AzureExtractorExtendedResourceRow> visibleInventoryRows = [];
+            HashSet<string> privateLinkOnlyNicArmIds = AzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(
+                inventory.Resources,
+                inventory.NetworkAssociations);
 
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
+                if (AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                        row.ResourceType,
+                        row.AzureResourceId,
+                        privateLinkOnlyNicArmIds))
+                {
+                    continue;
+                }
+
+                visibleInventoryRows.Add(row);
+
                 string normalizedArmId = ArmResourceIdNormalizer.Normalize(row.AzureResourceId);
                 CloudResourceIdentityRecord identity = await cloudResourceIdentityDirectory.UpsertOnSnapshotAsync(
                     scope,
@@ -98,8 +116,6 @@ public sealed class AzureInventorySnapshotMaterializer(
                     ParentResourceId = TryGetParentArmId(normalizedArmId),
                     SourceEvidenceReference = AzureExtractorPackageZipEntryNames.Resources,
                 });
-
-                resourceRowIdsByArmId[normalizedArmId] = resourceRowId;
 
                 foreach (KeyValuePair<string, string> tag in row.Tags)
                 {
@@ -135,32 +151,6 @@ public sealed class AzureInventorySnapshotMaterializer(
                         ResourceGroup = row.ResourceGroup,
                         CappedPropertiesJson = JsonSerializer.Serialize(row.Properties),
                         SourceEvidenceReference = AzureExtractorPackageZipEntryNames.Resources,
-                    });
-                }
-
-                string? parentArmId = TryGetParentArmId(normalizedArmId);
-
-                if (!string.IsNullOrWhiteSpace(parentArmId))
-                {
-                    relationships.Add(new AzureInventoryResourceRelationshipWrite
-                    {
-                        FromAzureResourceId = parentArmId,
-                        ToAzureResourceId = normalizedArmId,
-                        RelationshipType = "contains",
-                        ProvenanceKind = ProvenanceKind.ObservedFact,
-                        Confidence = 1.0m,
-                    });
-                }
-
-                if (row.Properties.TryGetValue("privateEndpointConnections", out _))
-                {
-                    relationships.Add(new AzureInventoryResourceRelationshipWrite
-                    {
-                        FromAzureResourceId = normalizedArmId,
-                        ToAzureResourceId = normalizedArmId,
-                        RelationshipType = "privateEndpoint",
-                        ProvenanceKind = ProvenanceKind.ObservedFact,
-                        Confidence = 1.0m,
                     });
                 }
             }
@@ -207,24 +197,76 @@ public sealed class AzureInventorySnapshotMaterializer(
                         : ArmResourceIdNormalizer.Normalize(workspaceId),
                     SourceEvidenceReference = AzureExtractorPackageZipEntryNames.DiagnosticSettings,
                 });
-
-                if (!string.IsNullOrWhiteSpace(workspaceId))
-                {
-                    relationships.Add(new AzureInventoryResourceRelationshipWrite
-                    {
-                        FromAzureResourceId = ArmResourceIdNormalizer.Normalize(targetId),
-                        ToAzureResourceId = ArmResourceIdNormalizer.Normalize(workspaceId),
-                        RelationshipType = "logsTo",
-                        ProvenanceKind = ProvenanceKind.ObservedFact,
-                        Confidence = 1.0m,
-                    });
-                }
             }
 
-            byte[] contentHash = ComputeContentHash(resources, relationships);
+            IReadOnlyList<AzureInventoryDefenderSummaryWrite> defenderSummaries =
+                DefenderSummaryCompanionMaterializer.Materialize(inventory.DefenderSummary);
+
+            AzureInventorySecurityEdgeMaterializeResult securityEdges =
+                AzureInventorySecurityEdgeMaterializer.Materialize(
+                    visibleInventoryRows,
+                    inventory.RoleAssignments,
+                    inventory.NetworkAssociations,
+                    inventory.PolicyAssignments,
+                    inventory.DiagnosticSettings,
+                    inventory.FederatedCredentials,
+                    inventory.FederatedCredentialsFilePresent,
+                    inventory.EntraGroupMemberships,
+                    inventory.EntraGroupMembershipsFilePresent,
+                    inventory.EffectiveNetworkControls,
+                    inventory.EffectiveNetworkControlsFilePresent,
+                    inventory.AdfLinkedServices,
+                    inventory.AdfLinkedServicesFilePresent,
+                    inventory.AdfDatasets,
+                    inventory.AdfDatasetsFilePresent,
+                    inventory.AdfPipelineFlows,
+                    inventory.AdfPipelineFlowsFilePresent,
+                    inventory.AdfTriggers,
+                    inventory.AdfTriggersFilePresent,
+                    inventory.AdfIntegrationRuntimes,
+                    inventory.AdfIntegrationRuntimesFilePresent,
+                    inventory.AdfDataflows,
+                    inventory.AdfDataflowsFilePresent,
+                    inventory.EventGridSubscriptions,
+                    inventory.EventGridSubscriptionsFilePresent,
+                    inventory.LogicAppConnections,
+                    inventory.LogicAppConnectionsFilePresent,
+                    inventory.MessagingAssociations,
+                    inventory.MessagingAssociationsFilePresent,
+                    inventory.PaasChildAssociations,
+                    inventory.PaasChildAssociationsFilePresent,
+                    inventory.ServiceConnectorLinks,
+                    inventory.ServiceConnectorLinksFilePresent,
+                    inventory.AppSettingHosts,
+                    inventory.AppSettingHostsFilePresent,
+                    inventory.DependencyObservations,
+                    inventory.DependencyObservationsFilePresent,
+                    inventory.SqlDatabasePrincipals,
+                    inventory.SqlDatabasePrincipalsFilePresent);
+
+            HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(resources);
+            List<AzureInventoryResourceRelationshipWrite> visibleRelationships =
+                AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(
+                    securityEdges.Relationships,
+                    visibleArmIds);
+
+            byte[] contentHash = ComputeContentHash(resources, visibleRelationships);
             AzureInventoryCaptureStatus status = resources.Count == 0
                 ? AzureInventoryCaptureStatus.Partial
                 : AzureInventoryCaptureStatus.Succeeded;
+
+            string? subscriptionId = null;
+            string? subscriptionName = null;
+
+            if (manifest is not null)
+            {
+                (subscriptionId, subscriptionName) = AzureInventorySnapshotSubscriptionIdentity.Resolve(
+                    header.SubscriptionId,
+                    header.SubscriptionName,
+                    manifest.SubscriptionId,
+                    manifest.SubscriptionName,
+                    siblingSubscriptionName: null);
+            }
 
             await snapshotRepository.MaterializeSnapshotAsync(
                 scope,
@@ -233,20 +275,25 @@ public sealed class AzureInventorySnapshotMaterializer(
                 {
                     CaptureStatus = status,
                     ResourceCount = resources.Count,
-                    RelationshipCount = relationships.Count,
+                    RelationshipCount = visibleRelationships.Count,
                     CompletenessScore = resources.Count == 0 ? 0m : 1.0m,
-                    WarningCount = 0,
+                    WarningCount = securityEdges.CompletenessWarnings.Count,
+                    CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
+                        securityEdges.CompletenessWarnings),
                     ErrorCount = 0,
                     ContentHashSha256 = contentHash,
                     CaptureMethod = captureMethod,
                     CollectorVersion = collectorVersion,
+                    SubscriptionId = subscriptionId,
+                    SubscriptionName = subscriptionName,
                     Resources = resources,
                     Properties = properties,
-                    Relationships = relationships,
+                    Relationships = visibleRelationships,
                     RoleAssignments = roleAssignments,
                     Tags = tags,
                     Diagnostics = diagnostics,
                     UnknownResources = unknowns,
+                    DefenderSummaries = defenderSummaries,
                 },
                 cancellationToken);
 
@@ -267,7 +314,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 Succeeded = true,
                 CaptureStatus = status,
                 ResourceCount = resources.Count,
-                RelationshipCount = relationships.Count,
+                RelationshipCount = visibleRelationships.Count,
                 ContentHashSha256 = contentHash,
             };
         }
@@ -307,6 +354,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                 .Append(relationship.ToAzureResourceId)
                 .Append('|')
                 .Append(relationship.RelationshipType)
+                .Append('|')
+                .Append((int)relationship.ProvenanceKind)
                 .Append(';');
         }
 
@@ -315,12 +364,12 @@ public sealed class AzureInventorySnapshotMaterializer(
 
     private static string? TryGetParentArmId(string normalizedArmId)
     {
-        int lastSlash = normalizedArmId.LastIndexOf('/');
-
-        if (lastSlash <= 0)
+        if (!ArmResourceIdNormalizer.TryGetParentResourceId(normalizedArmId, out string parentResourceId))
+        {
             return null;
+        }
 
-        return normalizedArmId[..lastSlash];
+        return parentResourceId;
     }
 
     private static string? TryReadJsonString(JsonElement element, string propertyName)

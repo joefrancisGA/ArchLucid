@@ -4,6 +4,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 
 import Link from "next/link";
 
+import { WorkingExecuteStartHonestyNotices } from "@/components/governance/WorkingExecuteStartHonestyNotices";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import {
@@ -95,15 +96,18 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
             </EnterpriseTableBody>
           </EnterpriseTable>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <ReRunReviewButton
-              runId={runId}
-              retryCount={retryCount}
-              data-testid="ai-quality-warnings-re-run-review"
-            />
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              Re-invokes agent execution for this review (same run id).
-            </p>
+          <div className="space-y-2">
+            <WorkingExecuteStartHonestyNotices />
+            <div className="flex flex-wrap items-center gap-3">
+              <ReRunReviewButton
+                runId={runId}
+                retryCount={retryCount}
+                data-testid="ai-quality-warnings-re-run-review"
+              />
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                Re-invokes agent execution for this review (same run id).
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -1,7 +1,7 @@
 export const QUICK_SCAN_PAGE_TITLE = "Quick scan" as const;
 
 export const QUICK_SCAN_HERO_LEAD =
-  "Describe a system and receive a concise architecture risk and improvement summary. No account required." as const;
+  "Describe a system and receive a concise demonstration architecture risk and improvement summary. Sample-only public path — no account required." as const;
 
 export const QUICK_SCAN_LAST_REVIEWED_LABEL = "2026-08-15" as const;
 

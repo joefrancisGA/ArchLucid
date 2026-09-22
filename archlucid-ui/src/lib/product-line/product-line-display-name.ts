@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export const PRODUCT_LINE_DISPLAY_NAME: Record<ProductLineId, string> = {
@@ -12,6 +14,45 @@ export function productLineDisplayName(productLineId: ProductLineId): string {
 /** SecureNow is text-only — do not render the ArchLucid SVG mark in that shell. */
 export function productLineShowsArchLucidMark(productLineId: ProductLineId): boolean {
   return productLineId !== "security";
+}
+
+/**
+ * Transparent 32×32 PNG used as the SecureNow tab icon.
+ * Omitting icons lets Next.js emit `/favicon.ico`, which Microsoft Edge still
+ * requests for the tab and favorites toolbar and can show the ArchLucid mark.
+ */
+export const SECURENOW_BLANK_FAVICON_URL = "/logo/favicon-blank.png";
+
+function secureNowRootMetadataIcons(): Metadata["icons"] {
+  return {
+    icon: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png", sizes: "32x32" }],
+    shortcut: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png" }],
+  };
+}
+
+function architectureRootMetadataIcons(): Metadata["icons"] {
+  return {
+    icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
+  };
+}
+
+/** Root layout favicon / touch icons — SecureNow stays text-only in the tab/toolbar. */
+export function productLineRootMetadataIcons(productLineId: ProductLineId): Metadata["icons"] {
+  if (!productLineShowsArchLucidMark(productLineId)) {
+    return secureNowRootMetadataIcons();
+  }
+
+  return architectureRootMetadataIcons();
+}
+
+/** PWA manifest path — SecureNow omits ArchLucid install icons. */
+export function productLineRootManifestPath(productLineId: ProductLineId): string | undefined {
+  if (!productLineShowsArchLucidMark(productLineId)) {
+    return undefined;
+  }
+
+  return "/manifest.webmanifest";
 }
 
 export function productLinePoweredByLine(productLineId: ProductLineId): string {
@@ -122,6 +163,14 @@ export function productLineTeamsNotificationsPageTitle(productLineId: ProductLin
   return `${productLineMicrosoftTeamsLabel(productLineId)} notifications`;
 }
 
+function localizeSecureNowReviewTerminology(text: string): string {
+  return text
+    .replaceAll("Architecture reviews", "Security reviews")
+    .replaceAll("architecture reviews", "security reviews")
+    .replaceAll("Architecture review", "Security review")
+    .replaceAll("architecture review", "security review");
+}
+
 /**
  * Rewrites architecture product name in consumer copy for the active product line.
  * Preserves `{…}` script placeholders (for example `{ArchLucid tenant ID}`) so copied runbooks keep working.
@@ -140,12 +189,14 @@ export function localizeProductCopy(productLineId: ProductLineId, text: string):
         return part;
       }
 
-      return part
-        .replaceAll("ArchLucid", productName)
-        .replaceAll("archlucid-azure-package.zip", "securenow-azure-package.zip")
-        .replaceAll("Run-ArchLucidAzureExtractor.ps1", "Run-SecureNowAzureExtractor.ps1")
-        .replaceAll("Get-ArchLucidAzurePackage.ps1", "Get-SecureNowAzurePackage.ps1")
-        .replaceAll("Microsoft Teams", "Teams");
+      return localizeSecureNowReviewTerminology(
+        part
+          .replaceAll("ArchLucid", productName)
+          .replaceAll("archlucid-azure-package.zip", "securenow-azure-package.zip")
+          .replaceAll("Run-ArchLucidAzureExtractor.ps1", "Run-SecureNowAzureExtractor.ps1")
+          .replaceAll("Get-ArchLucidAzurePackage.ps1", "Get-SecureNowAzurePackage.ps1")
+          .replaceAll("Microsoft Teams", "Teams"),
+      );
     })
     .join("");
 }

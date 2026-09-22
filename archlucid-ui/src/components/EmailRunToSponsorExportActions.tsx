@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -27,6 +28,8 @@ import { showError } from "@/lib/toast";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { pilotsCollateralMutationBlockedReason } from "@/lib/pilots/pilots-collateral-mutation-blocked-reason";
 import { architecturePackageDocxMutationBlockedReason } from "@/lib/runs/architecture-package-docx-mutation-blocked-reason";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
+import { runExportZipMutationBlockedReason } from "@/lib/runs/run-export-zip-mutation-blocked-reason";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 
 export type EmailRunToSponsorExportActionsProps = {
@@ -40,12 +43,14 @@ export type EmailRunToSponsorExportActionsProps = {
   readonly markSentBusy: boolean;
   readonly sentToSponsorUtc: string | null;
   readonly blockSponsorPdf: boolean;
+  readonly blockSponsorEmailSend: boolean;
   readonly blockSponsorPdfForExecutionMode: boolean;
   readonly blockSponsorPdfForAiGate: boolean;
   readonly blockSponsorPdfForProjectedDollar: boolean;
   readonly blockSponsorPdfForRoi: boolean;
   readonly onDownloadPdf: () => Promise<void>;
   readonly onMarkSentToSponsor: () => Promise<void>;
+  readonly onComposeEmailToSponsor: () => void;
 };
 
 export function EmailRunToSponsorExportActions({
@@ -59,12 +64,14 @@ export function EmailRunToSponsorExportActions({
   markSentBusy,
   sentToSponsorUtc,
   blockSponsorPdf,
+  blockSponsorEmailSend,
   blockSponsorPdfForExecutionMode,
   blockSponsorPdfForAiGate,
   blockSponsorPdfForProjectedDollar,
   blockSponsorPdfForRoi,
   onDownloadPdf,
   onMarkSentToSponsor,
+  onComposeEmailToSponsor,
 }: EmailRunToSponsorExportActionsProps) {
   const [collateralBusy, setCollateralBusy] = useState<string | null>(null);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -88,7 +95,11 @@ export function EmailRunToSponsorExportActions({
               ? architecturePackageDocxMutationBlockedReason(failure)
               : key === "sponsor-docx"
                 ? runPackageExportMutationBlockedReason(failure)
-                : pilotsCollateralMutationBlockedReason(failure);
+                : key === "review-bundle"
+                  ? artifactBundleMutationBlockedReason(failure)
+                  : key === "run-export"
+                    ? runExportZipMutationBlockedReason(failure)
+                    : pilotsCollateralMutationBlockedReason(failure);
 
           showError(title, blocked ?? failure.message);
         })
@@ -125,6 +136,18 @@ export function EmailRunToSponsorExportActions({
           }}
         >
           {collateralBusy === "proof-pack" ? "Downloading…" : "Download sponsor proof pack (ZIP)"}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={blockSponsorEmailSend}
+          onClick={() => {
+            onComposeEmailToSponsor();
+          }}
+          data-testid="email-run-to-sponsor-compose-email"
+          aria-describedby={blockSponsorEmailSend ? "email-run-to-sponsor-email-block-hint" : undefined}
+        >
+          Compose email to sponsor
         </Button>
         <Button
           type="button"
@@ -207,13 +230,21 @@ export function EmailRunToSponsorExportActions({
             type="button"
             variant="outline"
             size="sm"
-            disabled={markSentBusy || blockSponsorPdf}
+            disabled={markSentBusy || blockSponsorEmailSend}
             onClick={() => void onMarkSentToSponsor()}
             data-testid="email-run-to-sponsor-mark-sent"
           >
             {markSentBusy ? "Recording…" : "Mark as sent to sponsor"}
           </Button>
         )}
+        <span
+          id="email-run-to-sponsor-email-block-hint"
+          className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {blockSponsorEmailSend && !blockSponsorPdf
+            ? "Email compose and mark-sent stay disabled until rehearsal honesty is acknowledged."
+            : null}
+        </span>
         <span
           id="email-run-to-sponsor-pdf-block-hint"
           className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -231,6 +262,8 @@ export function EmailRunToSponsorExportActions({
                   : "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."}
         </span>
       </div>
+
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="email-run-to-sponsor-export" />
 
       <ul className={cn("m-0 mt-3 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <li>

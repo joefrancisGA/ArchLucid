@@ -63,6 +63,11 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
             CompareQualityDeltaExportFormatter.AppendMarkdown(sb, report.CompareQualityDelta);
         }
 
+        if (report.CompareVerdictChromeDelta is not null)
+        {
+            CompareVerdictChromeExportFormatter.AppendMarkdown(sb, report.CompareVerdictChromeDelta);
+        }
+
         AppendSection(sb, "Interpretation Notes", report.InterpretationNotes);
         AppendSection(sb, "Warnings", report.Warnings);
 

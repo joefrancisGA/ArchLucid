@@ -83,8 +83,8 @@ export function CtoDemoAuditIntegrityVerifyButton(): React.JSX.Element | null {
               className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="cto-demo-audit-integrity-demo-disclaimer"
             >
-              Verified against showcase demo events. Your production audit trail is verified server-side via the same
-              algorithm.
+              Demo data — not production audit events. Verified against showcase demo events. Your production audit
+              trail is verified server-side via the same algorithm.
             </p>
           ) : null}
         </div>

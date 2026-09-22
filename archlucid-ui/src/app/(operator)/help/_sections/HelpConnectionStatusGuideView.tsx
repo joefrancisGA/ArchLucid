@@ -4,6 +4,7 @@ import { HelpConnectionStatusClaimOrientationStrip } from "@/app/(operator)/help
 import { HelpConnectionStatusHeaderActions } from "@/app/(operator)/help/_sections/HelpConnectionStatusHeaderActions";
 import { HelpConnectionStatusWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -99,6 +100,8 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
           actions={<HelpConnectionStatusHeaderActions entry={entry} />}
         />
 
+        <SponsorSendPathHonestyPanel testIdPrefix="help-connection-status" showSsoOptional={false} />
+
         <div
           id={CONNECTION_STATUS_HELP_SKIP_TARGET_ID}
           data-testid={CONNECTION_STATUS_HELP_FIRST_VIEWPORT_TEST_ID}
@@ -190,7 +193,7 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         <div data-testid="help-connection-status-orientation-bottom">

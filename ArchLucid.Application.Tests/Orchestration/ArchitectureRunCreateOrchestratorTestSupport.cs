@@ -1,6 +1,7 @@
 using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs;
@@ -144,6 +145,7 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             runStateTransitionService,
             requestContentSafetyPrecheck,
             workspaceSystemNameCollisionGuard,
+            Mock.Of<IPriorPackageSemanticMergeService>(),
             idempotencyHelper,
             persistenceHelper,
             postCreateHooks,

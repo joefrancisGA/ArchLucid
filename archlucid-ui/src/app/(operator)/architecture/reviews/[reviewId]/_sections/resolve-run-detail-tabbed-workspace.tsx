@@ -22,6 +22,8 @@ import { composeRunDetailTabbedWorkspaceGovernanceShell } from "./RunDetailTabbe
 import { composeRunDetailTabbedWorkspaceOverviewShell } from "./RunDetailTabbedWorkspaceOverviewShell";
 import { composeRunDetailActivityTab } from "./RunDetailActivityTabComposition";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
+import { resolveArchitectureTabCanEditSource } from "@/lib/architecture/architecture-draft-spawn-one-writer";
+
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import {
   RecurrenceSchedulePostCommitCardDeferred,
@@ -82,6 +84,7 @@ export function resolveRunDetailTabbedWorkspace(
   const p = presentation;
   const {
     architectureEditHref,
+    architectureTabSubmittedHelperText,
     blockingApprovalCount,
     deferredContext,
     evidenceInventoryCount,
@@ -128,12 +131,12 @@ export function resolveRunDetailTabbedWorkspace(
   const submittedArchitectureTabEl = (
     <RunDetailSubmittedArchitectureSectionDeferred
       architectureText={submittedArchitectureText}
-      canEditSource={!m.manifestId}
+      canEditSource={resolveArchitectureTabCanEditSource(architectureEditHref)}
       editHref={architectureEditHref}
       useStructuredPresentation
       runId={m.resolvedDetail.run.runId}
       manifestVersion={m.manifestId}
-      helperText="Source material submitted for this review — distinct from ArchLucid analysis in other tabs."
+      helperText={architectureTabSubmittedHelperText}
     />
   );
   const architectureTabPanelEl = (
@@ -321,7 +324,15 @@ export function resolveRunDetailTabbedWorkspace(
               />
             </div>
           ) : null}
-          {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
+          {resolveRunDetailSponsorBriefingSection(m, {
+            pagePrimaryOwnedElsewhere: true,
+            enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+            manifestSummary: m.manifestSummaryForUi ?? m.manifestSummary,
+            progressSummary: m.progressForPipelineUi,
+            graphSnapshot: m.resolvedDetail.graphSnapshot,
+            structuralExecutionMode: m.resolvedDetail.run.structuralExecutionMode,
+            workingCareerRehearsalDoor: m.progressForPipelineUi.workingCareerRehearsalDoor,
+          })}
           {m.manifestId ? (
             <RunDetailPostCommitHabitIsland model={m} context={deferredContext} />
           ) : null}

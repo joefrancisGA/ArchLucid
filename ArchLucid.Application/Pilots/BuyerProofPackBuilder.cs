@@ -98,6 +98,9 @@ public sealed class BuyerProofPackBuilder(
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        bool isSampleRun = false;
+
         if (Guid.TryParse(runId.Trim(), out Guid runGuid))
         {
             await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
@@ -105,12 +108,16 @@ public sealed class BuyerProofPackBuilder(
                 runId.Trim(),
                 _authorityQueryService,
                 _manifestHashService,
-                _scopeContextProvider.GetCurrentScope(),
+                scope,
                 cancellationToken);
+
+            RunSummaryDto? summary = await _authorityQueryService
+                .GetRunSummaryAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+            isSampleRun = summary?.IsSample ?? false;
         }
 
         PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         ValueReportSnapshot snapshot = await _valueReportBuilder.BuildAsync(
@@ -135,7 +142,8 @@ public sealed class BuyerProofPackBuilder(
             deltas,
             snapshot,
             extractorCollectionTimestampUtc,
-            scorecardBaselines);
+            scorecardBaselines,
+            isSampleRun: isSampleRun);
 
         string deltasJson = BuyerProofPackDeltasJsonFormatter.Serialize(deltasResponse);
 

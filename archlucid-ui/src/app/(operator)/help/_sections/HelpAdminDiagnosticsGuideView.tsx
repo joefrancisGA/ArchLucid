@@ -6,6 +6,7 @@ import { HelpAdminDiagnosticsSourceLinks } from "@/app/(operator)/help/_sections
 import { HelpAdminDiagnosticsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW,
   ADMIN_DIAGNOSTICS_HELP_FIRST_VIEWPORT_TEST_ID,
   ADMIN_DIAGNOSTICS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD,
+  adminDiagnosticsHelpPageLead,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE_BUYER,
   ADMIN_DIAGNOSTICS_HELP_PRIMARY_CONTENT_ID,
   ADMIN_DIAGNOSTICS_HELP_SKIP_LINK_LABEL,
@@ -36,6 +37,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/admin-diagnostics-help-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
@@ -97,6 +99,7 @@ export function HelpAdminDiagnosticsGuideView(
 ): React.ReactElement {
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const productLineId = resolveProductLineIdFromEnv();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
@@ -170,6 +173,10 @@ export function HelpAdminDiagnosticsGuideView(
         ) : null}
 
         {!buyerPolishedShell ? (
+          <SponsorSendPathHonestyPanel testIdPrefix="help-admin-diagnostics" showSsoOptional={false} />
+        ) : null}
+
+        {!buyerPolishedShell ? (
           <section
             className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-admin-diagnostics-action-panel"
@@ -192,7 +199,7 @@ export function HelpAdminDiagnosticsGuideView(
                 className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
                 data-testid="help-admin-diagnostics-intro"
               >
-                {ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD}
+                {adminDiagnosticsHelpPageLead(productLineId)}
               </p>
             </div>
             <AdminDiagnosticsStartHerePanel />
@@ -206,6 +213,10 @@ export function HelpAdminDiagnosticsGuideView(
           >
             {ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW}
           </p>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <SponsorSendPathHonestyPanel testIdPrefix="help-admin-diagnostics" showSsoOptional={false} />
         ) : null}
 
         <section

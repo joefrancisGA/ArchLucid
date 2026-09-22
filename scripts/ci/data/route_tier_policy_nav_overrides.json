@@ -84,6 +84,7 @@
     "Tenancy/TenantMeasuredRoiController.cs": "/insights/roi-summary",
     "Tenancy/TenantPilotValueReportController.cs": "/insights/sponsor-report",
     "Tenancy/TenantTrialController.cs": "/administration/workspace-settings",
-    "ValueReports/ValueReportController.cs": "/insights/sponsor-report"
+    "ValueReports/ValueReportController.cs": "/insights/sponsor-report",
+    "OperationalSecurity/OperationalSecurityDeclaredConnectionsController.cs": "/governance/infrastructure/declared-connections"
   }
 }

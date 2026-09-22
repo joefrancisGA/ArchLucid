@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
 import { KeyboardShortcutsDiscoverabilityCoach } from "@/components/KeyboardShortcutsDiscoverabilityCoach";
 import { OperatorRecentViewsTracker } from "@/components/operator/OperatorRecentViewsTracker";
+import { WorkingWorkspaceContinuityHydrator } from "@/components/operator/WorkingWorkspaceContinuityHydrator";
 import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
@@ -54,6 +55,7 @@ export function AppShellMainAffordances() {
     return (
       <>
         <BuyerGoldenJourneyLayerContextStrip />
+        <WorkingWorkspaceContinuityHydrator />
         <OperatorRecentViewsTracker />
         <ReviewsListReturnStateTracker />
         <GovernanceFindingsReturnStateTracker />
@@ -73,6 +75,7 @@ export function AppShellMainAffordances() {
       ) : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
       {hideShortcutCoaches ? null : <GlobalSearchShortcutCoach />}
+      <WorkingWorkspaceContinuityHydrator />
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <GovernanceFindingsReturnStateTracker />

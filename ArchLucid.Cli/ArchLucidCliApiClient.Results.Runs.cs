@@ -98,6 +98,36 @@ public sealed partial class ArchLucidApiClient
             get;
             set;
         }
+
+        /// <summary>CG-019 — Working Career vs Rehearsal door captured at first execute start. Null on legacy rows.</summary>
+        public string? WorkingCareerRehearsalDoor
+        {
+            get;
+            set;
+        }
+
+        /// <summary>CG-019 — UTC timestamp when execute posture was first stamped on the run.</summary>
+        public DateTime? ExecutePostureCapturedUtc
+        {
+            get;
+            set;
+        }
+    }
+
+    public sealed class GetRunSummaryResult
+    {
+        public Guid RunId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>Parent architecture identity when the run is nested on Working (SG-095).</summary>
+        public Guid? ArchitectureId
+        {
+            get;
+            set;
+        }
     }
 
     public sealed class AgentTaskInfo

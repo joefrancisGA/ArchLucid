@@ -45,8 +45,14 @@ function asEvolutionCandidateRows(
   return rows as EvolutionCandidateChangeSetResponse[];
 }
 
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 import type { EvolutionReviewPageServerLoad } from "./load-evolution-review-page-data";
+
+export type UseEvolutionReviewPageOptions = {
+  readonly basePathname?: string;
+};
 
 function mergeBaselineOptions(
   linkedRunIds: readonly string[],
@@ -70,10 +76,12 @@ function mergeBaselineOptions(
 export function useEvolutionReviewPage(
   serverLoad: EvolutionReviewPageServerLoad,
   scopedRunId: string,
+  options?: UseEvolutionReviewPageOptions,
 ): EvolutionReviewPageViewModel {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isDemo = serverLoad.mode === "demo";
+  const basePathname = options?.basePathname?.trim() ?? IMPACT_PREVIEW_PATH;
 
   const urlComparisonScope = parseImpactPreviewComparisonScopeFromSearch(searchParams.get("scope"));
   const urlCandidateId = parseImpactPreviewCandidateIdFromSearch(searchParams.get("candidateId"));
@@ -128,17 +136,23 @@ export function useEvolutionReviewPage(
   const selectCandidate = useCallback(
     (candidateId: string) => {
       setSelectedId(candidateId);
-      router.replace(impactPreviewCandidateHrefFromSearch(searchParams.toString(), candidateId), { scroll: false });
+      router.replace(
+        impactPreviewCandidateHrefFromSearch(searchParams.toString(), candidateId, basePathname),
+        { scroll: false },
+      );
     },
-    [router, searchParams],
+    [basePathname, router, searchParams],
   );
 
   const selectBaseline = useCallback(
     (baselineId: string) => {
       setSelectedBaselineId(baselineId);
-      router.replace(impactPreviewBaselineHrefFromSearch(searchParams.toString(), baselineId), { scroll: false });
+      router.replace(
+        impactPreviewBaselineHrefFromSearch(searchParams.toString(), baselineId, basePathname),
+        { scroll: false },
+      );
     },
-    [router, searchParams],
+    [basePathname, router, searchParams],
   );
 
   const rememberBaselinePair = useCallback((baselineRunId: string | null, candidateRunId: string | null) => {
@@ -167,14 +181,19 @@ export function useEvolutionReviewPage(
     writeImpactPreviewLastBaselinePair(pair);
     setContinueLastPair(pair);
 
-    let nextHref = impactPreviewCandidateHrefFromSearch(searchParams.toString(), pair.candidateRunId);
+    let nextHref = impactPreviewCandidateHrefFromSearch(
+      searchParams.toString(),
+      pair.candidateRunId,
+      basePathname,
+    );
     nextHref = impactPreviewBaselineHrefFromSearch(
       nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
       pair.baselineRunId,
+      basePathname,
     );
 
     router.replace(nextHref, { scroll: false });
-  }, [router, searchParams]);
+  }, [basePathname, router, searchParams]);
 
   const skipInitialClientListFetchRef = useRef(serverLoad.mode === "live");
   const skipInitialDetailFetchRef = useRef(
@@ -341,11 +360,14 @@ export function useEvolutionReviewPage(
     setComparisonScope((prev) => {
       const next = { ...prev, [key]: !prev[key] };
 
-      router.replace(impactPreviewComparisonScopeHrefFromSearch(searchParams.toString(), next), { scroll: false });
+      router.replace(
+        impactPreviewComparisonScopeHrefFromSearch(searchParams.toString(), next, basePathname),
+        { scroll: false },
+      );
 
       return next;
     });
-  }, [router, searchParams]);
+  }, [basePathname, router, searchParams]);
 
   const retryDetailLoad = useCallback(async () => {
     if (selectedId === null || selectedId === "") {

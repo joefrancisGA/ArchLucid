@@ -1,8 +1,13 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
+import { governanceQueueRowToSemanticSupportChipFinding } from "@/lib/governance/governance-finding-queue-row-semantic-support";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import {
@@ -19,6 +24,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
@@ -27,6 +33,9 @@ import {
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
+import {
+  FINDING_CLASSIFICATION_DECISION_GRADE,
+} from "@/lib/findings/review-detail-findings-classification-band";
 import {
   GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
   GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS,
@@ -110,6 +119,7 @@ export type GovernanceFindingsQueueOperationalRowCellsProps = {
 
 export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFindingsQueueOperationalRowCellsProps): ReactElement {
   const { row, showInsightDensityScore = false } = props;
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
     graphHref ??
@@ -117,6 +127,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const evidenceTraceHref =
     row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
+  const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
 
   return (
     <>
@@ -155,7 +166,25 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         ) : null}
         {row.recordKind === "finding" && row.classification !== null && row.classification !== undefined ? (
           <div className="mt-1">
-            <FindingClassificationChip classification={row.classification} findingId={row.findingId} />
+            <FindingClassificationChip
+              classification={row.classification}
+              treatment={row.treatment}
+              findingId={row.findingId}
+              showReason
+            />
+            {row.classification === FINDING_CLASSIFICATION_DECISION_GRADE
+            && semanticSupportChipFinding !== null ? (
+              <div className="mt-1">
+                <FindingSemanticSupportBandChip
+                  finding={semanticSupportChipFinding}
+                  showReason
+                  structuralExecutionMode={structuralExecutionMode}
+                />
+              </div>
+            ) : null}
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+              {POLICY_PACK_INFLUENCE_HONESTY_LINE}
+            </p>
           </div>
         ) : null}
         {showInsightDensityScore &&

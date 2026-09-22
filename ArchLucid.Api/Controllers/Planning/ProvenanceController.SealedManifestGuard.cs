@@ -15,8 +15,16 @@ public sealed partial class ProvenanceController
         Guid runId,
         CancellationToken cancellationToken)
     {
-        RunDetailDto? detail =
-            await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProvenanceSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -30,9 +38,15 @@ public sealed partial class ProvenanceController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapProvenanceSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps provenance graph read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapProvenanceSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

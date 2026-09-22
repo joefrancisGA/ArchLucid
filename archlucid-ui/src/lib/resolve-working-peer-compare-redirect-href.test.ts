@@ -6,6 +6,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import { resolveWorkingPeerCompareRedirectHref } from "@/lib/resolve-working-peer-compare-redirect-href";
 import { resolveWorkingPeerGraphRedirectHref } from "@/lib/resolve-working-peer-graph-redirect-href";
+import { resolveSystemNotJobWorkingGraphPortfolioHref } from "@/lib/system-not-job-graph-bound-to-open-package";
 
 describe("resolveWorkingPeerCompareRedirectHref (SY-39 / ADR 0079)", () => {
   const architectureId = "architecture-identity-001";
@@ -31,7 +32,7 @@ describe("resolveWorkingPeerCompareRedirectHref (SY-39 / ADR 0079)", () => {
   });
 });
 
-describe("resolveWorkingPeerGraphRedirectHref (SY-41 / ADR 0079)", () => {
+describe("resolveWorkingPeerGraphRedirectHref (SY-41 / ADR 0079 / SN-025)", () => {
   const architectureId = "architecture-identity-001";
 
   it("redirects peer graph to nested graph with query preserved", () => {
@@ -44,12 +45,12 @@ describe("resolveWorkingPeerGraphRedirectHref (SY-41 / ADR 0079)", () => {
     ).toBe(`${architectureNestedGraphPath(architectureId)}?runId=run-1`);
   });
 
-  it("falls back to portfolio when no architecture is known", () => {
+  it("falls back to portfolio with graph bind honesty when no architecture is known", () => {
     expect(
       resolveWorkingPeerGraphRedirectHref({
         pathname: "/insights/evidence-graph",
       }),
-    ).toBe("/architecture/architectures");
+    ).toBe(resolveSystemNotJobWorkingGraphPortfolioHref());
   });
 
   it("returns null for non-peer paths", () => {

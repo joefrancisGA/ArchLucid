@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -16,7 +17,10 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import { ShortcutHint } from "@/components/ShortcutHint";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
@@ -37,6 +41,7 @@ import {
 } from "@/lib/governance-standards-rules-page-copy";
 import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { STANDARDS_RULES_CLAIM_DISCIPLINE } from "@/lib/standards-rules-evidence-copy";
@@ -47,10 +52,10 @@ import {
   STANDARDS_RULES_PAGE_TITLE,
   STANDARDS_RULES_RESET_FILTERS,
 } from "@/lib/standards-rules-page";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
-
-import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { GovernanceResolutionOperatorDiagnostics } from "./GovernanceResolutionOperatorDiagnostics";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
@@ -63,6 +68,8 @@ import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
 import { StandardsRulesTableSkeleton } from "./StandardsRulesTableSkeleton";
 import { StandardsRulesBuyerChrome } from "./StandardsRulesBuyerChrome";
+import { StandardsRulesContextStrip } from "./StandardsRulesContextStrip";
+import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { useGovernanceResolutionRows } from "./use-governance-resolution-rows";
 
 type Props = {
@@ -72,6 +79,18 @@ type Props = {
 export function GovernanceResolutionPageView(props: Props) {
   const m = props.model;
   const rows = useGovernanceResolutionRows(m);
+  const { productLine } = useProductLine();
+  const standardsPath = usePathname() ?? GOVERNANCE_STANDARDS_AND_RULES_PATH;
+  const loadRecovery = errorRecoveryContractForScenario("api-problem", {
+    failureSummary: GOVERNANCE_STANDARDS_RULES_LOAD_ERROR,
+    productLineId: productLine,
+  });
+  const standardsScopeLabel = rows.scopedRunFilterActive
+    ? `Review ${rows.scopedRunId} standards and rules`
+    : "All standards and rules · current workspace scope";
+  const standardsResultsLabel = m.loading
+    ? "Loading rules…"
+    : `${rows.filteredRuleRows.length} of ${rows.allRuleRows.length} rules`;
 
   const scopedRunBanner = rows.scopedRunFilterActive ? (
     <p
@@ -81,7 +100,7 @@ export function GovernanceResolutionPageView(props: Props) {
       {"Resolving standards and rules for review "}
       <span className="font-mono text-al-text-primary">{rows.scopedRunId}</span>
       {" · "}
-      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={GOVERNANCE_STANDARDS_AND_RULES_PATH}>
+      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={standardsPath}>
         Clear review scope
       </Link>
       {" · "}
@@ -90,6 +109,14 @@ export function GovernanceResolutionPageView(props: Props) {
         href={`/architecture/reviews/${encodeURIComponent(rows.scopedRunId)}`}
       >
         Open review
+      </Link>
+      {" · "}
+      <Link
+        className={OPERATOR_BODY_INLINE_LINK_CLASS}
+        href={buildPolicyPacksImpactPreviewHref({ reviewId: rows.scopedRunId })}
+        data-testid="standards-and-rules-policy-impact-preview-handoff"
+      >
+        Preview policy pack impact
       </Link>
     </p>
   ) : null;
@@ -149,11 +176,21 @@ export function GovernanceResolutionPageView(props: Props) {
             >
               {STANDARDS_RULES_LOAD_RETRY_LABEL}
             </Button>
+            <OperatorErrorRecoveryContract presentation={loadRecovery} />
           </div>
         ) : null}
 
         {m.failure === null ? (
           <>
+            <StandardsRulesContextStrip
+              freshnessLabel={rows.freshnessLabel}
+              lastRefreshedAt={m.loading ? null : m.lastRefreshedAt}
+              scopeLabel={standardsScopeLabel}
+              resultsLabel={standardsResultsLabel}
+            />
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="standards-rules-keyboard-affordance">
+              <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search; use table sort headers to reorder rules.
+            </p>
             {!rows.scopedRunFilterActive ? (
               <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickRun} />
             ) : (
@@ -263,14 +300,25 @@ export function GovernanceResolutionPageView(props: Props) {
         <LayerHeader pageKey="governance-resolution" density="compact" className="mb-3" />
 
         <OperatorPageHeader
-          navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
+          navHref={standardsPath}
           title={STANDARDS_RULES_PAGE_TITLE}
           titleTestId="standards-rules-page-title"
           subtitle={GOVERNANCE_STANDARDS_RULES_PAGE_SUBTITLE_BUYER}
           claimDiscipline={STANDARDS_RULES_CLAIM_DISCIPLINE}
           claimDisciplineTestId="standards-rules-claim-discipline"
           breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
-          actions={<PageContextualHelpButton />}
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              <RefreshButton
+                busy={m.loading}
+                data-testid="standards-rules-refresh-button"
+                onClick={() => {
+                  void m.load();
+                }}
+              />
+            </div>
+          }
         />
 
         <div
@@ -289,7 +337,7 @@ export function GovernanceResolutionPageView(props: Props) {
       <LayerHeader pageKey="governance-resolution" density="compact"
 />
       <OperatorPageHeader
-        navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
+        navHref={standardsPath}
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
         breadcrumb={<GovernanceStandardsRulesBreadcrumb />}

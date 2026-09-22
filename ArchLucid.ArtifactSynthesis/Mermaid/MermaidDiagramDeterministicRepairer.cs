@@ -42,6 +42,9 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                     : MermaidIdSanitizer.Sanitize(node.SubgraphId),
                 OrderKey = node.OrderKey,
                 CloudResourceId = node.CloudResourceId,
+                SeedNodeId = node.SeedNodeId,
+                ArmResourceType = node.ArmResourceType,
+                ArmResourceGroup = node.ArmResourceGroup,
             });
         }
 
@@ -56,7 +59,7 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 continue;
             }
 
-            string label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(edge.Label));
+            string label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(edge.Label ?? string.Empty));
             string edgeKey = $"{fromId}|{toId}|{label}";
 
             if (!seenEdges.Add(edgeKey))
@@ -75,6 +78,9 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 FromNodeId = fromId,
                 ToNodeId = toId,
                 Label = label,
+                // Layout-only ~~~ links must stay invisible after repair; dropping this
+                // flag turns packing edges into unlabeled visible arrows.
+                IsLayoutOnly = edge.IsLayoutOnly,
             });
         }
 
@@ -98,6 +104,8 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
             Nodes = repairedNodes,
             Edges = repairedEdges,
             Subgraphs = repairedSubgraphs,
+            FlowchartDirection = ast.FlowchartDirection,
+            CaptionLines = ast.CaptionLines.ToList(),
         };
     }
 

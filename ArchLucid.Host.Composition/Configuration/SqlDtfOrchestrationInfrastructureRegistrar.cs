@@ -26,7 +26,7 @@ internal static class SqlDtfOrchestrationInfrastructureRegistrar
     ///         (Durable Task Scheduler, emulator, or another engine exposing the Durable Task gRPC contract).
     ///     </para>
     /// </remarks>
-    public static void Register(
+    public static void RegisterClient(
         IServiceCollection services,
         IConfiguration configuration,
         string connectionString)
@@ -36,6 +36,30 @@ internal static class SqlDtfOrchestrationInfrastructureRegistrar
 
         ArgumentNullException.ThrowIfNull(connectionString);
 
+        string grpcEndpoint = ResolveGrpcEndpoint(configuration);
+
+        services.AddDurableTaskClient(builder =>
+        {
+            builder.UseGrpc(grpcEndpoint);
+        });
+    }
+
+    public static void RegisterWorker(IServiceCollection services, IConfiguration configuration)
+    {
+        if (!IsDtfEnabled(configuration))
+            return;
+
+        string grpcEndpoint = ResolveGrpcEndpoint(configuration);
+
+        services.AddDurableTaskWorker(builder =>
+        {
+            builder.AddTasks(registry => registry.AddAllGeneratedTasks());
+            builder.UseGrpc(grpcEndpoint);
+        });
+    }
+
+    private static string ResolveGrpcEndpoint(IConfiguration configuration)
+    {
         string? grpcEndpoint = configuration["ArchLucid:AuthorityPipeline:DurableTask:GrpcEndpoint"];
 
         if (string.IsNullOrWhiteSpace(grpcEndpoint))
@@ -43,16 +67,7 @@ internal static class SqlDtfOrchestrationInfrastructureRegistrar
                 "ArchLucid:AuthorityPipeline:OrchestratorBackend is DurableTask but ArchLucid:AuthorityPipeline:DurableTask:GrpcEndpoint is empty. "
                 + "Set a gRPC address for the Durable Task worker (scheduler / sidecar).");
 
-        services.AddDurableTaskWorker(builder =>
-        {
-            builder.AddTasks(registry => registry.AddAllGeneratedTasks());
-            builder.UseGrpc(grpcEndpoint.Trim());
-        });
-
-        services.AddDurableTaskClient(builder =>
-        {
-            builder.UseGrpc(grpcEndpoint.Trim());
-        });
+        return grpcEndpoint.Trim();
     }
 
     private static bool IsDtfEnabled(IConfiguration configuration)

@@ -597,6 +597,25 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Negative-control support ratio: {negative_mean:.4f} (ceiling {max_negative_ratio:.4f})")
     print(f"Combined diagnostic support ratio: {mean_ratio:.4f} (floor {min_ratio:.4f})")
 
+    warn_status_path = root / "docs" / "quality" / "faithfulness-nightly-warn-status.json"
+    warn_status = {
+        "schema": "archlucid.faithfulness-nightly-warn-status.v1",
+        "program": "G-FAITH-01",
+        "enforce": bool(args.enforce),
+        "disposition": "PASS" if mean_ratio >= min_ratio else "WARN",
+        "meanSupportRatio": round(mean_ratio, 6),
+        "minSupportRatio": min_ratio,
+        "caseCount": len(evaluated),
+        "detail": (
+            "Nightly faithfulness warn-only scaffold — flip ARCHLUCID_FAITHFULNESS_NIGHTLY_ENFORCE after green baselines."
+            if not args.enforce
+            else "Enforce mode active via ARCHLUCID_FAITHFULNESS_NIGHTLY_ENFORCE."
+        ),
+    }
+    warn_status_path.parent.mkdir(parents=True, exist_ok=True)
+    warn_status_path.write_text(json.dumps(warn_status, indent=2) + "\n", encoding="utf-8")
+    print(f"Wrote {warn_status_path}")
+
     if args.enforce:
         failures = _enforce_faithfulness_floors(
             cases=evaluated,

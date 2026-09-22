@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Roi;
 
@@ -91,6 +92,15 @@ public sealed class PilotRunDeltasResponse
     }
 
     /// <summary>
+    ///     When <see langword="true" />, this run is seeded sample workspace data and must not export via CLI proof packets.
+    /// </summary>
+    public bool IsSampleRun
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Sum of accepted Cost-category findings' projected USD impact from the run's findings snapshot, when loaded.
     /// </summary>
     public decimal? EstimatedUsdSavings
@@ -128,6 +138,20 @@ public sealed class PilotRunDeltasResponse
     ///     the run has no findings — surface as "not available" rather than "0 of 0".
     /// </summary>
     public GovernedFindingCoverageMetric? GovernedFindingCoverage
+    {
+        get;
+        init;
+    }
+
+    /// <summary>CG-027 — persisted structural execution mode for CLI proof-packet posture (INV-002).</summary>
+    public StructuralExecutionMode? StructuralExecutionMode
+    {
+        get;
+        init;
+    }
+
+    /// <summary>CG-027 — execute door stamp for CLI bundle manifests (<see cref="User.WorkingCareerRehearsalDoorValues" />).</summary>
+    public string? WorkingCareerRehearsalDoor
     {
         get;
         init;

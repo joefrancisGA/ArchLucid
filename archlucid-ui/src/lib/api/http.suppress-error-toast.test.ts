@@ -9,13 +9,13 @@ vi.mock("@/lib/api-error-toast", () => ({
 
 import { throwApiRequestError } from "./http";
 
-describe("throwApiRequestError suppressErrorToast", () => {
+describe("throwApiRequestError toast presentation", () => {
   afterEach(() => {
     showApiRequestErrorToast.mockReset();
     vi.unstubAllGlobals();
   });
 
-  it("does not enqueue a 5xx toast when suppressErrorToast is true", () => {
+  it("does not enqueue a 5xx toast by default (inline recovery is the default channel)", () => {
     vi.stubGlobal("window", {} as Window);
 
     const body = JSON.stringify({
@@ -29,12 +29,12 @@ describe("throwApiRequestError suppressErrorToast", () => {
       headers: { "content-type": "application/problem+json" },
     });
 
-    expect(() => throwApiRequestError(response, body, "corr-1", { suppressErrorToast: true })).toThrow();
+    expect(() => throwApiRequestError(response, body, "corr-1")).toThrow();
 
     expect(showApiRequestErrorToast).not.toHaveBeenCalled();
   });
 
-  it("still enqueues a 5xx toast by default", async () => {
+  it("enqueues a 5xx toast only when showErrorToast is true", async () => {
     vi.stubGlobal("window", {} as Window);
 
     const body = JSON.stringify({
@@ -48,7 +48,7 @@ describe("throwApiRequestError suppressErrorToast", () => {
       headers: { "content-type": "application/problem+json" },
     });
 
-    expect(() => throwApiRequestError(response, body, "corr-2")).toThrow();
+    expect(() => throwApiRequestError(response, body, "corr-2", { showErrorToast: true })).toThrow();
 
     await vi.waitFor(() => {
       expect(showApiRequestErrorToast).toHaveBeenCalledTimes(1);

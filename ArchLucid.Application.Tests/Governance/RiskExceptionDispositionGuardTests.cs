@@ -53,6 +53,37 @@ public sealed class RiskExceptionDispositionGuardTests
     }
 
     [Fact]
+    public async Task EnsureWaiverAllowedForFindingAsync_rejects_rejected_as_not_applicable_latest_disposition()
+    {
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListByFindingAsync(Scope.TenantId, "f-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = "f-1",
+                    ReviewerUserId = "reviewer",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = Disposition.RejectedAsNotApplicable,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+            ]);
+
+        Func<Task> act = () => RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
+            trail.Object,
+            Scope,
+            "f-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*RejectedAsNotApplicable*");
+    }
+
+    [Fact]
     public async Task EnsureWaiverAllowedForFindingAsync_allows_waiver_when_remediated_disposition_is_foreign_project()
     {
         Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

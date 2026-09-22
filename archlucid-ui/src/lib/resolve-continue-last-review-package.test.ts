@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
 import type { RunSummary } from "@/types/authority";
@@ -21,6 +22,32 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
 
   it("returns null when no recent review is stored", () => {
     expect(resolveContinueLastReviewPackageTarget([run])).toBeNull();
+  });
+
+  it("IR-010: uses architectureId from account-prefs recent entry on Working", () => {
+    localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        entries: [
+          {
+            href: "/architecture/reviews/run-abc",
+            label: "Payments modernization",
+            kind: "review",
+            visitedAtUtc: "2026-01-02T00:00:00Z",
+            architectureId: "architecture-identity-001",
+          },
+        ],
+      }),
+    );
+
+    const target = resolveContinueLastReviewPackageTarget([run], undefined, {
+      workingMode: true,
+    });
+
+    expect(target?.href).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-abc`,
+    );
   });
 
   it("SY-64: nests continue-last review href under the architecture desk on Working", () => {
@@ -48,8 +75,11 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
       workingMode: true,
     });
 
-    expect(target?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-abc");
+    expect(target?.href).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-abc`,
+    );
     expect(target?.href).not.toBe("/architecture/reviews/run-abc");
+    expect(target?.href).not.toContain("/reviews/run-abc");
   });
 
   it("resumes the last-open review when it is still accessible", () => {
@@ -72,6 +102,22 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
 
     expect(target?.runId).toBe("run-abc");
     expect(target?.href).toBe("/architecture/reviews/run-abc");
+  });
+
+  it("SN-012: nests server last-open review href on Working when architecture id is known", () => {
+    const nestedRun: RunSummary = {
+      ...run,
+      runId: "run-abc",
+      requestId: "architecture-identity-001",
+    };
+
+    const target = resolveContinueLastReviewPackageTarget([nestedRun], "run-abc", {
+      workingMode: true,
+    });
+
+    expect(target?.href).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-abc`,
+    );
   });
 
   it("prefers server last-open review id over local recent views", () => {

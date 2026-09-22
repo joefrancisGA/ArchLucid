@@ -20,6 +20,12 @@ import {
   resolveExecutionFailedWorkspaceStatusLabel,
   resolveQualityRejectedWorkspaceStatusLabel,
 } from "@/lib/execution-vs-quality-outcome-copy";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
+import {
+  resolveWorkingPipelineCompleteReviewLabel,
+  resolveWorkingPipelineCompleteStatusTagKind,
+} from "@/lib/runs/pipeline-complete-career-honesty-copy";
 import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 
 const PRODUCT_BRAND_NAME = "ArchLucid";
@@ -31,6 +37,48 @@ import type {
   DeriveRunDetailWorkspaceStatusInput,
   RunDetailWorkspaceStatus
 } from "./types";
+
+function liveWorkingCareerRehearsalDoor(
+  value: string | null | undefined,
+): WorkingCareerRehearsalDoorId | null {
+  if (value === "career" || value === "rehearsal") {
+    return value;
+  }
+
+  return null;
+}
+
+function resolveReviewCompleteWorkspaceStatus(
+  input: DeriveRunDetailWorkspaceStatusInput,
+  suffix: string | null,
+): RunDetailWorkspaceStatus {
+  const run = input.run as RunSummary;
+  const honestyLabel = resolveWorkingPipelineCompleteReviewLabel({
+    workingDesk: input.workingDesk,
+    structuralExecutionMode: run.structuralExecutionMode,
+    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+      stampedDoor: run.workingCareerRehearsalDoor,
+      liveDoor: liveWorkingCareerRehearsalDoor(input.effectiveWorkingCareerRehearsalDoor),
+    }),
+  });
+  const honestyKind = resolveWorkingPipelineCompleteStatusTagKind({
+    workingDesk: input.workingDesk,
+    structuralExecutionMode: run.structuralExecutionMode,
+    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+      stampedDoor: run.workingCareerRehearsalDoor,
+      liveDoor: liveWorkingCareerRehearsalDoor(input.effectiveWorkingCareerRehearsalDoor),
+    }),
+  });
+  const baseLabel = honestyLabel ?? "Review complete";
+  const label = suffix === null ? baseLabel : `${baseLabel} · ${suffix}`;
+
+  return {
+    label,
+    kind: "review-complete",
+    statusTagKind: honestyKind ?? (suffix === null ? "ready" : "needs-attention"),
+  };
+}
+
 export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceStatusInput): RunDetailWorkspaceStatus {
   const manifestId = (input.manifestId ?? "").trim();
   const governanceDecision = (input.operatorGovernanceDecision ?? "").trim();
@@ -112,22 +160,18 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
     }
 
     if (blockingCount > 0) {
-      return {
-        label: "Review complete · approval blocked",
-        kind: "review-complete",
-        statusTagKind: "needs-attention",
-      };
+      return resolveReviewCompleteWorkspaceStatus(input, "approval blocked");
     }
 
     if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
       return { label: "Approved", kind: "approved", statusTagKind: "approved" };
     }
 
-    return { label: "Review complete", kind: "review-complete", statusTagKind: "ready" };
+    return resolveReviewCompleteWorkspaceStatus(input, null);
   }
 
   if (runAnalysisComplete(input.run)) {
-    return { label: "Review complete", kind: "review-complete", statusTagKind: "ready" };
+    return resolveReviewCompleteWorkspaceStatus(input, null);
   }
 
   if (input.showProgressTracker) {

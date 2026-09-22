@@ -35,6 +35,11 @@ export const ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES: readonly ErrorRecoveryCon
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
   },
   {
+    id: "review-detail-segment-error",
+    sourceRoots: ["app/(operator)/architecture/reviews/[reviewId]/error.tsx"],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
+  {
     id: "operator-api-problem",
     sourceRoots: ["components/operator/OperatorApiProblem.tsx"],
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
@@ -60,6 +65,23 @@ export const ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES: readonly ErrorRecoveryCon
   {
     id: "in-flight-cancel-failure",
     sourceRoots: ["components/shell/ShellInFlightOperationsAffordance.tsx"],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
+  {
+    id: "architecture-draft-offline-replay-conflict",
+    sourceRoots: [
+      "components/architecture/ArchitectureDraftWorkspaceIntakeStack.tsx",
+      "components/operator/OperatorMutationInlineError.tsx",
+    ],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
+  {
+    id: "livelihood-mutation-resume-failed",
+    sourceRoots: [
+      "components/shell/LivelihoodMutationResumeChrome.tsx",
+      "components/operator/OperatorMutationInlineError.tsx",
+      "hooks/use-resume-pending-livelihood-mutation.ts",
+    ],
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
   },
 ] as const;

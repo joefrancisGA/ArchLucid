@@ -83,12 +83,20 @@ function mergeQuickDecisionFindingsWithExplanationTraces(
         : null;
     const evidenceRefCount = pickPositiveEvidenceRefCount(f.evidenceRefCount, rowErc);
 
+    const classification = f.classification ?? row.classification ?? null;
+    const treatmentRaw = row.treatment;
+    const treatment =
+      f.treatment ??
+      (typeof treatmentRaw === "number" && Number.isFinite(treatmentRaw) ? Math.trunc(treatmentRaw) : null);
+
     return {
       ...f,
       confidenceLevel,
       evaluationConfidenceScore,
       traceConfidenceLabel,
       evidenceRefCount,
+      classification,
+      treatment,
     };
   });
 }

@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -36,24 +37,31 @@ public sealed partial class RunsController
         [FromServices] IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(requestId))
-            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
+        try
+        {
+            if (string.IsNullOrWhiteSpace(requestId))
+                return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
-        ArchitectureRequest? request =
-            await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
+            ArchitectureRequest? request =
+                await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
 
-        if (request is null)
-            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+            if (request is null)
+                return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
-            requestId,
-            manifestHashService,
-            cancellationToken);
+            IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
+                requestId,
+                manifestHashService,
+                cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        return Ok(request);
+            return Ok(request);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -126,13 +134,20 @@ public sealed partial class RunsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        await requestRepository.ArchiveAsync(requestId, cancellationToken);
+        try
+        {
+            await requestRepository.ArchiveAsync(requestId, cancellationToken);
 
-        await auditService.LogAsync(
-            BuildArchitectureRequestAuditEvent("ArchitectureRequestArchived", requestId),
-            cancellationToken);
+            await auditService.LogAsync(
+                BuildArchitectureRequestAuditEvent("ArchitectureRequestArchived", requestId),
+                cancellationToken);
 
-        return Ok();
+            return Ok();
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -169,13 +184,20 @@ public sealed partial class RunsController
         if (request.IsArchived)
             return Ok();
 
-        await requestRepository.ArchiveAsync(requestId, cancellationToken);
+        try
+        {
+            await requestRepository.ArchiveAsync(requestId, cancellationToken);
 
-        await auditService.LogAsync(
-            BuildArchitectureRequestAuditEvent("ArchitectureRequestDeleted", requestId),
-            cancellationToken);
+            await auditService.LogAsync(
+                BuildArchitectureRequestAuditEvent("ArchitectureRequestDeleted", requestId),
+                cancellationToken);
 
-        return Ok();
+            return Ok();
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -213,13 +235,20 @@ public sealed partial class RunsController
         if (!request.IsArchived)
             return Ok();
 
-        await requestRepository.RestoreAsync(requestId, cancellationToken);
+        try
+        {
+            await requestRepository.RestoreAsync(requestId, cancellationToken);
 
-        await auditService.LogAsync(
-            BuildArchitectureRequestAuditEvent("ArchitectureRequestRestored", requestId),
-            cancellationToken);
+            await auditService.LogAsync(
+                BuildArchitectureRequestAuditEvent("ArchitectureRequestRestored", requestId),
+                cancellationToken);
 
-        return Ok();
+            return Ok();
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>

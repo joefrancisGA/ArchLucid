@@ -1,3 +1,4 @@
+import { architecturePackageDocxMutationBlockedReason } from "@/lib/runs/architecture-package-docx-mutation-blocked-reason";
 import { getArchitecturePackageDocxUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -11,5 +12,6 @@ export async function downloadArchitecturePackageDocx(
     accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
     defaultFileName: `architecture-package-${runId}.docx`,
     expectedContentTypePrefixes: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+    resolveBlockedReason: architecturePackageDocxMutationBlockedReason,
   });
 }

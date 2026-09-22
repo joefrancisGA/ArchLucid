@@ -33,9 +33,9 @@ internal static partial class RunRepositoryCore
             return false;
 
         return string.Equals(
-            storedProjectId.Trim(),
-            authorityProjectSlug.Trim(),
-            StringComparison.OrdinalIgnoreCase);
+            NormalizeAuthorityProjectSlug(storedProjectId),
+            NormalizeAuthorityProjectSlug(authorityProjectSlug),
+            StringComparison.Ordinal);
     }
 
     public static bool ArchitectureRequestIdMatches(string? storedArchitectureRequestId, string architectureRequestId)
@@ -44,9 +44,9 @@ internal static partial class RunRepositoryCore
             return false;
 
         return string.Equals(
-            storedArchitectureRequestId.Trim(),
-            architectureRequestId.Trim(),
-            StringComparison.OrdinalIgnoreCase);
+            NormalizeArchitectureRequestId(storedArchitectureRequestId),
+            NormalizeArchitectureRequestId(architectureRequestId),
+            StringComparison.Ordinal);
     }
 
     public static bool MatchesProjectListFilter(RunRecord run, string projectSlug)
@@ -66,6 +66,17 @@ internal static partial class RunRepositoryCore
     public static bool IsCommittedRun(RunRecord run)
     {
         ArgumentNullException.ThrowIfNull(run);
+
+        if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (string.Equals(
+                run.LegacyRunStatus,
+                nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
 
         if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return true;

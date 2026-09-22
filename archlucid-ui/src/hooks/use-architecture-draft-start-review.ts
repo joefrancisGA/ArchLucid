@@ -28,7 +28,7 @@ import {
   resolveArchitectureDraftStartReviewEmphasizedStepId,
   resolveArchitectureDraftStartReviewSteps,
 } from "@/lib/architecture-draft-start-review-checklist";
-import { patchDraftRequest } from "@/lib/api/draft-intake-api";
+import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
@@ -47,6 +47,7 @@ type UseArchitectureDraftStartReviewOptions = {
   readonly saveState: ArchitectureDraftSaveState;
   readonly conflictMessage: string | null;
   readonly saveDraft: () => Promise<boolean>;
+  readonly lastSavedUtc: string | null;
   readonly syncServerUpdatedUtc: (serverUpdatedUtc: string) => void;
   readonly scopeGateOpen: boolean;
   readonly setScopeGateOpen: Dispatch<SetStateAction<boolean>>;
@@ -121,6 +122,10 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       try {
         const patched = await patchDraftRequest(options.effectiveDraftId, {
           freeTextIntent: mergedIntent,
+          expectedUpdatedUtc:
+            options.lastSavedUtc?.trim()
+            || options.draft?.updatedUtc?.trim()
+            || (await getDraftRequest(options.effectiveDraftId)).updatedUtc,
         });
         options.syncServerUpdatedUtc(patched.updatedUtc);
 
@@ -137,6 +142,8 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       options.setScopeBullets,
       options.setScopeGateOpen,
       options.syncServerUpdatedUtc,
+      options.lastSavedUtc,
+      options.draft?.updatedUtc,
     ],
   );
 
@@ -221,6 +228,10 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
         if (mergedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
           const patched = await patchDraftRequest(options.effectiveDraftId, {
             freeTextIntent: mergedIntent,
+            expectedUpdatedUtc:
+              options.lastSavedUtc?.trim()
+              || options.draft?.updatedUtc?.trim()
+              || (await getDraftRequest(options.effectiveDraftId)).updatedUtc,
           });
           options.syncServerUpdatedUtc(patched.updatedUtc);
         }

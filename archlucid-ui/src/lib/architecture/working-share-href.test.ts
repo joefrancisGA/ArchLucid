@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
+
 import { workingShareHref, WORKING_SHARE_UNLINKED_JOB_TOAST } from "@/lib/architecture/working-share-href";
 
-describe("workingShareHref (AO-09)", () => {
-  it("SY-20: prefers nested review path when architecture id is known", () => {
+describe("workingShareHref (AO-09 / AO-38 / IP-004)", () => {
+  it("IP-004: prefers nested findings path when architecture id is known", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",
       reviewId: "run-001",
@@ -12,9 +14,9 @@ describe("workingShareHref (AO-09)", () => {
 
     expect(result.isUnlinkedJob).toBe(false);
     expect(result.href).toBe(
-      "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=findings",
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-001`,
     );
-    expect(result.href).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
+    expect(result.href).not.toContain("/reviews/run-001");
   });
 
   it("falls back to peer review URL when architecture id is unknown", () => {
@@ -36,15 +38,15 @@ describe("workingShareHref (AO-09)", () => {
     expect(result.isUnlinkedJob).toBe(false);
   });
 
-  it("SY-21: AO-38 room elicitation share keeps nested architecture locator", () => {
+  it("AO-38: room elicitation share keeps architecture + job locator (SY-21)", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",
       reviewId: "run-001",
-      search: { roomElicitation: "1", reviewTab: "findings" },
+      search: { roomElicitation: "1", reviewTab: "findings", focusedFinding: "finding-9" },
     });
 
     expect(result.href).toBe(
-      "/architecture/architectures/architecture-identity-001/reviews/run-001?roomElicitation=1&reviewTab=findings",
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-001&roomElicitation=1&focusedFinding=finding-9`,
     );
     expect(result.href).toContain("architecture-identity-001");
     expect(result.isUnlinkedJob).toBe(false);

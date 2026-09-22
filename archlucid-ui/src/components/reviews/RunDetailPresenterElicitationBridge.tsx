@@ -20,7 +20,10 @@ import {
   reviewPresenterAssertedCaptureLine,
 } from "@/lib/reviews/review-presenter-elicitation-copy";
 import { readPresenterModeFromSearchParams } from "@/lib/review-detail-workspace-tabs";
-import { readRoomElicitationFromSearchParams } from "@/lib/reviews/review-room-elicitation-url";
+import {
+  inhabitedFindingsRoomElicitationHref,
+  readRoomElicitationFromSearchParams,
+} from "@/lib/reviews/review-room-elicitation-url";
 import {
   parseReviewPresenterQuestionIdFromSearch,
   reviewPresenterElicitationHrefFromSearch,
@@ -29,13 +32,14 @@ import { cn } from "@/lib/utils";
 
 export type RunDetailPresenterElicitationBridgeProps = ReviewDetailWorkspaceProps & {
   readonly architectureRequestId?: string | null;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Wires presenter and room elicitation into {@link ReviewDetailWorkspace} (FD-01 / DR-16). */
 export function RunDetailPresenterElicitationBridge(
   props: RunDetailPresenterElicitationBridgeProps,
 ): React.JSX.Element {
-  const { architectureRequestId, ...workspaceProps } = props;
+  const { architectureRequestId, parentArchitectureId, ...workspaceProps } = props;
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -43,13 +47,37 @@ export function RunDetailPresenterElicitationBridge(
   const { isWorkingMode } = useWorkspaceMode();
   const presenterMode = readPresenterModeFromSearchParams(searchParams);
   const roomElicitationMode = readRoomElicitationFromSearchParams(searchParams);
+  const resolvedParentArchitectureId = parentArchitectureId?.trim() ?? "";
   const room = useReviewDetailWorkspaceRoomElicitation();
   const elicitation = useReviewPresenterElicitation(architectureRequestId, workspaceProps.runId);
 
   const showElicitation = isWorkingMode && (presenterMode || roomElicitationMode);
-  const showPresenterSurface = presenterMode && isWorkingMode;
-  const showInlineRoomPanel = showElicitation && !showPresenterSurface;
+  const showPresenterSurface = presenterMode && isWorkingMode && resolvedParentArchitectureId.length === 0;
+  const showInlineRoomPanel =
+    showElicitation && !showPresenterSurface && resolvedParentArchitectureId.length === 0;
   const primaryQuestionKey = elicitation.primaryQuestion?.questionKey ?? "";
+
+  useEffect(() => {
+    if (!isWorkingMode || !presenterMode || resolvedParentArchitectureId.length === 0) {
+      return;
+    }
+
+    router.replace(
+      inhabitedFindingsRoomElicitationHref(resolvedParentArchitectureId, workspaceProps.runId),
+      { scroll: false },
+    );
+  }, [isWorkingMode, presenterMode, resolvedParentArchitectureId, router, workspaceProps.runId]);
+
+  useEffect(() => {
+    if (!isWorkingMode || !roomElicitationMode || resolvedParentArchitectureId.length === 0) {
+      return;
+    }
+
+    router.replace(
+      inhabitedFindingsRoomElicitationHref(resolvedParentArchitectureId, workspaceProps.runId),
+      { scroll: false },
+    );
+  }, [isWorkingMode, roomElicitationMode, resolvedParentArchitectureId, router, workspaceProps.runId]);
 
   useEffect(() => {
     if (!showElicitation) {
@@ -153,6 +181,7 @@ export function RunDetailPresenterElicitationBridge(
       presenterFindingTitle={presenterFindingTitle}
       presenterFindingBody={presenterFindingBody}
       presenterFindingActions={presenterFindingActions}
+      suppressPresenterSurface={resolvedParentArchitectureId.length > 0 && presenterMode}
     />
   );
 }

@@ -4,7 +4,7 @@
 
 # v8 quality-ROI — Composer prompt set (QR-01–QR-05)
 
-**Status:** QR-01–QR-04 shipped. QR-05 still `#2641`. **Do not start a new v8 run.** Next pack: [`v9-quality-roi-00-index.md`](v9-quality-roi-00-index.md) / [`docs/architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](../../docs/architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md).
+**Status:** QR-01–QR-15 shipped. **Do not start a new v8 run.** Current pack: [`v10-quality-roi-00-index.md`](v10-quality-roi-00-index.md) / [`docs/architecture/V10_QUALITY_ROI_COMPOSER_PROMPTS.md`](../../docs/architecture/V10_QUALITY_ROI_COMPOSER_PROMPTS.md).
 
 v8 assessment (archived): insight density rose 66 → 70 after DX-01–DX-76 and is still the largest weighted deficiency. **The remaining density lever is proof (G-REAL-06), not DX-77.** Best credit ROI was **Correctness (72)** + **Runtime (70)** on a red trunk.
 

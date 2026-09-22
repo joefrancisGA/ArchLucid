@@ -3,7 +3,7 @@ namespace ArchLucid.Contracts.User;
 /// <summary>Normalization and validation for personal IANA time zone preferences.</summary>
 public static class IanaTimeZonePreferenceValues
 {
-    public const string Default = "UTC";
+    public const string Default = "America/New_York";
 
     /// <summary>Returns a normalized id or <see cref="Default" /> when <paramref name="value" /> is blank or invalid.</summary>
     public static string NormalizeOrDefault(string? value)
@@ -23,7 +23,7 @@ public static class IanaTimeZonePreferenceValues
 
         if (IsUtcAlias(trimmed))
         {
-            return Default;
+            return "UTC";
         }
 
         try

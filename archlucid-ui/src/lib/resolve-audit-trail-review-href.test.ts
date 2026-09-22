@@ -16,7 +16,7 @@ describe("resolveAuditTrailReviewHref (SY-28)", () => {
     },
   ];
 
-  it("SY-28: nests under architecture on Working when parent id is known", () => {
+  it("SG-028: nests under architecture on Working when parent id is known", () => {
     expect(
       resolveAuditTrailReviewHref({
         workingMode: true,

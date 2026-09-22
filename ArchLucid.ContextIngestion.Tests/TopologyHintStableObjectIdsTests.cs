@@ -48,4 +48,14 @@ public sealed class TopologyHintStableObjectIdsTests
         spaced.Should().Be(compact);
         TopologyHintStableObjectIds.FromHintName(spaced).Should().Be(TopologyHintStableObjectIds.FromHintName(compact));
     }
+
+    [Fact]
+    public void CanonicalizeHintName_BackslashSeparatedPaths_EquivalentToForwardSlashPeers()
+    {
+        string backslash = TopologyHintStableObjectIds.CanonicalizeHintName("prod\\vnet\\subnet-a");
+        string forward = TopologyHintStableObjectIds.CanonicalizeHintName("prod/vnet/subnet-a");
+
+        backslash.Should().Be(forward);
+        TopologyHintStableObjectIds.FromHintName(backslash).Should().Be(TopologyHintStableObjectIds.FromHintName(forward));
+    }
 }

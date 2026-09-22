@@ -9,7 +9,7 @@ import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionReg
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import {
@@ -72,7 +72,12 @@ export function GovernanceFindingsRelatedQueuesDisclosure(
       }}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-        <span className={OPERATOR_TYPOGRAPHY.helper}>Related queues</span>
+        <span className={cn(OPERATOR_NAV_GROUP_LABEL, "mr-2 rounded border border-neutral-300 px-1.5 py-0.5 dark:border-neutral-600")}>
+          Queues
+        </span>
+        <span className={OPERATOR_TYPOGRAPHY.helper}>
+          Related queues — peer findings lanes, vocabulary rails, and capability boundaries
+        </span>
       </summary>
       <div className="mt-3 space-y-2">
         {props.jobRouterCurrentJobId !== undefined ? (

@@ -2,6 +2,7 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models.Runs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -23,61 +24,68 @@ public sealed partial class RunDetailPageBundleController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetCriticalPageBundle(Guid runId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        RunDetailDto? detail =
-            await _queryService.GetRunDetailForBuyerSummaryAsync(scope, runId, cancellationToken).ConfigureAwait(false);
-
-        if (detail is null)
+        try
         {
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+            RunDetailDto? detail =
+                await _queryService.GetRunDetailForBuyerSummaryAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+            if (detail is null)
+            {
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            }
+
+            IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(detail, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            BuyerRunDetailSummaryDto buyerSummary = await BuildBuyerSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
+
+            Task<RunSummaryDto?> progressTask = _queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
+
+            Guid? manifestId = detail.Run.GoldenManifestId;
+
+            Task<ManifestSummaryDto?> manifestTask = manifestId.HasValue
+                ? _queryService.GetManifestSummaryAsync(scope, manifestId.Value, cancellationToken)
+                : Task.FromResult<ManifestSummaryDto?>(null);
+
+            Task<IReadOnlyList<ArtifactDescriptor>> artifactsTask = manifestId.HasValue
+                ? _artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId.Value, cancellationToken)
+                : Task.FromResult<IReadOnlyList<ArtifactDescriptor>>([]);
+
+            Task<IReadOnlyList<ArtifactDescriptor>> verificationArtifactsTask =
+                _findingVerificationReportQueryService.ListArtifactDescriptorsByRunAsync(scope, runId, cancellationToken);
+
+            await Task.WhenAll(progressTask, manifestTask, artifactsTask, verificationArtifactsTask).ConfigureAwait(false);
+
+            RunSummaryDto? progress = await progressTask.ConfigureAwait(false);
+            ManifestSummaryDto? manifest = await manifestTask.ConfigureAwait(false);
+            IReadOnlyList<ArtifactDescriptor> artifacts = await artifactsTask.ConfigureAwait(false);
+            IReadOnlyList<ArtifactDescriptor> verificationArtifacts =
+                await verificationArtifactsTask.ConfigureAwait(false);
+
+            RunDetailCriticalPageBundleResponse body = new()
+            {
+                BuyerSummary = buyerSummary,
+                ProgressSummary = progress is null ? null : ToRunSummaryResponse(progress),
+                ManifestSummary = manifest is null ? null : ToManifestSummaryResponse(manifest),
+                Artifacts = manifestId.HasValue
+                    ? RunArtifactDescriptorResponses.MergeForRun(
+                        manifestId.Value,
+                        runId,
+                        artifacts,
+                        verificationArtifacts)
+                    : [],
+            };
+
+            return Ok(body);
         }
-
-        IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(detail, runId);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        BuyerRunDetailSummaryDto buyerSummary = await BuildBuyerSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
-
-        Task<RunSummaryDto?> progressTask = _queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
-
-        Guid? manifestId = detail.Run.GoldenManifestId;
-
-        Task<ManifestSummaryDto?> manifestTask = manifestId.HasValue
-            ? _queryService.GetManifestSummaryAsync(scope, manifestId.Value, cancellationToken)
-            : Task.FromResult<ManifestSummaryDto?>(null);
-
-        Task<IReadOnlyList<ArtifactDescriptor>> artifactsTask = manifestId.HasValue
-            ? _artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId.Value, cancellationToken)
-            : Task.FromResult<IReadOnlyList<ArtifactDescriptor>>([]);
-
-        Task<IReadOnlyList<ArtifactDescriptor>> verificationArtifactsTask =
-            _findingVerificationReportQueryService.ListArtifactDescriptorsByRunAsync(scope, runId, cancellationToken);
-
-        await Task.WhenAll(progressTask, manifestTask, artifactsTask, verificationArtifactsTask).ConfigureAwait(false);
-
-        RunSummaryDto? progress = await progressTask.ConfigureAwait(false);
-        ManifestSummaryDto? manifest = await manifestTask.ConfigureAwait(false);
-        IReadOnlyList<ArtifactDescriptor> artifacts = await artifactsTask.ConfigureAwait(false);
-        IReadOnlyList<ArtifactDescriptor> verificationArtifacts =
-            await verificationArtifactsTask.ConfigureAwait(false);
-
-        RunDetailCriticalPageBundleResponse body = new()
+        catch (ConflictException ex)
         {
-            BuyerSummary = buyerSummary,
-            ProgressSummary = progress is null ? null : ToRunSummaryResponse(progress),
-            ManifestSummary = manifest is null ? null : ToManifestSummaryResponse(manifest),
-            Artifacts = manifestId.HasValue
-                ? RunArtifactDescriptorResponses.MergeForRun(
-                    manifestId.Value,
-                    runId,
-                    artifacts,
-                    verificationArtifacts)
-                : [],
-        };
-
-        return Ok(body);
+            return MapRunDetailPageBundleSealedManifestConflict(ex);
+        }
     }
 
     private async Task<BuyerRunDetailSummaryDto> BuildBuyerSummaryAsync(

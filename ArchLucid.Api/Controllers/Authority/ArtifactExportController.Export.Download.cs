@@ -34,21 +34,26 @@ public sealed partial class ArtifactExportController
     public async Task<IActionResult> DownloadRunDecisionReceipt(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         DecisionReceiptRunBuildResult buildResult =
             await decisionReceiptService.BuildForRunAsync(scope, runId, ct);
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
         {
-            return this.ConflictProblem(
-                $"Decision receipt for run '{runId}' failed sealed-hash verification.",
-                ProblemTypes.DecisionReceiptSealedHashMismatch);
+            return MapArtifactExportSealedManifestConflict(
+                new ConflictException(
+                    $"Decision receipt for run '{runId}' failed sealed-hash verification."));
         }
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
         {
-            return this.ConflictProblem(
-                $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export.",
-                ProblemTypes.DecisionReceiptSealedIncomplete);
+            return MapArtifactExportSealedManifestConflict(
+                new ConflictException(
+                    $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export."));
         }
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.CareerArtifactBlocked)
@@ -99,6 +104,27 @@ public sealed partial class ArtifactExportController
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this,
+            User,
+            scope,
+            runId,
+            ct);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
+
         byte[]? renderedPng = null;
 
         if (configuration.GetValue("ArchLucid:MermaidCli:Enabled", false))
@@ -122,7 +148,7 @@ public sealed partial class ArtifactExportController
                 }
                 catch (ConflictException ex)
                 {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                    return MapArtifactExportSealedManifestConflict(ex);
                 }
 
                 string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifactsForDiagram);
@@ -152,9 +178,8 @@ public sealed partial class ArtifactExportController
         {
             if (packageResult.IsConflict)
             {
-                return this.ConflictProblem(
-                    packageResult.NotFoundReason!,
-                    packageResult.ProblemType ?? ProblemTypes.DecisionReceiptSealedHashMismatch);
+                return MapArtifactExportSealedManifestConflict(
+                    new ConflictException(packageResult.NotFoundReason!));
             }
 
             return this.NotFoundProblem(packageResult.NotFoundReason!, packageResult.ProblemType);

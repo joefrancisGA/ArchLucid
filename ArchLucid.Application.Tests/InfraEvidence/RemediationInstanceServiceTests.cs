@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -156,6 +157,108 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public async Task CreateFromMatch_without_path_id_does_not_set_narrative()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        InMemoryRemediationPatternMatchRepository matchRepository = new();
+        matchRepository.ActiveMatch = CreateMatch(RemediationPatternMatchKind.ExactMatch);
+
+        InMemoryRemediationPatternRepository patternRepository = new();
+        patternRepository.Versions.Add(CreateVersion(RemediationPatternStatus.Approved));
+
+        Mock<IOperationalSecurityFindingRepository> findingRepository = new();
+        findingRepository
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                ProjectScopeKey.Create(TenantId, WorkspaceId, ProjectId),
+                FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateOperationalFinding(pathId: null));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            matchRepository,
+            patternRepository,
+            findingRepository: findingRepository.Object);
+
+        RemediationInstanceOperationResult result =
+            await sut.CreateFromMatchAsync(CreateScope(), FindingId, "creator");
+
+        result.Succeeded.Should().BeTrue();
+        RemediationInstanceRecord instance = instanceRepository.Instances.Single();
+        instance.PathId.Should().BeNull();
+        instance.PathNarrativeJson.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CreateFromMatch_with_path_id_persists_structured_narrative()
+    {
+        Guid pathId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        InMemoryRemediationPatternMatchRepository matchRepository = new();
+        matchRepository.ActiveMatch = CreateMatch(RemediationPatternMatchKind.ExactMatch);
+
+        InMemoryRemediationPatternRepository patternRepository = new();
+        patternRepository.Versions.Add(CreateVersion(RemediationPatternStatus.Approved));
+
+        Mock<IOperationalSecurityFindingRepository> findingRepository = new();
+        findingRepository
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                ProjectScopeKey.Create(TenantId, WorkspaceId, ProjectId),
+                FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateOperationalFinding(pathId: pathId));
+
+        RemediationPathNarrative expectedNarrative = new()
+        {
+            PathId = pathId,
+            PathKind = PathKind.IntendedReachability.ToString(),
+            PathConfidenceBand = PathConfidenceBand.HighlyLikely.ToString(),
+            ProblemStatement = "Intended reachability path breaks isolation.",
+            WhyItMatters = "Highly likely path.",
+            ExposureSummary = "Exposure summary.",
+            AffectedDependencyCloudResourceIds = [CloudResourceId],
+            RecommendedChange = "Disable public access.",
+            BlastRadiusWarning = $"CloudResourceIds: {CloudResourceId:D}",
+            SafeRolloutSteps = ["Create private endpoint"],
+            VerificationQueries = ["property:enablePublicNetworkAccess=false"],
+            WeakestHopReason = "Public access enabled.",
+            CanonicalHopHashHex = Convert.ToHexStringLower(Enumerable.Repeat((byte)0x11, 32).ToArray()),
+        };
+
+        Mock<IRemediationPathNarrativeBuilder> narrativeBuilder = new();
+        narrativeBuilder
+            .Setup(builder => builder.TryBuildAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<OperationalSecurityFindingRecord>(),
+                It.IsAny<RemediationPatternVersionRecord>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedNarrative);
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            matchRepository,
+            patternRepository,
+            findingRepository: findingRepository.Object,
+            pathNarrativeBuilder: narrativeBuilder.Object);
+
+        RemediationInstanceOperationResult result =
+            await sut.CreateFromMatchAsync(CreateScope(), FindingId, "creator");
+
+        result.Succeeded.Should().BeTrue();
+
+        RemediationInstanceRecord instance = instanceRepository.Instances.Single();
+        instance.PathId.Should().Be(pathId);
+        instance.PathNarrativeJson.Should().NotBeNullOrWhiteSpace();
+
+        RemediationPathNarrative? persisted =
+            RemediationPathNarrativeJson.TryDeserialize(instance.PathNarrativeJson);
+
+        persisted.Should().NotBeNull();
+        persisted!.ProblemStatement.Should().Be(expectedNarrative.ProblemStatement);
+        persisted.BlastRadiusWarning.Should().Contain(CloudResourceId.ToString("D"));
+        persisted.VerificationQueries.Should().Contain("property:enablePublicNetworkAccess=false");
+    }
+
+    [Fact]
     public void Remediation_instance_service_source_has_no_cloud_apply_commands()
     {
         string source = File.ReadAllText(
@@ -177,21 +280,50 @@ public sealed class RemediationInstanceServiceTests
         normalized.Should().NotContain("arm.Delete", "execute must not invoke ARM DELETE");
     }
 
+    [Fact]
+    public async Task ApproveAsync_foreign_project_instance_returns_not_found()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        Guid instanceId = Guid.NewGuid();
+        instanceRepository.Instances.Add(CreateInstance(
+            instanceId,
+            RemediationInstanceStatus.PreflightPassed,
+            projectId: Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult result =
+            await sut.ApproveAsync(CreateScope(), instanceId, "approver");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Remediation instance was not found.");
+        instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
+    }
+
     private static RemediationInstanceService CreateSut(
         InMemoryRemediationInstanceRepository instanceRepository,
         InMemoryRemediationPatternMatchRepository matchRepository,
         InMemoryRemediationPatternRepository patternRepository,
         InMemoryOperationalSecurityExceptionRepository? exceptionRepository = null,
-        InMemorySnapshotRepository? snapshotRepository = null) =>
+        InMemorySnapshotRepository? snapshotRepository = null,
+        IOperationalSecurityFindingRepository? findingRepository = null,
+        IRemediationPathNarrativeBuilder? pathNarrativeBuilder = null,
+        ISecurityEvidencePathRepository? pathRepository = null) =>
         new(
-            instanceRepository,
+            new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             matchRepository,
             patternRepository,
             exceptionRepository ?? new InMemoryOperationalSecurityExceptionRepository(),
             snapshotRepository ?? new InMemorySnapshotRepository(),
             Mock.Of<IAdvisoryTerraformRepresentationService>(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IOperationalSecurityFindingRepository>(),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
+                findingRepository ?? Mock.Of<IOperationalSecurityFindingRepository>()),
+            pathNarrativeBuilder ?? Mock.Of<IRemediationPathNarrativeBuilder>(),
+            pathRepository ?? Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>());
@@ -245,17 +377,40 @@ public sealed class RemediationInstanceServiceTests
             UpdatedUtc = DateTime.UtcNow,
         };
 
+    private static OperationalSecurityFindingRecord CreateOperationalFinding(Guid? pathId) =>
+        new()
+        {
+            FindingId = FindingId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            Provider = CloudProvider.Azure,
+            SourceSystem = "Defender",
+            SourceFindingId = FindingId.ToString("N"),
+            Title = "Test finding",
+            Severity = "High",
+            Status = OperationalSecurityFindingStatus.Open,
+            FirstObservedUtc = DateTime.UtcNow,
+            LastObservedUtc = DateTime.UtcNow,
+            PathId = pathId,
+            CloudResourceId = CloudResourceId,
+            PayloadHashSha256 = [],
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+
     private static RemediationInstanceRecord CreateInstance(
         Guid instanceId,
         RemediationInstanceStatus status,
         Guid? executionSnapshotId = null,
-        Guid? cloudResourceId = null) =>
+        Guid? cloudResourceId = null,
+        Guid? projectId = null) =>
         new()
         {
             InstanceId = instanceId,
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
+            ProjectId = projectId ?? ProjectId,
             FindingId = FindingId,
             PatternId = PatternId,
             PatternVersionId = VersionId,
@@ -562,5 +717,23 @@ public sealed class RemediationInstanceServiceTests
             string? subscriptionId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
+
+        public Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            int page,
+            int pageSize,
+            Guid? cloudResourceId = null,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
+
+        public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
+            });
     }
 }

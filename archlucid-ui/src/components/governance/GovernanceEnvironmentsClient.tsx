@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
@@ -21,7 +22,9 @@ import {
   GOVERNANCE_ENVIRONMENTS_PAGE_SUBTITLE,
   GOVERNANCE_ENVIRONMENTS_PAGE_TITLE,
   GOVERNANCE_ENVIRONMENTS_PATH,
+  GOVERNANCE_ENVIRONMENTS_SAVE_ERROR_TITLE,
 } from "@/lib/governance/governance-environments-route";
+import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 import {
   governanceEnvironmentOptionsFromCatalog,
   isGovernanceEnvironmentTransitionAllowed,
@@ -32,7 +35,7 @@ import {
   useGovernanceEnvironmentCatalogQuery,
 } from "@/hooks/use-governance-environment-catalog-query";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { showError, showSuccess } from "@/lib/toast";
+import { showSuccess } from "@/lib/toast";
 import type {
   GovernanceEnvironmentCatalog,
   GovernanceEnvironmentDefinition,
@@ -71,6 +74,7 @@ export default function GovernanceEnvironmentsClient() {
   const queryClient = useQueryClient();
   const catalogQuery = useGovernanceEnvironmentCatalogQuery();
   const [draft, setDraft] = useState<GovernanceEnvironmentCatalog | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (catalogQuery.data !== undefined) {
@@ -83,12 +87,19 @@ export default function GovernanceEnvironmentsClient() {
     onSuccess: async (saved) => {
       queryClient.setQueryData(governanceEnvironmentCatalogQueryKey, saved);
       setDraft(cloneCatalog(saved));
+      setSaveError(null);
       showSuccess("Approval environments saved.");
     },
     onError: (error: unknown) => {
       const failure = toApiLoadFailure(error);
       const blocked = governanceEnvironmentCatalogMutationBlockedReason(failure);
-      showError(blocked ?? failure.message);
+
+      setSaveError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_ENVIRONMENTS_SAVE_ERROR_TITLE,
+          blocked ?? failure.message,
+        ),
+      );
     },
   });
 
@@ -125,6 +136,7 @@ export default function GovernanceEnvironmentsClient() {
 
   const updateEnvironment = useCallback(
     (index: number, patch: Partial<GovernanceEnvironmentDefinition>) => {
+      setSaveError(null);
       setDraft((current) => {
         if (current === null) {
           return current;
@@ -162,6 +174,7 @@ export default function GovernanceEnvironmentsClient() {
   );
 
   const addEnvironment = useCallback(() => {
+    setSaveError(null);
     setDraft((current) => {
       const baseCatalog: GovernanceEnvironmentCatalog = current ?? {
         isAdministratorConfigured: false,
@@ -186,6 +199,7 @@ export default function GovernanceEnvironmentsClient() {
   }, []);
 
   const removeEnvironment = useCallback((index: number) => {
+    setSaveError(null);
     setDraft((current) => {
       if (current === null) {
         return current;
@@ -209,6 +223,7 @@ export default function GovernanceEnvironmentsClient() {
   }, []);
 
   const setTransitionEnabled = useCallback((sourceSlug: string, targetSlug: string, enabled: boolean) => {
+    setSaveError(null);
     setDraft((current) => {
       if (current === null) {
         return current;
@@ -225,10 +240,14 @@ export default function GovernanceEnvironmentsClient() {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="governance-environments-page">
         <OperatorSectionLoadFailure
-          message="Could not load approval environments."
+          message={
+            catalogQuery.blockedReason ??
+            "Could not load approval environments."
+          }
           onRetry={() => {
             void catalogQuery.refetch();
           }}
+          testId="governance-environment-catalog-load-failure"
         />
       </OperatorPageContainer>
     );
@@ -373,11 +392,13 @@ export default function GovernanceEnvironmentsClient() {
             type="button"
             variant="primary"
             disabled={!canMutate || draft === null || validationMessage !== null || saveMutation.isPending}
+            aria-describedby={saveError != null ? "governance-environments-save-error" : undefined}
             onClick={() => {
               if (draft === null) {
                 return;
               }
 
+              setSaveError(null);
               saveMutation.mutate({
                 environments: draft.environments,
                 transitions: draft.transitions,
@@ -386,6 +407,12 @@ export default function GovernanceEnvironmentsClient() {
           >
             Save approval environments
           </Button>
+          {saveError != null ? (
+            <OperatorMutationInlineError
+              message={saveError}
+              testId="governance-environments-save-error"
+            />
+          ) : null}
           {validationMessage !== null ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
               {validationMessage}

@@ -4,6 +4,7 @@ import type { JSX } from "react";
 
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   getGovernanceJobRouter,
   type GovernanceJobId,
@@ -72,7 +73,7 @@ function GovernanceJobRouterCard(props: {
       )}
       data-testid={`governance-job-router-option-${option.id}`}
       data-current="false"
-      prefetch
+      prefetch={false}
     >
       <p id={titleId} className={labelClassName}>
         {option.label}
@@ -89,7 +90,8 @@ function GovernanceJobRouterCard(props: {
  * (Approval queue, findings queue, Decision register).
  */
 export function GovernanceJobRouterStrip(props: GovernanceJobRouterStripProps): JSX.Element {
-  const router = props.router ?? getGovernanceJobRouter();
+  const { productLine } = useProductLine();
+  const router = props.router ?? getGovernanceJobRouter(productLine);
   const layout = props.layout ?? "default";
   const isCompact = layout === "compact";
   const visibleOptions = isCompact

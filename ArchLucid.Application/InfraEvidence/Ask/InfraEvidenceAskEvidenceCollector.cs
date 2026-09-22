@@ -30,6 +30,9 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         if (topicKind == InfraEvidenceAskTopicKinds.DiagramGap)
             return await CollectDiagramGapEvidenceAsync(scope, request, bundle, cancellationToken);
 
+        if (topicKind == InfraEvidenceAskTopicKinds.DiagramView)
+            return await CollectDiagramViewEvidenceAsync(scope, request, bundle, cancellationToken);
+
         if (topicKind == InfraEvidenceAskTopicKinds.Drift && request.DiffId.HasValue)
             return await CollectDriftEvidenceAsync(scope, request.DiffId.Value, bundle, cancellationToken);
 
@@ -223,6 +226,74 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         foreach (DiagramInfrastructureCorrespondenceRow row in rows.Take(50))
         {
             AddDiagramCorrespondence(bundle, row);
+        }
+
+        return bundle;
+    }
+
+    private async Task<InfraEvidenceAskEvidenceBundle> CollectDiagramViewEvidenceAsync(
+        ScopeContext scope,
+        InfraEvidenceAskRequest request,
+        InfraEvidenceAskEvidenceBundle bundle,
+        CancellationToken cancellationToken)
+    {
+        if (!request.SnapshotId.HasValue || request.SnapshotId.Value == Guid.Empty)
+            return bundle;
+
+        AzureInventorySnapshotRecord? snapshot =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, request.SnapshotId.Value, cancellationToken);
+
+        if (snapshot is null)
+            return bundle;
+
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SnapshotId,
+            snapshot.SnapshotId.ToString("D"),
+            snapshot.SubscriptionId,
+            $"snapshotId={snapshot.SnapshotId:D} capturedUtc={snapshot.CapturedUtc:O} resourceCount={snapshot.ResourceCount}");
+
+        foreach (string mode in DiagramViewPlanValidator.AllowedMermaidModes)
+        {
+            bundle.AddCitation(
+                InfraEvidenceAskCitationKinds.DiagramViewPlan,
+                mode,
+                mode,
+                $"allowedMode={mode}");
+        }
+
+        if (request.CloudResourceId.HasValue && request.CloudResourceId.Value != Guid.Empty)
+        {
+            CloudResourceEvidenceHubQuery hubQuery = new()
+            {
+                RunId = request.RunId,
+                SnapshotId = request.SnapshotId,
+                AssessmentId = request.AssessmentId,
+                AuditEvidenceSnapshotId = request.AuditEvidenceSnapshotId,
+                ControlId = request.ControlId,
+                Page = 1,
+                PageSize = 50,
+            };
+
+            CloudResourceEvidenceHubQueryResult hubResult = await hubService.TryGetHubAsync(
+                scope,
+                request.CloudResourceId.Value,
+                hubQuery,
+                cancellationToken);
+
+            if (hubResult.Succeeded && hubResult.Hub is not null)
+            {
+                string externalResourceId = hubResult.Hub.ExternalResourceId;
+
+                if (!string.IsNullOrWhiteSpace(externalResourceId))
+                {
+                    bundle.EvidenceLines.Add($"outlineSeed={externalResourceId}");
+                    bundle.AddCitation(
+                        InfraEvidenceAskCitationKinds.CloudResourceId,
+                        request.CloudResourceId.Value.ToString("D"),
+                        externalResourceId,
+                        $"cloudResourceId={request.CloudResourceId.Value:D} externalResourceId={externalResourceId}");
+                }
+            }
         }
 
         return bundle;

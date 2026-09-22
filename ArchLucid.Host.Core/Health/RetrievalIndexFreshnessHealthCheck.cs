@@ -27,15 +27,16 @@ public sealed class RetrievalIndexFreshnessHealthCheck(
 
         if (summaries.Count == 0)
         {
-            if (IsStartupCorpusIndexingDisabled() || IsInMemoryVectorIndex())
+            if (IsStartupCorpusIndexingDisabled())
             {
                 return Task.FromResult(
-                    HealthCheckResult.Healthy(
-                        "Startup corpus indexing disabled or in-memory retrieval index; empty catalog is expected."));
+                    HealthCheckResult.Healthy("Startup corpus indexing disabled; empty catalog is expected."));
             }
 
+            // Leader-elected startup indexers only populate this process-local catalog on the elected replica.
             return Task.FromResult(
-                HealthCheckResult.Degraded("No retrieval corpus documents indexed in this process yet."));
+                HealthCheckResult.Healthy(
+                    "Startup corpus indexing enabled; no corpus indexed on this replica yet."));
         }
 
         string description = string.Join(
@@ -56,12 +57,5 @@ public sealed class RetrievalIndexFreshnessHealthCheck(
     private bool ReadIndexOnStartup(string sectionPath)
     {
         return _configuration.GetValue($"{sectionPath}:IndexOnStartup", true);
-    }
-
-    private bool IsInMemoryVectorIndex()
-    {
-        string? mode = _configuration["Retrieval:VectorIndex"];
-
-        return string.Equals(mode, "InMemory", StringComparison.OrdinalIgnoreCase);
     }
 }

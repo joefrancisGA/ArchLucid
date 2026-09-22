@@ -13,6 +13,7 @@ using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -34,11 +35,12 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [Route("v{version:apiVersion}/advisory")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class AdvisoryController(
+public sealed partial class AdvisoryController(
     IAdvisoryWorkflowFacade advisoryWorkflowFacade,
     IScopeContextProvider scopeProvider,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IRecommendationRepository recommendationRepository,
     IAuditService auditService,
     ILogger<AdvisoryController> logger) : ControllerBase
 {
@@ -69,31 +71,38 @@ public sealed class AdvisoryController(
         [FromQuery] Guid? compareToRunId = null,
         CancellationToken ct = default)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        if (compareToRunId is Guid compareRunId)
+        try
         {
-            IActionResult? compareGuardResult = await EnsureSealedManifestReadAllowedAsync(compareRunId, ct);
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
 
-            if (compareGuardResult is not null)
-                return compareGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            if (compareToRunId is Guid compareRunId)
+            {
+                IActionResult? compareGuardResult = await EnsureSealedManifestReadAllowedAsync(compareRunId, ct);
+
+                if (compareGuardResult is not null)
+                    return compareGuardResult;
+            }
+
+            ImprovementsPlanLoadResult result =
+                await _advisoryWorkflowFacade.GetImprovementsAsync(runId, compareToRunId, ct);
+
+            return result.Outcome switch
+            {
+                ImprovementsPlanLoadOutcome.Success when result.Plan is not null => await CompleteImprovementsAsync(result, ct),
+                ImprovementsPlanLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
+                ImprovementsPlanLoadOutcome.ManifestNotFound => this.NotFoundProblem($"Run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
+                ImprovementsPlanLoadOutcome.ComparisonRunNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
+                ImprovementsPlanLoadOutcome.ComparisonManifestNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
+                _ => throw new InvalidOperationException($"Unexpected improvements load outcome: {result.Outcome}."),
+            };
         }
-
-        ImprovementsPlanLoadResult result =
-            await _advisoryWorkflowFacade.GetImprovementsAsync(runId, compareToRunId, ct);
-
-        return result.Outcome switch
+        catch (ConflictException ex)
         {
-            ImprovementsPlanLoadOutcome.Success when result.Plan is not null => await CompleteImprovementsAsync(result, ct),
-            ImprovementsPlanLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
-            ImprovementsPlanLoadOutcome.ManifestNotFound => this.NotFoundProblem($"Run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
-            ImprovementsPlanLoadOutcome.ComparisonRunNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
-            ImprovementsPlanLoadOutcome.ComparisonManifestNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
-            _ => throw new InvalidOperationException($"Unexpected improvements load outcome: {result.Outcome}."),
-        };
+            return MapAdvisorySealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("runs/{runId:guid}/recommendations")]
@@ -101,17 +110,25 @@ public sealed class AdvisoryController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRecommendations(Guid runId, CancellationToken ct = default)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        AdvisoryRecommendationsListResult result = await _advisoryWorkflowFacade.ListRecommendationsAsync(runId, ct);
-        return Ok(new AdvisoryRunRecommendationsListResponse
+        try
         {
-            Recommendations = result.Recommendations.Select(ToRecordResponse).ToList(),
-            ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(result.ImproveLoopEvidenceJson),
-        });
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            AdvisoryRecommendationsListResult result = await _advisoryWorkflowFacade.ListRecommendationsAsync(runId, ct);
+
+            return Ok(new AdvisoryRunRecommendationsListResponse
+            {
+                Recommendations = result.Recommendations.Select(ToRecordResponse).ToList(),
+                ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(result.ImproveLoopEvidenceJson),
+            });
+        }
+        catch (ConflictException ex)
+        {
+            return MapAdvisorySealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -129,6 +146,12 @@ public sealed class AdvisoryController(
         if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         if (!IsKnownRecommendationAction(request.Action)) return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
 
+        IActionResult? sealedGuardResult =
+            await EnsureAdvisoryApplySealedManifestAllowedAsync(recommendationId, request, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         string userName = User.Identity?.Name ?? "unknown";
 
@@ -145,7 +168,7 @@ public sealed class AdvisoryController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAdvisorySealedManifestConflict(ex);
         }
 
         if (result.Outcome is ApplyRecommendationActionOutcome.NotFound)
@@ -191,28 +214,4 @@ public sealed class AdvisoryController(
         ReviewComment = r.ReviewComment, ResolutionRationale = r.ResolutionRationale,         SourceEvidenceLinks = RecommendationSourceEvidenceLinksBuilder.Build(r).ToList(),
     };
 
-    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
-        Guid runId,
-        CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.GoldenManifest is null)
-            return null;
-
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                _manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        return null;
-    }
 }

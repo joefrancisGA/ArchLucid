@@ -11,7 +11,7 @@ import { findingMergeConflictBlockedReason } from "@/lib/findings/finding-merge-
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-import { showError, showSuccess } from "@/lib/toast";
+import { showMutationError, showSuccess } from "@/lib/toast";
 
 export type FindingMergeConflictResolvePanelProps = {
   readonly runId: string;
@@ -34,7 +34,7 @@ export function FindingMergeConflictResolvePanel(
       } catch (error) {
         const failure = toApiLoadFailure(error);
         const blockedReason = findingMergeConflictBlockedReason(failure);
-        showError(
+        showMutationError(
           "Merge conflict",
           blockedReason ?? (error instanceof Error ? error.message : "Resolution failed."),
         );

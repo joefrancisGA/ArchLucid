@@ -14,7 +14,7 @@ import {
   resolveWorkingDeskToolHref,
   type WorkingDeskTool,
 } from "@/lib/resolve-working-desk-tool-href";
-import { useWorkingStartHref } from "@/hooks/use-working-start-href";
+import { useWorkingCreateStartHref } from "@/hooks/use-working-start-href";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 
@@ -37,7 +37,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
   const onHelpRequested = options.onHelpRequested;
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
-  const workingStartHref = useWorkingStartHref();
+  const workingCreateStartHref = useWorkingCreateStartHref();
   const { productLine, assignmentOverrides } = useProductLine();
 
   const map: KeyboardShortcutsMap = useMemo(() => {
@@ -62,7 +62,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
 
         let route =
           workingMode && entry.key === "alt+n"
-            ? workingStartHref
+            ? workingCreateStartHref
             : workingMode && entry.key === "alt+r"
               ? workingAltRHref
               : entry.route;
@@ -103,7 +103,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
     }
 
     return next;
-  }, [assignmentOverrides, onHelpRequested, pathname, productLine, router, workingMode, workingStartHref]);
+  }, [assignmentOverrides, onHelpRequested, pathname, productLine, router, workingMode, workingCreateStartHref]);
 
   useKeyboardShortcuts(map);
 

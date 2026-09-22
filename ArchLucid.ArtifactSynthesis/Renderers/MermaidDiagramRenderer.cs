@@ -1,7 +1,10 @@
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Sanitization;
 
 namespace ArchLucid.ArtifactSynthesis.Renderers;
 
@@ -14,7 +17,25 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         ArgumentNullException.ThrowIfNull(ast);
 
         StringBuilder sb = new();
-        sb.AppendLine("flowchart TD");
+        sb.AppendLine($"flowchart {ResolveFlowchartDirection(ast)}");
+
+        foreach (string captionLine in ast.CaptionLines)
+        {
+            if (!string.IsNullOrWhiteSpace(captionLine))
+            {
+                sb.AppendLine($"    %% {captionLine}");
+            }
+        }
+
+        if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
+        {
+            sb.AppendLine($"    %% {InventoryDiagramResourceGroupMapBuilder.ViewMarker}");
+        }
+
+        if (InventoryDiagramBackboneArmTypes.TitleMarksBackboneKeep(ast.Title))
+        {
+            sb.AppendLine($"    %% {InventoryDiagramBackboneArmTypes.ViewMarker}");
+        }
 
         if (ast.Subgraphs.Count == 0)
         {
@@ -102,24 +123,143 @@ public class MermaidDiagramRenderer : IDiagramRenderer
     {
         string indentText = new(' ', indent * 4);
         string safeNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
-        string safeLabel = EscapeLabel(node.Label);
+        string safeLabel = EscapeLabel(DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText);
+        string metadataComment = BuildInventoryNodeMetadataComment(node);
+
+        if (!string.IsNullOrEmpty(metadataComment))
+        {
+            // Mermaid flowcharts only strip %% comments that start a line. An inline
+            // comment after id["label"] is lexed as NODE_STRING and fails parse.
+            sb.AppendLine($"{indentText}{metadataComment}");
+        }
+
         sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"]");
+    }
+
+    private static string BuildInventoryNodeMetadataComment(DiagramNode node)
+    {
+        List<string> tokens = [];
+
+        if (!string.IsNullOrWhiteSpace(node.ArmResourceType))
+        {
+            tokens.Add($"al-type={QuoteMetadataValue(node.ArmResourceType)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ArmResourceGroup))
+        {
+            tokens.Add($"al-rg={QuoteMetadataValue(node.ArmResourceGroup)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.SeedNodeId))
+        {
+            tokens.Add($"al-seed={QuoteMetadataValue(node.SeedNodeId)}");
+        }
+
+        if (tokens.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return $"%% {string.Join(' ', tokens)}";
+    }
+
+    private static string QuoteMetadataValue(string value)
+    {
+        string trimmed = value.Trim();
+
+        if (trimmed.Length == 0)
+        {
+            return "\"\"";
+        }
+
+        if (!trimmed.Contains('"', StringComparison.Ordinal) && !trimmed.Contains(' ', StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        return "\"" + trimmed.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
     }
 
     private static void AppendEdges(DiagramAst ast, StringBuilder sb)
     {
         foreach (DiagramEdge edge in ast.Edges)
         {
-            string safeLabel = EscapeLabel(edge.Label);
             string fromId = MermaidIdSanitizer.Sanitize(edge.FromNodeId);
             string toId = MermaidIdSanitizer.Sanitize(edge.ToNodeId);
-            sb.AppendLine($"    {fromId} -->|\"{safeLabel}\"| {toId}");
+
+            if (edge.IsLayoutOnly)
+            {
+                // Mermaid invisible link — steers dagre ranks without drawing an arrow.
+                sb.AppendLine($"    {fromId} ~~~ {toId}");
+                continue;
+            }
+
+            string metadataComment = BuildInventoryEdgeMetadataComment(edge);
+
+            if (!string.IsNullOrEmpty(metadataComment))
+            {
+                sb.AppendLine($"    {metadataComment}");
+            }
+
+            string safeLabel = EscapeLabel(edge.Label);
+            string arrowToken = ResolveVisibleEdgeArrowToken(edge);
+
+            if (string.IsNullOrWhiteSpace(safeLabel))
+            {
+                sb.AppendLine($"    {fromId} {arrowToken} {toId}");
+            }
+            else
+            {
+                sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
+            }
         }
+    }
+
+    private static string ResolveVisibleEdgeArrowToken(DiagramEdge edge)
+    {
+        DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
+
+        if (visualKind is DiagramEdgeVisualKind.Declared
+            or DiagramEdgeVisualKind.Probable
+            or DiagramEdgeVisualKind.AiInferred
+            or DiagramEdgeVisualKind.Inferred)
+        {
+            return "-.->";
+        }
+
+        return "-->";
+    }
+
+    private static string BuildInventoryEdgeMetadataComment(DiagramEdge edge)
+    {
+        List<string> tokens = [];
+
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        {
+            tokens.Add($"al-provenance={QuoteMetadataValue(edge.ProvenanceKind)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(edge.InferenceSource))
+        {
+            tokens.Add($"al-inference={QuoteMetadataValue(edge.InferenceSource)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(edge.DeclaredConnectionId))
+        {
+            tokens.Add($"al-declared-id={QuoteMetadataValue(edge.DeclaredConnectionId)}");
+        }
+
+        if (tokens.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return $"%% {string.Join(' ', tokens)}";
     }
 
     internal static string EscapeLabel(string label)
     {
-        return label
+        return LlmArtifactFreeTextSanitizer.Sanitize(label)
             .Replace("\r\n", " ", StringComparison.Ordinal)
             .Replace('\n', ' ')
             .Replace('\r', ' ')
@@ -127,5 +267,17 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             .Replace("[", "#91;", StringComparison.Ordinal)
             .Replace("]", "#93;", StringComparison.Ordinal)
             .Replace("|", "#124;", StringComparison.Ordinal);
+    }
+
+    private static string ResolveFlowchartDirection(DiagramAst ast)
+    {
+        ArgumentNullException.ThrowIfNull(ast);
+
+        if (string.Equals(ast.FlowchartDirection, "LR", StringComparison.OrdinalIgnoreCase))
+        {
+            return "LR";
+        }
+
+        return "TD";
     }
 }

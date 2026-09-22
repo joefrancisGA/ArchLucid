@@ -24,6 +24,7 @@ import {
   parseDigestsTechnicalDetailsOpenFromSearch,
 } from "@/lib/digests/digests-browse-disclosure-url";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
@@ -184,6 +185,7 @@ export function DigestsBrowseDetailPanel({
               {DIGEST_EXPORT_ACTION_LABEL}
             </Button>
           </div>
+          <SponsorExportSendHonestyStrip testIdPrefix="digests-browse-export" />
 
           {previewOpen ? (
             <pre

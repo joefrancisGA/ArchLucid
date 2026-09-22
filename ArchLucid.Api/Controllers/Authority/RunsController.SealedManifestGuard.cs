@@ -29,7 +29,7 @@ public sealed partial class RunsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunsSealedManifestConflict(ex);
         }
 
         return null;
@@ -49,7 +49,16 @@ public sealed partial class RunsController
         if (runGuid is null)
             return null;
 
-        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runGuid.Value, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQuery.GetRunDetailAsync(scope, runGuid.Value, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -63,7 +72,7 @@ public sealed partial class RunsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunsSealedManifestConflict(ex);
         }
 
         return null;
@@ -74,7 +83,16 @@ public sealed partial class RunsController
         CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -88,9 +106,15 @@ public sealed partial class RunsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunsSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps architecture run create/read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapRunsSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

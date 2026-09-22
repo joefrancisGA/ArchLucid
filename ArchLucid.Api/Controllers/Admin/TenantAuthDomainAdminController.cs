@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
@@ -79,6 +80,10 @@ public sealed partial class TenantAuthDomainAdminController(
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

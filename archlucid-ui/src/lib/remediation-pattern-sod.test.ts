@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { canApproveRemediationPatternVersion } from "@/lib/remediation-pattern-sod";
+import {
+  canApproveRemediationPatternVersion,
+  remediationPatternApprovalBlockedReason,
+  remediationPatternSubmitBlockedReason,
+} from "@/lib/remediation-pattern-sod";
 import { REMEDIATION_PATTERN_STATUS } from "@/lib/remediation-pattern-status";
 import type { CurrentPrincipal } from "@/lib/current-principal";
 
@@ -40,5 +44,43 @@ describe("remediation-pattern-sod", () => {
     );
 
     expect(allowed).toBe(false);
+  });
+
+  it("blocks approval until pattern content is reviewed", () => {
+    const reason = remediationPatternApprovalBlockedReason(
+      {
+        versionId: "v1",
+        patternId: "p1",
+        version: "1.0.0",
+        status: REMEDIATION_PATTERN_STATUS.underReview,
+        controlObjective: "test",
+        authorActorKey: "jwt:tenant:other-oid",
+        createdUtc: new Date().toISOString(),
+        updatedUtc: new Date().toISOString(),
+      },
+      principal,
+      true,
+      false,
+    );
+
+    expect(reason).toMatch(/pattern content panel/i);
+  });
+
+  it("explains why Draft submit is blocked without execute authority", () => {
+    const reason = remediationPatternSubmitBlockedReason(
+      {
+        versionId: "v1",
+        patternId: "p1",
+        version: "1.0.0",
+        status: REMEDIATION_PATTERN_STATUS.draft,
+        controlObjective: "test",
+        authorActorKey: "jwt:tenant:same-oid",
+        createdUtc: new Date().toISOString(),
+        updatedUtc: new Date().toISOString(),
+      },
+      false,
+    );
+
+    expect(reason).toMatch(/execute authority/i);
   });
 });

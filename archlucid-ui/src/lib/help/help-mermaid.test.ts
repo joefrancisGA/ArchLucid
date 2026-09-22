@@ -1,9 +1,22 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
+  fitMermaidSvgElementToViewport,
   isMermaidDiagramSource,
+  isMermaidViewportPaintTooSmall,
+  mermaidViewportFitNeedsRetry,
+  MERMAID_VIEWPORT_MAX_HEIGHT_PX,
+  MERMAID_VIEWPORT_MIN_FIT_SCALE,
+  MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX,
   prepareMermaidSvgForResponsiveLayout,
+  readMermaidViewportFitBudget,
+  removeMermaidRenderBindElement,
+  queryInventoryDiagramInkElements,
+  queryInventoryDiagramResourceGroupFrameElements,
+  resolveMermaidInkViewBox,
+  resolveMermaidNodeUnionViewBox,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
 
@@ -26,6 +39,27 @@ describe("help-mermaid", () => {
 
   it("sanitizes render ids", () => {
     expect(sanitizeMermaidRenderId(":r1:help-mermaid-1")).toBe("r1help-mermaid-1");
+  });
+
+  it("removes mermaid bind and error nodes left on document.body", () => {
+    const bind = document.createElement("div");
+    bind.id = "darch-diagram-r1";
+    const iframe = document.createElement("iframe");
+    iframe.id = "iarch-diagram-r1";
+    const errorSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    errorSvg.id = "arch-diagram-r1";
+    document.body.appendChild(bind);
+    document.body.appendChild(iframe);
+    document.body.appendChild(errorSvg);
+
+    removeMermaidRenderBindElement("  ");
+    expect(document.getElementById("darch-diagram-r1")).not.toBeNull();
+    expect(document.getElementById("iarch-diagram-r1")).not.toBeNull();
+
+    removeMermaidRenderBindElement("arch-diagram-r1");
+    expect(document.getElementById("darch-diagram-r1")).toBeNull();
+    expect(document.getElementById("iarch-diagram-r1")).toBeNull();
+    expect(document.getElementById("arch-diagram-r1")).toBeNull();
   });
 
   it("makes Mermaid SVG fill the container width", () => {
@@ -79,10 +113,608 @@ describe("help-mermaid", () => {
 
     expect(svg.getAttribute("viewBox")).toBe("0 10 120 60");
     expect(svg.getAttribute("width")).toBe("500");
-    expect(svg.getAttribute("height")).toBe("250");
+    expect(svg.getAttribute("height")).toBe("280");
     expect(svg.style.width).toBe("500px");
-    expect(svg.style.height).toBe("250px");
+    expect(svg.style.height).toBe("280px");
 
     svg.remove();
+  });
+
+  it("uses parent g.nodes bounds instead of unmapped local .node boxes", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const nodesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    nodesGroup.setAttribute("class", "nodes");
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    node.setAttribute("class", "node");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    node.appendChild(rect);
+    nodesGroup.appendChild(node);
+    svg.appendChild(nodesGroup);
+    document.body.appendChild(svg);
+
+    const localNode = node as SVGGraphicsElement;
+    localNode.getScreenCTM = () => null;
+    localNode.getBBox = () =>
+      ({
+        x: -40,
+        y: -14,
+        width: 80,
+        height: 28,
+        top: -14,
+        right: 40,
+        bottom: 14,
+        left: -40,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const parentGroup = nodesGroup as SVGGraphicsElement;
+    parentGroup.getBBox = () =>
+      ({
+        x: 360,
+        y: 70,
+        width: 180,
+        height: 48,
+        top: 70,
+        right: 540,
+        bottom: 118,
+        left: 360,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    fitMermaidSvgElementToHost(svg, 500, 10);
+
+    expect(svg.getAttribute("viewBox")).toBe("350 60 200 68");
+
+    svg.remove();
+  });
+
+  it("keeps the source viewBox when g.node mapping is incomplete", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 1128 208");
+    svg.setAttribute("data-al-source-viewbox", "0 0 1128 208");
+
+    for (let index = 0; index < 11; index += 1) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      node.setAttribute("class", "node");
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      node.appendChild(rect);
+      svg.appendChild(node);
+
+      const graphics = node as SVGGraphicsElement;
+      graphics.getScreenCTM = () => null;
+      graphics.getBBox = () =>
+        ({
+          x: -136,
+          y: -21,
+          width: 273,
+          height: 43,
+          top: -21,
+          right: 137,
+          bottom: 22,
+          left: -136,
+          toJSON: () => ({}),
+        }) as DOMRect;
+    }
+
+    document.body.appendChild(svg);
+
+    fitMermaidSvgElementToViewport(svg, 1180, 576, 12);
+
+    expect(svg.getAttribute("viewBox")).toBe("0 0 1128 208");
+
+    svg.remove();
+  });
+
+  it("crops the owner export plate to the mapped node union, not the unmapped origin box", () => {
+    const source = new DOMRect(0, 0, 1128, 208);
+    const mappedUnion = new DOMRect(13, 8, 1112, 192);
+    const unmappedOrigin = new DOMRect(-136, -21, 273, 43);
+
+    const resolved = resolveMermaidNodeUnionViewBox(source, mappedUnion, 11, 11, 12);
+
+    expect(resolved?.x).toBe(1);
+    expect(resolved?.y).toBe(-4);
+    expect(resolved?.width).toBe(1136);
+    expect(resolved?.height).toBe(216);
+    expect(resolved?.width).toBeGreaterThan(unmappedOrigin.width + 24);
+    expect(resolved?.height).toBeGreaterThan(unmappedOrigin.height + 24);
+  });
+
+  it("keeps a stable fit budget when the viewport client height is collapsed", () => {
+    const viewport = document.createElement("div");
+    viewport.style.width = "1000px";
+    viewport.style.maxHeight = "36rem";
+    viewport.style.padding = "16px";
+    Object.defineProperty(viewport, "clientWidth", { configurable: true, value: 1000 });
+    Object.defineProperty(viewport, "clientHeight", { configurable: true, value: 48 });
+    document.body.appendChild(viewport);
+
+    const budget = readMermaidViewportFitBudget(viewport);
+
+    expect(budget.heightPx).toBeGreaterThanOrEqual(MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX);
+    expect(budget.heightPx).toBeLessThanOrEqual(MERMAID_VIEWPORT_MAX_HEIGHT_PX);
+
+    viewport.remove();
+  });
+
+  it("does not re-crop viewBox on a second viewport contain-fit pass", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("width", "100");
+    rect.setAttribute("height", "100");
+    group.appendChild(rect);
+    svg.appendChild(group);
+    document.body.appendChild(svg);
+
+    const graphics = group as SVGGraphicsElement;
+    graphics.getBBox = () =>
+      ({
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
+        top: 0,
+        right: 100,
+        bottom: 100,
+        left: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    fitMermaidSvgElementToViewport(svg, 400, 400, 10);
+    const firstViewBox = svg.getAttribute("viewBox");
+
+    fitMermaidSvgElementToViewport(svg, 200, 200, 10);
+
+    expect(svg.getAttribute("viewBox")).toBe(firstViewBox);
+    expect(Number(svg.getAttribute("height"))).toBeLessThanOrEqual(200);
+
+    svg.remove();
+  });
+
+  it("uses a stable height fallback when ink bbox is unavailable in viewport fit", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    document.body.appendChild(svg);
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 800, 360, 10);
+
+    expect(baseFit).not.toBeNull();
+    expect(baseFit?.inkMeasured).toBe(false);
+    expect(Number(svg.getAttribute("height"))).toBeGreaterThanOrEqual(MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX);
+    expect(svg.style.height).not.toBe("auto");
+
+    svg.remove();
+  });
+
+  it("preserves Mermaid source viewBox for later authoritative crop", () => {
+    const prepared = prepareMermaidSvgForResponsiveLayout(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1144 322" width="1144" height="322"></svg>',
+    );
+
+    expect(prepared).toContain('data-al-source-viewbox="0 0 1144 322"');
+  });
+
+  it("resolveMermaidInkViewBox rejects measured boxes that clip rows or columns", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const measured = new DOMRect(119.31, 54.5, 865.58, 205.75);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(0);
+    expect(resolved?.y).toBe(0);
+    expect(resolved?.width).toBe(1144);
+    expect(resolved?.height).toBe(322);
+  });
+
+  it("resolveMermaidInkViewBox tightens a padded canvas to measured node ink", () => {
+    const source = new DOMRect(0, 0, 4000, 3000);
+    const measured = new DOMRect(1200, 900, 1500, 1100);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(1188);
+    expect(resolved?.y).toBe(888);
+    expect(resolved?.width).toBe(1524);
+    expect(resolved?.height).toBe(1124);
+  });
+
+  it("resolveMermaidInkViewBox tightens a grid whose source viewBox matches node ink", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const measured = new DOMRect(12, 24, 1100, 280);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(0);
+    expect(resolved?.y).toBe(12);
+    expect(resolved?.width).toBe(1124);
+    expect(resolved?.height).toBe(304);
+  });
+
+  it("resolveMermaidNodeUnionViewBox tightens ink on the right of a padded plate", () => {
+    const source = new DOMRect(0, 0, 4000, 800);
+    const nodeUnion = new DOMRect(2800, 40, 900, 120);
+
+    const resolved = resolveMermaidNodeUnionViewBox(source, nodeUnion, 11, 11, 12);
+
+    expect(resolved?.x).toBe(2788);
+    expect(resolved?.y).toBe(28);
+    expect(resolved?.width).toBe(924);
+    expect(resolved?.height).toBe(144);
+  });
+
+  it("resolveMermaidNodeUnionViewBox keeps source when the node union is incomplete", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const nodeUnion = new DOMRect(119.31, 54.5, 865.58, 205.75);
+
+    const resolved = resolveMermaidNodeUnionViewBox(source, nodeUnion, 10, 11, 12);
+
+    expect(resolved).toBe(source);
+  });
+
+  it("resolveMermaidNodeUnionViewBox keeps source when the union extends outside it", () => {
+    const source = new DOMRect(0, 0, 400, 200);
+    const nodeUnion = new DOMRect(350, 10, 120, 80);
+
+    const resolved = resolveMermaidNodeUnionViewBox(source, nodeUnion, 3, 3, 12);
+
+    expect(resolved).toBe(source);
+  });
+
+  it("crops viewport fit to a clustered node union inside a huge source viewBox", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 4000 800");
+    svg.setAttribute("data-al-source-viewbox", "0 0 4000 800");
+
+    const identityMatrix = {
+      a: 1,
+      b: 0,
+      c: 0,
+      d: 1,
+      e: 0,
+      f: 0,
+      inverse: () => identityMatrix,
+      multiply: () => identityMatrix,
+    };
+
+    for (let index = 0; index < 11; index += 1) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "node");
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      const x = 2800 + (index % 4) * 100;
+      const y = 40 + Math.floor(index / 4) * 50;
+      rect.setAttribute("x", String(x));
+      rect.setAttribute("y", String(y));
+      rect.setAttribute("width", "80");
+      rect.setAttribute("height", "30");
+      group.appendChild(rect);
+      svg.appendChild(group);
+
+      const graphics = group as SVGGraphicsElement;
+      graphics.getScreenCTM = () => identityMatrix as DOMMatrix;
+      graphics.getBBox = () =>
+        ({
+          x,
+          y,
+          width: 80,
+          height: 30,
+          top: y,
+          right: x + 80,
+          bottom: y + 30,
+          left: x,
+          toJSON: () => ({}),
+        }) as DOMRect;
+    }
+
+    document.body.appendChild(svg);
+
+    svg.getScreenCTM = () => identityMatrix as DOMMatrix;
+    svg.createSVGPoint = () =>
+      ({
+        x: 0,
+        y: 0,
+        matrixTransform(matrix: DOMMatrix) {
+          return { x: this.x, y: this.y };
+        },
+      }) as SVGPoint;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 1166, 558, 12);
+
+    expect(baseFit).not.toBeNull();
+    expect(baseFit?.fitScale).toBeGreaterThan(0.7);
+    expect(svg.getAttribute("viewBox")).not.toBe("0 0 4000 800");
+    expect(svg.getAttribute("viewBox")?.startsWith("2788 28")).toBe(true);
+
+    svg.remove();
+  });
+
+  it("fits the owner export using mapped node union rather than a 273x43 origin crop", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 1128 208");
+    svg.setAttribute("data-al-source-viewbox", "0 0 1128 208");
+
+    const identityMatrix = {
+      a: 1,
+      b: 0,
+      c: 0,
+      d: 1,
+      e: 0,
+      f: 0,
+      inverse: () => identityMatrix,
+      multiply: () => identityMatrix,
+    };
+
+    const mappedBoxes = [
+      { x: 13, y: 8, w: 240, h: 48 },
+      { x: 280, y: 8, w: 240, h: 48 },
+      { x: 547, y: 8, w: 240, h: 48 },
+      { x: 814, y: 8, w: 311, h: 48 },
+      { x: 13, y: 72, w: 240, h: 48 },
+      { x: 280, y: 72, w: 240, h: 48 },
+      { x: 547, y: 72, w: 240, h: 48 },
+      { x: 814, y: 72, w: 311, h: 48 },
+      { x: 13, y: 136, w: 240, h: 64 },
+      { x: 280, y: 136, w: 240, h: 64 },
+      { x: 547, y: 136, w: 240, h: 64 },
+    ];
+
+    for (const box of mappedBoxes) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "node");
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", String(box.x));
+      rect.setAttribute("y", String(box.y));
+      rect.setAttribute("width", String(box.w));
+      rect.setAttribute("height", String(box.h));
+      group.appendChild(rect);
+      svg.appendChild(group);
+
+      const graphics = group as SVGGraphicsElement;
+      graphics.getScreenCTM = () => identityMatrix as DOMMatrix;
+      graphics.getBBox = () =>
+        ({
+          x: box.x,
+          y: box.y,
+          width: box.w,
+          height: box.h,
+          top: box.y,
+          right: box.x + box.w,
+          bottom: box.y + box.h,
+          left: box.x,
+          toJSON: () => ({}),
+        }) as DOMRect;
+    }
+
+    document.body.appendChild(svg);
+    svg.getScreenCTM = () => identityMatrix as DOMMatrix;
+    svg.createSVGPoint = () =>
+      ({
+        x: 0,
+        y: 0,
+        matrixTransform() {
+          return { x: this.x, y: this.y };
+        },
+      }) as SVGPoint;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 1180, 576, 12);
+
+    expect(baseFit).not.toBeNull();
+    expect(svg.getAttribute("viewBox")).toBe("1 -4 1136 216");
+    expect(svg.getAttribute("viewBox")).not.toContain("273");
+
+    svg.remove();
+  });
+
+  it("contains tall narrow ink using the legibility floor and allows overflow scroll", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", "0");
+    rect.setAttribute("y", "0");
+    rect.setAttribute("width", "200");
+    rect.setAttribute("height", "900");
+    group.appendChild(rect);
+    svg.appendChild(group);
+    document.body.appendChild(svg);
+
+    const graphics = group as SVGGraphicsElement;
+    graphics.getBBox = () =>
+      ({
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 900,
+        top: 0,
+        right: 200,
+        bottom: 900,
+        left: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 1000, 360, 10);
+
+    expect(baseFit).not.toBeNull();
+    expect(baseFit?.inkMeasured).toBe(true);
+    expect(baseFit?.fitScale).toBe(MERMAID_VIEWPORT_MIN_FIT_SCALE);
+    expect(baseFit?.overflows).toBe(true);
+    expect(Number(svg.getAttribute("height"))).toBeGreaterThan(360);
+    expect(svg.style.maxWidth).toBe("none");
+
+    svg.remove();
+  });
+
+  it("applies layout-affecting zoom on top of a viewport contain-fit", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("width", "100");
+    rect.setAttribute("height", "100");
+    group.appendChild(rect);
+    svg.appendChild(group);
+    document.body.appendChild(svg);
+
+    const graphics = group as SVGGraphicsElement;
+    graphics.getBBox = () =>
+      ({
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
+        top: 0,
+        right: 100,
+        bottom: 100,
+        left: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 400, 400, 10);
+
+    expect(baseFit).not.toBeNull();
+
+    applyMermaidSvgViewportZoom(svg, baseFit!, 2);
+
+    expect(svg.getAttribute("width")).toBe(String(baseFit!.baseWidthPx * 2));
+    expect(svg.getAttribute("height")).toBe(String(baseFit!.baseHeightPx * 2));
+    expect(svg.style.maxWidth).toBe("none");
+
+    svg.remove();
+  });
+
+  it("includes resource-group frames in inventory ink queries", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    node.setAttribute("class", "node");
+    const nodeRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    nodeRect.setAttribute("x", "100");
+    nodeRect.setAttribute("y", "80");
+    nodeRect.setAttribute("width", "120");
+    nodeRect.setAttribute("height", "48");
+    node.appendChild(nodeRect);
+    svg.appendChild(node);
+
+    const frame = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    frame.setAttribute("class", "rg-frame");
+    const frameRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    frameRect.setAttribute("class", "rg-frame-plate");
+    frameRect.setAttribute("x", "80");
+    frameRect.setAttribute("y", "60");
+    frameRect.setAttribute("width", "180");
+    frameRect.setAttribute("height", "90");
+    frame.appendChild(frameRect);
+    svg.appendChild(frame);
+
+    expect(queryInventoryDiagramResourceGroupFrameElements(svg)).toHaveLength(1);
+    expect(queryInventoryDiagramInkElements(svg)).toHaveLength(2);
+  });
+
+  it("viewport fit crop includes resource-group frame ink outside node cards", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 400 300");
+    svg.setAttribute("data-al-source-viewbox", "0 0 400 300");
+
+    const identityMatrix = {
+      a: 1,
+      b: 0,
+      c: 0,
+      d: 1,
+      e: 0,
+      f: 0,
+      inverse: () => identityMatrix,
+      multiply: () => identityMatrix,
+    };
+
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    node.setAttribute("class", "node");
+    const nodeRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    nodeRect.setAttribute("x", "120");
+    nodeRect.setAttribute("y", "100");
+    nodeRect.setAttribute("width", "120");
+    nodeRect.setAttribute("height", "48");
+    node.appendChild(nodeRect);
+    svg.appendChild(node);
+
+    const frame = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    frame.setAttribute("class", "rg-frame");
+    const frameRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    frameRect.setAttribute("class", "rg-frame-plate");
+    frameRect.setAttribute("x", "80");
+    frameRect.setAttribute("y", "70");
+    frameRect.setAttribute("width", "200");
+    frameRect.setAttribute("height", "110");
+    frame.appendChild(frameRect);
+    svg.appendChild(frame);
+
+    const bindBBox = (element: SVGGraphicsElement, box: DOMRect) => {
+      element.getScreenCTM = () => identityMatrix as DOMMatrix;
+      element.getBBox = () => box;
+    };
+
+    bindBBox(node as SVGGraphicsElement, {
+      x: 120,
+      y: 100,
+      width: 120,
+      height: 48,
+      top: 100,
+      right: 240,
+      bottom: 148,
+      left: 120,
+      toJSON: () => ({}),
+    } as DOMRect);
+    bindBBox(frame as SVGGraphicsElement, {
+      x: 80,
+      y: 70,
+      width: 200,
+      height: 110,
+      top: 70,
+      right: 280,
+      bottom: 180,
+      left: 80,
+      toJSON: () => ({}),
+    } as DOMRect);
+
+    document.body.appendChild(svg);
+    svg.getScreenCTM = () => identityMatrix as DOMMatrix;
+    svg.createSVGPoint = () =>
+      ({
+        x: 0,
+        y: 0,
+        matrixTransform() {
+          return { x: this.x, y: this.y };
+        },
+      }) as SVGPoint;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 360, 240, 12);
+
+    expect(baseFit).not.toBeNull();
+    expect(svg.getAttribute("viewBox")).not.toBe("0 0 400 300");
+    expect(svg.getAttribute("viewBox")?.startsWith("68 ")).toBe(true);
+
+    svg.remove();
+  });
+
+  it("treats null viewport fit as unpainted ink", () => {
+    expect(isMermaidViewportPaintTooSmall(null, 1)).toBe(true);
+    expect(mermaidViewportFitNeedsRetry(null)).toBe(true);
+  });
+
+  it("treats a large unmeasured viewport as unpainted ink", () => {
+    expect(
+      isMermaidViewportPaintTooSmall(
+        { baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false },
+        1,
+      ),
+    ).toBe(true);
+    expect(
+      mermaidViewportFitNeedsRetry({ baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false }),
+    ).toBe(true);
+  });
+
+  it("treats tiny fitted ink height as unpainted", () => {
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20, inkMeasured: true }, 1)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 15, inkMeasured: true }, 1.5)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20, inkMeasured: true }, 1.5)).toBe(false);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 24, inkMeasured: true }, 1)).toBe(false);
+    expect(
+      mermaidViewportFitNeedsRetry({ baseWidthPx: 100, baseHeightPx: 24, inkMeasured: true }),
+    ).toBe(false);
   });
 });

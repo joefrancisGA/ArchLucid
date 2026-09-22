@@ -211,6 +211,7 @@ export function useRunsDashboardTabs({
     return deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: filterTenantOverviewRuns(homeAttentionPreviewItems),
+      runsDashboardTotalCount: loadedTotalCount,
       excludeShowcaseRunId,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
@@ -224,6 +225,7 @@ export function useRunsDashboardTabs({
     filteredItems,
     hideHeading,
     homeAttentionPreviewItems,
+    loadedTotalCount,
     phase,
     showcaseDemoRun,
   ]);
@@ -259,6 +261,7 @@ export function useRunsDashboardTabs({
     const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
+      runsDashboardTotalCount: loadedTotalCount,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
     });
@@ -283,6 +286,7 @@ export function useRunsDashboardTabs({
     awaitingApprovalRunIds,
     displayItems,
     hideHeading,
+    loadedTotalCount,
     phase,
     promotedAttentionKind,
     sampleReviewsVisible,
@@ -297,10 +301,11 @@ export function useRunsDashboardTabs({
     return deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
+      runsDashboardTotalCount: loadedTotalCount,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
     }).metrics;
-  }, [awaitingApprovalCount, awaitingApprovalRunIds, displayItems, phase]);
+  }, [awaitingApprovalCount, awaitingApprovalRunIds, displayItems, loadedTotalCount, phase]);
 
   const recentReviewsOutcomeOptions = useMemo(() => {
     if (phase !== "ready" && phase !== "error") {
@@ -314,6 +319,7 @@ export function useRunsDashboardTabs({
     const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
+      runsDashboardTotalCount: loadedTotalCount,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
     });
@@ -335,6 +341,7 @@ export function useRunsDashboardTabs({
     awaitingApprovalRunIds,
     displayItems,
     hideHeading,
+    loadedTotalCount,
     phase,
     promotedAttentionKind,
     sampleReviewsVisible,

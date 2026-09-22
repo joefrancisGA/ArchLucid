@@ -26,49 +26,44 @@ public sealed partial class ArchitectureIntelligenceController
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
+        try
         {
-            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
-        }
-
-        if (Guid.TryParse(runId, out Guid runGuid))
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
-
-            if (detail?.GoldenManifest is not null)
+            if (string.IsNullOrWhiteSpace(runId))
             {
-                try
-                {
-                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                        detail.GoldenManifest,
-                        runGuid.ToString("D"),
-                        _manifestHashService);
-                }
-                catch (ConflictException ex)
-                {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-                }
+                return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
             }
+
+            if (Guid.TryParse(runId, out Guid runGuid))
+            {
+                IActionResult? sealedGuardResult =
+                    await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =
+                await _productRunSourceContextLoader.LoadAsync(runId, cancellationToken);
+
+            if (!loaded.Found)
+            {
+                return this.NotFoundProblem(
+                    loaded.Error ?? "Product run was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            if (!loaded.HasContent || loaded.Request is null)
+            {
+                return this.BadRequestProblem(
+                    loaded.Error ?? "Product run has no loadable architecture content.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            return Ok(loaded.Request);
         }
-
-        ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =
-            await _productRunSourceContextLoader.LoadAsync(runId, cancellationToken);
-
-        if (!loaded.Found)
+        catch (ConflictException ex)
         {
-            return this.NotFoundProblem(
-                loaded.Error ?? "Product run was not found.",
-                ProblemTypes.RunNotFound);
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
         }
-
-        if (!loaded.HasContent || loaded.Request is null)
-        {
-            return this.BadRequestProblem(
-                loaded.Error ?? "Product run has no loadable architecture content.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        return Ok(loaded.Request);
     }
 }

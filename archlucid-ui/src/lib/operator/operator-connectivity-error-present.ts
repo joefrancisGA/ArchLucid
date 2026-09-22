@@ -4,12 +4,21 @@ import {
   type ApiConnectivityFailureKind,
 } from "@/lib/api-error-toast-policy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy, productLineDisplayName } from "@/lib/product-line/product-line-display-name";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 
 export const OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING = "Workspace data unavailable";
 
+/** @deprecated Prefer {@link operatorConnectivityErrorPrimaryBody} for product-line-aware copy. */
 export const OPERATOR_CONNECTIVITY_ERROR_PRIMARY_BODY =
   "ArchLucid could not reach the API service for this workspace. Retry the request, open troubleshooting, or review system health.";
+
+export function operatorConnectivityErrorPrimaryBody(productLineId: ProductLineId): string {
+  const productName = productLineDisplayName(productLineId);
+
+  return `${productName} could not reach the API service for this workspace. Retry the request, open troubleshooting, or review system health.`;
+}
 
 export const OPERATOR_CONNECTIVITY_CONFIG_HINT_GENERIC =
   "Verify API service status, network/proxy access, and configured API base URL.";
@@ -75,7 +84,10 @@ function resolveCause(message: string, problem: ApiProblemDetails | null): strin
   return "Unknown connectivity failure";
 }
 
-function resolveLocalDevConfigurationHint(problem: ApiProblemDetails | null): string | null {
+export function resolveOperatorConnectivityLocalDevConfigurationHint(
+  problem: ApiProblemDetails | null,
+  productLineId: ProductLineId,
+): string | null {
   if (process.env.NODE_ENV !== "development" || isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
@@ -83,10 +95,13 @@ function resolveLocalDevConfigurationHint(problem: ApiProblemDetails | null): st
   const supportHint = problem?.supportHint?.trim();
 
   if (supportHint !== undefined && supportHint.length > 0) {
-    return supportHint;
+    return localizeProductCopy(productLineId, supportHint);
   }
 
-  return "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.";
+  return localizeProductCopy(
+    productLineId,
+    "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.",
+  );
 }
 
 export function classifyOperatorConnectivityFailure(
@@ -101,6 +116,7 @@ export function classifyOperatorConnectivityFailure(
 
 export function resolveOperatorConnectivityTechnicalDetails(
   input: OperatorConnectivityPresentationInput,
+  productLineId: ProductLineId = "architecture",
 ): OperatorConnectivityTechnicalDetails | null {
   const kind = classifyOperatorConnectivityFailure(input);
 
@@ -114,7 +130,10 @@ export function resolveOperatorConnectivityTechnicalDetails(
     cause: resolveCause(input.message, input.problem),
     correlationId: ensureCorrelationId(input.correlationId ?? input.problem?.correlationId),
     configurationHint: OPERATOR_CONNECTIVITY_CONFIG_HINT_GENERIC,
-    localDevConfigurationHint: resolveLocalDevConfigurationHint(input.problem),
+    localDevConfigurationHint: resolveOperatorConnectivityLocalDevConfigurationHint(
+      input.problem,
+      productLineId,
+    ),
     errorCode: input.problem?.errorCode?.trim() ?? null,
     httpStatus: input.httpStatus ?? input.problem?.status ?? null,
     endpointLine: input.problem?.instance?.trim() ?? null,

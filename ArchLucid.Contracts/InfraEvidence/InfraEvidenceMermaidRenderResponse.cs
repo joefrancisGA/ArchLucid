@@ -43,4 +43,40 @@ public sealed class InfraEvidenceMermaidRenderResponse
         get;
         set;
     } = [];
+
+    public string? LayoutSvg
+    {
+        get;
+        set;
+    }
+
+    public string? LayoutEngine
+    {
+        get;
+        set;
+    }
+
+    public InfraEvidenceMermaidCollapseReport? CollapseReport
+    {
+        get;
+        set;
+    }
+
+    public InfraEvidenceMermaidIdentityDiagramHints? IdentityDiagramHints
+    {
+        get;
+        set;
+    }
+
+    public List<string> CompletenessWarnings
+    {
+        get;
+        set;
+    } = [];
+
+    public InfraEvidenceMermaidCompletenessSummary? CompletenessSummary
+    {
+        get;
+        set;
+    }
 }

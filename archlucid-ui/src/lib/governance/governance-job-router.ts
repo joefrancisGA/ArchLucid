@@ -13,19 +13,19 @@ import { DECISION_REGISTER_CANONICAL_PATH } from "@/lib/decision-register-eviden
 import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
 
 import {
-
   GOVERNANCE_APPROVAL_QUEUE_PATH,
-
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
-
 } from "@/lib/governance/governance-route-paths";
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
+  resolveGovernanceJobAssignedToMeWhenToUse,
+  resolveGovernanceJobRecordDecisionsWhenToUse,
+} from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 
+import {
   GOVERNANCE_APPROVAL_JOB_LABEL,
-
   GOVERNANCE_APPROVAL_JOB_WHEN_TO_USE,
-
 } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 
@@ -135,36 +135,28 @@ export const GOVERNANCE_JOB_RECORD_DECISIONS: GovernanceJobRouterOption = {
 
 
 /** Ordered chooser options (Approval queue, findings triage, assigned-to-me, then Decision register). */
-
-export function buildGovernanceJobRouterOptions(): readonly GovernanceJobRouterOption[] {
-
+export function buildGovernanceJobRouterOptions(
+  productLineId: ProductLineId = "architecture",
+): readonly GovernanceJobRouterOption[] {
   return [
-
     GOVERNANCE_JOB_APPROVE_GOVERNANCE,
-
     GOVERNANCE_JOB_TRIAGE_FINDINGS,
-
-    GOVERNANCE_JOB_ASSIGNED_TO_ME_FINDINGS,
-
-    GOVERNANCE_JOB_RECORD_DECISIONS,
-
+    {
+      ...GOVERNANCE_JOB_ASSIGNED_TO_ME_FINDINGS,
+      whenToUse: resolveGovernanceJobAssignedToMeWhenToUse(productLineId),
+    },
+    {
+      ...GOVERNANCE_JOB_RECORD_DECISIONS,
+      whenToUse: resolveGovernanceJobRecordDecisionsWhenToUse(productLineId),
+    },
   ];
-
 }
 
-
-
 /** Full router structure for the strip (heading + options). */
-
-export function getGovernanceJobRouter(): GovernanceJobRouter {
-
+export function getGovernanceJobRouter(productLineId: ProductLineId = "architecture"): GovernanceJobRouter {
   return {
-
     heading: GOVERNANCE_JOB_ROUTER_HEADING,
-
-    options: buildGovernanceJobRouterOptions(),
-
+    options: buildGovernanceJobRouterOptions(productLineId),
   };
-
 }
 

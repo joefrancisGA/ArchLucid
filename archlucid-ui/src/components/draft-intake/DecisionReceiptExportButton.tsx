@@ -1,13 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadRunDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-decision-receipt";
 import { downloadDraftDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-draft-decision-receipt";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type DecisionReceiptContext,
   resolveDecisionReceiptExportBlockedReason,
   triggerDecisionReceiptDownload,
 } from "@/lib/decision-receipt-export";
+import { decisionReceiptMutationBlockedReason } from "@/lib/runs/decision-receipt-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -24,6 +27,7 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   const runId = props.context.runId?.trim() ?? "";
   const draftId = props.context.draftId?.trim() ?? "";
   const citationBlockedReason = resolveDecisionReceiptExportBlockedReason(props.context);
+
   const sealedManifestBlockedReason =
     runId.length > 0
       ? runCollateralSealedManifestCopyBlockedReason({
@@ -34,7 +38,8 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   const exportBlockedReason = citationBlockedReason ?? sealedManifestBlockedReason;
 
   if (runId.length > 0) {
-    const exportBlocked = exportBlockedReason !== null;
+    const exportBlocked = sealedManifestBlockedReason !== null;
+
 
     return (
       <div className="flex flex-col gap-1">
@@ -50,10 +55,10 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
             }
 
             void downloadRunDecisionReceiptJson(runId).catch((error: unknown) => {
-              showError(
-                "Decision receipt",
-                error instanceof Error ? error.message : "Download failed.",
-              );
+              const failure = toApiLoadFailure(error);
+              const blocked = decisionReceiptMutationBlockedReason(failure);
+
+              showError("Decision receipt", blocked ?? failure.message);
             });
           }}
         >
@@ -68,29 +73,33 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
             {exportBlockedReason}
           </p>
         ) : null}
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="decision-receipt-export" />
       </div>
     );
   }
 
   if (draftId.length > 0) {
     return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled === true}
-        data-testid="decision-receipt-export"
-        onClick={() => {
-          void downloadDraftDecisionReceiptJson(draftId).catch((error: unknown) => {
-            showError(
-              "Decision receipt",
-              error instanceof Error ? error.message : "Download failed.",
-            );
-          });
-        }}
-      >
-        Download decision receipt (JSON)
-      </Button>
+      <div className="flex flex-col gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={props.disabled === true}
+          data-testid="decision-receipt-export"
+          onClick={() => {
+            void downloadDraftDecisionReceiptJson(draftId).catch((error: unknown) => {
+              showError(
+                "Decision receipt",
+                error instanceof Error ? error.message : "Download failed.",
+              );
+            });
+          }}
+        >
+          Download decision receipt (JSON)
+        </Button>
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="decision-receipt-export" />
+      </div>
     );
   }
 
@@ -117,6 +126,7 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
           {citationBlockedReason}
         </p>
       ) : null}
+      <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="decision-receipt-export" />
     </div>
   );
 }

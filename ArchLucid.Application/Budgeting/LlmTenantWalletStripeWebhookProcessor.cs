@@ -21,6 +21,9 @@ public sealed class LlmTenantWalletStripeWebhookProcessor(ILlmTenantWalletServic
         if (string.IsNullOrWhiteSpace(paymentIntentId))
             return;
 
+        paymentIntentId = paymentIntentId.Trim();
+        eventType = eventType?.Trim() ?? string.Empty;
+
         if (string.Equals(eventType, "payment_intent.succeeded", StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrWhiteSpace(tenantIdRaw))

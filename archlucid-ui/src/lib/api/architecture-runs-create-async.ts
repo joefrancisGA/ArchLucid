@@ -1,5 +1,8 @@
 import { isArchitectureRequestCreateGatewayTimeout } from "@/lib/api/architecture-request-create-guard";
 import { ApiRequestError, isApiRequestError } from "@/lib/api-request-error";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureRequestCreateMutationBlockedReason } from "@/lib/runs/architecture-request-create-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostAcceptedWithLocation } from "./http";
 import { trackInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { parseOperationIdFromLocation } from "@/lib/operations/operation-location";
@@ -118,7 +121,10 @@ export async function createArchitectureRunAsync(
         rethrowCreateRunGatewayTimeout(error);
       }
 
-      throw error;
+      const failure = toApiLoadFailure(error);
+      const blockedReason = architectureRequestCreateMutationBlockedReason(failure);
+
+      throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
     }
   }
 }

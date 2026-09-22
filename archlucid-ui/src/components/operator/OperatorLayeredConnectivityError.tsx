@@ -11,14 +11,15 @@ import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErro
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { OperatorReportProblemAction } from "@/components/support/OperatorReportProblemAction";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import {
   OPERATOR_CONNECTIVITY_CHECKLIST_LABEL,
-  OPERATOR_CONNECTIVITY_ERROR_PRIMARY_BODY,
   OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING,
+  operatorConnectivityErrorPrimaryBody,
   OPERATOR_CONNECTIVITY_TECHNICAL_DETAILS_LABEL,
   resolveOperatorConnectivityTechnicalDetails,
   type OperatorConnectivityPresentationInput,
@@ -33,7 +34,8 @@ export type OperatorLayeredConnectivityErrorProps = OperatorConnectivityPresenta
 
 /** Buyer-safe connectivity failure — recovery actions first; support detail behind Technical details. */
 export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectivityErrorProps) {
-  const technical = resolveOperatorConnectivityTechnicalDetails(props);
+  const { productLine } = useProductLine();
+  const technical = resolveOperatorConnectivityTechnicalDetails(props, productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -86,8 +88,10 @@ export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectiv
     <OperatorWarningCallout>
       <div data-testid="operator-connectivity-primary">
         <strong>{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING}</strong>
-        <p className="mt-2">{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_BODY}</p>
-        <OperatorErrorRecoveryContract presentation={errorRecoveryContractForScenario("connectivity")} />
+        <p className="mt-2">{operatorConnectivityErrorPrimaryBody(productLine)}</p>
+        <OperatorErrorRecoveryContract
+          presentation={errorRecoveryContractForScenario("connectivity", { productLineId: productLine })}
+        />
         <OperatorErrorRecoveryActions helpSlug="troubleshooting" helpHashFragment="overview-workspace-empty" showSystemHealth />
         <div className="mt-3">
           <OperatorReportProblemAction

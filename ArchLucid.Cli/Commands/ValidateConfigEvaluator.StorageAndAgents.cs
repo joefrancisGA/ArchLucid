@@ -89,7 +89,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Warning,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                "Unset — confirm the host default matches your intent (template uses Simulator)."));
+                "Unset — confirm the host default matches your intent (template uses Simulator / Practice review type; Record requires explicit Real)."));
 
         else if (!string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
                  && !string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
@@ -98,7 +98,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Error,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                $"Invalid value '{agentMode}' — must be Simulator or Real."));
+                $"Invalid value '{agentMode}' — must be Simulator (Practice review type) or Real (Record path)."));
 
         else
 
@@ -106,7 +106,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Ok,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                agentMode));
+                FormatAgentExecutionModeDetail(agentMode)));
 
         string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
 
@@ -166,5 +166,16 @@ internal static partial class ValidateConfigEvaluator
                 "AzureOpenAI",
                 "AzureOpenAI:MaxCompletionTokens",
                 "0 / omitted — host uses built-in default (4096)."));
+    }
+
+    private static string FormatAgentExecutionModeDetail(string agentMode)
+    {
+        if (string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
+            return $"{agentMode} — Record review type / live execute (CLI: archlucid try --real).";
+
+        if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+            return $"{agentMode} — Practice review type / dry-runs (CLI: archlucid try --rehearse).";
+
+        return agentMode;
     }
 }

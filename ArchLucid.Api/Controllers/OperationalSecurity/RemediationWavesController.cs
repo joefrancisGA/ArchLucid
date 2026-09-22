@@ -75,7 +75,7 @@ public sealed class RemediationWavesController(
         RemediationWaveDetail? detail = await waveService.GetWaveAsync(scope, waveId, cancellationToken);
 
         if (detail is null)
-            return NotFound();
+            return this.NotFoundProblem("Remediation wave was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(detail);
     }

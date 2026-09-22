@@ -1,18 +1,35 @@
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { getRunSummary } from "@/lib/api/architecture-runs";
+import { architectureGraphReadBlockedReason, architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
+import { provenanceGraphAliasBlockedReason } from "@/lib/graph/provenance-graph-alias-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
 import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
 
 /** Fetches the full provenance graph for a run (all decisions, findings, rules, artifacts). */
 export async function getProvenanceGraph(runId: string): Promise<GraphViewModel> {
-  return apiGetSealedManifestAware<GraphViewModel>(`/v1/provenance/runs/${encodeURIComponent(runId)}/graph`);
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/provenance/runs/${encodeURIComponent(runId)}/graph`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = provenanceGraphAliasBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
-  return apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureGraphReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type ArchitectureGraphTemporalSnapshot =
@@ -23,47 +40,46 @@ export async function getArchitectureGraphTemporalSnapshot(
   anchorRunId: string,
   asOfIsoUtc: string,
 ): Promise<ArchitectureGraphTemporalSnapshot> {
-  const rid = anchorRunId.trim();
-  const path = `/v1/evidence-graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
+  try {
+    const rid = anchorRunId.trim();
+    const path = `/v1/evidence-graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
 
-  await ensureOidcBearerReady();
-  const { url, headers } = await resolveRequest(path);
-  const fetchHeaders = withCorrelationHeaders(headers);
-  const response = await fetch(url, {
-    cache: "no-store",
-    headers: fetchHeaders,
-  });
-  const text = await response.text();
+    await ensureOidcBearerReady();
+    const { url, headers } = await resolveRequest(path);
+    const fetchHeaders = withCorrelationHeaders(headers);
+    const response = await fetch(url, {
+      cache: "no-store",
+      headers: fetchHeaders,
+    });
+    const text = await response.text();
 
-  if (response.status === 413) {
-    const resolvedId: string | null = tryReadResolvedRunIdFromProblemJson(text);
+    if (response.status === 413) {
+      const resolvedId: string | null = tryReadResolvedRunIdFromProblemJson(text);
 
-    if (resolvedId !== null) {
-      const merged = await mergeArchitectureGraphPages(resolvedId);
-      const summary = await getRunSummary(resolvedId);
+      if (resolvedId !== null) {
+        const merged = await mergeArchitectureGraphPages(resolvedId);
+        const summary = await getRunSummary(resolvedId);
 
-      return {
-        resolvedRunId: resolvedId,
-        asOfUtc: asOfIsoUtc,
-        resolvedRunCreatedUtc: summary.createdUtc,
-        graph: merged,
-      };
-    }
-  }
-
-  if (!response.ok) {
-    if (response.status === 409) {
-      try {
-        throwApiRequestError(response, text);
-      } catch (error: unknown) {
-        throw new Error(formatExportSealedManifestAwareApiError(error));
+        return {
+          resolvedRunId: resolvedId,
+          asOfUtc: asOfIsoUtc,
+          resolvedRunCreatedUtc: summary.createdUtc,
+          graph: merged,
+        };
       }
     }
 
-    throwApiRequestError(response, text);
-  }
+    if (!response.ok) {
+      throwApiRequestError(response, text);
+    }
 
-  return JSON.parse(text) as ArchitectureGraphTemporalSnapshot;
+    return JSON.parse(text) as ArchitectureGraphTemporalSnapshot;
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureGraphTemporalSnapshotBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 function tryReadResolvedRunIdFromProblemJson(bodyText: string): string | null {
@@ -123,9 +139,16 @@ export async function getArchitectureGraphPage(
     pageSize: String(pageSize),
   });
 
-  return apiGetSealedManifestAware<GraphNodesPageResponse>(
-    `/v1/evidence-graph/reviews/${runId}/nodes?${q.toString()}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GraphNodesPageResponse>(
+      `/v1/evidence-graph/reviews/${runId}/nodes?${q.toString()}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureGraphReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /**
@@ -177,9 +200,17 @@ export async function getDecisionSubgraph(
   decisionId: string,
 ): Promise<GraphViewModel> {
   const key = encodeURIComponent(decisionId);
-  return apiGetSealedManifestAware<GraphViewModel>(
-    `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/decision/${key}`,
-  );
+
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(
+      `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/decision/${key}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = provenanceGraphAliasBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches a neighborhood subgraph around a specific node, up to the given depth. */
@@ -188,9 +219,19 @@ export async function getNodeNeighborhood(
   nodeId: string,
   depth = 1,
 ): Promise<GraphViewModel> {
-  return apiGetSealedManifestAware<GraphViewModel>(
-    `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(
+      `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = provenanceGraphAliasBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
-export { architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
+export {
+  architectureGraphReadBlockedReason,
+  architectureGraphTemporalSnapshotBlockedReason,
+} from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";

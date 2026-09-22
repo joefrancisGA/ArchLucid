@@ -269,7 +269,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
             data-testid="first-review-guide-evaluation-scope"
           >
-            {FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
+            {guide.evaluationScopeHelper ?? FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
           </p>
         ) : null}
 

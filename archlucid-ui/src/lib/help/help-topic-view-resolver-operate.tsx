@@ -14,8 +14,73 @@ const HelpAdvisoryScansGuideView = dynamic(() =>
 const HelpAlertsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpAlertsGuideView").then((module) => module.HelpAlertsGuideView),
 );
+const HelpArchitectureDeskGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureDeskGuideView").then(
+    (module) => module.HelpArchitectureDeskGuideView,
+  ),
+);
+const HelpInhabitTheArchitectureGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpInhabitTheArchitectureGuideView").then(
+    (module) => module.HelpInhabitTheArchitectureGuideView,
+  ),
+);
+const HelpSystemGravityGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSystemGravityGuideView").then(
+    (module) => module.HelpSystemGravityGuideView,
+  ),
+);
+const HelpExtractionFidelityGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpExtractionFidelityGuideView").then(
+    (module) => module.HelpExtractionFidelityGuideView,
+  ),
+);
+const HelpFalseHardInfeasibilityGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpFalseHardInfeasibilityGuideView").then(
+    (module) => module.HelpFalseHardInfeasibilityGuideView,
+  ),
+);
+const HelpFirstLoginWorkspaceGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpFirstLoginWorkspaceGuideView").then(
+    (module) => module.HelpFirstLoginWorkspaceGuideView,
+  ),
+);
+const HelpWhichModeAmIInGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpWhichModeAmIInGuideView").then(
+    (module) => module.HelpWhichModeAmIInGuideView,
+  ),
+);
+const HelpSealedVsDecisionRegisterGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSealedVsDecisionRegisterGuideView").then(
+    (module) => module.HelpSealedVsDecisionRegisterGuideView,
+  ),
+);
+const HelpSketchAChangeGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSketchAChangeGuideView").then(
+    (module) => module.HelpSketchAChangeGuideView,
+  ),
+);
+const HelpImpactPreviewVsArchitectureEnvelopeGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpImpactPreviewVsArchitectureEnvelopeGuideView").then(
+    (module) => module.HelpImpactPreviewVsArchitectureEnvelopeGuideView,
+  ),
+);
+const HelpBackgroundWaitGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpBackgroundWaitGuideView").then(
+    (module) => module.HelpBackgroundWaitGuideView,
+  ),
+);
+const HelpProxyTimeoutRealExecuteGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpProxyTimeoutRealExecuteGuideView").then(
+    (module) => module.HelpProxyTimeoutRealExecuteGuideView,
+  ),
+);
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
+);
+const HelpArchitectureDraftEditingGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureDraftEditingGuideView").then(
+    (module) => module.HelpArchitectureDraftEditingGuideView,
+  ),
 );
 const HelpArchitectureIntelligenceGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView").then((module) => module.HelpArchitectureIntelligenceGuideView),
@@ -28,6 +93,16 @@ const HelpAuditTrailGuideView = dynamic(() =>
 );
 const HelpBaselineSettingsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView").then((module) => module.HelpBaselineSettingsGuideView),
+);
+const HelpArchitectureSharingGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureSharingGuideView").then(
+    (module) => module.HelpArchitectureSharingGuideView,
+  ),
+);
+const HelpCareerRehearsalGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpCareerRehearsalGuideView").then(
+    (module) => module.HelpCareerRehearsalGuideView,
+  ),
 );
 const HelpCaiqSigResponseGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView").then((module) => module.HelpCaiqSigResponseGuideView),
@@ -85,6 +160,11 @@ const HelpEvidenceGraphGuideView = dynamic(() =>
 );
 const HelpEvidenceIntakeGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpEvidenceIntakeGuideView").then((module) => module.HelpEvidenceIntakeGuideView),
+);
+const HelpInspectStoredEvidenceGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpInspectStoredEvidenceGuideView").then(
+    (module) => module.HelpInspectStoredEvidenceGuideView,
+  ),
 );
 const HelpEvidenceTrailGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpEvidenceTrailGuideView").then((module) => module.HelpEvidenceTrailGuideView),
@@ -189,6 +269,11 @@ const HelpStructuredBriefGuideView = dynamic(() =>
 const HelpTroubleshootingGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpTroubleshootingGuideView").then((module) => module.HelpTroubleshootingGuideView),
 );
+const HelpWorkingCareerRehearsalGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpWorkingCareerRehearsalGuideView").then(
+    (module) => module.HelpWorkingCareerRehearsalGuideView,
+  ),
+);
 
 export function tryResolveOperateHelpTopicView(
   loaded: LoadedHelpTopicContent,
@@ -232,6 +317,9 @@ export function tryResolveOperateHelpTopicView(
   if (loaded.entry.slug === "connection-status") {
     return <HelpConnectionStatusGuideView entry={loaded.entry} />;
   }
+  if (loaded.entry.slug === "career-rehearsal-doors") {
+    return <HelpWorkingCareerRehearsalGuideView entry={loaded.entry} />;
+  }
   if (loaded.entry.slug === "standards-and-rules") {
     return <HelpStandardsRulesGuideView entry={loaded.entry} />;
   }
@@ -250,8 +338,49 @@ export function tryResolveOperateHelpTopicView(
   if (loaded.entry.slug === "sponsor-dashboard") {
     return <HelpSponsorDashboardGuideView entry={loaded.entry} />;
   }
+  if (loaded.entry.slug === "architecture-desk") {
+    return <HelpArchitectureDeskGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "inhabit-the-architecture") {
+    return <HelpInhabitTheArchitectureGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "system-gravity") {
+    return <HelpSystemGravityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "false-hard-infeasibility") {
+    return <HelpFalseHardInfeasibilityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "extraction-fidelity") {
+    return <HelpExtractionFidelityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "first-login-workspace") {
+    return <HelpFirstLoginWorkspaceGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "which-mode-am-i-in") {
+    return <HelpWhichModeAmIInGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "sealed-record-vs-decision-register") {
+    return <HelpSealedVsDecisionRegisterGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "sketch-a-change") {
+    return <HelpSketchAChangeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "impact-preview-vs-architecture-envelope") {
+    return (
+      <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} markdown={loaded.markdown} />
+    );
+  }
+  if (loaded.entry.slug === "background-wait") {
+    return <HelpBackgroundWaitGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "proxy-timeout-real-execute") {
+    return <HelpProxyTimeoutRealExecuteGuideView entry={loaded.entry} />;
+  }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "architecture-draft-editing") {
+    return <HelpArchitectureDraftEditingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "structured-brief") {
     return <HelpStructuredBriefGuideView entry={loaded.entry} />;
@@ -313,6 +442,9 @@ export function tryResolveOperateHelpTopicView(
   if (loaded.entry.slug === "evidence-intake") {
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
+  if (loaded.entry.slug === "inspect-stored-evidence") {
+    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
   if (loaded.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -339,6 +471,12 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "caiq-sig-response") {
     return <HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "career-vs-rehearsal") {
+    return <HelpCareerRehearsalGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "architecture-sharing") {
+    return <HelpArchitectureSharingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "choose-your-next-step") {
     return <HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />;

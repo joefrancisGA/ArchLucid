@@ -37,7 +37,7 @@ export function PageContextualHelpButton(props: PageContextualHelpButtonProps = 
     return null;
   }
 
-  const topic = pageHelpTopicForPathname(pathname);
+  const topic = pageHelpTopicForPathname(pathname, productLine);
 
   if (topic === null) {
     return null;

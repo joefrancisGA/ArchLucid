@@ -1,12 +1,12 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -32,7 +32,10 @@ public sealed class CommitOutputIntegrityService(
     IRunEvidencePackagePinService runEvidencePackagePinService,
     IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
     IDraftRequestRepository draftRequestRepository,
-    IArchitectureVersionRepository architectureVersionRepository) : ICommitOutputIntegrityService
+    IArchitectureVersionRepository architectureVersionRepository,
+    IFinalizeQualityGate finalizeQualityGate,
+    IRunAssumptionAcknowledgementService runAssumptionAcknowledgementService,
+    IFindingSemanticSupportBandFinalizeJudge semanticSupportBandFinalizeJudge) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -63,6 +66,15 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IArchitectureVersionRepository _architectureVersionRepository =
         architectureVersionRepository ?? throw new ArgumentNullException(nameof(architectureVersionRepository));
+
+    private readonly IFinalizeQualityGate _finalizeQualityGate =
+        finalizeQualityGate ?? throw new ArgumentNullException(nameof(finalizeQualityGate));
+
+    private readonly IRunAssumptionAcknowledgementService _runAssumptionAcknowledgementService =
+        runAssumptionAcknowledgementService ?? throw new ArgumentNullException(nameof(runAssumptionAcknowledgementService));
+
+    private readonly IFindingSemanticSupportBandFinalizeJudge _semanticSupportBandFinalizeJudge =
+        semanticSupportBandFinalizeJudge ?? throw new ArgumentNullException(nameof(semanticSupportBandFinalizeJudge));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -109,9 +121,42 @@ public sealed class CommitOutputIntegrityService(
         IReadOnlyList<AgentExecutionTrace> traces =
             await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
-        await EnsureArchitectureVersionPinnedOrThrowAsync(scope, runId, architectureRequest, cancellationToken)
+        IReadOnlyList<string> architectureVersionPinReasons =
+            await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
+                scope,
+                runId,
+                architectureRequest,
+                _runRepository,
+                _architectureVersionRepository,
+                _architectureKnowledgeModelAccess,
+                cancellationToken)
             .ConfigureAwait(false);
-        await EnsureCreateTimePinsUnchangedOrThrowAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        if (architectureVersionPinReasons.Count > 0)
+            throw new ConflictException(architectureVersionPinReasons[0]);
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuidForCreateTimePins) || Guid.TryParse(runId, out runGuidForCreateTimePins))
+        {
+            Persistence.Models.RunRecord? headerForPins =
+                await _runRepository.GetByIdAsync(scope, runGuidForCreateTimePins, cancellationToken).ConfigureAwait(false);
+
+            if (headerForPins is not null)
+            {
+                IReadOnlyList<string> createTimePinReasons =
+                    await CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync(
+                        scope,
+                        runId,
+                        headerForPins,
+                        _runPolicyPackPinService,
+                        _runEvidencePackagePinService,
+                        _draftRequestRepository,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (createTimePinReasons.Count > 0)
+                    throw new ConflictException(createTimePinReasons[0]);
+            }
+        }
 
         AgentOutputQualityGateOptions gateOptions = _qualityGateOptionsResolver.Resolve(cancellationToken);
         IReadOnlyList<string> qualityReasons =
@@ -124,6 +169,18 @@ public sealed class CommitOutputIntegrityService(
                 + string.Join(" ", qualityReasons));
         }
 
+        await _semanticSupportBandFinalizeJudge
+            .ApplyAsync(run, findings, scope, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<string> unsupportedSemanticSupportReasons =
+            UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons(run, gateOptions, findings.Findings);
+
+        if (unsupportedSemanticSupportReasons.Count > 0)
+        {
+            throw new ConflictException(string.Join(" ", unsupportedSemanticSupportReasons));
+        }
+
         IReadOnlyList<string> provenanceViolations = DecisionGradeFindingProvenanceValidator.GetViolations(findings);
 
         if (provenanceViolations.Count > 0)
@@ -133,9 +190,9 @@ public sealed class CommitOutputIntegrityService(
                 + string.Join(" ", provenanceViolations));
         }
 
-        HashSet<string>? acknowledgedIds = acknowledgedAssumptionIds is null
-            ? null
-            : new HashSet<string>(acknowledgedAssumptionIds, StringComparer.Ordinal);
+        HashSet<string> acknowledgedIds =
+            await LoadAcknowledgedAssumptionIdsAsync(scope, runId, acknowledgedAssumptionIds, cancellationToken)
+                .ConfigureAwait(false);
 
         IReadOnlyList<string> assumptionGateReasons =
             FinalizeAssumptionGateEvaluator.GetBlockingReasons(architectureRequest, findings, acknowledgedIds);
@@ -146,6 +203,11 @@ public sealed class CommitOutputIntegrityService(
                 "Commit blocked: existential assumptions require confirmation before finalize. "
                 + string.Join(" ", assumptionGateReasons));
         }
+
+        // TB-2321: the UI scorecard already refuses these; the server must refuse them for direct API callers too.
+        await _finalizeQualityGate
+            .EnsurePassOrThrowAsync(scope, architectureRequest, findings, cancellationToken)
+            .ConfigureAwait(false);
 
         if (Guid.TryParseExact(runId, "N", out Guid runGuidForEvidence) || Guid.TryParse(runId, out runGuidForEvidence))
         {
@@ -167,118 +229,27 @@ public sealed class CommitOutputIntegrityService(
         }
     }
 
-    private async Task EnsureArchitectureVersionPinnedOrThrowAsync(
+    /// <summary>
+    ///     Server-persisted acknowledgements (TB-2345 item 49) union the ids the caller sent in the commit body, so a
+    ///     confirmation made in one browser session still counts when finalize is triggered elsewhere.
+    /// </summary>
+    private async Task<HashSet<string>> LoadAcknowledgedAssumptionIdsAsync(
         ScopeContext scope,
         string runId,
-        ArchitectureRequest architectureRequest,
+        IReadOnlyList<string>? requestAcknowledgedIds,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(architectureRequest);
+        HashSet<string> acknowledgedIds = RunAssumptionAcknowledgementJson.NormalizeIds(requestAcknowledgedIds);
+
         if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
-        {
-            throw new ConflictException(
-                "Commit blocked: run id is invalid for architecture version pin verification.");
-        }
+            return acknowledgedIds;
 
-        Persistence.Models.RunRecord? header =
-            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
-
-        if (header?.ArchitectureVersionId is not Guid versionId || versionId == Guid.Empty)
-        {
-            throw new ConflictException(
-                "Commit blocked: run is missing a pinned ArchitectureVersionId.");
-        }
-
-        ArchitectureVersionRecord? version = await _architectureVersionRepository
-            .GetByIdAsync(scope, versionId, cancellationToken)
+        IReadOnlySet<string> persistedIds = await _runAssumptionAcknowledgementService
+            .GetAcknowledgedIdsAsync(scope, runGuid, cancellationToken)
             .ConfigureAwait(false);
 
-        if (version is null)
-        {
-            throw new ConflictException(
-                "Commit blocked: pinned ArchitectureVersionId was not found.");
-        }
+        acknowledgedIds.UnionWith(persistedIds);
 
-        Contracts.ArchitectureIntelligence.ArchitectureKnowledgeModel? knowledgeModel = null;
-
-        if (Guid.TryParseExact(runId, "N", out Guid runGuidForKm) || Guid.TryParse(runId, out runGuidForKm))
-        {
-            knowledgeModel = await _architectureKnowledgeModelAccess
-                .GetForRunAsync(scope, runGuidForKm, cancellationToken)
-                .ConfigureAwait(false);
-        }
-
-        ArchitectureVersionContentFingerprintVerifier.EnsurePinnedVersionMatchesRequestOrThrow(
-            version,
-            architectureRequest,
-            knowledgeModel);
-
-        if (header.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 } pinnedHash)
-        {
-            throw new ConflictException(
-                "Commit blocked: run is missing create-time architecture version content hash (κ) pin.");
-        }
-
-        if (!version.ContentHashSha256.AsSpan().SequenceEqual(pinnedHash))
-        {
-            throw new ConflictException(
-                "Commit blocked: create-time architecture version content hash (κ) drifted since run create.");
-        }
-
-        if (!string.IsNullOrWhiteSpace(header.KnowledgeModelId)
-            && header.PinnedKnowledgeModelContentHashSha256 is not { Length: > 0 })
-        {
-            throw new ConflictException(
-                "Commit blocked: run is missing create-time knowledge model content hash pin.");
-        }
-
-        if (header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 } pinnedKnowledgeModelHash)
-        {
-            byte[]? computed = Architecture.KnowledgeModelContentFingerprint.TryComputeContentHashSha256(knowledgeModel);
-
-            if (computed is null || !computed.AsSpan().SequenceEqual(pinnedKnowledgeModelHash))
-            {
-                throw new ConflictException(
-                    "Commit blocked: knowledge model content hash drifted since run create.");
-            }
-        }
-    }
-
-    private async Task EnsureCreateTimePinsUnchangedOrThrowAsync(
-        ScopeContext scope,
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
-            return;
-
-        Persistence.Models.RunRecord? header =
-            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
-
-        if (header is null)
-            return;
-
-        await _runPolicyPackPinService
-            .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
-            .ConfigureAwait(false);
-
-        await _runEvidencePackagePinService
-            .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
-            .ConfigureAwait(false);
-
-        DraftRequestResponse? draft = await _draftRequestRepository
-            .GetBySpawnedRunIdAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (draft?.SpawnedDocumentContentHashSha256 is null)
-            return;
-
-        byte[] currentHash = DraftDocumentContentFingerprint.Compute(draft.Document);
-
-        if (!DraftDocumentContentFingerprint.SequenceEqual(currentHash, draft.SpawnedDocumentContentHashSha256))
-        {
-            throw new ConflictException(
-                "Commit blocked: draft document content changed after spawn (SpawnedDocumentContentHashSha256 mismatch).");
-        }
+        return acknowledgedIds;
     }
 }

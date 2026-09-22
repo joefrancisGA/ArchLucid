@@ -1,7 +1,9 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
@@ -11,6 +13,10 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed class AuthorityClosedLoopStrengtheningPass(
     IClosedLoopArchitectureReasoningOrchestrator closedLoopOrchestrator,
+    IArchitectureIntelligenceProductRunSourceContextLoader sourceContextLoader,
+    IClosedLoopManifestMerger manifestMerger,
+    IArchitectureIntelligenceProductPublishService productPublishService,
+    IArchitectureRequestRepository? architectureRequestRepository,
     IOptionsMonitor<ArchitectureIntelligencePipelineOptions> options,
     ILogger<AuthorityClosedLoopStrengtheningPass> logger) : IAuthorityClosedLoopStrengtheningPass
 {
@@ -34,30 +40,29 @@ public sealed class AuthorityClosedLoopStrengtheningPass(
 
         try
         {
-            ClosedLoopReasoningRequest closedLoopRequest = new()
-            {
-                TenantId = scope.TenantId.ToString("D"),
-                WorkspaceId = scope.WorkspaceId.ToString("D"),
-                ProjectId = scope.ProjectId.ToString("D"),
-                RunId = run.RunId.ToString("D"),
-                SourceTexts =
-                [
-                    new ClosedLoopReasoningSourceText
-                    {
-                        FileName = manifest.ManifestId.ToString("D"),
-                        Content = request.Description ?? request.ProjectId,
-                        ContentType = "text/plain",
-                    },
-                ],
-            };
+            ClosedLoopReasoningRequest closedLoopRequest =
+                await BuildClosedLoopRequestAsync(run, request, cancellationToken);
 
             ClosedLoopReasoningResult result =
                 await closedLoopOrchestrator.RunAsync(closedLoopRequest, cancellationToken);
 
-            if (result.Recommendations.Count > 0)
+            if (result.BudgetRejected || result.PublishBlocked)
+                return;
+
+            ArchitectureRequest? architectureRequest =
+                await TryLoadArchitectureRequestAsync(run, cancellationToken);
+
+            manifestMerger.MergeStrengtheningResult(manifest, result, architectureRequest);
+
+            if (result.ProductFindings.Count > 0 || result.ProductRecommendations.Count > 0)
             {
-                manifest.Warnings.Add(
-                    $"Closed-loop strengthening produced {result.Recommendations.Count} recommendation(s) for golden cohort package.");
+                await productPublishService.PublishAsync(
+                    result,
+                    scope.TenantId.ToString("D"),
+                    scope.WorkspaceId.ToString("D"),
+                    scope.ProjectId.ToString("D"),
+                    run.RunId.ToString("D"),
+                    cancellationToken);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -70,6 +75,52 @@ public sealed class AuthorityClosedLoopStrengtheningPass(
                     run.RunId);
             }
         }
+    }
+
+    private async Task<ClosedLoopReasoningRequest> BuildClosedLoopRequestAsync(
+        RunRecord run,
+        ContextIngestionRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =
+            await sourceContextLoader.LoadAsync(run.RunId.ToString("D"), cancellationToken);
+
+        if (loaded is { HasContent: true, Request: not null })
+        {
+            ClosedLoopReasoningRequest prepared = loaded.Request;
+            prepared.PublishToProduct = true;
+            prepared.ContinueFromExistingRun = false;
+            return prepared;
+        }
+
+        return new ClosedLoopReasoningRequest
+        {
+            TenantId = run.TenantId.ToString("D"),
+            WorkspaceId = run.WorkspaceId.ToString("D"),
+            ProjectId = run.ProjectId,
+            RunId = run.RunId.ToString("D"),
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "context-description.txt",
+                    Content = request.Description ?? request.ProjectId,
+                    ContentType = "text/plain",
+                },
+            ],
+            PublishToProduct = true,
+        };
+    }
+
+    private async Task<ArchitectureRequest?> TryLoadArchitectureRequestAsync(
+        RunRecord run,
+        CancellationToken cancellationToken)
+    {
+        if (architectureRequestRepository is null || string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
+            return null;
+
+        return await architectureRequestRepository
+            .GetByIdAsync(run.ArchitectureRequestId, cancellationToken);
     }
 
     private static bool IsGoldenCohortSystem(string systemName) =>

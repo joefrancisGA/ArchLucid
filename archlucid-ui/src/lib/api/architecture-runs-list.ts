@@ -1,13 +1,24 @@
 import type { RunSummary } from "@/types/authority";
 import type { PagedResponse } from "@/types/pagination";
 
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runListBlockedReason } from "@/lib/runs/run-list-blocked-reason";
+
+import { apiGet } from "./http";
 
 /** Lists recent runs for a project (GET /v1/authority/projects/{id}/reviews). */
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
-  return apiGetSealedManifestAware<RunSummary[]>(
-    `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?take=${take}`,
-  );
+  try {
+    return await apiGet<RunSummary[]>(
+      `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?take=${take}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runListBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /**
@@ -38,10 +49,17 @@ export async function listRunsByProjectPaged(
   q.set("take", String(pageSize));
   q.set("cursor", options?.cursor ?? "");
 
-  return apiGetSealedManifestAware<PagedResponse<RunSummary>>(
-    `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?${q}`,
-    options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
-  );
+  try {
+    return await apiGet<PagedResponse<RunSummary>>(
+      `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?${q}`,
+      options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runListBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /**
@@ -61,8 +79,15 @@ export async function listRunsInScopePaged(
   q.set("take", String(pageSize));
   q.set("cursor", options?.cursor ?? "");
 
-  return apiGetSealedManifestAware<PagedResponse<RunSummary>>(
-    `/v1/authority/reviews?${q}`,
-    options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
-  );
+  try {
+    return await apiGet<PagedResponse<RunSummary>>(
+      `/v1/authority/reviews?${q}`,
+      options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runListBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

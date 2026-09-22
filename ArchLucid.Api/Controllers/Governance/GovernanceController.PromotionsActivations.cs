@@ -115,6 +115,10 @@ public sealed partial class GovernanceController
 
             return Ok(result);
         }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
         catch (ArgumentException ex)
         {
             logger.LogWarning(ex, "Promote failed: validation error.");
@@ -208,6 +212,10 @@ public sealed partial class GovernanceController
 
             return Ok(result);
         }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
         catch (ArgumentException ex)
         {
             logger.LogWarning(ex, "Activate failed: validation error.");
@@ -264,6 +272,10 @@ public sealed partial class GovernanceController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("runs/{runId}/promotions")]
@@ -305,6 +317,10 @@ public sealed partial class GovernanceController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("runs/{runId}/activations")]
@@ -345,6 +361,10 @@ public sealed partial class GovernanceController
         catch (RunNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
         }
     }
 }

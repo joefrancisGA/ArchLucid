@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { WorkingExecuteStartHonestyNotices } from "@/components/governance/WorkingExecuteStartHonestyNotices";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import {
   OperatorErrorCallout,
@@ -38,6 +39,8 @@ import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
+
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 import type { ReviewPackageDoThisNext } from "./resolve-review-package-do-this-next";
 
@@ -109,9 +112,11 @@ function resolveDisplayedDoThisNextSentence(
 export type ReviewPackageDoThisNextStripProps = {
   readonly next: ReviewPackageDoThisNext;
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   readonly retryCount?: number | null;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
+  readonly commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   readonly sessionAiReadiness: SessionAiReadinessState;
   readonly canConfigureWorkspaceAi?: boolean;
   readonly usesCustomerAiConnection?: boolean;
@@ -396,9 +401,11 @@ export function ReviewPackageDoThisNextStrip(
   const {
     next,
     runId,
+    parentArchitectureId = null,
     retryCount = null,
     hasGoldenManifest,
     commitBlockedReason,
+    commitBlockedBlocks = [],
     sessionAiReadiness,
     canConfigureWorkspaceAi = false,
     usesCustomerAiConnection = false,
@@ -421,8 +428,10 @@ export function ReviewPackageDoThisNextStrip(
     next.kind === "finalize-package" ? (
       <CommitRunButton
         runId={runId}
+        parentArchitectureId={parentArchitectureId}
         disabled={hasGoldenManifest}
         commitBlockedReason={commitBlockedReason}
+        commitBlockedBlocks={commitBlockedBlocks}
         buttonVariant="primary"
       />
     ) : next.kind === "rerun-review" && !blockRerun ? (
@@ -567,6 +576,8 @@ export function ReviewPackageDoThisNextStrip(
             </div>
           ) : null}
 
+          <WorkingExecuteStartHonestyNotices />
+
           <div
             className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
             data-testid="review-package-do-this-next-action"
@@ -631,6 +642,8 @@ export function ReviewPackageDoThisNextStrip(
           {displayedSentence}
         </p>
       </div>
+
+      <WorkingExecuteStartHonestyNotices />
 
       <div
         className="flex min-w-0 w-full max-w-full shrink-0 flex-col items-stretch gap-2 sm:items-end"

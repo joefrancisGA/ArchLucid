@@ -72,7 +72,7 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                         scope,
                         packageId,
                         manifest.SubscriptionId,
-                        subscriptionName: null,
+                        AzureExtractorSubscriptionDisplayName.Normalize(manifest.SubscriptionName),
                         manifest.CollectionTimestamp.UtcDateTime,
                         manifest.SchemaVersion.ToString(),
                         manifest.ScriptVersion,

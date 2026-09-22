@@ -441,6 +441,42 @@ public sealed class GoldenCorpusMaterializerTests
     }
 
     [Fact]
+    public async Task Record_hand_authored_case_73_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        GraphSnapshot graph = GoldenCorpusInventoryContradictionGraphFactory.CreateCase73DeclarationDisabledInventoryEnabledGraph();
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+            InventoryFixture = GoldenCorpusInventoryContradictionGraphFactory.CreateCase73MismatchInventoryFixture(),
+            AssignedPackFixture = GoldenCorpusInventoryContradictionGraphFactory.CreateCase73AssignedPackFixture(),
+        };
+
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, "case-73");
+        Directory.CreateDirectory(dir);
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        string readme =
+            """
+            # case-73
+
+            Storage declaration `tf.public_network_access: Disabled` vs pinned Azure inventory `publicNetworkAccess: Enabled` on the same ARM id, with assigned pack **`cis-az-006`**. Exercises **`policy-declaration-inventory-contradiction`** (DX-36 merge harness case; sibling **`PolicyDeclarationInventoryContradictionGoldenCorpusTests`** remains for pack-negative control).
+
+            Regenerated with `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1`.
+            """;
+        await File.WriteAllTextAsync(Path.Combine(dir, "README.md"), readme);
+
+        await RecordHandAuthoredCaseAsync("case-73");
+    }
+
+    [Fact]
     public async Task Record_hand_authored_cases_61_63_when_env_flag_set()
     {
         if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
@@ -551,7 +587,8 @@ public sealed class GoldenCorpusMaterializerTests
             merge,
             CancellationToken.None,
             input.InventoryFixture,
-            input.PriorGraphFixture);
+            input.PriorGraphFixture,
+            input.AssignedPackFixture);
 
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -605,7 +642,8 @@ public sealed class GoldenCorpusMaterializerTests
                 merge,
                 CancellationToken.None,
                 input.InventoryFixture,
-                input.PriorGraphFixture);
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);

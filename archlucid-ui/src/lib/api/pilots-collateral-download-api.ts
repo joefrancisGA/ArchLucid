@@ -1,3 +1,4 @@
+import { pilotsCollateralMutationBlockedReason } from "@/lib/pilots/pilots-collateral-mutation-blocked-reason";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
 /** Downloads sponsor proof pack ZIP for a committed run (browser only). */
@@ -8,6 +9,7 @@ export async function downloadSponsorProofPackZip(runId: string): Promise<void> 
       accept: "application/zip, application/json",
       defaultFileName: `sponsor-proof-pack-${runId}.zip`,
       expectedContentTypePrefixes: ["application/zip"],
+      resolveBlockedReason: pilotsCollateralMutationBlockedReason,
     },
   );
 }
@@ -19,6 +21,7 @@ export async function downloadSponsorReviewPacketMarkdown(runId: string): Promis
     {
       accept: "text/markdown, application/json",
       defaultFileName: `archlucid-sponsor-review-packet-${runId}.md`,
+      resolveBlockedReason: pilotsCollateralMutationBlockedReason,
     },
   );
 }
@@ -30,6 +33,7 @@ export async function downloadPilotFirstValueReportMarkdown(runId: string): Prom
     {
       accept: "text/markdown, application/json",
       defaultFileName: `archlucid-first-value-report-${runId}.md`,
+      resolveBlockedReason: pilotsCollateralMutationBlockedReason,
     },
   );
 }

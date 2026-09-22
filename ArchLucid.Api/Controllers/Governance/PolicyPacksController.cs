@@ -2,10 +2,15 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -32,7 +37,11 @@ public sealed partial class PolicyPacksController(
     IPolicyPackHttpFacade httpFacade,
     IValidator<CreatePolicyPackRequest> createPolicyPackRequestValidator,
     IValidator<PublishPolicyPackVersionRequest> publishPolicyPackVersionRequestValidator,
-    IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator)
+    IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator,
+    IScopeContextProvider scopeContextProvider,
+    IRunDetailQueryService runDetailQueryService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService)
     : ControllerBase
 {
     private readonly IPolicyPackHttpFacade _httpFacade =
@@ -47,6 +56,18 @@ public sealed partial class PolicyPacksController(
 
     private readonly IValidator<AssignPolicyPackRequest> _assignPolicyPackRequestValidator =
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName) =>
         PolicyPacksHttpMapper.ValidateRouteId(id, parameterName).ToBadRequestProblemOrNull(this);

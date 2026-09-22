@@ -1,12 +1,16 @@
+import {
+  ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE,
+  ARCHITECTURE_DRAFT_SPAWN_LOCK_SNAPSHOT_SENTENCE,
+} from "@/lib/architecture/architecture-draft-spawn-lock-url-honesty";
 import { ensureAppInsights } from "@/lib/telemetry";
 
 const ACK_STORAGE_PREFIX = "archlucid.architecture_draft_handoff_ack.v1.";
 
 export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
-  "This draft is a snapshot source for the linked review. Continue in the review for findings, evidence, and exports. Editing here does not update an in-flight or sealed package.";
+  `${ARCHITECTURE_DRAFT_SPAWN_LOCK_SNAPSHOT_SENTENCE} Open the review job for findings and exports from the architecture desk. ${ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE}`;
 
 export const ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL =
-  "The review is the canonical work surface after handoff.";
+  "The review is a job of this architecture — the desk stays your instrument.";
 
 /** @deprecated RS-04 removed the post-spawn edit-anyway path; retained for telemetry label compatibility only. */
 export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
@@ -32,7 +36,7 @@ type LinkedReviewProbe = {
   readonly linkedReviewId?: string | null;
 };
 
-/** True when a draft registry row already spawned (or is linked to) a review run. */
+/** True when an architecture draft registry row already spawned (or is linked to) a review run. */
 export function architectureDraftHasLinkedReview(entry: LinkedReviewProbe | null | undefined): boolean {
   const linkedReviewId = entry?.linkedReviewId?.trim() ?? "";
 
@@ -89,7 +93,7 @@ export function buildArchitectureDraftHandoffBannerTitle(linkedReviewTitle: stri
     return "This draft became a review — continue editing there.";
   }
 
-  return `This draft became review “${title}” — continue editing there.`;
+    return `This draft became review “${title}” — open the review job from the architecture desk.`;
 }
 
 /** @deprecated RS-04 removed the post-spawn edit-anyway path. */

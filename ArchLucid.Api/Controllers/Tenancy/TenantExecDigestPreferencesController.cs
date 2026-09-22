@@ -95,13 +95,13 @@ public sealed class TenantExecDigestPreferencesController(
         {
             dow = body.DayOfWeek ?? existingPreferences?.DayOfWeek ?? 1;
             hour = body.HourOfDay ?? existingPreferences?.HourOfDay ?? 8;
-            timeZoneInput = body.IanaTimeZoneId ?? existingPreferences?.IanaTimeZoneId ?? "UTC";
+            timeZoneInput = body.IanaTimeZoneId ?? existingPreferences?.IanaTimeZoneId ?? IanaTimeZonePreferenceValues.Default;
         }
         else
         {
             dow = body.DayOfWeek ?? existingPreferences?.DayOfWeek ?? 1;
             hour = body.HourOfDay ?? existingPreferences?.HourOfDay ?? 8;
-            timeZoneInput = body.IanaTimeZoneId ?? existingPreferences?.IanaTimeZoneId ?? "UTC";
+            timeZoneInput = body.IanaTimeZoneId ?? existingPreferences?.IanaTimeZoneId ?? IanaTimeZonePreferenceValues.Default;
         }
 
         if (dow is < 0 or > 6)
@@ -149,7 +149,7 @@ public sealed class TenantExecDigestPreferencesController(
             existingPreferences?.IsConfigured == true,
             existingPreferences?.EmailEnabled ?? false,
             existingPreferences?.RecipientEmails ?? [],
-            existingPreferences?.IanaTimeZoneId ?? "UTC",
+            existingPreferences?.IanaTimeZoneId ?? IanaTimeZonePreferenceValues.Default,
             existingPreferences?.DayOfWeek ?? 1,
             existingPreferences?.HourOfDay ?? 8,
             body.EmailEnabled,

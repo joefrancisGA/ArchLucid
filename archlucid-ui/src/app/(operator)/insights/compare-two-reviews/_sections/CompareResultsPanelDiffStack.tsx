@@ -29,7 +29,11 @@ import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/comp
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadManifestCompareExport } from "@/lib/api/downloads-blob-trigger-manifest-compare-export";
+import { downloadEndToEndCompareExport } from "@/lib/api/downloads-blob-trigger-end-to-end-compare-export";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { manifestCompareExportMutationBlockedReason } from "@/lib/compare/manifest-compare-export-mutation-blocked-reason";
 import { showError } from "@/lib/toast";
 import { CompareAgentResultsBlockedCallout } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAgentResultsBlockedCallout";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
@@ -124,6 +128,7 @@ export function CompareResultsPanelDiffStack({
   const rightRunId = viewModel.rightTrim;
 
   const [manifestExportBusy, setManifestExportBusy] = useState(false);
+  const [endToEndExportBusy, setEndToEndExportBusy] = useState(false);
 
   const handleDownloadManifestCompareExport = useCallback(async () => {
     if (golden === null) {
@@ -140,33 +145,54 @@ export function CompareResultsPanelDiffStack({
         rightManifestVersion: rightPickedSummary?.currentManifestVersion ?? rightPickedSummary?.goldenManifestId,
       });
     } catch (error: unknown) {
-      showError(
-        "Manifest compare export failed",
-        error instanceof Error ? error.message : "Download failed.",
-      );
+      const failure = toApiLoadFailure(error);
+      const blocked = manifestCompareExportMutationBlockedReason(failure);
+
+      showError("Manifest compare export failed", blocked ?? failure.message);
     } finally {
       setManifestExportBusy(false);
     }
   }, [golden, leftPickedSummary, rightPickedSummary]);
 
+  const handleDownloadEndToEndCompareExport = useCallback(async () => {
+    if (leftRunId.trim().length === 0 || rightRunId.trim().length === 0) {
+      return;
+    }
+
+    setEndToEndExportBusy(true);
+
+    try {
+      await downloadEndToEndCompareExport({
+        leftRunId,
+        rightRunId,
+        format: "markdown",
+      });
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      const blocked = manifestCompareExportMutationBlockedReason(failure);
+
+      showError("End-to-end compare export failed", blocked ?? failure.message);
+    } finally {
+      setEndToEndExportBusy(false);
+    }
+  }, [leftRunId, rightRunId]);
+
   return (
     <>
       {hasResultsToNavigate ? (
-        <div
-          className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
-          data-testid="compare-results-action-bar"
-        >
-          <CompareResultsSectionNav
-            showStructured={golden !== null}
-            showFindingCorrelation={golden !== null}
-            showGovernanceDiff={golden !== null}
-            showRawManifestDiff={golden !== null}
-            showTechnicalAppendix={result !== null}
-            showAiExplanation={aiExplanation !== null}
-            buyerPolished={buyerPolished}
-            className="flex-1"
-          />
-          <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row lg:items-end">
+        <div className="flex flex-col gap-3" data-testid="compare-results-action-bar">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <CompareResultsSectionNav
+              showStructured={golden !== null}
+              showFindingCorrelation={golden !== null}
+              showGovernanceDiff={golden !== null}
+              showRawManifestDiff={golden !== null}
+              showTechnicalAppendix={result !== null}
+              showAiExplanation={aiExplanation !== null}
+              buyerPolished={buyerPolished}
+              className="flex-1"
+            />
+            <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row lg:items-end">
             {showDocxDownload ? (
               <Button
                 type="button"
@@ -186,13 +212,27 @@ export function CompareResultsPanelDiffStack({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={manifestExportBusy || docxDownloading || pdfDownloading}
+                disabled={manifestExportBusy || endToEndExportBusy || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadManifestCompareExport()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-manifest-compare-export-button"
               >
                 <Download className="h-4 w-4" aria-hidden />
                 {manifestExportBusy ? "Downloading compare export…" : "Download compare export (Markdown)"}
+              </Button>
+            ) : null}
+            {leftRunId.trim().length > 0 && rightRunId.trim().length > 0 ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={endToEndExportBusy || manifestExportBusy || docxDownloading || pdfDownloading}
+                onClick={() => void handleDownloadEndToEndCompareExport()}
+                className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
+                data-testid="compare-download-end-to-end-compare-export-button"
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                {endToEndExportBusy ? "Downloading end-to-end export…" : "Download end-to-end compare export"}
               </Button>
             ) : null}
             <Button
@@ -215,7 +255,9 @@ export function CompareResultsPanelDiffStack({
                 {docxError}
               </p>
             ) : null}
+            </div>
           </div>
+          <SponsorExportSendHonestyStrip className="lg:max-w-xl" testIdPrefix="compare-export" />
         </div>
       ) : null}
 

@@ -1,4 +1,5 @@
 using ArchLucid.Application.ExecDigest;
+using ArchLucid.Application.Exports;
 
 namespace ArchLucid.Application.Notifications.Email.Models;
 
@@ -65,4 +66,24 @@ public sealed class ExecDigestEmailModel
         get;
         init;
     }
+
+    /// <summary>CG-037 — prepended to subject when every committed run in the digest window is rehearsal.</summary>
+    public string? RehearsalSubjectPrefix
+    {
+        get;
+        init;
+    }
+
+    /// <summary>CG-037 — body disclaimer when any committed run in the digest window requires rehearsal honesty.</summary>
+    public string? RehearsalBodyDisclaimer
+    {
+        get;
+        init;
+    }
+
+    public string SponsorRoiNonSummingLine { get; init; } =
+        SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine;
+
+    public string PolicyPackInfluenceHonestyLine { get; init; } =
+        SendableExportCoverComposer.PolicyPackInfluenceHonestyLine;
 }

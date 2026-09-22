@@ -74,6 +74,8 @@ public sealed partial class InternalArchitectureDiagnosticsController
             ApplicationServiceFailureKind.RunNotFound => this.NotFoundProblem(detail, ProblemTypes.RunNotFound),
             ApplicationServiceFailureKind.ResourceNotFound => this.NotFoundProblem(detail,
                 ProblemTypes.ResourceNotFound),
+            ApplicationServiceFailureKind.Conflict => MapInternalArchitectureDiagnosticsSealedManifestConflict(
+                new ConflictException(detail)),
             _ => this.BadRequestProblem(detail)
         };
     }

@@ -8,7 +8,14 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
+import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -21,6 +28,8 @@ import type {
 export type PreFinalizeChecklistPanelProps = {
   readonly runId: string;
   readonly manifestFinalized: boolean;
+  readonly workingCareerRehearsalDoor?: string | null;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
 };
 
 function statusTagKind(status: PreFinalizeChecklistItemStatus): EnterpriseStatusKind {
@@ -86,7 +95,21 @@ function ChecklistRow({ item }: { readonly item: PreFinalizeChecklistItem }): Re
 export function PreFinalizeChecklistPanel({
   runId,
   manifestFinalized,
+  workingCareerRehearsalDoor,
+  structuralExecutionMode,
 }: PreFinalizeChecklistPanelProps): React.JSX.Element | null {
+  const { isWorkingMode } = useWorkspaceMode();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: isWorkingMode });
+  const suppressReadyLabel = shouldSuppressReadyToFinalizeForCareerHonesty({
+    workingDesk: isWorkingMode,
+    preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled,
+    structuralExecutionMode,
+    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+      stampedDoor: workingCareerRehearsalDoor,
+      liveDoor: effectiveDoor,
+    }),
+  });
   const [checklist, setChecklist] = useState<Awaited<ReturnType<typeof getPreFinalizeChecklist>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -127,14 +150,19 @@ export function PreFinalizeChecklistPanel({
           <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Pre-finalize checklist</h3>
           {checklist ? (
             <StatusTag
-              kind={checklist.readyToFinalize ? "ready" : "needs-attention"}
-              label={checklist.readyToFinalize ? "Ready to finalize" : "Review before finalize"}
+              kind={checklist.readyToFinalize && !suppressReadyLabel ? "ready" : "needs-attention"}
+              label={
+                checklist.readyToFinalize && !suppressReadyLabel
+                  ? "Ready to finalize"
+                  : "Review before finalize"
+              }
             />
           ) : null}
         </div>
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-muted-foreground")}>
           Human approval gates and advisory checks before sealing the architecture package.
         </p>
+        <GovernanceFindingsQueueQuietEnginesHint scopedRunId={runId} />
       </CardHeader>
       <CardContent>
         {loading ? <OperatorLoadingNotice>Loading pre-finalize checklist…</OperatorLoadingNotice> : null}

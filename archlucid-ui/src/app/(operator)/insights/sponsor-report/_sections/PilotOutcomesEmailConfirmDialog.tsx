@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PilotOutcomesEmailPreview } from "./pilot-value-report-pilot-page-view-model";
 
@@ -68,6 +69,12 @@ export function PilotOutcomesEmailConfirmDialog(props: Props) {
             <dd className="m-0">{preview.basedOnCurrentData ? "Yes" : "No — period has no finalized reviews"}</dd>
           </div>
         </dl>
+
+        <SponsorSendPathHonestyPanel
+          className="mt-4"
+          showSsoOptional={false}
+          testIdPrefix="pilot-outcomes-email"
+        />
 
         <div className="mt-4 flex flex-wrap justify-end gap-2">
           <Button type="button" variant="outline" onClick={props.onClose} disabled={props.busy}>

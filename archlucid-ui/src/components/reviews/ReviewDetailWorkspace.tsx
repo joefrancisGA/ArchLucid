@@ -60,6 +60,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly presenterFindingTitle?: string | null;
   readonly presenterFindingBody?: ReactNode | null;
   readonly presenterFindingActions?: ReactNode | null;
+  /** IR-012: Working architecture-linked reviews redirect presenter to inhabited findings. */
+  readonly suppressPresenterSurface?: boolean;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
@@ -110,7 +112,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     </ReviewDetailWorkspaceTabContext.Provider>
   );
 
-  if (tabs.presenterMode && isWorkingMode) {
+  if (tabs.presenterMode && isWorkingMode && props.suppressPresenterSurface !== true) {
     return (
       <ReviewPresenterSurface
         title={props.presenterFindingTitle ?? "Review in progress"}

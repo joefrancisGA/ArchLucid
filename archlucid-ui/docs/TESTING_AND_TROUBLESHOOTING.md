@@ -428,6 +428,17 @@ npm run test:e2e
 
 Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
 
+**Inventory diagram layout ratchet (IDL-06 + IDH-03):** after a production **operator-shell** build, run the mapped-bbox spec that paints the owner Executive `.mmd` (11 VNets / 6 peerings, IDH-01 `~~~` row-pack, no `alpack_*`) plus the IDL-06 zero-edge grid and legacy chain:
+
+```powershell
+cd archlucid-ui
+npm run build
+$env:MOCK_E2E_SKIP_NEXT_BUILD = "1"
+npx playwright test -c playwright.operator-mock.config.ts --project=chromium-infra-diagrams-layout
+```
+
+Use the same origin the standalone server logs for **`page.goto`** (**`127.0.0.1`** vs **`localhost`** mismatch can trigger the Next dev-origin block). Geometry uses **mapped** `g.node` boxes (`getCTM` / `createSVGPoint`), not unmapped `getBBox`. CI runs this project on **pull_request** when the packer, viewer camera, fixture, or spec changes (`ui-playwright-infra-diagrams-layout`). Do not add this spec to `playwright.mock.config.ts` (buyer demo flags hide the operator route).
+
 **From the repo root:** **`test-ui-smoke.cmd`** / **`test-ui-smoke.ps1`** ( **`npm ci`**, browser install, **`npm run test:e2e`** ).
 
 **Release smoke (optional):** repo root **`.\release-smoke.ps1 -RunPlaywright`** runs this same **`npm run test:e2e`** after the usual release-smoke steps. That UI gate uses **archlucid-ui’s mocks**, not the C# API instance **`release-smoke`** may have started for steps 5–6 — see **[docs/library/RELEASE_SMOKE.md](../../../docs/library/RELEASE_SMOKE.md)** (also § *Mock Playwright vs live* above).

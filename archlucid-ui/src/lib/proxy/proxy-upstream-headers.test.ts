@@ -5,6 +5,7 @@ import {
   BFF_SESSION_COOKIE_NAME,
   createBffSessionCookieValue,
 } from "@/lib/proxy/bff-session-cookie";
+import { PRODUCT_LINE_UPSTREAM_HEADER } from "@/lib/product-line/product-line-http-header";
 import { buildProxyUpstreamHeaders } from "@/lib/proxy/proxy-upstream-headers";
 
 function mockNextRequest(options?: {
@@ -27,6 +28,34 @@ function mockNextRequest(options?: {
     },
   } as NextRequest;
 }
+
+describe("buildProxyUpstreamHeaders product line (OP-03)", () => {
+  const originalProductEnv = process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT;
+
+  afterEach(() => {
+    if (originalProductEnv === undefined) {
+      delete process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT;
+    } else {
+      process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT = originalProductEnv;
+    }
+  });
+
+  it("forwards security header when SecureNow build env is active", () => {
+    process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT = "security";
+
+    const headers = buildProxyUpstreamHeaders(mockNextRequest(), "v1/findings");
+
+    expect(headers.get(PRODUCT_LINE_UPSTREAM_HEADER)).toBe("security");
+  });
+
+  it("omits product-line header for Architecture build env", () => {
+    process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT = "architecture";
+
+    const headers = buildProxyUpstreamHeaders(mockNextRequest(), "v1/findings");
+
+    expect(headers.get(PRODUCT_LINE_UPSTREAM_HEADER)).toBeNull();
+  });
+});
 
 describe("buildProxyUpstreamHeaders BFF session (LK-05 P1 / LK-06 P2)", () => {
   beforeEach(() => {

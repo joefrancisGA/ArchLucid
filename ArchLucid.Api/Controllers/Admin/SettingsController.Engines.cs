@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
@@ -58,6 +59,10 @@ public sealed partial class SettingsController
                         WorkspaceAllowedEngineSetSource.TenantOverride),
                     cancellationToken)
                 .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

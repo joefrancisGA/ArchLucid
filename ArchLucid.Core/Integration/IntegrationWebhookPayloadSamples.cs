@@ -1,5 +1,8 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
+
 namespace ArchLucid.Core.Integration;
 
 /// <summary>Synthetic integration-event payloads for operator webhook simulation and bridge testing.</summary>
@@ -136,6 +139,10 @@ public static class IntegrationWebhookPayloadSamples
     private static object CreateAuthorityRunCompleted()
     {
         Guid runId = Guid.NewGuid();
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            isSampleRun: false,
+            StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoorValues.Rehearsal);
 
         return new
         {
@@ -155,7 +162,10 @@ public static class IntegrationWebhookPayloadSamples
                     deepLinkUrl = $"https://archlucid.net/runs/{runId:D}/findings/finding-primary",
                     severity = "High"
                 }
-            }
+            },
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
     }
 
@@ -236,6 +246,11 @@ public static class IntegrationWebhookPayloadSamples
 
     private static object CreateManifestFinalized()
     {
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            isSampleRun: false,
+            StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoorValues.Rehearsal);
+
         return new
         {
             schemaVersion = 1,
@@ -248,7 +263,10 @@ public static class IntegrationWebhookPayloadSamples
             projectId = Guid.NewGuid(),
             findingsSnapshotId = Guid.NewGuid(),
             artifactBundleId = (Guid?)Guid.NewGuid(),
-            manifestVersion = "v1"
+            manifestVersion = "v1",
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
     }
 

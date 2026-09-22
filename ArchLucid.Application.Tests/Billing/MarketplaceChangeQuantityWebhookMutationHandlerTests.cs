@@ -99,4 +99,32 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
             static l => l.ChangeQuantityAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [SkippableFact]
+    public async Task Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.Stripe,
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+        };
+
+        BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        MarketplaceChangeQuantityWebhookMutationHandler sut = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
+
+        using JsonDocument doc = JsonDocument.Parse("""{"quantity":5}""");
+
+        MarketplaceWebhookMutationOutcome outcome =
+            await sut.HandleAsync(Guid.NewGuid(), doc.RootElement, "{}", CancellationToken.None);
+
+        outcome.Should().Be(MarketplaceWebhookMutationOutcome.DeferredGaDisabled);
+
+        ledger.Verify(
+            static l => l.ChangeQuantityAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

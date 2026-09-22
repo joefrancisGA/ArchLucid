@@ -12,8 +12,18 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/findings/finding-display-from-inspect";
 import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
 import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
+import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
 import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_HELPER,
+  LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_LABEL,
+} from "@/lib/livelihood-grade-no-finding-inspect-citation-chips";
+import {
+  FindingSemanticSupportBandInspectSection,
+  findingSemanticSupportBandFromTypedPayload,
+} from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
+import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
@@ -79,6 +89,35 @@ export function FindingInspectFindingBody({
 
   const whyThisIsNotGeneric = typedPayloadLookupString(payload, "whyThisIsNotGeneric");
 
+  const classificationRaw = payload.typedPayload !== null && typeof payload.typedPayload === "object"
+    ? (payload.typedPayload as Record<string, unknown>).classification
+    : null;
+
+  const classification =
+    classificationRaw === FINDING_CLASSIFICATION_DECISION_GRADE
+    || classificationRaw === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE
+      ? classificationRaw
+      : null;
+
+  const inspectFindingForSemanticBand = {
+    findingId: decodedFindingId,
+    title: decodedFindingId,
+    recommendation: payload.reasoningSummary ?? "",
+    severityValue: 0,
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    enforcementTier: "PolicyViolation" as const,
+    classification,
+    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(
+      payload.typedPayload !== null && typeof payload.typedPayload === "object"
+        ? (payload.typedPayload as Record<string, unknown>)
+        : null,
+      classification,
+    ),
+  };
+
   const evidenceRefCount = payload.evidence?.length ?? 0;
   const modelProvenance = buildFindingModelProvenanceRow({
     trustLabel: payload.trustLabel ?? typedPayloadLookupString(payload, "trustLabel"),
@@ -107,6 +146,20 @@ export function FindingInspectFindingBody({
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.explanation}</p>
       {modelProvenance.trustLabelReason !== null ? (
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.trustLabelReason}</p>
+      ) : null}
+      {classification === FINDING_CLASSIFICATION_DECISION_GRADE ? (
+        <div className="mt-3" data-testid="finding-inspect-citation-chips">
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_LABEL}
+          </p>
+          {citationModel.evidence.length > 0 ? (
+            <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
+          ) : (
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_HELPER}
+            </p>
+          )}
+        </div>
       ) : null}
     </div>
   );
@@ -138,6 +191,10 @@ export function FindingInspectFindingBody({
           evidence={payload.evidence}
           citationModel={citationModel}
         />
+  );
+
+  const semanticSupportBandBlock = (
+    <FindingSemanticSupportBandInspectSection finding={inspectFindingForSemanticBand} />
   );
 
   const insightDensityBlock = (
@@ -185,6 +242,7 @@ export function FindingInspectFindingBody({
       <>
         {whyBlock}
         {modelProvenanceBlock}
+        {semanticSupportBandBlock}
         <FindingInspectViewEvidenceCollapsible>{evidenceBlock}</FindingInspectViewEvidenceCollapsible>
         {insightDensityBlock}
         {recommendedBlock("detail")}
@@ -198,6 +256,7 @@ export function FindingInspectFindingBody({
     <>
       {whyBlock}
       {modelProvenanceBlock}
+      {semanticSupportBandBlock}
       {reasoningSummaryBlock}
       {evidenceBlock}
       {insightDensityBlock}

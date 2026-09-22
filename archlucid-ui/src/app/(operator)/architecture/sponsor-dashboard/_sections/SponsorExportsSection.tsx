@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { downloadSponsorOnePagerPdf } from "@/lib/api/downloads-blob-trigger-reports";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
@@ -20,6 +21,7 @@ import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-conte
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { sponsorOnePagerMutationBlockedReason } from "@/lib/pilots/sponsor-one-pager-mutation-blocked-reason";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 
@@ -174,6 +176,7 @@ export function SponsorExportsSection({
       </div>
       <RoiSponsorExportVocabularyRail currentSurfaceId="sponsor-dashboard" />
       <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" />
+      <SponsorExportSendHonestyStrip testIdPrefix="sponsor-dashboard-exports" />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sponsorDocx !== null ? (
           <SponsorExportOutputCard
@@ -193,6 +196,11 @@ export function SponsorExportsSection({
 
                     try {
                       await downloadRunPackageExport(sponsorDocx.runId, "docx");
+                    } catch (error: unknown) {
+                      const failure = toApiLoadFailure(error);
+                      const blocked = runPackageExportMutationBlockedReason(failure);
+
+                      showError("Download architecture review report", blocked ?? failure.message);
                     } finally {
                       setDocxDownloadBusy(false);
                     }

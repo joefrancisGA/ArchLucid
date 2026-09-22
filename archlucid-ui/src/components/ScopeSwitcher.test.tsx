@@ -28,6 +28,15 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/buyer/buyer-demo-content-gating", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/buyer/buyer-demo-content-gating")>();
+
+  return {
+    ...actual,
+    isExplicitStaticDemoMarketingBuild: () => demoUiEnvMock.demoMode,
+  };
+});
+
 vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
 
@@ -45,23 +54,11 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 
 import {
-  BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
   BUYER_SCOPE_SWITCHER_CLOSE,
   BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
-  BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
 } from "@/lib/buyer/buyer-polish-copy";
-import { formatScopeSwitcherSampleFullTitle, formatScopeSwitcherTriggerAccessibleLabel } from "@/lib/scope-switcher-display";
-
-import { ScopeSwitcher } from "@/components/ScopeSwitcher";
-
-const sampleAccessibleLabel = formatScopeSwitcherTriggerAccessibleLabel({
-  workspaceLabel: "Claims Intake Workspace",
-  projectLabel: "Primary project",
-  isSampleWorkspaceSession: true,
-  includeProject: false,
-});
+import { ScopeSwitcher, SCOPE_SWITCHER_UNSAVED_MESSAGE } from "@/components/ScopeSwitcher";
+import { registerLivelihoodDocumentGuardDirty } from "@/lib/operator/livelihood-document-guard-dirty-registry";
 
 describe("ScopeSwitcher — operator shell", () => {
   beforeEach(() => {
@@ -83,16 +80,14 @@ describe("ScopeSwitcher — operator shell", () => {
     vi.clearAllMocks();
   });
 
-  it("shows a compact sample workspace label without the Sample workspace prefix", () => {
+  it("shows the local development workspace as a connected scope", () => {
     render(<ScopeSwitcher density="compact" />);
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
+    expect(trigger).toHaveTextContent("Development — Primary project");
     expect(trigger).not.toHaveTextContent("Sample workspace:");
-    expect(trigger).not.toHaveTextContent(/^W:/);
-    expect(trigger).not.toHaveTextContent("Primary project");
-    expect(trigger).toHaveAttribute("aria-label", sampleAccessibleLabel);
-    expect(trigger).toHaveAttribute("title", sampleAccessibleLabel);
+    expect(trigger).toHaveAttribute("aria-label", "Active workspace: Development — Primary project");
+    expect(trigger).toHaveAttribute("title", "Active workspace: Development — Primary project");
     expect(trigger.className).toMatch(/max-w-/);
   });
 
@@ -102,7 +97,7 @@ describe("ScopeSwitcher — operator shell", () => {
     expect(screen.getByTestId("operator-scope-switcher-trigger").querySelector("svg")).not.toBeNull();
   });
 
-  it("opens the sample-workspace info popover when switching is unavailable", async () => {
+  it("opens the connected-workspace panel when switching is unavailable", async () => {
     render(<ScopeSwitcher />);
     fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
 
@@ -112,18 +107,7 @@ describe("ScopeSwitcher — operator shell", () => {
 
     expect(screen.getByTestId("operator-scope-switcher-panel").parentElement).toBe(document.body);
     expect(screen.queryByText(/x-tenant-id/i)).not.toBeInTheDocument();
-    expect(screen.getByText(formatScopeSwitcherSampleFullTitle())).toBeInTheDocument();
-    expect(screen.getByText(BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT)).toBeInTheDocument();
-    expect(screen.getByText("Sample")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-scope-sample-info-body")).toHaveTextContent(
-      BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
-    );
-    expect(screen.queryByText(/directory is unavailable/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-scope-switcher-tenant-context")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES })).toHaveAttribute(
-      "href",
-      "/help/scope",
-    );
     const closeButton = screen.getByRole("button", { name: BUYER_SCOPE_SWITCHER_CLOSE });
     expect(closeButton.tagName).toBe("BUTTON");
     expect(closeButton).toHaveAttribute("type", "button");
@@ -229,6 +213,48 @@ describe("ScopeSwitcher — operator shell", () => {
     expect(screen.queryByTestId("operator-scope-sample-info-body")).not.toBeInTheDocument();
   });
 
+  it("prompts before switching scope when a livelihood form is dirty (LW-078)", async () => {
+    const writeScope = vi.spyOn(operatorScopeStorage, "writeOperatorScopeToStorage");
+    const unregisterDirty = registerLivelihoodDocumentGuardDirty();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            workspaces: [
+              {
+                workspaceId: DEV_WORKSPACE,
+                name: "Claims Intake Workspace",
+                projects: [
+                  { projectId: DEV_PROJECT, name: "Primary project" },
+                  { projectId: "44444444-4444-4444-4444-444444444444", name: "Secondary project" },
+                ],
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    render(<ScopeSwitcher />);
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    fireEvent.click(await screen.findByRole("button", { name: "Secondary project" }));
+
+    expect(screen.getByTestId("in-app-navigation-guard-dialog")).toBeInTheDocument();
+    expect(screen.getByText(SCOPE_SWITCHER_UNSAVED_MESSAGE)).toBeInTheDocument();
+    expect(writeScope).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Leave without saving" }));
+
+    expect(writeScope).toHaveBeenCalled();
+
+    unregisterDirty();
+    writeScope.mockRestore();
+  });
+
   it("lists single-project workspaces by workspace name and omits the data-handling link", async () => {
     vi.stubGlobal(
       "fetch",
@@ -284,15 +310,14 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("shows a compact sample label with full accessible text and opens the buyer-safe info popover", async () => {
+  it("shows the local workspace label and opens the connected scope panel", async () => {
     render(<ScopeSwitcher density="compact" />);
 
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
+    expect(trigger).toHaveTextContent("Development — Primary project");
     expect(trigger).not.toHaveTextContent("Sample workspace:");
-    expect(trigger).toHaveAttribute("aria-label", sampleAccessibleLabel);
-    expect(trigger).toHaveAttribute("title", sampleAccessibleLabel);
+    expect(trigger).toHaveAttribute("aria-label", "Active workspace: Development — Primary project");
     expect(trigger.className).toMatch(/overflow-hidden/);
     expect(trigger.querySelector("svg")).not.toBeNull();
 
@@ -302,12 +327,6 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
       expect(screen.getByTestId("operator-scope-switcher-panel")).toBeInTheDocument();
     });
 
-    expect(screen.getByText(formatScopeSwitcherSampleFullTitle())).toBeInTheDocument();
-    expect(screen.getByText(BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT)).toBeInTheDocument();
-    expect(screen.getByTestId("operator-scope-sample-info-body")).toHaveTextContent(
-      BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
-    );
-    expect(screen.queryByText(/x-tenant-id/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /how we handle your data/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-scope-switcher-tenant-context")).toBeInTheDocument();
   });
 });

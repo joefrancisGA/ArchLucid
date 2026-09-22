@@ -36,7 +36,7 @@ export const ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION = "Copy Mermaid source" as
 
 export const ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION = "Download diagram" as const;
 
-export const ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION = "Full screen" as const;
+export const ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION = "Fullscreen" as const;
 
 export const ARCHITECTURE_DIAGRAM_RETRY_ACTION = "Retry" as const;
 
@@ -44,6 +44,9 @@ export const ARCHITECTURE_DIAGRAM_LOADING_LABEL = "Generating architecture diagr
 
 export const ARCHITECTURE_DIAGRAM_RENDER_FAILURE =
   "The architecture diagram could not be rendered. Edit the diagram or regenerate from your brief." as const;
+
+export const ARCHITECTURE_DIAGRAM_PAINT_FAILURE =
+  "The diagram did not paint in the browser. Retry, switch diagram mode, or export Mermaid to inspect the source." as const;
 
 export const ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION = "Accept" as const;
 
@@ -94,8 +97,17 @@ export const ARCHITECTURE_DIAGRAM_MISSING_CATEGORY_LABELS = {
   "trust-boundaries": "trust boundaries",
 } as const;
 
+/** Shared copy for architecture diagram viewport controls (SecureNow inventory + review detail). */
+
 export const ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL = "Zoom in" as const;
 
 export const ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL = "Zoom out" as const;
 
-export const ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL = "Reset zoom" as const;
+export const ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL = "Reset to 100%" as const;
+
+export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = "Diagram zoom percentage" as const;
+
+export const ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL = "Fit in view" as const;
+
+export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
+  "Focus the diagram, then Ctrl+scroll to zoom. + / − keys zoom. 0 or Fit in view resets to the fitted 100%." as const;

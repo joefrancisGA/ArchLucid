@@ -14,8 +14,20 @@ import { sendAdminUserInvitation } from "@/lib/admin-user-invitations";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
+import {
+  SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT,
+  SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT_TEST_ID,
+} from "./settings-roles-invite-copy";
 
 describe("SettingsRolesInvitePanel (SSU P0)", () => {
+  it("explains that invites join the current workspace scope (LS-009)", () => {
+    render(<SettingsRolesInvitePanel />);
+
+    expect(screen.getByTestId(SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT_TEST_ID)).toHaveTextContent(
+      SETTINGS_ROLES_INVITE_WORKSPACE_SCOPE_HINT,
+    );
+  });
+
   it("shows error toast when invite endpoint is missing", async () => {
     vi.mocked(sendAdminUserInvitation).mockResolvedValue({ ok: false, reason: "http_error" });
 
@@ -38,6 +50,24 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
       expect(showError).toHaveBeenCalled();
     });
     expect(showSuccess).not.toHaveBeenCalled();
+  });
+
+  it("keeps the entered email when the role changes", () => {
+    render(<SettingsRolesInvitePanel />);
+
+    const email = screen.getByTestId("settings-roles-invite-email");
+    fireEvent.change(email, { target: { value: "reviewer@example.com" } });
+
+    const hiddenSelect = screen.getByTestId("settings-roles-invite-role").parentElement?.querySelector("select");
+
+    if (hiddenSelect === null) {
+      throw new Error("expected hidden role select");
+    }
+
+    fireEvent.change(hiddenSelect, { target: { value: "Reader" } });
+
+    expect(email).toHaveValue("reviewer@example.com");
+    expect(screen.getByTestId("settings-roles-invite-submit")).toBeEnabled();
   });
 
   it("shows back-to-review-package handoff after invite when reviewId is provided", async () => {

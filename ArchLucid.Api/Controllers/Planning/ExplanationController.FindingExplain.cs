@@ -27,42 +27,42 @@ public sealed partial class ExplanationController
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
-
-        if (detail?.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
-
         try
         {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                manifestHashService);
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+
+            if (detail?.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
+
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            if (detail.FindingsSnapshot?.Findings is not { Count: > 0 } list)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' has no findings snapshot in the current scope.",
+                    ProblemTypes.RunNotFound);
+
+            Finding? match = list.FirstOrDefault(f =>
+                string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
+
+            if (match is null)
+                return this.NotFoundProblem(
+                    $"Finding '{findingId}' was not found on run '{runId}'.",
+                    ProblemTypes.ResourceNotFound);
+
+            FindingExplainabilityResult body = findingExplainabilityComposer.Compose(match);
+
+            return Ok(body);
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExplanationSealedManifestConflict(ex);
         }
-
-        if (detail.FindingsSnapshot?.Findings is not { Count: > 0 } list)
-            return this.NotFoundProblem(
-                $"Run '{runId}' has no findings snapshot in the current scope.",
-                ProblemTypes.RunNotFound);
-
-        Finding? match = list.FirstOrDefault(f =>
-            string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
-
-        if (match is null)
-            return this.NotFoundProblem(
-                $"Finding '{findingId}' was not found on run '{runId}'.",
-                ProblemTypes.ResourceNotFound);
-
-        FindingExplainabilityResult body = findingExplainabilityComposer.Compose(match);
-
-        return Ok(body);
     }
 
     /// <summary>
@@ -80,32 +80,33 @@ public sealed partial class ExplanationController
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
-        if (detail?.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
-
         try
         {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                manifestHashService);
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+
+            if (detail?.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
+
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            FindingLlmAuditResult? body = await findingLlmAudit.BuildAsync(runId, findingId, ct);
+
+            if (body is null)
+                return this.NotFoundProblem(
+                    $"Finding '{findingId}' on run '{runId}' has no resolvable agent execution trace in the current scope.",
+                    ProblemTypes.ResourceNotFound);
+
+            return Ok(body);
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExplanationSealedManifestConflict(ex);
         }
-
-        FindingLlmAuditResult? body = await findingLlmAudit.BuildAsync(runId, findingId, ct);
-
-        if (body is null)
-            return this.NotFoundProblem(
-                $"Finding '{findingId}' on run '{runId}' has no resolvable agent execution trace in the current scope.",
-                ProblemTypes.ResourceNotFound);
-
-        return Ok(body);
     }
 }

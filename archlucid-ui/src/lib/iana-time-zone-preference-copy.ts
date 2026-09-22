@@ -1,8 +1,12 @@
 /** Personal preferences card — time zone selection. */
 export const PREFERENCES_TIME_ZONE_HEADING = "Time zone";
 
-export const PREFERENCES_TIME_ZONE_LEAD =
-  "Choose how dates and times appear across ArchLucid.";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
+export function preferencesTimeZoneLead(productLineId: ProductLineId): string {
+  return `Choose how dates and times appear across ${productLineDisplayName(productLineId)}.`;
+}
 
 export const PREFERENCES_TIME_ZONE_USAGE =
   "Used to display review activity, audit events, reports, and scheduled notifications.";

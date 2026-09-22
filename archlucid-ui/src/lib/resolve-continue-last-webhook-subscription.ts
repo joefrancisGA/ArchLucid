@@ -64,6 +64,10 @@ export function resolveContinueLastWebhookSubscription(
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
+
+    // Stale or out-of-workspace ids must not fall back to another subscription while
+    // the UI still labels the row "Continue last viewed".
+    return null;
   }
 
   const enabled = normalizedSubscriptions.filter((subscription) => subscription.isEnabled === true);

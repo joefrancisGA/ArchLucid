@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpArchitectureDraftsClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpArchitectureDraftsClaimOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { ArchitectureDraftsHelpClaimDisciplineStrip } from "@/components/help/ArchitectureDraftsHelpClaimDisciplineStrip";
 import { ArchitectureDraftsHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureDraftsHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
@@ -186,7 +187,7 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
         {guideSections}
       </div>
 
-      <HelpTopicTableOfContents headings={ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS} />
+      <HelpTopicTableOfContents headings={ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS} enableScrollSpy />
     </div>
   );
 
@@ -217,6 +218,8 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
       />
 
       {buyerPolishedShell ? null : <ArchitectureDraftsHelpClaimDisciplineStrip />}
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-drafts" showSsoOptional={false} />
 
       {buyerPolishedShell ? (
         <div

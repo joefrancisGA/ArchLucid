@@ -74,6 +74,10 @@ public static class GraphEdgeInferenceReasoningSummaries
                 return "ArchLucid linked a declared NSG/SG/firewall to its associated subnet or NIC and, when present, "
                        + "that network node to a declared datastore — only when both ends already exist.";
 
+            case GraphEdgeInferenceSources.StructuredBriefAssumptionLink:
+                return "ArchLucid matched a confirmed structured-brief assumption to an existing requirement or actor "
+                       + "label using conservative text overlap heuristics for traceability.";
+
             default:
                 return $"ArchLucid inferred this edge via rule `{inferenceSource.Trim()}` "
                        + "(deterministic heuristic or connector hint).";

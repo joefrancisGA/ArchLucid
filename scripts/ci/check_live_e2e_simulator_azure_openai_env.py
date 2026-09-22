@@ -12,6 +12,9 @@ from pathlib import Path
 _WORKFLOW_PATHS = (
     ".github/workflows/ci.yml",
     ".github/workflows/private-beta-access-on-push.yml",
+    ".github/workflows/private-beta-access-smoke-branch.yml",
+    ".github/workflows/rc-release-gate.yml",
+    ".github/workflows/live-e2e-nightly.yml",
 )
 _START_API_BLOCK = re.compile(
     r"      - name: Start ArchLucid\.Api[^\n]*\n.*?(?=\n      - name: |\Z)",

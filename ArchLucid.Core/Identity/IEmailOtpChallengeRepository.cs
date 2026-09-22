@@ -38,6 +38,14 @@ public interface IEmailOtpChallengeRepository
         CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Removes active challenges for <paramref name="normalizedEmail" /> when delivery never succeeded
+    ///     (so hourly request limits do not count undelivered attempts).
+    /// </summary>
+    Task DeleteActiveChallengesForEmailAsync(
+        string normalizedEmail,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Atomically invalidates active challenges for <paramref name="insert.NormalizedEmail" /> and inserts
     ///     <paramref name="insert" /> so concurrent resends cannot leave multiple active rows.
     /// </summary>

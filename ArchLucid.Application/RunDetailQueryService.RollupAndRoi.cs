@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -82,6 +83,13 @@ public sealed partial class RunDetailQueryService
 
         if (muteFlags.Count > 0)
             FindingMuteFlagApplier.Apply(detail.Results, muteFlags);
+
+        await ApplySemanticSupportBandOverlaysAndLaneBComposeAsync(
+            runId,
+            scope,
+            detail.Results,
+            detail.Run.FindingsSnapshotId,
+            cancellationToken).ConfigureAwait(false);
 
         return detail;
     }

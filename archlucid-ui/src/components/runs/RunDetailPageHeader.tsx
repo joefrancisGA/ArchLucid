@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
@@ -18,17 +19,17 @@ import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
 import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionModeBadge";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
-import { downloadRunSummaryExport } from "@/lib/api/run-summary-export-api";
+import { downloadRunSummaryExport, runSummaryExportMutationBlockedReason } from "@/lib/api/run-summary-export-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
-import { runSummaryExportMutationBlockedReason } from "@/lib/runs/run-summary-export-mutation-blocked-reason";
 import {
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api/downloads-api";
@@ -264,6 +265,7 @@ function RunPackageExportButtonsLive({ runId }: { runId: string }) {
           {busyFormat === "summary" ? "Downloading…" : "Download Sponsor Report"}
         </Button>
       </div>
+      <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="run-detail-header-export" />
     </div>
   );
 }
@@ -283,6 +285,8 @@ export type RunDetailPageHeaderProps = {
   /** Buyer-polished: one sentence beside the finalized pipeline pill. */
   buyerHeaderStatusCaption?: string | null;
   commitBlockedReason?: string | null;
+  /** Structured finalize gate blocks from SSR or the unified readiness API. */
+  commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   /** Open approval alerts linked to this review (TB-107). */
   hasGovernanceWarnings?: boolean;
   /** True when this page rendered curated sample data instead of a backend-persisted review (no exportable run). */
@@ -305,6 +309,7 @@ export function RunDetailPageHeader({
   buyerGovernanceApprovalLabel,
   buyerHeaderStatusCaption,
   commitBlockedReason,
+  commitBlockedBlocks = [],
   hasGovernanceWarnings,
   usedStaticDemoRun = false,
   demoteFinalizeButton = false,
@@ -468,6 +473,7 @@ export function RunDetailPageHeader({
                 runId={runId}
                 disabled={hasGoldenManifest}
                 commitBlockedReason={commitBlockedReason}
+                commitBlockedBlocks={commitBlockedBlocks}
                 buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
               />
               {hasGoldenManifest ? (
@@ -497,10 +503,11 @@ export function RunDetailPageHeader({
               />
             ) : null}
             {!hasGoldenManifest ? <FinalizeSkippedMustStrip transparencyTrail={transparencyTrail} /> : null}
-              <CommitRunButton
+            <CommitRunButton
               runId={runId}
               disabled={hasGoldenManifest}
               commitBlockedReason={commitBlockedReason}
+              commitBlockedBlocks={commitBlockedBlocks}
               buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
             />
             {hasGoldenManifest ? (

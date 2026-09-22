@@ -1,10 +1,12 @@
 import type { HelpTabId } from "@/components/HelpPanel";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 import {
   ADVANCED_ADMIN_TOPICS,
   HELP_DRAWER_SEARCH_ALIASES,
   HELP_SEARCH_PANEL_GROUPS,
+  resolveHelpSearchPanelGroups,
   collectHelpSearchPanelTopics,
 } from "@/lib/help/help-search-panel-catalog-topics";
 
@@ -24,8 +26,14 @@ export const HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER = "Search guides, topics, or s
 
 export const HELP_SEARCH_PANEL_EMPTY_TITLE = "No help topics found" as const;
 
-export const HELP_SEARCH_PANEL_EMPTY_HINT =
+export const HELP_SEARCH_PANEL_EMPTY_HINT_ARCHITECTURE =
   "Try searching for review, evidence, findings, approval, SSO, or export." as const;
+
+export const HELP_SEARCH_PANEL_EMPTY_HINT_SECURITY =
+  "Try searching for findings, remediation, Azure connections, assigned to me, SSO, or troubleshooting." as const;
+
+/** @deprecated Prefer {@link helpSearchPanelEmptyHint}. */
+export const HELP_SEARCH_PANEL_EMPTY_HINT = HELP_SEARCH_PANEL_EMPTY_HINT_ARCHITECTURE;
 
 export const HELP_SEARCH_PANEL_KEYBOARD_HINT = "↑↓ Navigate · Enter Open · Esc Close" as const;
 
@@ -81,12 +89,24 @@ export {
   splitHelpSearchPanelDoThisNow,
 } from "@/lib/help/help-search-panel-catalog-recommend";
 
-export function listHelpSearchPanelTopics(isAdmin: boolean): HelpSearchPanelTopic[] {
-  return collectHelpSearchPanelTopics(isAdmin);
+export function helpSearchPanelEmptyHint(productLineId: ProductLineId = "architecture"): string {
+  return productLineId === "security"
+    ? HELP_SEARCH_PANEL_EMPTY_HINT_SECURITY
+    : HELP_SEARCH_PANEL_EMPTY_HINT_ARCHITECTURE;
 }
 
-export function listHelpSearchPanelGroups(isAdmin: boolean): HelpSearchPanelGroup[] {
-  const groups = HELP_SEARCH_PANEL_GROUPS.map((group) => ({
+export function listHelpSearchPanelTopics(
+  isAdmin: boolean,
+  productLineId: ProductLineId = "architecture",
+): HelpSearchPanelTopic[] {
+  return collectHelpSearchPanelTopics(isAdmin, productLineId);
+}
+
+export function listHelpSearchPanelGroups(
+  isAdmin: boolean,
+  productLineId: ProductLineId = "architecture",
+): HelpSearchPanelGroup[] {
+  const groups = resolveHelpSearchPanelGroups(productLineId).map((group) => ({
     ...group,
     topics: group.topics.filter((topic) => topic.adminOnly !== true || isAdmin),
   }));

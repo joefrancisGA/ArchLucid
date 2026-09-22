@@ -54,12 +54,13 @@ public sealed class ExportFormatterService
         return utc.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
     }
 
-    public string BuildAuditExportCsvFileName(DateTime fromUtc, DateTime toUtc)
+    public string BuildAuditExportCsvFileName(DateTime fromUtc, DateTime toUtc, bool rehearsalIncomplete = false)
     {
         string fromPart = FormatAttachmentSegmentUtc(fromUtc);
         string toPart = FormatAttachmentSegmentUtc(toUtc);
+        string baseName = $"audit-export-{fromPart}-{toPart}";
 
-        return $"audit-export-{fromPart}-{toPart}.csv";
+        return rehearsalIncomplete ? $"{baseName}-rehearsal.csv" : $"{baseName}.csv";
     }
 
     public string BuildAuditExportCefFileName(DateTime fromUtc, DateTime toUtc)

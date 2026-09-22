@@ -69,4 +69,11 @@ public sealed class GoldenManifest
         get;
         set;
     } = new();
+
+    /// <summary>Semantic diagram overlay: actors, trust, requirements, and decisions (TB-2351).</summary>
+    public ManifestDiagramSemanticOverlay DiagramSemantics
+    {
+        get;
+        set;
+    } = new();
 }

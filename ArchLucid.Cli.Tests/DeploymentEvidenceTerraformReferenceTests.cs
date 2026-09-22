@@ -115,6 +115,224 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         File.Exists(docPath).Should().BeTrue("deployment evidence must cite an on-disk stack-order reference");
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_hosted_wave_leaves_match_apply_saas_ps1_wave_flatten()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> applySaasHostedWaves = ReadApplySaasHostedWaveLeaves(repoRoot);
+        List<string> evidenceLeaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+        List<string> evidenceHostedLeaves = evidenceLeaves
+            .Where(path => !path.Contains("terraform-orchestrator", StringComparison.Ordinal))
+            .ToList();
+
+        evidenceHostedLeaves.Should().Equal(applySaasHostedWaves);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_leaf_sequence_matches_terraform_pilot_nested_infrastructure_roots()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> pilotLeaves = ReadTerraformPilotNestedInfrastructureRootPaths(repoRoot);
+        IReadOnlyList<string> evidenceLeaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        evidenceLeaves.Should().Equal(pilotLeaves);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_annotated_lines_use_em_dash_path_delimiter()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        foreach (string line in roots)
+        {
+            if (!line.Contains("metadata composition root", StringComparison.Ordinal)
+                && !line.Contains("canonical default profile", StringComparison.Ordinal)
+                && !line.Contains("legacy isolation path only", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            line.Should().Contain(" —", "annotated evidence lines must split on em dash for path extraction");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_contains_no_duplicate_paths()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        List<string> paths = roots
+            .Select(line => line.Split(" —", 2, StringSplitOptions.None)[0].Trim())
+            .ToList();
+
+        paths.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_all_paths_start_with_infra_prefix()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        foreach (string line in roots)
+        {
+            string path = line.Split(" —", 2, StringSplitOptions.None)[0].Trim();
+            path.Should().StartWith("infra/", "evidence paths must stay repo-relative under infra/");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk()
+    {
+        string repoRoot = RequireRepositoryRoot();
+
+        foreach (string path in ExtractAllPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots()))
+        {
+            Directory.Exists(Path.Combine(repoRoot, path))
+                .Should()
+                .BeTrue($"deployment evidence must reference an on-disk Terraform root at {path}");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_composition_roots_match_terraform_pilot_root_path_order()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> pilotComposition = ReadTerraformPilotCompositionRootPaths(repoRoot);
+        IReadOnlyList<string> evidenceComposition = ExtractCompositionRootPaths(
+            DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        evidenceComposition.Should().Equal(pilotComposition);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_returns_equal_lists_on_repeated_calls()
+    {
+        IReadOnlyList<string> first = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        IReadOnlyList<string> second = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        second.Should().Equal(first);
+    }
+
+    [Fact]
+    public void DocumentationRelativePath_uses_docs_library_relative_forward_slashes()
+    {
+        DeploymentEvidenceTerraformReference.DocumentationRelativePath
+            .Should()
+            .Be("docs/library/REFERENCE_SAAS_STACK_ORDER.md");
+        DeploymentEvidenceTerraformReference.DocumentationRelativePath
+            .Should()
+            .NotContain("\\");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_lists_exactly_twenty_entries()
+    {
+        DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots().Should().HaveCount(20);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_places_pilot_as_final_entry()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        roots[^1].Should().Contain("infra/terraform-pilot");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order()
+    {
+        IReadOnlyList<string> composition = ExtractCompositionRootPaths(
+            DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        composition.Should().Equal(
+        [
+            "infra/terraform-foundation",
+            "infra/terraform-platform",
+            "infra/terraform-app",
+        ]);
+    }
+
+    [Fact]
+    public void DocumentationRelativePath_does_not_use_leading_slash()
+    {
+        DeploymentEvidenceTerraformReference.DocumentationRelativePath
+            .Should()
+            .NotStartWith("/");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        List<string> orchestratorLines = roots
+            .Where(line => line.Contains("infra/terraform-orchestrator", StringComparison.Ordinal))
+            .ToList();
+
+        orchestratorLines.Should().ContainSingle();
+        orchestratorLines[0].Should().Contain("legacy isolation path only");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_leaf_sequence_matches_reference_doc_advanced_table()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> referenceLeaves = ReadReferenceDocAdvancedTableLeafPaths(repoRoot);
+        IReadOnlyList<string> evidenceLeaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        evidenceLeaves.Should().Equal(referenceLeaves);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_composition_roots_annotate_foundation_platform_app_waves()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        List<string> compositionLines = roots
+            .Where(line => line.Contains("metadata composition root", StringComparison.Ordinal))
+            .ToList();
+
+        compositionLines.Should().HaveCount(3);
+        compositionLines[0].Should().Contain("wave 1");
+        compositionLines[1].Should().Contain("wave 2");
+        compositionLines[2].Should().Contain("wave 3");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_hosted_wave_boundaries_place_app_leaves_after_platform_leaves()
+    {
+        List<string> leaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        leaves.IndexOf("infra/terraform-acr").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-keyvault"));
+        leaves.IndexOf("infra/terraform-entra").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-acr"));
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        foreach (string line in roots)
+        {
+            if (line.Contains("metadata composition root", StringComparison.Ordinal)
+                || line.Contains("canonical default profile", StringComparison.Ordinal)
+                || line.Contains("legacy isolation path only", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            line.Should().NotContain(" —", "plain leaf lines must not use em-dash annotations that corrupt path extraction");
+            line.Should().StartWith("infra/");
+            line.Trim().Should().Be(line, "plain leaf lines must be exact paths without trailing whitespace");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring()
+    {
+        List<string> leaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        leaves.IndexOf("infra/terraform").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-edge"));
+        leaves.IndexOf("infra/terraform-monitoring").Should().BeGreaterThan(leaves.IndexOf("infra/terraform"));
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);
@@ -130,6 +348,58 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         string content = File.ReadAllText(applySaasPath);
 
         return ParsePowerShellStringArray(content, marker);
+    }
+
+    private static IReadOnlyList<string> ReadApplySaasHostedWaveLeaves(string repoRoot)
+    {
+        IReadOnlyList<string> foundation = ReadApplySaasStringArray(repoRoot, "$foundationWaveLeaves");
+        IReadOnlyList<string> platform = ReadApplySaasStringArray(repoRoot, "$platformWaveLeaves");
+        IReadOnlyList<string> app = ReadApplySaasStringArray(repoRoot, "$appWaveLeaves");
+
+        return foundation.Concat(platform).Concat(app).ToList();
+    }
+
+    private static IReadOnlyList<string> ReadTerraformPilotNestedInfrastructureRootPaths(string repoRoot)
+    {
+        string pilotMainTfPath = Path.Combine(repoRoot, "infra", "terraform-pilot", "main.tf");
+        string content = File.ReadAllText(pilotMainTfPath);
+        MatchCollection matches = Regex.Matches(
+            content,
+            @"^\s+path\s*=\s*""(infra/terraform[^""]*)""\s*$",
+            RegexOptions.Multiline);
+
+        return matches.Select(match => match.Groups[1].Value).ToList();
+    }
+
+    private static IReadOnlyList<string> ReadTerraformPilotCompositionRootPaths(string repoRoot)
+    {
+        string pilotMainTfPath = Path.Combine(repoRoot, "infra", "terraform-pilot", "main.tf");
+        string content = File.ReadAllText(pilotMainTfPath);
+        MatchCollection matches = Regex.Matches(
+            content,
+            @"^\s+root_path\s*=\s*""(infra/terraform[^""]*)""\s*$",
+            RegexOptions.Multiline);
+
+        return matches.Select(match => match.Groups[1].Value).ToList();
+    }
+
+    private static IReadOnlyList<string> ReadReferenceDocAdvancedTableLeafPaths(string repoRoot)
+    {
+        string docPath = Path.Combine(repoRoot, DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+        string content = File.ReadAllText(docPath);
+        MatchCollection matches = Regex.Matches(
+            content,
+            @"^\|\s*\d+\s*\|\s*`(infra/[^`]+)`\s*\|",
+            RegexOptions.Multiline);
+
+        return matches.Select(match => match.Groups[1].Value).ToList();
+    }
+
+    private static List<string> ExtractAllPaths(IReadOnlyList<string> roots)
+    {
+        return roots
+            .Select(line => line.Split(" —", 2, StringSplitOptions.None)[0].Trim())
+            .ToList();
     }
 
     private static List<string> ParsePowerShellStringArray(string content, string marker)

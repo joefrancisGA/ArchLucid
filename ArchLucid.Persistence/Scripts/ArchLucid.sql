@@ -547,6 +547,10 @@ BEGIN
         PackageOrigin NVARCHAR(16) NULL,
         StructuralExecutionMode NVARCHAR(32) NOT NULL CONSTRAINT DF_Runs_StructuralExecutionMode_Greenfield DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionMode_Greenfield CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed')),
+        WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+        ExecutePostureCapturedUtc DATETIME2 NULL,
+        CONSTRAINT CK_Runs_WorkingCareerRehearsalDoor_Greenfield CHECK (
+            WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N'career', N'rehearsal')),
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
@@ -639,6 +643,18 @@ BEGIN
         CONSTRAINT CK_Runs_StructuralExecutionModeArchLucidSql CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed'));
 
     EXEC (N'UPDATE dbo.Runs SET StructuralExecutionMode = N''Fallback'' WHERE RealModeFellBackToSimulator = 1;');
+END;
+GO
+
+/* CG-019: Working Career vs Rehearsal door captured at first execute start. */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'WorkingCareerRehearsalDoor') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD
+        WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+        ExecutePostureCapturedUtc DATETIME2 NULL,
+        CONSTRAINT CK_Runs_WorkingCareerRehearsalDoorArchLucidSql CHECK (
+            WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N'career', N'rehearsal'));
 END;
 GO
 
@@ -7530,7 +7546,11 @@ BEGIN
                 N'first_finding_viewed',
                 N'first_finalization_attempted',
                 N'first_export_opened',
-                N'thirty_minute_milestone'
+                N'thirty_minute_milestone',
+                N'first_session_purpose_live',
+                N'first_session_purpose_training',
+                N'post_auth_landed_dedicated_scope',
+                N'post_auth_landed_sample_scope'
             )),
         CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
@@ -10235,6 +10255,8 @@ BEGIN
               OR EXISTS (SELECT i.OtelTraceId EXCEPT SELECT d.OtelTraceId)
               OR EXISTS (SELECT i.EngineProvenanceJson EXCEPT SELECT d.EngineProvenanceJson)
               OR EXISTS (SELECT i.GovernanceScopeJson EXCEPT SELECT d.GovernanceScopeJson)
+              OR EXISTS (SELECT i.WorkingCareerRehearsalDoor EXCEPT SELECT d.WorkingCareerRehearsalDoor)
+              OR EXISTS (SELECT i.ExecutePostureCapturedUtc EXCEPT SELECT d.ExecutePostureCapturedUtc)
           ))
     BEGIN
         THROW 50310, N''Committed run header evidence anchors are immutable (TB-310).'', 1;
@@ -10242,6 +10264,28 @@ BEGIN
 END;';
 
     EXEC sp_executesql @sealGovernanceScopeTriggerSql;
+END
+GO
+
+/* CG-019: execute-time Working door stamp on the physical run/review table.
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. */
+DECLARE @executePostureTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+IF @executePostureTable IS NOT NULL
+   AND COL_LENGTH(@executePostureTable, N'WorkingCareerRehearsalDoor') IS NULL
+BEGIN
+    DECLARE @addExecutePostureSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @executePostureTable + N' ADD
+            WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+            ExecutePostureCapturedUtc DATETIME2 NULL,
+            CONSTRAINT CK_Runs_WorkingCareerRehearsalDoor CHECK (
+                WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N''career'', N''rehearsal''));';
+
+    EXEC sp_executesql @addExecutePostureSql;
 END
 GO
 
@@ -10727,6 +10771,24 @@ BEGIN
 END
 GO
 
+/* 390: Pre-finalize assumption acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedAssumptionsRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedAssumptionsRunSql NVARCHAR(MAX);
+
+IF @acknowledgedAssumptionsRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedAssumptionsRunTable, N'AcknowledgedAssumptionsJson') IS NULL
+BEGIN
+    SET @acknowledgedAssumptionsRunSql = N'ALTER TABLE ' + @acknowledgedAssumptionsRunTable + N' ADD AcknowledgedAssumptionsJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedAssumptionsRunSql;
+END
+GO
+
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN
@@ -11129,6 +11191,7 @@ BEGIN
         DurationMs            INT               NULL,
         CompletenessScore     DECIMAL(5, 4)     NULL,
         WarningCount          INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_WarningCount DEFAULT (0),
+        CompletenessWarningsJson NVARCHAR(MAX)     NULL,
         ErrorCount            INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_ErrorCount DEFAULT (0),
         ContentHashSha256     VARBINARY(32)     NULL,
         CreatedUtc            DATETIME2         NOT NULL,
@@ -11142,6 +11205,13 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AzureInventorySnapshots_Scope_Created
         ON dbo.AzureInventorySnapshots (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.AzureInventorySnapshots', N'CompletenessWarningsJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.AzureInventorySnapshots
+        ADD CompletenessWarningsJson NVARCHAR(MAX) NULL;
 END;
 GO
 
@@ -11304,6 +11374,24 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AzureInventoryUnknownResources_Tenant_Snapshot
         ON dbo.AzureInventoryUnknownResources (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderSummaries', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderSummaries
+    (
+        DefenderSummaryRowId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderSummaries PRIMARY KEY CLUSTERED,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        ResourceId                NVARCHAR(1024)    NOT NULL,
+        SecureScore               INT               NOT NULL,
+        SourceEvidenceReference   NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderSummaries_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderSummaries_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderSummaries (TenantId, SnapshotId);
 END;
 GO
 
@@ -12126,5 +12214,689 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_FindingVerificationResults_Report
         ON dbo.FindingVerificationResults (ReportId, FindingId);
+END;
+GO
+
+/*
+  378: AS-047 — optional architecture inventory snapshot binding (ADR 0084 / inventory-bind).
+*/
+
+IF OBJECT_ID(N'dbo.ArchitectureInventoryBindings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureInventoryBindings
+    (
+        ArchitectureId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_ArchitectureInventoryBindings PRIMARY KEY CLUSTERED,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId       UNIQUEIDENTIFIER NOT NULL,
+        BoundBy          NVARCHAR(256)    NOT NULL,
+        BoundUtc         DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureInventoryBindings_BoundUtc DEFAULT SYSUTCDATETIME(),
+        RowVersion       ROWVERSION       NOT NULL,
+        CONSTRAINT FK_ArchitectureInventoryBindings_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureInventoryBindings_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureInventoryBindings_Scope_Architecture
+        ON dbo.ArchitectureInventoryBindings (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureInventoryBindings_Tenant_Snapshot
+        ON dbo.ArchitectureInventoryBindings (TenantId, SnapshotId);
+END;
+GO
+
+/*
+  380: AS-087 — optional architecture-scoped sharing (ADR 0087 / restrict-to-shares).
+*/
+
+IF OBJECT_ID(N'dbo.Architectures', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Architectures', N'RestrictToShares') IS NULL
+BEGIN
+    ALTER TABLE dbo.Architectures
+        ADD RestrictToShares BIT NOT NULL
+            CONSTRAINT DF_Architectures_RestrictToShares DEFAULT (0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ArchitectureShares', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureShares
+    (
+        ArchitectureId UNIQUEIDENTIFIER NOT NULL,
+        ActorOid         NVARCHAR(256)    NOT NULL,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
+        Role             NVARCHAR(16)     NOT NULL,
+        GrantedBy          NVARCHAR(128)    NOT NULL,
+        GrantedUtc         DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureShares_GrantedUtc DEFAULT SYSUTCDATETIME(),
+        RowVersion         ROWVERSION       NOT NULL,
+        CONSTRAINT PK_ArchitectureShares PRIMARY KEY CLUSTERED (ArchitectureId, ActorOid),
+        CONSTRAINT FK_ArchitectureShares_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT CK_ArchitectureShares_Role CHECK (Role IN (N'View', N'Decide', N'Admin'))
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_ActorOid
+        ON dbo.ArchitectureShares (ActorOid);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_Scope_Architecture
+        ON dbo.ArchitectureShares (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
+END;
+GO
+
+/*
+  388: LW-089 — soft exclusive architecture draft work leases (ADR 0090).
+  Tenant catalog only; no SQL RLS. One active lease row per draft (DraftId PK).
+*/
+
+IF OBJECT_ID(N'dbo.ArchitectureWorkLeases', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureWorkLeases
+    (
+        DraftId           UNIQUEIDENTIFIER NOT NULL,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId       UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId    UNIQUEIDENTIFIER NOT NULL,
+        ArchitectureId    UNIQUEIDENTIFIER NOT NULL,
+        HolderUserId      UNIQUEIDENTIFIER NOT NULL,
+        AcquiredUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureWorkLeases_AcquiredUtc DEFAULT SYSUTCDATETIME(),
+        LastHeartbeatUtc  DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureWorkLeases_LastHeartbeatUtc DEFAULT SYSUTCDATETIME(),
+        ExpiresUtc        DATETIME2(7)     NOT NULL,
+        RowVersion        ROWVERSION       NOT NULL,
+        CONSTRAINT PK_ArchitectureWorkLeases PRIMARY KEY CLUSTERED (DraftId),
+        CONSTRAINT FK_ArchitectureWorkLeases_DraftRequests
+            FOREIGN KEY (DraftId) REFERENCES dbo.DraftRequests (DraftId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureWorkLeases_Tenants
+            FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_ArchitectureWorkLeases_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureWorkLeases_PlatformUsers
+            FOREIGN KEY (HolderUserId) REFERENCES dbo.PlatformUsers (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureWorkLeases_ExpiresUtc
+        ON dbo.ArchitectureWorkLeases (ExpiresUtc);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureWorkLeases_Tenant_Architecture
+        ON dbo.ArchitectureWorkLeases (TenantId, ArchitectureId, DraftId);
+END;
+GO
+/*
+  381: SecureNow architect — security evidence paths and hops (SA-01).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePaths
+    (
+        PathId                    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePaths PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        PathKind                  INT               NOT NULL,
+        PathConfidenceBand        INT               NOT NULL,
+        CanonicalHopHashSha256    VARBINARY(32)     NOT NULL,
+        WeakestHopOrdinal         INT               NOT NULL,
+        WeakestHopReason          NVARCHAR(512)     NOT NULL,
+        CrownJewelAssertionId     UNIQUEIDENTIFIER NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        UpdatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePaths_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_SecurityEvidencePaths_Tenant_Snapshot_Hash
+            UNIQUE (TenantId, SnapshotId, CanonicalHopHashSha256)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Snapshot_Kind
+        ON dbo.SecurityEvidencePaths (TenantId, SnapshotId, PathKind);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Path
+        ON dbo.SecurityEvidencePaths (TenantId, PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathHops', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathHops
+    (
+        HopRowId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathHops PRIMARY KEY CLUSTERED,
+        PathId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        HopOrdinal          INT               NOT NULL,
+        FromNodeId          NVARCHAR(512)     NOT NULL,
+        ToNodeId            NVARCHAR(512)     NOT NULL,
+        EdgeType            NVARCHAR(128)     NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        HopConfidenceBand   INT               NOT NULL,
+        InferenceSource     NVARCHAR(128)     NULL,
+        EvidenceReference   NVARCHAR(512)     NOT NULL,
+        CloudResourceId     UNIQUEIDENTIFIER NULL,
+        CONSTRAINT FK_SecurityEvidencePathHops_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT UQ_SecurityEvidencePathHops_Path_Ordinal
+            UNIQUE (TenantId, PathId, HopOrdinal)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathHops_Tenant_Path
+        ON dbo.SecurityEvidencePathHops (TenantId, PathId, HopOrdinal);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD PathId UNIQUEIDENTIFIER NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NOT NULL
+   AND OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.foreign_keys
+       WHERE name = N'FK_OperationalSecurityFindings_SecurityEvidencePaths'
+         AND parent_object_id = OBJECT_ID(N'dbo.OperationalSecurityFindings'))
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_OperationalSecurityFindings_Tenant_PathId'
+         AND object_id = OBJECT_ID(N'dbo.OperationalSecurityFindings'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_OperationalSecurityFindings_Tenant_PathId
+        ON dbo.OperationalSecurityFindings (TenantId, PathId)
+        WHERE PathId IS NOT NULL;
+END;
+GO
+
+/*
+  381: SecureNow architect — security evidence paths and hops (SA-01).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePaths
+    (
+        PathId                    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePaths PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        PathKind                  INT               NOT NULL,
+        PathConfidenceBand        INT               NOT NULL,
+        CanonicalHopHashSha256    VARBINARY(32)     NOT NULL,
+        WeakestHopOrdinal         INT               NOT NULL,
+        WeakestHopReason          NVARCHAR(512)     NOT NULL,
+        CrownJewelAssertionId     UNIQUEIDENTIFIER NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        UpdatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePaths_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_SecurityEvidencePaths_Tenant_Snapshot_Hash
+            UNIQUE (TenantId, SnapshotId, CanonicalHopHashSha256)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Snapshot_Kind
+        ON dbo.SecurityEvidencePaths (TenantId, SnapshotId, PathKind);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Path
+        ON dbo.SecurityEvidencePaths (TenantId, PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathHops', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathHops
+    (
+        HopRowId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathHops PRIMARY KEY CLUSTERED,
+        PathId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        HopOrdinal          INT               NOT NULL,
+        FromNodeId          NVARCHAR(512)     NOT NULL,
+        ToNodeId            NVARCHAR(512)     NOT NULL,
+        EdgeType            NVARCHAR(128)     NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        HopConfidenceBand   INT               NOT NULL,
+        InferenceSource     NVARCHAR(128)     NULL,
+        EvidenceReference   NVARCHAR(512)     NOT NULL,
+        CloudResourceId     UNIQUEIDENTIFIER NULL,
+        CONSTRAINT FK_SecurityEvidencePathHops_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT UQ_SecurityEvidencePathHops_Path_Ordinal
+            UNIQUE (TenantId, PathId, HopOrdinal)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathHops_Tenant_Path
+        ON dbo.SecurityEvidencePathHops (TenantId, PathId, HopOrdinal);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD PathId UNIQUEIDENTIFIER NULL;
+
+    IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+    BEGIN
+        ALTER TABLE dbo.OperationalSecurityFindings
+            ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
+                FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
+    END;
+
+    CREATE NONCLUSTERED INDEX IX_OperationalSecurityFindings_Tenant_PathId
+        ON dbo.OperationalSecurityFindings (TenantId, PathId)
+        WHERE PathId IS NOT NULL;
+END;
+GO
+
+/*
+  381: SecureNow architect — security evidence paths and hops (SA-01).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePaths
+    (
+        PathId                    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePaths PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        PathKind                  INT               NOT NULL,
+        PathConfidenceBand        INT               NOT NULL,
+        CanonicalHopHashSha256    VARBINARY(32)     NOT NULL,
+        WeakestHopOrdinal         INT               NOT NULL,
+        WeakestHopReason          NVARCHAR(512)     NOT NULL,
+        CrownJewelAssertionId     UNIQUEIDENTIFIER NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        UpdatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePaths_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_SecurityEvidencePaths_Tenant_Snapshot_Hash
+            UNIQUE (TenantId, SnapshotId, CanonicalHopHashSha256)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Snapshot_Kind
+        ON dbo.SecurityEvidencePaths (TenantId, SnapshotId, PathKind);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Path
+        ON dbo.SecurityEvidencePaths (TenantId, PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathHops', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathHops
+    (
+        HopRowId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathHops PRIMARY KEY CLUSTERED,
+        PathId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        HopOrdinal          INT               NOT NULL,
+        FromNodeId          NVARCHAR(512)     NOT NULL,
+        ToNodeId            NVARCHAR(512)     NOT NULL,
+        EdgeType            NVARCHAR(128)     NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        HopConfidenceBand   INT               NOT NULL,
+        InferenceSource     NVARCHAR(128)     NULL,
+        EvidenceReference   NVARCHAR(512)     NOT NULL,
+        CloudResourceId     UNIQUEIDENTIFIER NULL,
+        CONSTRAINT FK_SecurityEvidencePathHops_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT UQ_SecurityEvidencePathHops_Path_Ordinal
+            UNIQUE (TenantId, PathId, HopOrdinal)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathHops_Tenant_Path
+        ON dbo.SecurityEvidencePathHops (TenantId, PathId, HopOrdinal);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD PathId UNIQUEIDENTIFIER NULL;
+
+    IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+    BEGIN
+        ALTER TABLE dbo.OperationalSecurityFindings
+            ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
+                FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
+    END;
+
+    CREATE NONCLUSTERED INDEX IX_OperationalSecurityFindings_Tenant_PathId
+        ON dbo.OperationalSecurityFindings (TenantId, PathId)
+        WHERE PathId IS NOT NULL;
+END;
+GO
+
+/*
+  382: SecureNow architect — path ranking breakdown (SA-09).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathRankWeights', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathRankWeights
+    (
+        TenantId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathRankWeights PRIMARY KEY CLUSTERED,
+        WeightsJson         NVARCHAR(MAX)     NOT NULL,
+        UpdatedByActorKey   NVARCHAR(256)     NOT NULL,
+        UpdatedUtc          DATETIME2         NOT NULL
+    );
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathRanks', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathRanks
+    (
+        PathId                      UNIQUEIDENTIFIER NOT NULL,
+        TenantId                    UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                  UNIQUEIDENTIFIER NOT NULL,
+        RuleVersion                 NVARCHAR(64)      NOT NULL,
+        TechnicalExposureScore      DECIMAL(4, 2)     NOT NULL,
+        PrivilegeDepthScore         DECIMAL(4, 2)     NOT NULL,
+        BlastRadiusScore            DECIMAL(4, 2)     NOT NULL,
+        BusinessConsequenceScore    DECIMAL(4, 2)     NULL,
+        ConfidenceBandScore         DECIMAL(4, 2)     NOT NULL,
+        CompositeSortScore          DECIMAL(6, 3)     NOT NULL,
+        RankOrder                   INT               NOT NULL,
+        ExplanationSummary          NVARCHAR(1024)    NOT NULL,
+        BreakdownJson                 NVARCHAR(MAX)     NOT NULL,
+        ComputedUtc                 DATETIME2         NOT NULL,
+        CONSTRAINT PK_SecurityEvidencePathRanks PRIMARY KEY CLUSTERED (TenantId, PathId),
+        CONSTRAINT FK_SecurityEvidencePathRanks_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathRanks_Tenant_Snapshot_Order
+        ON dbo.SecurityEvidencePathRanks (TenantId, SnapshotId, RankOrder);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathRanks_Tenant_Snapshot_Composite
+        ON dbo.SecurityEvidencePathRanks (TenantId, SnapshotId, CompositeSortScore DESC, RankOrder);
+END;
+GO
+
+/*
+  383: SecureNow architect — cut-point analysis (SA-10).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidenceCutPoints', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidenceCutPoints
+    (
+        CutPointId              UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidenceCutPoints PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        RuleVersion             NVARCHAR(64)      NOT NULL,
+        CutKind                 INT               NOT NULL,
+        CutKey                  NVARCHAR(768)     NOT NULL,
+        FromNodeId              NVARCHAR(512)     NULL,
+        ToNodeId                NVARCHAR(512)     NULL,
+        EdgeType                NVARCHAR(128)     NULL,
+        PathsCollapsedCount     INT               NOT NULL,
+        OperationalCostClass    INT               NOT NULL,
+        LeverageScore           DECIMAL(8, 3)     NOT NULL,
+        CutOrder                INT               NOT NULL,
+        EvidenceReferencesJson  NVARCHAR(MAX)     NOT NULL,
+        CollapsedPathIdsJson    NVARCHAR(MAX)     NOT NULL,
+        SuggestedPatternKey     NVARCHAR(256)     NULL,
+        CloudResourceId         UNIQUEIDENTIFIER NULL,
+        ResourceType            NVARCHAR(256)     NULL,
+        ComputedUtc             DATETIME2         NOT NULL,
+        CONSTRAINT UQ_SecurityEvidenceCutPoints_Tenant_Snapshot_Key
+            UNIQUE (TenantId, SnapshotId, CutKey)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidenceCutPoints_Tenant_Snapshot_Order
+        ON dbo.SecurityEvidenceCutPoints (TenantId, SnapshotId, CutOrder);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidenceCutPoints_Tenant_Snapshot_Leverage
+        ON dbo.SecurityEvidenceCutPoints (TenantId, SnapshotId, LeverageScore DESC, CutOrder);
+END;
+GO
+
+/*
+  391: IE-17 inventory diagram peel budget catalog (global product data).
+*/
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.DiagramPeelCatalogVersion
+    (
+        CatalogVersion INT NOT NULL CONSTRAINT PK_DiagramPeelCatalogVersion PRIMARY KEY,
+        UpdatedUtc     DATETIME2(7) NOT NULL CONSTRAINT DF_DiagramPeelCatalogVersion_UpdatedUtc DEFAULT SYSUTCDATETIME()
+    );
+
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (1);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.DiagramPeelCatalogEntry
+    (
+        ArmResourceType NVARCHAR(256) NOT NULL CONSTRAINT PK_DiagramPeelCatalogEntry PRIMARY KEY,
+        PeelRank        INT NULL,
+        AlwaysDispose   BIT NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_AlwaysDispose DEFAULT (0),
+        IsEnabled       BIT NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_IsEnabled DEFAULT (1),
+        Notes           NVARCHAR(512) NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_Notes DEFAULT (N''),
+        UpdatedUtc      DATETIME2(7) NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_UpdatedUtc DEFAULT SYSUTCDATETIME()
+    );
+
+    CREATE NONCLUSTERED INDEX IX_DiagramPeelCatalogEntry_PeelRank
+        ON dbo.DiagramPeelCatalogEntry (PeelRank, ArmResourceType)
+        WHERE PeelRank IS NOT NULL AND IsEnabled = 1;
+
+    CREATE NONCLUSTERED INDEX IX_DiagramPeelCatalogEntry_AlwaysDispose
+        ON dbo.DiagramPeelCatalogEntry (ArmResourceType)
+        WHERE AlwaysDispose = 1 AND IsEnabled = 1;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogEntry WHERE ArmResourceType = N'Microsoft.Network/networkWatchers')
+BEGIN
+    INSERT INTO dbo.DiagramPeelCatalogEntry (ArmResourceType, PeelRank, Notes)
+    VALUES
+        (N'Microsoft.Network/networkWatchers', 10, N'Platform noise — not topology'),
+        (N'Microsoft.Insights/diagnosticSettings', 10, N'Observability attachment'),
+        (N'Microsoft.Resources/deployments', 10, N'Deployment history'),
+        (N'Microsoft.Authorization/locks', 10, N'Governance metadata'),
+        (N'Microsoft.Network/virtualNetworks/subnets', 20, N'Child resource — nest under VNet swimlane'),
+        (N'Microsoft.Network/networkSecurityGroups/securityRules', 20, N'Child resource — rules on NSG'),
+        (N'Microsoft.Network/routeTables/routes', 20, N'Child resource — routes on table'),
+        (N'Microsoft.Network/loadBalancers/backendAddressPools', 20, N'Child resource — LB pool'),
+        (N'Microsoft.Network/loadBalancers/probes', 20, N'Child resource — LB probe'),
+        (N'Microsoft.Network/applicationGateways/frontendIPConfigurations', 20, N'Child resource — AppGw frontend'),
+        (N'Microsoft.Storage/storageAccounts/blobServices', 20, N'Child resource — storage sub-service'),
+        (N'Microsoft.Network/networkInterfaces', 30, N'Attachment — VM/NIC hop'),
+        (N'Microsoft.Network/publicIPAddresses', 40, N'Attachment — address on NIC/LB'),
+        (N'Microsoft.Compute/disks', 50, N'Attachment — disk on VM');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogEntry WHERE ArmResourceType = N'Microsoft.Network/virtualNetworks' AND PeelRank IS NULL)
+BEGIN
+    INSERT INTO dbo.DiagramPeelCatalogEntry (ArmResourceType, PeelRank, Notes)
+    VALUES
+        (N'Microsoft.Network/virtualNetworks', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Compute/virtualMachines', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Web/sites', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Storage/storageAccounts', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Sql/servers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.ManagedIdentity/userAssignedIdentities', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Network/azureFirewalls', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Network/applicationGateways', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Network/loadBalancers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Network/privateEndpoints', NULL, N'Backbone — never peel');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogEntry WHERE ArmResourceType = N'Microsoft.Sql/servers/databases')
+BEGIN
+    INSERT INTO dbo.DiagramPeelCatalogEntry (ArmResourceType, PeelRank, Notes)
+    VALUES
+        (N'Microsoft.Sql/servers/databases', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Sql/managedInstances', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforPostgreSQL/flexibleServers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforPostgreSQL/servers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforMySQL/flexibleServers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforMySQL/servers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DocumentDB/databaseAccounts', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Cache/Redis', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Compute/virtualMachineScaleSets', NULL, N'Backbone — never peel'),
+        (N'Microsoft.ContainerService/managedClusters', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Web/serverFarms', NULL, N'Backbone — never peel'),
+        (N'Microsoft.KeyVault/vaults', NULL, N'Backbone — never peel');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogVersion WHERE CatalogVersion < 2)
+BEGIN
+    DELETE FROM dbo.DiagramPeelCatalogVersion;
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (2);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DiagramPeelCatalogEntry', N'AlwaysDispose') IS NULL
+BEGIN
+    ALTER TABLE dbo.DiagramPeelCatalogEntry
+        ADD AlwaysDispose BIT NOT NULL
+            CONSTRAINT DF_DiagramPeelCatalogEntry_AlwaysDispose DEFAULT (0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DiagramPeelCatalogEntry', N'AlwaysDispose') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_DiagramPeelCatalogEntry_AlwaysDispose'
+          AND object_id = OBJECT_ID(N'dbo.DiagramPeelCatalogEntry'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_DiagramPeelCatalogEntry_AlwaysDispose
+        ON dbo.DiagramPeelCatalogEntry (ArmResourceType)
+        WHERE AlwaysDispose = 1 AND IsEnabled = 1;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DiagramPeelCatalogEntry', N'AlwaysDispose') IS NOT NULL
+BEGIN
+    MERGE dbo.DiagramPeelCatalogEntry AS target
+    USING (VALUES
+        (N'Microsoft.Portal/dashboards', N'Always dispose — portal dashboard'),
+        (N'Microsoft.Network/dnszones', N'Always dispose — DNS zone'),
+        (N'Microsoft.Network/privateDnsZones', N'Always dispose — private DNS zone'),
+        (N'Microsoft.Network/dnsResolvers', N'Always dispose — DNS resolver'),
+        (N'Microsoft.Compute/virtualMachines/extensions', N'Always dispose — VM extension'),
+        (N'Microsoft.Compute/virtualMachineScaleSets/extensions', N'Always dispose — VMSS extension'),
+        (N'Microsoft.HybridCompute/machines/extensions', N'Always dispose — Arc extension'),
+        (N'Microsoft.Maintenance/maintenanceConfigurations', N'Always dispose — maintenance window'),
+        (N'Microsoft.Maintenance/configurationAssignments', N'Always dispose — maintenance assignment')
+    ) AS source (ArmResourceType, Notes)
+        ON target.ArmResourceType = source.ArmResourceType
+    WHEN MATCHED THEN
+        UPDATE SET
+            PeelRank = 0,
+            AlwaysDispose = 1,
+            Notes = source.Notes,
+            UpdatedUtc = SYSUTCDATETIME()
+    WHEN NOT MATCHED THEN
+        INSERT (ArmResourceType, PeelRank, AlwaysDispose, IsEnabled, Notes)
+        VALUES (source.ArmResourceType, 0, 1, 1, source.Notes);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogVersion WHERE CatalogVersion < 3)
+BEGIN
+    DELETE FROM dbo.DiagramPeelCatalogVersion;
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (3);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+BEGIN
+    MERGE dbo.DiagramPeelCatalogEntry AS target
+    USING (VALUES
+        (N'Microsoft.DataFactory/factories', N'Backbone — never peel'),
+        (N'Microsoft.Synapse/workspaces', N'Backbone — never peel')
+    ) AS source (ArmResourceType, Notes)
+        ON target.ArmResourceType = source.ArmResourceType
+    WHEN NOT MATCHED THEN
+        INSERT (ArmResourceType, PeelRank, AlwaysDispose, IsEnabled, Notes)
+        VALUES (source.ArmResourceType, NULL, 0, 1, source.Notes);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogVersion WHERE CatalogVersion < 4)
+BEGIN
+    DELETE FROM dbo.DiagramPeelCatalogVersion;
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (4);
+END;
+GO
+
+/*
+  399: Operator inferred connection proposals and confirmations (SN-RT-10).
+*/
+
+IF OBJECT_ID(N'dbo.OperatorInferredConnections', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.OperatorInferredConnections
+    (
+        ConnectionId                UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_OperatorInferredConnections PRIMARY KEY CLUSTERED,
+        TenantId                    UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId                 UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                   UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                  UNIQUEIDENTIFIER NOT NULL,
+        Status                      INT               NOT NULL,
+        Source                      INT               NOT NULL,
+        RuleName                    NVARCHAR(128)     NULL,
+        QuestionText                NVARCHAR(2000)    NULL,
+        FromArmId                   NVARCHAR(1024)    NULL,
+        FromLabel                   NVARCHAR(512)     NULL,
+        FromCloudResourceId         UNIQUEIDENTIFIER  NULL,
+        ToHost                      NVARCHAR(512)     NULL,
+        ToCatalog                   NVARCHAR(256)     NULL,
+        ToArmId                     NVARCHAR(1024)    NULL,
+        ToCloudResourceId           UNIQUEIDENTIFIER  NULL,
+        SettingName                 NVARCHAR(512)     NULL,
+        SourceFileFormat            NVARCHAR(64)      NULL,
+        ActorKey                    NVARCHAR(256)     NULL,
+        ProposalPayloadHashSha256   VARBINARY(32)     NOT NULL,
+        CreatedUtc                  DATETIME2         NOT NULL,
+        UpdatedUtc                  DATETIME2         NOT NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_OperatorInferredConnections_Tenant_Snapshot_Status
+        ON dbo.OperatorInferredConnections (TenantId, SnapshotId, Status);
+
+    CREATE NONCLUSTERED INDEX IX_OperatorInferredConnections_Tenant_Snapshot_Hash
+        ON dbo.OperatorInferredConnections (TenantId, SnapshotId, ProposalPayloadHashSha256);
 END;
 GO

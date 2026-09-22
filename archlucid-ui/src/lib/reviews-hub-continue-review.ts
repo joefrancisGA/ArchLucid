@@ -73,6 +73,7 @@ export function resolveReviewsHubContinueReviewCandidate(
     drafts: options.draftRegistryEntries ?? [],
     incompleteWizards: [],
     maxItems: 6,
+    workingMode: true,
   }).find((item) => CONTINUE_REVIEW_KINDS.has(item.kind));
 
   if (railItem === undefined) {

@@ -47,6 +47,7 @@ export function ArchitectureIntelligencePageClient() {
     pageSubtitle,
     loadingInboundContext,
     productContextLoadFailed,
+    productContextBlockedReason,
     loadingAction,
     retryProductContextLoad,
     showIntakeForm,
@@ -105,9 +106,12 @@ export function ArchitectureIntelligencePageClient() {
 
       {productContextLoadFailed ? (
         <ArchitectureIntelligenceProductContextLoadFailure
+          blockedReason={productContextBlockedReason}
           message={
-            error ??
-            "Could not load product run source context. Paste a description or use the golden fixture."
+            productContextBlockedReason === null
+              ? (error ??
+                  "Could not load product run source context. Paste a description or use the golden fixture.")
+              : "Paste a description or use the golden fixture to continue without product intake."
           }
           retryLabel={ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL}
           retryDisabled={isBusy}

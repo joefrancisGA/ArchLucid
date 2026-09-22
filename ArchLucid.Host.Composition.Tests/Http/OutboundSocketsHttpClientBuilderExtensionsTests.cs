@@ -1,3 +1,6 @@
+using System.Net.Http;
+using System.Reflection;
+
 using ArchLucid.Core.Http;
 
 using ArchLucid.Host.Core.Http;
@@ -43,5 +46,44 @@ public sealed class OutboundSocketsHttpClientBuilderExtensionsTests
         optionsMonitor.Should().NotBeNull();
         HttpClientFactoryOptions options = optionsMonitor!.Get("tb2163-test");
         options.HandlerLifetime.Should().Be(Timeout.InfiniteTimeSpan);
+    }
+
+    [Fact]
+    public void ConfigureArchLucidOutboundSocketsHandler_opt_in_wires_private_network_connect_callback()
+    {
+        ServiceCollection services = [];
+        services.AddHttpClient("with-guard")
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                rejectPrivateNetworkConnectEndpoints: true);
+        services.AddHttpClient("without-guard")
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+
+        IServiceProvider provider = services.BuildServiceProvider();
+        IHttpClientFactory factory = provider.GetRequiredService<IHttpClientFactory>();
+
+        using HttpClient withGuard = factory.CreateClient("with-guard");
+        using HttpClient withoutGuard = factory.CreateClient("without-guard");
+
+        GetPrimarySocketsHandler(withGuard).ConnectCallback.Should().NotBeNull();
+        GetPrimarySocketsHandler(withoutGuard).ConnectCallback.Should().BeNull();
+    }
+
+    private static SocketsHttpHandler GetPrimarySocketsHandler(HttpMessageInvoker client)
+    {
+        FieldInfo? handlerField = typeof(HttpMessageInvoker).GetField("_handler", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? typeof(HttpMessageInvoker).GetField("_coreHandler", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        handlerField.Should().NotBeNull("HttpMessageInvoker handler field name changed");
+
+        HttpMessageHandler handler = (HttpMessageHandler)handlerField!.GetValue(client)!;
+
+        while (handler is DelegatingHandler delegating)
+        {
+            handler = delegating.InnerHandler
+                ?? throw new InvalidOperationException("DelegatingHandler chain ended with null InnerHandler.");
+        }
+
+        return handler.Should().BeOfType<SocketsHttpHandler>().Subject;
     }
 }

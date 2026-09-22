@@ -1,58 +1,76 @@
 "use client";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   PageContextualHelpButton,
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
+import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { EXTRACT_UPLOAD_PAGE_SHORTCUTS } from "@/lib/extract-upload-page-shortcuts";
 import {
   EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX,
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+  EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
   EXTRACT_UPLOAD_SETTINGS_NAV_HREF,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
   extractUploadSettingsPageSubtitle,
 } from "@/lib/extract-upload-settings-page-copy";
+import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-package-record";
 import { cn } from "@/lib/utils";
 
 import { ExtractUploadSettingsBreadcrumb } from "./ExtractUploadSettingsBreadcrumb";
 
 export type ExtractUploadSettingsPageHeaderProps = {
   readonly baselineLoading: boolean;
-  readonly hasBaselineArtifacts: boolean | null;
+  readonly hasInventoryOnFile: boolean | null;
   readonly extractorScriptVersion: string | null;
+  readonly associateRunId: string | null;
 };
 
 function inventoryStatusPresentation(
   baselineLoading: boolean,
-  hasBaselineArtifacts: boolean | null,
+  hasInventoryOnFile: boolean | null,
 ): { kind: EnterpriseStatusKind; label: string } | null {
-  if (baselineLoading) {
+  if (baselineLoading && hasInventoryOnFile !== true) {
     return { kind: "in-progress", label: EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL };
   }
 
-  if (hasBaselineArtifacts === true) {
+  if (hasInventoryOnFile === true) {
     return { kind: "ready", label: EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL };
   }
 
-  if (hasBaselineArtifacts === false) {
+  if (hasInventoryOnFile === false) {
     return { kind: "needs-attention", label: EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL };
   }
 
   return null;
 }
 
+function reviewBindingLabel(associateRunId: string | null): string | null {
+  const trimmed = associateRunId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
+}
+
 export function ExtractUploadSettingsPageHeader(
   props: ExtractUploadSettingsPageHeaderProps,
 ): React.JSX.Element {
+  const { productLine } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasBaselineArtifacts);
+  const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
+  const reviewBinding = reviewBindingLabel(props.associateRunId);
 
   return (
     <OperatorPageHeader
@@ -60,8 +78,7 @@ export function ExtractUploadSettingsPageHeader(
       titleTestId="extract-upload-page-title"
       navHref={EXTRACT_UPLOAD_SETTINGS_NAV_HREF}
       headingLevel="h1"
-      breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
-      subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell)}
+      subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell, productLine)}
       subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
         inventoryStatus !== null ? (
@@ -74,17 +91,34 @@ export function ExtractUploadSettingsPageHeader(
       }
       actions={
         buyerPolishedShell ? null : (
-          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          <div className="flex flex-wrap items-center gap-2">
+            <PageShortcutsDisclosure
+              testId="extract-upload-page-shortcuts"
+              entries={EXTRACT_UPLOAD_PAGE_SHORTCUTS}
+            />
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          </div>
         )
       }
       metadata={
-        buyerPolishedShell || props.extractorScriptVersion === null ? null : (
-          <span
-            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="extract-upload-header-extractor-version"
-          >
-            {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
-          </span>
+        buyerPolishedShell ? null : (
+          <div className={cn("flex flex-col gap-2", OPERATOR_TYPOGRAPHY.helper)}>
+            <ExtractUploadSettingsBreadcrumb />
+            {props.extractorScriptVersion !== null || reviewBinding !== null ? (
+              <div className="flex flex-col gap-1">
+                {props.extractorScriptVersion !== null ? (
+                  <span className="text-al-text-secondary" data-testid="extract-upload-header-extractor-version">
+                    {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
+                  </span>
+                ) : null}
+                {reviewBinding !== null ? (
+                  <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
+                    {reviewBinding}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         )
       }
     />

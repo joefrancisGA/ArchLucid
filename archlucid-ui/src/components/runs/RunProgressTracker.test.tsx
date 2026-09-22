@@ -25,11 +25,51 @@ vi.mock("@/hooks/use-review-pipeline-in-flight-for-run", () => ({
   useReviewPipelineInFlightForRun: vi.fn(() => null),
 }));
 
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+const workingDeskMock = vi.hoisted(() => ({ value: false }));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => workingDeskMock.value,
+}));
+
+vi.mock("@/hooks/use-health-ready-summary-query", () => ({
+  useHealthReadySummaryQuery: () => ({
+    data: {
+      preCommitGateEnabled: true,
+      agentExecutionMode: "Real",
+      agentOutputQualityGateMode: "Enforce",
+    },
+    isPending: false,
+    isSuccess: true,
+  }),
+}));
+
+vi.mock("@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint", () => ({
+  GovernanceFindingsQueueQuietEnginesHint: ({ scopedRunId }: { scopedRunId: string | null }) => (
+    <div data-testid="run-progress-quiet-engines-hint">{scopedRunId}</div>
+  ),
+}));
+
 import { getRunSummary } from "@/lib/api";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useReviewPipelineInFlightForRun } from "@/hooks/use-review-pipeline-in-flight-for-run";
 import { REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE } from "@/lib/review-execution-background-safety-copy";
+import {
+  RUN_PROGRESS_TRACKER_CAREER_BLOCKED_TERMINAL_STATUS,
+  RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL,
+  RUN_PROGRESS_TRACKER_REHEARSAL_INCOMPLETE_TERMINAL_STATUS,
+  RUN_PROGRESS_TRACKER_REHEARSAL_PRACTICE_TERMINAL_STATUS,
+  RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL,
+} from "@/lib/runs/run-progress-tracker-career-honesty";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockGetRunStageTimeline = vi.mocked(getRunStageTimeline);
@@ -56,6 +96,8 @@ function committedSummary(runId: string): RunSummary {
 describe("RunProgressTracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    effectiveDoorMock.value = "career";
+    workingDeskMock.value = false;
     mockUseReviewPipelineInFlightForRun.mockReturnValue(null);
     mockGetRunStageTimeline.mockResolvedValue([]);
     mockUseWorkspaceReviewDurationEstimate.mockReturnValue({ estimate: null, loading: false });
@@ -78,6 +120,35 @@ describe("RunProgressTracker", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+  });
+
+  it("mounts quiet-engine honesty on Working pre-finalize Ready chrome (IR-001)", async () => {
+    workingDeskMock.value = true;
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-quiet-engines-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-quiet-engines-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId("run-progress-quiet-engines")).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-quiet-engines-hint")).toHaveTextContent(
+      "prefinalize-quiet-engines-1",
+    );
   });
 
   it("shows pre-finalize ready-to-finalize terminal state without polling", async () => {
@@ -105,9 +176,164 @@ describe("RunProgressTracker", () => {
     expect(screen.getByRole("heading", { name: "Assessment progress" })).toBeInTheDocument();
     expect(screen.getByTestId("run-progress-stage-count")).toHaveTextContent("Progress: 3 / 3 stages");
     expect(screen.getByText(/Ready to finalize/i)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Not created yet");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Pending");
     expect(screen.queryByText(/We're preparing this review/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /retry polling/i })).not.toBeInTheDocument();
+  });
+
+  it("suppresses Ready to finalize copy on Working Career + Simulator (CG-030)", async () => {
+    effectiveDoorMock.value = "career";
+    workingDeskMock.value = true;
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-simulator-career-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
+  });
+
+  it("suppresses Ready to finalize copy on Working Rehearsal door (AS-079)", async () => {
+    effectiveDoorMock.value = "rehearsal";
+    workingDeskMock.value = true;
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-rehearsal-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-rehearsal-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_PRACTICE_TERMINAL_STATUS)).toBeInTheDocument();
+    expect(screen.getByText("Practice record")).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Practice");
+  });
+
+  it("shows Sealed record blocked terminal copy on Working Career + Simulator (CG-032)", async () => {
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "career";
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-simulator-career-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_CAREER_BLOCKED_TERMINAL_STATUS)).toBeInTheDocument();
+    expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent(
+      RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL,
+    );
+    expect(screen.getByText("Findings ready (rehearsal)")).toBeInTheDocument();
+  });
+
+  it("shows Practice incomplete terminal copy on Working Rehearsal + Simulator (CG-032)", async () => {
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "rehearsal";
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-rehearsal-simulator-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-rehearsal-simulator-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_INCOMPLETE_TERMINAL_STATUS)).toBeInTheDocument();
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL)).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Practice incomplete");
+  });
+
+  it("uses engineering rehearsal-complete status on Working Career + Simulator (CG-033)", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "career";
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "engineering-simulator-career-1",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: true,
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      structuralExecutionMode: "Simulator",
+    });
+
+    render(
+      <RunProgressTracker
+        runId="engineering-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "engineering-simulator-career-1",
+          hasContextSnapshot: true,
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+
+    expect(screen.getByText(/sealed record blocked on Simulator/i)).toBeInTheDocument();
+    expect(screen.queryByText("Pipeline complete — refresh for full detail.")).not.toBeInTheDocument();
   });
 
   it("enters pre-finalize terminal from live summary while assessment is still running on mount", async () => {
@@ -140,7 +366,7 @@ describe("RunProgressTracker", () => {
     });
 
     expect(screen.getByText(/Ready to finalize/i)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Not created yet");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Pending");
     expect(screen.queryByText(/We're preparing this review/i)).not.toBeInTheDocument();
   });
 
@@ -460,13 +686,7 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("run-progress-stage-count")).toHaveTextContent("Progress: 0 / 4 stages");
-    expect(
-      screen.getByText(
-        (_, element) =>
-          element?.textContent ===
-          "Assessment did not finish — see Do this next above for what happened and how to recover.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/0 of 4 assessment stages complete/i)).toBeInTheDocument();
     expect(screen.queryByText(/Execution failed before the first pipeline stage/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/authority_pipeline_dead_letter/i)).not.toBeInTheDocument();
     expect(

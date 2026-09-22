@@ -1,10 +1,14 @@
 "use client";
 
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { cn } from "@/lib/utils";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
+
+import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
 
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
@@ -16,11 +20,22 @@ type Props = {
   readonly criticalFindings: number;
   readonly highFindings: number;
   readonly materialFindings: number;
+  readonly roiSectionQualifier?: string | null;
 };
 
 export function PilotValueReportMetricsSection(props: Props) {
-  const { criticalFindings, data, executiveNarrative, highFindings, materialFindings, scopedRunId } = props;
+  const {
+    criticalFindings,
+    data,
+    executiveNarrative,
+    highFindings,
+    materialFindings,
+    roiSectionQualifier = null,
+    scopedRunId,
+  } = props;
   const timelineRows = data.committedRunsTimeline ?? [];
+  const reviewActivityHeading = resolveRoiTileSectionHeading("Review activity", roiSectionQualifier);
+  const riskDiscoveryHeading = resolveRoiTileSectionHeading("Risk discovery", roiSectionQualifier);
 
   return (
     <>
@@ -59,12 +74,18 @@ export function PilotValueReportMetricsSection(props: Props) {
       )}
 
       {scopedRunId.length > 0 ? (
-        <PilotRoiValidationHandoffClient runId={scopedRunId} />
+        <>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="pilot-value-report-metrics-non-summing">
+            {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+          </p>
+          <PolicyPackInfluenceHonestyChip />
+          <PilotRoiValidationHandoffClient runId={scopedRunId} />
+        </>
       ) : null}
 
       <section aria-labelledby="review-activity-heading">
         <h2 id="review-activity-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-          Review activity
+          {reviewActivityHeading}
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SponsorReportMetricCard title="Finalized reviews" value={data.totalRunsCommitted.toString()} />
@@ -85,7 +106,7 @@ export function PilotValueReportMetricsSection(props: Props) {
 
       <section aria-labelledby="risk-discovery-heading">
         <h2 id="risk-discovery-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-          Risk discovery
+          {riskDiscoveryHeading}
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SponsorReportMetricCard title="Total findings" value={data.totalFindings.toString()} />

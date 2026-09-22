@@ -114,6 +114,54 @@ public sealed class RiskExceptionServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_rejects_when_finding_latest_disposition_is_rejected_as_not_applicable()
+    {
+        const string findingId = "finding-not-applicable";
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = findingId,
+                    ReviewerUserId = "reviewer",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = Disposition.RejectedAsNotApplicable,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+            ]);
+
+        Mock<IRiskExceptionRepository> repository = new(MockBehavior.Strict);
+
+        RiskExceptionService sut = new(
+            repository.Object,
+            trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<ILogger<RiskExceptionService>>());
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = findingId,
+            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "attempt waiver on not-applicable finding",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.CreateAsync(request, Scope, "reviewer@test", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*RejectedAsNotApplicable*");
+    }
+
+    [Fact]
     public async Task CreateAsync_throws_conflict_when_active_waiver_exists_for_finding()
     {
         const string findingId = "finding-1";

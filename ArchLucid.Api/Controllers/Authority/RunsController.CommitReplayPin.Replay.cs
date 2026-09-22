@@ -113,7 +113,8 @@ public sealed partial class RunsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunsSealedManifestConflict(ex);
+
         }
         catch (InvalidOperationException ex)
         {

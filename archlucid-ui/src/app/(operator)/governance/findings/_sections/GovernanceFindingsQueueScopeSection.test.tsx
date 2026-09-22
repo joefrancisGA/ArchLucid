@@ -1,8 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 
 import { GovernanceFindingsQueueScopeSection } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueScopeSection";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
+
+const pathnameMock = vi.hoisted(() => ({ value: "/governance/findings" }));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathnameMock.value,
+}));
 
 function buildProps(
   overrides: Partial<GovernanceFindingsQueueAssignedToMeShellProps> = {},
@@ -61,6 +69,7 @@ function buildProps(
     architectureScopeHonesty: { hiddenCount: 0, line: null },
     isWorkingMode: false,
     scopedArchitectureId: null,
+    architectureDisplayName: null,
     lastOpenArchitectureId: null,
     onLoadFindingsSavedView: () => undefined,
     loading: false,
@@ -95,6 +104,24 @@ describe("GovernanceFindingsQueueScopeSection", () => {
   it("renders scoped run banner when a review is selected", () => {
     render(<GovernanceFindingsQueueScopeSection {...buildProps()} />);
     expect(screen.getByTestId("governance-findings-run-scope-banner")).toHaveTextContent("run-1");
+  });
+
+  it("IP-011: hides run-scope Open review banner on inhabited nested findings", () => {
+    pathnameMock.value = architectureNestedFindingsPath("architecture-identity-001");
+
+    render(
+      <GovernanceFindingsQueueScopeSection
+        {...buildProps({
+          isWorkingMode: true,
+          scopedArchitectureId: "architecture-identity-001",
+          architectureDisplayName: "Payments platform",
+          scopedRunId: "run-1",
+        })}
+      />,
+    );
+
+    expect(screen.queryByTestId("governance-findings-run-scope-banner")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Open review" })).toBeNull();
   });
 
   it("clear review scope link preserves register filters", () => {

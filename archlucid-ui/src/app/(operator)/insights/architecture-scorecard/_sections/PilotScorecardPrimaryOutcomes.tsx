@@ -20,6 +20,8 @@ import type {
   ReviewScorecardSummaryRow,
 } from "@/lib/pilot-scorecard-present";
 
+import { resolveScorecardKpiSectionHeading } from "@/lib/scorecard/scorecard-kpi-career-honesty";
+
 import {
   ScorecardMetricCard,
   ScorecardSavingsClaimDiscipline,
@@ -35,6 +37,7 @@ export type PilotScorecardPrimaryOutcomesProps = {
   readonly summaryRow: ReviewScorecardSummaryRow;
   readonly showPreviewBadge: boolean;
   readonly quarterlySavingsLabel: string | null;
+  readonly kpiSectionQualifier?: string | null;
 };
 
 export function PilotScorecardPrimaryOutcomes({
@@ -45,8 +48,13 @@ export function PilotScorecardPrimaryOutcomes({
   summaryRow,
   showPreviewBadge,
   quarterlySavingsLabel,
+  kpiSectionQualifier = null,
 }: PilotScorecardPrimaryOutcomesProps) {
   const { isWorkingMode } = useWorkspaceMode();
+  const operationalMetricsHeading = resolveScorecardKpiSectionHeading(
+    "Operational metrics",
+    kpiSectionQualifier,
+  );
   const finalizedHref = resolveReviewScorecardFinalizedHref({
     workingMode: isWorkingMode,
     lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
@@ -57,8 +65,18 @@ export function PilotScorecardPrimaryOutcomes({
       <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
     );
 
+  const primaryOutcomesAriaLabel =
+    kpiSectionQualifier === null
+      ? "Primary outcomes"
+      : `Primary outcomes — ${kpiSectionQualifier}`;
+
   return (
-    <section aria-label="Primary outcomes" className="space-y-3" data-testid="review-scorecard-summary-row">
+    <section
+      aria-label={primaryOutcomesAriaLabel}
+      className="space-y-3"
+      data-testid="review-scorecard-summary-row"
+      data-scorecard-kpi-qualifier={kpiSectionQualifier ?? undefined}
+    >
       {!savingsReady ? (
         <>
           {finalizedDisplay !== null && governanceDisplay !== null ? (
@@ -98,7 +116,7 @@ export function PilotScorecardPrimaryOutcomes({
 
           <section aria-labelledby="scorecard-metrics">
             <h2 id="scorecard-metrics" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
-              Operational metrics
+              {operationalMetricsHeading}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {operationalMetrics.map((metric) => (
@@ -185,7 +203,7 @@ export function PilotScorecardPrimaryOutcomes({
 
           <section aria-labelledby="scorecard-metrics-ready">
             <h2 id="scorecard-metrics-ready" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
-              Operational metrics
+              {operationalMetricsHeading}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {operationalMetrics.map((metric) => (

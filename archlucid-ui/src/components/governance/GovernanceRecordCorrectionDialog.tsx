@@ -16,11 +16,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { subscribeLivelihoodMutationReplayed } from "@/lib/auth/livelihood-mutation-replay-notify";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+
 import {
   GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE,
   GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED,
@@ -49,16 +50,16 @@ export function GovernanceRecordCorrectionDialog(
   const livelihoodReturnPath =
     searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
 
-  useResumePendingLivelihoodMutation({
-    enabled: true,
-    onReplayed: () => {
+  useEffect(() => {
+    return subscribeLivelihoodMutationReplayed(({ pending }) => {
+      if (pending.kind !== "governance_mutation_correction") {
+        return;
+      }
+
       props.onOpenChange(false);
       props.onRecorded?.();
-    },
-    onReplayError: (error) => {
-      setErrorMessage(toApiLoadFailure(error).message ?? GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE);
-    },
-  });
+    });
+  }, [props.onOpenChange, props.onRecorded]);
 
   useEffect(() => {
     if (!props.open) {
@@ -101,6 +102,7 @@ export function GovernanceRecordCorrectionDialog(
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
+
 
       setErrorMessage(
         governanceMutationCorrectionBlockedReason(failure)

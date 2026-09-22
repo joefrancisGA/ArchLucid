@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -78,6 +79,9 @@ public sealed class ExternalExposureFindingEngine(IComplianceRulePackProvider ru
                     TrustOrigin = actor.Properties.GetValueOrDefault("trustOrigin") ?? "unknown",
                 },
                 RelatedNodeIds = [actor.NodeId],
+                EvidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+                    graphSnapshot,
+                    [actor.NodeId]),
                 RecommendedActions =
                 [
                     "Add a TrustBoundary node linked to the external actor and document ingress controls.",

@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
@@ -38,6 +39,11 @@ public sealed partial class DeclarationPremiseConflictFindingEngine
                 ? ["declaration-premise-conflict", signal.ConflictKind]
                 : [policyRuleId, signal.ConflictKind];
 
+            List<string> relatedNodeIds = [topologyNode.NodeId, signal.IntentNodeId];
+            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+                graphSnapshot,
+                relatedNodeIds);
+
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -51,7 +57,8 @@ public sealed partial class DeclarationPremiseConflictFindingEngine
                     + $"but linked intent requires: \"{signal.IntentRequirementText}\".",
                 DecisionConsequence =
                     "The review premise is invalid until the operator corrects the declaration or amends the baseline.",
-                RelatedNodeIds = [topologyNode.NodeId, signal.IntentNodeId],
+                RelatedNodeIds = relatedNodeIds,
+                EvidenceRefs = evidenceRefs,
                 RecommendedActions =
                 [
                     "Align the declaration property with the stated security baseline or policy control, or update the intent node to reflect the actual posture.",

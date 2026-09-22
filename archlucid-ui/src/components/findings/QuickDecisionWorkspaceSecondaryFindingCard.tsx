@@ -8,7 +8,12 @@ import { FindingListDispositionRowActions } from "@/components/governance/findin
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import { Button } from "@/components/ui/button";
@@ -16,7 +21,10 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
-import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  resolveQuickDecisionFindingDispositionHref,
+  resolveQuickDecisionFindingInspectHref,
+} from "@/lib/findings/finding-evidence-navigation";
 import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding-links";
 import {
   parseQuickDecisionSecondaryFindingFindingIdFromSearch,
@@ -29,6 +37,7 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { cn } from "@/lib/utils";
 
 export type QuickDecisionWorkspaceSecondaryFindingCardProps = {
@@ -47,6 +56,11 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const { isWorkingMode } = useWorkspaceMode();
+  const findingNavOptions = {
+    architectureId: props.context.architectureId,
+    isWorkingMode,
+  };
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -130,6 +144,32 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 insightDensityScore={finding.insightDensityScore}
               />
             ) : null}
+            {isDecisionGradeFinding(finding) ? (
+              <>
+                <FindingTrustChip finding={finding} />
+                <FindingSemanticSupportBandChip
+                  finding={finding}
+                  showReason
+                  structuralExecutionMode={props.context.structuralExecutionMode}
+                />
+              </>
+            ) : null}
+            {finding.classification !== null && finding.classification !== undefined ? (
+              <FindingClassificationChip
+                classification={finding.classification}
+                treatment={finding.treatment}
+                findingId={finding.findingId}
+                showReason
+              />
+            ) : null}
+            {isDecisionGradeFinding(finding) ? (
+              <p
+                className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                data-testid={`finding-workspace-secondary-density-honesty-${finding.findingId}`}
+              >
+                {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+              </p>
+            ) : null}
             <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{finding.title}</span>
           </div>
         </summary>
@@ -141,7 +181,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="default" className="h-8" asChild>
               <Link
-                href={getFindingGovernanceDispositionHref(runId, finding.findingId)}
+                href={resolveQuickDecisionFindingDispositionHref(runId, finding.findingId, findingNavOptions)}
                 prefetch={false}
                 data-testid={`finding-record-disposition-${finding.findingId}`}
               >
@@ -149,7 +189,10 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
               </Link>
             </Button>
             <Button type="button" size="sm" variant="outline" className="h-8" asChild>
-              <Link href={getFindingDetailHref(runId, finding.findingId)} prefetch={false}>
+              <Link
+                href={resolveQuickDecisionFindingInspectHref(runId, finding.findingId, findingNavOptions)}
+                prefetch={false}
+              >
                 Open finding
               </Link>
             </Button>

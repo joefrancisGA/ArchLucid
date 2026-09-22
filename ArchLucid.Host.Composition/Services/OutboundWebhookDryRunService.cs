@@ -3,6 +3,8 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Services.Delivery;
 
@@ -72,6 +74,10 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
                     (preview, truncated) =
                         await ReadResponseBodyPreviewAsync(response.Content, cancellationToken).ConfigureAwait(false);
                 }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
                 catch (Exception)
                 {
                     // Headers arrived; body preview is best-effort for operator diagnostics.
@@ -86,6 +92,10 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
                 ResponseBodyPreview = preview,
                 ResponseBodyTruncated = truncated
             };
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -166,6 +176,11 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            isSampleRun: false,
+            StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoorValues.Rehearsal);
+
         Dictionary<string, object?> data = new()
         {
             ["schemaVersion"] = 1,
@@ -184,6 +199,9 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
                     ["severity"] = "High"
                 }
             },
+            ["structuralExecutionMode"] = careerPosture.StructuralExecutionMode,
+            ["workingCareerRehearsalDoor"] = careerPosture.WorkingCareerRehearsalDoor,
+            ["careerComplete"] = careerPosture.CareerComplete,
             ["note"] =
                 "Synthetic AuthorityRunCompleted simulation (no persistence); validate signature + payload at your subscriber."
         };

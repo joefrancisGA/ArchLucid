@@ -16,11 +16,16 @@ internal static class TenantScopedSqlExpressionResolver
 
     internal sealed class ResolutionResult
     {
-        internal ResolutionResult(string? sqlText, bool isStaticallyResolved, bool hasScopeHelperInvocation)
+        internal ResolutionResult(
+            string? sqlText,
+            bool isStaticallyResolved,
+            bool hasScopeHelperInvocation,
+            IReadOnlyList<string>? branchSqlTexts = null)
         {
             SqlText = sqlText;
             IsStaticallyResolved = isStaticallyResolved;
             HasScopeHelperInvocation = hasScopeHelperInvocation;
+            BranchSqlTexts = branchSqlTexts ?? Array.Empty<string>();
         }
 
         internal string? SqlText { get; }
@@ -29,8 +34,21 @@ internal static class TenantScopedSqlExpressionResolver
 
         internal bool HasScopeHelperInvocation { get; }
 
+        internal IReadOnlyList<string> BranchSqlTexts { get; }
+
+        internal IEnumerable<string> GetSqlTextsToAnalyze()
+        {
+            if (BranchSqlTexts.Count > 0)
+                return BranchSqlTexts;
+
+            if (IsStaticallyResolved && SqlText is not null)
+                return new[] { SqlText };
+
+            return Array.Empty<string>();
+        }
+
         internal ResolutionResult WithScopeHelper(bool hasScopeHelperInvocation) =>
-            new ResolutionResult(SqlText, IsStaticallyResolved, hasScopeHelperInvocation);
+            new ResolutionResult(SqlText, IsStaticallyResolved, hasScopeHelperInvocation, BranchSqlTexts);
     }
 
     internal static ResolutionResult Resolve(ExpressionSyntax? expression, SemanticModel semanticModel)
@@ -64,6 +82,9 @@ internal static class TenantScopedSqlExpressionResolver
                 if (IsRecognizedScopeHelperInvocation(invocation, semanticModel))
                     return new ResolutionResult(string.Empty, true, true);
 
+                if (TryResolveStringFormatInvocation(invocation, semanticModel, out ResolutionResult formatResolution))
+                    return formatResolution;
+
                 if (invocation.Expression is MemberAccessExpressionSyntax concatAccess &&
                     (string.Equals(concatAccess.Name.Identifier.Text, "Concat", StringComparison.Ordinal) ||
                      string.Equals(concatAccess.Name.Identifier.Text, "Join", StringComparison.Ordinal)))
@@ -74,11 +95,20 @@ internal static class TenantScopedSqlExpressionResolver
             case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.AddExpression } add:
                 return ResolveBinaryAdd(add, semanticModel);
 
+            case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } coalesce:
+                return ResolveNullCoalescing(coalesce, semanticModel, visitingInterpolatedHole);
+
             case InterpolatedStringExpressionSyntax interpolated:
                 return ResolveInterpolatedString(interpolated, semanticModel);
 
             case ParenthesizedExpressionSyntax parenthesized:
                 return ResolveCore(parenthesized.Expression, semanticModel, visitingInterpolatedHole);
+
+            case ConditionalExpressionSyntax conditional:
+                return ResolveConditional(conditional, semanticModel, visitingInterpolatedHole);
+
+            case SwitchExpressionSyntax switchExpression:
+                return ResolveSwitchExpression(switchExpression, semanticModel, visitingInterpolatedHole);
 
             default:
                 if (visitingInterpolatedHole)
@@ -86,6 +116,83 @@ internal static class TenantScopedSqlExpressionResolver
 
                 return new ResolutionResult(null, false, IsScopeHelperExpression(expression, semanticModel));
         }
+    }
+
+    private static ResolutionResult ResolveConditional(
+        ConditionalExpressionSyntax conditional,
+        SemanticModel semanticModel,
+        bool visitingInterpolatedHole)
+    {
+        ResolutionResult whenTrue = ResolveCore(conditional.WhenTrue, semanticModel, visitingInterpolatedHole);
+        ResolutionResult whenFalse = ResolveCore(conditional.WhenFalse, semanticModel, visitingInterpolatedHole);
+        bool hasScopeHelper = whenTrue.HasScopeHelperInvocation || whenFalse.HasScopeHelperInvocation;
+        List<string> branchSqlTexts = new();
+
+        AppendDistinctBranchSqlTexts(branchSqlTexts, whenTrue);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, whenFalse);
+
+        if (branchSqlTexts.Count == 0)
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
+    private static ResolutionResult ResolveSwitchExpression(
+        SwitchExpressionSyntax switchExpression,
+        SemanticModel semanticModel,
+        bool visitingInterpolatedHole)
+    {
+        bool hasScopeHelper = false;
+        List<string> branchSqlTexts = new();
+
+        foreach (SwitchExpressionArmSyntax arm in switchExpression.Arms)
+        {
+            ResolutionResult armResolution = ResolveCore(arm.Expression, semanticModel, visitingInterpolatedHole);
+            hasScopeHelper |= armResolution.HasScopeHelperInvocation;
+            AppendDistinctBranchSqlTexts(branchSqlTexts, armResolution);
+        }
+
+        if (branchSqlTexts.Count == 0)
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
+    private static void AppendDistinctBranchSqlTexts(List<string> branchSqlTexts, ResolutionResult resolution)
+    {
+        if (resolution.BranchSqlTexts.Count > 0)
+        {
+            foreach (string branchSqlText in resolution.BranchSqlTexts)
+            {
+                if (!branchSqlTexts.Contains(branchSqlText, StringComparer.Ordinal))
+                    branchSqlTexts.Add(branchSqlText);
+            }
+
+            return;
+        }
+
+        if (resolution.IsStaticallyResolved && resolution.SqlText is not null &&
+            !branchSqlTexts.Contains(resolution.SqlText, StringComparer.Ordinal))
+            branchSqlTexts.Add(resolution.SqlText);
+    }
+
+    private static ResolutionResult ResolveNullCoalescing(
+        BinaryExpressionSyntax coalesce,
+        SemanticModel semanticModel,
+        bool visitingInterpolatedHole)
+    {
+        ResolutionResult left = ResolveCore(coalesce.Left, semanticModel, visitingInterpolatedHole);
+        ResolutionResult right = ResolveCore(coalesce.Right, semanticModel, visitingInterpolatedHole);
+        bool hasScopeHelper = left.HasScopeHelperInvocation || right.HasScopeHelperInvocation;
+        List<string> branchSqlTexts = new();
+
+        AppendDistinctBranchSqlTexts(branchSqlTexts, left);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, right);
+
+        if (branchSqlTexts.Count == 0)
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
     }
 
     private static ResolutionResult ResolveBinaryAdd(BinaryExpressionSyntax add, SemanticModel semanticModel)
@@ -278,6 +385,131 @@ internal static class TenantScopedSqlExpressionResolver
 
         if (expression is MemberAccessExpressionSyntax memberAccess)
             return IsRecognizedScopeHelper(memberAccess, semanticModel);
+
+        return false;
+    }
+
+    private static bool TryResolveStringFormatInvocation(
+        InvocationExpressionSyntax invocation,
+        SemanticModel semanticModel,
+        out ResolutionResult result)
+    {
+        result = null!;
+
+        if (!IsStringFormatInvocation(invocation, semanticModel))
+            return false;
+
+        SeparatedSyntaxList<ArgumentSyntax> arguments = invocation.ArgumentList.Arguments;
+
+        if (arguments.Count == 0)
+            return false;
+
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+            return false;
+
+        if (!TryGetFormatStringArgumentIndex(method, arguments, out int formatArgumentIndex))
+            return false;
+
+        ResolutionResult formatString = ResolveCore(
+            arguments[formatArgumentIndex].Expression,
+            semanticModel,
+            visitingInterpolatedHole: false);
+
+        if (!formatString.IsStaticallyResolved || formatString.SqlText is null)
+            return false;
+
+        object?[] formatArgs = new object?[arguments.Count - formatArgumentIndex - 1];
+        bool hasScopeHelper = formatString.HasScopeHelperInvocation;
+
+        for (int index = formatArgumentIndex + 1; index < arguments.Count; index++)
+        {
+            ResolutionResult argument = ResolveCore(arguments[index].Expression, semanticModel, visitingInterpolatedHole: false);
+
+            if (!argument.IsStaticallyResolved)
+                return false;
+
+            hasScopeHelper |= argument.HasScopeHelperInvocation;
+            formatArgs[index - formatArgumentIndex - 1] = argument.SqlText ?? string.Empty;
+        }
+
+        string composed = string.Format(formatString.SqlText, formatArgs);
+        result = new ResolutionResult(composed, true, hasScopeHelper);
+
+        return true;
+    }
+
+    private static bool IsStringFormatInvocation(InvocationExpressionSyntax invocation, SemanticModel semanticModel)
+    {
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+            return false;
+
+        if (!string.Equals(method.Name, "Format", StringComparison.Ordinal))
+            return false;
+
+        return method.ContainingType.SpecialType == SpecialType.System_String;
+    }
+
+    private static bool TryGetFormatStringArgumentIndex(
+        IMethodSymbol method,
+        SeparatedSyntaxList<ArgumentSyntax> arguments,
+        out int argumentIndex)
+    {
+        argumentIndex = -1;
+
+        for (int index = 0; index < arguments.Count; index++)
+        {
+            string? parameterName = arguments[index].NameColon?.Name.Identifier.Text;
+
+            if (parameterName is not null &&
+                string.Equals(parameterName, "format", StringComparison.Ordinal))
+            {
+                argumentIndex = index;
+
+                return true;
+            }
+        }
+
+        int formatParameterIndex = -1;
+
+        for (int parameterIndex = 0; parameterIndex < method.Parameters.Length; parameterIndex++)
+        {
+            IParameterSymbol parameter = method.Parameters[parameterIndex];
+
+            if (parameter.Type.SpecialType != SpecialType.System_String)
+                continue;
+
+            if (!string.Equals(parameter.Name, "format", StringComparison.Ordinal))
+                continue;
+
+            formatParameterIndex = parameterIndex;
+
+            break;
+        }
+
+        if (formatParameterIndex < 0)
+        {
+            argumentIndex = 0;
+
+            return arguments.Count > 0;
+        }
+
+        for (int index = 0; index < arguments.Count; index++)
+        {
+            ArgumentSyntax argument = arguments[index];
+
+            if (argument.NameColon is not null)
+                continue;
+
+            if (index >= method.Parameters.Length)
+                continue;
+
+            if (index == formatParameterIndex)
+            {
+                argumentIndex = index;
+
+                return true;
+            }
+        }
 
         return false;
     }

@@ -15,7 +15,7 @@ export const OPERATOR_HOME_SOURCES_INTRO =
   "Use these when a completed review needs a sponsor briefing or findings triage.";
 
 export const OPERATOR_HOME_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "a committed review package needs sponsor briefing, findings triage, or architecture review navigation",
+  "a committed architecture package needs sponsor briefing, findings triage, or architecture review navigation",
 );
 
 /** Secondary destinations after on-page create / review / resume work — not the Home hero. */

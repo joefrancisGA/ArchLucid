@@ -1,11 +1,13 @@
 using ArchLucid.Application.Exports;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -25,7 +27,9 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
     IAuthorityQueryService authorityQueryService,
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
-    IConfiguration configuration) : IArchitectureAnalysisConsultingDocxExportService
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IArchitectureAnalysisConsultingDocxExportService
 {
     private readonly IConsultingDocxTemplateOptionsProvider _optionsProvider = optionsProvider ?? throw new ArgumentNullException(nameof(optionsProvider));
     private readonly IDocumentLogoProvider _logoProvider = logoProvider ?? throw new ArgumentNullException(nameof(logoProvider));
@@ -42,6 +46,12 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     public async Task<byte[]> GenerateDocxAsync(
         ArchitectureAnalysisReport report,
@@ -73,7 +83,9 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
             scope,
             workingDesk: true,
             _configuration,
-            cancellationToken);
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
 
         return await ConsultingDocxOpenXmlComposer.GenerateAsync(
             report,

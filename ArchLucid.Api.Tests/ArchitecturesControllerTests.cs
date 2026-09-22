@@ -3,12 +3,12 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Pagination;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Queries;
+
+
+
+
 
 
 using FluentAssertions;
@@ -25,6 +25,8 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitecturesControllerTests
 {
+    private const string ActorOid = "operator@test";
+
     private static readonly ScopeContext Scope = new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -36,17 +38,15 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IAuditService> _auditService = new();
     private readonly Mock<IArchitectureIdentityService> _service = new();
+    private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
-    private readonly Mock<IManifestHashService> _manifestHashService = new();
-    private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<IAuthorityQueryService> _authorityQueryService = new();
-
 
     public ArchitecturesControllerTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+        _actorContext.Setup(static s => s.GetActorId()).Returns(ActorOid);
     }
 
     [Fact]
@@ -68,7 +68,13 @@ public sealed class ArchitecturesControllerTests
         };
 
         _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListIdentitiesAsync(
+                Scope,
+                1,
+                50,
+                false,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(page);
 
         ArchitecturesController sut = BuildSut();
@@ -85,7 +91,11 @@ public sealed class ArchitecturesControllerTests
         Guid architectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
         _service
-            .Setup(s => s.GetIdentityAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetIdentityAsync(
+                Scope,
+                architectureId,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureIdentityDetail?)null);
 
         ArchitecturesController sut = BuildSut();
@@ -193,18 +203,13 @@ public sealed class ArchitecturesControllerTests
     }
 
     private ArchitecturesController BuildSut() =>
-        new(
-            _scopeProvider.Object,
-            _actorContext.Object,
-            _service.Object,
-            _sealDeltaService.Object,
-            _auditService.Object,
-            _runRepository.Object,
-            _goldenManifestRepository.Object,
-            _manifestHashService.Object,
-            _runDetailQueryService.Object,
-            _authorityQueryService.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        ArchitecturesControllerTestSupport.BuildController(
+            _scopeProvider,
+            _actorContext,
+            _service,
+            _bindingService,
+            _sealDeltaService,
+            _auditService,
+            _runRepository,
+            _goldenManifestRepository);
 }

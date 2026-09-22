@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { listDraftRequests } from "@/lib/api/draft-intake-api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -9,10 +10,13 @@ import { architectureDraftListBlockedReason } from "@/lib/architecture/architect
 import { mapDraftSummariesToRegistryEntries } from "@/lib/architecture/architecture-draft-summary-mapper";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { getOperatorScopeQueryKeySnapshot } from "@/lib/operator/operator-scope-query-key";
+import { shouldSkipArchitectureOnlyProxyApi } from "@/lib/product-line/architecture-only-proxy-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_QUERY_GC_MS, OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
 export function useArchitectureDraftListQuery(options?: { readonly enabled?: boolean }) {
+  const { productLine } = useProductLine();
+  const skipArchitectureOnlyApi = shouldSkipArchitectureOnlyProxyApi(productLine);
   const scopeKey = getOperatorScopeQueryKeySnapshot();
 
   const query = useQuery({
@@ -22,7 +26,7 @@ export function useArchitectureDraftListQuery(options?: { readonly enabled?: boo
 
       return mapDraftSummariesToRegistryEntries(page.items);
     },
-    enabled: options?.enabled ?? true,
+    enabled: (options?.enabled ?? true) && !skipArchitectureOnlyApi,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
   });
@@ -37,7 +41,7 @@ export function useArchitectureDraftListQuery(options?: { readonly enabled?: boo
   };
 }
 
-/** Invalidates the server-backed draft inventory after create, patch, abandon, or submit. */
+/** Invalidates the server-backed architecture draft inventory after create, patch, abandon, or submit. */
 export function useInvalidateArchitectureDraftList(): () => void {
   const queryClient = useQueryClient();
 

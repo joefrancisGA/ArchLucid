@@ -4,6 +4,10 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import type { GraphReviewPickerState } from "@/lib/graph-page-state";
+import {
+  resolveSystemNotJobWorkingReviewArchitectureId,
+  resolveSystemNotJobWorkingReviewOpenHref,
+} from "@/lib/system-not-job-nested-review-job-mint";
 
 import type { GraphMode } from "./graph-page-helpers";
 import type { GraphPageControlsProps } from "./GraphPageControls";
@@ -40,8 +44,15 @@ export function useGraphPageControlFilters(props: GraphPageControlsProps): Graph
     !props.loading &&
     props.reviewPickerState === "no-selection";
 
+  const workingReviewArchitectureId = resolveSystemNotJobWorkingReviewArchitectureId({
+    pinnedArchitectureId: props.pinnedArchitectureId,
+    pathname,
+    queryArchitectureId: searchParams.get("architectureId"),
+  });
   const reviewPackageHref =
-    runTrim.length > 0 ? `/architecture/reviews/${encodeURIComponent(runTrim)}` : "/architecture/reviews";
+    runTrim.length > 0
+      ? resolveSystemNotJobWorkingReviewOpenHref(runTrim, workingReviewArchitectureId)
+      : "/architecture/reviews";
 
   return {
     pathname,

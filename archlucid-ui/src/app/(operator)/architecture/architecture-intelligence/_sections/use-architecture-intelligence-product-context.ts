@@ -99,6 +99,9 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const scope = useOperatorScopeQueryKey();
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
+  const previousInboundRunIdRef = useRef(inboundRunId);
+  const previousUrlContextRunIdRef = useRef("");
+  const previousInboundRunIdForScopeRef = useRef(inboundRunId);
   const actionGenerationRef = useRef(0);
   const invalidateInFlightActions = useCallback(() => {
     actionGenerationRef.current += 1;
@@ -175,12 +178,54 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   );
 
   useEffect(() => {
+    const previousContextRunId = previousUrlContextRunIdRef.current;
+    const previousInbound = previousInboundRunIdForScopeRef.current;
+
+    previousUrlContextRunIdRef.current = urlContextRunId;
+    previousInboundRunIdForScopeRef.current = inboundRunId;
+
     if (urlContextRunId.length === 0) {
       return;
     }
 
+    const droppedInboundToDifferentContext =
+      previousInbound.length > 0 &&
+      inboundRunId.length === 0 &&
+      urlContextRunId !== previousInbound;
+
+    const changedContextOnlyScope =
+      inboundRunId.length === 0 &&
+      previousContextRunId.length > 0 &&
+      previousContextRunId !== urlContextRunId;
+
+    const changedContextRunId =
+      previousContextRunId.length > 0 &&
+      previousContextRunId !== urlContextRunId;
+
+    if (changedContextRunId) {
+      invalidateInFlightActions();
+      setRunState(null);
+      setInterviewAnswers({});
+      setError(null);
+      setPublishToProduct(false);
+      setHydratedSourceTexts([]);
+    }
+
+    if (droppedInboundToDifferentContext || changedContextOnlyScope) {
+      invalidateInFlightActions();
+      setRunState(null);
+      setInterviewAnswers({});
+      setError(null);
+      setArchitectureDescription("");
+      setPrioritiesRaw("");
+      setHydratedSourceTexts([]);
+      setPublishToProduct(false);
+      setProductContextStatus("idle");
+      setLoadingAction(null);
+    }
+
     setActiveRunId(urlContextRunId);
-  }, [urlContextRunId]);
+  }, [urlContextRunId, inboundRunId, invalidateInFlightActions]);
 
   useEffect(() => {
     if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
@@ -188,6 +233,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     }
 
     invalidateInFlightActions();
+    previousInboundRunIdRef.current = "";
     setActiveRunId(null);
     setRunState(null);
     setInterviewAnswers({});
@@ -250,11 +296,36 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return;
     }
 
+    const previousInboundRunId = previousInboundRunIdRef.current;
+    previousInboundRunIdRef.current = inboundRunId;
+
     const sources = sourceContextQuery.data.sourceTexts;
     setHydratedSourceTexts([...sources]);
-    setArchitectureDescription(hydratedDescriptionFromQuery);
+    setArchitectureDescription((currentDescription) => {
+      if (hydratedDescriptionFromQuery.trim().length > 0) {
+        return hydratedDescriptionFromQuery;
+      }
+
+      // Preserve freeform intake when the first deep-link resolves to an empty product context.
+      if (previousInboundRunId.length === 0 && currentDescription.trim().length > 0) {
+        return currentDescription;
+      }
+
+      return hydratedDescriptionFromQuery;
+    });
     setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
-    setPrioritiesRaw(hydratedPrioritiesFromQuery);
+    setPrioritiesRaw((currentPriorities) => {
+      if (hydratedPrioritiesFromQuery.trim().length > 0) {
+        return hydratedPrioritiesFromQuery;
+      }
+
+      // Preserve freeform priorities when the first deep-link resolves to an empty product context.
+      if (previousInboundRunId.length === 0 && currentPriorities.trim().length > 0) {
+        return currentPriorities;
+      }
+
+      return hydratedPrioritiesFromQuery;
+    });
 
     setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
     setLoadingAction(null);

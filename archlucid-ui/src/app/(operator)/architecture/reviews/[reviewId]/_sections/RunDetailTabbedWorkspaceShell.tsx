@@ -11,6 +11,7 @@ import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFin
 import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import { readProseAssumptionHeldCheckAsksFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import { readPixelDiagramNotVerifiableSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import { hasAzureInventoryZipEvidence } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
 import {
   RunDetailExplanationSkeleton,
   RunDetailTabbedSectionNavDeferred,
@@ -33,7 +34,8 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
   const {
     blockingApprovalCount,
     commitBlockedReason,
-    finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled,
+    finalizeReadinessBlocks,
     quickDecisionFindings,
     requestAssumptionTexts,
     reviewStatusSummary,
@@ -62,7 +64,8 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       useCreateHomeWorkspaceTabs={false}
       hasGoldenManifest={Boolean(model.manifestId)}
       commitBlockedReason={commitBlockedReason}
-      finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+      serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
+      finalizeReadinessEnabled={finalizeReadinessEnabled}
       quickDecisionFindings={quickDecisionFindings}
       requestAssumptionTexts={requestAssumptionTexts}
       transparencyTrail={
@@ -100,6 +103,12 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       pixelDiagramNotVerifiableSources={readPixelDiagramNotVerifiableSourcesFromContextSnapshot(model.resolvedDetail.contextSnapshot)}
       withheldFindingCount={withheldFindings.length}
       catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
+      architectureRequestId={model.resolvedDetail.run.architectureRequestId}
+      azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(presentation.evidenceInventoryItems)}
+      structuralExecutionMode={model.resolvedDetail.run.structuralExecutionMode}
+      parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
+      degradedFindingCoverage={model.resolvedDetail.degradedFindingCoverage === true}
+      degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
     />
   );
 
@@ -108,6 +117,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       <RunDetailPresenterElicitationBridge
         runId={model.resolvedDetail.run.runId}
         architectureRequestId={model.resolvedDetail.run.architectureRequestId}
+        parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
         defensibilityStrip={resolved.defensibilityStripEl}
         tabSectionNav={
           <RunDetailTabbedSectionNavDeferred

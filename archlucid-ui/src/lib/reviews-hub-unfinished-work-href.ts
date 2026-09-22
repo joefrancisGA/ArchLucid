@@ -2,8 +2,8 @@ import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
   architectureIdentityPath,
-  resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 
 /** Reviews hub inventory filter query — unfinished / needs-attention reviews. */
 export const REVIEWS_HUB_NEEDS_ATTENTION_FILTER = "needs-attention" as const;
@@ -42,7 +42,11 @@ export function resolveReviewsHubUnfinishedWorkHref(
   const inFlightParentArchitectureId = trimmedId(input.inFlightParentArchitectureId);
 
   if (inFlightRunId !== null && inFlightParentArchitectureId !== null) {
-    return resolveArchitectureReviewHref(inFlightRunId, inFlightParentArchitectureId);
+    return resolveWorkingInhabitedFindingsLandingHref({
+      runId: inFlightRunId,
+      architectureId: inFlightParentArchitectureId,
+      workingMode: true,
+    });
   }
 
   if (inFlightParentArchitectureId !== null) {

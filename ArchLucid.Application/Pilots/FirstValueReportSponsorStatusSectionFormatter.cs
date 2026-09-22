@@ -42,6 +42,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
         sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail, deltas)} |");
+        sb.AppendLine(
+            $"| Semantic support | {FirstValueReportSemanticSupportBandSectionFormatter.FormatSponsorStatusTableCell(detail, deltas)} |");
         sb.AppendLine($"| Deferred buyer requirements | {FormatSponsorDeferredBuyerRequirements()} |");
         sb.AppendLine($"| Recommended next action | {FormatSponsorNextAction(disposition, proof, deltas, run)} |");
         sb.AppendLine();

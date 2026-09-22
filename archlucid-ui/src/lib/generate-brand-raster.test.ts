@@ -22,4 +22,17 @@ describe("generate-brand-raster outputs", () => {
     expect(iconMeta.width).toBe(192);
     expect(iconMeta.height).toBe(192);
   });
+
+  it("commits a fully transparent SecureNow favicon so Edge does not show a mark", async () => {
+    const blankPath = path.join(logoDir, "favicon-blank.png");
+
+    expect(existsSync(blankPath)).toBe(true);
+
+    const blankMeta = await sharp(blankPath).metadata();
+    const blankStats = await sharp(blankPath).stats();
+
+    expect(blankMeta.width).toBe(32);
+    expect(blankMeta.height).toBe(32);
+    expect(blankStats.isOpaque).toBe(false);
+  });
 });

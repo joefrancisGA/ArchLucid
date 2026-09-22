@@ -1,10 +1,14 @@
+"use client";
+
 import type { ReactElement } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { demoVsLiveChromeForFlags } from "@/lib/demo-vs-live-chrome";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isOperatorDemoStaticMode } from "@/lib/operator/operator-static-demo";
+import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 type OperatorDemoStaticBannerProps = {
   readonly emphasizeSampleData?: boolean;
@@ -17,7 +21,13 @@ type OperatorDemoStaticBannerProps = {
  * because the upstream API returned an error and static demo fallback is enabled (`NEXT_PUBLIC_DEMO_MODE` or `NEXT_PUBLIC_DEMO_STATIC_OPERATOR`).
  * TB-2218: uses aggressive demo-vs-live copy so the surface cannot be mistaken for live tenant data.
  */
-export function OperatorDemoStaticBanner(props: OperatorDemoStaticBannerProps): ReactElement {
+export function OperatorDemoStaticBanner(props: OperatorDemoStaticBannerProps): ReactElement | null {
+  const { productLine } = useProductLine();
+
+  if (isSecureNowDemoChromeExcluded(productLine)) {
+    return null;
+  }
+
   const demoMode = isNextPublicDemoMode();
   const staticEnv = isOperatorDemoStaticMode() || demoMode;
   const copy = demoVsLiveChromeForFlags({

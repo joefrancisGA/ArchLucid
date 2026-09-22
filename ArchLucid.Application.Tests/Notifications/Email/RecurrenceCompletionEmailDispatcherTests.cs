@@ -1,4 +1,5 @@
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
@@ -63,6 +64,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 1,
             sourceRunId,
             ["ops@example.test"],
+            null,
             CancellationToken.None);
 
         sent.Should().BeTrue();
@@ -117,6 +119,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             sourceRunId,
             ["ops@example.test"],
+            null,
             CancellationToken.None);
 
         await firstAttempt.Should().ThrowAsync<InvalidOperationException>();
@@ -130,6 +133,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             sourceRunId,
             ["ops@example.test"],
+            null,
             CancellationToken.None);
 
         secondAttempt.Should().BeTrue("template render failures must not reserve the recurrence completion ledger");
@@ -188,6 +192,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             sourceRunId,
             [mailbox],
+            null,
             CancellationToken.None);
 
         sent.Should().BeTrue("idempotent replays must report success when the ledger already recorded all recipients");
@@ -228,11 +233,123 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             Guid.Parse("28282828-2828-2828-2828-282828282828"),
             [" ", ""],
+            null,
             CancellationToken.None);
 
         sent.Should().BeFalse();
         provider.Verify(
             p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task TryDispatchAsync_uses_nested_architecture_url_when_architecture_id_is_known()
+    {
+        RecurrenceCompletionEmailModel? captured = null;
+        InMemorySentEmailLedger ledger = new();
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) =>
+            {
+                captured = model as RecurrenceCompletionEmailModel;
+            })
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions
+        {
+            ProductDisplayName = "ArchLucid",
+            OperatorBaseUrl = "https://app.example.com",
+        });
+
+        RecurrenceCompletionEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<RecurrenceCompletionEmailDispatcher>.Instance);
+
+        Guid architectureId = Guid.Parse("29292929-2929-2929-2929-292929292929");
+        Guid triggeredRunId = Guid.Parse("2a2a2a2a-2a2a-2a2a-2a2a-2a2a2a2a2a2a");
+        string runHex = triggeredRunId.ToString("N");
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.Parse("2b2b2b2b-2b2b-2b2b-2b2b-2b2b2b2b2b2b"),
+            Guid.Parse("2c2c2c2c-2c2c-2c2c-2c2c-2c2c2c2c2c2c"),
+            triggeredRunId,
+            scheduleName: "Weekly scan",
+            newFindingCount: 1,
+            resolvedFindingCount: 0,
+            Guid.Parse("2d2d2d2d-2d2d-2d2d-2d2d-2d2d2d2d2d2d"),
+            ["ops@example.test"],
+            architectureId,
+            CancellationToken.None);
+
+        sent.Should().BeTrue();
+        captured.Should().NotBeNull();
+        captured!.RunDetailUrl.Should().Be(
+            $"https://app.example.com/architecture/architectures/{architectureId:D}/reviews/{runHex}");
+        captured.RunDetailUrl.Should().NotContain("/architecture/reviews/" + runHex);
+    }
+
+    [Fact]
+    public async Task TryDispatchAsync_uses_peer_review_url_when_architecture_id_is_missing()
+    {
+        RecurrenceCompletionEmailModel? captured = null;
+        InMemorySentEmailLedger ledger = new();
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) =>
+            {
+                captured = model as RecurrenceCompletionEmailModel;
+            })
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions
+        {
+            ProductDisplayName = "ArchLucid",
+            OperatorBaseUrl = "https://app.example.com",
+        });
+
+        RecurrenceCompletionEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<RecurrenceCompletionEmailDispatcher>.Instance);
+
+        Guid triggeredRunId = Guid.Parse("2e2e2e2e-2e2e-2e2e-2e2e-2e2e2e2e2e2e");
+        string runHex = triggeredRunId.ToString("N");
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.Parse("2f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f"),
+            Guid.Parse("30303030-3030-3030-3030-303030303030"),
+            triggeredRunId,
+            scheduleName: "Weekly scan",
+            newFindingCount: 1,
+            resolvedFindingCount: 0,
+            Guid.Parse("31313131-3131-3131-3131-313131313131"),
+            ["ops@example.test"],
+            null,
+            CancellationToken.None);
+
+        sent.Should().BeTrue();
+        captured.Should().NotBeNull();
+        captured!.RunDetailUrl.Should().Be($"https://app.example.com/architecture/reviews/{runHex}");
     }
 }

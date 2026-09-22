@@ -48,7 +48,8 @@ public sealed class GoldenCorpusCase64RegressionTests
             merge: null,
             CancellationToken.None,
             input.InventoryFixture,
-            input.PriorGraphFixture);
+            input.PriorGraphFixture,
+            input.AssignedPackFixture);
 
         string expectedFindings = await File.ReadAllTextAsync(Path.Combine(caseDir, "expected-findings.json"));
         actual.FindingsJson.Should().Be(expectedFindings);

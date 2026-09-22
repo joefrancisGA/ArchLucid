@@ -1,5 +1,7 @@
 import type { CloudPlatformScope } from "@/lib/cloud-platform-scope-storage";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { DEFAULT_LOADED_HOURLY_USD } from "@/lib/roi-assumptions";
 import type { WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 import type { WorkspaceModeGraduationOfferState } from "@/lib/workspace-mode/workspace-mode-preference";
@@ -10,6 +12,8 @@ export type CloudPlatformScopeDto = {
   readonly aws: boolean;
   readonly gcp: boolean;
 };
+
+export type FirstSessionPurposeId = "live" | "training";
 
 export type UserPreferencesResponse = {
   appearancePreference: ColorModePreference;
@@ -26,6 +30,10 @@ export type UserPreferencesResponse = {
   workspaceModeIsExplicit: boolean;
   workspaceModeGraduationOffer: WorkspaceModeGraduationOfferState;
   workspaceModeGraduationOfferIsExplicit: boolean;
+  firstSessionPurpose: FirstSessionPurposeId | null;
+  firstSessionPurposeIsExplicit: boolean;
+  workingCareerRehearsalDoor: WorkingCareerRehearsalDoorId;
+  workingCareerRehearsalDoorIsExplicit: boolean;
   professionalWorkbenchEnabled: boolean;
   professionalWorkbenchEnabledIsExplicit: boolean;
   roiLoadedHourlyCostUsd: number;
@@ -38,6 +46,30 @@ export type UserPreferencesResponse = {
   findingsShowAdvisoryEnabledIsExplicit: boolean;
   deskContinuity: DeskContinuityDto;
   deskContinuityIsExplicit: boolean;
+  workingWorkspaceContinuity: WorkingWorkspaceContinuityDto;
+  workingWorkspaceContinuityIsExplicit: boolean;
+};
+
+export type FavoriteReviewEntryDto = {
+  readonly runId: string;
+  readonly title?: string | null;
+  readonly pinnedAtUtc: string;
+  readonly architectureId?: string | null;
+};
+
+export type OperatorRecentViewEntryDto = {
+  readonly href: string;
+  readonly label: string;
+  readonly kind: string;
+  readonly visitedAtUtc: string;
+  readonly architectureId?: string | null;
+  readonly parentArchitectureId?: string | null;
+};
+
+export type WorkingWorkspaceContinuityDto = {
+  readonly favoriteReviews: readonly FavoriteReviewEntryDto[];
+  readonly recentViewEntries: readonly OperatorRecentViewEntryDto[];
+  readonly updatedAtUtc?: string | null;
 };
 
 export type DeskContinuityDto = {
@@ -67,12 +99,20 @@ export type SetIanaTimeZonePreferenceRequest = {
   ianaTimeZoneId: string;
 };
 
+export type SetFirstSessionPurposeRequest = {
+  purpose: FirstSessionPurposeId;
+};
+
 export type SetWorkspaceModeRequest = {
   mode: WorkspaceModeId;
 };
 
 export type SetWorkspaceModeGraduationOfferRequest = {
   state: WorkspaceModeGraduationOfferState;
+};
+
+export type SetWorkingCareerRehearsalDoorRequest = {
+  door: WorkingCareerRehearsalDoorId;
 };
 
 export type SetProfessionalWorkbenchEnabledRequest = {
@@ -93,6 +133,10 @@ export type SetDeskContinuityRequest = {
   continuity: DeskContinuityDto;
 };
 
+export type SetWorkingWorkspaceContinuityRequest = {
+  continuity: WorkingWorkspaceContinuityDto;
+};
+
 export type FindingsVisibilityPreferences = {
   readonly hideGenericEnabled: boolean;
   readonly showLowConfidenceEnabled: boolean;
@@ -106,7 +150,7 @@ export const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
   gcp: true,
 };
 
-export const DEFAULT_IANA_TIME_ZONE_ID = "UTC";
+export { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 
 /** Matches prior module-level TTL; TanStack `staleTime` for cross-tree dedupe (TB-2303). */
 export const USER_PREFERENCES_STALE_MS = 30_000;
@@ -127,6 +171,10 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     workspaceModeIsExplicit: false,
     workspaceModeGraduationOffer: "pending",
     workspaceModeGraduationOfferIsExplicit: false,
+    firstSessionPurpose: null,
+    firstSessionPurposeIsExplicit: false,
+    workingCareerRehearsalDoor: "career",
+    workingCareerRehearsalDoorIsExplicit: false,
     professionalWorkbenchEnabled: true,
     professionalWorkbenchEnabledIsExplicit: false,
     roiLoadedHourlyCostUsd: DEFAULT_LOADED_HOURLY_USD,
@@ -139,6 +187,16 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     findingsShowAdvisoryEnabledIsExplicit: false,
     deskContinuity: defaultDeskContinuityDto(),
     deskContinuityIsExplicit: false,
+    workingWorkspaceContinuity: defaultWorkingWorkspaceContinuityDto(),
+    workingWorkspaceContinuityIsExplicit: false,
+  };
+}
+
+export function defaultWorkingWorkspaceContinuityDto(): WorkingWorkspaceContinuityDto {
+  return {
+    favoriteReviews: [],
+    recentViewEntries: [],
+    updatedAtUtc: null,
   };
 }
 

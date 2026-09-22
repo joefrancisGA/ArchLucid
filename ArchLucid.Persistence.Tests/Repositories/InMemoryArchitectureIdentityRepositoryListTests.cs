@@ -56,7 +56,7 @@ public sealed class InMemoryArchitectureIdentityRepositoryListTests
         };
         await runRepository.SaveAsync(run, CancellationToken.None);
 
-        var page = await repository.ListAsync(Scope, 1, 50, includeArchived: true, CancellationToken.None);
+        var page = await repository.ListAsync(Scope, 1, 50, includeArchived: true, actorOidForShareFilter: null, CancellationToken.None);
 
         page.TotalCount.Should().Be(1);
         page.Items[0].DraftCount.Should().Be(1);

@@ -19,8 +19,10 @@ describe("PolicyPacksPageView progressive disclosure", () => {
     expect(source).not.toContain('data-testid="policy-packs-tab-generator"');
   });
 
-  it("surfaces policy impact preview outside the advanced accordion", () => {
+  it("lists registered inventory before policy impact preview", () => {
     expect(source).toContain("PolicyPackImpactPreviewPanel");
+    expect(source).toContain("PolicyPacksRegisteredListSection");
+    expect(source.indexOf("<PolicyPacksRegisteredListSection")).toBeLessThan(source.indexOf("{impactPreviewPanel}"));
     expect(source.indexOf("PolicyPackImpactPreviewPanel")).toBeLessThan(
       source.indexOf('data-testid="policy-packs-advanced-options"'),
     );

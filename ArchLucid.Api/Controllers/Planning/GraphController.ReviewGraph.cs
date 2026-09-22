@@ -27,43 +27,45 @@ public sealed partial class GraphController
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> GetArchitectureGraph(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
-                ProblemTypes.ResourceNotFound);
-
-        if (detail.GoldenManifest is not null)
+        try
         {
-            try
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            if (detail.GraphSnapshot is null)
+                return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
+                    ProblemTypes.ResourceNotFound);
+
+            if (detail.GoldenManifest is not null)
             {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
+                IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
             }
-            catch (ConflictException ex)
+
+            KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
+
+            if (limits.FullGraphResponseMaxNodes > 0 &&
+                detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
             {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                return this.PayloadTooLargeProblem(
+                    $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the full-graph endpoint allows at most "
+                    + $"{limits.FullGraphResponseMaxNodes}. Use GET /v1/evidence-graph/reviews/{runId}/nodes with page and pageSize "
+                    + $"(maximum page size {PaginationDefaults.MaxPageSize}).",
+                    ProblemTypes.GraphTooLargeForFullResponse);
             }
+
+            GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
+            return Ok(vm);
         }
-
-        KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
-
-        if (limits.FullGraphResponseMaxNodes > 0 &&
-            detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
+        catch (ConflictException ex)
         {
-            return this.PayloadTooLargeProblem(
-                $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the full-graph endpoint allows at most "
-                + $"{limits.FullGraphResponseMaxNodes}. Use GET /v1/evidence-graph/reviews/{runId}/nodes with page and pageSize "
-                + $"(maximum page size {PaginationDefaults.MaxPageSize}).",
-                ProblemTypes.GraphTooLargeForFullResponse);
+            return MapGraphSealedManifestConflict(ex);
         }
-
-        GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
-        return Ok(vm);
     }
 
     /// <summary>
@@ -79,32 +81,34 @@ public sealed partial class GraphController
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
-                ProblemTypes.ResourceNotFound);
-
-        if (detail.GoldenManifest is not null)
+        try
         {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
-        GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
-        GraphNodesPageResponse body = MapArchitectureGraphPage(slice);
-        return Ok(body);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            if (detail.GraphSnapshot is null)
+                return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
+                    ProblemTypes.ResourceNotFound);
+
+            if (detail.GoldenManifest is not null)
+            {
+                IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
+            GraphNodesPageResponse body = MapArchitectureGraphPage(slice);
+            return Ok(body);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGraphSealedManifestConflict(ex);
+        }
     }
 
     private static GraphViewModel MapArchitectureGraph(GraphSnapshot snapshot)

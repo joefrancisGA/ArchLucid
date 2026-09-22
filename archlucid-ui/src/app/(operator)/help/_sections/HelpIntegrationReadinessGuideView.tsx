@@ -8,17 +8,19 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { IntegrationReadinessHelpClaimDisciplineStrip } from "@/components/help/IntegrationReadinessHelpClaimDisciplineStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   INTEGRATION_READINESS_HELP_CONFIGURE_SECTION_ANCHORS,
   INTEGRATION_READINESS_HELP_DEFERRED_STATUS_LABELS_ANCHOR,
   INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS,
   INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID,
-  INTEGRATION_READINESS_HELP_OVERVIEW,
+  integrationReadinessHelpOverview,
   INTEGRATION_READINESS_HELP_STATUS_GLOSSARY_TITLE,
 } from "@/lib/integration-readiness-help-guide-content";
 import {
@@ -58,6 +60,8 @@ export function HelpIntegrationReadinessGuideView(
   props: HelpIntegrationReadinessGuideViewProps,
 ): React.JSX.Element {
   const { entry, markdown } = props;
+  const { productLine } = useProductLine();
+  const overview = integrationReadinessHelpOverview(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -156,7 +160,7 @@ export function HelpIntegrationReadinessGuideView(
         </section>
 
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-integration-readiness-overview">
-          {INTEGRATION_READINESS_HELP_OVERVIEW}
+          {overview}
         </p>
 
         {firstViewportMarkdown.trim().length > 0 ? (
@@ -171,6 +175,8 @@ export function HelpIntegrationReadinessGuideView(
           </div>
         ) : null}
       </div>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-integration-readiness" showSsoOptional={false} />
 
       <section
         className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"

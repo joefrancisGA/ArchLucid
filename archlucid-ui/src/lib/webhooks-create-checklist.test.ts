@@ -12,6 +12,7 @@ describe("webhooks-create-checklist", () => {
         destinationConfigured: false,
         eventsConfigured: false,
         subscriptionEnabled: false,
+        subscriptionsLoaded: true,
       }),
     ).toBe("destination");
 
@@ -20,8 +21,20 @@ describe("webhooks-create-checklist", () => {
         destinationConfigured: true,
         eventsConfigured: false,
         subscriptionEnabled: false,
+        subscriptionsLoaded: true,
       }),
     ).toBe("events");
+  });
+
+  it("does not mark enable step incomplete while subscriptions are still loading", () => {
+    const steps = resolveWebhooksCreateSteps({
+      destinationConfigured: true,
+      eventsConfigured: true,
+      subscriptionEnabled: false,
+      subscriptionsLoaded: false,
+    });
+
+    expect(steps[2]?.complete).toBe(true);
   });
 
   it("returns three create steps", () => {
@@ -29,6 +42,7 @@ describe("webhooks-create-checklist", () => {
       destinationConfigured: true,
       eventsConfigured: true,
       subscriptionEnabled: false,
+      subscriptionsLoaded: true,
     });
 
     expect(steps).toHaveLength(3);

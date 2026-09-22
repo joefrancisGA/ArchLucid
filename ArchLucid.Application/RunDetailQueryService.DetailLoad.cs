@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -87,6 +88,13 @@ public sealed partial class RunDetailQueryService
         {
             FindingMuteFlagApplier.Apply(results, muteFlags);
         }
+
+        await ApplySemanticSupportBandOverlaysAndLaneBComposeAsync(
+            runId,
+            scope,
+            results,
+            record.FindingsSnapshotId,
+            cancellationToken).ConfigureAwait(false);
 
         FindingTrustLabelEnricher.Apply(run, results, _findingTrustLabelMapper);
 

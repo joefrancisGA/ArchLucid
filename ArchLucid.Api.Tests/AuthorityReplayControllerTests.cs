@@ -2,7 +2,9 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Coordination.Replay;
 
 using FluentAssertions;
@@ -59,7 +61,9 @@ public sealed class AuthorityReplayControllerTests
             replayService,
             Mock.Of<IAuditService>(),
             actor.Object,
-            scopeProvider.Object)
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

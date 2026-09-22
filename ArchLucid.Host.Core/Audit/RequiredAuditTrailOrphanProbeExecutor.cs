@@ -70,9 +70,27 @@ public sealed class RequiredAuditTrailOrphanProbeExecutor(
                 cancellationToken)
             .ConfigureAwait(false);
 
+        long shareGrantedOrphans = await CountAsync(
+                connection,
+                RequiredAuditTrailOrphanProbeSql.ArchitectureShareGrantedMissingAudit,
+                graceMinutes,
+                lookbackDays,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        long restrictEnabledOrphans = await CountAsync(
+                connection,
+                RequiredAuditTrailOrphanProbeSql.ArchitectureRestrictToSharesEnabledMissingAudit,
+                graceMinutes,
+                lookbackDays,
+                cancellationToken)
+            .ConfigureAwait(false);
+
         EmitSlice(RequiredAuditTrailOrphanProbeSql.DomainGovernanceApproved, approvedOrphans);
         EmitSlice(RequiredAuditTrailOrphanProbeSql.DomainGovernanceRejected, rejectedOrphans);
         EmitSlice(RequiredAuditTrailOrphanProbeSql.DomainGoldenManifestFinalized, finalizeOrphans);
+        EmitSlice(RequiredAuditTrailOrphanProbeSql.DomainArchitectureShareGranted, shareGrantedOrphans);
+        EmitSlice(RequiredAuditTrailOrphanProbeSql.DomainArchitectureRestrictToSharesEnabled, restrictEnabledOrphans);
     }
 
     private void EmitSlice(string domain, long count)

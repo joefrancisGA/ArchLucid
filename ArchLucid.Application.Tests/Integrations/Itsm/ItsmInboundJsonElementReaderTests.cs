@@ -18,4 +18,14 @@ public sealed class ItsmInboundJsonElementReaderTests
 
         value.Should().Be("6");
     }
+
+    [Fact]
+    public void ReadStringOrRawText_returns_null_for_json_null()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"state":null}""");
+
+        string? value = ItsmInboundJsonElementReader.ReadStringOrRawText(document.RootElement.GetProperty("state"));
+
+        value.Should().BeNull();
+    }
 }

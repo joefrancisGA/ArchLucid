@@ -77,7 +77,7 @@ public sealed partial class GovernanceController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceSealedManifestConflict(ex);
         }
     }
 
@@ -146,7 +146,8 @@ public sealed partial class GovernanceController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceSealedManifestConflict(ex);
+
         }
     }
 
@@ -208,6 +209,10 @@ public sealed partial class GovernanceController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("approval-requests/{approvalRequestId}/rationale")]
@@ -267,6 +272,10 @@ public sealed partial class GovernanceController
         catch (Application.RunNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
         }
     }
 }

@@ -18,19 +18,27 @@ public static partial class ServiceCollectionExtensions
     private static void RegisterIntegrationsOutboundHttpClients(IServiceCollection services)
     {
         services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                rejectPrivateNetworkConnectEndpoints: true)
             .AddOutboundExternalHttpResilience();
         services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                rejectPrivateNetworkConnectEndpoints: true)
             .AddOutboundExternalHttpResilience();
         services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                rejectPrivateNetworkConnectEndpoints: true)
             .AddOutboundExternalHttpResilience();
         services
             .AddHttpClient(
                 ItsmOutboundIntegrationHealthLimits.HttpClientName,
                 static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                rejectPrivateNetworkConnectEndpoints: true)
             .AddOutboundExternalHttpResilience();
         services
             .AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
@@ -44,7 +52,9 @@ public static partial class ServiceCollectionExtensions
         services
             .AddHttpClient<IItsmConnectorOAuthTokenExchanger, ItsmConnectorOAuthTokenExchanger>(
                 static client => client.Timeout = TimeSpan.FromSeconds(30))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                rejectPrivateNetworkConnectEndpoints: true)
             .AddOutboundExternalHttpResilience();
     }
 }

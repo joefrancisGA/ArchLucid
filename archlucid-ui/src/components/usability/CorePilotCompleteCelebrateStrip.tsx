@@ -3,7 +3,9 @@
 import Link from "next/link";
 
 import { useCompareFinalizedRunAvailability } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
+import { shouldSkipArchitectureOnlyProxyApi } from "@/lib/product-line/architecture-only-proxy-api";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
@@ -22,9 +24,14 @@ const CORE_PILOT_COMPLETE_LOADING_BODY =
 
 /** Shown after Core Pilot completes — suggests analysis and sponsor handoff next steps. */
 export function CorePilotCompleteCelebrateStrip(): React.JSX.Element | null {
+  const { productLine } = useProductLine();
   const teachingChromeVisible = useTeachingChromeVisible();
   const { progress, isPending: pilotPending } = useCorePilotDerivedStepStatus();
   const { loading: compareLoading, insufficientForCompare } = useCompareFinalizedRunAvailability();
+
+  if (shouldSkipArchitectureOnlyProxyApi(productLine)) {
+    return null;
+  }
 
   if (!teachingChromeVisible || pilotPending || !progress.allDone) {
     return null;

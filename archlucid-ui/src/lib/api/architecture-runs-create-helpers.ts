@@ -6,7 +6,10 @@ import {
 } from "@/lib/wizard-idempotency-key";
 import { isArchitectureRequestCreateGatewayTimeout } from "@/lib/api/architecture-request-create-guard";
 import { ArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { ApiRequestError, isApiRequestError } from "@/lib/api-request-error";
+import { architectureRequestCreateMutationBlockedReason } from "@/lib/runs/architecture-request-create-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGet, apiPostJson } from "./http";
 
 import type {
@@ -41,9 +44,16 @@ export async function postCreateArchitectureRun(
   body: CreateArchitectureRunRequestPayload,
   idempotencyKey: string,
 ): Promise<CreateArchitectureRunResponsePayload> {
-  return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body, {
-    extraHeaders: { "Idempotency-Key": idempotencyKey },
-  });
+  try {
+    return await apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body, {
+      extraHeaders: { "Idempotency-Key": idempotencyKey },
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestCreateMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export function rethrowCreateRunGatewayTimeout(error: ApiRequestError): never {

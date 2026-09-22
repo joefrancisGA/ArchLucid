@@ -2,8 +2,12 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Exports;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -116,7 +120,7 @@ public sealed class ApplicationPackageCoverageBatch14Tests
         Mock<IDocumentLogoProvider> logoProvider = new();
 
         await ConsultingDocxCoverPageBuilder.AddAsync(
-            mainPart, body, report, options, logoProvider.Object, branding, CancellationToken.None);
+            mainPart, body, report, options, logoProvider.Object, branding, null, CancellationToken.None);
 
         body.InnerText.Should().Contain("Acme Consulting");
         body.InnerText.Should().Contain("Q3 Review");
@@ -147,11 +151,53 @@ public sealed class ApplicationPackageCoverageBatch14Tests
             .ReturnsAsync([9, 9, 9]);
 
         await ConsultingDocxCoverPageBuilder.AddAsync(
-            mainPart, body, report, options, logoProvider.Object, branding: null, CancellationToken.None);
+            mainPart, body, report, options, logoProvider.Object, branding: null, careerExportHonesty: null, CancellationToken.None);
 
         mainPart.ImageParts.Should().ContainSingle();
         body.InnerText.Should().Contain("Run ID: run-2");
         body.InnerText.Should().Contain("Request ID: req-2");
+    }
+
+    [Fact]
+    public async Task ConsultingDocxCoverPageBuilder_AddAsync_renders_sendable_export_cover_from_honesty_material()
+    {
+        using MemoryStream stream = new();
+        using WordprocessingDocument document = WordprocessingDocument.Create(
+            stream, WordprocessingDocumentType.Document, true);
+        MainDocumentPart mainPart = document.AddMainDocumentPart();
+        mainPart.Document = new Document(new Body());
+        Body body = mainPart.Document.Body!;
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-cover", RequestId = "req-cover" },
+        };
+        ConsultingDocxTemplateOptions options = new();
+        CareerExportCoverageHonestyInput careerExportHonesty = new(
+            new SponsorReviewCoverageHonestyContext(
+                RunId: "run-cover",
+                Verdict: new FeasibilityVerdict
+                {
+                    Kind = FeasibilityVerdictKind.SoftInfeasible,
+                    Summary = "Gate blocked on critical findings",
+                },
+                AnalysisStagesComplete: true,
+                ActorNodeCount: 1),
+            EnginesSucceeded: 4,
+            WorkingDesk: true,
+            ClassificationCounts: null,
+            CatalogAdvisoryEngineFailureCount: 0,
+            PreCommitGateEnabled: true,
+            StructuralExecutionMode: StructuralExecutionMode.Simulator,
+            IsSampleRun: false,
+            RuleSetId: "cis-azure",
+            RuleSetVersion: "1.2.0");
+
+        await ConsultingDocxCoverPageBuilder.AddAsync(
+            mainPart, body, report, options, Mock.Of<IDocumentLogoProvider>(), branding: null, careerExportHonesty, CancellationToken.None);
+
+        body.InnerText.Should().Contain("Sendable export cover");
+        body.InnerText.Should().Contain("Policy pack: cis-azure @ 1.2.0");
+        body.InnerText.Should().Contain("Execution mode: Simulator");
     }
 
     [Fact]

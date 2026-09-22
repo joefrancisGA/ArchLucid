@@ -19,10 +19,11 @@ export const operatorQueryKeys = {
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
   adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
+  adminUsersDirectory: ["operator", "admin", "users-directory"] as const,
   adminIdentityProvidersPageBundle: ["operator", "admin", "identity-providers-page-bundle"] as const,
   adminPrerequisitesCloudSummary: ["operator", "admin", "prerequisites-cloud-summary"] as const,
   adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
-  pilotScorecard: ["operator", "pilots", "scorecard"] as const,
+  pilotScorecard: (scope: OperatorScopeQueryKey) => ["operator", "pilots", "scorecard", scope] as const,
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
   firstPilotProofStatusSnapshot: ["operator", "first-pilot", "proof-status-snapshot"] as const,
   operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
@@ -35,23 +36,27 @@ export const operatorQueryKeys = {
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   sponsorRoiSummary: ["operator", "roi", "sponsor-report"] as const,
-  sponsorDashboardBundle: ["operator", "roi", "sponsor-dashboard-bundle"] as const,
+  sponsorDashboardBundle: (scope: OperatorScopeQueryKey) =>
+    ["operator", "roi", "sponsor-dashboard-bundle", scope] as const,
+  sponsorDashboardBundlePrefix: ["operator", "roi", "sponsor-dashboard-bundle"] as const,
   // Prefix-matches sponsorRoiSummary so refreshDashboard invalidation also refreshes these.
   sponsorRoiSummaryHistory: ["operator", "roi", "sponsor-report", "history"] as const,
   sponsorRoiSummaryExport: ["operator", "roi", "sponsor-report", "export"] as const,
   sqlBackupRegionVerification: ["operator", "sponsor", "sql-backup-region-verification"] as const,
-  executiveNextActionInputs: (range: SponsorTimeRange) =>
-    ["operator", "roi", "next-action-inputs", range] as const,
-  complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
-  complianceDriftTrendRange: (fromUtc: string, toUtc: string) =>
-    ["operator", "governance", "compliance-drift-trend", { fromUtc, toUtc }] as const,
+  executiveNextActionInputs: (scope: OperatorScopeQueryKey, range: SponsorTimeRange) =>
+    ["operator", "roi", "next-action-inputs", scope, range] as const,
+  complianceDriftTrend30d: (scope: OperatorScopeQueryKey) =>
+    ["operator", "governance", "compliance-drift-trend", "30d", scope] as const,
+  complianceDriftTrendRange: (scope: OperatorScopeQueryKey, fromUtc: string, toUtc: string) =>
+    ["operator", "governance", "compliance-drift-trend", scope, { fromUtc, toUtc }] as const,
   governancePrecommitBlockedCount: (fromUtcIso: string, toUtcIso: string) =>
     ["operator", "governance", "precommit-blocked-count", { fromUtcIso, toUtcIso }] as const,
   workspaceHealthPrecommitAuditCounts30d:
     ["operator", "workspace-health", "precommit-audit-counts", "30d"] as const,
-  pilotValueReport: (fromUtc: string, toUtc: string) =>
-    ["operator", "pilots", "value-report", { fromUtc, toUtc }] as const,
-  operatorNextBestActions: ["operator", "tenant", "next-best-actions"] as const,
+  pilotValueReport: (scope: OperatorScopeQueryKey, fromUtc: string, toUtc: string) =>
+    ["operator", "pilots", "value-report", scope, { fromUtc, toUtc }] as const,
+  operatorNextBestActions: (scope: OperatorScopeQueryKey) =>
+    ["operator", "tenant", "next-best-actions", scope] as const,
   governanceDecisionsNeededSummary: (projectId?: string) =>
     ["operator", "governance", "decisions-needed-summary", projectId ?? "workspace"] as const,
   governancePosture: (projectId?: string) =>
@@ -104,6 +109,12 @@ export const operatorQueryKeys = {
     ["operator", "architecture", "seal-delta", architectureId] as const,
   architectureDeskDiagramSources: (latestReviewId: string) =>
     ["operator", "architecture", "desk-diagram-sources", latestReviewId] as const,
+  architectureInventoryBinding: (architectureId: string) =>
+    ["operator", "architecture", "inventory-binding", architectureId] as const,
+  architectureShares: (architectureId: string) =>
+    ["operator", "architecture", "shares", architectureId] as const,
+  infraEvidenceSnapshotsList: (page: number, pageSize: number) =>
+    ["operator", "infra-evidence", "snapshots", { page, pageSize }] as const,
   architectureIdentityList: (
     scope: OperatorScopeQueryKey,
     page: number,

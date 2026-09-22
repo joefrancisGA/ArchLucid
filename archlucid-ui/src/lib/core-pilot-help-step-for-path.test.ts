@@ -11,18 +11,24 @@ describe("corePilotHelpStepForPath", () => {
     );
   });
 
-  it("maps new review wizard to step 0", () => {
-    expect(corePilotHelpStepForPath("/architecture/reviews/new")?.stepIndex).toBe(0);
+  it("maps new review wizard to start-review step (IR-002)", () => {
+    expect(corePilotHelpStepForPath("/architecture/reviews/new")?.stepIndex).toBe(1);
   });
 
-  it("maps reviews list to step 1", () => {
-    expect(corePilotHelpStepForPath("/architecture/reviews")?.stepIndex).toBe(1);
+  it("maps reviews list to share/exports step (IR-002)", () => {
+    expect(corePilotHelpStepForPath("/architecture/reviews")?.stepIndex).toBe(6);
+  });
+
+  it("maps nested findings to inhabited document step (IR-002)", () => {
+    const ctx = corePilotHelpStepForPath("/architecture/architectures/arch-1/findings?runId=run-1");
+    expect(ctx?.stepIndex).toBe(2);
+    expect(ctx?.step.title).toBe(CORE_PILOT_STEPS[2].title);
   });
 
   it("maps review detail to finalize step", () => {
     const ctx = corePilotHelpStepForPath("/architecture/reviews/abc");
-    expect(ctx?.stepIndex).toBe(2);
-    expect(ctx?.step.title).toBe(CORE_PILOT_STEPS[2].title);
+    expect(ctx?.stepIndex).toBe(3);
+    expect(ctx?.step.title).toBe(CORE_PILOT_STEPS[3].title);
   });
 
   it("returns null for unrelated routes", () => {

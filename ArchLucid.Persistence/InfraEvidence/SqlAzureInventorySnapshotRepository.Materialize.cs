@@ -41,10 +41,13 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                             RelationshipCount = @RelationshipCount,
                                             CompletenessScore = @CompletenessScore,
                                             WarningCount = @WarningCount,
+                                            CompletenessWarningsJson = @CompletenessWarningsJson,
                                             ErrorCount = @ErrorCount,
                                             ContentHashSha256 = @ContentHashSha256,
                                             CaptureMethod = @CaptureMethod,
                                             CollectorVersion = @CollectorVersion,
+                                            SubscriptionId = COALESCE(SubscriptionId, @SubscriptionId),
+                                            SubscriptionName = COALESCE(SubscriptionName, @SubscriptionName),
                                             UpdatedUtc = @UpdatedUtc
                                         WHERE TenantId = @TenantId
                                             AND SnapshotId = @SnapshotId;
@@ -62,10 +65,13 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                         writeRequest.RelationshipCount,
                         writeRequest.CompletenessScore,
                         writeRequest.WarningCount,
+                        writeRequest.CompletenessWarningsJson,
                         writeRequest.ErrorCount,
                         writeRequest.ContentHashSha256,
                         CaptureMethod = (int)writeRequest.CaptureMethod,
                         writeRequest.CollectorVersion,
+                        writeRequest.SubscriptionId,
+                        writeRequest.SubscriptionName,
                         UpdatedUtc = utcNow,
                     },
                     transaction: tx,
@@ -295,6 +301,35 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                 unknown.ResourceGroup,
                                 unknown.CappedPropertiesJson,
                                 unknown.SourceEvidenceReference,
+                            },
+                            transaction: tx,
+                            commandTimeout: DapperCommandTimeoutSeconds.Report,
+                            cancellationToken: cancellationToken));
+                }
+            }
+
+            if (writeRequest.DefenderSummaries.Count > 0)
+            {
+                const string insertDefenderSummary = """
+                                                     INSERT INTO dbo.AzureInventoryDefenderSummaries
+                                                     (DefenderSummaryRowId, SnapshotId, TenantId, ResourceId, SecureScore, SourceEvidenceReference)
+                                                     VALUES
+                                                     (@DefenderSummaryRowId, @SnapshotId, @TenantId, @ResourceId, @SecureScore, @SourceEvidenceReference);
+                                                     """;
+
+                foreach (AzureInventoryDefenderSummaryWrite defenderSummary in writeRequest.DefenderSummaries)
+                {
+                    await sqlConn.ExecuteAsync(
+                        new CommandDefinition(
+                            insertDefenderSummary,
+                            new
+                            {
+                                DefenderSummaryRowId = Guid.NewGuid(),
+                                SnapshotId = snapshotId,
+                                scope.TenantId,
+                                defenderSummary.ResourceId,
+                                defenderSummary.SecureScore,
+                                defenderSummary.SourceEvidenceReference,
                             },
                             transaction: tx,
                             commandTimeout: DapperCommandTimeoutSeconds.Report,

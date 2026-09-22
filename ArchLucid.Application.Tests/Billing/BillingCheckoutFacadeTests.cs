@@ -130,4 +130,91 @@ public sealed class BillingCheckoutFacadeTests
 
         result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ActiveSubscriptionConflict);
     }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_suspended",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+        await ledger.SuspendSubscriptionAsync(tenantId, CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeTrue();
+        result.Status.Should().Be("Suspended");
+        result.IsPaymentPastDue.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_does_not_flag_active_subscription_as_payment_past_due()
+    {
+        Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        Guid workspaceId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        Guid projectId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_active",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeTrue();
+        result.Status.Should().Be("Active");
+        result.IsPaymentPastDue.Should().BeFalse();
+    }
 }

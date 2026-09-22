@@ -7,6 +7,7 @@ import { useId, useRef, useState, type ReactNode } from "react";
 
 import { AzureExtractorUploadProgressBar } from "@/components/AzureExtractorUploadProgressBar";
 import { FolderAwareFileInput } from "@/components/FolderAwareFileInput";
+import { Button } from "@/components/ui/button";
 import { AZURE_EXTRACTOR_ZIP_ONLY_MESSAGE, isAzureExtractorZipFile } from "@/lib/is-azure-extractor-zip-file";
 
 export type InventoryZipDropZoneProps = {
@@ -163,14 +164,17 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
               event.currentTarget.value = "";
             }}
           />
-          <button
+          <Button
             type="button"
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+            variant="outline"
+            size="sm"
+            className={OPERATOR_TYPOGRAPHY.helper}
             disabled={isDisabled}
+            data-testid={testId ? `${testId}-folder-button` : "inventory-folder-button"}
             onClick={() => folderInputRef.current?.click()}
           >
             Select extractor folder instead of ZIP
-          </button>
+          </Button>
         </>
       ) : null}
       {busy ? (

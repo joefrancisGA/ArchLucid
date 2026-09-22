@@ -58,7 +58,7 @@ public sealed class ExecDigestComposer(
         string weekLabel = FormatWeekLabel(weekStartUtcInclusive, weekEndUtcExclusive);
         string? complianceMarkdown = await TryBuildComplianceMarkdownAsync(tenantId, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
         string dashboardUrl = $"{baseUrl}/runs";
-        (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta) =
+        (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta, ExecDigestCareerHonestySummary careerHonesty) =
             await TryBuildManifestAndFindingSectionsAsync(authorityScope, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
         Guid? latestArchitectureId = string.IsNullOrWhiteSpace(latestRunHex)
             ? null
@@ -84,7 +84,9 @@ public sealed class ExecDigestComposer(
             dashboardUrl,
             sponsorUrl,
             latestRunHex,
-            decisionNeededMarkdown);
+            decisionNeededMarkdown,
+            careerHonesty.RehearsalSubjectPrefix,
+            careerHonesty.RehearsalBodyDisclaimer);
     }
 
     private async Task<string?> TryBuildComplianceMarkdownAsync(Guid tenantId, DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken)
@@ -117,7 +119,7 @@ public sealed class ExecDigestComposer(
         }
     }
 
-    private async Task<(int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta)>
+    private async Task<(int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta, ExecDigestCareerHonestySummary careerHonesty)>
         TryBuildManifestAndFindingSectionsAsync(ScopeContext authorityScope, DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive,
             CancellationToken cancellationToken)
     {
@@ -125,6 +127,8 @@ public sealed class ExecDigestComposer(
         {
             IReadOnlyList<RunSummaryDto> summaries =
                 await _authorityQueryService.ListRunsByProjectAsync(authorityScope, "default", MaxListRuns, cancellationToken);
+            Dictionary<Guid, RunSummaryDto> summaryByRunId = summaries
+                .ToDictionary(static summary => summary.RunId);
             List<Guid> candidateRunIds = summaries
                 .Where(static s => s.HasGoldenManifest)
                 .Select(static s => s.RunId)
@@ -183,15 +187,29 @@ public sealed class ExecDigestComposer(
                 .ToList();
 
             int manifestCount = scored.Count;
+            List<RunSummaryDto> committedSummaries = scored
+                .Select(static x => x.RunId)
+                .Where(summaryByRunId.ContainsKey)
+                .Select(runId => summaryByRunId[runId])
+                .ToList();
+            ExecDigestCareerHonestySummary careerHonesty =
+                ExecDigestCareerHonestyPresenter.ResolveSummary(committedSummaries);
             List<ExecDigestHighlightedRun> highlights = scored
                 .OrderByDescending(static x => x.Score)
                 .ThenByDescending(static x => x.CommittedUtc)
                 .Take(TopRunCount)
-                .Select(static x =>
-                    new ExecDigestHighlightedRun(
+                .Select(x =>
+                {
+                    string? rehearsalRowLabel = summaryByRunId.TryGetValue(x.RunId, out RunSummaryDto? summary)
+                        ? ExecDigestCareerHonestyPresenter.ResolveRowLabel(summary)
+                        : null;
+
+                    return new ExecDigestHighlightedRun(
                         x.RunId.ToString("N"),
                         x.Score,
-                        x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null))
+                        x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null,
+                        rehearsalRowLabel);
+                })
                 .ToList();
             string? latestHex = scored
                 .OrderByDescending(static x => x.CommittedUtc)
@@ -199,13 +217,13 @@ public sealed class ExecDigestComposer(
                 .FirstOrDefault();
             string? findingsDelta = TryBuildFindingsDelta(scored);
 
-            return (manifestCount == 0 ? null : manifestCount, highlights, latestHex, findingsDelta);
+            return (manifestCount == 0 ? null : manifestCount, highlights, latestHex, findingsDelta, careerHonesty);
         }
         catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Exec digest: manifest/findings sections omitted.");
-            return (null, [], null, null);
+            return (null, [], null, null, ExecDigestCareerHonestySummary.None);
         }
     }
 

@@ -1,19 +1,42 @@
 > **Scope:** Copy-paste Composer prompts that stop `/al-bug` from manufacturing synthetic defects (especially redaction, schema-version coercion, and English-negation phrase lists) and restore a hunt catalog that covers recent product surface. Internal engineering only — not buyer-facing copy.
-> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–35 shipped**; **ABQ-36–45 ready to run**)
+> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–51 shipped**) · wave 7 index [`.cursor/prompts/al-bug-quality-week-uom-00-index.md`](../../.cursor/prompts/al-bug-quality-week-uom-00-index.md)
 > **Workflow:** [`.cursor/commands/al-bug.md`](../../.cursor/commands/al-bug.md) · ledger [`../library/AL_BUG_HUNT_LEDGER.md`](../library/AL_BUG_HUNT_LEDGER.md)
 > **Do not fork:** GTM cohorts **M-90 / M-44 / M-91 / M-92**; closed assurance **TB-135 / TB-136**; `/al-defect` PD intake; a full `bugsmash` revert
 
-# `/al-bug` quality — Composer prompts (ABQ-01–ABQ-45)
+# `/al-bug` quality — Composer prompts (ABQ-01–ABQ-51)
 
-**Created:** 2026-09-06 · **Status:** **01–35 shipped** (#1969) · **36–45 ready to run** · **Audience:** Cursor Composer implementing hunt-quality leftovers after wave 5.
+**Created:** 2026-09-06 · **Status:** **01–51 shipped** (ABQ-51 is exact azurerm v5.6.0 membership) · **Audience:** Cursor Composer. Do not re-implement 51 from this document’s tables.
 
-Wave 1 tables below are **historical** (ABQ-01–10). Paste **ABQ-36–45** from `.cursor/prompts/al-bug-quality-NN-*.md`. Do not re-implement 01–35. Do not implement from this document’s tables.
+Wave 1 tables below are **historical** (ABQ-01–10). Do not re-implement 01–50. Do not implement from this document’s tables.
 
 Verified damage on `master` (scratch probe of current redactors, 2026-09-06): `adminPassword`, `storageAccountAccessKey`, `sshPrivateKey`, `sqlAdminPassword`, and `ArchLucid:OpenAiApiKey` were **not** redacted, while fictional treadmill keys such as `beefAccessKey` **were**. `IsEmbeddedSensitiveFragment` skips any sensitive fragment preceded by a letter, which describes nearly every real camelCase ARM / config key.
 
 Paste **one** `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session. Do not implement from this document’s tables.
 
-## Wave 6 — ready to run (ABQ-36–45)
+## Wave 7 — historical (ABQ-46–50 shipped, #3336)
+
+Owner 2026-09-15: stop shipping synthetic `weekk+` Azure Retail Prices UOM hunts. Do not re-run this wave. Three-letter Terraform source-id tokens are **ABQ-51**, not a reason to continue topology token hunts.
+
+| ID | Prompt file | Leftover / flaw |
+|----|-------------|-----------------|
+| **46** | `al-bug-quality-46-stop-weekk-uom-farming.md` | Docs: not hunt-ready; no new `HasCompactWeekk+` methods |
+| **47** | `al-bug-quality-47-week-uom-keep-list.md` | Inventory keep vs delete → `AZURE_WEEK_UOM_KEEP_LIST.md` |
+| **48** | `al-bug-quality-48-delete-weekk-matchers.md` | Delete farmed methods in `AzureRetailPricesSkuMatchers.cs` |
+| **49** | `al-bug-quality-49-delete-weekk-tests.md` | Delete farmed `*Weekk+Tests.cs` files |
+| **50** | `al-bug-quality-50-ban-weekk-uom.md` | CI ban; topology tokens remain legal |
+
+Recommended order: **46** (can land immediately), **47**, then **48+49** (one PR preferred), then **50**. Wave 7 is shipped (#3336). Do not re-run it.
+
+## Wave 8 — implemented (ABQ-51)
+Do not re-run. Source-id recognition is `TerraformAzurermResourceTypeCatalog` at azurerm v5.6.0.
+
+| ID | Prompt file | Leftover / flaw |
+|----|-------------|-----------------|
+| **51** | `al-bug-quality-51-azurerm-resource-catalog.md` | `LooksLikeTerraform*SourceId` grows by invented three-letter tokens. Pin azurerm v5.6.0 (1,105 types) and match the parsed slug exactly. |
+
+ABQ-50 still bans `weekk+` only. ABQ-51 closes the topology source-id token treadmill. Do not mix a new `Contains` token batch into the catalog PR. Do not run `/al-bug` to implement it.
+
+## Wave 6 — historical (ABQ-36–45 shipped)
 
 | ID | Prompt file | Leftover / flaw |
 |----|-------------|-----------------|

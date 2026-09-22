@@ -16,6 +16,7 @@ import {
 } from "./helpers/live-private-beta-access";
 import { isLiveEmailOtpLaneConfigured, liveEmailOtpLaneSkipReason } from "./helpers/live-email-otp-harness";
 import { liveApiBase, liveJsonHeaders, resolveLiveJwtMode } from "./helpers/live-api-client";
+import { assertLiveSeatOperatorScopeChrome } from "./helpers/live-seat-scope-assertions";
 
 const releaseGateTag = "@release-gate";
 
@@ -30,8 +31,8 @@ const deepLinkTargets = [
   { path: "/architecture/reviews", fragment: "/architecture/reviews" },
   { path: "/governance/findings", fragment: "/governance/findings" },
   { path: "/architecture/reviews/new", fragment: "/architecture/reviews/new" },
-  { path: "/dashboard", fragment: "/dashboard" },
-  { path: "/onboarding", fragment: "/onboarding" },
+  { path: "/architecture/sponsor-dashboard", fragment: "/architecture/sponsor-dashboard" },
+  { path: "/architecture/first-review-guide", fragment: "/architecture/first-review-guide" },
 ] as const;
 
 test.describe(
@@ -80,6 +81,24 @@ test.describe(
       await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 60_000 });
     });
 
+    test("authenticated JwtBearer session shows branded not-found for dead run deep link", async ({
+      page,
+    }) => {
+      test.setTimeout(90_000);
+
+      const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+      await primePrivateBetaBrowserPage(page, accessToken);
+      await stubEmptyArchitectureDraftListRoute(page);
+
+      const fakeRunId = crypto.randomUUID();
+
+      await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+
+      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 60_000 });
+      await expect(page.getByTestId("not-found-review-packages")).toBeVisible();
+    });
+
     test("signed-out deep-link preserves returnUrl for admin and help destinations", async ({ browser }) => {
       test.setTimeout(180_000);
 
@@ -87,6 +106,8 @@ test.describe(
       const signedOutPage = await signedOutContext.newPage();
 
       try {
+        await signedOutContext.clearCookies();
+
         for (const target of deepLinkTargets) {
           await stubEmptyArchitectureDraftListRoute(signedOutPage);
           await signedOutPage.goto(target.path, { waitUntil: "domcontentloaded" });
@@ -146,7 +167,10 @@ test.describe(
 
         // Seed invitee principal in BFF session so bootstrap/status uses platform-user JWT, not CI admin proxy bearer.
         await writeJwtBrowserSession(page, preAuth.preAuthAccessToken);
-        await page.goto("/auth/bootstrap", { waitUntil: "domcontentloaded" });
+        await page.goto(
+          `/auth/bootstrap?invitationToken=${encodeURIComponent(invite.invitationToken)}`,
+          { waitUntil: "domcontentloaded" },
+        );
         await expect(page.getByTestId("bootstrap-invitation-step")).toBeVisible({ timeout: 60_000 });
 
         await page.getByTestId(`bootstrap-accept-invitation-${invite.id}`).click();
@@ -154,6 +178,9 @@ test.describe(
         await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/, {
           timeout: 120_000,
         });
+
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await assertLiveSeatOperatorScopeChrome(page);
       } finally {
         await inviteeContext.close();
       }

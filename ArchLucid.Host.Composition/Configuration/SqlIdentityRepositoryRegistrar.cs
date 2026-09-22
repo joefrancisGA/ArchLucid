@@ -32,6 +32,7 @@ internal static class SqlIdentityRepositoryRegistrar
         services.AddScoped<IScimGroupRepository, DapperScimGroupRepository>();
         services.AddScoped<IUserSettingsRepository, DapperUserSettingsRepository>();
         services.AddScoped<IUserWorkspaceModeReader, UserWorkspaceModeReader>();
+        services.AddScoped<IWorkingCareerRehearsalDoorReader, WorkingCareerRehearsalDoorSettingsReader>();
         services.AddScoped<IUserInvitationRepository, DapperUserInvitationRepository>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
     }

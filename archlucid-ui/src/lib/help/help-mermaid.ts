@@ -18,6 +18,27 @@ export function sanitizeMermaidRenderId(rawId: string): string {
 }
 
 /**
+ * Mermaid.render inserts a bind node (`#d{id}`) and, on parse failure, an error SVG
+ * with the same id into document.body. Leaving those nodes in place stacks
+ * "Syntax error in text" banners on every retry.
+ */
+export function removeMermaidRenderBindElement(renderId: string): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const trimmed = renderId.trim();
+
+  if (trimmed.length === 0) {
+    return;
+  }
+
+  document.getElementById(`d${trimmed}`)?.remove();
+  document.getElementById(`i${trimmed}`)?.remove();
+  document.getElementById(trimmed)?.remove();
+}
+
+/**
  * Forces Mermaid SVG output to fill its container width.
  * Mermaid often emits a fixed pixel max-width (and sometimes height), which leaves a thumbnail
  * in a wide help-layout frame — especially after rendering inside a closed details disclosure.
@@ -52,9 +73,16 @@ export function prepareMermaidSvgForResponsiveLayout(svgMarkup: string): string 
     }
   }
 
+  const existingViewBox = svg.getAttribute("viewBox");
+
+  if (existingViewBox !== null && existingViewBox.trim().length > 0) {
+    svg.setAttribute(MERMAID_SOURCE_VIEWBOX_ATTR, existingViewBox);
+  }
+
   svg.setAttribute("width", "100%");
   svg.removeAttribute("height");
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.setAttribute("overflow", "visible");
   svg.style.removeProperty("max-width");
   svg.style.setProperty("width", "100%");
   svg.style.setProperty("height", "auto");
@@ -63,10 +91,143 @@ export function prepareMermaidSvgForResponsiveLayout(svgMarkup: string): string 
   return new XMLSerializer().serializeToString(svg);
 }
 
-function readSvgContentBBox(svg: SVGSVGElement): DOMRect | null {
+export function readGraphicsElementBBox(element: SVGGraphicsElement): DOMRect | null {
+  try {
+    const box = element.getBBox();
+
+    if (box.width > 1 && box.height > 1) {
+      return box;
+    }
+  }
+  catch {
+    // getBBox throws when the node is not rendered yet.
+  }
+
+  return null;
+}
+
+function unionDomRects(rects: DOMRect[]): DOMRect | null {
+  if (rects.length === 0) {
+    return null;
+  }
+
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const rect of rects) {
+    minX = Math.min(minX, rect.x);
+    minY = Math.min(minY, rect.y);
+    maxX = Math.max(maxX, rect.x + rect.width);
+    maxY = Math.max(maxY, rect.y + rect.height);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+export function mapLocalBBoxToSvgUserSpace(
+  element: SVGGraphicsElement,
+  svg: SVGSVGElement,
+  box: DOMRect,
+): DOMRect | null {
+  if (typeof svg.createSVGPoint !== "function" || typeof element.getScreenCTM !== "function") {
+    return null;
+  }
+
+  const elementScreenCtm = element.getScreenCTM();
+  const svgScreenCtm = svg.getScreenCTM();
+
+  if (elementScreenCtm === null || svgScreenCtm === null) {
+    return null;
+  }
+
+  const toSvg = svgScreenCtm.inverse().multiply(elementScreenCtm);
+  const corners: Array<readonly [number, number]> = [
+    [box.x, box.y],
+    [box.x + box.width, box.y],
+    [box.x, box.y + box.height],
+    [box.x + box.width, box.y + box.height],
+  ];
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const [x, y] of corners) {
+    const point = svg.createSVGPoint();
+    point.x = x;
+    point.y = y;
+    const mapped = point.matrixTransform(toSvg);
+    minX = Math.min(minX, mapped.x);
+    minY = Math.min(minY, mapped.y);
+    maxX = Math.max(maxX, mapped.x);
+    maxY = Math.max(maxY, mapped.y);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+/** Maps an axis-aligned SVG user-space rectangle into an element's local coordinate system. */
+export function mapSvgUserSpaceRectToElementLocal(
+  element: SVGGraphicsElement,
+  svg: SVGSVGElement,
+  rect: DOMRect,
+): DOMRect | null {
+  if (typeof svg.createSVGPoint !== "function" || typeof element.getScreenCTM !== "function") {
+    return null;
+  }
+
+  const elementScreenCtm = element.getScreenCTM();
+  const svgScreenCtm = svg.getScreenCTM();
+
+  if (elementScreenCtm === null || svgScreenCtm === null) {
+    return null;
+  }
+
+  const toLocal = elementScreenCtm.inverse().multiply(svgScreenCtm);
+  const corners: Array<readonly [number, number]> = [
+    [rect.x, rect.y],
+    [rect.x + rect.width, rect.y],
+    [rect.x, rect.y + rect.height],
+    [rect.x + rect.width, rect.y + rect.height],
+  ];
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const [x, y] of corners) {
+    const point = svg.createSVGPoint();
+    point.x = x;
+    point.y = y;
+    const mapped = point.matrixTransform(toLocal);
+    minX = Math.min(minX, mapped.x);
+    minY = Math.min(minY, mapped.y);
+    maxX = Math.max(maxX, mapped.x);
+    maxY = Math.max(maxY, mapped.y);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+function readMermaidGroupInkBBox(svg: SVGSVGElement): DOMRect | null {
   const candidates: Element[] = [
+    ...svg.querySelectorAll("g.nodes, g.edgePaths, g.flowchart, g.output"),
     ...svg.querySelectorAll(":scope > g"),
-    ...svg.querySelectorAll("g.nodes, g.edgePaths, g.clusters, g.flowchart, g.output"),
+    ...svg.querySelectorAll("g.clusters"),
   ];
 
   for (const candidate of candidates) {
@@ -74,38 +235,604 @@ function readSvgContentBBox(svg: SVGSVGElement): DOMRect | null {
       continue;
     }
 
-    try {
-      const box = candidate.getBBox();
+    const box = readGraphicsElementBBox(candidate);
 
-      if (box.width > 1 && box.height > 1) {
-        return box;
+    if (box !== null) {
+      return box;
+    }
+  }
+
+  return readGraphicsElementBBox(svg);
+}
+
+/** Inventory diagram nodes from Mermaid (`g.node`) or Graphviz (`g[id^="node"]`). */
+export function queryInventoryDiagramNodeElements(svg: SVGSVGElement): SVGGraphicsElement[] {
+  const elements: SVGGraphicsElement[] = [];
+
+  for (const selector of ["g.node", 'g[id^="node"]']) {
+    for (const element of svg.querySelectorAll(selector)) {
+      if (element instanceof SVGGraphicsElement) {
+        elements.push(element);
       }
     }
-    catch {
-      // getBBox throws when the node is not rendered yet.
+  }
+
+  return elements;
+}
+
+/** Inventory-forest resource-group frames (`g.rg-frame`) for viewport crop (IDF-05). */
+export function queryInventoryDiagramResourceGroupFrameElements(
+  svg: SVGSVGElement,
+): SVGGraphicsElement[] {
+  const elements: SVGGraphicsElement[] = [];
+
+  for (const element of svg.querySelectorAll("g.rg-frame")) {
+    if (element instanceof SVGGraphicsElement) {
+      elements.push(element);
     }
   }
 
-  try {
-    const rootBox = svg.getBBox();
+  return elements;
+}
 
-    if (rootBox.width > 1 && rootBox.height > 1) {
-      return rootBox;
+/** Node cards plus RG frames — excludes edge paths and legend. */
+export function queryInventoryDiagramInkElements(svg: SVGSVGElement): SVGGraphicsElement[] {
+  return [
+    ...queryInventoryDiagramNodeElements(svg),
+    ...queryInventoryDiagramResourceGroupFrameElements(svg),
+  ];
+}
+
+/**
+ * Union of node boxes only — excludes edge paths whose Bézier bbox inflates the plate.
+ */
+function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCount: number } | null {
+  const inkBoxes: DOMRect[] = [];
+
+  for (const element of queryInventoryDiagramInkElements(svg)) {
+    if (!(element instanceof SVGGraphicsElement)) {
+      continue;
+    }
+
+    const localBox = readGraphicsElementBBox(element);
+
+    if (localBox === null) {
+      continue;
+    }
+
+    const mapped = mapLocalBBoxToSvgUserSpace(element, svg, localBox);
+
+    if (mapped !== null) {
+      inkBoxes.push(mapped);
     }
   }
-  catch {
+
+  const union = unionDomRects(inkBoxes);
+
+  if (union === null) {
     return null;
   }
 
-  return null;
+  const nodeCount = queryInventoryDiagramNodeElements(svg).length;
+
+  return { union, nodeCount };
+}
+
+/**
+ * Prefer node ink over cluster shells, but only in SVG user space.
+ * Mermaid `.node` getBBox is local to a translated group; using it unmapped
+ * crops the viewBox to the origin and hides the graph until the user scrolls.
+ */
+function readMappedNodeInkBBox(svg: SVGSVGElement): DOMRect | null {
+  const inkElements = queryInventoryDiagramInkElements(svg);
+  const inkBoxes: DOMRect[] = [];
+
+  for (const element of inkElements) {
+    if (!(element instanceof SVGGraphicsElement)) {
+      continue;
+    }
+
+    const localBox = readGraphicsElementBBox(element);
+
+    if (localBox === null) {
+      continue;
+    }
+
+    const mapped = mapLocalBBoxToSvgUserSpace(element, svg, localBox);
+
+    if (mapped !== null) {
+      inkBoxes.push(mapped);
+    }
+  }
+
+  return unionDomRects(inkBoxes);
+}
+
+function readMermaidInkBBox(svg: SVGSVGElement): DOMRect | null {
+  const mappedInk = readMappedNodeInkBBox(svg);
+
+  if (mappedInk !== null) {
+    return mappedInk;
+  }
+
+  return readMermaidGroupInkBBox(svg);
 }
 
 /**
  * After mount: crop the viewBox to drawn content and size the SVG to the host width in pixels.
  * Mermaid sometimes emits a large empty canvas with the graph clustered in one corner.
  */
-export function fitMermaidSvgElementToHost(svg: SVGSVGElement, hostWidthPx: number, paddingPx = 12): void {
-  const bbox = readSvgContentBBox(svg);
+const MERMAID_FIT_MIN_HEIGHT_PX = 280;
+
+/** Stable floor for inventory/architecture mermaid camera height (independent of collapsed content). */
+export const MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX = 240;
+
+/** Matches Tailwind max-h-[36rem] on the inventory diagram viewport. */
+export const MERMAID_VIEWPORT_MAX_HEIGHT_PX = 576;
+
+/** Mermaid theme font size for inventory / architecture diagrams. */
+export const MERMAID_NATURAL_LABEL_FONT_PX = 15;
+
+/** Minimum readable label size before the viewport scrolls instead of shrinking further. */
+export const MERMAID_MIN_LEGIBLE_LABEL_FONT_PX = 11;
+
+/** Never shrink below this scale of Mermaid's natural ink size. */
+export const MERMAID_VIEWPORT_MIN_FIT_SCALE = MERMAID_MIN_LEGIBLE_LABEL_FONT_PX / MERMAID_NATURAL_LABEL_FONT_PX;
+
+/** Never upscale past Mermaid's natural ink size on the viewport path. */
+export const MERMAID_VIEWPORT_MAX_FIT_SCALE = 1;
+
+const MERMAID_SOURCE_VIEWBOX_ATTR = "data-al-source-viewbox";
+
+/** Base pixel dimensions after a contain-fit into a bounded viewport (inventory / architecture diagrams). */
+export type MermaidViewportFitDimensions = {
+  readonly baseWidthPx: number;
+  readonly baseHeightPx: number;
+  /** False when the SVG was sized to the camera budget without a measurable ink bbox. */
+  readonly inkMeasured: boolean;
+  readonly fitScale: number;
+  readonly overflows: boolean;
+};
+
+/** Minimum fitted ink height before the inventory mermaid viewport treats the SVG as unpainted. */
+export const MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX = 24;
+
+export function isMermaidViewportPaintTooSmall(
+  baseFit: MermaidViewportFitDimensions | null,
+  zoom: number,
+): boolean {
+  if (baseFit === null || !baseFit.inkMeasured) {
+    return true;
+  }
+
+  return baseFit.baseHeightPx * zoom < MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX;
+}
+
+/** True while contain-fit only reserved a frame and has not yet found drawable ink. */
+export function mermaidViewportFitNeedsRetry(baseFit: MermaidViewportFitDimensions | null): boolean {
+  return baseFit === null || !baseFit.inkMeasured;
+}
+
+type MermaidInkViewBoxCache = {
+  readonly viewWidth: number;
+  readonly viewHeight: number;
+};
+
+const mermaidInkViewBoxBySvg = new WeakMap<SVGSVGElement, MermaidInkViewBoxCache>();
+
+function parseCssLengthToPx(raw: string, referenceFontSizePx: number, viewportHeightPx: number): number | null {
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0 || trimmed === "none") {
+    return null;
+  }
+
+  if (trimmed.endsWith("px")) {
+    return Number.parseFloat(trimmed);
+  }
+
+  if (trimmed.endsWith("rem")) {
+    return Number.parseFloat(trimmed) * referenceFontSizePx;
+  }
+
+  if (trimmed.endsWith("vh")) {
+    return (Number.parseFloat(trimmed) * viewportHeightPx) / 100;
+  }
+
+  return null;
+}
+
+/**
+ * Stable contain-fit budget for inventory/architecture mermaid canvases.
+ * Uses CSS max-height, not the SVG's current content height (overlay chrome is absolute).
+ */
+export function readMermaidViewportFitBudget(viewport: HTMLElement): { widthPx: number; heightPx: number } {
+  const style = getComputedStyle(viewport);
+  const rootFontSizePx = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const paddingX = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight);
+  const paddingY = Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom);
+  const widthPx = Math.max(1, viewport.clientWidth - paddingX);
+  const cssMaxHeightPx =
+    parseCssLengthToPx(style.maxHeight, rootFontSizePx, window.innerHeight) ?? MERMAID_VIEWPORT_MAX_HEIGHT_PX;
+  const cappedMaxHeightPx = Math.min(MERMAID_VIEWPORT_MAX_HEIGHT_PX, cssMaxHeightPx - paddingY);
+  const proportionalHeight = Math.min(MERMAID_VIEWPORT_MAX_HEIGHT_PX, Math.max(MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX, widthPx * 0.5));
+  const heightPx = Math.max(
+    MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX,
+    Math.min(cappedMaxHeightPx, proportionalHeight),
+  );
+
+  return { widthPx, heightPx };
+}
+
+function clearMermaidInkViewBoxCache(svg: SVGSVGElement): void {
+  mermaidInkViewBoxBySvg.delete(svg);
+}
+
+function parseSvgViewBoxAttribute(raw: string | null): DOMRect | null {
+  if (raw === null || raw.trim().length === 0) {
+    return null;
+  }
+
+  const parts = raw.trim().split(/[\s,]+/u).map((part) => Number.parseFloat(part));
+
+  if (parts.length !== 4 || parts.some((part) => !Number.isFinite(part))) {
+    return null;
+  }
+
+  const [x, y, width, height] = parts;
+
+  if (width <= 0 || height <= 0) {
+    return null;
+  }
+
+  return new DOMRect(x, y, width, height);
+}
+
+function readMermaidSourceViewBox(svg: SVGSVGElement): DOMRect | null {
+  const fromAttribute = parseSvgViewBoxAttribute(svg.getAttribute(MERMAID_SOURCE_VIEWBOX_ATTR));
+
+  if (fromAttribute !== null) {
+    return fromAttribute;
+  }
+
+  return parseSvgViewBoxAttribute(svg.getAttribute("viewBox"));
+}
+
+function expandDomRectWithPadding(rect: DOMRect, paddingPx: number): DOMRect {
+  return new DOMRect(
+    rect.x - paddingPx,
+    rect.y - paddingPx,
+    rect.width + paddingPx * 2,
+    rect.height + paddingPx * 2,
+  );
+}
+
+function clampDomRectToBounds(rect: DOMRect, bounds: DOMRect): DOMRect {
+  const x = Math.max(bounds.x, rect.x);
+  const y = Math.max(bounds.y, rect.y);
+  const right = Math.min(bounds.x + bounds.width, rect.x + rect.width);
+  const bottom = Math.min(bounds.y + bounds.height, rect.y + rect.height);
+  const width = Math.max(0, right - x);
+  const height = Math.max(0, bottom - y);
+
+  return new DOMRect(x, y, width, height);
+}
+
+function intersectDomRects(first: DOMRect, second: DOMRect): DOMRect | null {
+  const x = Math.max(first.x, second.x);
+  const y = Math.max(first.y, second.y);
+  const right = Math.min(first.x + first.width, second.x + second.width);
+  const bottom = Math.min(first.y + first.height, second.y + second.height);
+
+  if (right <= x || bottom <= y) {
+    return null;
+  }
+
+  return new DOMRect(x, y, right - x, bottom - y);
+}
+
+/**
+ * Mis-mapped ink often sits inside the source box but clips the first row/column.
+ * A padded canvas subset is much smaller than the source on at least one axis.
+ */
+function isLikelyMisMappedInkCrop(
+  sourceViewBox: DOMRect,
+  measuredInk: DOMRect,
+  paddingPx: number,
+): boolean {
+  const measuredInsideSource =
+    measuredInk.x >= sourceViewBox.x
+    && measuredInk.y >= sourceViewBox.y
+    && measuredInk.x + measuredInk.width <= sourceViewBox.x + sourceViewBox.width
+    && measuredInk.y + measuredInk.height <= sourceViewBox.y + sourceViewBox.height;
+
+  if (!measuredInsideSource) {
+    return false;
+  }
+
+  const insetThreshold = paddingPx * 2;
+  const flushLeft = measuredInk.x <= sourceViewBox.x + insetThreshold;
+  const flushTop = measuredInk.y <= sourceViewBox.y + insetThreshold;
+  const flushRight =
+    measuredInk.x + measuredInk.width >= sourceViewBox.x + sourceViewBox.width - insetThreshold;
+  const flushBottom =
+    measuredInk.y + measuredInk.height >= sourceViewBox.y + sourceViewBox.height - insetThreshold;
+  const coversMostOfSourceWidth = measuredInk.width >= sourceViewBox.width * 0.65;
+  const coversMostOfSourceHeight = measuredInk.height >= sourceViewBox.height * 0.55;
+
+  return (
+    coversMostOfSourceWidth
+    && coversMostOfSourceHeight
+    && !flushLeft
+    && !flushTop
+    && !flushRight
+    && !flushBottom
+  );
+}
+
+/** Measured node ink may tighten Mermaid's padded canvas; it must never clip rows or columns. */
+export function resolveMermaidInkViewBox(
+  sourceViewBox: DOMRect | null,
+  measuredInk: DOMRect | null,
+  paddingPx: number,
+): DOMRect | null {
+  if (sourceViewBox === null) {
+    if (measuredInk === null) {
+      return null;
+    }
+
+    return expandDomRectWithPadding(measuredInk, paddingPx);
+  }
+
+  if (measuredInk === null) {
+    return sourceViewBox;
+  }
+
+  const overlap = intersectDomRects(sourceViewBox, measuredInk);
+
+  if (overlap === null) {
+    return sourceViewBox;
+  }
+
+  if (isLikelyMisMappedInkCrop(sourceViewBox, measuredInk, paddingPx)) {
+    return sourceViewBox;
+  }
+
+  const tightened = clampDomRectToBounds(
+    expandDomRectWithPadding(overlap, paddingPx),
+    sourceViewBox,
+  );
+
+  if (tightened.width <= 0 || tightened.height <= 0) {
+    return sourceViewBox;
+  }
+
+  return tightened;
+}
+
+/** Crop to the union of node boxes when every g.node mapped; never clip a missing row. */
+export function resolveMermaidNodeUnionViewBox(
+  sourceViewBox: DOMRect | null,
+  nodeUnion: DOMRect | null,
+  measuredNodeCount: number,
+  expectedNodeCount: number,
+  paddingPx: number,
+): DOMRect | null {
+  if (nodeUnion === null || expectedNodeCount === 0 || measuredNodeCount !== expectedNodeCount) {
+    return sourceViewBox;
+  }
+
+  if (sourceViewBox === null) {
+    return new DOMRect(
+      nodeUnion.x - paddingPx,
+      nodeUnion.y - paddingPx,
+      nodeUnion.width + paddingPx * 2,
+      nodeUnion.height + paddingPx * 2,
+    );
+  }
+
+  const tolerance = 1;
+  const unionInsideSource =
+    nodeUnion.x >= sourceViewBox.x - tolerance
+    && nodeUnion.y >= sourceViewBox.y - tolerance
+    && nodeUnion.x + nodeUnion.width <= sourceViewBox.x + sourceViewBox.width + tolerance
+    && nodeUnion.y + nodeUnion.height <= sourceViewBox.y + sourceViewBox.height + tolerance;
+
+  if (!unionInsideSource) {
+    return sourceViewBox;
+  }
+
+  return new DOMRect(
+    nodeUnion.x - paddingPx,
+    nodeUnion.y - paddingPx,
+    nodeUnion.width + paddingPx * 2,
+    nodeUnion.height + paddingPx * 2,
+  );
+}
+
+function ensureMermaidInkViewBox(
+  svg: SVGSVGElement,
+  paddingPx: number,
+): { viewWidth: number; viewHeight: number } | null {
+  const cached = mermaidInkViewBoxBySvg.get(svg);
+
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const sourceViewBox = readMermaidSourceViewBox(svg);
+  const expectedNodeCount = queryInventoryDiagramNodeElements(svg).length;
+  const nodeUnionResult = readMappedNodeUnionBBox(svg);
+  let resolvedViewBox: DOMRect | null;
+
+  if (expectedNodeCount > 0) {
+    // Mapped union only. Unmapped g.node getBBox is local to a translated group
+    // and unions to a tiny origin box (~273×43 on the owner export).
+    resolvedViewBox = resolveMermaidNodeUnionViewBox(
+      sourceViewBox,
+      nodeUnionResult?.union ?? null,
+      nodeUnionResult?.nodeCount ?? 0,
+      expectedNodeCount,
+      paddingPx,
+    );
+  }
+  else {
+    const measuredInk = readMermaidInkBBox(svg);
+    resolvedViewBox = resolveMermaidInkViewBox(sourceViewBox, measuredInk, paddingPx);
+  }
+
+  if (resolvedViewBox === null) {
+    return null;
+  }
+
+  const viewDims = applyMermaidSvgViewBoxRect(svg, resolvedViewBox, true);
+  mermaidInkViewBoxBySvg.set(svg, viewDims);
+
+  return viewDims;
+}
+
+function applyMermaidViewportNullInkFallback(
+  svg: SVGSVGElement,
+  viewportWidthPx: number,
+  viewportHeightPx: number,
+): MermaidViewportFitDimensions {
+  const widthPx = Math.max(1, Math.round(viewportWidthPx));
+  const heightPx = Math.max(
+    MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX,
+    Math.min(MERMAID_VIEWPORT_MAX_HEIGHT_PX, Math.round(viewportHeightPx)),
+  );
+
+  applyMermaidSvgPixelSize(svg, widthPx, heightPx);
+
+  return {
+    baseWidthPx: widthPx,
+    baseHeightPx: heightPx,
+    inkMeasured: false,
+    fitScale: 1,
+    overflows: false,
+  };
+}
+
+function applyMermaidSvgViewBoxRect(
+  svg: SVGSVGElement,
+  viewBox: DOMRect,
+  forViewport: boolean,
+): { viewWidth: number; viewHeight: number } {
+  svg.setAttribute("viewBox", `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.style.display = "block";
+
+  if (forViewport) {
+    svg.style.maxWidth = "none";
+  }
+  else {
+    svg.style.maxWidth = "100%";
+  }
+
+  return { viewWidth: viewBox.width, viewHeight: viewBox.height };
+}
+
+function applyMermaidSvgInkViewBox(
+  svg: SVGSVGElement,
+  ink: DOMRect,
+  paddingPx: number,
+  forViewport: boolean,
+): { viewWidth: number; viewHeight: number } {
+  const viewBox = new DOMRect(
+    ink.x - paddingPx,
+    ink.y - paddingPx,
+    ink.width + paddingPx * 2,
+    ink.height + paddingPx * 2,
+  );
+
+  return applyMermaidSvgViewBoxRect(svg, viewBox, forViewport);
+}
+
+function applyMermaidSvgPixelSize(svg: SVGSVGElement, widthPx: number, heightPx: number): void {
+  const width = Math.max(1, Math.round(widthPx));
+  const height = Math.max(1, Math.round(heightPx));
+
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(height));
+  svg.style.width = `${width}px`;
+  svg.style.height = `${height}px`;
+  svg.style.maxWidth = "none";
+}
+
+/**
+ * Contain diagram ink inside a visible viewport box (width and height).
+ * Used by inventory / architecture mermaid canvases — not help-topic width-fill.
+ */
+export function fitInventoryDiagramSvgElementToViewport(
+  svg: SVGSVGElement,
+  viewportWidthPx: number,
+  viewportHeightPx: number,
+  paddingPx = 12,
+): MermaidViewportFitDimensions | null {
+  return fitMermaidSvgElementToViewport(svg, viewportWidthPx, viewportHeightPx, paddingPx);
+}
+
+export function fitMermaidSvgElementToViewport(
+  svg: SVGSVGElement,
+  viewportWidthPx: number,
+  viewportHeightPx: number,
+  paddingPx = 12,
+): MermaidViewportFitDimensions | null {
+  const viewDims = ensureMermaidInkViewBox(svg, paddingPx);
+
+  if (viewDims === null) {
+    return applyMermaidViewportNullInkFallback(svg, viewportWidthPx, viewportHeightPx);
+  }
+
+  const { viewWidth, viewHeight } = viewDims;
+  const availableWidth = Math.max(1, viewportWidthPx - paddingPx * 2);
+  const availableHeight = Math.max(1, viewportHeightPx - paddingPx * 2);
+  const rawScale = Math.min(availableWidth / viewWidth, availableHeight / viewHeight);
+  const fitScale = Math.min(
+    MERMAID_VIEWPORT_MAX_FIT_SCALE,
+    Math.max(MERMAID_VIEWPORT_MIN_FIT_SCALE, rawScale),
+  );
+  const baseWidthPx = Math.max(1, Math.round(viewWidth));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight));
+  const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
+
+  return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
+}
+
+/** Default zoom after paint: 100% when ink fits; contain scale when it overflows. */
+export function resolveMermaidViewportDefaultZoom(baseFit: MermaidViewportFitDimensions): number {
+  if (!baseFit.inkMeasured) {
+    return 1;
+  }
+
+  return baseFit.overflows ? baseFit.fitScale : 1;
+}
+
+/** Drop cached ink viewBox when mermaid markup is replaced (new innerHTML). */
+export function resetMermaidSvgViewportInkCache(svg: SVGSVGElement): void {
+  clearMermaidInkViewBoxCache(svg);
+}
+
+/** Layout-affecting zoom on top of a viewport contain-fit (100% = fitted base size). */
+export function applyMermaidSvgViewportZoom(
+  svg: SVGSVGElement,
+  baseFit: MermaidViewportFitDimensions,
+  zoom: number,
+): void {
+  applyMermaidSvgPixelSize(
+    svg,
+    baseFit.baseWidthPx * zoom,
+    baseFit.baseHeightPx * zoom,
+  );
+}
+
+export function fitMermaidSvgElementToHost(
+  svg: SVGSVGElement,
+  hostWidthPx: number,
+  paddingPx = 12,
+  minHeightPx = MERMAID_FIT_MIN_HEIGHT_PX,
+): void {
+  const bbox = readMermaidInkBBox(svg);
 
   if (bbox === null) {
     svg.setAttribute("width", "100%");
@@ -118,20 +845,119 @@ export function fitMermaidSvgElementToHost(svg: SVGSVGElement, hostWidthPx: numb
     return;
   }
 
-  const viewWidth = bbox.width + paddingPx * 2;
-  const viewHeight = bbox.height + paddingPx * 2;
+  const { viewWidth, viewHeight } = applyMermaidSvgInkViewBox(svg, bbox, paddingPx, false);
   const width = Math.max(1, Math.floor(hostWidthPx));
-  const height = Math.max(1, Math.round(width * (viewHeight / viewWidth)));
+  const proportionalHeight = Math.max(1, Math.round(width * (viewHeight / viewWidth)));
+  const height = Math.max(minHeightPx, proportionalHeight);
 
-  svg.setAttribute(
-    "viewBox",
-    `${bbox.x - paddingPx} ${bbox.y - paddingPx} ${viewWidth} ${viewHeight}`,
+  applyMermaidSvgPixelSize(svg, width, height);
+}
+
+function normalizeDiagramFocusToken(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function inventoryNodeElementMatchesFocusIds(
+  element: SVGGraphicsElement,
+  focusNodeIds: readonly string[],
+): boolean {
+  if (focusNodeIds.length === 0) {
+    return false;
+  }
+
+  const id = element.getAttribute("id") ?? "";
+  const title = element.querySelector("title")?.textContent?.trim() ?? "";
+
+  for (const focusId of focusNodeIds) {
+    const trimmed = focusId.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    if (id.includes(trimmed) || title.includes(trimmed)) {
+      return true;
+    }
+
+    const normalizedFocus = normalizeDiagramFocusToken(trimmed);
+    const normalizedId = normalizeDiagramFocusToken(id);
+    const normalizedTitle = normalizeDiagramFocusToken(title);
+
+    if (
+      normalizedFocus.length > 0
+      && (normalizedId.includes(normalizedFocus) || normalizedTitle.includes(normalizedFocus))
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function readMappedFocusNodeUnionBBox(
+  svg: SVGSVGElement,
+  focusNodeIds: readonly string[],
+): DOMRect | null {
+  const inkBoxes: DOMRect[] = [];
+
+  for (const element of queryInventoryDiagramNodeElements(svg)) {
+    if (!inventoryNodeElementMatchesFocusIds(element, focusNodeIds)) {
+      continue;
+    }
+
+    const localBox = readGraphicsElementBBox(element);
+
+    if (localBox === null) {
+      continue;
+    }
+
+    const mapped = mapLocalBBoxToSvgUserSpace(element, svg, localBox);
+
+    if (mapped !== null) {
+      inkBoxes.push(mapped);
+    }
+  }
+
+  return unionDomRects(inkBoxes);
+}
+
+/** Fit the viewport to a subset of inventory diagram nodes (seed + neighbors). */
+export function fitInventoryDiagramSvgElementToFocusNodeIds(
+  svg: SVGSVGElement,
+  viewportWidthPx: number,
+  viewportHeightPx: number,
+  focusNodeIds: readonly string[],
+  paddingPx = 12,
+): MermaidViewportFitDimensions | null {
+  resetMermaidSvgViewportInkCache(svg);
+
+  if (focusNodeIds.length === 0) {
+    return fitInventoryDiagramSvgElementToViewport(svg, viewportWidthPx, viewportHeightPx, paddingPx);
+  }
+
+  const focusUnion = readMappedFocusNodeUnionBBox(svg, focusNodeIds);
+
+  if (focusUnion === null) {
+    return fitInventoryDiagramSvgElementToViewport(svg, viewportWidthPx, viewportHeightPx, paddingPx);
+  }
+
+  const viewBox = new DOMRect(
+    focusUnion.x - paddingPx,
+    focusUnion.y - paddingPx,
+    focusUnion.width + paddingPx * 2,
+    focusUnion.height + paddingPx * 2,
   );
-  svg.setAttribute("width", String(width));
-  svg.setAttribute("height", String(height));
-  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-  svg.style.width = `${width}px`;
-  svg.style.height = `${height}px`;
-  svg.style.maxWidth = "100%";
-  svg.style.display = "block";
+  const { viewWidth, viewHeight } = applyMermaidSvgViewBoxRect(svg, viewBox, true);
+  const availableWidth = Math.max(1, viewportWidthPx - paddingPx * 2);
+  const availableHeight = Math.max(1, viewportHeightPx - paddingPx * 2);
+  const rawScale = Math.min(availableWidth / viewWidth, availableHeight / viewHeight);
+  const fitScale = Math.min(
+    MERMAID_VIEWPORT_MAX_FIT_SCALE,
+    Math.max(MERMAID_VIEWPORT_MIN_FIT_SCALE, rawScale),
+  );
+  const baseWidthPx = Math.max(1, Math.round(viewWidth));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight));
+  const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
+
+  return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
 }

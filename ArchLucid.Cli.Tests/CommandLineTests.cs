@@ -295,7 +295,6 @@ public sealed class CommandLineTests
     }
 
     [Theory]
-    [InlineData("try")]
     [InlineData("seed-demo-data")]
     public async Task Removed_local_commands_are_unknown(string command)
     {

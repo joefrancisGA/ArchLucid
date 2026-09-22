@@ -31,7 +31,7 @@ public sealed partial class ArchLucidApiClient
         {
             Gen.CreateDraftRequest bodyModel = new() { FreeTextIntent = freeTextIntent };
             Gen.Body39? body = MapToOpenApiRequestBody<Gen.Body39>(bodyModel, GenNumericEnumBridgeJson);
-            Gen.DraftRequestResponse created = await _api.DraftPOSTAsync(body, ct);
+            Gen.DraftRequestResponse created = await _api.DraftPOSTAsync(null, body, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(created);
 
             if (mapped is null)
@@ -63,7 +63,7 @@ public sealed partial class ArchLucidApiClient
         {
             Gen.PatchDraftRequest? genBodyModel = MapContractToGenerated<Gen.PatchDraftRequest>(body);
             Gen.Body40? genBody = MapToOpenApiRequestBody<Gen.Body40>(genBodyModel, ContractEnumAwareJson);
-            Gen.DraftRequestResponse patched = await _api.DraftPATCHAsync(draftId, genBody, ct);
+            Gen.DraftRequestResponse patched = await _api.DraftPATCHAsync(draftId, null, genBody, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(patched);
 
             if (mapped is null)
@@ -90,7 +90,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.DraftAdmissionResponse admitted = await _api.AdmitAsync(draftId, ct);
+            Gen.DraftAdmissionResponse admitted = await _api.AdmitAsync(draftId, null, ct);
             DraftAdmissionResponse? mapped = MapGeneratedToContract<DraftAdmissionResponse>(admitted);
 
             if (mapped is null)
@@ -119,7 +119,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.DraftQuestionsResponse questions = await _api.QuestionsAsync(draftId, ct);
+            Gen.DraftQuestionsResponse questions = await _api.QuestionsAsync(draftId, null, ct);
             DraftQuestionsResponse? mapped = MapGeneratedToContract<DraftQuestionsResponse>(questions);
 
             if (mapped is null)
@@ -151,7 +151,7 @@ public sealed partial class ArchLucidApiClient
         {
             Gen.AnswerDraftQuestionRequest? genBodyModel = MapContractToGenerated<Gen.AnswerDraftQuestionRequest>(body);
             Gen.Body41? genBody = MapToOpenApiRequestBody<Gen.Body41>(genBodyModel, ContractEnumAwareJson);
-            Gen.DraftRequestResponse answered = await _api.AnswerAsync(draftId, genBody, ct);
+            Gen.DraftRequestResponse answered = await _api.AnswerAsync(draftId, null, genBody, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(answered);
 
             if (mapped is null)
@@ -183,7 +183,7 @@ public sealed partial class ArchLucidApiClient
         {
             Gen.SkipDraftQuestionRequest? genBodyModel = MapContractToGenerated<Gen.SkipDraftQuestionRequest>(body);
             Gen.Body44? genBody = MapToOpenApiRequestBody<Gen.Body44>(genBodyModel, ContractEnumAwareJson);
-            Gen.DraftRequestResponse skipped = await _api.SkipAsync(draftId, genBody, ct);
+            Gen.DraftRequestResponse skipped = await _api.SkipAsync(draftId, null, genBody, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(skipped);
 
             if (mapped is null)
@@ -205,12 +205,41 @@ public sealed partial class ArchLucidApiClient
         }
     }
 
+    /// <summary>POST <c>/v1/architecture/draft/{draftId}/clone-snapshot</c> — new editable draft from spawn-locked source (WA-10).</summary>
+    public async Task<DraftApiResult<CloneSnapshotDraftResponse>> CloneDraftSnapshotAsync(
+        Guid draftId,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.CloneSnapshotDraftResponse cloned = await _api.CloneSnapshotAsync(draftId, null, ct);
+            CloneSnapshotDraftResponse? mapped = MapGeneratedToContract<CloneSnapshotDraftResponse>(cloned);
+
+            if (mapped is null)
+                return DraftApiResult<CloneSnapshotDraftResponse>.Fail(null, "Draft clone-snapshot returned an empty body.");
+
+            return DraftApiResult<CloneSnapshotDraftResponse>.Ok(mapped);
+        }
+        catch (Gen.ArchLucidApiException ex)
+        {
+            return DraftApiResult<CloneSnapshotDraftResponse>.Fail(ex.StatusCode, ResolveApiErrorMessage(ex), TryReadCorrelationId(ex));
+        }
+        catch (HttpRequestException ex)
+        {
+            return DraftApiResult<CloneSnapshotDraftResponse>.Fail(null, $"Cannot connect to ArchLucid API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return DraftApiResult<CloneSnapshotDraftResponse>.Fail(null, "Request timed out.");
+        }
+    }
+
     /// <summary>POST <c>/v1/architecture/draft/{draftId}/submit</c> — spawn canonical architecture run.</summary>
     public async Task<DraftApiResult<SubmitDraftResponse>> SubmitDraftAsync(Guid draftId, CancellationToken ct = default)
     {
         try
         {
-            Gen.SubmitDraftResponse submitted = await _api.SubmitAsync(draftId, null, ct);
+            Gen.SubmitDraftResponse submitted = await _api.SubmitAsync(draftId, null, null, ct);
             SubmitDraftResponse? mapped = MapGeneratedToContract<SubmitDraftResponse>(submitted);
 
             if (mapped is null)

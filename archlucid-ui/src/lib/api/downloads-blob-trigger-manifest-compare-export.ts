@@ -1,3 +1,4 @@
+import { manifestCompareExportMutationBlockedReason } from "@/lib/compare/manifest-compare-export-mutation-blocked-reason";
 import { getManifestCompareExportDownloadUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -25,5 +26,6 @@ export async function downloadManifestCompareExport(options: {
     accept: "text/markdown, application/json",
     defaultFileName: `compare_${leftVersion}_to_${rightVersion}.md`,
     expectedContentTypePrefixes: ["text/markdown"],
+    resolveBlockedReason: manifestCompareExportMutationBlockedReason,
   });
 }

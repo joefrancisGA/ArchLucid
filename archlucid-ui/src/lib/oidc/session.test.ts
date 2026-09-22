@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   clearOidcSession,
@@ -135,6 +135,15 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
 
+  it("truncates fractional expires_in to whole seconds (parity with bff-session-sync)", () => {
+    const before = Date.now();
+    persistTokenResponse({ access_token: "tok", expires_in: 10.9 });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+
+    expect(expiresAtMs - before).toBe(10_000);
+  });
+
   it("stores non-sensitive display name and subject hints from JWT claims", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const payload = Buffer.from(
@@ -175,8 +184,26 @@ describe("consumePkceState", () => {
 });
 
 describe("clearOidcSession", () => {
+  let postMessageMock: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    postMessageMock = vi.fn();
+
+    class TestBroadcastChannel {
+      postMessage = postMessageMock;
+      close = vi.fn();
+      addEventListener = vi.fn();
+      removeEventListener = vi.fn();
+
+      constructor(public readonly name: string) {}
+    }
+
+    vi.stubGlobal("BroadcastChannel", TestBroadcastChannel);
+  });
+
   afterEach(() => {
     sessionStorage.clear();
+    vi.unstubAllGlobals();
   });
 
   it("clears a stored post-sign-in return URL", () => {
@@ -184,5 +211,18 @@ describe("clearOidcSession", () => {
     clearOidcSession();
 
     expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+
+  it("broadcasts auth-cleared by default (LW-083)", () => {
+    clearOidcSession();
+
+    expect(postMessageMock).toHaveBeenCalledWith({ type: "auth-cleared" });
+    expect(JSON.stringify(postMessageMock.mock.calls[0]?.[0])).not.toMatch(/token/i);
+  });
+
+  it("skips auth-cleared broadcast when broadcastAuthCleared is false", () => {
+    clearOidcSession({ broadcastAuthCleared: false });
+
+    expect(postMessageMock).not.toHaveBeenCalled();
   });
 });

@@ -71,11 +71,11 @@ describe("exec-digest-schedule-form", () => {
   });
 
   /**
-   * A never-configured tenant is seeded with the browser zone rather than the API's
-   * UTC default. That seeding must not surface as an operator edit on first paint.
+   * A never-configured tenant is seeded with the product default zone rather than a blank value.
+   * That seeding must not surface as an operator edit on first paint.
    */
-  it("does not report unsaved changes for the seeded browser-zone default", () => {
-    const saved = prefs({ isConfigured: false, ianaTimeZoneId: "UTC", recipientEmails: [] });
+  it("does not report unsaved changes for the seeded product-default zone", () => {
+    const saved = prefs({ isConfigured: false, ianaTimeZoneId: "America/New_York", recipientEmails: [] });
     const seeded = execDigestFormFromPreferencesWithBrowserDefault(saved);
 
     expect(hasUnsavedExecDigestChanges(saved, seeded)).toBe(false);

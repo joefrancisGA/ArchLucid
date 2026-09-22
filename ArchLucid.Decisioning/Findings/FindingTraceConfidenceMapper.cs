@@ -35,6 +35,8 @@ public static class FindingTraceConfidenceMapper
                     EvaluationConfidenceScore = f.EvaluationConfidenceScore,
                     ConfidenceLevel = f.ConfidenceLevel,
                     Classification = f.Classification ?? FindingClassification.DecisionGradeFinding,
+                    Treatment = f.Treatment,
+                    SemanticSupportBand = f.SemanticSupportBand,
                 });
         }
 

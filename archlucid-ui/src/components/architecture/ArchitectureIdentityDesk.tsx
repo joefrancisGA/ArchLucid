@@ -7,12 +7,16 @@ import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-
 import { useArchitectureDeskShortcuts } from "@/hooks/useArchitectureDeskShortcuts";
 import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
+import { ArchitectureIdentityDeskCommandBar } from "@/components/architecture/ArchitectureIdentityDeskCommandBar";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
 import { ArchitectureIdentityDeskDiagramSourcesStrip } from "@/components/architecture/ArchitectureIdentityDeskDiagramSourcesStrip";
+import { ArchitectureIdentityDeskInventoryBindingPanel } from "@/components/architecture/ArchitectureIdentityDeskInventoryBindingPanel";
+import { ArchitectureIdentityDeskSharePanel } from "@/components/architecture/ArchitectureIdentityDeskSharePanel";
 import { ArchitectureIdentityDeskOpenQuestions } from "@/components/architecture/ArchitectureIdentityDeskOpenQuestions";
 import { ArchitectureIdentityDeskInFlightSection } from "@/components/architecture/ArchitectureIdentityDeskInFlightSection";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
+import { ArchitectureIdentityDeskSealedReceiptStrip } from "@/components/architecture/ArchitectureIdentityDeskSealedReceiptStrip";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
 import { ArchitectureIdentityDeskVersionsSection } from "@/components/architecture/ArchitectureIdentityDeskVersionsSection";
 import { ArchitectureSealDeltaPanel } from "@/components/architecture/ArchitectureSealDeltaPanel";
@@ -20,9 +24,9 @@ import { ArchitectureIdentityRenameForm } from "@/components/architecture/Archit
 import { Button } from "@/components/ui/button";
 import {
   architectureIdentityPath,
-  resolveArchitectureReviewHref,
   startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
+import { resolveSystemNotJobDeskSealedChildReviewHref } from "@/lib/system-not-job-sealed-child-not-second-desk";
 import {
   ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE,
   ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL,
@@ -109,6 +113,12 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
         onRenamed={(displayName) => setHeadingOverride(displayName)}
       />
 
+      <ArchitectureIdentityDeskCommandBar
+        architectureId={identity.architectureId}
+        reviews={identity.reviews}
+        latestReviewId={identity.latestReviewId}
+      />
+
       <ArchitectureIdentityDeskCurrentDraft
         architectureId={identity.architectureId}
         currentDraftId={identity.currentDraftId}
@@ -125,20 +135,33 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
 
       <ArchitectureIdentityDeskDiagramSourcesStrip latestReviewId={identity.latestReviewId} />
 
+      <ArchitectureIdentityDeskInventoryBindingPanel architectureId={identity.architectureId} />
+
+      <ArchitectureIdentityDeskSharePanel architectureId={identity.architectureId} />
+
       <ArchitectureIdentityDeskInFlightSection architectureId={identity.architectureId} />
 
       {latestSealedManifestId.length > 0 && identity.latestReviewId !== null && identity.latestReviewId !== undefined ? (
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          <span className="font-medium">{ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL}:</span>
-          {" "}
-          <Link
-            href={resolveArchitectureReviewHref(identity.latestReviewId, identity.architectureId)}
-            className={OPERATOR_LINK.nav}
-            data-testid="architecture-identity-latest-seal-link"
-          >
-            Open sealed review record
-          </Link>
-        </p>
+        <div className="space-y-3">
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            <span className="font-medium">{ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL}:</span>
+            {" "}
+            <Link
+              href={resolveSystemNotJobDeskSealedChildReviewHref(
+                identity.latestReviewId,
+                identity.architectureId,
+              )}
+              className={OPERATOR_LINK.nav}
+              data-testid="architecture-identity-latest-seal-link"
+            >
+              Open sealed review record
+            </Link>
+          </p>
+          <ArchitectureIdentityDeskSealedReceiptStrip
+            runId={identity.latestReviewId}
+            manifestVersion={latestSealedManifestId}
+          />
+        </div>
       ) : null}
 
       <ArchitectureSealDeltaPanel architectureId={identity.architectureId} />
@@ -156,6 +179,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           <ArchitectureIdentityDeskCompareAction
             reviews={identity.reviews}
             architectureId={identity.architectureId}
+            latestReviewId={identity.latestReviewId}
           />
         </div>
         <ArchitectureIdentityDeskReviewsTable

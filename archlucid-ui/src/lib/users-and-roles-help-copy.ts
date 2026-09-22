@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+
 export const USERS_AND_ROLES_PAGE_TITLE = "Users and roles";
 
 export const USERS_AND_ROLES_PAGE_INTRO =
@@ -52,3 +55,36 @@ export const USERS_AND_ROLES_SECURITY_TRUST_LINK_LABEL = "Security and trust";
 export const USERS_AND_ROLES_FAQ_HEADING = "Common questions";
 
 export const USERS_AND_ROLES_SCOPE_GUIDE_LINK_LABEL = "Workspace and scope guide";
+
+export const SECURENOW_USERS_AND_ROLES_PAGE_INTRO =
+  "Understand SecureNow workspace roles, who can manage access, and how permissions apply across findings, packs, and inventory work.";
+
+export const SECURENOW_USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY =
+  "People sign in to your tenant and work inside a workspace. Roles control what each person can view and change in SecureNow. Some actions, such as inviting users or configuring SSO, require administrator permission. Assign the least access needed for each responsibility.";
+
+export const SECURENOW_USERS_AND_ROLES_WORKSPACE_PARTICIPATION_HEADING = "Workspace participation";
+
+export const SECURENOW_USERS_AND_ROLES_WORKSPACE_PARTICIPATION_BODY =
+  "Workspace administrators can invite colleagues from Settings. Invited users can accept with a one-time email code or a work or school account when your tenant allows it. Reader and Auditor roles let colleagues inspect findings, inventory evidence, and audit lineage without changing connector configuration or pack assignments.";
+
+export function usersAndRolesPageIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_USERS_AND_ROLES_PAGE_INTRO : USERS_AND_ROLES_PAGE_INTRO;
+}
+
+export function usersAndRolesHowAccessWorksBody(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY
+    : USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY;
+}
+
+export function usersAndRolesReviewParticipationHeading(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_USERS_AND_ROLES_WORKSPACE_PARTICIPATION_HEADING
+    : USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING;
+}
+
+export function usersAndRolesReviewParticipationBody(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_USERS_AND_ROLES_WORKSPACE_PARTICIPATION_BODY
+    : USERS_AND_ROLES_REVIEW_PARTICIPATION_BODY;
+}

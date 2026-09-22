@@ -7,6 +7,7 @@ import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_
 import { HelpDataHandlingTenantIsolationRelatedTopics } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationRelatedTopics";
 import { HelpDataHandlingTenantIsolationSourcesDisclosure } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationSourcesDisclosure";
 import { DataHandlingTenantIsolationHelpEvidenceOrientationStrip } from "@/components/help/DataHandlingTenantIsolationHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -25,6 +26,7 @@ import {
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -87,7 +89,7 @@ export function HelpDataHandlingTenantIsolationGuideView(
         eyebrow={buyerPolishedShell ? undefined : DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_EYEBROW}
         title={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE}
         titleTestId="help-data-handling-tenant-isolation-page-title"
-        subtitle={dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell)}
+        subtitle={dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell, resolveProductLineIdFromEnv())}
         navHref={DATA_HANDLING_TENANT_ISOLATION_HELP_PATH}
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_TOPIC_TITLE} />}
@@ -115,6 +117,11 @@ export function HelpDataHandlingTenantIsolationGuideView(
 
           <HelpDataHandlingTenantIsolationOverview />
           <HelpDataHandlingTenantIsolationJobMatrix />
+
+          <SponsorSendPathHonestyPanel
+            testIdPrefix="help-data-handling-tenant-isolation"
+            showSsoOptional={false}
+          />
 
           {!buyerPolishedShell ? <HelpDataHandlingTenantIsolationClaimDiscipline /> : null}
 

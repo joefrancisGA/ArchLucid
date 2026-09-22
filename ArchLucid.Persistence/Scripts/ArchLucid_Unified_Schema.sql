@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 372_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 379_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -569,6 +569,10 @@ BEGIN
         PackageOrigin NVARCHAR(16) NULL,
         StructuralExecutionMode NVARCHAR(32) NOT NULL CONSTRAINT DF_Runs_StructuralExecutionMode_Greenfield DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionMode_Greenfield CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed')),
+        WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+        ExecutePostureCapturedUtc DATETIME2 NULL,
+        CONSTRAINT CK_Runs_WorkingCareerRehearsalDoor_Greenfield CHECK (
+            WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N'career', N'rehearsal')),
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
@@ -671,6 +675,19 @@ BEGIN
         CONSTRAINT CK_Runs_StructuralExecutionModeArchLucidSql CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed'));
 
     EXEC (N'UPDATE dbo.Runs SET StructuralExecutionMode = N''Fallback'' WHERE RealModeFellBackToSimulator = 1;');
+END;
+
+GO
+
+/* CG-019: Working Career vs Rehearsal door captured at first execute start. */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'WorkingCareerRehearsalDoor') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD
+        WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+        ExecutePostureCapturedUtc DATETIME2 NULL,
+        CONSTRAINT CK_Runs_WorkingCareerRehearsalDoorArchLucidSql CHECK (
+            WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N'career', N'rehearsal'));
 END;
 
 GO
@@ -1598,10 +1615,6 @@ GO
 IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingReviewEvents', N'EvidenceRequestText') IS NULL
     ALTER TABLE dbo.FindingReviewEvents ADD EvidenceRequestText NVARCHAR(MAX) NULL;
-
-IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.FindingReviewEvents', N'ArchitectRestatement') IS NULL
-    ALTER TABLE dbo.FindingReviewEvents ADD ArchitectRestatement NVARCHAR(MAX) NULL;
 
 GO
 
@@ -6435,7 +6448,11 @@ BEGIN
                 N'first_finding_viewed',
                 N'first_finalization_attempted',
                 N'first_export_opened',
-                N'thirty_minute_milestone'
+                N'thirty_minute_milestone',
+                N'first_session_purpose_live',
+                N'first_session_purpose_training',
+                N'post_auth_landed_dedicated_scope',
+                N'post_auth_landed_sample_scope'
             )),
         CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
@@ -7611,10 +7628,6 @@ IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingReviewEvents', N'EvidenceRequestText') IS NULL
     ALTER TABLE dbo.FindingReviewEvents ADD EvidenceRequestText NVARCHAR(MAX) NULL;
 
-IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.FindingReviewEvents', N'ArchitectRestatement') IS NULL
-    ALTER TABLE dbo.FindingReviewEvents ADD ArchitectRestatement NVARCHAR(MAX) NULL;
-
 GO
 
 IF OBJECT_ID(N'dbo.RiskExceptions', N'U') IS NULL
@@ -8588,6 +8601,8 @@ BEGIN
               OR EXISTS (SELECT i.OtelTraceId EXCEPT SELECT d.OtelTraceId)
               OR EXISTS (SELECT i.EngineProvenanceJson EXCEPT SELECT d.EngineProvenanceJson)
               OR EXISTS (SELECT i.GovernanceScopeJson EXCEPT SELECT d.GovernanceScopeJson)
+              OR EXISTS (SELECT i.WorkingCareerRehearsalDoor EXCEPT SELECT d.WorkingCareerRehearsalDoor)
+              OR EXISTS (SELECT i.ExecutePostureCapturedUtc EXCEPT SELECT d.ExecutePostureCapturedUtc)
           ))
     BEGIN
         THROW 50310, N''Committed run header evidence anchors are immutable (TB-310).'', 1;
@@ -8595,6 +8610,27 @@ BEGIN
 END;';
 
     EXEC sp_executesql @sealGovernanceScopeTriggerSql;
+END
+
+/* CG-019: execute-time Working door stamp on the physical run/review table.
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. */
+DECLARE @executePostureTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+IF @executePostureTable IS NOT NULL
+   AND COL_LENGTH(@executePostureTable, N'WorkingCareerRehearsalDoor') IS NULL
+BEGIN
+    DECLARE @addExecutePostureSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @executePostureTable + N' ADD
+            WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+            ExecutePostureCapturedUtc DATETIME2 NULL,
+            CONSTRAINT CK_Runs_WorkingCareerRehearsalDoor CHECK (
+                WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N''career'', N''rehearsal''));';
+
+    EXEC sp_executesql @addExecutePostureSql;
 END
 
 GO
@@ -9013,6 +9049,25 @@ BEGIN
     SET @acknowledgedCoverageRunSql = N'ALTER TABLE ' + @acknowledgedCoverageRunTable + N' ADD AcknowledgedCoverageJson NVARCHAR(MAX) NULL;';
 
     EXEC sp_executesql @acknowledgedCoverageRunSql;
+END
+
+GO
+
+/* 390: Pre-finalize assumption acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedAssumptionsRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedAssumptionsRunSql NVARCHAR(MAX);
+
+IF @acknowledgedAssumptionsRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedAssumptionsRunTable, N'AcknowledgedAssumptionsJson') IS NULL
+BEGIN
+    SET @acknowledgedAssumptionsRunSql = N'ALTER TABLE ' + @acknowledgedAssumptionsRunTable + N' ADD AcknowledgedAssumptionsJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedAssumptionsRunSql;
 END
 
 GO
@@ -9586,6 +9641,25 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AzureInventoryUnknownResources_Tenant_Snapshot
         ON dbo.AzureInventoryUnknownResources (TenantId, SnapshotId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderSummaries', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderSummaries
+    (
+        DefenderSummaryRowId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderSummaries PRIMARY KEY CLUSTERED,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        ResourceId                NVARCHAR(1024)    NOT NULL,
+        SecureScore               INT               NOT NULL,
+        SourceEvidenceReference   NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderSummaries_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderSummaries_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderSummaries (TenantId, SnapshotId);
 END;
 
 GO
@@ -10373,4 +10447,175 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_RunStoredEvidenceFiles_Scope_Run_Created
         ON dbo.RunStoredEvidenceFiles (TenantId, WorkspaceId, ScopeProjectId, RunId, CreatedUtc);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingVerificationReports', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingVerificationReports
+    (
+        ReportId                       UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingVerificationReports PRIMARY KEY,
+        TenantId                       UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId                    UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        RunId                          UNIQUEIDENTIFIER NOT NULL,
+        SourceManifestHash             NVARCHAR(128)    NOT NULL,
+        SourceFindingsSnapshotId       UNIQUEIDENTIFIER NOT NULL,
+        VerificationFindingsSnapshotId UNIQUEIDENTIFIER NULL,
+        ReportHash                     NVARCHAR(128)    NOT NULL,
+        TriggeredByUserId              NVARCHAR(256)    NOT NULL,
+        CreatedUtc                     DATETIME2(7)     NOT NULL CONSTRAINT DF_FindingVerificationReports_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_FindingVerificationReports_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Scope_Run_Created
+        ON dbo.FindingVerificationReports (TenantId, WorkspaceId, ScopeProjectId, RunId, CreatedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Idempotency
+        ON dbo.FindingVerificationReports (
+            TenantId,
+            WorkspaceId,
+            ScopeProjectId,
+            RunId,
+            SourceFindingsSnapshotId,
+            VerificationFindingsSnapshotId,
+            CreatedUtc DESC);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingVerificationResults', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingVerificationResults
+    (
+        ResultId   UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingVerificationResults PRIMARY KEY,
+        ReportId   UNIQUEIDENTIFIER NOT NULL,
+        FindingId  NVARCHAR(64)     NOT NULL,
+        Status     TINYINT          NOT NULL,
+        TraceText  NVARCHAR(2000)   NOT NULL,
+        CONSTRAINT CK_FindingVerificationResults_Status CHECK (Status IN (0, 1, 2, 3)),
+        CONSTRAINT FK_FindingVerificationResults_Reports FOREIGN KEY (ReportId)
+            REFERENCES dbo.FindingVerificationReports (ReportId),
+        CONSTRAINT UQ_FindingVerificationResults_Report_Finding UNIQUE (ReportId, FindingId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationResults_Report
+        ON dbo.FindingVerificationResults (ReportId, FindingId);
+END;
+
+GO
+
+/*
+  378: AS-047 — optional architecture inventory snapshot binding (ADR 0084 / inventory-bind).
+*/
+
+IF OBJECT_ID(N'dbo.ArchitectureInventoryBindings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureInventoryBindings
+    (
+        ArchitectureId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_ArchitectureInventoryBindings PRIMARY KEY CLUSTERED,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId       UNIQUEIDENTIFIER NOT NULL,
+        BoundBy          NVARCHAR(256)    NOT NULL,
+        BoundUtc         DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureInventoryBindings_BoundUtc DEFAULT SYSUTCDATETIME(),
+        RowVersion       ROWVERSION       NOT NULL,
+        CONSTRAINT FK_ArchitectureInventoryBindings_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureInventoryBindings_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureInventoryBindings_Scope_Architecture
+        ON dbo.ArchitectureInventoryBindings (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureInventoryBindings_Tenant_Snapshot
+        ON dbo.ArchitectureInventoryBindings (TenantId, SnapshotId);
+END;
+
+GO
+
+/*
+  380: AS-087 — optional architecture-scoped sharing (ADR 0087 / restrict-to-shares).
+*/
+
+IF OBJECT_ID(N'dbo.Architectures', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Architectures', N'RestrictToShares') IS NULL
+BEGIN
+    ALTER TABLE dbo.Architectures
+        ADD RestrictToShares BIT NOT NULL
+            CONSTRAINT DF_Architectures_RestrictToShares DEFAULT (0);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.ArchitectureShares', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureShares
+    (
+        ArchitectureId UNIQUEIDENTIFIER NOT NULL,
+        ActorOid         NVARCHAR(256)    NOT NULL,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
+        Role             NVARCHAR(16)     NOT NULL,
+        GrantedBy          NVARCHAR(128)    NOT NULL,
+        GrantedUtc         DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureShares_GrantedUtc DEFAULT SYSUTCDATETIME(),
+        RowVersion         ROWVERSION       NOT NULL,
+        CONSTRAINT PK_ArchitectureShares PRIMARY KEY CLUSTERED (ArchitectureId, ActorOid),
+        CONSTRAINT FK_ArchitectureShares_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT CK_ArchitectureShares_Role CHECK (Role IN (N'View', N'Decide', N'Admin'))
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_ActorOid
+        ON dbo.ArchitectureShares (ActorOid);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_Scope_Architecture
+        ON dbo.ArchitectureShares (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
+END;
+
+GO
+
+/*
+  388: LW-089 — soft exclusive architecture draft work leases (ADR 0090).
+*/
+
+IF OBJECT_ID(N'dbo.ArchitectureWorkLeases', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureWorkLeases
+    (
+        DraftId           UNIQUEIDENTIFIER NOT NULL,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId       UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId    UNIQUEIDENTIFIER NOT NULL,
+        ArchitectureId    UNIQUEIDENTIFIER NOT NULL,
+        HolderUserId      UNIQUEIDENTIFIER NOT NULL,
+        AcquiredUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureWorkLeases_AcquiredUtc DEFAULT SYSUTCDATETIME(),
+        LastHeartbeatUtc  DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureWorkLeases_LastHeartbeatUtc DEFAULT SYSUTCDATETIME(),
+        ExpiresUtc        DATETIME2(7)     NOT NULL,
+        RowVersion        ROWVERSION       NOT NULL,
+        CONSTRAINT PK_ArchitectureWorkLeases PRIMARY KEY CLUSTERED (DraftId),
+        CONSTRAINT FK_ArchitectureWorkLeases_DraftRequests
+            FOREIGN KEY (DraftId) REFERENCES dbo.DraftRequests (DraftId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureWorkLeases_Tenants
+            FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_ArchitectureWorkLeases_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureWorkLeases_PlatformUsers
+            FOREIGN KEY (HolderUserId) REFERENCES dbo.PlatformUsers (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureWorkLeases_ExpiresUtc
+        ON dbo.ArchitectureWorkLeases (ExpiresUtc);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureWorkLeases_Tenant_Architecture
+        ON dbo.ArchitectureWorkLeases (TenantId, ArchitectureId, DraftId);
 END;

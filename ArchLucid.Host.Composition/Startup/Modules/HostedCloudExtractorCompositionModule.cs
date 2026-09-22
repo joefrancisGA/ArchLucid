@@ -51,7 +51,15 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<IHostedAzureExtractorRunService, HostedAzureExtractorRunService>();
         services.AddScoped<IAzureExtractorAutoPullOrchestrator, AzureExtractorAutoPullOrchestrator>();
         services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
+        services.Configure<EntraGroupMembershipGraphOptions>(
+            configuration.GetSection(EntraGroupMembershipGraphOptions.SectionName));
         services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
+        services
+            .AddHttpClient<IEntraGroupMembershipGraphReader, EntraGroupMembershipGraphReader>(static client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(2);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane);
         services
             .AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
             {
@@ -63,6 +71,17 @@ public static class HostedCloudExtractorCompositionModule
                     serviceProvider
                         .GetRequiredService<ILoggerFactory>()
                         .CreateLogger("HostedAzureArmReadClient.Policies")));
+        services
+            .AddHttpClient<IHostedAzureManagementPostReadClient, HostedAzureManagementPostReadClient>(static client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(5);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
+            .AddLongLivedPolicyHandler(static serviceProvider =>
+                ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
+                    serviceProvider
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger("HostedAzureManagementPostReadClient.Policies")));
         services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
         services.AddScoped<IAzureExtractorPreparedZipValidateStage, AzureExtractorPreparedZipValidateStage>();
         services.AddScoped<IAzureExtractorPreparedZipPersistStage, AzureExtractorPreparedZipPersistStage>();

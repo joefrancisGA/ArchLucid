@@ -3,11 +3,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
+const { searchParams } = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => searchParams,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
   usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn(),

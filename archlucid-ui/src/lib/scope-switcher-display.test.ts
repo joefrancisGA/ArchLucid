@@ -13,6 +13,7 @@ import {
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
   isEffectiveDevDefaultScope,
+  isSampleWorkspacePresentationScope,
   isScopeSwitcherOptionSelected,
   isScopeSwitchingAvailable,
   resolveScopeSwitcherOptionPrimaryLabel,
@@ -24,6 +25,11 @@ describe("scope-switcher-display", () => {
   it("detects the dev default sample workspace scope", () => {
     expect(isEffectiveDevDefaultScope(DEV_SCOPE_WORKSPACE_ID, DEV_SCOPE_PROJECT_ID)).toBe(true);
     expect(isEffectiveDevDefaultScope(DEV_SCOPE_WORKSPACE_ID, "other-project")).toBe(false);
+  });
+
+  it("presents the local default as live unless demo mode is explicit", () => {
+    expect(isSampleWorkspacePresentationScope(DEV_SCOPE_WORKSPACE_ID, DEV_SCOPE_PROJECT_ID, false)).toBe(false);
+    expect(isSampleWorkspacePresentationScope(DEV_SCOPE_WORKSPACE_ID, DEV_SCOPE_PROJECT_ID, true)).toBe(true);
   });
 
   it("formats compact and accessible sample workspace labels separately", () => {
@@ -49,7 +55,7 @@ describe("scope-switcher-display", () => {
         isSampleWorkspaceSession: false,
         includeProject: true,
       }),
-    ).toBe(`Workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
+    ).toBe(`${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
 
     expect(
       formatScopeSwitcherTriggerAccessibleLabel({
@@ -58,7 +64,7 @@ describe("scope-switcher-display", () => {
         isSampleWorkspaceSession: false,
         includeProject: true,
       }),
-    ).toBe(`Active workspace: Workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
+    ).toBe(`Active workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
   });
 
   it("derives short workspace names from display labels", () => {

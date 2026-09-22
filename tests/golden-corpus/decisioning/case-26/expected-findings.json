@@ -36,6 +36,24 @@
     ]
   },
   {
+    "findingId": "a39b767b-c06a-20a9-82b1-8bd8751ae2fb",
+    "findingType": "RequirementGap",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Requirement \u0027Auth-4\u0027 is not linked to topology resources",
+    "rationale": "No RELATES_TO edge connects this requirement to any TopologyResource node.",
+    "relatedNodeIds": [
+      "req-1"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "requirement-gap-requirement-without-topology-link"
+    ],
+    "decisionsTaken": [
+      "Detected requirement traceability gap: Requirement \u0027Auth-4\u0027 cannot be traced to architecture resources in the graph."
+    ]
+  },
+  {
     "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",

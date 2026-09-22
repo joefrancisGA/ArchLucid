@@ -155,6 +155,9 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
+    const primaryContent = await screen.findByTestId("infra-resource-hub-primary-content");
+    expect(primaryContent.className).not.toMatch(/mx-auto/);
+    expect(primaryContent).toHaveClass("w-full");
     expect(await screen.findByTestId("infra-resource-hub-open-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",

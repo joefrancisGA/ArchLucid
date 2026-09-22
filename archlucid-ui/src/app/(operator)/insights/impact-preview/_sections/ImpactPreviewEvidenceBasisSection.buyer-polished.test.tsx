@@ -31,4 +31,20 @@ describe("ImpactPreviewEvidenceBasisSection buyer-polished shell", () => {
     expect(screen.getByRole("button", { name: "Show details" })).toBeInTheDocument();
     expect(screen.queryByText("run-baseline-42")).not.toBeInTheDocument();
   });
+
+  it("SN-010: nests baseline review href when architecture id is known", () => {
+    render(
+      <ImpactPreviewEvidenceBasisSection
+        baselineRunId="run-baseline-42"
+        linkedRunIds={[]}
+        policyRulesLabel="Open approval"
+        architectureId="architecture-identity-001"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Open baseline review" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-baseline-42",
+    );
+  });
 });

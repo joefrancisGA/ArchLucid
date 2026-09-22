@@ -1,16 +1,86 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Sql;
 
 namespace ArchLucid.Persistence.Findings;
 
 internal static class FindingInspectReadRepositoryCore
 {
+    public static bool ResolveIncludeTypedPayload(FindingInspectReadOptions? options) =>
+        options?.IncludeTypedPayload ?? true;
+
+    public static string NormalizeFindingId(string findingId) => findingId.Trim();
+
+    public static string ResolveMainInspectSql(bool includeTypedPayload) =>
+        includeTypedPayload
+            ? FindingInspectReadSql.MainInspectWithTypedPayload
+            : FindingInspectReadSql.MainInspectWithoutTypedPayload;
+
+    public static DispositionPointerProjection MapDispositionPointerProjection(
+        string? dispositionRaw,
+        bool hasDispositionRow,
+        DateTimeOffset? occurredAtUtc,
+        DateTime? revisitDueUtc,
+        Guid? eventId,
+        string? reviewerUserId,
+        byte[]? rowVersionStamp)
+    {
+        if (!hasDispositionRow)
+            return default;
+
+        return new DispositionPointerProjection(
+            MapLatestDisposition(dispositionRaw, true),
+            occurredAtUtc,
+            eventId,
+            EncodeRowVersionStampBase64(rowVersionStamp),
+            reviewerUserId,
+            ToUtcDateTimeOffset(revisitDueUtc));
+    }
+
+    public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
+        values
+            .Select(NormalizeInspectText)
+            .Where(static value => value is not null)
+            .Cast<string>()
+            .ToList();
+
+    public static IReadOnlyList<string> FilterRecommendedActions(IEnumerable<string> values) =>
+        FilterNonBlankTrimmedStrings(values);
+
+    public static IReadOnlyList<FindingInspectEvidenceItem> BuildEvidenceFromRelatedNodes(IEnumerable<string> relatedNodes) =>
+        FilterNonBlankTrimmedStrings(relatedNodes)
+            .Select(static node =>
+                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = node })
+            .ToList();
+
+    public static bool HasActiveWaiver(long activeWaiverCount) => activeWaiverCount > 0;
+
+    public static string? EncodeRowVersionStampBase64(byte[]? rowVersionStamp) =>
+        rowVersionStamp is null ? null : Convert.ToBase64String(rowVersionStamp);
+
+    public static DateTimeOffset? ToUtcDateTimeOffset(DateTime? value) =>
+        value is null ? null : new DateTimeOffset(DateTime.SpecifyKind(value.Value, DateTimeKind.Utc));
+
+    public static FindingDisposition? MapLatestDisposition(string? dispositionRaw, bool hasDispositionRow) =>
+        hasDispositionRow ? FindingInspectReadModelMapper.ParseDisposition(dispositionRaw) : null;
+
+    public static string? ResolveDecisionRuleName(string? ruleName, string? ruleId) => ruleName ?? ruleId;
+
+    public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText)
+    {
+        string? normalized = NormalizeInspectText(firstRuleText);
+
+        return normalized is null ? (null, null) : (normalized, normalized);
+    }
+
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
         if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))
-            return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+            return ResolveTraceRuleFields(firstRuleText);
 
         try
         {
@@ -19,12 +89,15 @@ internal static class FindingInspectReadRepositoryCore
             if (ids is { Count: > 0 })
             {
                 string? firstValid = ids
-                    .Where(static id => !string.IsNullOrWhiteSpace(id))
-                    .Select(static id => id.Trim())
-                    .FirstOrDefault();
+                    .Select(NormalizeInspectText)
+                    .FirstOrDefault(normalized => normalized is not null);
 
                 if (firstValid is not null)
-                    return (firstValid, firstValid);
+                {
+                    string? traceRuleName = NormalizeInspectText(firstRuleText);
+
+                    return (firstValid, traceRuleName ?? firstValid);
+                }
             }
         }
         catch (JsonException)
@@ -32,22 +105,67 @@ internal static class FindingInspectReadRepositoryCore
             // Fall through to trace text only.
         }
 
-        return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+        return ResolveTraceRuleFields(firstRuleText);
     }
 
     public static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
     {
-        if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(rationale))
+        string? normalizedTitle = NormalizeInspectText(title);
+        string? normalizedRationale = NormalizeInspectText(rationale);
+
+        if (normalizedTitle is null && normalizedRationale is null)
             return null;
 
         Dictionary<string, string?> slim = new(StringComparer.Ordinal)
         {
-            ["title"] = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
-            ["rationale"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
-            ["whyThisMatters"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
+            ["title"] = normalizedTitle,
+            ["rationale"] = normalizedRationale,
         };
 
         return JsonSerializer.SerializeToElement(slim);
+    }
+
+    public static string? NormalizeInspectDisplayText(string? value) => NormalizeInspectText(value);
+
+    /// <summary>
+    ///     Rejects blank and invisible-only inspect strings (for example U+200B) that pass
+    ///     <see cref="string.IsNullOrWhiteSpace(string?)" /> but are not usable operator-facing text.
+    /// </summary>
+    private static string? NormalizeInspectText(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        string trimmed = value.Trim();
+
+        if (!HasSubstantiveInspectText(trimmed))
+            return null;
+
+        return trimmed;
+    }
+
+    private static bool HasSubstantiveInspectText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        bool hasSubstantive = false;
+
+        foreach (char character in value)
+        {
+
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+                return false;
+
+            hasSubstantive = true;
+        }
+
+        return hasSubstantive;
     }
 
     public static JsonElement? TryParsePayloadJson(string? payloadJson)
@@ -81,6 +199,154 @@ internal static class FindingInspectReadRepositoryCore
             return null;
 
         return BuildMetadataTypedPayload(title, rationale);
+    }
+
+    public static JsonElement? ResolveTypedPayloadForInspectRead(
+        bool includeTypedPayload,
+        string? payloadJson,
+        string? title,
+        string? rationale) =>
+        includeTypedPayload
+            ? ResolveTypedPayloadForInspect(payloadJson, title, rationale)
+            : BuildMetadataTypedPayload(title, rationale);
+
+    public static FindingClassification? ResolveInspectClassification(
+        byte? classificationStorage,
+        JsonElement? typedPayload)
+    {
+        FindingClassification? fromStorage = FindingInsightDensityColumnCodec.FromClassificationStorage(classificationStorage);
+
+        if (fromStorage is not null)
+        {
+            return fromStorage;
+        }
+
+        return ResolveClassificationFromTypedPayload(typedPayload);
+    }
+
+    public static FindingTreatment? ResolveInspectTreatment(byte? treatmentStorage, JsonElement? typedPayload)
+    {
+        FindingTreatment? fromStorage = FindingInsightDensityColumnCodec.FromTreatmentStorage(treatmentStorage);
+
+        if (fromStorage is not null)
+        {
+            return fromStorage;
+        }
+
+        return ResolveTreatmentFromTypedPayload(typedPayload);
+    }
+
+    public static FindingSemanticSupportBand? ResolveInspectSemanticSupportBand(
+        string? overlayBandStorage,
+        JsonElement? typedPayload)
+    {
+        if (!string.IsNullOrWhiteSpace(overlayBandStorage)
+            && Enum.TryParse(overlayBandStorage.Trim(), ignoreCase: true, out FindingSemanticSupportBand overlayBand)
+            && Enum.IsDefined(overlayBand))
+        {
+            return overlayBand;
+        }
+
+        return ResolveSemanticSupportBandFromTypedPayload(typedPayload);
+    }
+
+    private static FindingClassification? ResolveClassificationFromTypedPayload(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (!typedPayload.Value.TryGetProperty("classification", out JsonElement classificationElement))
+        {
+            return null;
+        }
+
+        if (classificationElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = classificationElement.GetString();
+
+            if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+        }
+
+        if (classificationElement.ValueKind is JsonValueKind.Number
+            && classificationElement.TryGetInt32(out int numeric)
+            && Enum.IsDefined(typeof(FindingClassification), numeric))
+        {
+            return (FindingClassification)numeric;
+        }
+
+        return null;
+    }
+
+    private static FindingTreatment? ResolveTreatmentFromTypedPayload(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (!typedPayload.Value.TryGetProperty("treatment", out JsonElement treatmentElement))
+        {
+            return null;
+        }
+
+        if (treatmentElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = treatmentElement.GetString();
+
+            if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+        }
+
+        if (treatmentElement.ValueKind is JsonValueKind.Number
+            && treatmentElement.TryGetInt32(out int numeric)
+            && Enum.IsDefined(typeof(FindingTreatment), numeric))
+        {
+            return (FindingTreatment)numeric;
+        }
+
+        return null;
+    }
+
+    private static FindingSemanticSupportBand? ResolveSemanticSupportBandFromTypedPayload(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (!typedPayload.Value.TryGetProperty("semanticSupportBand", out JsonElement bandElement))
+        {
+            return null;
+        }
+
+        if (bandElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = bandElement.GetString();
+
+            if (Enum.TryParse(raw, ignoreCase: true, out FindingSemanticSupportBand parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+        }
+
+        if (bandElement.ValueKind is JsonValueKind.Number
+            && bandElement.TryGetInt32(out int numeric)
+            && Enum.IsDefined(typeof(FindingSemanticSupportBand), numeric))
+        {
+            return (FindingSemanticSupportBand)numeric;
+        }
+
+        return null;
     }
 
     public static FindingInspectResponse BuildInspectResponse(
@@ -119,7 +385,7 @@ internal static class FindingInspectReadRepositoryCore
             Severity = severity,
             TypedPayload = typedPayload,
             DecisionRuleId = ruleId,
-            DecisionRuleName = ruleName ?? ruleId,
+            DecisionRuleName = ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
             RecommendedActions = recommendedActions,
             AuditRowId = auditRowId,

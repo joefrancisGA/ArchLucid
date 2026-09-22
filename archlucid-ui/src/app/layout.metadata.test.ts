@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   productLineDocumentTitle,
+  productLineRootManifestPath,
+  productLineRootMetadataIcons,
   productLineTitleTemplate,
+  SECURENOW_BLANK_FAVICON_URL,
 } from "@/lib/product-line/product-line-display-name";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 
@@ -25,6 +28,11 @@ describe("root layout metadata helpers", () => {
 
     expect(productLineDocumentTitle(productLine)).toBe("ArchLucid workspace");
     expect(productLineTitleTemplate(productLine)).toBe("%s · ArchLucid");
+    expect(productLineRootMetadataIcons(productLine)).toEqual({
+      icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
+    });
+    expect(productLineRootManifestPath(productLine)).toBe("/manifest.webmanifest");
   });
 
   it("builds Security title metadata from env", () => {
@@ -33,5 +41,10 @@ describe("root layout metadata helpers", () => {
 
     expect(productLineDocumentTitle(productLine)).toBe("SecureNow workspace");
     expect(productLineTitleTemplate(productLine)).toBe("%s · SecureNow");
+    expect(productLineRootMetadataIcons(productLine)).toEqual({
+      icon: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png", sizes: "32x32" }],
+      shortcut: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png" }],
+    });
+    expect(productLineRootManifestPath(productLine)).toBeUndefined();
   });
 });

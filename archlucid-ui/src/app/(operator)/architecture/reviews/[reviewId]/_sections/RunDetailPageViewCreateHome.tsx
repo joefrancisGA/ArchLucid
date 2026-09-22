@@ -25,6 +25,15 @@ import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDeta
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
+import {
+  readHeldCheckLedgerFromFindingsSnapshot,
+  readHeldCheckSecondPassFromFindingsSnapshot,
+} from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import { readProseAssumptionHeldCheckAsksFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
+import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import { readPixelDiagramNotVerifiableSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import { resolveArchitectureTabCanEditSource } from "@/lib/architecture/architecture-draft-spawn-one-writer";
+import { hasAzureInventoryZipEvidence } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
 
 export type RunDetailPageViewCreateHomeProps = {
   readonly model: RunDetailPageModel;
@@ -63,7 +72,8 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
     evidenceReviewDateLabel,
     findingCoverageSummary,
     findingsTriageVisibleCount,
-    finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled,
+    finalizeReadinessBlocks,
     quickDecisionFindings,
     requestAssumptionTexts,
     reviewDisplayTitle,
@@ -92,7 +102,8 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         useCreateHomeWorkspaceTabs
         hasGoldenManifest={Boolean(m.manifestId)}
         commitBlockedReason={commitBlockedReason}
-        finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+        serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
+        finalizeReadinessEnabled={finalizeReadinessEnabled}
         quickDecisionFindings={quickDecisionFindings}
         requestAssumptionTexts={requestAssumptionTexts}
         transparencyTrail={
@@ -111,6 +122,16 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(m.resolvedDetail.findingsSnapshot)}
         judgeConfiguredCap={judgeCapReduction?.configuredCap ?? null}
         judgeEffectiveCap={judgeCapReduction?.effectiveCap ?? null}
+        heldCheckLedgerEntries={readHeldCheckLedgerFromFindingsSnapshot(m.resolvedDetail.findingsSnapshot)}
+        heldCheckSecondPass={readHeldCheckSecondPassFromFindingsSnapshot(m.resolvedDetail.findingsSnapshot)}
+        proseAssumptionRegisterEntries={readProseAssumptionRegisterFromFindingsSnapshot(m.resolvedDetail.findingsSnapshot)}
+        proseAssumptionHeldCheckAsks={readProseAssumptionHeldCheckAsksFromFindingsSnapshot(m.resolvedDetail.findingsSnapshot)}
+        pixelDiagramNotVerifiableSources={readPixelDiagramNotVerifiableSourcesFromContextSnapshot(m.resolvedDetail.contextSnapshot)}
+        architectureRequestId={m.resolvedDetail.run.architectureRequestId}
+        azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(evidenceInventoryItems)}
+        structuralExecutionMode={m.resolvedDetail.run.structuralExecutionMode}
+        degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
+        degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (
@@ -247,7 +268,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
             submittedArchitecture: (
               <RunDetailSubmittedArchitectureSectionDeferred
                 architectureText={submittedArchitectureText}
-                canEditSource={!m.manifestId}
+                canEditSource={resolveArchitectureTabCanEditSource(architectureEditHref)}
                 editHref={architectureEditHref}
                 useStructuredPresentation={false}
                 runId={m.resolvedDetail.run.runId}

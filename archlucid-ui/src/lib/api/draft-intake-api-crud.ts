@@ -5,10 +5,49 @@ import type {
   DraftRequestSummaryPage,
 } from "@/types/draft-intake";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import {
+  architectureDraftBlockedReason,
+  architectureDraftIntakeMutationBlockedReason,
+} from "@/lib/architecture/architecture-draft-blocked-reason";
+import { isApiRequestError } from "@/lib/api-request-error";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
+
+export type PriorPackageSemanticCountsResponse = {
+  readonly actorCount: number;
+  readonly assumptionCount: number;
+  readonly decisionCount: number;
+  readonly requirementCount: number;
+};
+
+export async function getPriorPackageSemanticCounts(
+  priorRunId: string,
+): Promise<PriorPackageSemanticCountsResponse | null> {
+  const trimmed = priorRunId.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  try {
+    return await apiGetSealedManifestAware<PriorPackageSemanticCountsResponse>(
+      `${DRAFT_BASE}/prior-package-semantics?priorRunId=${encodeURIComponent(trimmed)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+
+    if (failure.httpStatus === 404) {
+      return null;
+    }
+
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
+  }
+}
 
 /** Default asserted actor so structural admission can pass without a separate actor UI step. */
 export function buildDefaultActorSet(): ActorSet {
@@ -33,11 +72,18 @@ export async function createDraftRequest(
 ): Promise<DraftRequestResponse> {
   const trimmedPriorRunId = priorRunId?.trim() ?? "";
 
-  return apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
-    freeTextIntent: freeTextIntent.trim(),
-    ...(workflowIntent !== undefined ? { workflowIntent } : {}),
-    ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
-  });
+  try {
+    return await apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
+      freeTextIntent: freeTextIntent.trim(),
+      ...(workflowIntent !== undefined ? { workflowIntent } : {}),
+      ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function listDraftRequests(params?: {
@@ -74,7 +120,17 @@ export async function getDraftRequest(
   draftId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<DraftRequestResponse> {
-  return apiGetSealedManifestAware<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, options);
+  try {
+    return await apiGetSealedManifestAware<DraftRequestResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function patchDraftRequest(
@@ -92,5 +148,34 @@ export async function patchDraftRequest(
     forceOverwrite?: boolean;
   },
 ): Promise<DraftRequestResponse> {
-  return apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
+  try {
+    return await apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
+  } catch (error: unknown) {
+    if (isApiRequestError(error) && error.httpStatus === 409) {
+      throw error;
+    }
+
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+export type ArchitectureDraftPatchBody = Parameters<typeof patchDraftRequest>[1];
+
+/** PATCH an architecture draft with ADR 0088 CAS. Resolves the token from GET when the caller has none. */
+export async function patchDraftRequestRequiringCas(
+  draftId: string,
+  body: Omit<ArchitectureDraftPatchBody, "expectedUpdatedUtc" | "forceOverwrite">,
+  expectedUpdatedUtc?: string | null,
+): Promise<DraftRequestResponse> {
+  let token = expectedUpdatedUtc?.trim() ?? "";
+
+  if (token.length === 0) {
+    const current = await getDraftRequest(draftId);
+    token = current.updatedUtc;
+  }
+
+  return patchDraftRequest(draftId, { ...body, expectedUpdatedUtc: token });
 }

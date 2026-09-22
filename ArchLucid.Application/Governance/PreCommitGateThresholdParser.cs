@@ -13,7 +13,8 @@ public static class PreCommitGateThresholdParser
 
         string normalized = thresholdText.Trim();
 
-        if (Enum.TryParse(normalized, ignoreCase: true, out FindingSeverity parsed))
+        if (Enum.TryParse(normalized, ignoreCase: true, out FindingSeverity parsed)
+            && Enum.IsDefined(parsed))
             return parsed;
 
         // Enterprise questionnaires often say "High" where the product enum uses Error.

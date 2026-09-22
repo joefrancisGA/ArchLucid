@@ -9,7 +9,7 @@ import { BeforeAfterDeltaSidebarPanel } from "@/components/BeforeAfterDelta/Befo
 import { BeforeAfterDeltaTopPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaTopPanel";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
-import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
+import { usePilotRunDeltasQuery, resolvePilotRunDeltasQueryErrorMessage } from "@/hooks/use-pilot-run-deltas-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 
 /**
@@ -128,7 +128,8 @@ function BeforeAfterDeltaCyclePanel({
     return (runId ?? trialPayload?.trialWelcomeRunId) || null;
   }, [runId, trialFetched, trialPayload?.trialWelcomeRunId]);
 
-  const { data: deltas, isPending: deltasPending } = usePilotRunDeltasQuery(effectiveRunId ?? "", {
+  const { data: deltas, isPending: deltasPending, isError: deltasIsError, error: deltasError } =
+    usePilotRunDeltasQuery(effectiveRunId ?? "", {
     enabled: effectiveRunId !== null && effectiveRunId.trim().length > 0,
   });
 
@@ -198,6 +199,18 @@ function BeforeAfterDeltaCyclePanel({
   }, [trialFetched, trialPayload, effectiveRunId, deltas, deltasPending]);
 
   if (data === null) return null;
+
+  if (deltasIsError && deltasError !== null) {
+    return (
+      <p
+        role="alert"
+        data-testid="before-after-delta-panel-load-error"
+        className={cn("mb-6 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        {resolvePilotRunDeltasQueryErrorMessage(deltasError)}
+      </p>
+    );
+  }
 
   if (data.baselineHours === null && !data.measuredAvailable && data.estimatedUsdSavings === null) return null;
 

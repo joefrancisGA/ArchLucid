@@ -20,15 +20,19 @@ import {
 } from "./resolve-review-package-approval-blocker";
 import type { ResolveReviewPackagePrimaryActionInput } from "./resolve-review-package-primary-action";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type RunDetailWorkspaceStickyActionsProps = {
   readonly runId: string;
   readonly primaryAction: ReviewPackagePrimaryActionModel;
   readonly primaryActionContext: ResolveReviewPackagePrimaryActionInput;
   readonly commitBlockedReason: string | null;
+  readonly commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   readonly commitBlockedTechnicalDetail?: string | null;
   readonly showProgressTracker: boolean;
   readonly manifestId: string | null | undefined;
+  /** Working nested job parent for finalize success desk return (ADR 0098). */
+  readonly parentArchitectureId?: string | null;
   /** When Do this next owns the page primary, demote the sticky duplicate to outline. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -155,7 +159,9 @@ export function RunDetailWorkspaceStickyActions(
         runId={props.runId}
         hasGoldenManifest={Boolean(props.manifestId)}
         commitBlockedReason={stickyCommitBlockedReason}
+        commitBlockedBlocks={props.commitBlockedBlocks}
         demoted={props.pagePrimaryOwnedElsewhere === true}
+        parentArchitectureId={props.parentArchitectureId}
       />
     </div>
   );

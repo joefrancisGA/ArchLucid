@@ -1134,6 +1134,7 @@ export interface components {
         ArchitectureDraftStructuredBrief: {
             confirmedAssumptions?: string[];
             confirmedConstraints?: string[];
+            confirmedInlineRequirements?: string[];
             confirmedRequiredCapabilities?: string[];
             deniedAssumptions?: string[];
             deniedConstraints?: string[];
@@ -1300,6 +1301,19 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureIntelligenceReviewTier: "Trial" | "Standard" | "Deep";
+        ArchitectureInventoryBindingResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            boundBy?: null | string;
+            /** Format: date-time */
+            boundUtc?: null | string;
+            isBound?: boolean;
+            /** Format: date-time */
+            snapshotCapturedUtc?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            snapshotSubscriptionName?: null | string;
+        };
         ArchitectureKnowledgeModel: {
             /** Format: date-time */
             createdUtc?: string;
@@ -1538,6 +1552,8 @@ export interface components {
             currentManifestVersion?: null | string;
             /** Format: uuid */
             decisionTraceId?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -1555,6 +1571,7 @@ export interface components {
             status: components["schemas"]["ArchitectureRunStatus"];
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             taskIds?: string[];
+            workingCareerRehearsalDoor?: null | string;
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
@@ -1600,6 +1617,22 @@ export interface components {
             /** Format: uuid */
             latestSealedReviewRunId?: null | string;
         };
+        ArchitectureShareListResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            restrictToShares?: boolean;
+            shares?: components["schemas"]["ArchitectureShareResponse"][];
+        };
+        ArchitectureShareResponse: {
+            actorOid?: string;
+            /** Format: uuid */
+            architectureId?: string;
+            grantedBy?: string;
+            /** Format: date-time */
+            grantedUtc?: string;
+            role?: string;
+            rowVersionBase64?: null | string;
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -1609,6 +1642,37 @@ export interface components {
             referenceId?: null | string;
             /** Format: date-time */
             timestampUtc?: string;
+        };
+        ArchitectureWorkLeaseConflictResponse: {
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: date-time */
+            expiresUtc?: string;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
+        ArchitectureWorkLeaseResponse: {
+            /** Format: date-time */
+            acquiredUtc?: string;
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: date-time */
+            expiresUtc?: string;
+            heldByCaller?: boolean;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
+        ArchitectureWorkLeaseSnapshot: {
+            /** Format: date-time */
+            expiresUtc?: string;
+            heldByCaller?: boolean;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
         };
         ArchivedRunScopeRow: {
             /** Format: uuid */
@@ -1724,6 +1788,10 @@ export interface components {
         };
         AsyncJobResponse: {
             jobId?: string;
+        };
+        AttachArchitectureInventoryBindingRequest: {
+            /** Format: uuid */
+            snapshotId: string;
         };
         /** @enum {string} */
         AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
@@ -1945,6 +2013,8 @@ export interface components {
             /** Format: uuid */
             changeId?: string;
             changeType?: components["schemas"]["AzureInventoryChangeType"];
+            changedByDisplayName?: null | string;
+            changedByKind?: null | string;
             /** Format: uuid */
             cloudResourceId?: null | string;
             /** Format: double */
@@ -1964,7 +2034,7 @@ export interface components {
             snapshotBId?: string;
         };
         /** @enum {string} */
-        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown";
+        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown" | "ResourceUnchanged";
         AzureInventoryClassifiedChangeRecord: {
             change?: components["schemas"]["AzureInventoryChangeRecord"];
             classification?: components["schemas"]["AzureInventoryDriftClassification"];
@@ -2034,6 +2104,7 @@ export interface components {
             summary?: components["schemas"]["AzureInventoryDiffSummaryRecord"];
         };
         AzureInventorySnapshotRecord: {
+            architectureDisplayName?: null | string;
             captureMethod?: components["schemas"]["AzureInventoryCaptureMethod"];
             captureStatus?: components["schemas"]["AzureInventoryCaptureStatus"];
             captureVersion?: null | string;
@@ -2042,6 +2113,7 @@ export interface components {
             collectorVersion?: null | string;
             /** Format: double */
             completenessScore?: null | number | string;
+            completenessWarningsJson?: null | string;
             /** Format: byte */
             contentHashSha256?: null | string;
             /** Format: date-time */
@@ -2185,6 +2257,10 @@ export interface components {
             /** Format: int64 */
             processUptimeSeconds?: number;
             runtimeFramework?: string;
+        };
+        BuildSecurityEvidencePathExplanationRequest: {
+            allowInsufficientEvidence?: boolean;
+            useSimulator?: boolean;
         };
         BuyerFindingSummaryDto: {
             category?: string;
@@ -2641,6 +2717,35 @@ export interface components {
             unsupportedAssumptionsAfter?: number;
             /** Format: int32 */
             unsupportedAssumptionsBefore?: number;
+        };
+        CompareVerdictChromeDelta: {
+            executionMode?: null | components["schemas"]["CompareVerdictChromeExecutionModeDelta"];
+            gateOutcome?: null | components["schemas"]["CompareVerdictChromeGateOutcomeDelta"];
+            hasAnySection?: boolean;
+            nonSummingLine?: string;
+            packAssignment?: null | components["schemas"]["CompareVerdictChromePackAssignmentDelta"];
+            roiHeadline?: null | components["schemas"]["CompareVerdictChromeRoiHeadlineDelta"];
+            wk21Line?: string;
+        };
+        CompareVerdictChromeExecutionModeDelta: {
+            advisoryParagraph?: null | string;
+            baselineModeLabel?: string;
+            changed?: boolean;
+            targetModeLabel?: string;
+        };
+        CompareVerdictChromeGateOutcomeDelta: {
+            baselineGateLabel?: string;
+            changed?: boolean;
+            targetGateLabel?: string;
+        };
+        CompareVerdictChromePackAssignmentDelta: {
+            baselineSummaryLine?: string;
+            changed?: boolean;
+            targetSummaryLine?: string;
+        };
+        CompareVerdictChromeRoiHeadlineDelta: {
+            baselineSavingsLabel?: null | string;
+            targetSavingsLabel?: null | string;
         };
         ComparisonDuplicateKeyConflict: {
             /** Format: int32 */
@@ -3584,6 +3689,17 @@ export interface components {
             format?: string;
             name?: string;
         };
+        DiagramViewPlan: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            fitTargetNodeId?: null | string;
+            honestyLabel?: string;
+            mermaidMode?: string;
+            resourceGroupName?: null | string;
+            seedNodeId?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+        };
         DiffItemResponse: {
             afterValue?: null | string;
             beforeValue?: null | string;
@@ -3756,12 +3872,15 @@ export interface components {
             tenantId?: string;
             /** Format: date-time */
             updatedUtc?: string;
+            workLease?: null | components["schemas"]["ArchitectureWorkLeaseSnapshot"];
             /** Format: uuid */
             workspaceId?: string;
         };
         /** @enum {string} */
         DraftRequestStatus: "Drafting" | "Admitted" | "Submitted" | "RunSpawned" | "Redirected" | "Abandoned";
         DraftRequestSummaryResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
@@ -3880,6 +3999,7 @@ export interface components {
         EndToEndReplayComparisonReport: {
             agentResultDiff?: null | components["schemas"]["AgentResultDiffResult"];
             compareQualityDelta?: null | components["schemas"]["CompareQualityDeltaCounts"];
+            compareVerdictChromeDelta?: null | components["schemas"]["CompareVerdictChromeDelta"];
             exportDiffs?: components["schemas"]["ExportRecordDiffResult"][];
             findingCorrelation?: null | components["schemas"]["ComparisonFindingCorrelationMetadata"];
             findingLifecycle?: null | components["schemas"]["CrossReviewFindingLifecycleSummary"];
@@ -4088,6 +4208,7 @@ export interface components {
         };
         ExecDigestSponsorDeepLinkHighlightedRunDto: {
             caption?: null | string;
+            rehearsalRowLabel?: null | string;
             runIdHex?: string;
             /** Format: int32 */
             significanceScore?: number;
@@ -4098,6 +4219,7 @@ export interface components {
             complianceDriftMarkdown?: null | string;
             decisionNeededMarkdown?: null | string;
             findingsDeltaSummary?: null | string;
+            rehearsalBodyDisclaimer?: null | string;
             runIdHex?: null | string;
             runSummaryMarkdown?: null | string;
             signInUrl?: string;
@@ -4212,6 +4334,12 @@ export interface components {
             mode?: string;
             sourceUrl?: string;
         };
+        FavoriteReviewEntryDto: {
+            architectureId?: null | string;
+            pinnedAtUtc?: string;
+            runId?: string;
+            title?: null | string;
+        };
         /** @enum {string} */
         FeasibilityCitationKind: "NamedLaw" | "NamedTheorem" | "InvariantContradiction";
         FeasibilityHardCitation: {
@@ -4270,6 +4398,44 @@ export interface components {
             /** Format: date-time */
             lastModified?: null | string;
         };
+        FinalizeQualityScorecardCountsDto: {
+            /** Format: int32 */
+            blockingFindingCount?: number;
+            /** Format: int32 */
+            lowExtractionConfidenceCount?: number;
+            /** Format: int32 */
+            missingRequiredCapabilityCount?: number;
+            /** Format: int32 */
+            openCannotDetermineCount?: number;
+            /** Format: int32 */
+            openContradictionCount?: number;
+            /** Format: int32 */
+            openDeferredCount?: number;
+            /** Format: int32 */
+            openVerifyHypothesisCount?: number;
+            /** Format: int32 */
+            uncoveredMandatoryRequirementCount?: number;
+            /** Format: int32 */
+            unresolvedHighSeverityDispositionCount?: number;
+            /** Format: int32 */
+            unverifiedAssumptionCount?: number;
+        };
+        FinalizeReadinessBlock: {
+            blockExplanation?: null | string;
+            code?: string;
+            layer?: string;
+            message?: string;
+        };
+        FinalizeReadinessResult: {
+            blockedReasonSummary?: null | string;
+            blocks?: components["schemas"]["FinalizeReadinessBlock"][];
+            checklist?: components["schemas"]["PreFinalizeChecklistResult"];
+            finalizeQualityGateEnabled?: boolean;
+            readyToFinalize?: boolean;
+            runId?: string;
+            scorecard?: components["schemas"]["FinalizeQualityScorecardCountsDto"];
+            scorecardBlockingReasons?: string[];
+        };
         Finding: {
             agentExecutionTraceId?: null | string;
             assignedToUserId?: null | string;
@@ -4321,6 +4487,8 @@ export interface components {
             reviewedAtUtc?: null | string;
             reviewedByUserId?: null | string;
             runIdRef?: null | string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
+            semanticSupportBandScorerVersion?: null | string;
             severity?: components["schemas"]["FindingSeverity"];
             title?: string;
             trace?: components["schemas"]["ExplainabilityTrace"];
@@ -4454,6 +4622,7 @@ export interface components {
             assignedToUserId?: null | string;
             /** Format: uuid */
             auditRowId?: null | string;
+            classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: double */
             confidenceScore?: null | number | string;
@@ -4495,8 +4664,10 @@ export interface components {
             runExecutionModeDisplayLabel?: null | string;
             /** Format: uuid */
             runId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
             trackedExternally?: boolean;
+            treatment?: null | components["schemas"]["FindingTreatment"];
             trustLabel?: null | string;
             trustLabelReason?: null | string;
             typedPayload?: null | components["schemas"]["JsonElement"];
@@ -4540,6 +4711,8 @@ export interface components {
             /** Format: uuid */
             runId?: string;
         };
+        /** @enum {unknown} */
+        FindingSemanticSupportBand: "Supported" | "Unchecked" | "Unsupported" | "NotScored" | null;
         /** @enum {string} */
         FindingSeverity: "Info" | "Warning" | "Error" | "Critical";
         FindingTraceCompletenessScore: {
@@ -4567,11 +4740,17 @@ export interface components {
             findingTitle?: string;
             missingTraceFields?: string[];
             ruleId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             /** Format: double */
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;
+            treatment?: null | components["schemas"]["FindingTreatment"];
         };
         FindingTreatment: number;
+        FindingUnmuteRequest: {
+            /** Format: uuid */
+            runId?: string;
+        };
         FindingVerificationReportResponse: {
             /** Format: date-time */
             createdUtc: string;
@@ -4678,6 +4857,8 @@ export interface components {
             passed?: boolean;
         };
         GlobalSearchFindingResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             findingId?: string;
             /** Format: uuid */
             runId?: string;
@@ -4696,6 +4877,8 @@ export interface components {
             runs?: components["schemas"]["GlobalSearchRunResponse"][];
         };
         GlobalSearchRunResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             authorityProjectSlug?: null | string;
             /** Format: date-time */
             createdUtc?: string;
@@ -4730,6 +4913,7 @@ export interface components {
         };
         GoldenManifest: {
             datastores: components["schemas"]["ManifestDatastore"][];
+            diagramSemantics?: components["schemas"]["ManifestDiagramSemanticOverlay"];
             governance: components["schemas"]["ManifestGovernance"];
             metadata: components["schemas"]["ManifestMetadata"];
             relationships: components["schemas"]["ManifestRelationship"][];
@@ -5010,6 +5194,7 @@ export interface components {
             withPolicyRuleCount?: number;
         };
         GraphEdge: {
+            declaredConnectionId?: null | string;
             edgeId?: string;
             edgeType?: string;
             fromNodeId?: string;
@@ -5018,6 +5203,7 @@ export interface components {
             properties?: {
                 [key: string]: string;
             };
+            provenanceKind?: null | string;
             reasoningTrace?: null | string;
             toNodeId?: string;
             /** Format: double */
@@ -5292,6 +5478,14 @@ export interface components {
             scope?: components["schemas"]["ReReviewScope"];
             specialistResults?: components["schemas"]["SpecialistReviewResult"][];
         };
+        InferenceQuestionnaireListResponse: {
+            /** Format: int32 */
+            cap?: number;
+            capReached?: boolean;
+            items?: components["schemas"]["OperatorInferredConnectionResponse"][];
+            /** Format: int32 */
+            totalCount?: number;
+        };
         InferredTrailEntry: {
             /** Format: int32 */
             confidence?: number;
@@ -5329,6 +5523,32 @@ export interface components {
             insufficientEvidence?: boolean;
             simulatorLabel?: null | string;
             topicKind?: string;
+            viewPlan?: null | components["schemas"]["DiagramViewPlan"];
+        };
+        InfraEvidenceMermaidCollapseEntry: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            kind?: string;
+            nodeId?: null | string;
+            reason?: string;
+        };
+        InfraEvidenceMermaidCollapseReport: {
+            entries?: components["schemas"]["InfraEvidenceMermaidCollapseEntry"][];
+        };
+        InfraEvidenceMermaidCompletenessSummary: {
+            collectedClasses?: string[];
+            /** Format: int32 */
+            connectedComponentCount?: number;
+            /** Format: int32 */
+            hiddenHopsUsedCount?: number;
+            /** Format: int32 */
+            likelyInCollocationEdgeCount?: number;
+            missingClasses?: string[];
+            mode?: string;
+            /** Format: int32 */
+            visibleEdgeCount?: number;
+            /** Format: int32 */
+            visibleNodeCount?: number;
         };
         InfraEvidenceMermaidComplexityMetrics: {
             /** Format: int32 */
@@ -5355,6 +5575,14 @@ export interface components {
             nodeCount?: number;
             status?: string;
         };
+        InfraEvidenceMermaidIdentityDiagramHints: {
+            inventoryFilteredIdentityArmTypes?: components["schemas"]["InfraEvidenceMermaidIdentityDiagramSuppressedArmType"][];
+        };
+        InfraEvidenceMermaidIdentityDiagramSuppressedArmType: {
+            armResourceType?: string;
+            /** Format: int32 */
+            resourceCount?: number;
+        };
         InfraEvidenceMermaidModePreview: {
             /** Format: int32 */
             edgeCount?: number;
@@ -5366,13 +5594,20 @@ export interface components {
             status?: string;
         };
         InfraEvidenceMermaidPreviewResponse: {
+            completenessWarnings?: string[];
             modes?: components["schemas"]["InfraEvidenceMermaidModePreview"][];
             /** Format: uuid */
             snapshotId?: string;
         };
         InfraEvidenceMermaidRenderResponse: {
+            collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
+            completenessSummary?: null | components["schemas"]["InfraEvidenceMermaidCompletenessSummary"];
+            completenessWarnings?: string[];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
+            identityDiagramHints?: null | components["schemas"]["InfraEvidenceMermaidIdentityDiagramHints"];
+            layoutEngine?: null | string;
+            layoutSvg?: null | string;
             mermaid?: null | string;
             metrics?: null | components["schemas"]["InfraEvidenceMermaidComplexityMetrics"];
             mode?: string;
@@ -5885,6 +6120,12 @@ export interface components {
             diagramType?: string;
             manifestVersion?: string;
         };
+        ManifestDiagramSemanticOverlay: {
+            actors?: components["schemas"]["ActorDescriptor"][];
+            decisionLabels?: string[];
+            requirementLabels?: string[];
+            trustBoundaryLabels?: string[];
+        };
         ManifestDiffResult: {
             addedDatastores?: string[];
             addedRelationships?: components["schemas"]["RelationshipDiffItem"][];
@@ -6324,6 +6565,8 @@ export interface components {
             inventoryDiffId?: null | string;
             /** Format: date-time */
             lastObservedUtc?: string;
+            /** Format: uuid */
+            pathId?: null | string;
             /** Format: byte */
             payloadHashSha256?: string;
             /** Format: uuid */
@@ -6360,11 +6603,59 @@ export interface components {
             runId?: string;
             topFindings?: components["schemas"]["OperatorDemoReviewFindingSummary"][];
         };
+        OperatorInferredConnectionConfirmApiRequest: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: null | string;
+            toArmId?: null | string;
+            toCatalog?: null | string;
+            /** Format: uuid */
+            toCloudResourceId?: null | string;
+        };
+        OperatorInferredConnectionDismissApiRequest: {
+            /** Format: uuid */
+            connectionId?: string;
+        };
+        OperatorInferredConnectionResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            fromArmId?: null | string;
+            /** Format: uuid */
+            fromCloudResourceId?: null | string;
+            fromLabel?: null | string;
+            provenanceKind?: string;
+            questionText?: null | string;
+            ruleName?: null | string;
+            settingName?: null | string;
+            /** Format: uuid */
+            snapshotId?: string;
+            source?: string;
+            sourceFileFormat?: null | string;
+            status?: string;
+            toArmId?: null | string;
+            toCatalog?: null | string;
+            /** Format: uuid */
+            toCloudResourceId?: null | string;
+            toHost?: null | string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
         OperatorNextBestActionResponse: {
             actionId?: string;
             href?: string;
             reason?: string;
             title?: string;
+        };
+        OperatorRecentViewEntryDto: {
+            architectureId?: null | string;
+            href?: string;
+            kind?: string;
+            label?: string;
+            parentArchitectureId?: null | string;
+            visitedAtUtc?: string;
         };
         OperatorSavedViewListResponse: {
             views?: components["schemas"]["OperatorSavedViewResponse"][];
@@ -6545,6 +6836,16 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        PagedResponseOfSecurityEvidencePathSummaryResponse: {
+            hasMore?: boolean;
+            items?: components["schemas"]["SecurityEvidencePathSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
         PatchArchitectureIdentityRequest: {
             archived?: null | boolean;
             description?: null | string;
@@ -6554,12 +6855,20 @@ export interface components {
             hasDescription?: boolean;
             hasDisplayName?: boolean;
         };
+        PatchArchitectureRestrictToSharesRequest: {
+            confirmRestrict?: boolean;
+            restrictToShares?: boolean;
+        };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Required unless forceOverwrite is true. Must match the current draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).
+             */
             expectedUpdatedUtc?: null | string;
             focusedPilotModeEnabled?: null | boolean;
+            /** @description When true, skips CAS and overwrites the server draft (Keep mine). Never defaults to true. Writes a Required audit event. JSON Schema cannot express required-unless-forceOverwrite. */
             forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
             openQuestions?: null | string;
@@ -6581,6 +6890,8 @@ export interface components {
         PatchTechnologyLedgerEntryResponse: {
             entry?: components["schemas"]["TechnologyLedgerEntryResponse"];
         };
+        PathConfidenceBand: number;
+        PathKind: number;
         PatternEvidence: {
             applicableCapabilities?: string[];
             name?: string;
@@ -6794,6 +7105,7 @@ export interface components {
             findingsBySeverity?: components["schemas"]["PilotRunDeltaSeverityCountResponse"][];
             governedFindingCoverage?: null | components["schemas"]["GovernedFindingCoverageMetric"];
             isDemoTenant?: boolean;
+            isSampleRun?: boolean;
             /** Format: int32 */
             llmCallCount?: number;
             llmCallCountResolved?: boolean;
@@ -6804,11 +7116,13 @@ export interface components {
             roiSourceFreshnessDisposition?: string;
             /** Format: date-time */
             runCreatedUtc?: string;
+            structuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
             /** Format: double */
             timeToCommittedManifestTotalSeconds?: null | number | string;
             topFindingEvidenceChain?: null | components["schemas"]["FindingEvidenceChainResponse"];
             topFindingId?: null | string;
             topFindingSeverity?: null | string;
+            workingCareerRehearsalDoor?: null | string;
         };
         PilotScorecardBaselinesPutRequest: {
             /** Format: double */
@@ -7423,6 +7737,16 @@ export interface components {
             manifestVersion?: string;
             summary?: string;
         };
+        PriorPackageSemanticCountsDto: {
+            /** Format: int32 */
+            actorCount?: number;
+            /** Format: int32 */
+            assumptionCount?: number;
+            /** Format: int32 */
+            decisionCount?: number;
+            /** Format: int32 */
+            requirementCount?: number;
+        };
         ProblemDetails: {
             detail?: null | string;
             instance?: null | string;
@@ -7658,6 +7982,13 @@ export interface components {
         PublishPolicyPackVersionRequest: {
             contentJson: string;
             version?: string;
+        };
+        PutArchitectureShareRequest: {
+            actorOid?: string;
+            role?: string;
+        };
+        PutRunAssumptionAcknowledgementRequest: {
+            acknowledgedAssumptionIds?: null | string[];
         };
         PutRunCoverageAcknowledgementRequest: {
             entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];
@@ -8190,6 +8521,9 @@ export interface components {
             findingId?: string;
             /** Format: uuid */
             instanceId?: string;
+            /** Format: uuid */
+            pathId?: null | string;
+            pathNarrative?: null | components["schemas"]["RemediationPathNarrative"];
             patternKey?: string;
             /** Format: uuid */
             preflightSnapshotId?: null | string;
@@ -8209,6 +8543,25 @@ export interface components {
             /** Format: int32 */
             count?: number;
             key?: string;
+        };
+        RemediationPathNarrative: {
+            affectedDependencyCloudResourceIds?: string[];
+            aiInferenceSummary?: null | string;
+            blastRadiusWarning?: string;
+            canonicalHopHashHex?: string;
+            exposureSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            preconditions?: string[];
+            problemStatement?: string;
+            recommendedChange?: string;
+            recommendedChangeSource?: string;
+            safeRolloutSteps?: string[];
+            verificationQueries?: string[];
+            weakestHopReason?: string;
+            whyItMatters?: string;
         };
         RemediationPatternBulkImportRequest: {
             items?: components["schemas"]["RemediationPatternDraftApiRequest"][];
@@ -8917,6 +9270,13 @@ export interface components {
             /** Format: int32 */
             graphSnapshots?: number;
         };
+        RunAssumptionAcknowledgementDocument: {
+            acknowledgedAssumptionIds?: string[];
+            /** Format: date-time */
+            acknowledgedUtc?: string;
+            actorUserId?: string;
+            evaluationVersion?: string;
+        };
         RunAuthorityRuleAuditExplainabilitySection: {
             acceptedFindingIds?: string[];
             allowedFindingIds?: string[];
@@ -9270,6 +9630,7 @@ export interface components {
             summary?: string;
         };
         RunRecord: {
+            acknowledgedAssumptionsJson?: null | string;
             acknowledgedCoverageJson?: null | string;
             /** Format: uuid */
             architectureId?: null | string;
@@ -9292,6 +9653,8 @@ export interface components {
             decisionTraceId?: null | string;
             description?: null | string;
             engineProvenanceJson?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -9356,6 +9719,7 @@ export interface components {
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             /** Format: uuid */
             tenantId?: string;
+            workingCareerRehearsalDoor?: null | string;
             /** Format: uuid */
             workspaceId?: string;
         };
@@ -9452,6 +9816,8 @@ export interface components {
             originalFileName?: string;
         };
         RunSummaryResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;
             /** Format: date-time */
@@ -9459,6 +9825,8 @@ export interface components {
             degradedExecutionAgents?: string[];
             description?: null | string;
             displayName?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             goldenManifestId?: null | string;
             hasArtifactBundle?: boolean;
@@ -9479,6 +9847,7 @@ export interface components {
             /** Format: uuid */
             runId: string;
             structuralExecutionMode?: components["schemas"]["StructuralExecutionMode"];
+            workingCareerRehearsalDoor?: null | string;
         };
         RunToolInvocationForensicRow: {
             agentType?: string;
@@ -9534,16 +9903,339 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        SecureNowArchitectOutcomeMetricsResponse: {
+            /** Format: int32 */
+            assertedCrownJewelExposurePathsRemoved?: number;
+            /** Format: int32 */
+            criticalOrHighConfidencePathsRemoved?: number;
+            /** Format: int32 */
+            exceptionsExpired?: number;
+            /** Format: uuid */
+            fromSnapshotId?: string;
+            /** Format: int32 */
+            privilegedIdentityNodesOnPathsReduced?: number;
+            /** Format: int32 */
+            remediationRecurrenceCount?: number;
+            ruleVersion?: string;
+            /** Format: int32 */
+            sharedControlBlastRadiusPathsRemoved?: number;
+            supportingOperationalMetrics?: null | components["schemas"]["SecureNowArchitectSupportingOperationalMetricsResponse"];
+            /** Format: uuid */
+            toSnapshotId?: string;
+            /** Format: int32 */
+            unrestrictedEgressCapabilityPathsReduced?: number;
+        };
+        SecureNowArchitectSupportingOperationalMetricsResponse: {
+            /** Format: int32 */
+            openFindings?: number;
+        };
         SecurityAssessmentPublicationRequest: {
             assessmentCode?: string;
             assessorDisplayName?: null | string;
             publishedOn?: null | string;
             summaryReference?: string;
         };
+        SecurityAssetAssertionCreateApiRequest: {
+            approvedByActorKey?: string;
+            businessCriticality?: string;
+            /** Format: uuid */
+            cloudResourceId?: string;
+            dataSensitivity?: string;
+            deploymentEnvironment?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            isPatientImpact?: boolean;
+            isRevenueImpact?: boolean;
+            rationale?: string;
+            regulatoryClass?: string;
+            requestedByActorKey?: string;
+        };
+        SecurityAssetAssertionCreateApiResponse: {
+            /** Format: uuid */
+            assertionId?: string;
+        };
+        SecurityAssetAssertionExpirySweepApiResponse: {
+            /** Format: int32 */
+            expiredCount?: number;
+            /** Format: int32 */
+            observationsCreatedCount?: number;
+        };
+        SecurityAssetAssertionRenewApiRequest: {
+            approvedByActorKey?: string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            renewedByActorKey?: string;
+        };
+        SecurityAssetAssertionResponse: {
+            /** Format: uuid */
+            assertionId?: string;
+            businessCriticality?: string;
+            /** Format: uuid */
+            cloudResourceId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            dataSensitivity?: string;
+            deploymentEnvironment?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            isPatientImpact?: boolean;
+            isRevenueImpact?: boolean;
+            provenanceKind?: string;
+            qualifiesAsCrownJewel?: boolean;
+            rationale?: string;
+            regulatoryClass?: string;
+            status?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        SecurityAssetAssertionRevokeApiRequest: {
+            revokedByActorKey?: string;
+        };
+        SecurityDeclaredConnectionCreateApiRequest: {
+            approvedByActorKey?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: string;
+            rationale?: string;
+            relationshipType?: string;
+            requestedByActorKey?: string;
+            /** Format: uuid */
+            toCloudResourceId?: string;
+        };
+        SecurityDeclaredConnectionCreateApiResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+        };
+        SecurityDeclaredConnectionExpirySweepApiResponse: {
+            /** Format: int32 */
+            expiredCount?: number;
+        };
+        SecurityDeclaredConnectionRenewApiRequest: {
+            approvedByActorKey?: string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            renewedByActorKey?: string;
+        };
+        SecurityDeclaredConnectionResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: string;
+            provenanceKind?: string;
+            rationale?: string;
+            relationshipType?: string;
+            status?: string;
+            /** Format: uuid */
+            toCloudResourceId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        SecurityDeclaredConnectionRevokeApiRequest: {
+            revokedByActorKey?: string;
+        };
         SecurityDelta: {
             baseStatus?: null | string;
             controlName?: string;
             targetStatus?: null | string;
+        };
+        SecurityEvidenceCutPointSummaryResponse: {
+            collapsedPathIds?: string[];
+            cutKind?: string;
+            /** Format: int32 */
+            cutOrder?: number;
+            /** Format: uuid */
+            cutPointId?: string;
+            edgeType?: null | string;
+            evidenceReferences?: string[];
+            explanationSummary?: string;
+            fromNodeLabel?: null | string;
+            /** Format: double */
+            leverageScore?: number | string;
+            operationalCostClass?: string;
+            /** Format: int32 */
+            pathsCollapsedCount?: number;
+            suggestedPatternKey?: null | string;
+            toNodeLabel?: null | string;
+        };
+        SecurityEvidencePathDetailResponse: {
+            citingFindingIds?: string[];
+            /** Format: uuid */
+            crownJewelAssertionId?: null | string;
+            explanationTemplate?: components["schemas"]["SecurityEvidencePathExplanationTemplateResponse"];
+            hops?: components["schemas"]["SecurityEvidencePathHopResponse"][];
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            relatedCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            routing?: components["schemas"]["SecurityEvidencePathRoutingResponse"][];
+            /** Format: uuid */
+            snapshotId?: string;
+            weakestHop?: null | components["schemas"]["SecurityEvidencePathWeakestHopResponse"];
+            /** Format: int32 */
+            weakestHopOrdinal?: number;
+            weakestHopReason?: string;
+        };
+        SecurityEvidencePathExplanationResponse: {
+            businessImpactHypotheses?: string[];
+            citedEvidenceRefs?: string[];
+            /** Format: date-time */
+            createdUtc?: string;
+            executiveSummary?: string;
+            /** Format: uuid */
+            explanationId?: string;
+            /** Format: uuid */
+            pathId?: string;
+            proposedRemediation?: components["schemas"]["SecurityEvidencePathProposedRemediationResponse"];
+            provenanceKind?: string;
+            simulatorLabel?: null | string;
+        };
+        SecurityEvidencePathExplanationResultResponse: {
+            errorMessage?: null | string;
+            explanation?: null | components["schemas"]["SecurityEvidencePathExplanationResponse"];
+            succeeded?: boolean;
+        };
+        SecurityEvidencePathExplanationTemplateResponse: {
+            actor?: null | string;
+            architectSentence?: null | string;
+            asset?: null | string;
+            identity?: null | string;
+            network?: null | string;
+            proposedChange?: null | string;
+            verify?: null | string;
+            weakControl?: null | string;
+        };
+        SecurityEvidencePathHopResponse: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            edgeType?: string;
+            evidenceReference?: string;
+            fromNodeLabel?: string;
+            hopConfidenceBand?: string;
+            /** Format: int32 */
+            hopOrdinal?: number;
+            inferenceSource?: null | string;
+            provenanceKind?: string;
+            toNodeLabel?: string;
+        };
+        SecurityEvidencePathProposedRemediationResponse: {
+            preconditions?: string[];
+            recommendedChange?: string;
+            recommendedChangeSource?: string;
+            suggestedPatternKey?: null | string;
+            verificationQueries?: string[];
+        };
+        SecurityEvidencePathRankDetailResponse: {
+            /** Format: double */
+            blastRadiusScore?: number | string;
+            breakdownJson?: string;
+            /** Format: double */
+            businessConsequenceScore?: null | number | string;
+            /** Format: double */
+            compositeSortScore?: number | string;
+            /** Format: date-time */
+            computedUtc?: string;
+            /** Format: double */
+            confidenceBandScore?: number | string;
+            dimensionProse?: components["schemas"]["SecurityEvidencePathRankDimensionProseResponse"];
+            explanationSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: double */
+            privilegeDepthScore?: number | string;
+            /** Format: int32 */
+            rankOrder?: number;
+            ruleVersion?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: double */
+            technicalExposureScore?: number | string;
+        };
+        SecurityEvidencePathRankDimensionProseResponse: {
+            blastRadius?: string;
+            businessConsequence?: string;
+            confidenceBand?: string;
+            overall?: string;
+            privilegeDepth?: string;
+            technicalExposure?: string;
+        };
+        SecurityEvidencePathRankSummaryResponse: {
+            /** Format: double */
+            blastRadiusScore?: number | string;
+            /** Format: double */
+            businessConsequenceScore?: null | number | string;
+            /** Format: double */
+            compositeSortScore?: number | string;
+            /** Format: date-time */
+            computedUtc?: string;
+            /** Format: double */
+            confidenceBandScore?: number | string;
+            explanationSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: double */
+            privilegeDepthScore?: number | string;
+            /** Format: int32 */
+            rankOrder?: number;
+            relatedCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            ruleVersion?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: double */
+            technicalExposureScore?: number | string;
+        };
+        SecurityEvidencePathRankedPageResponse: {
+            items?: components["schemas"]["SecurityEvidencePathRankSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            topCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        SecurityEvidencePathRoutingResponse: {
+            displayName?: null | string;
+            principalId?: null | string;
+            provenanceKind?: string;
+            role?: string;
+            sourceReference?: string;
+        };
+        SecurityEvidencePathSummaryResponse: {
+            /** Format: date-time */
+            createdUtc?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            weakestHopOrdinal?: number;
+            weakestHopReason?: string;
+        };
+        SecurityEvidencePathWeakestHopResponse: {
+            edgeType?: string;
+            hopConfidenceBand?: string;
+            /** Format: int32 */
+            hopOrdinal?: number;
+            provenanceKind?: string;
+            reason?: string;
         };
         SecurityPostureItem: {
             controlId?: string;
@@ -9590,6 +10282,9 @@ export interface components {
             showAdvisoryEnabled?: boolean;
             showLowConfidenceEnabled?: boolean;
         };
+        SetFirstSessionPurposeRequest: {
+            purpose?: string;
+        };
         SetIanaTimeZonePreferenceRequest: {
             ianaTimeZoneId?: null | string;
         };
@@ -9614,6 +10309,12 @@ export interface components {
         };
         SetWhereToGoNextVisibilityRequest: {
             enabled?: boolean;
+        };
+        SetWorkingCareerRehearsalDoorRequest: {
+            door?: string;
+        };
+        SetWorkingWorkspaceContinuityRequest: {
+            continuity?: components["schemas"]["WorkingWorkspaceContinuityDto"];
         };
         SetWorkspaceModeGraduationOfferRequest: {
             state?: string;
@@ -9968,7 +10669,6 @@ export interface components {
             offset?: number;
             value?: null | string;
         };
-        /** @enum {string} */
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
@@ -11153,6 +11853,8 @@ export interface components {
             findingsShowAdvisoryEnabledIsExplicit?: boolean;
             findingsShowLowConfidenceEnabled?: boolean;
             findingsShowLowConfidenceEnabledIsExplicit?: boolean;
+            firstSessionPurpose?: null | string;
+            firstSessionPurposeIsExplicit?: boolean;
             ianaTimeZoneId?: string;
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;
@@ -11164,6 +11866,10 @@ export interface components {
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;
             whereToGoNextIsExplicit?: boolean;
+            workingCareerRehearsalDoor?: string;
+            workingCareerRehearsalDoorIsExplicit?: boolean;
+            workingWorkspaceContinuity?: components["schemas"]["WorkingWorkspaceContinuityDto"];
+            workingWorkspaceContinuityIsExplicit?: boolean;
             workspaceMode?: string;
             workspaceModeGraduationOffer?: string;
             workspaceModeGraduationOfferIsExplicit?: boolean;
@@ -11258,6 +11964,11 @@ export interface components {
             /** Format: date-time */
             updatedUtc?: string;
             wizardId?: string;
+        };
+        WorkingWorkspaceContinuityDto: {
+            favoriteReviews?: components["schemas"]["FavoriteReviewEntryDto"][];
+            recentViewEntries?: components["schemas"]["OperatorRecentViewEntryDto"][];
+            updatedAtUtc?: null | string;
         };
         WorkspaceAiAvailabilityCheckRow: {
             detail?: string;

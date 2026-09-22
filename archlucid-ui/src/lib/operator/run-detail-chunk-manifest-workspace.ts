@@ -55,8 +55,9 @@ export const RUN_DETAIL_CHUNK_MANIFEST_WORKSPACE: readonly DeferredChunkManifest
     id: "run-detail-workspace-sticky-actions",
     label: "Loading review actions",
     variant: "panel",
-    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActions",
-    exportName: "RunDetailWorkspaceStickyActions",
+    modulePath:
+      "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActionsResolved",
+    exportName: "RunDetailWorkspaceStickyActionsResolved",
   },
   {
     id: "run-detail-section-nav",

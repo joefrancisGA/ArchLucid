@@ -4,6 +4,7 @@ import { HelpAlertsGuideHeroClient } from "@/app/(operator)/help/_sections/HelpA
 import { HelpAlertsHeaderActions } from "@/app/(operator)/help/_sections/HelpAlertsHeaderActions";
 import { HelpAlertsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAlertsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { AlertsHelpEvidenceOrientationStrip } from "@/components/help/AlertsHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -100,6 +101,8 @@ function HelpAlertsGuideBody(props: { readonly readingBodyClass: string }): Reac
       <p className={readingBodyClass} data-testid="help-alerts-overview">
         {ALERTS_HELP_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-alerts" showSsoOptional={false} />
 
       <section
         aria-labelledby="how-alerts-work"
@@ -256,7 +259,7 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
             <HelpAlertsGuideBody readingBodyClass={readingBodyClass} />
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy={!buyerPolishedShell} />
+          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
 
         {buyerPolishedShell ? <HelpAlertsSourcesOrientationStrip /> : null}

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Advisory.Learning;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -49,9 +50,13 @@ public sealed partial class RecommendationLearningController
 
             return Ok(profile);
         }
+        catch (ConflictException ex)
+        {
+            return MapRecommendationLearningSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRecommendationLearningSealedManifestConflict(new ConflictException(ex.Message));
         }
     }
 
@@ -107,9 +112,13 @@ public sealed partial class RecommendationLearningController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapRecommendationLearningSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRecommendationLearningSealedManifestConflict(new ConflictException(ex.Message));
         }
     }
 }

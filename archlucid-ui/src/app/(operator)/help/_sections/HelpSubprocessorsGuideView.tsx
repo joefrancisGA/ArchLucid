@@ -8,6 +8,7 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SubprocessorsHelpClaimDisciplineStrip } from "@/components/help/SubprocessorsHelpClaimDisciplineStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -158,6 +159,8 @@ export function HelpSubprocessorsGuideView(
         </section>
       </div>
 
+      <SponsorSendPathHonestyPanel testIdPrefix="help-subprocessors" showSsoOptional={false} />
+
       <section
         aria-labelledby="help-subprocessors-job-matrix-heading"
         className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
@@ -244,7 +247,7 @@ export function HelpSubprocessorsGuideView(
           ) : null}
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
     </article>
   );

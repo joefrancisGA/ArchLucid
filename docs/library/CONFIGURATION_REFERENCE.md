@@ -19,11 +19,11 @@ Layered `IConfiguration` for the API host (`ArchLucid.Api/Program.cs`). Later so
 
 ## Pilot profile overlay (`appsettings.Pilot.json`)
 
-Use the optional **`appsettings.Pilot.json`** overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:
+Use the optional **`appsettings.Pilot.json`** overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON when **`ASPNETCORE_ENVIRONMENT` is not Development**, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:
 
 | Key / area | Pilot value |
 | --- | --- |
-| `ConnectionStrings:ArchLucid` | Injected at deploy (empty in repo template) |
+| `ConnectionStrings:ArchLucid` | Injected at deploy via environment / Key Vault (omit from repo overlay — do not set an empty string) |
 | `ArchLucid:StorageProvider` | `Sql` |
 | `HotPathCache:Provider` | `Memory` |
 | `HotPathCache:ExpectedApiReplicaCount` | `1` |
@@ -58,6 +58,8 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 | `ArchLucid:Findings:InsightDensityGate:PreferHighVerificationEngines` | `false` | Host JSON default off; **effective on in Real mode** unless the tenant overrides it off (DX-57). Ranks judge-cap candidates by verified confirmed rate. Engines below `VerificationPriorMinSample` sort at a neutral `0.5`, so a tenant without TB-2034 volume sees no change. Ranking only. |
 | `ArchLucid:Findings:InsightDensityGate:PreferHighHumanAcceptResidual` | `false` | Host JSON default off (DX-67). When true with Premium judge enabled for engine findings, tertiary sort uses gate-vs-human calibration residual (novel engines the gate under-scores). Internal measurement only — not buyer copy. |
 | `ArchLucid:Findings:InsightDensityGate:EnableProseAssumptionExtraction` | `false` | Host JSON default off; **effective on in Real mode** unless the tenant overrides it off (owner decision 2026-09-09, same contract as DX-57). Issues extra Premium completions per in-batch prose document, so spend scales with document count and is capped by `MaxProseAssumptionCandidatesPerSnapshot` / `MaxProseAssumptionFindingsPerSnapshot`. Simulator forces it off. |
+| `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` | `false` | Emit/merge path. Default **off** (AS-074 / TB-1228) so findings merge is not a sync LLM tax. Heuristic quote-overlap (AS-057) remains the emit scorer. |
+| `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudgeOnFinalize` | `true` | **ADR 0099.** Working Career **Real** finalize and readiness run the Premium semantic-support judge on Unchecked decision-grade rows before warn/hold honesty. Simulator/Fallback never run it (even if this key is `true`). Fail-open: parse/faithfulness errors keep the heuristic band. Does **not** block seal by itself; PilotStrict hold on Unsupported stays opt-in. **Host JSON opt-out only** — set `false` to skip spend. There is no tenant `finding-engine-controls` key; workspace Finding engines toggles are insight-density / portfolio recurrence, not this flag. Completions reuse `IAgentTierCompletionRouter` (no separate judge wallet; no per-snapshot Unchecked-row cap). |
 
 Because the flags above resolve to **on** in Real mode, a host JSON `false` does not disable them for a Real-mode tenant — the tenant override is the off switch. This matches the pre-existing `EnableLlmJudge` behavior. Simulator and offline modes force all of them off regardless of host or tenant value, so a stored tenant `true` cannot enable a paid path outside Real mode.
 

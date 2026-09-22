@@ -65,7 +65,7 @@ public sealed class ArchitectureIdentityBackfillServiceTests
         reloadedSecond!.ArchitectureId.Should().NotBeNull();
         reloadedFirst.ArchitectureId!.Value.Should().NotBe(reloadedSecond.ArchitectureId!.Value);
 
-        var page = await identityRepository.ListAsync(Scope, 1, 50, includeArchived: true, CancellationToken.None);
+        var page = await identityRepository.ListAsync(Scope, 1, 50, includeArchived: true, actorOidForShareFilter: null, CancellationToken.None);
         page.TotalCount.Should().Be(2);
     }
 
@@ -234,7 +234,10 @@ public sealed class ArchitectureIdentityBackfillServiceTests
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
         InMemoryArchitectureRequestRepository requestRepository = new();
-        ArchitectureIdentityService identityService = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService identityService = ArchitectureIdentityServiceTestSupport.Create(
+            identityRepository,
+            runRepository,
+            draftRepository);
         ArchitectureIdentityBackfillService sut = new(
             identityService,
             identityRepository,

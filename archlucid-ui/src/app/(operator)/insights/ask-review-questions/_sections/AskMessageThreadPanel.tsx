@@ -7,7 +7,10 @@ import { cn } from "@/lib/utils";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
 import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
+import { useAskCitedFindingsBandsQuery } from "@/hooks/use-ask-cited-findings-bands-query";
+import { parseAskCitationRefsFromMessageMetadata } from "@/lib/ask-citation-action-follow-ups";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
@@ -108,6 +111,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   const citationHostMessageId = lastAssistantMessageId(messages);
   const showCitationActionsOnAnswer =
     streamingAssistantContent === null && citationHostMessageId !== null;
+  const citedFindingsBandsQuery = useAskCitedFindingsBandsQuery(runId, {
+    enabled: runId.trim().length > 0,
+  });
+  const citedFindingBandIndex = citedFindingsBandsQuery.data ?? [];
 
   const syncFollowUpsOpenToUrl = useCallback(
     (open: boolean) => {
@@ -188,7 +195,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             ) : null}
           </div>
         ) : null}
-        {messages.map((message) => (
+        {messages.map((message) => {
+          const assistantCitationRefs =
+            message.role.toLowerCase() === "assistant"
+              ? parseAskCitationRefsFromMessageMetadata(message.metadataJson)
+              : null;
+
+          return (
           <Card
             key={message.messageId}
             className={cn(
@@ -221,6 +234,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     content={message.content}
                     groundingLinks={askAssistantGroundingLinks ?? undefined}
                   />
+                  <AskCitedFindingsSemanticSupportBandFootnote
+                    referencedFindingIds={assistantCitationRefs?.referencedFindings ?? []}
+                    findingBandIndex={citedFindingBandIndex}
+                  />
                   {showCitationActionsOnAnswer && message.messageId === citationHostMessageId ? (
                     <AskCitationActionFollowUps
                       chips={askCitationActionFollowUps}
@@ -235,7 +252,8 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               )}
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
         {streamingAssistantContent !== null ? (
           <Card
             className="border border-neutral-200 bg-neutral-50/90 dark:border-neutral-700 dark:bg-neutral-800/50"

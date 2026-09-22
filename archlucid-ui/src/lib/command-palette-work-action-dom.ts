@@ -74,3 +74,53 @@ export function queryVisibleReviewRoomEnterControl(): HTMLButtonElement | null {
 export function isCommandPaletteRoomElicitationAvailable(): boolean {
   return queryVisibleReviewRoomEnterControl() !== null;
 }
+
+/** Extract & upload replace/focus control when accepted or drop zone is visible. */
+export function queryVisibleExtractUploadFocusControl(): HTMLElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const replace = document.querySelector<HTMLElement>(
+    '[data-testid="extract-upload-accepted-replace"]:not([disabled])',
+  );
+
+  if (replace !== null) {
+    return replace;
+  }
+
+  return document.querySelector<HTMLElement>('[data-testid="extract-upload-drop-zone-surface"]');
+}
+
+export function queryVisibleExtractUploadCopyQuickStartControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>(
+    '[data-testid="extract-upload-quick-start-copy"]:not([disabled])',
+  );
+}
+
+export function isCommandPaletteExtractUploadFocusAvailable(): boolean {
+  return queryVisibleExtractUploadFocusControl() !== null;
+}
+
+export function isCommandPaletteExtractUploadCopyQuickStartAvailable(): boolean {
+  return queryVisibleExtractUploadCopyQuickStartControl() !== null;
+}
+
+/** SN-008 spawn-locked clone CTA on architecture desk or handoff surfaces. */
+export function queryVisibleSpawnLockCloneSnapshotControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>(
+    '[data-testid="architecture-spawn-lock-clone-snapshot"]:not([disabled])',
+  );
+}
+
+export function isCommandPaletteCloneFromSnapshotAvailable(): boolean {
+  return queryVisibleSpawnLockCloneSnapshotControl() !== null;
+}

@@ -7,6 +7,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PackagePrintButton } from "@/components/reviews/PackagePrintButton";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -38,6 +39,7 @@ import {
   PACKAGE_PRINT_STATUS_HEADING,
   PACKAGE_PRINT_SYNOPSIS_HEADING,
   PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
+  PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
   type PackagePrintPresentation,
 } from "@/lib/package-print-view";
@@ -45,6 +47,7 @@ import { cn } from "@/lib/utils";
 
 import { PackagePrintBreadcrumb } from "./PackagePrintBreadcrumb";
 import { PackagePrintBuyerChrome } from "./PackagePrintBuyerChrome";
+import { PackagePrintRehearsalHonestyStripView } from "./PackagePrintRehearsalHonestyStrip";
 import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFooterClient";
 import { PackagePrintTransparencyTrailSection } from "./PackagePrintTransparencyTrailSection";
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
@@ -53,6 +56,7 @@ export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
   readonly parentArchitectureId?: string | null;
+
   readonly meetingCaptureBlockedReason?: string | null;
 };
 
@@ -63,6 +67,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
     reviewId: presentation.runId,
     reviewTab: "review-package",
   });
+
   const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
   const listScopedRunFilterActive = scopedListRunId.length > 0;
@@ -79,6 +84,19 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
   const packagePrintClearScopeHref = buildPackagePrintPath(presentation.runId);
   const meetingCaptureEntries = presentation.meetingCaptureEntries ?? [];
   const showMeetingCapture = hasReviewMeetingCapture(meetingCaptureEntries);
+
+  const packagePrintMeetingCaptureBlockedSection =
+    !showMeetingCapture && meetingCaptureBlockedReason !== null ? (
+      <section
+        className="space-y-2 print:hidden"
+        data-testid="package-print-meeting-capture-blocked"
+      >
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{PACKAGE_PRINT_MEETING_CAPTURE_HEADING}</h2>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+          {meetingCaptureBlockedReason}
+        </p>
+      </section>
+    ) : null;
 
   const packagePrintPageHeader = (
     <OperatorPageHeader
@@ -112,6 +130,10 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
   const packagePrintWorkspaceBody = (
     <>
+      {presentation.rehearsalHonestyStrip !== null && presentation.rehearsalHonestyStrip !== undefined ? (
+        <PackagePrintRehearsalHonestyStripView strip={presentation.rehearsalHonestyStrip} />
+      ) : null}
+
       <section className="space-y-2" aria-labelledby="package-print-status-heading">
         <h2 id="package-print-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {PACKAGE_PRINT_STATUS_HEADING}
@@ -145,6 +167,23 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             data-testid="package-print-sponsor-synopsis"
           >
             {presentation.sponsorSynopsis}
+          </p>
+        </section>
+      ) : null}
+
+      {presentation.semanticSupportBandStampLine?.trim().length ? (
+        <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
+          <h2
+            id="package-print-semantic-support-heading"
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            {PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING}
+          </h2>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="package-print-semantic-support-band-line"
+          >
+            {presentation.semanticSupportBandStampLine}
           </p>
         </section>
       ) : null}
@@ -293,19 +332,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
               >
                 <PackagePrintBuyerChrome runId={presentation.runId} />
                 {packagePrintWorkspaceBody}
-                {!showMeetingCapture && meetingCaptureBlockedReason !== null ? (
-                  <section
-                    className="space-y-2 print:hidden"
-                    data-testid="package-print-meeting-capture-blocked"
-                  >
-                    <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                      {PACKAGE_PRINT_MEETING_CAPTURE_HEADING}
-                    </h2>
-                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                      {meetingCaptureBlockedReason}
-                    </p>
-                  </section>
-                ) : null}
+                {packagePrintMeetingCaptureBlockedSection}
               </div>
 
               <div className="print:hidden">
@@ -323,6 +350,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             {packagePrintPageHeader}
             <PackagePrintBuyerChrome runId={presentation.runId} />
             {packagePrintWorkspaceBody}
+            {packagePrintMeetingCaptureBlockedSection}
           </>
         )}
       </DocumentLayout>

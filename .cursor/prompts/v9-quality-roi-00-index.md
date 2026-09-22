@@ -4,7 +4,9 @@
 
 # v9 quality-ROI — Composer prompt set (QR-06–QR-15)
 
-v9 assessment: QR-01–QR-04 closed the v8 compile/guard/OpenAPI trio. Insight density is still **70** (deficiency **390**) — remaining levers are **honesty + intake**, not DX-77. Best credit ROI is **Correctness (73)** on a new orchestrator/Kind B Suite=Core red, then density citations and Azure-soft TTV.
+**Superseded.** QR-06–QR-15 shipped on `master`. Do **not** start a new v9 run. Current pack: [`.cursor/prompts/v10-quality-roi-00-index.md`](v10-quality-roi-00-index.md) · [`docs/architecture/V10_QUALITY_ROI_COMPOSER_PROMPTS.md`](../../docs/architecture/V10_QUALITY_ROI_COMPOSER_PROMPTS.md).
+
+v9 assessment (archived): QR-01–QR-04 closed the v8 compile/guard/OpenAPI trio. Insight density was **70** (deficiency **390**) — remaining levers were **honesty + intake**, not DX-77. Best credit ROI was **Correctness (73)** on a new orchestrator/Kind B Suite=Core red, then density citations and Azure-soft TTV.
 
 **Do not implement from this index.** Paste **one** numbered prompt from [`docs/architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](../../docs/architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md) per Composer / Cloud Agent session.
 

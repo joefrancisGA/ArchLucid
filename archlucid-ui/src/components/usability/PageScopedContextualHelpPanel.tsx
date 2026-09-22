@@ -169,17 +169,9 @@ export function PageScopedContextualHelpPanel({
     [pathname, resolvedSectionId, router, searchParams],
   );
 
-  const setOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncPageHelpToUrl(next);
-
-        return next;
-      });
-    },
-    [syncPageHelpToUrl],
-  );
+  const setOpen = useCallback((value: SetStateAction<boolean>) => {
+    setOpenState(value);
+  }, []);
   const taskSteps = entry?.taskSteps;
   const supplementDetail =
     supplement?.detail != null &&
@@ -197,6 +189,16 @@ export function PageScopedContextualHelpPanel({
   useEffect(() => {
     setOpenState(parsePageContextualHelpOpenFromSearch(pageHelpOpenParam));
   }, [pageHelpOpenParam]);
+
+  useEffect(() => {
+    const urlOpen = parsePageContextualHelpOpenFromSearch(pageHelpOpenParam);
+
+    if (open === urlOpen) {
+      return;
+    }
+
+    syncPageHelpToUrl(open);
+  }, [open, pageHelpOpenParam, syncPageHelpToUrl]);
 
   useEffect(() => {
     if (!open) {

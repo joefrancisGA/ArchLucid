@@ -71,11 +71,12 @@ internal static class ApplicationUnhandledExceptionMapper
         {
             result = CreateProblemResult(
                 StatusCodes.Status409Conflict,
-                "Conflict",
+                DraftPatchCasConflictProblemExtensions.ResolveTitle(cex),
                 cex.Message,
                 ProblemTypes.Conflict,
                 instance,
-                httpContext);
+                httpContext,
+                problem => DraftPatchCasConflictProblemExtensions.AttachCode(problem, cex));
             return true;
         }
 

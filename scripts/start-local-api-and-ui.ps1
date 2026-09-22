@@ -24,6 +24,7 @@
 #   .\scripts\start-local-api-and-ui.ps1 -SkipPreflight -NoBrowser
 #   .\scripts\start-local-api-and-ui.ps1 -ApiPort 5128 -UiPort 3000 -SecurityUiPort 3001
 #   .\scripts\start-local-api-and-ui.ps1 -SkipSecurityUi
+#   .\scripts\start-local-securenow.ps1   # API + SecureNow (Security) UI only
 #   .\scripts\start-local-api-and-ui.ps1 -LaunchProfile http -MsBuildMaxCpuCount 1
 #   .\scripts\start-local-api-and-ui.ps1 -RunAnalyzers -UseTerminalLogger
 #   .\scripts\start-local-api-and-ui.ps1 -SkipExplicitBuild -SkipBuildServerShutdown
@@ -40,6 +41,7 @@ param(
     [switch] $EnsureSql,
     [switch] $NoBrowser,
     [switch] $SkipSecurityUi,
+    [switch] $SkipArchitectureUi,
     [ValidateNotNullOrEmpty()]
     [string] $LaunchProfile = "http",
     [ValidateRange(1, 64)]
@@ -67,6 +69,7 @@ $EnvExamplePath = Join-Path $UiRoot ".env.example"
 $script:LocalUiSites = Get-LocalUiSiteSpecs `
     -ArchitecturePort $UiPort `
     -SecurityPort $SecurityUiPort `
+    -IncludeArchitecture (-not $SkipArchitectureUi.IsPresent) `
     -IncludeSecurity (-not $SkipSecurityUi.IsPresent)
 
 foreach ($site in $script:LocalUiSites) {
@@ -80,6 +83,10 @@ function Write-StageError {
     )
 
     Write-Error "[$Stage] $Message"
+}
+
+if ($SkipSecurityUi.IsPresent -and $SkipArchitectureUi.IsPresent) {
+    Write-StageError -Stage "config" -Message "Cannot skip both Architecture and Security UI. Omit both -SkipSecurityUi and -SkipArchitectureUi, or use start-local-securenow.ps1 / -SkipArchitectureUi only."
 }
 
 function Test-HttpStatus {
@@ -357,56 +364,60 @@ foreach ($site in $script:LocalUiSites) {
 $architectureSite = $script:LocalUiSites | Where-Object { $_.ProductLine -eq 'architecture' } | Select-Object -First 1
 $securitySite = $script:LocalUiSites | Where-Object { $_.ProductLine -eq 'security' } | Select-Object -First 1
 
-if ($null -eq $architectureSite) {
-    Write-StageError -Stage "ui-root" -Message "Architecture UI site spec is missing."
-}
-
 $open = $OpenPath.Trim()
 
 if (-not $open.StartsWith("/")) {
     $open = "/$open"
 }
 
-$architectureUrl = "http://localhost:$($architectureSite.Port)$open"
+$architectureUrl = $null
+
+if ($null -ne $architectureSite) {
+    $architectureUrl = "http://localhost:$($architectureSite.Port)$open"
+}
+
 $securityUrl = $null
 
 if ($null -ne $securitySite) {
-    $securityUrl = "http://localhost:$($securitySite.Port)/"
+    $securityOpen = $open
+
+    if ($null -eq $architectureSite) {
+        $securityOpen = "/"
+    }
+
+    $securityUrl = "http://localhost:$($securitySite.Port)$securityOpen"
 }
 
 Write-Host ""
 Write-Host "Ready:"
 Write-Host "  API           $apiLiveUrl"
-Write-Host ("  Architecture  {0}" -f $architectureUrl)
+
+if ($null -ne $architectureUrl) {
+    Write-Host ("  Architecture  {0}" -f $architectureUrl)
+}
 
 if ($null -ne $securityUrl) {
-    Write-Host ("  Security      {0}" -f $securityUrl)
+    Write-Host ("  SecureNow     {0}" -f $securityUrl)
 }
 
 if ($NoBrowser) {
-    Write-Host ("Skipping browser. Open Architecture: {0}" -f $architectureUrl) -ForegroundColor Yellow
+    foreach ($site in $script:LocalUiSites) {
+        $siteUrl = if ($site.ProductLine -eq 'security') { $securityUrl } else { $architectureUrl }
 
-    if ($null -ne $securityUrl) {
-        Write-Host ("Skipping browser. Open Security: {0}" -f $securityUrl) -ForegroundColor Yellow
+        Write-Host ("Skipping browser. Open {0}: {1}" -f $site.Name, $siteUrl) -ForegroundColor Yellow
     }
 
     exit 0
 }
 
-Write-Host "Opening browser: $architectureUrl" -ForegroundColor Green
+foreach ($site in $script:LocalUiSites) {
+    $siteUrl = if ($site.ProductLine -eq 'security') { $securityUrl } else { $architectureUrl }
 
-try {
-    Start-Process $architectureUrl
-} catch {
-    Write-Warning "Could not start default browser. Open manually: $architectureUrl"
-}
-
-if ($null -ne $securityUrl) {
-    Write-Host "Opening browser: $securityUrl" -ForegroundColor Green
+    Write-Host ("Opening browser ({0}): {1}" -f $site.Name, $siteUrl) -ForegroundColor Green
 
     try {
-        Start-Process $securityUrl
+        Start-Process $siteUrl
     } catch {
-        Write-Warning "Could not start default browser. Open manually: $securityUrl"
+        Write-Warning "Could not start default browser. Open manually: $siteUrl"
     }
 }

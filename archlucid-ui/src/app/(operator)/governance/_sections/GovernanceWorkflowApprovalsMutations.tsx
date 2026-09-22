@@ -22,6 +22,7 @@ import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { writeApprovalQueueLastViewedRequestId } from "@/lib/resolve-continue-last-approval-request";
+import { GovernanceApprovalRationaleGuards } from "./GovernanceApprovalRationaleGuards";
 import { governanceApprovalCardTitle, type GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 import type { MutableRefObject } from "react";
 
@@ -74,6 +75,14 @@ export function GovernanceWorkflowApprovalsMutations(props: GovernanceWorkflowAp
     <>
       {!compactSupportingRows && pendingReview?.approvalRequestId === row.approvalRequestId ? (
         <div className="px-6 pb-4">
+          <GovernanceApprovalRationaleGuards
+            approvalRequestId={row.approvalRequestId}
+            enabled={canMutateWorkflow}
+            reviewComment={reviewComment}
+            reviewedBy={reviewedBy}
+            setReviewComment={setReviewComment}
+            setReviewedBy={setReviewedBy}
+          />
           <div className="mt-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
             <p className={cn("mb-3 font-medium", OPERATOR_TYPOGRAPHY.body)}>
               {pendingReview.mode === "approve" ? "Approve request" : "Reject request"}

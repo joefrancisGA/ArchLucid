@@ -1,11 +1,17 @@
 import { FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/findings/findings-help-evidence-copy";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
-  GOVERNANCE_RESOLUTION_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_RESOLUTION_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import { SEVERITY_LABELS } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export const FINDINGS_HELP_PAGE_TITLE = "Findings";
 
@@ -69,6 +75,11 @@ export const FINDINGS_HELP_ANATOMY_FIELDS: readonly FindingsHelpAnatomyField[] =
   { label: "Business impact", description: "Why the issue matters for delivery, compliance, or operations." },
   { label: "Evidence", description: "Inputs, diagrams, or policy checks that support the finding." },
   { label: "Recommendation", description: "Suggested remediation, monitoring, or next step." },
+  {
+    label: "Semantic support",
+    description:
+      "Whether cited excerpts back the claim (Supported, Unchecked, Unsupported, or not scored). Record finalize in Real may rescore Unchecked rows; Practice does not. This is not legal truth and does not block seal.",
+  },
   { label: "Owner", description: "The person accountable for follow-up when assigned." },
   { label: "Resolve outcome", description: "Recorded acceptance, waiver, remediation, or exception." },
 ] as const;
@@ -118,6 +129,9 @@ export const FINDINGS_HELP_PROVENANCE_TITLE = "Where findings come from";
 
 export const FINDINGS_HELP_PROVENANCE_INTRO =
   "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. Deterministic-fallback findings appear when the live model path failed and a fallback path produced the row — verify independently. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
+
+export const FINDINGS_HELP_SEMANTIC_SUPPORT_COPY =
+  "Semantic support chips say whether cited excerpts back the claim. Record finalize in Real may rescore Unchecked decision-grade rows; Practice skips that judge. The band is not legal truth and does not block seal.";
 
 export const FINDINGS_HELP_PROVENANCE_AXES = [
   {
@@ -300,6 +314,25 @@ export const FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = 
   },
 ] as const;
 
+export const SECURENOW_FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = [
+  {
+    role: "Security operator",
+    guidance: "Triages findings, inspects inventory evidence, assigns owners, and tracks remediation.",
+  },
+  {
+    role: "Compliance lead",
+    guidance: "Validates severity, business impact, policy context, and audit lineage readiness.",
+  },
+  {
+    role: "Platform admin",
+    guidance: "Maintains connectors, policy pack assignments, and workspace access controls.",
+  },
+  {
+    role: "Executive sponsor",
+    guidance: "Reviews material risk, remediation backlog, and disposition status.",
+  },
+] as const;
+
 export const FINDINGS_HELP_WHAT_IS_BODY =
   "During a review, ArchLucid compares architecture evidence against active policies and standards. When a gap or risk is detected, the product records a finding with severity, impact, and recommended action. Findings stay linked to the review so teams can investigate, track, and report on them consistently.";
 
@@ -329,3 +362,168 @@ export const FINDINGS_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: ["not a full audit export", "sources package"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;
+
+export const SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE =
+  "Triage ARC-AMPE and cloud-inventory findings, inspect supporting evidence, and assign remediation owners.";
+
+export const SECURENOW_FINDINGS_HELP_OVERVIEW =
+  "A finding is an evidence-backed cloud security concern raised when assigned policy packs evaluate connected inventory. Findings describe the observed issue, severity, affected resources, supporting evidence, and recommended action. Depending on your role, you may investigate, assign, remediate, accept, waive, or escalate a finding.";
+
+export const SECURENOW_FINDINGS_HELP_WHAT_IS_BODY =
+  "When ARC-AMPE policy packs run against connected cloud inventory, SecureNow records findings with severity, impact, and recommended action. Findings stay linked to inventory evidence so operators can investigate, assign owners, and trace audit lineage consistently.";
+
+export const SECURENOW_FINDINGS_HELP_PROVENANCE_INTRO =
+  "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. Deterministic-fallback findings appear when the live model path failed and a fallback path produced the row — verify independently. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
+
+export const SECURENOW_FINDINGS_HELP_SEMANTIC_SUPPORT_COPY =
+  "Semantic support chips say whether cited excerpts back the claim. They are not legal truth and do not replace disposition accountability or sealed audit exports.";
+
+export const SECURENOW_FINDINGS_HELP_PROVENANCE_NON_CLAIM =
+  "Provenance labeling describes how a finding was produced and whether evidence is attached. It does not claim accuracy rates, production validation, or that AI-generated findings are independently verified. Operators remain accountable for disposition decisions.";
+
+export const SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS = {
+  openFindings: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings,
+  openAssignedToMe: {
+    label: "Open assigned to me",
+    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  },
+  openPolicyPacks: {
+    label: "Open policy packs",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
+  },
+} as const;
+
+export function findingsHelpPageSubtitle(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE
+    : FINDINGS_HELP_PAGE_SUBTITLE;
+}
+
+export function findingsHelpOverview(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_OVERVIEW : FINDINGS_HELP_OVERVIEW;
+}
+
+export function findingsHelpWhatIsBody(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_WHAT_IS_BODY : FINDINGS_HELP_WHAT_IS_BODY;
+}
+
+export function findingsHelpPrimaryActions(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS
+    : FINDINGS_HELP_PRIMARY_ACTIONS;
+}
+
+export function findingsHelpEvidenceActions(productLineId: ProductLineId = "architecture") {
+  if (!isSecureNowProductLine(productLineId)) {
+    return FINDINGS_HELP_EVIDENCE_ACTIONS;
+  }
+
+  return [
+    {
+      label: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label,
+      description: "Open the finding from the queue and inspect linked inventory evidence.",
+      href: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href,
+    },
+    {
+      label: "Browse standards and rules",
+      description: "See the policy or standard that produced the finding.",
+      href: GOVERNANCE_RESOLUTION_PATH,
+    },
+    {
+      label: "Open resource explorer",
+      description: "Inspect the affected cloud resource and linked inventory context.",
+      href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    },
+    {
+      label: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openPolicyPacks.label,
+      description: "Review enabled policy packs that scope standards and rules for this workspace.",
+      href: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openPolicyPacks.href,
+    },
+  ] as const;
+}
+
+export function findingsHelpGovernanceIntro(productLineId: ProductLineId = "architecture"): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return "Findings connect cloud evidence operations to audit and remediation follow-up:";
+  }
+
+  return FINDINGS_HELP_GOVERNANCE_INTRO;
+}
+
+export function findingsHelpGovernanceItems(productLineId: ProductLineId = "architecture"): readonly string[] {
+  if (!isSecureNowProductLine(productLineId)) {
+    return FINDINGS_HELP_GOVERNANCE_ITEMS;
+  }
+
+  return [
+    "Findings influence remediation prioritization and executive remediation metrics.",
+    "Severe unresolved findings may require explicit acceptance or monitoring.",
+    "Policy and standards results provide context for each finding.",
+    "Disposition changes become part of the audit trail and lineage exports.",
+    "Material findings may appear in compliance and audit evidence packages.",
+  ];
+}
+
+export function findingsHelpAnatomyFields(productLineId: ProductLineId = "architecture"): readonly FindingsHelpAnatomyField[] {
+  if (!isSecureNowProductLine(productLineId)) {
+    return FINDINGS_HELP_ANATOMY_FIELDS;
+  }
+
+  return FINDINGS_HELP_ANATOMY_FIELDS.map((field) => {
+    if (field.label === "Title") {
+      return { ...field, description: "Short statement of the cloud security or configuration concern." };
+    }
+
+    if (field.label === "Severity") {
+      return { ...field, description: "How urgent or material the risk is for the workspace." };
+    }
+
+    if (field.label === "Affected domain") {
+      return { ...field, description: "The cloud resource, service, or inventory area involved." };
+    }
+
+    if (field.label === "Semantic support") {
+      return {
+        ...field,
+        description:
+          "Whether cited excerpts back the claim (Supported, Unchecked, Unsupported, or not scored). This is not legal truth and does not replace disposition accountability.",
+      };
+    }
+
+    return field;
+  });
+}
+
+export function findingsHelpRoleGuidance(productLineId: ProductLineId = "architecture"): readonly FindingsHelpRoleGuidance[] {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_ROLE_GUIDANCE : FINDINGS_HELP_ROLE_GUIDANCE;
+}
+
+export function findingsHelpProvenanceIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_PROVENANCE_INTRO : FINDINGS_HELP_PROVENANCE_INTRO;
+}
+
+export function findingsHelpSemanticSupportCopy(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_SEMANTIC_SUPPORT_COPY
+    : FINDINGS_HELP_SEMANTIC_SUPPORT_COPY;
+}
+
+export function findingsHelpProvenanceNonClaim(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_PROVENANCE_NON_CLAIM
+    : FINDINGS_HELP_PROVENANCE_NON_CLAIM;
+}
+
+export function findingsHelpRelatedLinks(productLineId: ProductLineId = "architecture") {
+  if (!isSecureNowProductLine(productLineId)) {
+    return {
+      auditTrail: FINDINGS_HELP_RELATED_PRODUCT_DOCS,
+      policyPacks: FINDINGS_HELP_POLICY_PACKS_LINK,
+    };
+  }
+
+  return {
+    auditTrail: { label: "Audit evidence lineage", href: AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH },
+    policyPacks: FINDINGS_HELP_POLICY_PACKS_LINK,
+  };
+}

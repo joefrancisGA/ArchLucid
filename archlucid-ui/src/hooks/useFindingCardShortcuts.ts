@@ -28,6 +28,8 @@ export type UseFindingCardShortcutsOptions = {
   mutationsEnabled?: boolean;
   /** Called when Alt+J/K moves focus to a different finding card (workbench selection sync). */
   onFindingFocus?: (findingId: string) => void;
+  /** IR-008 — on inhabited findings, start from the first card when nothing is focused. */
+  defaultFocusFirstFinding?: boolean;
 };
 
 function getFindingCardFromActiveElement(): HTMLElement | null {
@@ -113,9 +115,16 @@ export function focusAdjacentFindingCard(delta: number, options?: FocusAdjacentF
 /** Dispatch Alt+1/2/3 at the window so palette actions reuse the same shortcut handlers (WD-05). */
 export function dispatchFocusedFindingDispositionShortcut(
   disposition: FindingCardShortcutDisposition,
+  options?: { readonly startFromFirstWhenUnfocused?: boolean },
 ): boolean {
   if (getFocusedFindingId() === null) {
-    return false;
+    if (options?.startFromFirstWhenUnfocused === true) {
+      focusAdjacentFindingCard(1, { startFromFirstWhenUnfocused: true });
+    }
+
+    if (getFocusedFindingId() === null) {
+      return false;
+    }
   }
 
   const key =
@@ -140,23 +149,46 @@ export function dispatchFocusedFindingDispositionShortcut(
  * Findings queues: Alt+1/2/3 act on the focused (or containing) finding card/row; Alt+J/K move focus.
  * Skips when focus is not inside a `[data-finding-id]` element (or when `useKeyboardShortcuts` blocks inputs).
  */
+function resolveFocusedFindingIdForShortcut(
+  onFindingFocus: ((findingId: string) => void) | undefined,
+  defaultFocusFirstFinding: boolean,
+): string | null {
+  const focused = getFocusedFindingId();
+
+  if (focused !== null) {
+    return focused;
+  }
+
+  if (!defaultFocusFirstFinding) {
+    return null;
+  }
+
+  focusAdjacentFindingCard(1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+
+  return getFocusedFindingId();
+}
+
 export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions): void {
   const onAction = options.onAction;
   const mutationsEnabled = options.mutationsEnabled !== false;
   const onFindingFocus = options.onFindingFocus;
+  const defaultFocusFirstFinding = options.defaultFocusFirstFinding === true;
+  const focusOptions = defaultFocusFirstFinding
+    ? { onFindingFocus, startFromFirstWhenUnfocused: true as const }
+    : { onFindingFocus };
 
   const map = useMemo((): KeyboardShortcutsMap => {
     const navigation: KeyboardShortcutsMap = {
       "alt+j": {
         description: "Focus next finding card",
         handler: () => {
-          focusAdjacentFindingCard(1, { onFindingFocus });
+          focusAdjacentFindingCard(1, focusOptions);
         },
       },
       "alt+k": {
         description: "Focus previous finding card",
         handler: () => {
-          focusAdjacentFindingCard(-1, { onFindingFocus });
+          focusAdjacentFindingCard(-1, focusOptions);
         },
       },
     };
@@ -169,7 +201,7 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       "alt+1": {
         description: "Accept focused finding",
         handler: () => {
-          const id = getFocusedFindingId();
+          const id = resolveFocusedFindingIdForShortcut(onFindingFocus, defaultFocusFirstFinding);
 
           if (id !== null) {
             onAction(id, FINDING_CARD_SHORTCUT_DISPOSITIONS.alt1);
@@ -179,7 +211,7 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       "alt+2": {
         description: "Mark focused finding remediated",
         handler: () => {
-          const id = getFocusedFindingId();
+          const id = resolveFocusedFindingIdForShortcut(onFindingFocus, defaultFocusFirstFinding);
 
           if (id !== null) {
             onAction(id, FINDING_CARD_SHORTCUT_DISPOSITIONS.alt2);
@@ -189,7 +221,7 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       "alt+3": {
         description: "Reject focused finding as not applicable",
         handler: () => {
-          const id = getFocusedFindingId();
+          const id = resolveFocusedFindingIdForShortcut(onFindingFocus, defaultFocusFirstFinding);
 
           if (id !== null) {
             onAction(id, FINDING_CARD_SHORTCUT_DISPOSITIONS.alt3);
@@ -198,7 +230,7 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       },
       ...navigation,
     };
-  }, [onAction, mutationsEnabled, onFindingFocus]);
+  }, [defaultFocusFirstFinding, focusOptions, onAction, mutationsEnabled, onFindingFocus]);
 
   useKeyboardShortcuts(map);
 }

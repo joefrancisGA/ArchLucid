@@ -1,9 +1,10 @@
 import type { CitationReference } from "@/types/explanation";
 
+import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 import {
-  getFindingDetailHref,
   getFindingEvidenceTraceHref,
-  getFindingGovernanceDispositionHref,
+  resolveQuickDecisionFindingDispositionHref,
+  resolveQuickDecisionFindingInspectHref,
 } from "@/lib/findings/finding-evidence-navigation";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
@@ -37,6 +38,7 @@ export type AskCitationActionFollowUpsInput = {
   readonly referencedDecisions?: readonly string[] | null;
   readonly referencedArtifacts?: readonly string[] | null;
   readonly groundingLinks?: readonly AskCitationGroundingLinkRef[] | null;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
 };
 
 const FINDING_PATH_RE = /\/findings\/([^/?#]+)(?:\/(evidence-trace|inspect))?/i;
@@ -161,11 +163,13 @@ export function buildAskCitationActionFollowUps(
   const evidenceArtifacts = hasEvidenceArtifactRefs(input);
   const chips: AskCitationActionFollowUp[] = [];
 
+  const inspectHrefOptions = input.inspectHrefOptions;
+
   for (const findingId of findingIds) {
     pushChip(chips, {
       kind: "finding",
       label: `Open ${BUYER_SURFACE_VOCABULARY.finding.toLowerCase()}`,
-      href: getFindingDetailHref(runId, findingId),
+      href: resolveQuickDecisionFindingInspectHref(runId, findingId, inspectHrefOptions),
       citationId: findingId,
     });
     pushChip(chips, {
@@ -177,7 +181,7 @@ export function buildAskCitationActionFollowUps(
     pushChip(chips, {
       kind: "disposition",
       label: "Record disposition",
-      href: getFindingGovernanceDispositionHref(runId, findingId),
+      href: resolveQuickDecisionFindingDispositionHref(runId, findingId, inspectHrefOptions),
       citationId: findingId,
     });
   }

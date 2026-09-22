@@ -38,7 +38,7 @@ public sealed class GoldenCorpusHarnessEngineTests
         createEngines.Should().NotBeNull();
 
         Mock<IGraphSnapshotRepository> graphSnapshotRepository = new();
-        object? enginesObject = createEngines!.Invoke(harness, [graphSnapshotRepository.Object]);
+        object? enginesObject = createEngines!.Invoke(harness, [graphSnapshotRepository.Object, false]);
         enginesObject.Should().BeAssignableTo<IFindingEngine[]>();
 
         IFindingEngine[] engines = (IFindingEngine[])enginesObject!;
@@ -55,6 +55,32 @@ public sealed class GoldenCorpusHarnessEngineTests
         engineTypes.Should().Contain(typeof(SecurityBaselineExpectationFindingEngine));
         engineTypes.Should().Contain(typeof(RequiredCapabilityCoverageFindingEngine));
         engineTypes.Should().Contain(typeof(TopologySecurityDriftFindingEngine));
-        engineTypes.Count.Should().Be(26, "harness graph engine registration is a merge-blocking contract (WK-06 + DX-24/25/36/49 golden fixtures + topology-anti-pattern + topology-security-drift)");
+        engineTypes.Count.Should().Be(28, "baseline graph engine registration stays stable when no prior graph fixture exists");
+    }
+
+    [Fact]
+    public void CreateEngines_with_prior_graph_registers_cross_run_diff_engines()
+    {
+        string compliance = Path.Combine(
+            AppContext.BaseDirectory,
+            "Compliance",
+            "RulePacks",
+            "default-compliance.rules.json");
+
+        FakeTimeProvider clock = new();
+        GoldenCorpusHarness harness = new(compliance, clock);
+        MethodInfo? createEngines = typeof(GoldenCorpusHarness).GetMethod(
+            "CreateEngines",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        createEngines.Should().NotBeNull();
+
+        Mock<IGraphSnapshotRepository> graphSnapshotRepository = new();
+        object? enginesObject = createEngines!.Invoke(harness, [graphSnapshotRepository.Object, true]);
+        IFindingEngine[] engines = (IFindingEngine[])enginesObject!;
+
+        engines.Select(static engine => engine.EngineType)
+            .Should().Contain(["requirement-cross-run-diff", "topology-cross-run-diff"]);
+        engines.Should().HaveCount(30);
     }
 }

@@ -2,10 +2,11 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/architecture-spine-00-index.md`](../../.cursor/prompts/architecture-spine-00-index.md) (**AS-001–AS-100**)
 > **Predecessor (wave 21 — finding-pointer CAS):** [`FINDING_POINTER_CAS_COMPOSER_PROMPTS.md`](FINDING_POINTER_CAS_COMPOSER_PROMPTS.md) (**FP-01–FP-24**). **Do not re-run FP.**
+> **Follow-on (diagram usability, not decide-path parsers):** [`DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md`](DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md) (**DAU-01–DAU-12**). **Do not re-run AS.** DAU consumes `diagram:` citations and NotVerifiable; it does not relax pixel rules.
 
 # Architecture-spine Composer prompts (AS-001–AS-100)
 
-**Created:** 2026-09-09 · **Status:** ready to run · **Do not re-run** LP, FP, ESI, IE collector bodies, WS, SY, AO, or DX except as an AS row names a leftover.
+**Created:** 2026-09-09 · **Status:** shipped on this branch · **Close audit:** [`ARCHITECTURE_SPINE_ACCEPTANCE_2026-09-09.md`](ARCHITECTURE_SPINE_ACCEPTANCE_2026-09-09.md) · **Do not re-run** LP, FP, ESI, IE collector bodies, WS, SY, AO, or DX except as an AS row names a leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves through **21** made Working an instrument (chrome, persist gates, disposition CAS). They did not change what **decide** can see.
 
@@ -20,7 +21,7 @@ Four first livelihood-ontology failures (2026-09-09 diagnosis):
 3. **The default day is still rehearsal.** Host `AgentExecution:Mode` stays Simulator (G-REAL-06 is owner). Working can still look like unlabeled career work. This wave adds **Career vs Rehearsal doors**, not a host-config flip.
 4. **Permission is the workspace, not the architecture.** ADR 0074 deferred per-architecture ACL. Consultancies and ARB+delivery in one tenant cannot isolate a package. This wave adds **optional RestrictToShares** (ADR 0087) inside the tenant.
 
-Problem 5 (concurrent desk without presence) is **out of wave** — named for wave 23 (work lease). Do not add live occupancy or finding-comment chat here.
+Problem 5 (concurrent desk without presence) is **out of this wave** — implemented as livelihood UX wave 23 [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**, ADR **0090** lease plus mandatory draft CAS). Do not add live occupancy or finding-comment chat in AS files.
 
 ### Done test
 

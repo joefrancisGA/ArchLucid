@@ -1,7 +1,7 @@
 import { StructuralExecutionModeWire, type StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
 export const QUALITY_GATE_WARN_ONLY_WORKING_COPY =
-  "Quality gate is WarnOnly — this seal is not career-complete for real-mode analysis";
+  "Quality gate is WarnOnly — this seal is not record-complete for real-mode analysis";
 
 export const QUALITY_GATE_WARNED_DISPOSITION_COPY =
   "Quality gate disposition is Warned — resolve warnings before career export";

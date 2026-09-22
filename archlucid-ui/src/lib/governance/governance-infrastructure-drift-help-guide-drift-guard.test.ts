@@ -37,7 +37,7 @@ describe("governance infrastructure drift help drift guard", () => {
     expect(GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PAGE_SUBTITLE).toBe(GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD);
   });
 
-  it("lists guide headings including claim discipline and where-to-go-next", () => {
+  it("lists guide headings including claim discipline, where-to-go-next, and phase-2 sections", () => {
     expect(
       GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS.some(
         (heading) => heading.id === "help-governance-infrastructure-drift-claim-discipline-heading",
@@ -46,6 +46,16 @@ describe("governance infrastructure drift help drift guard", () => {
     expect(GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "where-to-go-next")).toBe(
       true,
     );
+    expect(
+      GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS.some(
+        (heading) => heading.id === "help-governance-infrastructure-drift-applicability",
+      ),
+    ).toBe(true);
+    expect(
+      GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS.some(
+        (heading) => heading.id === "help-governance-infrastructure-drift-related-topics",
+      ),
+    ).toBe(true);
   });
 
   it("lists drift help sources with unique hrefs and no self-href", () => {

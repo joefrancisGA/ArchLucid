@@ -164,6 +164,15 @@ public sealed class AzureBoardsExternalTicketConnector(
             return Skipped(CreateSkippedAuditEventType, scope, inspect, "azure_boards_connector_authorization_unavailable", "Azure Boards outbound connector credentials could not be authorized (check PAT settings).");
         }
 
+        string? tags = settingsRow.DefaultTags;
+
+        if (!context.IncludeCareerCompleteCustomField && !string.IsNullOrWhiteSpace(context.RehearsalRowLabel))
+        {
+            tags = string.IsNullOrWhiteSpace(tags)
+                ? context.RehearsalRowLabel.Trim()
+                : $"{tags.Trim()}; {context.RehearsalRowLabel.Trim()}";
+        }
+
         AzureBoardsOutboundIssueHttpResult http = await _azureBoardsClient.CreateWorkItemAsync(
             createUri,
             authorization,
@@ -172,7 +181,7 @@ public sealed class AzureBoardsExternalTicketConnector(
             priority.Value,
             settingsRow.AreaPath,
             settingsRow.IterationPath,
-            settingsRow.DefaultTags,
+            tags,
             cancellationToken).ConfigureAwait(false);
 
         if (!http.Ok || string.IsNullOrWhiteSpace(http.WorkItemId))

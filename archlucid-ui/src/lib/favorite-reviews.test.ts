@@ -109,4 +109,22 @@ describe("favorite-reviews", () => {
   it("skips blank runIds on add", () => {
     expect(addFavoriteReview([], { runId: "   " })).toEqual([]);
   });
+
+  it("IR-011: persists architectureId on pins", () => {
+    const next = addFavoriteReview([], {
+      runId: "run-1",
+      title: "Payments",
+      architectureId: "arch-1",
+      pinnedAt: "2026-09-13T12:00:00.000Z",
+    });
+
+    expect(next).toEqual([
+      {
+        runId: "run-1",
+        title: "Payments",
+        architectureId: "arch-1",
+        pinnedAt: "2026-09-13T12:00:00.000Z",
+      },
+    ]);
+  });
 });

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Agents;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
@@ -78,6 +79,10 @@ public sealed class AdminAgentModelCatalogController(
         try
         {
             AgentModelCatalogOfferability.EnsureOfferable(row);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
@@ -175,6 +180,10 @@ public sealed class AdminAgentModelCatalogController(
         catch (KeyNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewPackageShareWhenToSharePreview } from "@/lib/review-package-share-when-to-share";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,8 @@ export function ReviewPackageShareWhenToSharePreview(
           </div>
         ))}
       </dl>
+
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="review-package-share-when-to-share" />
     </aside>
   );
 }

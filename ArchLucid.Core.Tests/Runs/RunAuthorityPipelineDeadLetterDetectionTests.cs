@@ -180,4 +180,35 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
         // AgentExecutionFailureSummaryJson.Serialize and AuthorityPipelineDeadLetterRunMarker emit string failureClass only.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"Pipeline  DeadLetter"}
+            """;
+
+        // Writers emit AgentExecutionFailureClasses.PipelineDeadLetter without internal whitespace; conservative parse fails closed.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_leading_and_trailing_whitespace_in_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":" pipelineDeadLetter "}
+            """;
+
+        // TryDeserialize trims failureClass before comparison; writers emit canonical class strings without padding.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_empty_json_object_without_failure_class()
+    {
+        const string json = "{}";
+
+        // Conservative reader requires a non-empty failureClass token; empty objects are not pipeline dead letters.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
 }

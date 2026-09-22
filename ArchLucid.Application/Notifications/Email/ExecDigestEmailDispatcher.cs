@@ -1,5 +1,6 @@
 using ArchLucid.Application.ExecDigest;
 using ArchLucid.Application.Notifications.Email.Models;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;
@@ -38,7 +39,14 @@ public sealed class ExecDigestEmailDispatcher(
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
+
+        string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         ArgumentNullException.ThrowIfNull(composition);
+
+        if (string.IsNullOrWhiteSpace(composition.WeekLabel))
+            throw new ArgumentException("Week label is required.", nameof(composition));
+
+        string normalizedWeekLabel = composition.WeekLabel.Trim();
 
         List<string> normalizedMailboxes = [];
 
@@ -61,7 +69,7 @@ public sealed class ExecDigestEmailDispatcher(
         ExecDigestEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = composition.WeekLabel,
+            WeekLabel = normalizedWeekLabel,
             ComplianceDriftMarkdown = composition.ComplianceDriftMarkdown,
             CommittedManifestsInWeek = composition.CommittedManifestsInWeek,
             TopRuns = composition.TopManifestRuns,
@@ -69,12 +77,17 @@ public sealed class ExecDigestEmailDispatcher(
             DashboardUrl = composition.DashboardUrl,
             SponsorValueReportUrl = composition.SponsorValueReportUrl,
             UnsubscribeUrl = unsubscribeAbsoluteUrl.Trim(),
-            LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
+            LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase),
+            RehearsalSubjectPrefix = composition.RehearsalSubjectPrefix,
+            RehearsalBodyDisclaimer = composition.RehearsalBodyDisclaimer,
         };
-        string idempotencyKey = $"exec-digest:{tenantId:N}:{isoWeekIdempotencyKey}";
+        string idempotencyKey = $"exec-digest:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly digest — {composition.WeekLabel}";
+        string subjectPrefix = string.IsNullOrWhiteSpace(composition.RehearsalSubjectPrefix)
+            ? string.Empty
+            : composition.RehearsalSubjectPrefix.Trim();
+        string subject = $"{subjectPrefix}{productName} weekly digest — {normalizedWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
@@ -95,7 +108,16 @@ public sealed class ExecDigestEmailDispatcher(
             (ex, mailbox) =>
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Exec digest email send failed for tenant {TenantId}, mailbox {Mailbox}.", tenantId, mailbox);
+                {
+                    // Mailbox is reduced to domain inside Core (EmailDomainForLogs).
+                    // codeql[cs/exposure-of-sensitive-information]
+                    SanitizedLoggerEmailDispatchExtensions.LogErrorTemplatedEmailSendFailed(
+                        _logger,
+                        ex,
+                        tenantId,
+                        "Exec digest",
+                        mailbox);
+                }
             },
             cancellationToken);
     }

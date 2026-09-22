@@ -78,6 +78,38 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_monthly_cap_is_invalid_step()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 75m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull("enabling auto-replenish must re-validate persisted monthly cap step size");
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted()
     {
         InMemoryLlmTenantWalletRepository repository = new();

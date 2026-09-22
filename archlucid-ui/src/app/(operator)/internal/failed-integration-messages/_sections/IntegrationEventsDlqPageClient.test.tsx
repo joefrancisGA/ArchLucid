@@ -3,6 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT } from "@/lib/integration-events-dlq-page-copy";
+import {
+  INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_BODY,
+  INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_TITLE,
+} from "@/lib/internal/integration-events-dlq-career-honesty";
 
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
 
@@ -75,6 +79,26 @@ describe("IntegrationEventsDlqPageClient", () => {
     );
     expect(screen.getByTestId("integration-events-dlq-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("integration-events-dlq-claim-discipline")).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows CG-094 career honesty strip so DLQ cannot read as sealed Career proof", async () => {
+    render(<IntegrationEventsDlqPageClient />);
+
+    expect(await screen.findByTestId("integration-events-dlq-career-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("integration-events-dlq-career-honesty-title")).toHaveTextContent(
+      INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_TITLE,
+    );
+    expect(screen.getByTestId("integration-events-dlq-career-honesty-body")).toHaveTextContent(
+      INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_BODY,
+    );
+
+    const page = screen.getByTestId("integration-events-dlq-page");
+    const visible = (page.textContent ?? "").toLowerCase();
+
+    expect(visible).toContain("not sealed career proof");
+    expect(visible).not.toMatch(/career-complete because a message exists/i);
 
     vi.unstubAllGlobals();
   });

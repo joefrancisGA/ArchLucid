@@ -278,6 +278,10 @@ internal static class GoldenCorpusPathEngineGraphFactory
                     {
                         ["category"] = GraphTopologyCategories.Data,
                         ["terraformType"] = "azurerm_mssql_database",
+                        ["armResourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000045/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-ledger-prod",
+                        ["resourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000045/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-ledger-prod",
                     },
                 },
             ],
@@ -335,6 +339,10 @@ internal static class GoldenCorpusPathEngineGraphFactory
                     {
                         ["category"] = GraphTopologyCategories.Data,
                         ["terraformType"] = "azurerm_mssql_database",
+                        ["armResourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000040/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-pay-prod",
+                        ["resourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000040/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-pay-prod",
                     },
                 },
             ],

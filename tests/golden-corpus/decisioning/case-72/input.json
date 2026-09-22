@@ -51,7 +51,10 @@
         "sourceType": "InfrastructureDeclaration",
         "sourceId": "decl-kv",
         "properties": {
-          "name": "payments-kv"
+          "name": "payments-kv",
+          "type": "Microsoft.KeyVault/vaults",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000072/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/payments-kv",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000072/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/payments-kv"
         },
         "reasoningTrace": null
       }

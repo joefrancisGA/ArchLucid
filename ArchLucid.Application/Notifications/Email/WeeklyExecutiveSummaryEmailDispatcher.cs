@@ -1,5 +1,6 @@
 using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 
@@ -50,7 +51,11 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
 
+        if (string.IsNullOrWhiteSpace(weekLabel))
+            throw new ArgumentException("Week label is required.", nameof(weekLabel));
+
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
+        string normalizedWeekLabel = weekLabel.Trim();
 
         List<string> normalizedMailboxes = [];
 
@@ -72,7 +77,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         WeeklySponsorReportEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = weekLabel,
+            WeekLabel = normalizedWeekLabel,
             RunIdHex = runIdHex.Trim(),
             RunDetailUrl = runDetailUrl.Trim(),
             SummaryMarkdown = summaryMarkdown,
@@ -82,7 +87,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly Sponsor report — {weekLabel}";
+        string subject = $"{productName} weekly Sponsor report — {normalizedWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
@@ -103,7 +108,16 @@ public sealed class WeeklySponsorReportEmailDispatcher(
             (ex, mailbox) =>
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Weekly Sponsor report email send failed for tenant {TenantId}, mailbox {Mailbox}.", tenantId, mailbox);
+                {
+                    // Mailbox is reduced to domain inside Core (EmailDomainForLogs).
+                    // codeql[cs/exposure-of-sensitive-information]
+                    SanitizedLoggerEmailDispatchExtensions.LogErrorTemplatedEmailSendFailed(
+                        _logger,
+                        ex,
+                        tenantId,
+                        "Weekly Sponsor report",
+                        mailbox);
+                }
             },
             cancellationToken);
     }

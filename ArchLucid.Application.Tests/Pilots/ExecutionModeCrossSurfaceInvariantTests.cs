@@ -359,6 +359,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             agentTraces.Object,
             Mock.Of<IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

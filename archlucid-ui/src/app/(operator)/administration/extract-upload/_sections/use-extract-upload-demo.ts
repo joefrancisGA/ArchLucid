@@ -19,7 +19,7 @@ export type UseExtractUploadDemoInput = {
   readonly router: AppRouterInstance;
   readonly pathname: string;
   readonly searchParams: Readonly<URLSearchParams>;
-  readonly onUpload: (file: File) => Promise<void>;
+  readonly onUpload: (file: File, fileLabel: string) => Promise<void>;
   readonly clearUploadState: () => void;
   readonly setUploadError: (error: {
     message: string;
@@ -44,10 +44,14 @@ export function useExtractUploadDemo({
   const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<AzureExtractorDemoScenarioId>(
     urlDemoScenario ?? DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
+  const [demoScenarioExplicitlySelected, setDemoScenarioExplicitlySelected] = useState(
+    urlDemoScenario !== null,
+  );
 
   const setSelectedDemoScenarioId = useCallback(
     (scenarioId: AzureExtractorDemoScenarioId) => {
       setSelectedDemoScenarioIdState(scenarioId);
+      setDemoScenarioExplicitlySelected(true);
       router.replace(extractUploadDemoScenarioHrefFromSearch(searchParams.toString(), scenarioId, pathname), {
         scroll: false,
       });
@@ -60,6 +64,7 @@ export function useExtractUploadDemo({
 
     if (fromUrl !== null) {
       setSelectedDemoScenarioIdState(fromUrl);
+      setDemoScenarioExplicitlySelected(true);
     }
   }, [searchParams]);
 
@@ -84,13 +89,15 @@ export function useExtractUploadDemo({
     const demoFile = new File([new Uint8Array(bytes)], scenario.zipFilename, {
       type: "application/zip",
     });
-    setSelectedFileLabel(`${demoFile.name} (bundled demo)`);
-    await onUpload(demoFile);
+    const fileLabel = `${demoFile.name} (bundled demo)`;
+    setSelectedFileLabel(fileLabel);
+    await onUpload(demoFile, fileLabel);
   }
 
   return {
     selectedDemoScenarioId,
     setSelectedDemoScenarioId,
+    demoScenarioExplicitlySelected,
     onTryDemoData,
   };
 }

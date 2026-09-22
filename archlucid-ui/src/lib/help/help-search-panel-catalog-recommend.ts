@@ -160,7 +160,7 @@ export function recommendedHelpSearchPanelTopics(
   workingMode: boolean = false,
   productLineId: ProductLineId = "architecture",
 ): HelpSearchPanelTopic[] {
-  const byId = new Map(collectHelpSearchPanelTopics(isAdmin).map((topic) => [topic.id, topic]));
+  const byId = new Map(collectHelpSearchPanelTopics(isAdmin, productLineId).map((topic) => [topic.id, topic]));
   const ids = recommendedHelpSearchPanelTopicIds(pathname, situation, workingMode);
 
   return ids

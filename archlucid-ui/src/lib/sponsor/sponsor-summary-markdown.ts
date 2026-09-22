@@ -4,6 +4,8 @@ import {
   resolveSponsorTrailing30DayScopeLabel,
   ROI_NON_ADDITIVITY_CAVEAT,
 } from "@/lib/roi-sponsor-scope-labels";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
 
 export type SponsorRoiSystemicIssueTrendPoint = {
@@ -116,6 +118,9 @@ export function buildSponsorSummaryMarkdown(
   const lines: string[] = [];
 
   lines.push("# Sponsor report — portfolio ROI");
+  lines.push("");
+  lines.push(`**Sponsor ROI honesty:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
+  lines.push(`**Policy influence:** ${POLICY_PACK_INFLUENCE_HONESTY_LINE}`);
   lines.push("");
 
   const reviewHonestyMarkdown = options?.reviewHonestyMarkdown?.trim() ?? "";

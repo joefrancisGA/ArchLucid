@@ -3966,10 +3966,6 @@ describe("wave52 filter url helpers", () => {
       findingsItsmPreFinalizeExportDisclosureHrefFromSearch,
       parseFindingsItsmPreFinalizeExportOpenFromSearch,
     } = await import("@/lib/findings/findings-itsm-pre-finalize-export-disclosure-url");
-    const {
-      extractUploadValidateDisclosureHrefFromSearch,
-      parseExtractUploadValidateDisclosureOpenFromSearch,
-    } = await import("@/lib/administration/extract-upload-validate-disclosure-url");
 
     expect(parseSecurityTrustRelatedSurfacesOpenFromSearch("1")).toBe(true);
     expect(securityTrustRelatedSurfacesDisclosureHrefFromSearch("", true, "/administration/security-trust")).toBe(
@@ -4006,10 +4002,6 @@ describe("wave52 filter url helpers", () => {
     expect(parseFindingsItsmPreFinalizeExportOpenFromSearch("1")).toBe(true);
     expect(findingsItsmPreFinalizeExportDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/findings")).toBe(
       "/architecture/reviews/r1/findings?findingsItsmPreFinalizeExportOpen=1",
-    );
-    expect(parseExtractUploadValidateDisclosureOpenFromSearch("true")).toBe(true);
-    expect(extractUploadValidateDisclosureHrefFromSearch("", true, "/administration/extract-upload")).toBe(
-      "/administration/extract-upload?extractUploadValidateDisclosureOpen=1",
     );
   });
 });
@@ -5799,11 +5791,7 @@ describe("wave72 filter url helpers", () => {
 });
 
 describe("wave73 filter url helpers", () => {
-  it("infra ask simulator, remediation/drift/diagram workbench resource ids, resource row arm id, governance findings resource group, advisory schedule advanced params", async () => {
-    const {
-      infraAskSimulatorDisclosureHrefFromSearch,
-      parseInfraAskSimulatorDisclosureOpenFromSearch,
-    } = await import("@/lib/infra-evidence/infra-ask-simulator-disclosure-url");
+  it("remediation/drift/diagram workbench resource ids, resource row arm id, governance findings resource group, advisory schedule advanced params", async () => {
     const {
       infraRemediationResourceIdDisclosureHrefFromSearch,
       parseInfraRemediationResourceIdDisclosureOpenFromSearch,
@@ -5841,10 +5829,6 @@ describe("wave73 filter url helpers", () => {
       parseAdvisoryScheduleAdvancedOpenFromSearch,
     } = await import("@/lib/advisory/advisory-schedule-advanced-disclosure-url");
 
-    expect(parseInfraAskSimulatorDisclosureOpenFromSearch("1")).toBe(true);
-    expect(infraAskSimulatorDisclosureHrefFromSearch("cloudResourceId=res-1", true, "/governance/infrastructure/ask")).toBe(
-      "/governance/infrastructure/ask?cloudResourceId=res-1&infraAskSimulatorDisclosureOpen=1",
-    );
     expect(parseInfraRemediationResourceIdDisclosureOpenFromSearch("true")).toBe(true);
     expect(
       infraRemediationResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/remediation"),
@@ -6425,15 +6409,11 @@ describe("wave81 filter url helpers", () => {
 });
 
 describe("wave82 filter url helpers", () => {
-  it("infra drift change/snapshot identifiers, audit evidence spine evidence technical row id, system health demo scope note, manifest top decisions show all, advisory scans manual id admin, quick scan privacy/scope, trust center and assurance status vocabulary params", async () => {
+  it("infra drift change identifiers, audit evidence spine evidence technical row id, system health demo scope note, manifest top decisions show all, advisory scans manual id admin, quick scan privacy/scope, trust center and assurance status vocabulary params", async () => {
     const {
       infraDriftChangeIdentifiersDisclosureHrefFromSearch,
       parseInfraDriftChangeIdentifiersOpenFromSearch,
     } = await import("@/lib/infra-evidence/infra-drift-change-identifiers-disclosure-url");
-    const {
-      infraDriftSnapshotIdentifiersDisclosureHrefFromSearch,
-      parseInfraDriftSnapshotIdentifiersOpenFromSearch,
-    } = await import("@/lib/infra-evidence/infra-drift-snapshot-identifiers-disclosure-url");
     const {
       auditEvidenceSpineEvidenceTechnicalDisclosureHrefFromSearch,
       parseAuditEvidenceSpineEvidenceTechnicalRowIdFromSearch,
@@ -6471,10 +6451,6 @@ describe("wave82 filter url helpers", () => {
     expect(
       infraDriftChangeIdentifiersDisclosureHrefFromSearch("changeId=c1", true, "/governance/infrastructure/drift"),
     ).toBe("/governance/infrastructure/drift?changeId=c1&infraDriftChangeIdentifiersOpen=1");
-    expect(parseInfraDriftSnapshotIdentifiersOpenFromSearch("true")).toBe(true);
-    expect(infraDriftSnapshotIdentifiersDisclosureHrefFromSearch("", true, "/governance/infrastructure/drift")).toBe(
-      "/governance/infrastructure/drift?infraDriftSnapshotIdentifiersOpen=1",
-    );
     expect(parseAuditEvidenceSpineEvidenceTechnicalRowIdFromSearch("evidence-row-7")).toBe("evidence-row-7");
     expect(
       auditEvidenceSpineEvidenceTechnicalDisclosureHrefFromSearch(

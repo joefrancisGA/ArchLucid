@@ -65,3 +65,24 @@ export function parseManifestFeasibilityVerdictKind(manifest: unknown): Feasibil
 
   return null;
 }
+
+/** Counts hard law citations on a sealed manifest feasibility verdict (LN-037). */
+export function parseManifestHardCitationCount(manifest: unknown): number {
+  if (!isRecord(manifest)) {
+    return 0;
+  }
+
+  const feasibilityVerdict = manifest.feasibilityVerdict;
+
+  if (!isRecord(feasibilityVerdict)) {
+    return 0;
+  }
+
+  const hardCitations = feasibilityVerdict.hardCitations;
+
+  if (!Array.isArray(hardCitations)) {
+    return 0;
+  }
+
+  return hardCitations.length;
+}

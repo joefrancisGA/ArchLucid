@@ -4,6 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceSchedulesHelpEvidenceOrientationStrip } from "@/components/help/RecurrenceSchedulesHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -280,6 +281,8 @@ export function HelpRecurrenceSchedulesGuideView(
               <RecurrenceSchedulesHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             </div>
           ) : null}
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-recurrence-schedules" showSsoOptional={false} />
         </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />

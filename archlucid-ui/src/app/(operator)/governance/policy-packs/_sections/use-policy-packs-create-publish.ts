@@ -7,9 +7,13 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
   assignPolicyPack,
-  createPolicyPack,
   publishPolicyPackVersion,
 } from "@/lib/api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import {
+  createPolicyPackWith401Resume,
+  publishPolicyPackVersionWith401Resume,
+} from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { policyPackAssignMutationBlockedReason } from "@/lib/policy/policy-pack-assign-mutation-blocked-reason";
 import { policyPackMutationBlockedReason } from "@/lib/policy/policy-pack-mutation-blocked-reason";
 import { usePolicyPackVersionDetailQuery } from "@/hooks/use-policy-pack-version-detail-query";
@@ -36,6 +40,8 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
   const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const urlPackId = parsePolicyPackSelectionFromSearch(searchParams.get(POLICY_PACK_ID_QUERY_PARAM));
   const urlShowVersionDiff = parsePolicyPackVersionDiffOpenFromSearch(searchParams.get("diff"));
   const urlCompareLeftId = parsePolicyPackCompareVersionIdFromSearch(searchParams.get("compareLeft"));
@@ -316,17 +322,24 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     deps.setLoading(true);
 
     try {
-      const created: PolicyPack = await createPolicyPack({
-        name: name.trim() || "Pack",
-        description: description.trim(),
-        packType,
-        initialContentJson: createJson,
-      });
+      const created: PolicyPack = await createPolicyPackWith401Resume(
+        {
+          name: name.trim() || "Pack",
+          description: description.trim(),
+          packType,
+          initialContentJson: createJson,
+        },
+        { returnPath: livelihoodReturnPath },
+      );
       await deps.load();
       setCreateLastSavedUtc(new Date().toISOString());
       // Do not rely only on useEffect(packs): it only runs when selectedPackId is empty, and E2E/CI can race renders.
       setSelectedPackId(created.policyPackId);
     } catch (e) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(e);
       const blocked = policyPackMutationBlockedReason(failure);
       const message = blocked ?? failure.message;
@@ -335,7 +348,7 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     } finally {
       deps.setLoading(false);
     }
-  }, [deps.canMutatePacks, createJson, description, deps.load, name, packType]);
+  }, [createJson, deps.canMutatePacks, deps.load, description, livelihoodReturnPath, name, packType]);
 
   const onPublish = useCallback(async () => {
     if (!deps.canMutatePacks) {
@@ -373,13 +386,21 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     deps.setLoading(true);
 
     try {
-      await publishPolicyPackVersion(selectedPackId, {
-        version: publishVersion.trim(),
-        contentJson: publishJson,
-      });
+      await publishPolicyPackVersionWith401Resume(
+        selectedPackId,
+        {
+          version: publishVersion.trim(),
+          contentJson: publishJson,
+        },
+        { returnPath: livelihoodReturnPath },
+      );
       setPublishLastSavedUtc(new Date().toISOString());
       setPublishSuccessMessage(policyPackPublishSuccessMessage(publishVersion));
     } catch (e) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       setPublishSuccessMessage(null);
       const failure = toApiLoadFailure(e);
       const blocked = policyPackMutationBlockedReason(failure);

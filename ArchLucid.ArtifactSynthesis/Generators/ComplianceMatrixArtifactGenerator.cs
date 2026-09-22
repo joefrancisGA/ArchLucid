@@ -21,9 +21,10 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
 
         foreach (CompliancePostureItem control in manifest.Compliance.Controls)
         {
-            List<string> notes = manifest.Compliance.Gaps
-                .Where(x => x.Contains(control.ControlName, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            IReadOnlyList<string> notes = ComplianceMatrixGapMatcher.ResolveNotesForControl(
+                control,
+                manifest.Compliance.Controls,
+                manifest.Compliance.Gaps);
 
             matrix.Rows.Add(new ComplianceMatrixRow
             {

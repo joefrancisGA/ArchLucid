@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
@@ -27,7 +28,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority")]
 [EnableRateLimiting("fixed")]
-public sealed class AuthorityRunEventsController(
+public sealed partial class AuthorityRunEventsController(
     IAuthorityQueryService queryService,
     IScopeContextProvider scopeProvider,
     IManifestHashService manifestHashService) : ControllerBase
@@ -51,68 +52,70 @@ public sealed class AuthorityRunEventsController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task GetRunEvents(Guid runId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.GoldenManifest is not null)
+        try
         {
-            try
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+            if (detail is not null)
             {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    _manifestHashService);
+                IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+                if (sealedGuardResult is not null)
+                {
+                    await sealedGuardResult.ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
+                    return;
+                }
             }
-            catch (ConflictException ex)
+
+            Response.Headers.ContentType = "text/event-stream";
+            Response.Headers.CacheControl = "no-cache";
+            Response.Headers.Connection = "keep-alive";
+
+            DateTime startedUtc = TimeProvider.System.UtcNowDateTime();
+            TimeSpan maxDuration = TimeSpan.FromMinutes(5);
+            TimeSpan pollInterval = TimeSpan.FromSeconds(2);
+            string? lastPayloadFingerprint = null;
+
+            while (!cancellationToken.IsCancellationRequested
+                   && TimeProvider.System.UtcNowDateTime() - startedUtc <= maxDuration)
             {
-                IActionResult conflict = this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-                await conflict.ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
-                return;
+                RunSummaryDto? summaryDto = await queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
+
+                if (summaryDto is null)
+                {
+                    await WriteSseEventAsync("error", """{"detail":"Run summary not found"}""", cancellationToken);
+                    await WriteSseEventAsync("complete", """{"reason":"not-found"}""", cancellationToken);
+
+                    return;
+                }
+
+                RunSummaryResponse body = ToRunSummaryResponse(summaryDto);
+                string json = JsonSerializer.Serialize(body, SerializerOptions);
+
+                if (!string.Equals(json, lastPayloadFingerprint, StringComparison.Ordinal))
+                {
+                    lastPayloadFingerprint = json;
+                    await WriteSseEventAsync("status", json, cancellationToken);
+                }
+
+                if (summaryDto.HasGoldenManifest)
+                {
+                    await WriteSseEventAsync("complete", """{"reason":"golden-manifest-ready"}""", cancellationToken);
+
+                    return;
+                }
+
+                await Task.Delay(pollInterval, cancellationToken);
             }
+
+            await WriteSseEventAsync("complete", """{"reason":"timeout"}""", cancellationToken);
         }
-
-        Response.Headers.ContentType = "text/event-stream";
-        Response.Headers.CacheControl = "no-cache";
-        Response.Headers.Connection = "keep-alive";
-
-        DateTime startedUtc = TimeProvider.System.UtcNowDateTime();
-        TimeSpan maxDuration = TimeSpan.FromMinutes(5);
-        TimeSpan pollInterval = TimeSpan.FromSeconds(2);
-        string? lastPayloadFingerprint = null;
-
-        while (!cancellationToken.IsCancellationRequested
-               && TimeProvider.System.UtcNowDateTime() - startedUtc <= maxDuration)
+        catch (ConflictException ex)
         {
-            RunSummaryDto? summaryDto = await queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
-
-            if (summaryDto is null)
-            {
-                await WriteSseEventAsync("error", """{"detail":"Run summary not found"}""", cancellationToken);
-                await WriteSseEventAsync("complete", """{"reason":"not-found"}""", cancellationToken);
-
-                return;
-            }
-
-            RunSummaryResponse body = ToRunSummaryResponse(summaryDto);
-            string json = JsonSerializer.Serialize(body, SerializerOptions);
-
-            if (!string.Equals(json, lastPayloadFingerprint, StringComparison.Ordinal))
-            {
-                lastPayloadFingerprint = json;
-                await WriteSseEventAsync("status", json, cancellationToken);
-            }
-
-            if (summaryDto.HasGoldenManifest)
-            {
-                await WriteSseEventAsync("complete", """{"reason":"golden-manifest-ready"}""", cancellationToken);
-
-                return;
-            }
-
-            await Task.Delay(pollInterval, cancellationToken);
+            await MapRunEventsSealedManifestConflict(ex)
+                .ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
         }
-
-        await WriteSseEventAsync("complete", """{"reason":"timeout"}""", cancellationToken);
     }
 
     private async Task WriteSseEventAsync(string eventName, string data, CancellationToken cancellationToken)
@@ -133,34 +136,6 @@ public sealed class AuthorityRunEventsController(
         await Response.Body.FlushAsync(cancellationToken);
     }
 
-    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x)
-    {
-        return new RunSummaryResponse
-        {
-            RunId = x.RunId,
-            ProjectId = x.ProjectId,
-            Description = x.Description,
-            DisplayName = string.IsNullOrWhiteSpace(x.Description) ? null : x.Description.Trim(),
-            IsDemoWelcomeRun = x.IsDemoWelcomeRun,
-            IsSample = x.IsSample,
-            IsPinned = x.IsPinned,
-            CreatedUtc = x.CreatedUtc,
-            CreatedByUserId = x.CreatedByUserId,
-            HasContextSnapshot = x.HasContextSnapshot,
-            HasGraphSnapshot = x.HasGraphSnapshot,
-            HasFindingsSnapshot = x.HasFindingsSnapshot,
-            HasGoldenManifest = x.HasGoldenManifest,
-            GoldenManifestId = x.GoldenManifestId,
-            HasDecisionTrace = x.HasDecisionTrace,
-            HasArtifactBundle = x.HasArtifactBundle,
-            HasWarnings = x.HasWarnings,
-            HasGovernanceWarnings = x.HasGovernanceWarnings,
-            RunDegradedExecution = x.RunDegradedExecution,
-            DegradedExecutionAgents = x.DegradedExecutionAgents,
-            PackageOrigin = x.PackageOrigin,
-            StructuralExecutionMode = x.StructuralExecutionMode,
-            AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
-            LegacyRunStatus = x.LegacyRunStatus,
-        };
-    }
+    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x) =>
+        AuthorityRunReadHandlers.ToRunSummaryResponse(x);
 }

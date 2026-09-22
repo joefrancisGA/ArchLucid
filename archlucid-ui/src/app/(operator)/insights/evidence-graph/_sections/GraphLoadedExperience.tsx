@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -35,6 +36,7 @@ import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/
 import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
 import type { GraphViewModel } from "@/types/graph";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 
 export type GraphLoadedExperienceProps = {
   buyerPolishedShell: boolean;
@@ -60,6 +62,7 @@ export type GraphLoadedExperienceProps = {
   sampleGraphActive?: boolean;
   /** Working desk: list/trace first with canvas behind an explicit tab (LD-14). */
   operatorListFirst?: boolean;
+  readonly pinnedArchitectureId?: string | null;
 };
 
 export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
@@ -95,7 +98,9 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
   const buyerTrailPresentation = demoUi || (buyerPolishedShell && showcaseRun);
   const reviewPackageHref =
-    runTrim.length > 0 ? `/architecture/reviews/${encodeURIComponent(runTrim)}` : "/architecture/reviews";
+    runTrim.length > 0
+      ? resolveSystemNotJobWorkingReviewOpenHref(runTrim, props.pinnedArchitectureId)
+      : "/architecture/reviews";
 
   function ensureGraphExportAllowed(): boolean {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -238,6 +243,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             {exportError}
           </p>
         ) : null}
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="evidence-graph-export" />
       </div>
       <GraphInteractiveCanvas
         graphSurfaceKey={graphSurfaceKey}
@@ -341,7 +347,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 </Link>
               </Button>
               <Button type="button" asChild variant="outline" size="sm">
-                <Link href={`/architecture/reviews/${encodeURIComponent(runTrim)}`}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
+                <Link href={reviewPackageHref}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
               </Button>
               <Button type="button" asChild variant="outline" size="sm">
                 <Link href={`/insights/evidence-graph?runId=${encodeURIComponent(runTrim)}&presentation=trace`}>

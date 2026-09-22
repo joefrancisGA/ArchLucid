@@ -58,7 +58,7 @@ public sealed partial class DapperFindingInspectReadRepository
     {
         object queryParams = new
         {
-            FindingId = findingId.Trim(),
+            FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(findingId),
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
@@ -73,8 +73,8 @@ public sealed partial class DapperFindingInspectReadRepository
         List<string> relatedNodes = (await multi.ReadAsync<string>()).ToList();
         string? firstRuleText = await multi.ReadSingleOrDefaultAsync<string>();
 
-        List<string> recommendedActions = (await multi.ReadAsync<string>())
-            .Where(static a => !string.IsNullOrWhiteSpace(a))
+        List<string> recommendedActions = FindingInspectReadRepositoryCore
+            .FilterRecommendedActions(await multi.ReadAsync<string>())
             .ToList();
 
         Guid? auditRowId = await multi.ReadSingleOrDefaultAsync<Guid?>();

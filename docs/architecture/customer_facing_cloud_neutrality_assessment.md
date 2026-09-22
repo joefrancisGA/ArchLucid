@@ -109,7 +109,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 | 8 | `/try` metadata | `try/page.tsx` L11 | “no Azure setup, no Entra ID sign-in” | **Marketing bias** (Entra as default IdP) | **Medium** | Frames Entra as expected enterprise IdP | “no cloud account or corporate sign-in required” | Copy |
 | 9 | Cloud connections Azure detail | `AzureCloudConnectionDetailClient.tsx` L72 | “ArchLucid hosts the extractor service on Azure infrastructure…” | **Correct provider-specific reference** | **Low** | Honest hosting disclosure; AWS page clarifies cross-cloud trust | Keep | — |
 | 10 | `CLOUD_CAPABILITY_PROVIDER_MAP` | `cloud-neutral-primary-copy.ts` | Equal Azure/AWS/GCP rows | **Correct cross-cloud comparison** | **N/A (positive)** | Reference pattern for neutral surfaces | Reuse pattern on integration pages | — |
-| 11 | FAQ | `docs/library/customer-facing/FAQ.md` L38–39 | ITSM connectors are **V1.1** | **Stale limitation** | **High** | Contradicts `INTEGRATION_CATALOG.md` (V1 GA 2026-07-03) | Update FAQ to V1 GA + link catalog | Copy |
+| 11 | FAQ | `docs/library/customer-facing/FAQ.md` L38–39 | ITSM connectors are **V1.1** | **Stale limitation** | **High** | Contradicts `INTEGRATION_CATALOG.md` (V1 GA 2026-07-03) | **Resolved (TB-770, 2026-07-15)** — FAQ stub + `/faq` ITSM item | Copy |
 | 12 | Hosted AI disclosure | `DATA_HANDLING.md`, `FAQ.md` | “Azure OpenAI per deployment configuration” | **Correct provider-specific reference** | **Low** | Accurate for Azure-hosted SaaS | Keep; optional footnote that customer workload cloud is independent | — |
 
 ---
@@ -193,8 +193,8 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 
 | Document | Claim | Current truth | Action |
 |----------|-------|---------------|--------|
-| `docs/library/customer-facing/FAQ.md` L38–39 | ITSM is V1.1 | V1 GA per `INTEGRATION_CATALOG.md` (2026-07-03) | Update FAQ |
-| `docs/library/customer-facing/CI_CD_INTEGRATION_GUIDE.md` L5 | ITSM deferred to V1.1 | First-party connectors V1 GA | Update scope line |
+| `docs/library/customer-facing/FAQ.md` L38–39 | ITSM is V1.1 | V1 GA per `INTEGRATION_CATALOG.md` (2026-07-03) | **Resolved (TB-770)** — stub points to `/faq`; ITSM V1 GA in `marketing-faq.ts` |
+| `docs/library/customer-facing/CI_CD_INTEGRATION_GUIDE.md` L5 | ITSM deferred to V1.1 | First-party connectors V1 GA | **Resolved (TB-770, 2026-07-15)** |
 | ITSM product page summary | “unified ITSM page” for connector refs | `/integrations/itsm` **removed** (was readiness redirect) | Fix copy to Jira/ServiceNow / connection status |
 | `PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` | Wizard defaults `cloudProvider` to Azure | **Fixed** — `buildDefaultWizardValues()` uses `"None"` (TB-340) | Do not regress |
 | `WizardStepAzureContext.test.tsx` | Azure command by default when `None` | Still current — **stale neutrality claim** in comments elsewhere | Fix wizard default platform |

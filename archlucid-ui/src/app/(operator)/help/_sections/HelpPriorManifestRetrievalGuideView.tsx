@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpPriorManifestRetrievalClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpPriorManifestRetrievalClaimOrientationStrip";
 import { HelpPriorManifestRetrievalHeaderActions } from "@/app/(operator)/help/_sections/HelpPriorManifestRetrievalHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -210,6 +211,8 @@ export function HelpPriorManifestRetrievalGuideView(
         </div>
 
         <div data-testid="help-prior-manifest-retrieval-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-prior-manifest-retrieval" showSsoOptional={false} />
+
           <HelpPriorManifestRetrievalClaimOrientationStrip />
         </div>
       </div>

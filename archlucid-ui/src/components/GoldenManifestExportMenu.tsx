@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
@@ -299,6 +300,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           {markdownOptionLabel}
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
+        <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
         {exportDemoBanner}
         {exportLegacyWarning}
         {exportStatusChrome}
@@ -361,6 +363,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </SelectItem>
       </SelectContent>
     </Select>
+      <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
       {exportDemoBanner}
       {exportLegacyWarning}
       {exportStatusChrome}

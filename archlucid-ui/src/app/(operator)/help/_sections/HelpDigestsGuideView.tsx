@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpDigestsClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpDigestsClaimOrientationStrip";
 import { HelpDigestsHeaderActions } from "@/app/(operator)/help/_sections/HelpDigestsHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -254,6 +255,8 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
 
           <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-digests" showSsoOptional={false} />
 
         <div data-testid="help-digests-orientation-bottom">
           <HelpDigestsClaimOrientationStrip />

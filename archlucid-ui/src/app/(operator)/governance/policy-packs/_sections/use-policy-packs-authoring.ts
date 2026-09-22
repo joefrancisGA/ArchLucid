@@ -1,11 +1,15 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 
 import { POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import { POLICY_PACKS_REVIEW_ID_QUERY_PARAM } from "@/lib/policy-packs-review-handoff";
+import {
+  POLICY_PACKS_PACK_A_ID_QUERY_PARAM,
+  POLICY_PACKS_PACK_B_ID_QUERY_PARAM,
+  POLICY_PACKS_REVIEW_ID_QUERY_PARAM,
+} from "@/lib/policy-packs-review-handoff";
 
 import type { PolicyPacksAuthoringDeps } from "./policy-packs-authoring-deps";
 import { usePolicyPacksCreatePublish } from "./use-policy-packs-create-publish";
@@ -15,9 +19,12 @@ export type { PolicyPacksAuthoringDeps } from "./policy-packs-authoring-deps";
 
 export function usePolicyPacksAuthoring(deps: PolicyPacksAuthoringDeps) {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
   const searchParams = useSearchParams();
   const ruleIdFromUrl = searchParams.get(POLICY_RULE_ID_QUERY_PARAM)?.trim() ?? "";
   const pickedReviewId = searchParams.get(POLICY_PACKS_REVIEW_ID_QUERY_PARAM)?.trim() ?? "";
+  const pickedPackAId = searchParams.get(POLICY_PACKS_PACK_A_ID_QUERY_PARAM)?.trim() ?? "";
+  const pickedPackBId = searchParams.get(POLICY_PACKS_PACK_B_ID_QUERY_PARAM)?.trim() ?? "";
 
   const createPublish = usePolicyPacksCreatePublish(deps);
   const generator = usePolicyPacksGenerator(deps, createPublish);
@@ -59,9 +66,9 @@ export function usePolicyPacksAuthoring(deps: PolicyPacksAuthoringDeps) {
         params.delete(POLICY_PACKS_REVIEW_ID_QUERY_PARAM);
       }
 
-      router.replace(`${GOVERNANCE_POLICY_PACKS_PATH}?${params.toString()}`, { scroll: false });
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams],
+    [pathname, router, searchParams],
   );
 
   return {
@@ -69,6 +76,8 @@ export function usePolicyPacksAuthoring(deps: PolicyPacksAuthoringDeps) {
     ...generator,
     ruleIdFromUrl,
     pickedReviewId,
+    pickedPackAId,
+    pickedPackBId,
     setPickedReviewId,
   };
 }

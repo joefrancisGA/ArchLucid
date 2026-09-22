@@ -1,5 +1,6 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { sponsorRoiBoardPackMutationBlockedReason } from "@/lib/pilots/sponsor-roi-board-pack-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -30,7 +31,9 @@ export async function downloadSponsorRoiBoardPack(options: {
   if (!response.ok) {
     const text = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = sponsorRoiBoardPackMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   const blob = await response.blob();
@@ -40,5 +43,12 @@ export async function downloadSponsorRoiBoardPack(options: {
 }
 
 export function formatSponsorRoiBoardPackApiError(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blockedReason = sponsorRoiBoardPackMutationBlockedReason(failure);
+
+  if (blockedReason !== null) {
+    return blockedReason;
+  }
+
   return formatExportSealedManifestAwareApiError(error);
 }

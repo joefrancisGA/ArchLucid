@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { getComplianceDriftTrend } from "@/lib/api";
 import { isBrowser } from "@/lib/api/http";
 import { type SponsorTimeRange, windowForSponsorRange } from "@/lib/sponsor-time-range";
@@ -32,15 +33,16 @@ export function useSponsorNextActionInputsQuery(
   options?: { enabled?: boolean },
 ) {
   const queryClient = useQueryClient();
+  const scope = useOperatorScopeQueryKey();
 
   return useQuery<SponsorNextActionInputs>({
-    queryKey: operatorQueryKeys.executiveNextActionInputs(range),
+    queryKey: operatorQueryKeys.executiveNextActionInputs(scope, range),
     queryFn: async () => {
       const { fromUtc, toUtc } = windowForSponsorRange(range);
       const fromKey = fromUtc ?? "open";
 
       const report = await queryClient.fetchQuery({
-        queryKey: operatorQueryKeys.pilotValueReport(fromKey, toUtc),
+        queryKey: operatorQueryKeys.pilotValueReport(scope, fromKey, toUtc),
         queryFn: () => fetchPilotValueReportJson(fromUtc, toUtc),
         staleTime: OPERATOR_QUERY_STALE_MS,
         gcTime: OPERATOR_QUERY_GC_MS,
@@ -49,7 +51,7 @@ export function useSponsorNextActionInputsQuery(
       const driftFrom = fromUtc ?? report.fromUtc;
 
       const driftPoints = await queryClient.fetchQuery({
-        queryKey: operatorQueryKeys.complianceDriftTrendRange(driftFrom, report.toUtc),
+        queryKey: operatorQueryKeys.complianceDriftTrendRange(scope, driftFrom, report.toUtc),
         queryFn: () => getComplianceDriftTrend(driftFrom, report.toUtc, 1440),
         staleTime: OPERATOR_QUERY_STALE_MS,
         gcTime: OPERATOR_QUERY_GC_MS,

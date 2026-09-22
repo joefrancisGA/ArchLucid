@@ -44,6 +44,36 @@ public sealed partial class ArchitectureIntelligenceBenchmark
                 Description = "Remove replication evidence.",
                 ApplyDelta = "remove:replication"
             },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-remove-rto",
+                Description = "Remove recovery objective evidence.",
+                ApplyDelta = "remove:RecoveryObjective"
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-add-public-api",
+                Description = "Add a public API interface without authentication evidence.",
+                ApplyDelta = "add:public-api"
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-tighten-rpo",
+                Description = "Tighten RPO to one minute.",
+                ApplyDelta = "recovery-objective:RPO=1m"
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-add-unowned-service",
+                Description = "Add a service without operational ownership.",
+                ApplyDelta = "add:unowned-service"
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-add-private-endpoint",
+                Description = "Require private endpoint access for datastore traffic.",
+                ApplyDelta = "add:private-endpoint"
+            },
         ];
     }
 
@@ -207,6 +237,74 @@ public sealed partial class ArchitectureIntelligenceBenchmark
         {
             model.Elements.RemoveAll(element =>
                 element.Name.Contains("replication", StringComparison.OrdinalIgnoreCase));
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("remove:RecoveryObjective", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.RemoveAll(element => element.Kind == ArchitectureElementKind.RecoveryObjective);
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("add:public-api", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = Guid.NewGuid().ToString("N"),
+                Kind = ArchitectureElementKind.Interface,
+                Name = "Public HTTPS API",
+                Description = applyDelta,
+                ExtractionConfidence = 1.0,
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.UserAsserted,
+                    SupportStatus = SupportStatus.DirectlyEstablished,
+                    Confidence = 1.0
+                }
+            });
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("add:unowned-service", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = Guid.NewGuid().ToString("N"),
+                Kind = ArchitectureElementKind.Component,
+                Name = "Unowned integration worker",
+                Description = applyDelta,
+                ExtractionConfidence = 1.0,
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.UserAsserted,
+                    SupportStatus = SupportStatus.DirectlyEstablished,
+                    Confidence = 1.0
+                }
+            });
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("add:private-endpoint", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = Guid.NewGuid().ToString("N"),
+                Kind = ArchitectureElementKind.Constraint,
+                Name = "Private endpoint required",
+                Description = applyDelta,
+                ExtractionConfidence = 1.0,
+                Properties = new Dictionary<string, string> { ["privateEndpointRequired"] = "true" },
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.UserAsserted,
+                    SupportStatus = SupportStatus.DirectlyEstablished,
+                    Confidence = 1.0
+                }
+            });
 
             return;
         }

@@ -69,6 +69,7 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(appShellSource).toContain("DevTestingShellShortcutsDeferred");
     expect(appShellSource).toContain("AppShellTelemetryBundleDeferred");
     expect(appShellSource).toContain("AppShellSyncSessionIdleGuard");
+    expect(appShellSource).toContain("AppShellLivelihoodMutationResumeHost");
     expect(appShellSource).toContain("AppShellSyncKeyboardShortcutListener");
     expect(appShellSource).toContain("AppShellSyncCommandPaletteHost");
     expect(appShellSource).toContain("CommandPaletteWorkActionBridge");

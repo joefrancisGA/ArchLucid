@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GettingStartedHelpClaimDisciplineStrip } from "@/components/help/GettingStartedHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
@@ -14,33 +15,30 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
 import {
-  GETTING_STARTED_HELP_AUDIENCE_LINE,
   GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE,
-  GETTING_STARTED_HELP_DIAGRAM_SOURCE,
-  GETTING_STARTED_HELP_DIAGRAM_STEPS,
-  GETTING_STARTED_HELP_DIAGRAM_SUMMARY,
-  GETTING_STARTED_HELP_DIAGRAM_TITLE,
   GETTING_STARTED_HELP_GUIDE_HEADINGS,
-  GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION,
-  GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES,
-  GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS,
+  resolveGettingStartedHelpPlainLanguageTerms,
+  resolveGettingStartedHelpPlainLanguageVocabIntro,
   GETTING_STARTED_HELP_PRIMARY_ACTIONS,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
   GETTING_STARTED_HELP_TECHNICAL_TERMS,
-  GETTING_STARTED_HELP_WORKFLOW_STEPS,
   gettingStartedHelpPageSubtitle,
-  resolveGettingStartedHelpNextActionCards,
-  resolveGettingStartedHelpPipelineDiagramAccessibleName,
-  resolveGettingStartedHelpPipelineDiagramDescription,
-  resolveGettingStartedHelpPipelineIntro,
-  resolveGettingStartedHelpPipelineTextStages,
-  resolveGettingStartedHelpPrimaryActions,
+  resolveGettingStartedHelpAudienceLine,
+  resolveGettingStartedHelpDiagramSourceForProductLine,
+  resolveGettingStartedHelpDiagramSteps,
+  resolveGettingStartedHelpDiagramSummary,
+  resolveGettingStartedHelpNextActionCardsForProductLine,
+  resolveGettingStartedHelpPipelineDiagramAccessibleNameForProductLine,
+  resolveGettingStartedHelpPipelineDiagramDescriptionForProductLine,
+  resolveGettingStartedHelpPipelineIntroForProductLine,
+  resolveGettingStartedHelpPipelineTextStagesForProductLine,
+  resolveGettingStartedHelpPrimaryActionsForProductLine,
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
   resolveGettingStartedHelpTechnicalTerms,
-  resolveGettingStartedHelpDiagramSource,
-  resolveGettingStartedHelpWorkflowSteps,
+  resolveGettingStartedHelpWorkflowSectionTitle,
+  resolveGettingStartedHelpWorkflowStepsForProductLine,
 } from "@/lib/getting-started-help-guide-content";
 import {
   gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch,
@@ -53,6 +51,7 @@ import {
 import { evaluatingProductHelpSectionTitle } from "@/lib/help/help-product-copy";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
@@ -123,14 +122,14 @@ function GettingStartedNextActionLink(props: { readonly href: string; readonly l
   );
 }
 
-function HowArchLucidWorksDiagram(): React.ReactElement {
+function HowArchLucidWorksDiagram(props: { readonly steps: readonly string[] }): React.ReactElement {
   return (
     <div
       className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
       data-testid="getting-started-mental-model-diagram"
     >
       <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-center lg:justify-between">
-        {GETTING_STARTED_HELP_DIAGRAM_STEPS.map((step, index) => (
+        {props.steps.map((step, index) => (
           <div key={step} className="flex min-w-0 flex-1 items-center gap-3">
             <div
               className={cn(
@@ -140,7 +139,7 @@ function HowArchLucidWorksDiagram(): React.ReactElement {
             >
               {step}
             </div>
-            {index < GETTING_STARTED_HELP_DIAGRAM_STEPS.length - 1 ? (
+            {index < props.steps.length - 1 ? (
               <span aria-hidden className="hidden shrink-0 text-2xl text-neutral-400 lg:inline">
                 →
               </span>
@@ -225,19 +224,32 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
       ),
     [diagramTitle],
   );
-  const quickStartTitle = localize(resolveGettingStartedHelpQuickStartTitle(isWorkingMode));
-  const quickStartCopy = localize(resolveGettingStartedHelpQuickStartCopy(isWorkingMode));
-  const primaryActions = resolveGettingStartedHelpPrimaryActions(isWorkingMode);
-  const nextActionCards = resolveGettingStartedHelpNextActionCards(isWorkingMode);
-  const workflowSteps = resolveGettingStartedHelpWorkflowSteps(isWorkingMode);
-  const pipelineIntro = localize(resolveGettingStartedHelpPipelineIntro(isWorkingMode));
-  const pipelineTextStages = resolveGettingStartedHelpPipelineTextStages(isWorkingMode).map((stage) =>
-    localize(stage),
+  const secureNowShell = isSecureNowProductLine(productLine);
+  const quickStartTitle = localize(resolveGettingStartedHelpQuickStartTitle(isWorkingMode, productLine));
+  const quickStartCopy = localize(resolveGettingStartedHelpQuickStartCopy(isWorkingMode, productLine));
+  const primaryActions = resolveGettingStartedHelpPrimaryActionsForProductLine(isWorkingMode, productLine);
+  const nextActionCards = resolveGettingStartedHelpNextActionCardsForProductLine(isWorkingMode, productLine);
+  const workflowSteps = resolveGettingStartedHelpWorkflowStepsForProductLine(isWorkingMode, productLine);
+  const pipelineIntro = localize(resolveGettingStartedHelpPipelineIntroForProductLine(isWorkingMode, productLine));
+  const pipelineTextStages = resolveGettingStartedHelpPipelineTextStagesForProductLine(isWorkingMode, productLine).map(
+    (stage) => localize(stage),
   );
-  const pipelineDiagramDescription = resolveGettingStartedHelpPipelineDiagramDescription(isWorkingMode);
-  const pipelineDiagramAccessibleName = resolveGettingStartedHelpPipelineDiagramAccessibleName(isWorkingMode);
-  const diagramSource = resolveGettingStartedHelpDiagramSource(isWorkingMode);
-  const technicalTerms = resolveGettingStartedHelpTechnicalTerms(isWorkingMode);
+  const pipelineDiagramDescription = resolveGettingStartedHelpPipelineDiagramDescriptionForProductLine(
+    isWorkingMode,
+    productLine,
+  );
+  const pipelineDiagramAccessibleName = resolveGettingStartedHelpPipelineDiagramAccessibleNameForProductLine(
+    isWorkingMode,
+    productLine,
+  );
+  const diagramSource = resolveGettingStartedHelpDiagramSourceForProductLine(isWorkingMode, productLine);
+  const diagramSteps = resolveGettingStartedHelpDiagramSteps(productLine);
+  const diagramSummary = localize(resolveGettingStartedHelpDiagramSummary(productLine));
+  const audienceLine = resolveGettingStartedHelpAudienceLine(productLine);
+  const workflowSectionTitle = resolveGettingStartedHelpWorkflowSectionTitle(productLine);
+  const plainLanguageVocabIntro = resolveGettingStartedHelpPlainLanguageVocabIntro(productLine);
+  const plainLanguageTerms = resolveGettingStartedHelpPlainLanguageTerms(productLine);
+  const technicalTerms = resolveGettingStartedHelpTechnicalTerms(isWorkingMode, productLine);
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -258,7 +270,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
         <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
       )}
       <GettingStartedHelpClaimDisciplineStrip />
-      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
+      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{audienceLine}</p>
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
@@ -284,7 +296,11 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
                   key={action.href}
                   asChild
                   size="sm"
-                  variant={action.title === "New review" || action.title === "Start review" ? "primary" : "outline"}
+                  variant={
+                    action.title === "New review" || action.title === "Start review" || action.title === "Azure connections"
+                      ? "primary"
+                      : "outline"
+                  }
                 >
                   <Link href={action.href}>{action.ctaLabel}</Link>
                 </Button>
@@ -292,7 +308,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </div>
           </section>
 
-          {!isWorkingMode ? (
+          {!isWorkingMode && !secureNowShell ? (
             <details
               className={HELP_PAGE_LAYOUT.details}
               data-testid="getting-started-evaluating-architecture-section"
@@ -344,8 +360,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
 
           <section aria-labelledby="how-archlucid-works" className="space-y-3">
             <HelpSectionHeading id="how-archlucid-works">{diagramTitle}</HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_DIAGRAM_SUMMARY)}</p>
-            <HowArchLucidWorksDiagram />
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{diagramSummary}</p>
+            <HowArchLucidWorksDiagram steps={diagramSteps} />
             <div
               className={cn(
                 "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
@@ -372,14 +388,12 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
 
           <section aria-labelledby="plain-language-vocabulary" className="space-y-3">
             <HelpSectionHeading id="plain-language-vocabulary">Plain-language vocabulary</HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Seven terms you will see across review, approval, and export surfaces.
-            </p>
-            <PlainLanguageTable terms={GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS} testId="getting-started-plain-language-table" />
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{plainLanguageVocabIntro}</p>
+            <PlainLanguageTable terms={plainLanguageTerms} testId="getting-started-plain-language-table" />
           </section>
 
           <section aria-labelledby="what-happens-during-a-review" className="space-y-4">
-            <HelpSectionHeading id="what-happens-during-a-review">What happens during a review?</HelpSectionHeading>
+            <HelpSectionHeading id="what-happens-during-a-review">{workflowSectionTitle}</HelpSectionHeading>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Follow this path from evidence intake through shareable outputs.
             </p>
@@ -419,6 +433,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </ol>
           </section>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="getting-started-sponsor" showSsoOptional={true} />
+
           <HelpLazyDetails
             id="technical-details"
             className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
@@ -447,7 +463,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           </HelpLazyDetails>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
       </div>
     </article>
   );

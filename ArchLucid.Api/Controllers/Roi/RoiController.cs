@@ -13,7 +13,9 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Persistence.Queries;
@@ -41,7 +43,10 @@ public sealed partial class RoiController(
     IScopeContextProvider scopeProvider,
     IComplianceDriftTrendService complianceDriftTrendService,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    ITenantRepository tenantRepository,
+    IScimUserRepository scimUserRepository,
+    SponsorRoiRunCollector runCollector) : ControllerBase
 {
     private readonly ISponsorRoiSummaryService _sponsorRoiSummaryService =
         sponsorRoiSummaryService ?? throw new ArgumentNullException(nameof(sponsorRoiSummaryService));
@@ -64,6 +69,15 @@ public sealed partial class RoiController(
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IScimUserRepository _scimUserRepository =
+        scimUserRepository ?? throw new ArgumentNullException(nameof(scimUserRepository));
+
+    private readonly SponsorRoiRunCollector _runCollector =
+        runCollector ?? throw new ArgumentNullException(nameof(runCollector));
+
     /// <summary>Sponsor dashboard bundle: ROI summary and 30-day compliance drift trend (daily buckets).</summary>
     [HttpGet("sponsor-dashboard-bundle")]
     [Produces("application/json")]
@@ -71,6 +85,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorDashboardBundleAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -101,7 +120,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -116,6 +135,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             SponsorRoiSummaryResponse body = await _sponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
@@ -128,7 +152,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -146,7 +170,7 @@ public sealed partial class RoiController(
         if (!TryParseBoardPackFormat(format, out SponsorRoiBoardPackFormat parsedFormat))
             return this.BadRequestProblem("format must be md or pdf.", ProblemTypes.ValidationFailed);
 
-        IActionResult? sealedGuardResult = await EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync(cancellationToken);
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
 
         if (sealedGuardResult is not null)
             return sealedGuardResult;
@@ -163,7 +187,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -188,7 +212,7 @@ public sealed partial class RoiController(
     [HttpGet("cross-tenant-portfolio")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
     {
@@ -202,6 +226,12 @@ public sealed partial class RoiController(
                 type: "https://archlucid.net/errors/portfolio-key-not-configured");
         }
 
+        IActionResult? sealedGuardResult =
+            await EnsureCrossTenantPortfolioSealedManifestReadAllowedAsync(directoryKey, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             CrossTenantPortfolioSummaryResponse body =
@@ -212,7 +242,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -224,6 +254,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportHistoryAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             SponsorRoiHistoryResponse body = await _sponsorRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
@@ -236,7 +271,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -248,6 +283,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportExportAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             SponsorRoiExportResponse body = await _sponsorRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
@@ -260,7 +300,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 

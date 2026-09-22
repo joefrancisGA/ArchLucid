@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 
 using ArchLucid.Contracts.Notifications;
+using ArchLucid.Contracts.User;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -41,7 +42,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
             RecipientEmails =
                 recipientEmails.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim())
                     .ToList(),
-            IanaTimeZoneId = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? "UTC" : ianaTimeZoneId.Trim(),
+            IanaTimeZoneId = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? IanaTimeZonePreferenceValues.Default : ianaTimeZoneId.Trim(),
             DayOfWeek = dayOfWeek,
             HourOfDay = hourOfDay,
             UpdatedUtc = TimeProvider.System.GetUtcNow()

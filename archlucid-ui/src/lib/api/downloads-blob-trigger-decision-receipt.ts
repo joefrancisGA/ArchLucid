@@ -1,3 +1,4 @@
+import { decisionReceiptMutationBlockedReason } from "@/lib/runs/decision-receipt-mutation-blocked-reason";
 import { getRunDecisionReceiptDownloadUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -6,5 +7,6 @@ export async function downloadRunDecisionReceiptJson(runId: string): Promise<voi
   await downloadScopedProxyFileGet(getRunDecisionReceiptDownloadUrl(runId), {
     accept: "application/json",
     defaultFileName: `decision-receipt-${runId}.json`,
+    resolveBlockedReason: decisionReceiptMutationBlockedReason,
   });
 }

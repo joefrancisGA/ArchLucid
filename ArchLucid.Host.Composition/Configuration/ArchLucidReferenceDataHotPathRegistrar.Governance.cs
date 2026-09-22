@@ -2,7 +2,9 @@ using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Persistence.Agents;
+using ArchLucid.Persistence.Diagrams;
 using ArchLucid.Persistence.AiUsage;
 using ArchLucid.Persistence.Authorization;
 using ArchLucid.Persistence.Caching;
@@ -27,6 +29,7 @@ partial class ArchLucidReferenceDataHotPathRegistrar
             services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
             services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
             services.AddScoped<IAgentModelCatalogRepository, DapperAgentModelCatalogRepository>();
+            services.AddScoped<IDiagramPeelCatalogRepository, DapperDiagramPeelCatalogRepository>();
             services.AddScoped<IPlatformBundledPolicyPackRegistryRepository, DapperPlatformBundledPolicyPackRegistryRepository>();
             services.AddScoped<ITenantAiBudgetPolicyRepository, SqlTenantAiBudgetPolicyRepository>();
             return;
@@ -50,6 +53,10 @@ partial class ArchLucidReferenceDataHotPathRegistrar
         services.AddScoped<DapperAgentModelCatalogRepository>();
         services.AddScoped<IAgentModelCatalogRepository>(static sp =>
             sp.GetRequiredService<DapperAgentModelCatalogRepository>());
+
+        services.AddScoped<DapperDiagramPeelCatalogRepository>();
+        services.AddScoped<IDiagramPeelCatalogRepository>(static sp =>
+            sp.GetRequiredService<DapperDiagramPeelCatalogRepository>());
 
         services.AddScoped<DapperPlatformBundledPolicyPackRegistryRepository>();
         services.AddScoped<IPlatformBundledPolicyPackRegistryRepository>(static sp =>

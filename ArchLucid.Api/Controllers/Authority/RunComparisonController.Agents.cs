@@ -25,9 +25,17 @@ public sealed partial class RunComparisonController
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        (IActionResult? error, AgentResultDiffResult? diff) =
-            await CompareAgentResultsCoreAsync(query, cancellationToken);
-        return error ?? Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff!));
+        try
+        {
+            (IActionResult? error, AgentResultDiffResult? diff) =
+                await CompareAgentResultsCoreAsync(query, cancellationToken);
+
+            return error ?? Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff!));
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunComparisonSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("review/compare/agents/summary")]
@@ -39,13 +47,21 @@ public sealed partial class RunComparisonController
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        (IActionResult? error, AgentResultDiffResult? diff) =
-            await CompareAgentResultsCoreAsync(query, cancellationToken);
-        if (error is not null)
-            return error;
+        try
+        {
+            (IActionResult? error, AgentResultDiffResult? diff) =
+                await CompareAgentResultsCoreAsync(query, cancellationToken);
 
-        string summary = _agentResultDiffSummaryFormatter.FormatMarkdown(diff!);
-        return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff!));
+            if (error is not null)
+                return error;
+
+            string summary = _agentResultDiffSummaryFormatter.FormatMarkdown(diff!);
+            return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff!));
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunComparisonSealedManifestConflict(ex);
+        }
     }
 
     private async Task<(IActionResult? Error, AgentResultDiffResult? Diff)> CompareAgentResultsCoreAsync(
@@ -129,37 +145,37 @@ public sealed partial class RunComparisonController
                 null,
                 null),
             ScopedRunPairLoadOutcome.PinFingerprintMismatch => (
-                this.ConflictProblem(
-                    "Compare blocked: create-time pin fingerprints differ between the selected runs.",
-                    ProblemTypes.Conflict),
+                MapRunComparisonSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
                 null,
                 null,
                 null),
             ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => (
-                this.ConflictProblem(
-                    "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
-                    ProblemTypes.CommittedArtifactInventoryMismatch),
+                MapRunComparisonSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
                 null,
                 null,
                 null),
             ScopedRunPairLoadOutcome.SealedManifestHashMismatch => (
-                this.ConflictProblem(
-                    "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
-                    ProblemTypes.Conflict),
+                MapRunComparisonSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
                 null,
                 null,
                 null),
             ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => (
-                this.ConflictProblem(
-                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                    ProblemTypes.Conflict),
+                MapRunComparisonSealedManifestConflict(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
                 null,
                 null,
                 null),
             ScopedRunPairLoadOutcome.RightLifecycleIncomplete => (
-                this.ConflictProblem(
-                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                    ProblemTypes.Conflict),
+                MapRunComparisonSealedManifestConflict(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
                 null,
                 null,
                 null),

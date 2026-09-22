@@ -16,6 +16,7 @@ const provenanceQueryMock = vi.hoisted(() => ({
       },
       missingTrailDefect: false,
       feasibilityVerdictKind: "Feasible",
+      hardCitationCount: 0,
     },
     target: {
       runId: "run-right",
@@ -26,6 +27,7 @@ const provenanceQueryMock = vi.hoisted(() => ({
       },
       missingTrailDefect: false,
       feasibilityVerdictKind: "Feasible",
+      hardCitationCount: 0,
     },
   } as const,
 }));
@@ -42,6 +44,30 @@ import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-tw
 
 describe("CompareProvenanceDeltaBand (WA-09)", () => {
   it("renders provenance band in Working mode when skipped MUST counts differ", () => {
+    provenanceQueryMock.data = {
+      baseline: {
+        runId: "run-left",
+        trail: {
+          asserted: [],
+          inferred: [],
+          skipped: [{ questionKey: "data-residency", tier: "Must" }],
+        },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
+        hardCitationCount: 0,
+      },
+      target: {
+        runId: "run-right",
+        trail: {
+          asserted: [],
+          inferred: [],
+          skipped: [],
+        },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
+        hardCitationCount: 0,
+      },
+    };
     workspaceModeMock.isWorkingMode = true;
 
     render(
@@ -66,12 +92,14 @@ describe("CompareProvenanceDeltaBand (WA-09)", () => {
         trail: { asserted: [], inferred: [], skipped: [] },
         missingTrailDefect: false,
         feasibilityVerdictKind: "Feasible",
+        hardCitationCount: 0,
       },
       target: {
         runId: "run-right",
         trail: { asserted: [], inferred: [], skipped: [] },
         missingTrailDefect: false,
         feasibilityVerdictKind: "SoftInfeasible",
+        hardCitationCount: 0,
       },
     };
 
@@ -88,8 +116,64 @@ describe("CompareProvenanceDeltaBand (WA-09)", () => {
     expect(screen.getByText(/Feasibility verdict changed/i)).toBeInTheDocument();
   });
 
+  it("renders hard citation delta when counts differ (LN-037)", () => {
+    workspaceModeMock.isWorkingMode = true;
+    provenanceQueryMock.data = {
+      baseline: {
+        runId: "run-left",
+        trail: { asserted: [], inferred: [], skipped: [] },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "HardInfeasible",
+        hardCitationCount: 0,
+      },
+      target: {
+        runId: "run-right",
+        trail: { asserted: [], inferred: [], skipped: [] },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "HardInfeasible",
+        hardCitationCount: 2,
+      },
+    };
+
+    render(
+      <CompareProvenanceDeltaBand
+        baselineRunId="run-left"
+        targetRunId="run-right"
+        baselinePickedSummary={null}
+        targetPickedSummary={null}
+      />,
+    );
+
+    expect(screen.getByTestId("compare-hard-citation-delta")).toBeInTheDocument();
+    expect(screen.getByText(/Hard citation delta/i)).toBeInTheDocument();
+  });
+
   it("renders compact provenance band in Guided mode when skipped MUST counts differ", () => {
     workspaceModeMock.isWorkingMode = false;
+    provenanceQueryMock.data = {
+      baseline: {
+        runId: "run-left",
+        trail: {
+          asserted: [],
+          inferred: [],
+          skipped: [{ questionKey: "data-residency", tier: "Must" }],
+        },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
+        hardCitationCount: 0,
+      },
+      target: {
+        runId: "run-right",
+        trail: {
+          asserted: [],
+          inferred: [],
+          skipped: [],
+        },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
+        hardCitationCount: 0,
+      },
+    };
 
     render(
       <CompareProvenanceDeltaBand

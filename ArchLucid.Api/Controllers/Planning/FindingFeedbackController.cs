@@ -1,9 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Common;
-using ArchLucid.Application.Findings;
-using ArchLucid.Contracts.Findings;
+using ArchLucid.Application;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Scoping;
@@ -30,8 +28,6 @@ public sealed partial class FindingFeedbackController(
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
     IScopeContextProvider scopeProvider,
-    IActorContext actorContext,
-    FindingInstrumentationAuditSupport findingInstrumentationAudit,
     IManifestHashService manifestHashService,
     ILogger<FindingFeedbackController> logger) : ControllerBase
 {
@@ -46,12 +42,6 @@ public sealed partial class FindingFeedbackController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
-    private readonly IActorContext _actorContext =
-        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-
-    private readonly FindingInstrumentationAuditSupport _findingInstrumentationAudit =
-        findingInstrumentationAudit ?? throw new ArgumentNullException(nameof(findingInstrumentationAudit));
 
     /// <summary>Append-only thumbs vote for one finding on a run.</summary>
     // idempotency-posture: operator-documented-safe-retry
@@ -75,58 +65,51 @@ public sealed partial class FindingFeedbackController(
         if (request.Score is not -1 and not 1)
             return this.BadRequestProblem("Score must be -1 or 1.", ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } list)
-            return this.NotFoundProblem(
-                $"Run '{runId}' has no findings snapshot in the current scope.",
-                ProblemTypes.RunNotFound);
-
-        bool found = list.Any(f => string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
-
-        if (!found)
-            return this.NotFoundProblem(
-                $"Finding '{findingId}' was not found on run '{runId}'.",
-                ProblemTypes.ResourceNotFound);
-
-        IActionResult? sealedGuardResult =
-            await EnsureRunScopedFindingFeedbackSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        string trimmedFindingId = findingId.Trim();
-        Finding? matchedFinding = list.FirstOrDefault(
-            f => string.Equals(f.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase));
-
-        FindingFeedbackSubmission submission = new()
+        try
         {
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = runId,
-            FindingId = trimmedFindingId,
-            Score = request.Score
-        };
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
 
-        await _findingFeedbackRepository.InsertAsync(submission, cancellationToken);
+            if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } list)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' has no findings snapshot in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        await _findingInstrumentationAudit.LogFeedbackRecordedAsync(
-            scope,
-            _actorContext.GetActor(),
-            runId,
-            trimmedFindingId,
-            request.Score,
-            matchedFinding?.Classification,
-            comment: null,
-            cancellationToken);
+            bool found = list.Any(f => string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
 
-        _logger.LogInformation(
-            "Finding feedback recorded for run {RunId} score {Score}.",
-            runId,
-            request.Score);
+            if (!found)
+                return this.NotFoundProblem(
+                    $"Finding '{findingId}' was not found on run '{runId}'.",
+                    ProblemTypes.ResourceNotFound);
 
-        return NoContent();
+            IActionResult? sealedGuardResult =
+                await EnsureRunScopedFindingFeedbackSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            FindingFeedbackSubmission submission = new()
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runId,
+                FindingId = findingId.Trim(),
+                Score = request.Score
+            };
+
+            await _findingFeedbackRepository.InsertAsync(submission, cancellationToken);
+
+            _logger.LogInformation(
+                "Finding feedback recorded for run {RunId} score {Score}.",
+                runId,
+                request.Score);
+
+            return NoContent();
+        }
+        catch (ConflictException ex)
+        {
+            return MapFindingFeedbackSealedManifestConflict(ex);
+        }
     }
 }

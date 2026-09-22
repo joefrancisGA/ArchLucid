@@ -58,6 +58,8 @@ export const PIPELINE_STATUS_TOOLTIPS = {
   starting: "ArchLucid is preparing your architecture review.",
 } as const;
 
+export { resolvePipelineStatusTooltip } from "@/lib/runs/pipeline-complete-career-honesty-copy";
+
 export const RUNS_DASHBOARD_LABELS = {
   sectionHeading: ARCHITECTURE_REVIEW_LABELS.plural,
   tabRecent: "Recent",
@@ -127,7 +129,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/architecture/sponsor-dashboard`); the standalone sponsor-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Sponsor dashboard",
   SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
-  /** Architecture hub (`/architecture/architectures`) — Working: identity portfolio; Guided: draft inventory (CA-32). */
+  /** Architecture hub (`/architecture/architectures`) — Working: identity portfolio; Guided: architecture draft inventory (CA-32). */
   architectures: ARCHITECTURE_IDENTITIES_NAV_LABEL,
   /** Unified packages list (`/architecture/reviews`) — reviews plus architecture drafts. */
   packages: "Packages",
@@ -147,9 +149,10 @@ export const OPERATOR_NAV_LINK_LABELS = {
   infrastructureOverview: "Infrastructure overview",
   infrastructureDrift: "Drift & snapshots",
   infrastructureTerraform: "Terraform mapping",
-  infrastructureDiagrams: "Inventory diagrams",
+  infrastructureDiagrams: "Diagrams",
   infrastructureDiagramReconcile: "Diagram reconciliation",
   infrastructureResources: "Resource explorer",
+  infrastructureDeclaredConnections: "Declared connections",
   infrastructureAsk: "Ask",
   infrastructureRemediation: "Remediation instances",
   remediationPatterns: "Remediation patterns",

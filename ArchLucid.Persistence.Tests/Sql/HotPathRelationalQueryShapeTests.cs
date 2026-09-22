@@ -64,7 +64,8 @@ public sealed class HotPathRelationalQueryShapeTests
 
         sql.Should().Contain("SELECT TOP (@Take)");
         sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
-        sql.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+        sql.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        sql.Should().Contain("STRING_AGG");
         sql.Should().Contain("r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)");
         sql.Should().Contain("TenantId = @TenantId");
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
@@ -83,7 +84,8 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("SELECT TOP (@Fetch)");
         sql.Should().Contain("@CursorRunId");
         sql.Should().Contain("@CursorCreatedUtc");
-        sql.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+        sql.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        sql.Should().Contain("STRING_AGG");
         sql.Should().Contain("r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)");
         sql.Should().Contain("ArchivedUtc IS NULL");
         sql.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");

@@ -76,6 +76,104 @@ public sealed class DrRpoTopologyFindingEngineTests
         findings.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_quality_attribute_has_typed_rto_hours()
+    {
+        GraphSnapshot graph = BuildQualityAttributeFixture(includeFailoverGroup: false);
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EngineType.Should().Be("dr-rpo-topology");
+        finding.Title.Should().Contain("RTO 240 min");
+        finding.Title.Should().Contain("sql-pay-prod");
+
+        DrRpoTopologyFindingPayload payload =
+            finding.Payload.Should().BeOfType<DrRpoTopologyFindingPayload>().Subject;
+
+        payload.RtoMinutes.Should().Be(240);
+        payload.RequirementNodeId.Should().Be("qa-availability-1");
+    }
+
+    [Fact]
+    public async Task RequestQualityAttributeMaterializer_output_drives_dr_rpo_topology_engine()
+    {
+        Guid snapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        IReadOnlyList<GraphNode> materialized =
+            ArchLucid.KnowledgeGraph.Materialization.RequestQualityAttributeMaterializer.MaterializeFromQualityAttribute(
+                "RTO 4 hours for payment API",
+                snapshotId);
+
+        GraphNode qualityAttribute = materialized.Should().ContainSingle().Subject;
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                qualityAttribute,
+                new GraphNode
+                {
+                    NodeId = "sql-pay-prod",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql-pay-prod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Data,
+                        ["terraformType"] = "azurerm_mssql_database",
+                    },
+                },
+            ],
+        };
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Payload.Should().BeOfType<DrRpoTopologyFindingPayload>()
+            .Subject.RtoMinutes.Should().Be(240);
+    }
+
+    private static GraphSnapshot BuildQualityAttributeFixture(bool includeFailoverGroup)
+    {
+        Dictionary<string, string> sqlProperties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["category"] = GraphTopologyCategories.Data,
+            ["terraformType"] = "azurerm_mssql_database",
+        };
+
+        if (includeFailoverGroup)
+            sqlProperties["failover_group"] = "fg-pay-prod";
+
+        return new GraphSnapshot
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "qa-availability-1",
+                    NodeType = GraphNodeTypes.QualityAttribute,
+                    Label = "Availability quality attribute",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["theme"] = "availability",
+                        ["rtoHours"] = "4",
+                        ["sourceQualityAttribute"] = "RTO 4 hours for payment API",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "sql-pay-prod",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql-pay-prod",
+                    Properties = sqlProperties,
+                },
+            ],
+        };
+    }
+
     private static GraphSnapshot BuildFixture(
         bool includeFailoverGroup,
         bool includeRpoText,

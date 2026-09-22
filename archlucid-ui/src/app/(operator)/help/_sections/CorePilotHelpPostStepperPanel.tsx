@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { Button } from "@/components/ui/button";
 import {
   CORE_PILOT_HELP_CLOUD_ACTIONS,
@@ -12,6 +13,7 @@ import {
   CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY,
   CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
+  CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE,
 } from "@/lib/core-pilot-help-guide-content";
 import {
   CORE_PILOT_HELP_FULL_REVIEW_PATH_HREF,
@@ -145,6 +147,8 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
                 </p>
               </div>
             </div>
+
+            <SponsorSendPathHonestyPanel testIdPrefix="core-pilot" title={CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE} />
 
             <div className="space-y-3" data-testid="core-pilot-deferred-topics-panel">
               <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>What can wait</h3>

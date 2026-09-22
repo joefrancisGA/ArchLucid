@@ -1,5 +1,6 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Core.Scoping;
@@ -30,11 +31,18 @@ public sealed partial class ArtifactExportController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        RunExportLineageVerificationResult? result = await runExportLineageVerifier.VerifyAsync(scope, runId, ct);
+        try
+        {
+            RunExportLineageVerificationResult? result = await runExportLineageVerifier.VerifyAsync(scope, runId, ct);
 
-        if (result is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (result is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        return Ok(RunExportLineageVerificationResponse.From(result));
+            return Ok(RunExportLineageVerificationResponse.From(result));
+        }
+        catch (ConflictException ex)
+        {
+            return MapArtifactExportSealedManifestConflict(ex);
+        }
     }
 }

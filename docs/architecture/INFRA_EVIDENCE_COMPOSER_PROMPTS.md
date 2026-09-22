@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-04 (full spec: snapshot spine, remediation, ARC-AMPE as snapshot consumer, lineage, branding).
+**Created:** 2026-09-04 · **Revised:** 2026-09-21 (added **IDX-01–IDX-13** + hold — inventory-diagram excellence across **every `DiagramMode`**: recapture, hop compose, cited hops, verbs, nested VNet/subnet + subscription frames, role packing, singleton-RG collapse, PE opt-in, completeness, hop-focus; **prompts only**). Prior 2026-09-20 (added **SN-IT-01–SN-IT-06** + hold — SecureNow buyer copy: **Azure inventory capture** terminology instead of bare **snapshot** / **Snapshot A|B** on infrastructure-evidence surfaces; **prompts only**). Prior 2026-09-18: **SN-RT-01–SN-RT-10**, **SN-RT-12–13** + hold — SecureNow runtime declared / observed Data Flow connections: Container Apps env GET, parsers, SQL catalog/FQDN, PaaS stages, RBAC allowlist, LAW overlay, SQL principals, upload+confirm, inference questionnaire; **prompts only**). Same day: **SN-PE-01–SN-PE-07** + hold — SecureNow Data Flow **evidence-based probable** families, ordinal bands, DNS-joined PE hop; **prompts only**. Prior 2026-09-17: **AX-DC-01–AX-DC-08** + hold — Azure extractor diagram **consumption**: show shipped connection edges on canvases, confidence strokes, completeness warnings; **prompts only**. Prior 2026-09-16: **AX-DE-01–AX-DE-18** + hold — diagram enrichment collection (**shipped** — do not re-run). Same day: **IDLC-01–IDLC-04** inventory-diagram overwritten labels — cluster title vs node name vs stacked zoom hint; **not** IDT gap rewind. Same day: **IDF-01** inventory clustered-canvas overflow — existing Graphviz/Mermaid swimlane frames must enclose member nodes; **not** forest pack-by-RG. Same day: **IDF-01–IDF-07** inventory-diagram resource-group frame visibility — per-cell bounds, inside labels, 2 px solid stroke, frame-aware gaps, crop, PNG cluster parity; **prompts only**. Same day: **SN-DF-01–SN-DF-08** + hold — SecureNow Data flow / Data architecture modes from inventory + ADF declared wiring; **prompts only**. Same day: **IDP-01–IDP-04** inventory-diagram declared vs extract-derived edges — dash + `declared` label after provenance plumbing; **not** teal. Same day: **IDA-01–IDA-12** inventory-diagram aesthetics — neutral Carbon-like forest cards, category accents, elbows, RG pack+frames, legend, collapsed outline; IDA-08 **landed**). Prior 2026-09-15: **IDR-01–IDR-03** inventory-forest resource-group captions — print `ArmResourceGroup` on forest cards + Graphviz HTML PNG parity; **not** bounding boxes from IDR chats (frames are **IDA-08**). Prior 2026-09-13: **DAU-01–DAU-12** diagram AI usability — compile intent into existing view/model controls, not LLM Mermaid; **IE-DT-01–IE-DT-04** Drift & snapshots table overlapping microscopic text — `content-visibility` on `EnterpriseTable` rows; **IDG-01–IDG-05** Graphviz `fdp` from `DiagramAst` after the owner still saw a white sea and asked for Composer prompts; **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH/IDG; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931.
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -19,6 +19,30 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md) | **AE-01–AE-10** ARC-AMPE audit evidence (**no second collector**) + **CW-01** crosswalk |
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md) | **BR-01–BR-09** tenant white-label branding |
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md) | **IE-UX-00–IE-UX-05** operator workbenches + Infrastructure nav spine |
+| [`INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md`](INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md) | **IE-HOTFIX** Mermaid snapshot HTTP 500 after **#2931** (missing `AzureInventoryDefenderSummaries` DbUp + fail-soft dirty rows) |
+| [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ND-01–IE-ND-05** Network mode empty despite `Microsoft.Network/*` inventory (category substring bug, mermaid contract, sparse flatten, subnet subgraphs, honest empty UX) |
+| [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | **IE-RF-01–IE-RF-12** Relationship-first ARG projections + type-scoped ARM lists → association table → Mermaid (not ARM export / `dependsOn`) |
+| [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID-01–IE-ID-03** Identity mode compiles (Succeeded + outline) but the canvas does not paint (sparse flatten leftover from IE-ND-03, mermaid contract, overlay collapse) |
+| [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-DD-01–IE-DD-04** Data mode Render failed (38 nodes / 70 edges / 38 subgraphs): SQL/Cosmos/DBfor category slash-bug, mermaid contract, owner Failed ratchet, honest validation errors |
+| [`SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) | **SN-DF-01–SN-DF-08** + hold — Data flow (movement) and Data architecture (repositories) modes; ADF declared wiring; not Data-mode category leftover |
+| [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) | **SN-PE-01–SN-PE-07** + hold — evidence-based probable families on Data Flow (May access, Event Grid, DNS-joined PE hop); ordinal bands; **no new collection**; **prompts only** |
+| [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) | **SN-RT-01–SN-RT-10**, **SN-RT-12–14** + hold — runtime declared / observed Data Flow: Container Apps env GET, catalog/HTTPS parse, SQL grain, PaaS stages, RBAC allowlist, opt-in LAW overlay, SQL principals, upload+confirm, inference questionnaire, OP-01 map row for the operator-inferred controller; **prompts only** |
+| [`SECURENOW_INVENTORY_TERMINOLOGY_COMPOSER_PROMPTS.md`](SECURENOW_INVENTORY_TERMINOLOGY_COMPOSER_PROMPTS.md) | **SN-IT-01–SN-IT-06** + hold — SecureNow buyer copy: Azure inventory capture vs bare snapshot / Snapshot A|B; drift nav; architect metrics; help + CI ratchet; **no API/type rename**; **prompts only** |
+| [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) | **AX-DE-01–AX-DE-18** + hold — extractor collection to enhance diagrams (**shipped** — **do not re-run**) |
+| [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md) | **AX-DC-01–AX-DC-08** + hold — diagram consumption: authorization endpoint inclusion, confidence strokes, completeness warnings UI, Identity overlay, Executive e2e; **no new collection**; **prompts only** |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md) | **IDS-01–IDS-04** (landed — **do not re-run**) Executive spacing; packing subgraphs superseded by IDH |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md) | **IDH-01–IDH-03** Owner Executive `.mmd` (11 VNets / 6 unlabeled arrows / 0 subgraphs) must pack as TD columns, not `alpack_*` LR pairs |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md) | **IDT-01–IDT-04** Residual Mermaid slack — **do not start another IDT/IDS gap pass**; owner 2026-09-13 chose **IDG** |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md) | **IDG-01–IDG-05** + hold — Graphviz `fdp` from `DiagramAst` for inventory canvases; Mermaid stays export/fail-soft; **no** extractor DOT |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md) | **IDR-01–IDR-03** + hold — print Azure resource group on inventory-forest cards + Graphviz HTML PNG parity; **not** RG bounding boxes or pack-by-RG from **IDR** chats |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_LABEL_COLLISION_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_LABEL_COLLISION_COMPOSER_PROMPTS.md) | **IDLC-01–IDLC-04** + hold — stop cluster titles / forest wrap / zoom hint from overwriting the top-left inventory card; **not** IDT gap rewind or `htmlLabels: true` |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_CLUSTER_OVERFLOW_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_CLUSTER_OVERFLOW_COMPOSER_PROMPTS.md) | **IDF-01** — clustered Executive canvas: existing `g.cluster` frames must enclose the widest truncated-label node; **not** new forest RG boxes |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md) | **IDF-01–IDF-07** + hold — make IDA-08 RG frames honest and visible (per-cell bounds, inside labels, 2 px solid stroke, frame-aware gaps, crop, PNG parity); **prompts only** until implementation chats |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md) | **IDX-01–IDX-13** + hold — inventory-diagram excellence for **all twelve `DiagramMode` values** (recapture, shared hop compose, cited hops, verbs, nested VNet/subnet + subscription frames, role packing, singleton-RG collapse, PE opt-in, completeness, hop-focus, cross-mode ratchet); **prompts only** |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md) | **IDA-01–IDA-12** + hold — forest aesthetics (neutral palette, accents, content-sized cards, elbows, RG pack+frames, legend, collapsed outline); IDA-08 **landed** |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md) | **IDP-01–IDP-04** + hold — carry HumanAssertion onto `DiagramEdge`, dash + `declared` label on forest/Mermaid/Graphviz, outline Source + rationale panel; **not** teal or five-color legends |
+| [`DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md`](DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md) | **DAU-01–DAU-12** AI usability: Ask `ViewPlan`, density coach, camera, walkthrough, path, finding spotlight, reconcile overlay, NL model patches, inferred merge, vision accept desk — **not** LLM Mermaid as source of truth |
+| [`INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md) | **IE-DT-01–IE-DT-04** Drift & snapshots change table overlapping microscopic text (`content-visibility` on `EnterpriseTable` `<tr>`; prompts only until implementation chats) |
 
 ## Why this set exists
 
@@ -38,9 +62,23 @@ Naive implementation would add a second Azure collector, a second finding type n
 | Replacing aztfexport | §2.17 |
 | Merging scanner findings into `FindingsSnapshot` | [`FINDING_STREAM_PRODUCT_OF_RECORD.md`](../library/FINDING_STREAM_PRODUCT_OF_RECORD.md) |
 | New coverage `IFindingEngine` | [`HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md) |
-| FIT-01–05 re-run; diagram OCR as default-on V1 claim | Archives / IE-20 gated |
+| FIT-01–05 re-run; diagram OCR as default-on V1 claim | Archives / IE-20 gated; **DAU-11** is accept UX only |
+| LLM-authored Mermaid/DOT as the diagram of record | **DAU-01** / ADR 0101 — assist compiles into existing controls |
+| Observed traffic, Confidential/TLS badges, classic process DFDs, fake Fabric/Power BI from **SN-DF** chats | **SN-DF-HOLD** |
+| Numeric confidence, PE hop without DNS join, Service Bus-as-Event-Grid, Kudu, traffic labels from **SN-PE** chats | **SN-PE-HOLD** |
+| Secret harvest, Kudu, hosted POST, merge observed into **May access**, SQL ER, mint OpenAI when type absent, auto-answer questionnaire from **SN-RT** chats | **SN-RT-HOLD** |
+| Rename `/snapshots`, `snapshotId`, `AzureInventorySnapshot`, or Architecture golden manifest **snapshot** copy from **SN-IT** chats | **SN-IT-HOLD** |
+| Secret harvest, Kudu, hosted POST, minting consumers, GET-every-id from **AX-DE** chats | **AX-DE-HOLD** |
+| Re-run **AX-DE** collection, promote Probable/Inferred to ObservedFact, new ARM harvest from **AX-DC** chats | **AX-DC-HOLD** |
 | GTM M-90 / M-44 / M-91 / M-92; SOC 2 CPA; third-party pen test | Owner/GTM |
 | Desktop review tab collapse | workspace rule |
+| `Export-AzResourceGroup` / `dependsOn` as architecture arrows | **IE-RF-12** — ARG projections + type lists, not a deploy DAG |
+| Resource-group bounding boxes or pack-by-RG from **IDR** chats | **IDR-HOLD** — captions only; frames are **IDA-08** (visibility follow-on is **IDF**) |
+| Switching inventory Graphviz default from `fdp` to `dot` to “fix” clusters | **IDF-01** (cluster overflow) resizes existing frames after paint; do not change the layout engine |
+| Microsoft Azure product icons; nested VNet/subnet frames **from IDA chats**; honey node fill; Mermaid gap retune from **IDA** chats | **IDA-HOLD** (nested Azure boxes are **IDX-05 / IDX-06**, not an IDA session) |
+| Nested VNet/subnet frames **from IDF chats**; global component-gap bump; restoring frame dash `5 4` / peering `6 4` on RG boxes from **IDF** chats | **IDF-HOLD** (nested Azure boxes are **IDX-05 / IDX-06**, not an IDF session) |
+| Complete-graph meshes; default NIC/PE cards; Full-subscription RBAC dump; Microsoft icons from **IDX** chats | **IDX-HOLD** |
+| Teal / color-only / five-stroke provenance on inventory edges | **IDP-HOLD** — dash + `declared` (IDP-02); dotted `inferred` only in **IDP-04** |
 
 ## Sequencing
 
@@ -91,10 +129,170 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IE-UX-03** | Diagram reconciliation workbench | IE-UX-00, IE-18, IE-19 |
 | **IE-UX-04** | Cloud resource hub + Infrastructure Ask | IE-UX-00, IE-21, IE-22, AE-10 |
 | **IE-UX-05** | Remediation factory operator UI | IE-UX-00, IE-09–IE-15, IE-UX-04 |
+| **IE-ND-01** | Canonical Azure network topology category (`Microsoft.Network/` not `Contains("/network")`) | IE-16, IE-UX-02 |
+| **IE-ND-02** | Network-mode mermaid contract from inventory snapshots | IE-ND-01 |
+| **IE-ND-03** | Flatten sparse Network-mode RG swimlanes | IE-ND-01 (parallel with 02) |
+| **IE-ND-04** | VNet/subnet subgraph planner ARM matching | IE-ND-01 (parallel with 02/03) |
+| **IE-ND-05** | Honest empty/failed Network diagram UX (not “too large”) | IE-ND-01, IE-ND-02 |
+| **IE-ID-01** | Flatten sparse Identity-mode RG swimlanes | IE-16, IE-UX-02, IE-ND-03 |
+| **IE-ID-02** | Identity-mode mermaid contract from inventory snapshots | IE-ID-01 |
+| **IE-ID-03** | Inventory mermaid viewport must not collapse to overlay-only | IDV-01–03 (parallel with IE-ID-01) |
+| **IE-DD-01** | Canonical Azure data/storage topology category (`Microsoft.Sql/` / `DocumentDB` / `DBfor*` not `Contains("/sql")`) | IE-16, IE-ND-01 |
+| **IE-DD-02** | Data-mode mermaid contract from inventory snapshots | IE-DD-01 |
+| **IE-DD-03** | Owner Failed ratchet (flatten + emitter/validator/`IsLayoutOnly`) | IE-DD-01 (parallel with 02) |
+| **IE-DD-04** | Honest Failed UX (`validationErrors` on render + workbench) | IE-DD-03 |
+| **SN-DF-01** | External ADF linked-service source nodes | ADF Prompt 7 |
+| **SN-DF-02** | Data-flow stage catalog | SN-DF-01 |
+| **SN-DF-03** | `DiagramMode.DataFlow` compile | SN-DF-01, SN-DF-02 |
+| **SN-DF-04** | Data Flow honesty legend | SN-DF-03 |
+| **SN-DF-05** | Workbench `dataFlow` | SN-DF-03 |
+| **SN-DF-06** | `DiagramMode.DataArchitecture` + workbench | SN-DF-02, SN-DF-05 |
+| **SN-DF-07** | Data Flow mermaid contract | SN-DF-03, SN-DF-05 |
+| **SN-DF-08** | Missing companions / empty-stage honesty | SN-DF-05 |
+| **SN-DF-HOLD** | Hold — not implementation | — |
+| **SN-PE-01** | Data Flow evidence family catalog (no percents) | AX-DE catalog, SN-DF-03 |
+| **SN-PE-02** | Application + messaging stages | SN-PE-01, SN-DF-02 |
+| **SN-PE-03** | Data Flow family filter + Application endpoints | SN-PE-01, SN-PE-02 |
+| **SN-PE-04** | `peReachableTarget` after DNS join | SN-PE-01 (prefer 03) |
+| **SN-PE-05** | Service Bus / Event Hub Sender/Receiver roles | SN-PE-03 |
+| **SN-PE-06** | Data Flow honesty + ordinal bands | SN-PE-03 |
+| **SN-PE-07** | Data Flow probable-evidence mermaid/AST contract | SN-PE-03, SN-PE-04 |
+| **SN-PE-HOLD** | Hold — not implementation | — |
+| **SN-RT-01** | Container Apps env companion (ARM GET) | AX-DE-18 row shape |
+| **SN-RT-02** | Setting value parser (catalog + HTTPS) | SN-RT-01 |
+| **SN-RT-03** | SQL catalog + Container App FQDN edges | SN-RT-01, SN-RT-02 |
+| **SN-RT-04** | PaaS host index + Data Flow stages | SN-RT-03 preferred |
+| **SN-RT-05** | Queue / OpenAI / Search / ACS RBAC allowlist | SN-PE-05 role-map pattern |
+| **SN-RT-06** | Opt-in Log Analytics observation companion | SN-RT-01 preferred |
+| **SN-RT-07** | ObservedRuntime Data Flow family | SN-RT-06, SN-PE-01 |
+| **SN-RT-08** | Opt-in SQL `sys.database_principals` names | SN-RT-01 principal ids |
+| **SN-RT-09** | Uploaded appsettings / `.env` / compose parsers | SN-RT-02 |
+| **SN-RT-10** | Confirm proposed edges → HumanAssertion | SN-RT-09 (prefer SN-RT-03) |
+| **SN-RT-12** | Inference questionnaire items (`{0}` / unresolved / same-CAE UI→API) | SN-RT-03 |
+| **SN-RT-13** | Inference questionnaire UI (Yes / No / Skip) | SN-RT-12 (prefer SN-RT-10 API) |
+| **SN-RT-14** | OP-01 map row for `InfraEvidenceOperatorInferredConnectionsController` | SN-RT-10 / SN-RT-13 |
+| **SN-RT-HOLD** | Hold — not implementation | — |
+| **AX-DE-01** | Diagram-enrichment association catalog | IE-RF-01, ADF Prompt 7 |
+| **AX-DE-02–04** | Join existing ZIP (diagnostics labels, MI+RBAC May access, ADF hosts) | AX-DE-01 |
+| **AX-DE-05–09** | ADF remaining connectors / triggers / IRs / data flows / Synapse | AX-DE-01 |
+| **AX-DE-10–13** | Diagnostics fan-out, Event Grid, Logic Apps, EH/SB children | AX-DE-01 (10 after 02) |
+| **AX-DE-14–16** | PaaS children, network leftovers, Databricks-when-present | AX-DE-01 |
+| **AX-DE-17–18** | Service Connector; Tier 1 app-setting hosts | AX-DE-01 |
+| **AX-DE-HOLD** | Hold — not implementation | — |
+| **IE-RF-01** | Association type catalog on `network-associations.json` | IE-02 ZIP layout |
+| **IE-RF-02** | Tier 1 ARG relationship projections | IE-RF-01 |
+| **IE-RF-03** | Hosted type-scoped ARM list GETs | IE-RF-01 (parallel with 02) |
+| **IE-RF-04** | VM→NIC + all IP configs | IE-RF-02 or IE-RF-03 |
+| **IE-RF-05** | NSG / route table / peering associations | IE-RF-02 or IE-RF-03 |
+| **IE-RF-06** | App Gateway / LB / Private DNS / App Service subnet | IE-RF-02 or IE-RF-03 |
+| **IE-RF-07** | Materialize catalog associations → graph edges | IE-RF-01 (consume 04–06) |
+| **IE-RF-08** | Display-only derived VM→VNet layout edges | IE-RF-07 |
+| **IE-RF-09** | Completeness warnings per relationship class | IE-RF-02, IE-RF-03 |
+| **IE-RF-10** | Optional effective NSG/routes (fail-soft) | IE-RF-07 |
+| **IE-RF-11** | Network mermaid golden fixture for new edges | IE-RF-07, IE-RF-08 |
+| **IE-RF-12** | Hold — not implementation | — |
+| **IDG-01** | `DiagramAst` → Graphviz DOT (`fdp`, omit packing/`~~~`) | IE-16 |
+| **IDG-02** | `fdp -Tsvg` sanitized + Docker `graphviz` | IDG-01 |
+| **IDG-03** | Inventory canvas paints SVG; Export Mermaid unchanged | IDG-02 |
+| **IDG-04** | Viewport fit + PNG match Graphviz | IDG-03 |
+| **IDG-05** | Owner-shape compact-forest Playwright | IDG-01–04 |
+| **IDG-HOLD** | No extractor DOT / `dependsOn` | — |
+| **IDR-01** | Caption `ResourceGroupCaption` + accessibility title | trunk |
+| **IDR-02** | Forest card muted RG line | IDR-01 |
+| **IDR-03** | Graphviz HTML RG line (PNG parity) | IDR-01 (parallel with 02) |
+| **IDR-HOLD** | No RG bounding boxes / pack-by-RG / flatten rewind **from IDR chats** | — |
+| **IDLC-01** | Sanitize cluster FO vs nodeLabel; skip forest wrap recenter; tspan-safe normalize | trunk |
+| **IDLC-02** | Cluster title band above first node | IDLC-01 |
+| **IDLC-03** | Graphviz cluster `labelloc` / `margin` (PNG / fdp) | trunk (parallel with 01) |
+| **IDLC-04** | Clip stacked zoom hint from SVG overflow | trunk (parallel with 01) |
+| **IDLC-HOLD** | No IDT gap rewind / htmlLabels / RG boxes / hidden hint | — |
+| **IDF-01** (cluster overflow) | Fit existing cluster frames to member-node union | trunk |
+| **IDA-01** | Neutral forest/Mermaid/Graphviz card palette + AA captions | IDR-02 (captions already on forest) |
+| **IDA-02** | Category accent bar | IDA-01 |
+| **IDA-03** | Paint / Graphviz HTML / PNG parity | IDA-01, IDA-02 |
+| **IDA-04** | Content-sized icon-left cards | IDA-03 |
+| **IDA-05** | Orthogonal edges + markers | IDA-04 |
+| **IDA-06** | Collapse duplicate edge labels; dash peering | IDA-05 |
+| **IDA-07** | Hub-and-spoke placement | IDA-04 (parallel with 05–06 if no emitter overlap) |
+| **IDA-08** | Pack by RG + dashed frames (IDR-HOLD follow-on) | IDA-04 |
+| **IDA-09** | SVG legend | IDA-02, IDA-06 |
+| **IDA-10** | Collapse Nodes/Edges outline | — (UI; parallel) |
+| **IDA-11** | Fit in view on overflow only (keep IDH-02 when it fits) | IDA-04 |
+| **IDA-12** | Aesthetics ratchet | IDA-01–11 |
+| **IDA-HOLD** | No Microsoft icons / nested frames / gap retune | — |
+| **IDF-01** (RG frame visibility) | Per-cell RG frame bounds + AABB tests | IDA-08 on trunk |
+| **IDF-02** | Label inside the frame + top band | IDF-01 |
+| **IDF-03** | 2 px solid `#64748b` frame + opaque plate + legend row | IDF-02 |
+| **IDF-04** | Frame-aware cell chrome (space between boxes) | IDF-02 (prefer IDF-03) |
+| **IDF-05** | Viewport crop includes `g.rg-frame` | IDF-02 |
+| **IDF-06** | Graphviz PNG cluster parity from `ArmResourceGroup` | IDF-03 |
+| **IDF-07** | Frame visibility ratchet | IDF-01–06 |
+| **IDF-HOLD** | No nested frames / global gap bump / IDR boxes **from IDF chats** (nesting is **IDX-05 / IDX-06**) | — |
+| **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | extractor family on trunk |
+| **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | IDX-01 preferred |
+| **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | IDX-02 |
+| **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | IDX-02 (prefer IDX-03) |
+| **IDX-05** | Nested VNet → subnet frames (authorized nesting wave) | IDX-04 preferred |
+| **IDX-06** | Subscription outer frame (subscription-scoped modes only) | IDX-05 |
+| **IDX-07** | Role-aware packing + hubs inside frames | IDX-05 |
+| **IDX-08** | Singleton-RG tail collapse | IDX-06 |
+| **IDX-09** | Duplicate `Microsoft.Web/connections` collapse | IDX-03 |
+| **IDX-10** | PE opt-in toggle (`IncludePrivateEndpointNodes`, default off) | IDX-02 |
+| **IDX-11** | Mode-aware completeness strip | IDX-01 |
+| **IDX-12** | Hop-focus neighborhood / selected / resource-group | IDX-02, IDX-03 |
+| **IDX-13** | Cross-mode forest / Mermaid / PNG ratchet | IDX-01–12 |
+| **IDX-HOLD** | No complete-graph / default NIC-PE cards / Microsoft icons / Full-sub RBAC | — |
+| **IDP-01** | Carry `ProvenanceKind` + `InferenceSource` onto `GraphEdge` / `DiagramEdge` | declared-connection merger on trunk |
+| **IDP-02** | Dash + `declared` label in forest, Mermaid, Graphviz + legend | IDP-01 |
+| **IDP-03** | Outline Source column + rationale/expiry panel | IDP-01 (IDP-02 preferred) |
+| **IDP-04** | Three visual kinds (dotted `inferred` for AiInference) | IDP-02; gated |
+| **IDP-HOLD** | No teal / five colors / promote-to-observed | — |
 
 Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in order (or parallel only when stubs from IE-UX-00 already exist). Nav contract: [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md).
 
+**Network diagram empty despite inventory:** run **IE-ND-01 first**, then **IE-ND-02**. **IE-ND-03** and **IE-ND-04** may run in parallel after 01. **IE-ND-05** after 02. Prompts: [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md).
+
+**Identity diagram compiles but does not paint:** run **IE-ID-01 first**, then **IE-ID-02**. **IE-ID-03** may run in parallel with 01. Prompts: [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-identity-00-index.md`](../../.cursor/prompts/inventory-diagram-identity-00-index.md).
+
+**Data diagram render failed:** run **IE-DD-01 first**, then **IE-DD-02**. **IE-DD-03** may run in parallel with 02 after 01. **IE-DD-04** after 03. Prompts: [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-data-00-index.md`](../../.cursor/prompts/inventory-diagram-data-00-index.md).
+
+**Inventory diagram resources and connectors too far apart (after IDL):** **IDS-01–IDS-04 landed — do not re-run.** Owner Export Mermaid is 11/6/0 with no packing subgraphs; IDS-02 `alpack_*` wrapping widens that graph. Mermaid-path leftover is **IDH-01–IDH-03**. Owner 2026-09-13 asked for **Graphviz** instead of another dagre session: **IDG-01–IDG-05**. Do not run IDH and IDG in the same chat.
+
+**Inventory diagram spacing still too loose (after IDS + IDL-07):** **Do not start IDT** if the owner still sees a white sea — that is **IDG**, not more `nodeSpacing`. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md) remain historical.
+
+**Inventory diagram white sea — Graphviz layout (owner 2026-09-13):** run **IDG-01**, then **IDG-02**, then **IDG-03**, then **IDG-04**, then **IDG-05**. **IDG-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-graphviz-00-index.md`](../../.cursor/prompts/inventory-diagram-graphviz-00-index.md). Do **not** re-run IDL/IDS/IDT/IDH in an IDG session. Do **not** change the PowerShell extractor. Default layout engine is Graphviz **`fdp`**, not `dot`. Do **not** emit ARM `dependsOn`.
+
+**Inventory diagram Full subscription forest has no resource groups on cards (owner 2026-09-15):** run **IDR-01**, then **IDR-02**. **IDR-03** may parallel **IDR-02** after 01. **IDR-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-rg-caption-00-index.md`](../../.cursor/prompts/inventory-diagram-rg-caption-00-index.md). Do **not** draw RG bounding boxes. Do **not** pack by resource group. Do **not** undo sparse flatten. Do **not** start IDG/IDS/IDA in an IDR session.
+
+**Inventory diagram honey wall / unreadable cards (owner 2026-09-15 aesthetics):** run **IDA-01**, then **IDA-02**, then **IDA-03**, then **IDA-04**. **IDA-05** after 04; **IDA-06** after 05. **IDA-07** after 04 (may parallel 05–06). **IDA-08** after 04 (pack-by-RG + frames — **not** an IDR chat). **IDA-09** after 02+06. **IDA-10** may parallel. **IDA-11** after 04. **IDA-12** last. **IDA-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-aesthetics-00-index.md`](../../.cursor/prompts/inventory-diagram-aesthetics-00-index.md). Do **not** implement from this index. Do **not** retune Mermaid gaps. Do **not** ship Microsoft Azure product icons. Do **not** start IDR/IDG/IDS in an IDA session.
+
+**Inventory diagram resource-group boxes exist but are hard to read (owner 2026-09-16):** run **IDF-01** first, then **IDF-02**, then **IDF-03**. **IDF-04** after 02 (prefer after 03). **IDF-05** after 02. **IDF-06** after 03. **IDF-07** last. **IDF-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-frames-00-index.md`](../../.cursor/prompts/inventory-diagram-frames-00-index.md). Do **not** implement from this index. Do **not** double stroke before per-cell bounds (**IDF-01** before **IDF-03**). Do **not** bump global component gaps. Do **not** start IDA/IDR/IDP in an IDF session. Nested VNet/subnet/subscription frames from IDF chats stay **IDF-HOLD** — they are **IDX-05 / IDX-06**.
+
+**Inventory diagrams are framed but not yet excellent (owner 2026-09-21 — recapture, algorithms, nested Azure boxes, all diagram types):** run **IDX-01** first, then **IDX-02**, then **IDX-03**, then **IDX-04**. **IDX-05** after 04 preferred; **IDX-06** after 05; **IDX-07** after 05; **IDX-08** after 06; **IDX-09** after 03; **IDX-10** after 02; **IDX-11** after 01; **IDX-12** after 02+03; **IDX-13** last. **IDX-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-excellence-00-index.md`](../../.cursor/prompts/inventory-diagram-excellence-00-index.md). Do **not** implement from this index. Do **not** re-run IDA/IDF/AX-DE/IE-RF as greenfield. Do **not** draw a complete graph. Do **not** show NIC/PE cards by default. Apply every prompt to **all twelve `DiagramMode` values**.
+
+**Inventory diagram declared connections look like extract-derived edges (owner 2026-09-16):** run **IDP-01**, then **IDP-02**. **IDP-03** after 01 (prefer after 02). **IDP-04** only when AiInference inventory edges exist **or** the owner names 04. **IDP-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-provenance-00-index.md`](../../.cursor/prompts/inventory-diagram-provenance-00-index.md). Do **not** use teal as a provenance stroke. Do **not** restyle architecture-review diagrams or React Flow. Do **not** start IDG/IDR/IDA in an IDP session. IDA-06 peering dash (`6 4`, often unlabeled) is a different language from IDP declared dash (`4 3` + `declared` label).
+
+**Inventory diagram overwritten top-left labels (owner 2026-09-16):** run **IDLC-01**, then **IDLC-02**. **IDLC-03** and **IDLC-04** may parallel **IDLC-01**. **IDLC-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_LABEL_COLLISION_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_LABEL_COLLISION_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-label-collision-00-index.md`](../../.cursor/prompts/inventory-diagram-label-collision-00-index.md). Do **not** undo IDT-01 mermaid gaps. Do **not** set `htmlLabels: true`. Do **not** hide the stacked zoom hint. Do **not** start IDT/IDR/IDG in an IDLC session.
+
+**Inventory diagram node sticking out of a dashed swimlane (owner 2026-09-16):** run **IDF-01**. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_CLUSTER_OVERFLOW_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_CLUSTER_OVERFLOW_COMPOSER_PROMPTS.md). Paste [`.cursor/prompts/inventory-diagram-cluster-overflow-01-cluster-bbox-from-node-union.md`](../../.cursor/prompts/inventory-diagram-cluster-overflow-01-cluster-bbox-from-node-union.md). Do **not** pack forest by RG. Do **not** switch `fdp` to `dot`. Do **not** retune `nodeSpacing`. This is **not** IDR forest frames.
+
+**Drift & snapshots table overlapping microscopic text (owner 2026-09-13):** run **IE-DT-01** first, then **IE-DT-02**. **IE-DT-03** may parallel **IE-DT-02** after 01. **IE-DT-04** last. Prompts: [`INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/drift-table-layout-00-index.md`](../../.cursor/prompts/drift-table-layout-00-index.md). Do **not** implement from this index. Do **not** put `content-visibility` back on `<tr>`. Do **not** start IDG/IDS in an IE-DT session.
+
+**Relationship-first topology (sparse ARM flatten / no VM→NIC):** run **IE-RF-01 first**, then **IE-RF-02** and **IE-RF-03** in parallel. **IE-RF-10** must not block 01–09. **IE-RF-12** is a hold. Prompts: [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/infra-evidence-relationship-first-00-index.md`](../../.cursor/prompts/infra-evidence-relationship-first-00-index.md).
+
+**Azure extractor diagram enrichment (owner 2026-09-16 — collect more for diagrams):** run **AX-DE-01 first**. **AX-DE-02–04** join existing ZIP facts (parallel after 01). Then collection **05–18** one prompt per chat. **AX-DE-18** last (Tier 1 `config/list`). **AX-DE-HOLD** is not implementation. Prompts: [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/azure-extractor-diagram-enrichment-00-index.md`](../../.cursor/prompts/azure-extractor-diagram-enrichment-00-index.md). Do **not** re-run IE-RF / ADF Prompt 7 / SN-DF as greenfield. Hosted stays GET-only. **AX-DE is shipped — do not re-run.**
+
+**SecureNow Data Flow probable-evidence families (owner 2026-09-18):** run **SN-PE-01 first**, then **02**, then **03**. **04** after 01 (prefer after 03). **05–06** after 03. **07** after 03+04. **SN-PE-HOLD** is not implementation. Prompts: [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/securenow-probable-evidence-00-index.md`](../../.cursor/prompts/securenow-probable-evidence-00-index.md). Do **not** implement from this index. Do **not** re-run AX-DE / AX-DC / SN-DF as greenfield. Do **not** store numeric confidence. Do **not** compose PE hops without a DNS join.
+
+**SecureNow runtime declared / observed Data Flow (owner 2026-09-18 — empty DEV canvas, prefer no Terraform):** run **A first:** **SN-RT-01 → 02 → 03**. **04** and **05** after 03 (may parallel each other). **E on top of A:** **12** then **13**. **B:** **06** then **07**. **C:** **08** anytime after 01. **D:** **09** then **10**. **SN-RT-HOLD** is not implementation. Prompts: [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/securenow-runtime-connection-00-index.md`](../../.cursor/prompts/securenow-runtime-connection-00-index.md). Do **not** implement from this index. Do **not** persist secret values. Do **not** merge observed arrows into **May access**. Hosted stays GET-only. Do **not** auto-answer the questionnaire. Do **not** re-run AX-DE / SN-DF / SN-PE as greenfield.
+
+**SecureNow Azure inventory terminology (owner 2026-09-20):** run **SN-IT-01** first, then **SN-IT-02** and **SN-IT-03** in parallel. **SN-IT-04** after 01. **SN-IT-05** after 01 (parallel with 02–04). **SN-IT-06** last (after 02–05 preferred). **SN-IT-HOLD** is not implementation. Prompts: [`SECURENOW_INVENTORY_TERMINOLOGY_COMPOSER_PROMPTS.md`](SECURENOW_INVENTORY_TERMINOLOGY_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/securenow-inventory-terminology-00-index.md`](../../.cursor/prompts/securenow-inventory-terminology-00-index.md). Do **not** implement from this index. Do **not** rename `/v1/infra-evidence/snapshots`, `snapshotId`, or `AzureInventorySnapshot`. Do **not** rewrite Architecture golden manifest snapshot copy in SN-IT sessions.
+
 **Run one prompt per chat.** Feature branch per prompt (`cursor/<short-name>-9cc3`). Name the branch in any commit/push request.
+
+## Follow-on — SecureNow architect paths (not this set)
+
+Attack-path / capability-to-flow engines over **live inventory** are **SA-01–SA-22**: [`SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md`](SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md). They consume this plane. Do **not** re-run IE collector bodies to add them. Do **not** add `IFindingEngine`. **IE-RF-01–IE-RF-11** extend IE-02 collection so **SA-02** edges and inventory Mermaid are not limited to first-IP-config flatteners.
 
 ## Global constraints (every prompt)
 
@@ -127,3 +325,56 @@ Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in o
 | IE-UX-01, IE-UX-03, IE-UX-04 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
 | IE-UX-02 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
 | IE-UX-05 | `ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj` |
+| IE-ND-01 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` (+ KnowledgeGraph/ArtifactSynthesis tests named in the prompt) |
+| IE-ND-02 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
+| IE-ND-03, IE-ND-04 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IE-ND-05 | `ArchLucid.Application.Tests` + `archlucid-ui` Vitest as specified in the prompt |
+| IE-RF-01 | `ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj` |
+| IE-RF-02 | Pester `scripts/azure/tests/` helpers named in the prompt |
+| IE-RF-03, IE-RF-04, IE-RF-05, IE-RF-06 | `ArchLucid.Integrations.AzureExtractor.Tests/ArchLucid.Integrations.AzureExtractor.Tests.csproj` |
+| IE-RF-07, IE-RF-09, IE-RF-11 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
+| IE-RF-08 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IE-RF-10 | Extractor tests + Application.Tests if edges map |
+| IE-DD-01 | `ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj` (+ ArtifactSynthesis `DiagramAstFromGraphCompilerTests` named in the prompt) |
+| IE-DD-02 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
+| IE-DD-03 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` (+ Application.Tests named in the prompt) |
+| IE-DD-04 | `ArchLucid.Application.Tests` + `archlucid-ui` Vitest as specified in the prompt |
+| IDG-01, IDG-02 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IDG-03, IDG-04 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` + `archlucid-ui` Vitest named in the prompt |
+| IDG-05 | `archlucid-ui` Playwright `infra-diagrams-layout` (operator-mock) |
+| IDR-01, IDR-02, IDR-03 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IDLC-01, IDLC-02, IDLC-04 | `archlucid-ui` focused Vitest named in the prompt |
+| IDLC-03 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IDF-01 | `archlucid-ui` focused Vitest (`fit-inventory-diagram-cluster-frames` + `architecture-diagram-svg`) |
+| IDX-01 | `ArchLucid.Integrations.AzureExtractor.Tests` + `ArchLucid.Core.Tests` named in the prompt |
+| IDX-02, IDX-03 | `ArchLucid.Application.Tests` + `ArchLucid.ArtifactSynthesis.Tests` named in the prompt |
+| IDX-04, IDX-05, IDX-06, IDX-07, IDX-08, IDX-09 | `ArchLucid.ArtifactSynthesis.Tests` named in the prompt |
+| IDX-10, IDX-11 | `ArchLucid.Application.Tests` + `archlucid-ui` Vitest named in the prompt |
+| IDX-12 | `ArchLucid.ArtifactSynthesis.Tests` + `ArchLucid.Application.Tests` named in the prompt |
+| IDX-13 | ArtifactSynthesis + Application + focused Vitest covering all twelve `DiagramMode` values |
+| IDP-01 | `ArchLucid.ArtifactSynthesis.Tests` + `ArchLucid.Application.Tests` + `ArchLucid.Core.Tests` named in the prompt |
+| IDP-02 | `ArchLucid.ArtifactSynthesis.Tests` + `archlucid-ui` Vitest named in the prompt |
+| IDP-03 | `ArchLucid.Application.Tests` + `ArchLucid.ArtifactSynthesis.Tests` + `archlucid-ui` Vitest named in the prompt |
+| IDP-04 | `ArchLucid.ArtifactSynthesis.Tests` + legend Vitest named in the prompt |
+| DAU-01, DAU-12 | ADR markdown + honesty tests named in the prompt |
+| DAU-02 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` (`InfraEvidenceAsk` + ViewPlan validator) |
+| DAU-03, DAU-04, DAU-05, DAU-07, DAU-08, DAU-09, DAU-10, DAU-11 | `archlucid-ui` focused Vitest named in the prompt |
+| DAU-06 | `ArchLucid.ArtifactSynthesis.Tests` (`DiagramVisiblePathFinder`) + focused Vitest |
+| SN-PE-01 | `ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj` (`DataFlowEvidence`) |
+| SN-PE-02 | `ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj` (`AzureInventoryDataFlowStage`) |
+| SN-PE-03, SN-PE-06, SN-PE-07 | `ArchLucid.ArtifactSynthesis.Tests` (`DiagramAstFromGraphCompiler` / DataFlow) + Application mermaid tests named in the prompt |
+| SN-PE-04 | `ArchLucid.Application.Tests` (`PrivateEndpointReachable` / `PeReachable`) |
+| SN-PE-05 | `ArchLucid.Core.Tests` (`RbacDataPlaneRoleMap`) + Application `AuthorizedAccess` |
+| SN-RT-01 | Pester `scripts/azure/tests/` AppSettingHost helpers + `ArchLucid.Core.Tests` (`AppSettingHost`) |
+| SN-RT-02 | `ArchLucid.Core.Tests` (`AppSettingHostParser`) + matching Pester named in the prompt |
+| SN-RT-03 | `ArchLucid.Application.Tests` (`AppSettingHostEdgeMapper`) + Core host-index tests named in the prompt |
+| SN-RT-04 | `ArchLucid.Core.Tests` (`ExtractKnownHosts`) + `ArchLucid.KnowledgeGraph.Tests` (`AzureInventoryDataFlowStage`) |
+| SN-RT-05 | `ArchLucid.Core.Tests` (`RbacDataPlaneRoleMap`) + Application `AuthorizedAccess` |
+| SN-RT-06 | Extractor/Pester companion tests + `ArchLucid.Core.Tests` observation-row parser |
+| SN-RT-07 | `ArchLucid.Core.Tests` (`DataFlowEvidence`) + `ArchLucid.ArtifactSynthesis.Tests` Data Flow compile |
+| SN-RT-08 | Extractor/Pester SQL-principal companion + Application `AuthorizedAccess` / principal mapper |
+| SN-RT-09 | `ArchLucid.ContextIngestion.Tests` (`appsettings` / dotenv / compose-env) |
+| SN-RT-10 | `ArchLucid.Api.Tests` + `ArchLucid.Application.Tests` + `archlucid-ui` Vitest named in the prompt |
+| SN-RT-12 | `ArchLucid.Application.Tests` (`QuestionnaireItem` / `InferenceQuestionnaire`) |
+| SN-RT-13 | `ArchLucid.Api.Tests` + `archlucid-ui` Vitest named in the prompt |
+| SN-RT-14 | `ArchLucid.Architecture.Tests` (`FullyQualifiedName~ProductCapabilityMap`) |

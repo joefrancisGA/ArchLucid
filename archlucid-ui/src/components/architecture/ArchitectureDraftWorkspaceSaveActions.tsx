@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Button } from "@/components/ui/button";
 import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
@@ -12,6 +13,8 @@ import {
   type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { resolveSystemNotJobWorkingPortfolioSaveAndExitHref } from "@/lib/system-not-job-draft-list-reachable-from-portfolio";
+import { showMutationError } from "@/lib/toast";
 
 type ArchitectureDraftWorkspaceSaveActionsProps = {
   readonly editorLocked: boolean;
@@ -21,6 +24,7 @@ type ArchitectureDraftWorkspaceSaveActionsProps = {
   readonly hasPersistedDraft: boolean;
   readonly fields: ArchitectureDraftFieldState;
   readonly saveDraft: () => Promise<boolean>;
+  readonly wasLastSaveConflict?: () => boolean;
   readonly onExitPendingChange: (pending: boolean) => void;
   readonly children?: ReactNode;
 };
@@ -29,8 +33,12 @@ export function ArchitectureDraftWorkspaceSaveActions(
   props: ArchitectureDraftWorkspaceSaveActionsProps,
 ): React.JSX.Element {
   const router = useRouter();
+  const { isWorkingMode } = useWorkspaceMode();
   const [saveActionError, setSaveActionError] = useState<string | null>(null);
   const exitTimeoutIdRef = useRef<number | null>(null);
+  const portfolioExitHref = isWorkingMode
+    ? resolveSystemNotJobWorkingPortfolioSaveAndExitHref()
+    : ARCHITECTURES_LIST_PATH;
 
   useEffect(() => {
     return () => {
@@ -55,9 +63,14 @@ export function ArchitectureDraftWorkspaceSaveActions(
       return;
     }
 
+    if (props.conflictMessage !== null || props.wasLastSaveConflict?.() === true) {
+      return;
+    }
+
     // Conflict banner is driven by autosave hook state on the next render — keep failures on-page.
     setSaveActionError("Could not save your architecture draft. Try again.");
-  }, [props.saveDraft]);
+    showMutationError("Architecture draft", "Could not save your architecture draft. Try again.");
+  }, [props.conflictMessage, props.saveDraft, props.wasLastSaveConflict]);
 
   const handleSaveAndExit = useCallback(async () => {
     if (
@@ -65,7 +78,7 @@ export function ArchitectureDraftWorkspaceSaveActions(
       !props.hasPersistedDraft &&
       !hasArchitectureDraftSaveableContent(props.fields)
     ) {
-      router.push(ARCHITECTURES_LIST_PATH);
+      router.push(portfolioExitHref);
 
       return;
     }
@@ -77,7 +90,13 @@ export function ArchitectureDraftWorkspaceSaveActions(
 
     if (!saved) {
       props.onExitPendingChange(false);
+
+      if (props.conflictMessage !== null || props.wasLastSaveConflict?.() === true) {
+        return;
+      }
+
       setSaveActionError("Exit paused — save your changes before leaving this page.");
+      showMutationError("Architecture draft", "Exit paused — save your changes before leaving this page.");
 
       return;
     }
@@ -92,8 +111,16 @@ export function ArchitectureDraftWorkspaceSaveActions(
       exitTimeoutIdRef.current = null;
     }, SOFT_NAVIGATION_TIMEOUT_MS);
 
-    router.push(ARCHITECTURES_LIST_PATH);
-  }, [props.fields, props.hasPersistedDraft, props.isNewDraft, props.onExitPendingChange, props.saveDraft, router]);
+    router.push(portfolioExitHref);
+  }, [
+    portfolioExitHref,
+    props.fields,
+    props.hasPersistedDraft,
+    props.isNewDraft,
+    props.onExitPendingChange,
+    props.saveDraft,
+    router,
+  ]);
 
   return (
     <>

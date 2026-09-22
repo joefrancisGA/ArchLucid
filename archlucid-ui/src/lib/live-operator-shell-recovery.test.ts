@@ -27,6 +27,12 @@ describe("live operator shell recovery inventory", () => {
 
     expect(runDetailErrorSource).toContain("isLiveOperatorShellRecoveryContext");
     expect(runDetailErrorSource).toContain("Review could not be loaded");
+    expect(runDetailErrorSource).toContain("OperatorErrorRecoveryContract");
+    expect(runDetailErrorSource).toContain('data-testid="review-detail-segment-error-retry"');
+    expect(runDetailErrorSource).toContain('variant="primary" onClick={() => reset()}');
+    expect(runDetailErrorSource).not.toMatch(
+      /variant="primary"[^>]*>\s*<Link href="\/architecture\/reviews">Back to reviews<\/Link>/,
+    );
   });
 
   it("does not hardcode showcase ids in loading header defaults for live shells", () => {

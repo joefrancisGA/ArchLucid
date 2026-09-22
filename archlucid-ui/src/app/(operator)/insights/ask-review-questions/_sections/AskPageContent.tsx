@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 
 import { AskPageHeaderActions } from "@/app/(operator)/insights/ask-review-questions/_sections/AskPageHeaderActions";
@@ -14,7 +16,11 @@ import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_se
 import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { AskPickReviewBeforeAskingStrip } from "@/components/ask/AskPickReviewBeforeAskingStrip";
+import { WorkingAskPickArchitectureEmptyState } from "@/components/insights/WorkingAskPickArchitectureEmptyState";
 import { WorkingInsightsArchitectureBindEmptyState } from "@/components/insights/WorkingInsightsArchitectureBindEmptyState";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import { resolveSystemNotJobWorkingAskShowsUnscopedPeerEmpty } from "@/lib/system-not-job-ask-bound-to-open-package";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
@@ -80,11 +86,21 @@ export type AskPageContentProps = {
 };
 
 export function AskPageContent(props: AskPageContentProps = {}) {
+  const pathname = usePathname() ?? "/";
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const ask = useAskPage({
     basePathname: props.basePathname,
     pinnedArchitectureId: props.pinnedArchitectureId,
   });
   const buyerPolishedShell = ask.buyerPolishedShell;
+  const showUnscopedWorkingAskEmpty =
+    workspaceMounted &&
+    resolveSystemNotJobWorkingAskShowsUnscopedPeerEmpty({
+      workingMode: isWorkingMode,
+      pathname,
+      pinnedArchitectureId: props.pinnedArchitectureId,
+      lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+    });
 
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>
@@ -112,7 +128,9 @@ export function AskPageContent(props: AskPageContentProps = {}) {
           actions={<AskPageHeaderActions />}
         />
 
-        {buyerPolishedShell ? (
+        {showUnscopedWorkingAskEmpty ? <WorkingAskPickArchitectureEmptyState /> : null}
+
+        {buyerPolishedShell && !showUnscopedWorkingAskEmpty ? (
           <div
             id={ASK_REVIEW_QUESTIONS_SKIP_TARGET_ID}
             data-testid={ASK_REVIEW_QUESTIONS_FIRST_VIEWPORT_TEST_ID}
@@ -125,13 +143,22 @@ export function AskPageContent(props: AskPageContentProps = {}) {
           </div>
         ) : null}
 
-        {buyerPolishedShell ? null : <AskSearchEvidenceVocabularyRail currentSurfaceId="ask" />}
-        {buyerPolishedShell ? null : (
+        {showUnscopedWorkingAskEmpty ? null : buyerPolishedShell ? null : (
+          <AskSearchEvidenceVocabularyRail currentSurfaceId="ask" />
+        )}
+        {showUnscopedWorkingAskEmpty ? null : buyerPolishedShell ? null : (
           <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="ask-review-questions" />
         )}
-        {buyerPolishedShell ? null : <AskVsFrontierAiDifferentiationStrip />}
-        {buyerPolishedShell ? null : <PageCapabilityBoundaryStrip surfaceId="ask" />}
-        {!buyerPolishedShell && ask.showContinueLastThreadRow && ask.continueLastThread !== null ? (
+        {showUnscopedWorkingAskEmpty ? null : buyerPolishedShell ? null : (
+          <AskVsFrontierAiDifferentiationStrip />
+        )}
+        {showUnscopedWorkingAskEmpty ? null : buyerPolishedShell ? null : (
+          <PageCapabilityBoundaryStrip surfaceId="ask" />
+        )}
+        {!showUnscopedWorkingAskEmpty &&
+        !buyerPolishedShell &&
+        ask.showContinueLastThreadRow &&
+        ask.continueLastThread !== null ? (
           <AskContinueLastThreadRow
             thread={ask.continueLastThread}
             onResume={(threadId) => {
@@ -149,19 +176,24 @@ export function AskPageContent(props: AskPageContentProps = {}) {
           </div>
         ) : null}
 
-        {!buyerPolishedShell && ask.showArchitectureDeskEmpty && ask.architectureBindResult !== null ? (
+        {!showUnscopedWorkingAskEmpty &&
+        !buyerPolishedShell &&
+        ask.showArchitectureDeskEmpty &&
+        ask.architectureBindResult !== null ? (
           <WorkingInsightsArchitectureBindEmptyState
             bindResult={ask.architectureBindResult}
             tool="ask"
           />
         ) : null}
-        {!buyerPolishedShell &&
+        {!showUnscopedWorkingAskEmpty &&
+        !buyerPolishedShell &&
         !ask.reviewScopedForAsking &&
         !ask.architectureBindPending &&
         !ask.showArchitectureDeskEmpty ? (
           <AskPickReviewBeforeAskingStrip selectedReviewId="" onSelectReview={ask.onPickReviewForAsking} />
         ) : null}
 
+        {showUnscopedWorkingAskEmpty ? null : (
         <div
           className={cn(
             "grid grid-cols-1 gap-4",
@@ -217,10 +249,13 @@ export function AskPageContent(props: AskPageContentProps = {}) {
             />
           ) : null}
         </div>
+        )}
 
-        {ask.runId.trim().length > 0 ? <AskNextReviewFooterClient runId={ask.runId.trim()} /> : null}
+        {showUnscopedWorkingAskEmpty ? null : ask.runId.trim().length > 0 ? (
+          <AskNextReviewFooterClient runId={ask.runId.trim()} />
+        ) : null}
 
-        {buyerPolishedShell ? <AskSourcesOrientationStrip /> : null}
+        {showUnscopedWorkingAskEmpty ? null : buyerPolishedShell ? <AskSourcesOrientationStrip /> : null}
       </div>
     </OperatorPageContainer>
   );

@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -18,6 +19,106 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Suite", "Core")]
 public sealed class RunAgentOutputPilotEvidenceAggregatorTests
 {
+    [Fact]
+    public async Task WouldPilotStrictBlockSponsorEvidenceAsync_returns_false_when_gate_disabled()
+    {
+        AgentOutputQualityGateOptions gateOptions = new()
+        {
+            Enabled = false,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-disabled-gate",
+            TaskId = "task",
+            RunId = "run",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = false,
+            ParsedResultJson = null,
+        };
+
+        RunAgentOutputPilotEvidenceAggregator sut = CreateSut(gateOptions);
+
+        bool blocked = await sut.WouldPilotStrictBlockSponsorEvidenceAsync(
+            [trace],
+            explanationSummary: null,
+            CancellationToken.None);
+
+        blocked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WouldPilotStrictBlockSponsorEvidenceAsync_returns_false_for_empty_traces()
+    {
+        AgentOutputQualityGateOptions gateOptions = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        RunAgentOutputPilotEvidenceAggregator sut = CreateSut(gateOptions);
+
+        bool blocked = await sut.WouldPilotStrictBlockSponsorEvidenceAsync(
+            [],
+            explanationSummary: null,
+            CancellationToken.None);
+
+        blocked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WouldPilotStrictBlockSponsorEvidenceAsync_blocks_on_explanation_summary_faithfulness_floor()
+    {
+        const string runKey = "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0";
+        string goodJson = LoadGoldenFixtureWithCitations("golden-agent-result-valid.json");
+
+        AgentOutputQualityGateOptions gateOptions = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinAgentResultFaithfulnessSupportRatio = 0,
+            PilotStrictMinFaithfulnessSupportRatio = 0.75,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-summary-faith",
+            TaskId = "task",
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = goodJson,
+        };
+
+        RunExplanationSummary explanationSummary = new()
+        {
+            Explanation = new(),
+            ThemeSummaries = [],
+            OverallAssessment = "assessment",
+            RiskPosture = "Medium",
+            FaithfulnessSupportRatio = 0.2,
+            Citations = [],
+        };
+
+        RunAgentOutputPilotEvidenceAggregator sut = CreateSut(gateOptions);
+
+        bool blocked = await sut.WouldPilotStrictBlockSponsorEvidenceAsync(
+            [trace],
+            explanationSummary,
+            CancellationToken.None);
+
+        blocked.Should().BeTrue(
+            because: "run-level faithfulness floor must block sponsor evidence when per-trace evaluation passes");
+    }
+
     [Fact]
     public async Task WouldPilotStrictBlockSponsorEvidenceAsync_ignores_superseded_retry_traces()
     {

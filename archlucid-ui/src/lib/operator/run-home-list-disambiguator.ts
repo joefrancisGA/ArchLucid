@@ -12,10 +12,16 @@ function formatRunStartedLabel(run: RunSummary): string | null {
   return `Started ${formatRelativeTime(createdUtc)}`;
 }
 
+export type RunListTitleDisambiguatorOptions = {
+  /** SN-021 — Working primary chrome never suffixes titles with run id fragments. */
+  readonly workingMode?: boolean;
+};
+
 /** Adds relative start time when multiple visible rows share the same buyer-facing title. */
 export function formatRunListTitleWithDisambiguator(
   run: RunSummary,
   siblingRuns: readonly RunSummary[],
+  options: RunListTitleDisambiguatorOptions = {},
 ): string {
   const title = runListPrimaryTitle(run);
   const duplicateTitleCount = siblingRuns.filter((candidate) => runListPrimaryTitle(candidate) === title).length;
@@ -27,6 +33,11 @@ export function formatRunListTitleWithDisambiguator(
   const startedLabel = formatRunStartedLabel(run);
 
   if (startedLabel === null) {
+
+    if (options.workingMode === true) {
+      return title;
+    }
+
     const runId = run.runId?.trim() ?? "";
 
     if (runId.length >= 4) {

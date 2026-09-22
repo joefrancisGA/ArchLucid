@@ -148,7 +148,12 @@ public sealed class DocxExportControllerAuditTests
             DocxExportControllerTestSupport.CreateAgentExecutionTraceRepository(),
             configuration,
             audit.Object,
-            NullLogger<DocxExportController>.Instance) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
+            NullLogger<DocxExportController>.Instance,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>())
+        {
+            ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext(),
+        };
 
         IActionResult result = await sut.ExportRunDocx(runId, compareWith, false, false, CancellationToken.None);
 

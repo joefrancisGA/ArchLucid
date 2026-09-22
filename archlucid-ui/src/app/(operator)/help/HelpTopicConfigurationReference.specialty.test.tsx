@@ -9,6 +9,14 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
 }));
 
+vi.mock("@/hooks/use-admin-identity-providers-bundle-query", () => ({
+  useAdminIdentityProvidersBundleQuery: () => ({ data: null, isPending: true }),
+}));
+
+vi.mock("@/hooks/use-admin-config-lint-summary-query", () => ({
+  useAdminConfigLintSummaryQuery: () => ({ data: undefined, isPending: true }),
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/configuration-reference",
   useRouter: () => ({ replace: vi.fn() }),
@@ -24,10 +32,7 @@ import {
   CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID,
   CONFIGURATION_REFERENCE_HELP_JOB_MATRIX,
 } from "@/lib/configuration-reference-help-ia-dual";
-import {
-  CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID,
-  configurationReferenceHelpRelatedGuides,
-} from "@/lib/configuration-reference-help-related-guides";
+import { CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID } from "@/lib/configuration-reference-help-related-guides";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -64,6 +69,9 @@ describe("HelpConfigurationReferenceGuideView", () => {
     expect(screen.getByTestId("help-configuration-reference-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-configuration-reference-task-sections")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
+    expect(screen.getByTestId("help-configuration-reference-provenance-footer")).toBeInTheDocument();
     expect(screen.queryByTestId("help-configuration-reference-claim-discipline")).toBeNull();
     expect(screen.getByTestId("help-configuration-reference-claim-discipline-strip")).toHaveTextContent(
       CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE,
@@ -75,24 +83,20 @@ describe("HelpConfigurationReferenceGuideView", () => {
       CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByTestId(CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-configuration-reference-job-matrix-current")).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
     expect(screen.getByTestId("help-configuration-reference-job-matrix-current")).toHaveTextContent(
       CONFIGURATION_REFERENCE_HELP_JOB_MATRIX.find((row) => row.isCurrent === true)?.label ?? "",
     );
-    expect(screen.getByTestId(CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID)).toBeInTheDocument();
-
-    const relatedSection = screen.getByTestId(CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID);
-
-    for (const guide of configurationReferenceHelpRelatedGuides()) {
-      expect(within(relatedSection).getByRole("link", { name: guide.label })).toHaveAttribute(
-        "href",
-        guide.href,
-      );
-    }
+    expect(screen.queryByTestId(CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID)).toBeNull();
 
     const appendix = screen.getByTestId("help-configuration-reference-catalog-appendix");
 
     expect(appendix.tagName.toLowerCase()).toBe("details");
     expect(appendix).not.toHaveAttribute("open");
+    expect(screen.getByTestId("help-configuration-reference-catalog-filter")).toBeInTheDocument();
 
     const actionPanel = screen.getByTestId("help-configuration-reference-action-panel");
     const claimStrip = screen.getByTestId("help-configuration-reference-claim-discipline-strip");
@@ -101,17 +105,35 @@ describe("HelpConfigurationReferenceGuideView", () => {
     expect(actionPanel.className).not.toMatch(/bg-teal-/);
     expect(actionPanel.className).not.toMatch(/border-teal-/);
 
-    expect(
-      within(actionPanel).getByRole("link", {
-        name: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.label,
-      }),
-    ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.href);
+    const ssoLink = within(actionPanel).getByRole("link", {
+      name: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.label,
+    });
+
+    expect(ssoLink).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.href);
+    expect(ssoLink.className).not.toMatch(/bg-al-accent/);
 
     expect(
       within(actionPanel).getByRole("link", {
         name: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openIdentityProviders.label,
       }),
     ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openIdentityProviders.href);
+
+    expect(
+      within(actionPanel).getByRole("link", {
+        name: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.label,
+      }),
+    ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href);
+
+    expect(within(actionPanel).getAllByLabelText(/^Status:/)).toHaveLength(3);
+
+    expect(screen.getByText("Not available in product")).toBeInTheDocument();
+
+    const jobMatrix = screen.getByTestId(CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID);
+    const matrixLinks = within(jobMatrix).getAllByRole("link");
+
+    for (const link of matrixLinks) {
+      expect(link.getAttribute("href")).not.toBe("#");
+    }
 
     expect(
       within(actionPanel).queryByRole("link", {

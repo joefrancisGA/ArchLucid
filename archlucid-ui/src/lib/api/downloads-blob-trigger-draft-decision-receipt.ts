@@ -1,3 +1,4 @@
+import { architectureDraftBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { getDraftDecisionReceiptDownloadUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -6,5 +7,6 @@ export async function downloadDraftDecisionReceiptJson(draftId: string): Promise
   await downloadScopedProxyFileGet(getDraftDecisionReceiptDownloadUrl(draftId), {
     accept: "application/json",
     defaultFileName: `decision-receipt-draft-${draftId}.json`,
+    resolveBlockedReason: architectureDraftBlockedReason,
   });
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpSystemHealthHeaderActions } from "@/app/(operator)/help/_sections/HelpSystemHealthHeaderActions";
 import { HelpSystemHealthSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpSystemHealthSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { SystemHealthHelpClaimDisciplineStrip } from "@/components/help/SystemHealthHelpClaimDisciplineStrip";
 import { SystemHealthHelpEvidenceOrientationStrip } from "@/components/help/SystemHealthHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
@@ -148,6 +149,8 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
 
       {buyerPolishedShell ? null : <SystemHealthHelpClaimDisciplineStrip />}
 
+      <SponsorSendPathHonestyPanel testIdPrefix="help-system-health" showSsoOptional={false} />
+
       {buyerPolishedShell ? (
         <div
           id={SYSTEM_HEALTH_HELP_SKIP_TARGET_ID}
@@ -237,7 +240,7 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
           </section>
         </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
         </div>
       </section>
 

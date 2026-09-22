@@ -59,6 +59,7 @@ describe("OperatorHomeSponsorRoiStrip", () => {
     expect(screen.getByText(/125,000/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Help: Sponsor ROI" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-roi-strip-open-scorecard")).toHaveAttribute("href", "/insights/architecture-scorecard");
+    expect(screen.getByTestId("operator-home-disposition-next-action")).toBeInTheDocument();
   });
 
   it("hides zero or missing savings chrome (TB-1037)", async () => {
@@ -83,8 +84,10 @@ describe("OperatorHomeSponsorRoiStrip", () => {
 
     await waitFor(() => {
       expect(fetchSponsorRoiSummaryClient).toHaveBeenCalled();
-      expect(container.querySelector('[data-testid="operator-home-roi-strip"]')).toBeNull();
+      expect(container.querySelector('[data-testid="operator-home-roi-strip"]')).not.toBeNull();
       expect(container.querySelector('[data-testid="operator-home-roi-strip-loading"]')).toBeNull();
+      expect(container.querySelector('[data-testid="operator-home-roi-strip-non-summing"]')).not.toBeNull();
     });
+    expect(screen.queryByText(/125,000/)).not.toBeInTheDocument();
   });
 });

@@ -11,6 +11,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
 
 import {
   OPERATOR_CONNECTIVITY_CONFIG_HINT_GENERIC,
+  operatorConnectivityErrorPrimaryBody,
   resolveOperatorConnectivityTechnicalDetails,
 } from "@/lib/operator/operator-connectivity-error-present";
 
@@ -79,6 +80,30 @@ describe("resolveOperatorConnectivityTechnicalDetails", () => {
     });
 
     expect(details?.localDevConfigurationHint).toBeNull();
+  });
+
+  it("localizes primary body and dev hints for SecureNow", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    buyerPolishedShellVitestOverride.value = false;
+
+    expect(operatorConnectivityErrorPrimaryBody("security")).toContain("SecureNow");
+
+    const details = resolveOperatorConnectivityTechnicalDetails(
+      {
+        message: "Upstream API unreachable",
+        httpStatus: 502,
+        problem: {
+          title: "Upstream API unreachable",
+          detail: "fetch failed",
+          supportHint: "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local.",
+        },
+        correlationId: "req-securenow",
+      },
+      "security",
+    );
+
+    expect(details?.localDevConfigurationHint).toContain("ARCHLUCID_API_BASE_URL");
+    expect(details?.localDevConfigurationHint).not.toContain("ArchLucid");
   });
 
   it("omits local configuration hints outside development", () => {

@@ -26,7 +26,7 @@ namespace ArchLucid.Api.Support;
 ///     Shared run/manifest/review-trail read handlers for <see cref="Controllers.Authority.AuthorityReadsController" />
 ///     and legacy <see cref="Controllers.Authority.AuthorityQueryController" /> aliases.
 /// </summary>
-public sealed class AuthorityRunReadHandlers(
+public sealed partial class AuthorityRunReadHandlers(
     IAuthorityQueryService queryService,
     IAuthorityRunDetailOperatorEnricher runDetailOperatorEnricher,
     IRunRationaleService runRationaleService,
@@ -121,10 +121,7 @@ public sealed class AuthorityRunReadHandlers(
                 "Coordinator-only or in-progress runs do not satisfy this contract.");
         }
 
-        SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-            detail.GoldenManifest,
-            runId.ToString("D"),
-            _manifestHashService);
+        EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
         DecisionProvenanceGraph? graph = await provenanceGraphAccess.ResolveGraphAsync(scope, detail, ct);
 
@@ -203,7 +200,10 @@ public sealed class AuthorityRunReadHandlers(
             DegradedExecutionAgents = x.DegradedExecutionAgents,
             PackageOrigin = x.PackageOrigin,
             StructuralExecutionMode = x.StructuralExecutionMode,
+            WorkingCareerRehearsalDoor = x.WorkingCareerRehearsalDoor,
+            ExecutePostureCapturedUtc = x.ExecutePostureCapturedUtc,
             AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
             LegacyRunStatus = x.LegacyRunStatus,
+            ArchitectureId = x.ArchitectureId,
         };
 }

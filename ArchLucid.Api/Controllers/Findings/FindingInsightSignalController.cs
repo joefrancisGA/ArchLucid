@@ -2,12 +2,16 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -27,10 +31,11 @@ namespace ArchLucid.Api.Controllers.Findings;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class FindingInsightSignalController(
+public sealed partial class FindingInsightSignalController(
     IAuthorityQueryService authorityQuery,
     IFindingInsightSignalRepository insightSignalRepository,
     IScopeContextProvider scopeProvider,
+    IManifestHashService manifestHashService,
     IAuditService auditService,
     ILogger<FindingInsightSignalController> logger) : ControllerBase
 {
@@ -95,6 +100,7 @@ public sealed class FindingInsightSignalController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostInsightSignalAsync(
         Guid runId,
         string findingId,
@@ -129,6 +135,13 @@ public sealed class FindingInsightSignalController(
                 ProblemTypes.ResourceNotFound);
         }
 
+        IActionResult? sealedGuardResult = await EnsureFindingInsightSignalRunSealedManifestAllowedAsync(
+            runId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         FindingInsightSignalSubmission submission = new()
         {
             TenantId = scope.TenantId,
@@ -158,9 +171,8 @@ public sealed class FindingInsightSignalController(
                 cancellationToken);
         }
 
-        _logger.LogInformation(
-            "Finding insight signal {Kind} recorded for run {RunId} finding {FindingId} created={Created}.",
-            request.Kind,
+        _logger.LogInformationFindingInsightSignalRecorded(
+            request.Kind.ToString(),
             runId,
             trimmedFindingId,
             result.Created);

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Value;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
@@ -29,7 +30,8 @@ public static class PilotRunDeltasResponseMapper
         ValueReportSnapshot valueWindowSnapshot,
         DateTime? extractorCollectionTimestampUtc = null,
         PilotBaselineRecord? scorecardBaselines = null,
-        DateTime? freshnessEvaluationUtc = null)
+        DateTime? freshnessEvaluationUtc = null,
+        bool isSampleRun = false)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -50,7 +52,15 @@ public static class PilotRunDeltasResponseMapper
             roiSources,
             evaluationUtc);
 
-        return MapCore(deltas, extractorCollectionTimestampUtc, completeness, roiSources, roiFreshnessDisposition);
+        return MapCore(
+            deltas,
+            extractorCollectionTimestampUtc,
+            completeness,
+            roiSources,
+            roiFreshnessDisposition,
+            run.StructuralExecutionMode,
+            run.WorkingCareerRehearsalDoor,
+            isSampleRun);
     }
 
     private static PilotRunDeltasResponse MapCore(
@@ -58,7 +68,10 @@ public static class PilotRunDeltasResponseMapper
         DateTime? extractorCollectionTimestampUtc,
         ProofPackageCompletenessResponse? proofPackage,
         IReadOnlyList<RoiMetricSourceRow>? roiMetricSources = null,
-        string? roiSourceFreshnessDisposition = null)
+        string? roiSourceFreshnessDisposition = null,
+        StructuralExecutionMode? structuralExecutionMode = null,
+        string? workingCareerRehearsalDoor = null,
+        bool isSampleRun = false)
     {
         return new PilotRunDeltasResponse
         {
@@ -75,11 +88,14 @@ public static class PilotRunDeltasResponseMapper
             TopFindingId = deltas.TopFindingId,
             TopFindingEvidenceChain = deltas.TopFindingEvidenceChain,
             IsDemoTenant = deltas.IsDemoTenant,
+            IsSampleRun = isSampleRun,
             EstimatedUsdSavings = deltas.EstimatedUsdSavings,
             ProofPackageCompleteness = proofPackage,
             RoiMetricSources = roiMetricSources ?? [],
             RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? "PASS",
             GovernedFindingCoverage = deltas.GovernedFindingCoverage,
+            StructuralExecutionMode = structuralExecutionMode,
+            WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,
         };
     }
 }

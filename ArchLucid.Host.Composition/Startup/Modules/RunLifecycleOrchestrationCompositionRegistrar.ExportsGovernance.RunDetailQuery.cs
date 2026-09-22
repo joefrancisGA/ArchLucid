@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Budgeting;
@@ -37,6 +38,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
         services.AddScoped<Application.Runs.Query.IRunLifecycleCommandService, Application.Runs.Query.RunLifecycleCommandService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<IFindingSemanticSupportBandLaneBComposeService, FindingSemanticSupportBandLaneBComposeService>();
         services.AddAuthorityRunDetailEnrichment();
         services.AddScoped<IAuthorityRunDetailOperatorEnricher, AuthorityRunDetailOperatorEnricher>();
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();

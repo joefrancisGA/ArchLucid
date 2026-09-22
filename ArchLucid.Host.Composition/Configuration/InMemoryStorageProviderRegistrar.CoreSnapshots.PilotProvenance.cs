@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Analytics;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Concurrency;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Pilots;
@@ -59,11 +60,17 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IGraphSnapshotSqlAuthorityWriter, GraphSnapshotSqlAuthorityWriterAdapter>();
         services.AddSingleton<ICosmosGraphSnapshotOutboxRepository, NoOpCosmosGraphSnapshotOutboxRepository>();
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
+        services.AddSingleton<IArchitectureShareRepository, InMemoryArchitectureShareRepository>();
+        services.AddSingleton<IArchitectureWorkLeaseRepository, InMemoryArchitectureWorkLeaseRepository>();
         services.AddSingleton<IArchitectureIdentityRepository>(static sp =>
             new InMemoryArchitectureIdentityRepository(
                 sp.GetRequiredService<IDraftRequestRepository>(),
-                sp.GetRequiredService<IRunRepository>()));
+                sp.GetRequiredService<IRunRepository>(),
+                architectureVersionRepository: null,
+                shareRepository: sp.GetRequiredService<IArchitectureShareRepository>()));
         services.AddSingleton<IArchitectureVersionRepository, InMemoryArchitectureVersionRepository>();
+        services.AddSingleton<IArchitectureInventoryBindingRepository, InMemoryArchitectureInventoryBindingRepository>();
+        services.AddSingleton<IArchitectureShareRepository, InMemoryArchitectureShareRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
         services.AddSingleton<IArchitectureProjectRepository, InMemoryArchitectureProjectRepository>();

@@ -66,7 +66,13 @@ export function localizeHelpSearchPanelTopic(
   const localizedDescription =
     topic.id === "cloud-connections" && productLineId === "security"
       ? cloudConnectionsSummaryForProductLine(productLineId)
-      : localizeHelpCopy(productLineId, topic.description);
+      : topic.id === "getting-started-help" && productLineId === "security"
+        ? "Learn how SecureNow connects cloud inventory evidence, evaluates ARC-AMPE packs, and supports findings triage."
+        : topic.id === "how-archlucid-works" && productLineId === "security"
+          ? "Product workflow from cloud inventory through ARC-AMPE findings, remediation, and infrastructure workbenches."
+          : topic.id === "data-handling-help" && productLineId === "security"
+            ? "Cloud inventory evidence flow, tenant isolation, audit lineage, AI provider handling, and portability."
+            : localizeHelpCopy(productLineId, topic.description);
 
   return {
     ...topic,

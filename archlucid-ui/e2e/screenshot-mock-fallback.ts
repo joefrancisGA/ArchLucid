@@ -286,6 +286,20 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     return { digestCadence: "None", channels: [] as string[], topics: [] as string[] };
   }
 
+  if (pathname === "/v1/integrations/teams/page-bundle") {
+    return {
+      connection: {
+        tenantId: "e2e-mock-tenant",
+        isConfigured: false,
+        label: null,
+        keyVaultSecretName: null,
+        enabledTriggers: [] as string[],
+        updatedUtc: iso,
+      },
+      triggerCatalog: [] as string[],
+    };
+  }
+
   if (pathname.startsWith("/v1/integrations/teams/")) {
     if (pathname.includes("triggers")) {
       return [] as string[];

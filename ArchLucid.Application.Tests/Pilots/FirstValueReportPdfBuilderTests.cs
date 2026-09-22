@@ -194,6 +194,7 @@ public sealed class FirstValueReportPdfBuilderTests
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

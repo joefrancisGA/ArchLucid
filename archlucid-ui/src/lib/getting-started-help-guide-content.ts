@@ -5,12 +5,25 @@ import {
   REVIEWS_LIST_PATH,
 } from "@/lib/architecture/architecture-routes";
 import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE } from "@/lib/golden-sponsor-package-walkthrough";
+import {
+  GETTING_STARTED_HELP_PATH,
+  LEGACY_GETTING_STARTED_PATH,
+} from "@/lib/getting-started-help-guide-route";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 
 import { localizeHelpCopy } from "@/lib/help/help-product-copy";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+
+export { GETTING_STARTED_HELP_PATH, LEGACY_GETTING_STARTED_PATH };
 
 export const GETTING_STARTED_HELP_SUBTITLE =
   "Learn how ArchLucid turns architecture evidence into review findings, decisions, and approval-ready outputs.";
@@ -22,10 +35,22 @@ export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
 
 export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
 
+export const SECURENOW_GETTING_STARTED_HELP_SUBTITLE =
+  "Learn how SecureNow connects cloud inventory evidence, evaluates ARC-AMPE policy packs, and supports findings triage and remediation workflows.";
+
+export const SECURENOW_GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
+  "See how cloud evidence becomes ARC-AMPE findings, remediation work, and audit lineage before your first connector or pack assignment.";
+
 export function gettingStartedHelpPageSubtitle(
   buyerPolishedShell: boolean,
   productLineId: ProductLineId = "architecture",
 ): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return buyerPolishedShell
+      ? SECURENOW_GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER
+      : SECURENOW_GETTING_STARTED_HELP_SUBTITLE;
+  }
+
   const subtitle = buyerPolishedShell
     ? GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER
     : GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR;
@@ -38,6 +63,15 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
 
 export const GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
   "This guide orients you through the review flow — it is not a sealed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
+
+export const SECURENOW_GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
+  "This guide orients you through SecureNow cloud evidence and findings workflows — it is not a sealed diligence Sources package. Open Security & Trust or Audit evidence lineage before treating onboarding copy as procurement evidence.";
+
+export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO =
+  "Seven terms you will see across review, approval, and export surfaces.";
+
+export const SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO =
+  "Seven terms you will see across inventory, findings, and audit surfaces.";
 
 export const GETTING_STARTED_HELP_SOURCES_INTRO =
   "Use these follow-ups when getting-started orientation turns into a first review, path choice, or assurance questions.";
@@ -58,10 +92,12 @@ export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink
   { label: "Security & Trust", href: "/assurance-status" },
 ] as const;
 
-export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;
-
-/** Retired operator bookmark — no App Router page; help lives at GETTING_STARTED_HELP_PATH. */
-export const LEGACY_GETTING_STARTED_PATH = "/getting-started" as const;
+export const GETTING_STARTED_HELP_WORKING_SOURCES: readonly GettingStartedHelpSourceLink[] = [
+  { label: "Architecture desk", href: inAppHelpHref("architecture-desk") },
+  { label: WORKING_REVIEWS_INBOX_NAV_LABEL, href: REVIEWS_LIST_PATH },
+  { label: "Record and Practice", href: inAppHelpHref("career-rehearsal-doors") },
+  { label: "Security & Trust", href: "/assurance-status" },
+] as const;
 
 export const GETTING_STARTED_HELP_TOPIC_LABEL = "How to get started" as const;
 
@@ -169,6 +205,38 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
     term: "Approval",
     definition:
       "Formal sign-off workflow when a review requires approver acknowledgement before release.",
+  },
+];
+
+export const SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedPlainLanguageTerm[] = [
+  {
+    term: "Cloud inventory",
+    definition: "Connected Azure resources and metadata SecureNow evaluates against assigned policy packs.",
+  },
+  {
+    term: "Evidence",
+    definition: "Inventory snapshots, connector configuration, and supporting context used to justify findings.",
+  },
+  {
+    term: "Findings",
+    definition:
+      "Structured cloud security issues surfaced when policy packs evaluate inventory, each tied to severity and affected resources.",
+  },
+  {
+    term: "Policy pack",
+    definition: "Versioned ARC-AMPE standards and rules assigned to a workspace for recurring evaluation.",
+  },
+  {
+    term: "Connector",
+    definition: "Read-only cloud integration that ingests inventory evidence into your tenant boundary.",
+  },
+  {
+    term: "Audit lineage",
+    definition: "Append-only records that trace findings, dispositions, and export-ready evidence packages.",
+  },
+  {
+    term: "Remediation",
+    definition: "Tracked work to resolve or accept a finding, including owners, due dates, and disposition outcomes.",
   },
 ];
 
@@ -288,15 +356,7 @@ const sampleReviewHref = buildGoldenSponsorPackageWalkthroughHref();
 export const GETTING_STARTED_HELP_WORKING_QUICK_START_TITLE = "Use ArchLucid as your review desk" as const;
 
 export const GETTING_STARTED_HELP_WORKING_QUICK_START_COPY =
-  "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor." as const;
-
-export function resolveGettingStartedHelpQuickStartTitle(workingMode: boolean): string {
-  return workingMode ? GETTING_STARTED_HELP_WORKING_QUICK_START_TITLE : GETTING_STARTED_HELP_QUICK_START_TITLE;
-}
-
-export function resolveGettingStartedHelpQuickStartCopy(workingMode: boolean): string {
-  return workingMode ? GETTING_STARTED_HELP_WORKING_QUICK_START_COPY : GETTING_STARTED_HELP_QUICK_START_COPY;
-}
+  "Resume an architecture draft, open an architecture package, inspect sealed records, or start a new review from the architecture draft editor." as const;
 
 export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): readonly GettingStartedActionCard[] {
   if (!workingMode) {
@@ -325,7 +385,7 @@ export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): r
   return [
     {
       title: "New review",
-      description: "Open the draft editor and start a new architecture review.",
+      description: "Open the architecture draft editor and start a new architecture review.",
       href: "/architecture/architectures/new",
       ctaLabel: "New review",
     },
@@ -333,7 +393,7 @@ export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): r
       title: "Resume drafts",
       description: "Open saved architecture drafts before filing evidence for review.",
       href: "/architecture/architectures",
-      ctaLabel: "Open drafts",
+      ctaLabel: "Open architecture drafts",
     },
     {
       title: WORKING_REVIEWS_INBOX_NAV_LABEL,
@@ -422,9 +482,63 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
   },
 ];
 
+export const SECURENOW_GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainLanguageTerm[] = [
+  {
+    term: "Workspace identifier",
+    definition: "API and storage key for one SecureNow tenant workspace and its assigned policy packs.",
+  },
+  {
+    term: "Inventory snapshot identifier",
+    definition: "Immutable id for a point-in-time cloud inventory capture used in findings evaluation.",
+  },
+  {
+    term: "Connector configuration",
+    definition: "Stored credentials and scope settings for read-only cloud inventory ingestion.",
+  },
+  {
+    term: "Finding identifier",
+    definition: "Stable key for one ARC-AMPE finding row in the findings queue.",
+  },
+  {
+    term: "Disposition record",
+    definition: "Recorded accept, waive, remediate, or monitor outcome attached to a finding.",
+  },
+  {
+    term: "Audit evidence package",
+    definition: "Export-ready bundle of lineage metadata for compliance and diligence review.",
+  },
+];
+
+export function resolveGettingStartedHelpClaimDiscipline(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_GETTING_STARTED_HELP_CLAIM_DISCIPLINE
+    : GETTING_STARTED_HELP_CLAIM_DISCIPLINE;
+}
+
+export function resolveGettingStartedHelpPlainLanguageVocabIntro(
+  productLineId: ProductLineId = "architecture",
+): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO
+    : GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO;
+}
+
+export function resolveGettingStartedHelpPlainLanguageTerms(
+  productLineId: ProductLineId = "architecture",
+): readonly GettingStartedPlainLanguageTerm[] {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS
+    : GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS;
+}
+
 export function resolveGettingStartedHelpTechnicalTerms(
   workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
 ): readonly GettingStartedPlainLanguageTerm[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_TECHNICAL_TERMS;
+  }
+
   if (!workingMode) {
     return GETTING_STARTED_HELP_TECHNICAL_TERMS;
   }
@@ -481,6 +595,322 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE_WORKING = `flowchart LR
 
 export function resolveGettingStartedHelpDiagramSource(workingMode: boolean): string {
   return workingMode ? GETTING_STARTED_HELP_DIAGRAM_SOURCE_WORKING : GETTING_STARTED_HELP_DIAGRAM_SOURCE;
+}
+
+export const SECURENOW_GETTING_STARTED_HELP_QUICK_START_TITLE = "Start with cloud evidence and ARC-AMPE packs";
+
+export const SECURENOW_GETTING_STARTED_HELP_QUICK_START_COPY =
+  "Connect Azure or upload inventory, assign policy packs, triage findings, and open remediation or infrastructure workbenches.";
+
+export const SECURENOW_GETTING_STARTED_HELP_DIAGRAM_SUMMARY =
+  "SecureNow ingests cloud inventory evidence, evaluates ARC-AMPE policy packs, and surfaces findings you can triage, remediate, and trace through infrastructure workbenches.";
+
+export const SECURENOW_GETTING_STARTED_HELP_DIAGRAM_STEPS = [
+  "Cloud inventory",
+  "ARC-AMPE evaluation",
+  "Findings",
+  "Remediation",
+  "Infrastructure workbenches",
+] as const;
+
+export const SECURENOW_GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
+  "Connect Azure or upload a validated inventory ZIP for cloud evidence intake.",
+  "Assign ARC-AMPE policy packs and tune priority floors for the active workspace scope.",
+  "Open findings or assigned-to-me to triage severity, owners, and evidence links.",
+  "Run remediation factory workflows or open infrastructure workbenches for follow-up.",
+] as const;
+
+export const SECURENOW_GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
+  "Stages from cloud inventory intake through ARC-AMPE pack evaluation, findings triage, remediation workflows, and infrastructure workbench follow-up.";
+
+export const SECURENOW_GETTING_STARTED_HELP_PIPELINE_INTRO =
+  "SecureNow workflow from cloud evidence intake through findings and remediation follow-up:";
+
+export const SECURENOW_GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
+  subgraph ingest [Evidence intake]
+    AZ[Azure connector or ZIP upload]
+    INV[Cloud inventory snapshot]
+  end
+  subgraph evaluate [ARC-AMPE evaluation]
+    PACK[Policy pack assignment]
+    RULES[Effective rules]
+    FIND[Findings]
+  end
+  subgraph operate [Operate]
+    TRIAGE[Findings triage]
+    REM[Remediation workflows]
+    WB[Infrastructure workbenches]
+  end
+  AZ --> INV --> PACK --> RULES --> FIND
+  FIND --> TRIAGE --> REM --> WB`;
+
+export const SECURENOW_GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink[] = [
+  { label: "Assigned to me", href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH },
+  { label: "Open policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
+  { label: "Azure connections", href: "/integrations/cloud-connections" },
+  { label: "Resource explorer", href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH },
+  { label: "Security and trust", href: inAppHelpHref("security-trust") },
+] as const;
+
+export const SECURENOW_GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflowStep[] = [
+  {
+    stepNumber: 1,
+    title: "Connect cloud inventory evidence",
+    description: "Connect Azure for read-only inventory or upload a validated ZIP from Extract and upload.",
+    expectedOutputs: "Inventory evidence indexed for ARC-AMPE scans.",
+    href: "/integrations/cloud-connections",
+    ctaLabel: "Azure connections",
+  },
+  {
+    stepNumber: 2,
+    title: "Assign ARC-AMPE policy packs",
+    description: "Assign the bundled Architecture Themes pack and tune priority floors for cloud evidence scans.",
+    expectedOutputs: "Effective rules ready for the active workspace scope.",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
+    ctaLabel: "Open policy packs",
+  },
+  {
+    stepNumber: 3,
+    title: "Triage findings",
+    description: "Review open findings raised against connected inventory and assign remediation owners.",
+    expectedOutputs: "Prioritized findings with owners and evidence links.",
+    href: GOVERNANCE_FINDINGS_PATH,
+    ctaLabel: "Open findings queue",
+  },
+  {
+    stepNumber: 4,
+    title: "Work assigned findings",
+    description: "Open your assigned-to-me lane or remediation factory to continue remediation work.",
+    expectedOutputs: "Assigned findings progressing through remediation.",
+    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    ctaLabel: "Open assigned to me",
+  },
+  {
+    stepNumber: 5,
+    title: "Inspect infrastructure evidence",
+    description: "Open resource explorer, diagrams, or drift workbenches when findings need inventory context.",
+    expectedOutputs: "Traceable inventory context for findings and lineage exports.",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    ctaLabel: "Open resource explorer",
+  },
+] as const;
+
+export const SECURENOW_GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActionCard[] = [
+  {
+    title: "Connect Azure inventory",
+    description: "Add a read-only Azure connector or upload a validated inventory ZIP.",
+    href: "/integrations/cloud-connections",
+    ctaLabel: "Azure connections",
+  },
+  {
+    title: "Assign policy packs",
+    description: "Assign ARC-AMPE packs and tune priority floors for cloud evidence scans.",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
+    ctaLabel: "Open policy packs",
+  },
+  {
+    title: "Triage assigned findings",
+    description: "Open findings assigned to you for remediation and follow-up.",
+    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    ctaLabel: "Open assigned to me",
+  },
+  {
+    title: "Review assurance posture",
+    description: "Open Security and trust when procurement or diligence questions need official materials.",
+    href: inAppHelpHref("security-trust"),
+    ctaLabel: "Security and trust",
+  },
+] as const;
+
+export const SECURENOW_GETTING_STARTED_HELP_PRIMARY_ACTIONS: readonly GettingStartedActionCard[] = [
+  {
+    title: "Azure connections",
+    description: SECURENOW_GETTING_STARTED_HELP_QUICK_START_COPY,
+    href: "/integrations/cloud-connections",
+    ctaLabel: "Connect Azure",
+  },
+  {
+    title: "Policy packs",
+    description: "Assign ARC-AMPE packs before expecting inventory-backed findings.",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
+    ctaLabel: "Open policy packs",
+  },
+  {
+    title: "Assigned to me",
+    description: "Continue findings assigned to you for remediation work.",
+    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    ctaLabel: "Open assigned to me",
+  },
+] as const;
+
+export const SECURENOW_GETTING_STARTED_HELP_AUDIENCE_LINE =
+  "For security operators, compliance leads, and platform admins orienting to cloud evidence, ARC-AMPE findings, and remediation workflows.";
+
+export function resolveGettingStartedHelpQuickStartTitle(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_QUICK_START_TITLE;
+  }
+
+  return resolveGettingStartedHelpQuickStartTitleLegacy(workingMode);
+}
+
+function resolveGettingStartedHelpQuickStartTitleLegacy(workingMode: boolean): string {
+  return workingMode ? GETTING_STARTED_HELP_WORKING_QUICK_START_TITLE : GETTING_STARTED_HELP_QUICK_START_TITLE;
+}
+
+export function resolveGettingStartedHelpQuickStartCopy(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_QUICK_START_COPY;
+  }
+
+  return resolveGettingStartedHelpQuickStartCopyLegacy(workingMode);
+}
+
+function resolveGettingStartedHelpQuickStartCopyLegacy(workingMode: boolean): string {
+  return workingMode ? GETTING_STARTED_HELP_WORKING_QUICK_START_COPY : GETTING_STARTED_HELP_QUICK_START_COPY;
+}
+
+export function resolveGettingStartedHelpDiagramSummary(productLineId: ProductLineId = "architecture"): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_DIAGRAM_SUMMARY;
+  }
+
+  return GETTING_STARTED_HELP_DIAGRAM_SUMMARY;
+}
+
+export function resolveGettingStartedHelpDiagramSteps(
+  productLineId: ProductLineId = "architecture",
+): readonly string[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_DIAGRAM_STEPS;
+  }
+
+  return GETTING_STARTED_HELP_DIAGRAM_STEPS;
+}
+
+export function resolveGettingStartedHelpPipelineTextStagesForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): readonly string[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES;
+  }
+
+  return resolveGettingStartedHelpPipelineTextStages(workingMode);
+}
+
+export function resolveGettingStartedHelpPipelineDiagramDescriptionForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION;
+  }
+
+  return resolveGettingStartedHelpPipelineDiagramDescription(workingMode);
+}
+
+export function resolveGettingStartedHelpPipelineIntroForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_PIPELINE_INTRO;
+  }
+
+  return resolveGettingStartedHelpPipelineIntro(workingMode);
+}
+
+export function resolveGettingStartedHelpPipelineDiagramAccessibleNameForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return "SecureNow cloud evidence workflow";
+  }
+
+  return resolveGettingStartedHelpPipelineDiagramAccessibleName(workingMode);
+}
+
+export function resolveGettingStartedHelpDiagramSourceForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_DIAGRAM_SOURCE;
+  }
+
+  return resolveGettingStartedHelpDiagramSource(workingMode);
+}
+
+export function resolveGettingStartedHelpSources(
+  productLineId: ProductLineId = "architecture",
+  workingMode: boolean = false,
+): readonly GettingStartedHelpSourceLink[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_SOURCES;
+  }
+
+  if (workingMode) {
+    return GETTING_STARTED_HELP_WORKING_SOURCES;
+  }
+
+  return GETTING_STARTED_HELP_SOURCES;
+}
+
+export function resolveGettingStartedHelpWorkflowStepsForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): readonly GettingStartedWorkflowStep[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_WORKFLOW_STEPS;
+  }
+
+  return resolveGettingStartedHelpWorkflowSteps(workingMode);
+}
+
+export function resolveGettingStartedHelpNextActionCardsForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): readonly GettingStartedActionCard[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_NEXT_ACTION_CARDS;
+  }
+
+  return resolveGettingStartedHelpNextActionCards(workingMode);
+}
+
+export function resolveGettingStartedHelpPrimaryActionsForProductLine(
+  workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
+): readonly GettingStartedActionCard[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_PRIMARY_ACTIONS;
+  }
+
+  return resolveGettingStartedHelpPrimaryActions(workingMode);
+}
+
+export function resolveGettingStartedHelpAudienceLine(productLineId: ProductLineId = "architecture"): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_AUDIENCE_LINE;
+  }
+
+  return GETTING_STARTED_HELP_AUDIENCE_LINE;
+}
+
+export function resolveGettingStartedHelpWorkflowSectionTitle(productLineId: ProductLineId = "architecture"): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return "What happens during SecureNow operations?";
+  }
+
+  return "What happens during a review?";
 }
 
 export const GETTING_STARTED_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [

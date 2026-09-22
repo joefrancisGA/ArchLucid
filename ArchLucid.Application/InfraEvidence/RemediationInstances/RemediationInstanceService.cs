@@ -12,14 +12,16 @@ using ArchLucid.Persistence.Serialization;
 namespace ArchLucid.Application.InfraEvidence.RemediationInstances;
 
 public sealed class RemediationInstanceService(
-    IRemediationInstanceRepository instanceRepository,
+    IProjectScopedRemediationInstanceRepository instanceRepository,
     IRemediationPatternMatchRepository matchRepository,
     IRemediationPatternRepository patternRepository,
     IOperationalSecurityExceptionRepository exceptionRepository,
     IAzureInventorySnapshotRepository snapshotRepository,
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
     IAuditService auditService,
-    IOperationalSecurityFindingRepository operationalFindingRepository,
+    IProjectScopedOperationalSecurityFindingRepository operationalFindingRepository,
+    IRemediationPathNarrativeBuilder pathNarrativeBuilder,
+    ISecurityEvidencePathRepository pathRepository,
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService) : IRemediationInstanceService
@@ -44,7 +46,7 @@ public sealed class RemediationInstanceService(
             return sealedManifestFailure;
 
         RemediationPatternMatchResultRecord? activeMatch =
-            await matchRepository.TryGetActiveMatchAsync(scope.TenantId, findingId, cancellationToken);
+            await matchRepository.TryGetActiveMatchInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
 
         if (activeMatch is null)
             return Failed("No active remediation pattern match exists for the finding.");
@@ -64,6 +66,35 @@ public sealed class RemediationInstanceService(
         if (!RemediationPatternFactoryGuard.TryValidateForFactoryUse(version, out string? rejection))
             return Blocked(rejection!);
 
+        OperationalSecurityFindingRecord? finding =
+            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
+
+        Guid? pathId = null;
+        string? pathNarrativeJson = null;
+        Guid? cloudResourceId = finding?.CloudResourceId;
+
+        if (finding is not null
+            && finding.PathId is Guid citedPathId
+            && citedPathId != Guid.Empty)
+        {
+            RemediationPathNarrative? narrative = await pathNarrativeBuilder.TryBuildAsync(
+                scope,
+                finding,
+                version!,
+                cancellationToken);
+
+            if (narrative is not null)
+            {
+                pathId = citedPathId;
+                pathNarrativeJson = RemediationPathNarrativeJson.Serialize(narrative);
+
+                if (cloudResourceId is null || cloudResourceId == Guid.Empty)
+                {
+                    cloudResourceId = narrative.AffectedDependencyCloudResourceIds.FirstOrDefault();
+                }
+            }
+        }
+
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         Guid instanceId = Guid.NewGuid();
 
@@ -80,12 +111,15 @@ public sealed class RemediationInstanceService(
             FrozenPatternVersion = activeMatch.PatternVersion,
             AutomationLevel = version!.AutomationLevel,
             Status = RemediationInstanceStatus.Classified,
+            CloudResourceId = cloudResourceId,
+            PathId = pathId,
+            PathNarrativeJson = pathNarrativeJson,
             CreatedByActorKey = actorKey.Trim(),
             CreatedUtc = utcNow,
             UpdatedUtc = utcNow,
         };
 
-        await instanceRepository.InsertInstanceAsync(instance, cancellationToken);
+        await instanceRepository.InsertInstanceInScopeAsync(scope.ToProjectScopeKey(), instance, cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceCreated, instanceId, cancellationToken);
 
@@ -125,10 +159,10 @@ public sealed class RemediationInstanceService(
             return Failed("Inventory snapshot was not found.");
 
         RemediationPatternMatchResultRecord? activeMatch =
-            await matchRepository.TryGetActiveMatchAsync(scope.TenantId, instance.FindingId, cancellationToken);
+            await matchRepository.TryGetActiveMatchInScopeAsync(scope.ToProjectScopeKey(), instance.FindingId, cancellationToken);
 
-        bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingAsync(
-            scope.TenantId,
+        bool hasActiveException = await exceptionRepository.HasActiveExceptionForFindingInScopeAsync(
+            scope.ToProjectScopeKey(),
             instance.FindingId,
             TimeProvider.System.UtcNowDateTime(),
             cancellationToken);
@@ -156,7 +190,7 @@ public sealed class RemediationInstanceService(
             preflightResultJson: preflight.ResultJson,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         if (!preflight.Passed)
             return Blocked(preflight.Blockers.ToArray());
@@ -207,7 +241,7 @@ public sealed class RemediationInstanceService(
             approvedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.Approved);
     }
@@ -252,7 +286,7 @@ public sealed class RemediationInstanceService(
             waveId: waveId,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.WaveAssigned);
     }
@@ -293,7 +327,7 @@ public sealed class RemediationInstanceService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.Before,
             JsonSerializer.Serialize(new { inventorySnapshotId, instance.Status }),
@@ -311,7 +345,7 @@ public sealed class RemediationInstanceService(
         };
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.ExecuteRequest,
             JsonSerializer.Serialize(executeRequest),
@@ -352,7 +386,7 @@ public sealed class RemediationInstanceService(
         }
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.ExecuteResult,
             executeResultPayload,
@@ -371,7 +405,7 @@ public sealed class RemediationInstanceService(
             executedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceExecuted, instanceId, cancellationToken);
 
@@ -416,16 +450,40 @@ public sealed class RemediationInstanceService(
         if (verificationSnapshot is null)
             return Failed("Verification inventory snapshot was not found.");
 
+        RemediationPathNarrative? pathNarrative =
+            RemediationPathNarrativeJson.TryDeserialize(instance.PathNarrativeJson);
+
+        RemediationPathVerificationContext? pathVerificationContext = null;
+
+        if (pathNarrative is not null)
+        {
+            IReadOnlyList<SecurityEvidencePathRecord> verificationPaths =
+                await pathRepository.ListBySnapshotAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    verificationSnapshot.Header.SnapshotId,
+                    cancellationToken);
+
+            pathVerificationContext = new RemediationPathVerificationContext
+            {
+                SourcePathCanonicalHash = Convert.FromHexString(pathNarrative.CanonicalHopHashHex),
+                VerificationSnapshotPaths = verificationPaths,
+            };
+        }
+
         RemediationInstanceVerificationResult verification = RemediationInstanceVerificationEvaluator.Evaluate(
             instance,
             content!,
             verificationSnapshot,
-            instance.ExecutionSnapshotId.Value);
+            instance.ExecutionSnapshotId.Value,
+            pathNarrative,
+            pathVerificationContext);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         await AppendEvidenceAsync(
-            scope.TenantId,
+            scope,
             instanceId,
             RemediationEvidencePhase.Verify,
             verification.ResultJson,
@@ -449,7 +507,7 @@ public sealed class RemediationInstanceService(
             verifiedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         if (!verification.Passed)
             return Blocked(verification.Failures.ToArray());
@@ -488,7 +546,7 @@ public sealed class RemediationInstanceService(
             closedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInstanceAsync(updated, cancellationToken);
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceClosed, instanceId, cancellationToken);
 
@@ -499,7 +557,10 @@ public sealed class RemediationInstanceService(
         ScopeContext scope,
         Guid instanceId,
         CancellationToken cancellationToken) =>
-        await instanceRepository.TryGetByIdAsync(scope.TenantId, instanceId, cancellationToken);
+        await instanceRepository.TryGetByIdInScopeAsync(
+            scope.ToProjectScopeKey(),
+            instanceId,
+            cancellationToken);
 
     private async Task<RemediationInstanceOperationResult?> TryEnsureSealedManifestForFindingAsync(
         ScopeContext scope,
@@ -536,7 +597,7 @@ public sealed class RemediationInstanceService(
             cancellationToken);
 
     private async Task AppendEvidenceAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid instanceId,
         RemediationEvidencePhase phase,
         string payloadJson,
@@ -549,7 +610,7 @@ public sealed class RemediationInstanceService(
         {
             EvidenceId = Guid.NewGuid(),
             InstanceId = instanceId,
-            TenantId = tenantId,
+            TenantId = scope.TenantId,
             Phase = phase,
             PayloadJson = payloadJson,
             ActorKey = actorKey.Trim(),
@@ -557,7 +618,10 @@ public sealed class RemediationInstanceService(
             CreatedUtc = utcNow,
         };
 
-        await instanceRepository.InsertEvidenceAsync(evidence, cancellationToken);
+        await instanceRepository.InsertEvidenceInScopeAsync(
+            scope.ToProjectScopeKey(),
+            evidence,
+            cancellationToken);
     }
 
     private async Task LogAuditAsync(
@@ -612,6 +676,8 @@ public sealed class RemediationInstanceService(
             AutomationLevel = source.AutomationLevel,
             Status = status ?? source.Status,
             CloudResourceId = source.CloudResourceId,
+            PathId = source.PathId,
+            PathNarrativeJson = source.PathNarrativeJson,
             AssessmentId = source.AssessmentId,
             ControlId = source.ControlId,
             PreflightSnapshotId = preflightSnapshotId ?? source.PreflightSnapshotId,
@@ -628,6 +694,30 @@ public sealed class RemediationInstanceService(
             ExecutedUtc = executedUtc ?? source.ExecutedUtc,
             VerifiedUtc = verifiedUtc ?? source.VerifiedUtc,
             ClosedUtc = closedUtc ?? source.ClosedUtc,
+        };
+
+    private static RemediationInstanceMutation ToMutation(RemediationInstanceRecord source) =>
+        new()
+        {
+            InstanceId = source.InstanceId,
+            Status = source.Status,
+            CloudResourceId = source.CloudResourceId,
+            PathId = source.PathId,
+            PathNarrativeJson = source.PathNarrativeJson,
+            AssessmentId = source.AssessmentId,
+            ControlId = source.ControlId,
+            PreflightSnapshotId = source.PreflightSnapshotId,
+            ExecutionSnapshotId = source.ExecutionSnapshotId,
+            VerificationSnapshotId = source.VerificationSnapshotId,
+            WaveId = source.WaveId,
+            PreflightResultJson = source.PreflightResultJson,
+            VerificationResultJson = source.VerificationResultJson,
+            ApprovedByActorKey = source.ApprovedByActorKey,
+            UpdatedUtc = source.UpdatedUtc,
+            ApprovedUtc = source.ApprovedUtc,
+            ExecutedUtc = source.ExecutedUtc,
+            VerifiedUtc = source.VerifiedUtc,
+            ClosedUtc = source.ClosedUtc,
         };
 
     private static RemediationInstanceOperationResult Succeeded(Guid instanceId, RemediationInstanceStatus status) =>

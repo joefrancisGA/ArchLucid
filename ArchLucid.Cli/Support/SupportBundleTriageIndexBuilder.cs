@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Pagination;
 
@@ -34,6 +35,7 @@ public static class SupportBundleTriageIndexBuilder
         IReadOnlyList<string> artifactIds = [];
         IReadOnlyList<string> auditIds = [];
         string? structuralExecutionModeLabel = null;
+        SupportBundleTriageCareerPostureSection? careerPosture = null;
 
         if (!string.IsNullOrWhiteSpace(runId))
         {
@@ -49,10 +51,15 @@ public static class SupportBundleTriageIndexBuilder
                     RequestId = run.RequestId,
                     Status = run.Status.ToString(),
                     ManifestVersion = run.CurrentManifestVersion,
-                    OtelTraceId = run.OtelTraceId
+                    OtelTraceId = run.OtelTraceId,
+                    ExecutePostureCapturedUtc = FormatExecutePostureCapturedUtc(run.ExecutePostureCapturedUtc)
                 };
 
                 structuralExecutionModeLabel = FormatStructuralExecutionMode(run.StructuralExecutionMode, run.RealModeFellBackToSimulator);
+                careerPosture = MapCareerPosture(
+                    ExportBundleCareerPostureResolver.ResolveTriageFromRunFields(
+                        run.StructuralExecutionMode,
+                        run.WorkingCareerRehearsalDoor));
 
                 artifactIds = await client.TryListArtifactIdsForRunAsync(run.RunId, cancellationToken);
             }
@@ -64,7 +71,8 @@ public static class SupportBundleTriageIndexBuilder
         List<string> notes =
         [
             "Identifiers only — no secrets, prompts, or evidence bodies.",
-            "Retrieval grounding trace ids are not captured unless a future diagnostics API exposes them."
+            "Retrieval grounding trace ids are not captured unless a future diagnostics API exposes them.",
+            "Working route hint: architecture desk = parent identity; nested job = review under /architecture/architectures/{id}/reviews/{runId}; inbox = /architecture/reviews; Practice/Rehearsal = structural execution mode on the run row."
         ];
 
         if (runSection is null && !string.IsNullOrWhiteSpace(runId))
@@ -88,6 +96,7 @@ public static class SupportBundleTriageIndexBuilder
             HostVersionSummary = SummarizeVersion(payload.Build.ApiVersionJson, payload.Build.ApiVersionError),
             RedactionManifestStatus = redactionManifestPassApplied ? "PASS" : "NOT_APPLIED",
             StructuralExecutionModeLabel = structuralExecutionModeLabel,
+            CareerPosture = careerPosture,
             LatestFailedGateHint = SummarizeLatestFailedGate(payload),
             RecentAuditEventIds = auditIds,
             ArtifactIds = artifactIds,
@@ -110,6 +119,7 @@ public static class SupportBundleTriageIndexBuilder
         sb.AppendLine($"Host version: {index.HostVersionSummary}");
         sb.AppendLine($"Redaction manifest: {index.RedactionManifestStatus}");
         sb.AppendLine($"Structural execution mode: {OrNotCaptured(index.StructuralExecutionModeLabel)}");
+        AppendCareerPostureMarkdown(sb, index.CareerPosture);
 
         if (!string.IsNullOrWhiteSpace(index.LatestFailedGateHint))
         {
@@ -136,6 +146,9 @@ public static class SupportBundleTriageIndexBuilder
             sb.AppendLine($"- status: {index.Run.Status}");
             sb.AppendLine($"- manifestVersion: {OrNotCaptured(index.Run.ManifestVersion)}");
             sb.AppendLine($"- otelTraceId: {OrNotCaptured(index.Run.OtelTraceId)}");
+            sb.AppendLine($"- executePostureCapturedUtc: {OrNotCaptured(index.Run.ExecutePostureCapturedUtc)}");
+            sb.AppendLine(
+                "- workingRouteHint: nested review job when parent architecture is known; peer /architecture/reviews when unlinked; desk is /architecture/architectures/{architectureId}");
             sb.AppendLine();
         }
 
@@ -226,6 +239,47 @@ public static class SupportBundleTriageIndexBuilder
         }
 
         return modeValue.Value.ToString();
+    }
+
+    private static string? FormatExecutePostureCapturedUtc(DateTime? capturedUtc)
+    {
+        if (capturedUtc is null)
+        {
+            return null;
+        }
+
+        return capturedUtc.Value.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
+    }
+
+    private static SupportBundleTriageCareerPostureSection? MapCareerPosture(ExportBundleCareerPostureTriageResult? triage)
+    {
+        if (triage is null)
+        {
+            return null;
+        }
+
+        return new SupportBundleTriageCareerPostureSection
+        {
+            WorkingCareerRehearsalDoor = triage.WorkingCareerRehearsalDoor,
+            CareerPostureLabel = triage.CareerPostureLabel,
+            RehearsalIncomplete = triage.RehearsalIncomplete,
+            CareerBlocked = triage.CareerBlocked
+        };
+    }
+
+    private static void AppendCareerPostureMarkdown(StringBuilder sb, SupportBundleTriageCareerPostureSection? careerPosture)
+    {
+        if (careerPosture is null)
+        {
+            sb.AppendLine("Execute door stamp: (not captured — pass --run-id after first execute)");
+
+            return;
+        }
+
+        sb.AppendLine($"Working Career/Rehearsal door: {careerPosture.WorkingCareerRehearsalDoor}");
+        sb.AppendLine($"Career posture label: {careerPosture.CareerPostureLabel}");
+        sb.AppendLine($"Rehearsal incomplete: {(careerPosture.RehearsalIncomplete ? "yes" : "no")}");
+        sb.AppendLine($"Sealed record blocked: {(careerPosture.CareerBlocked ? "yes" : "no")}");
     }
 
     private static string? SummarizeLatestFailedGate(SupportBundlePayload payload)

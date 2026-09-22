@@ -1,3 +1,4 @@
+using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Core.Hosting;
 
@@ -18,6 +19,17 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         HostedServicesCompositionRegistrar.RegisterAgentResultBlobCleanupHostedService(services, hostingRole);
+    }
+
+    private static void RegisterDurableTaskWorkerInfrastructure(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Worker and not ArchLucidHostingRole.Combined)
+            return;
+
+        SqlDtfOrchestrationInfrastructureRegistrar.RegisterWorker(services, configuration);
     }
 
     private static void RegisterSponsorRoiCacheWarmupHostedService(

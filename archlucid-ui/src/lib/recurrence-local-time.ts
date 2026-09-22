@@ -1,7 +1,5 @@
-import {
-  formatAdvisoryScheduleInstant,
-  resolveBrowserTimeZoneId,
-} from "@/lib/advisory-schedule-form";
+import { formatAdvisoryScheduleInstant } from "@/lib/advisory-schedule-form";
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatIanaTimeZoneOptionLabel, isUtcIanaTimeZoneId, toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
 import {
   buildLocalOffsetBasis,
@@ -37,7 +35,7 @@ export type BuildRecurrenceLocalTimeSummaryInput = {
   readonly referenceUtc?: string | Date | null;
 };
 
-/** Resolves display zone: explicit IANA, else browser, else UTC. */
+/** Resolves display zone: explicit IANA, else product default (US Eastern). */
 export function resolveRecurrenceDisplayTimeZoneId(ianaTimeZoneId?: string | null): string {
   const trimmed = ianaTimeZoneId?.trim() ?? "";
 
@@ -45,7 +43,7 @@ export function resolveRecurrenceDisplayTimeZoneId(ianaTimeZoneId?: string | nul
     return toStoredIanaTimeZoneId(trimmed);
   }
 
-  return resolveBrowserTimeZoneId();
+  return DEFAULT_IANA_TIME_ZONE_ID;
 }
 
 /**

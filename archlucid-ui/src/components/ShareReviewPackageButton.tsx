@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getFirstValueReportMarkdown } from "@/lib/api";
 import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger-browser";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite, whyDisabledPolicy } from "@/lib/why-disabled-cta";
-import { showError, showSuccess } from "@/lib/toast";
+import { showError, showMutationError, showSuccess } from "@/lib/toast";
 
 export type ShareReviewPackageButtonProps = {
   readonly runId: string;
@@ -50,9 +52,10 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
       await triggerBrowserBlobDownload(blob, `sponsor-${slug || runId}.md`);
       showSuccess("Sponsor report ready — download started.");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Could not generate report.";
+      const failure = toApiLoadFailure(error);
+      const blocked = firstValueReportMutationBlockedReason(failure);
 
-      showError("Share review", message);
+      showMutationError("Share review", blocked ?? failure.message);
     } finally {
       setBusy(false);
     }

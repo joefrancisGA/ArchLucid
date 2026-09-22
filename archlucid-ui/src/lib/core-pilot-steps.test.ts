@@ -9,11 +9,15 @@ describe("core-pilot-steps", () => {
     expect(CORE_PILOT_STEP_COUNT).toBe(7);
   });
 
-  it("starts with demo or new-request path on /architecture/reviews/new", () => {
+  it("starts on the architecture desk, not reviews hub Home (IR-002)", () => {
     const firstStep = CORE_PILOT_STEPS[0];
 
-    expect(firstStep.title.toLowerCase()).toContain("demo");
-    expect(firstStep.primaryHref).toBe("/architecture/reviews/new");
+    expect(firstStep.title.toLowerCase()).toContain("architecture desk");
+    expect(firstStep.primaryHref).toBe("/architecture/architectures");
+    expect(CORE_PILOT_STEPS[1].primaryHref).toBe("/architecture/reviews/new");
+    expect(CORE_PILOT_STEPS[2].title.toLowerCase()).toContain("inhabited");
+    expect(CORE_PILOT_STEPS[2].shortBody.toLowerCase()).toContain("architecture-nested findings");
+    expect(CORE_PILOT_STEPS[2].shortBody.toLowerCase()).toContain("not review overview as home");
   });
 
   it("includes upload, dashboard ROI, and audit export steps", () => {
@@ -21,18 +25,23 @@ describe("core-pilot-steps", () => {
 
     expect(hrefs).toContain("/administration/extract-upload");
     expect(hrefs).toContain(SPONSOR_DASHBOARD_HREF);
-    expect(CORE_PILOT_STEPS.some((step) => step.title.toLowerCase().includes("audit"))).toBe(true);
+    expect(
+      CORE_PILOT_STEPS.some(
+        (step) =>
+          step.title.toLowerCase().includes("share")
+          || (step.detail ?? "").toLowerCase().includes("audit"),
+      ),
+    ).toBe(true);
   });
 
-  it("uses multi-cloud inventory language on step 4 upload guidance", () => {
-    const uploadStep = CORE_PILOT_STEPS[3];
+  it("uses Azure-first inventory language on the optional upload step (QR-10 / TB-645)", () => {
+    const uploadStep = CORE_PILOT_STEPS[4];
 
-    expect(uploadStep.title).toBe("Upload cloud inventory evidence");
-    expect(uploadStep.shortBody).toBe(
-      "Optional for document/brief-only reviews — cloud inventory required for cost ROI accuracy.",
-    );
-    expect(uploadStep.detail).toContain("brief, document, or diagram evidence only");
-    expect(uploadStep.primaryLabel).toBe("Upload inventory ZIP");
+    expect(uploadStep.title).toBe("Upload Azure inventory ZIP");
+    expect(uploadStep.shortBody).toContain("Azure packager ZIP");
+    expect(uploadStep.detail).toContain("Get-ArchLucidAzurePackage.ps1");
+    expect(uploadStep.detail).toContain("hosted extractor");
+    expect(uploadStep.primaryLabel).toBe("Upload Azure inventory ZIP");
     expect(uploadStep.primaryHref).toBe("/administration/extract-upload");
   });
 
@@ -42,7 +51,7 @@ describe("core-pilot-steps", () => {
     }
 
     expect(
-      CORE_PILOT_STEPS.filter((s) => (s.detail ?? "").toLowerCase().includes("signed review")).length,
+      CORE_PILOT_STEPS.filter((s) => (s.detail ?? "").toLowerCase().includes("sealed")).length,
     ).toBeGreaterThan(0);
   });
 });

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Notifications.Email.Models;
+using ArchLucid.Application.Exports;
 using ArchLucid.Notifications.Email.RazorLight;
 
 using FluentAssertions;
@@ -31,6 +32,10 @@ public sealed class SponsorWeeklyEmailTemplateRenderingTests
         html.Should().Contain("Weekly sponsor summary");
         html.Should().Contain("Sponsor summary body");
         html.Should().Contain("https://app.example/architecture/reviews/a1b2c3d4");
+        html.Should().Contain("Sponsor ROI honesty:");
+        html.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+        html.Should().Contain("Policy influence:");
+        html.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
 
     [SkippableFact]
@@ -52,5 +57,9 @@ public sealed class SponsorWeeklyEmailTemplateRenderingTests
         html.Should().Contain("Weekly sponsor report");
         html.Should().Contain("Sponsor report body");
         html.Should().Contain("https://app.example/architecture/reviews/e5f6a7b8");
+        html.Should().Contain("Sponsor ROI honesty:");
+        html.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+        html.Should().Contain("Policy influence:");
+        html.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
 }

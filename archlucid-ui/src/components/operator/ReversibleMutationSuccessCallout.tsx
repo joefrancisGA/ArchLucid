@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import {
   MUTATION_AMEND_ACTION_LABEL,
+  MUTATION_UNDO_WINDOW_RECORD_CORRECTION_COPY,
   MUTATION_UNDO_WINDOW_SECONDS,
+  MUTATION_UNDO_WINDOW_VISIBLE_COPY,
   mutationSupportsAmend,
   mutationSupportsUndoWindow,
   type GovernanceMutationReversibilityId,
@@ -68,7 +70,7 @@ export function ReversibleMutationSuccessCallout(
             {props.undoBusy === true ? "Undoing…" : "Undo"}
           </Button>
           <p className="m-0 text-sm text-al-text-secondary">
-            Available for several minutes
+            {MUTATION_UNDO_WINDOW_VISIBLE_COPY}. {MUTATION_UNDO_WINDOW_RECORD_CORRECTION_COPY}
           </p>
         </div>
       ) : null}

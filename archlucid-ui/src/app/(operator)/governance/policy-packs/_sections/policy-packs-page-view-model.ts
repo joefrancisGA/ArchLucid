@@ -96,5 +96,7 @@ export type PolicyPacksPageViewModel = {
   readonly setAuthoringToolsOpen: Dispatch<SetStateAction<boolean>>;
   readonly onCreateFromGenerator: () => Promise<void>;
   readonly pickedReviewId: string;
+  readonly pickedPackAId: string;
+  readonly pickedPackBId: string;
   readonly setPickedReviewId: (reviewId: string) => void;
 };

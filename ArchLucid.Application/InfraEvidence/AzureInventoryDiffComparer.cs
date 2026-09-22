@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -17,11 +18,8 @@ public static class AzureInventoryDiffComparer
 
         List<AzureInventoryChangeRecord> changes = [];
 
-        Dictionary<string, AzureInventoryResourceRecord> resourcesA =
-            snapshotA.Resources.ToDictionary(r => r.AzureResourceId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<string, AzureInventoryResourceRecord> resourcesB =
-            snapshotB.Resources.ToDictionary(r => r.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesA = VisibleResources(snapshotA.Resources);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesB = VisibleResources(snapshotB.Resources);
 
         foreach (KeyValuePair<string, AzureInventoryResourceRecord> added in resourcesB)
         {
@@ -39,9 +37,15 @@ public static class AzureInventoryDiffComparer
                 newValue: added.Value.ResourceType));
         }
 
-        foreach (KeyValuePair<string, AzureInventoryResourceRecord> removed in resourcesA)
+        List<KeyValuePair<string, AzureInventoryResourceRecord>> removedResources = resourcesA
+            .Where(pair => !resourcesB.ContainsKey(pair.Key))
+            .ToList();
+
+        HashSet<string> nestedRemovedResourceIds = CollectNestedRemovedResourceIds(removedResources);
+
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> removed in removedResources)
         {
-            if (resourcesB.ContainsKey(removed.Key))
+            if (nestedRemovedResourceIds.Contains(removed.Key))
                 continue;
 
             changes.Add(CreateChange(
@@ -200,18 +204,32 @@ public static class AzureInventoryDiffComparer
             if (relationship is null)
                 continue;
 
+            if (ShouldOmitRelationship(relationship))
+            {
+                continue;
+            }
+
             AzureInventoryChangeType changeType =
-                AzureInventoryDiffHeuristics.IsPrivateEndpointResource(string.Empty, relationship.RelationshipType)
+                AzureInventoryDiffHeuristics.IsPrivateEndpointRelationship(
+                    relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId,
+                    relationship.RelationshipType)
                     ? AzureInventoryChangeType.RelationshipAdded
                     : AzureInventoryChangeType.RelationshipAdded;
 
+            string propertyName = AzureInventoryDiffHeuristics.IsPrivateEndpointRelationship(
+                relationship.FromAzureResourceId,
+                relationship.ToAzureResourceId,
+                relationship.RelationshipType)
+                ? "privateEndpoint"
+                : relationship.RelationshipType;
             changes.Add(CreateChange(
                 snapshotAId,
                 snapshotBId,
                 cloudResourceId: null,
                 relationship.FromAzureResourceId,
                 changeType,
-                relationship.RelationshipType,
+                propertyName,
                 oldValue: null,
                 newValue: relationship.ToAzureResourceId));
         }
@@ -223,6 +241,11 @@ public static class AzureInventoryDiffComparer
 
             if (relationship is null)
                 continue;
+
+            if (ShouldOmitRelationship(relationship))
+            {
+                continue;
+            }
 
             changes.Add(CreateChange(
                 snapshotAId,
@@ -254,6 +277,11 @@ public static class AzureInventoryDiffComparer
             if (assignment is null)
                 continue;
 
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(assignment.Scope))
+            {
+                continue;
+            }
+
             AzureInventoryChangeType changeType = AzureInventoryDiffHeuristics.IsElevatedRoleAssignment(assignment.RoleDefinitionId)
                 ? AzureInventoryChangeType.PermissionChanged
                 : AzureInventoryChangeType.PermissionChanged;
@@ -277,6 +305,11 @@ public static class AzureInventoryDiffComparer
             if (assignment is null)
                 continue;
 
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(assignment.Scope))
+            {
+                continue;
+            }
+
             changes.Add(CreateChange(
                 snapshotAId,
                 snapshotBId,
@@ -287,6 +320,33 @@ public static class AzureInventoryDiffComparer
                 assignment.RoleDefinitionId,
                 newValue: null));
         }
+    }
+
+    private static HashSet<string> CollectNestedRemovedResourceIds(
+        IReadOnlyList<KeyValuePair<string, AzureInventoryResourceRecord>> removedResources)
+    {
+        HashSet<string> nestedRemovedResourceIds = new(StringComparer.OrdinalIgnoreCase);
+
+        for (int candidateIndex = 0; candidateIndex < removedResources.Count; candidateIndex++)
+        {
+            string candidateId = removedResources[candidateIndex].Key;
+
+            for (int ancestorIndex = 0; ancestorIndex < removedResources.Count; ancestorIndex++)
+            {
+                if (candidateIndex == ancestorIndex)
+                    continue;
+
+                string ancestorId = removedResources[ancestorIndex].Key;
+
+                if (!ArmResourceIdNormalizer.IsDescendantOf(candidateId, ancestorId))
+                    continue;
+
+                nestedRemovedResourceIds.Add(candidateId);
+                break;
+            }
+        }
+
+        return nestedRemovedResourceIds;
     }
 
     private static AzureInventoryChangeRecord CreateChange(
@@ -324,4 +384,20 @@ public static class AzureInventoryDiffComparer
 
     private static string FormatRoleAssignment(AzureInventoryRoleAssignmentReadModel assignment) =>
         $"{assignment.Scope}|{assignment.PrincipalId}|{assignment.RoleDefinitionId}";
+
+    private static Dictionary<string, AzureInventoryResourceRecord> VisibleResources(
+        IReadOnlyList<AzureInventoryResourceRecord> resources)
+    {
+        return resources
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.AzureResourceId))
+            .ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool ShouldOmitRelationship(AzureInventoryResourceRelationshipReadModel relationship)
+    {
+        return AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(relationship.FromAzureResourceId)
+               || AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(relationship.ToAzureResourceId);
+    }
 }

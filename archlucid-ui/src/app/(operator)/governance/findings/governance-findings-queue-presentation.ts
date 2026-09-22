@@ -11,8 +11,12 @@ import {
 } from "@/lib/governance-findings-page-copy";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
-  BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD,
 } from "@/lib/buyer/buyer-polish-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  resolveGovernanceAssignedToMeClaimDiscipline,
+  resolveGovernanceAssignedToMePageSubtitle,
+} from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 import {
   comparePageHrefWithLifecycleAnchor,
   COMPARE_FINDING_LIFECYCLE_ANCHOR,
@@ -24,12 +28,21 @@ import {
   GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
   GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
 import {
-  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
-  GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance/governance-route-paths";
-import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+  resolveInhabitedFindingsDocumentPresentation,
+  type InhabitedFindingsDocumentInput,
+} from "@/lib/inhabit/inhabit-findings-document-presentation";
+import {
+  resolveSystemNotJobGovernanceFindingsClaimDiscipline,
+  resolveSystemNotJobGovernanceFindingsPageSubtitle,
+} from "@/lib/system-not-job-findings-are-verbs-on-the-system";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import {
+  type GovernanceFindingInspectHrefOptions,
+  resolveGovernanceQueueAuxiliaryFindingHref,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 import {
   governanceFindingsQueueActiveFilterChips,
@@ -118,6 +131,7 @@ export function resolveFirstFindingTriageTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
   isAssignedToMe: boolean,
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): FirstFindingTriageTarget | null {
   if (isAssignedToMe) {
     return null;
@@ -132,15 +146,25 @@ export function resolveFirstFindingTriageTarget(
   return {
     findingId: row.findingId,
     findingTitle: row.title,
-    href: getFindingDetailHref(row.runId, row.findingId, findingsQueueRunId),
+    href: resolveGovernanceQueueAuxiliaryFindingHref(row.runId, row.findingId, {
+      inspectHrefOptions,
+      findingsQueueRunId,
+    }),
   };
 }
 
 export function resolveContinueLastFindingTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
+  options?: { readonly allowRecentWithoutLoadedRow?: boolean },
 ) {
-  return resolveContinueLastGovernanceFinding(displayedRows, findingsQueueRunId);
+  return resolveContinueLastGovernanceFinding(
+    displayedRows,
+    findingsQueueRunId,
+    inspectHrefOptions,
+    options,
+  );
 }
 
 export type AssignedToMeOldestFindingTarget = {
@@ -151,6 +175,7 @@ export type AssignedToMeOldestFindingTarget = {
 export function resolveAssignedToMeOldestFindingTarget(
   rows: readonly GovernanceFindingQueueRow[],
   isAssignedToMe: boolean,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): AssignedToMeOldestFindingTarget | null {
   if (!isAssignedToMe) {
     return null;
@@ -164,7 +189,10 @@ export function resolveAssignedToMeOldestFindingTarget(
 
   return {
     target,
-    href: governanceFindingInspectHref(target.runId, target.findingId),
+    href: resolveGovernanceQueueAuxiliaryFindingHref(target.runId, target.findingId, {
+      inspectHrefOptions,
+      usePeerInspectRoute: true,
+    }),
   };
 }
 
@@ -228,12 +256,41 @@ export function hasAssignedToMeCountMismatch(options: {
 
 export { EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS };
 
+export type ResolveGovernanceFindingsPresentationOptions = {
+  readonly workingMode?: boolean;
+  readonly pathname?: string | null;
+  readonly scopedArchitectureId?: string | null;
+  readonly architectureDisplayName?: string | null;
+  readonly scopedRunId?: string | null;
+  readonly scopedRunTitle?: string | null;
+};
+
+function resolveInhabitedPresentationInput(
+  options: ResolveGovernanceFindingsPresentationOptions,
+): InhabitedFindingsDocumentInput {
+  return {
+    workingMode: options.workingMode === true,
+    pathname: options.pathname ?? null,
+    scopedArchitectureId: options.scopedArchitectureId ?? null,
+    architectureDisplayName: options.architectureDisplayName ?? null,
+    scopedRunId: options.scopedRunId ?? null,
+    scopedRunTitle: options.scopedRunTitle ?? null,
+  };
+}
+
 export function resolveGovernanceFindingsPageTitle(
   isAssignedToMe: boolean,
   buyerPolishedShell: boolean,
+  options: ResolveGovernanceFindingsPresentationOptions = {},
 ): string {
   if (isAssignedToMe) {
     return "Assigned to me";
+  }
+
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+
+  if (inhabited !== null) {
+    return inhabited.pageTitle;
   }
 
   return buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
@@ -242,20 +299,62 @@ export function resolveGovernanceFindingsPageTitle(
 export function resolveGovernanceFindingsPageSubtitle(
   isAssignedToMe: boolean,
   buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+  options: ResolveGovernanceFindingsPresentationOptions = {},
 ): string {
   if (isAssignedToMe) {
-    return buyerPolishedShell
-      ? BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD
-      : "Open findings assigned to you for remediation across reviews in this workspace.";
+    return resolveGovernanceAssignedToMePageSubtitle(productLineId, buyerPolishedShell);
   }
 
-  return buyerPolishedShell
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+
+  if (inhabited !== null) {
+    return inhabited.pageSubtitle;
+  }
+
+  const guidedSubtitle = buyerPolishedShell
     ? GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER
     : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
+
+  return resolveSystemNotJobGovernanceFindingsPageSubtitle({
+    workingMode: options.workingMode === true,
+    pathname: options.pathname ?? null,
+    guidedCopy: guidedSubtitle,
+  });
 }
 
-export function resolveGovernanceFindingsNavHref(isAssignedToMe: boolean): string {
-  return isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+export function resolveGovernanceFindingsClaimDiscipline(
+  isAssignedToMe: boolean,
+  productLineId: ProductLineId,
+  buyerPolishedShell: boolean,
+  options: ResolveGovernanceFindingsPresentationOptions = {},
+): string {
+  if (isAssignedToMe) {
+    return resolveGovernanceAssignedToMeClaimDiscipline(productLineId, buyerPolishedShell);
+  }
+
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+
+  if (inhabited !== null) {
+    return inhabited.claimDiscipline;
+  }
+
+  return resolveSystemNotJobGovernanceFindingsClaimDiscipline({
+    workingMode: options.workingMode === true,
+    pathname: options.pathname ?? null,
+    guidedCopy: GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE,
+  });
+}
+
+export function resolveGovernanceFindingsNavHref(
+  isAssignedToMe: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isAssignedToMe) {
+    return assignedToMeFindingsPathForProductLine(productLineId);
+  }
+
+  return findingsPathForProductLine(productLineId);
 }
 
 export function resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe: boolean) {

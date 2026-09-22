@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { buildCorePilotCommitContextFromRunItems } from "@/lib/core-pilot-commit-context";
+import { buildCorePilotCommitContextFromRunItems, fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -93,5 +93,38 @@ describe("buildCorePilotCommitContextFromRunItems", () => {
     expect(context.latestRunId).toBe("tenant-in-progress");
     expect(context.latestRunReadyToFinalize).toBe(true);
     expect(context.firstCommittedRunId).toBeNull();
+  });
+});
+
+vi.mock("@/lib/api/reviews-paged-inventory", () => ({
+  fetchPagedReviewsInventory: vi.fn(),
+}));
+
+vi.mock("@/lib/tenant-trial-status-client", () => ({
+  fetchTenantTrialStatusCached: vi.fn(async () => ({
+    firstCommitUtc: null,
+  })),
+}));
+
+vi.mock("@/lib/public-demo-mode", () => ({
+  isPublicDemoModeEnv: () => false,
+}));
+
+import { fetchPagedReviewsInventory } from "@/lib/api/reviews-paged-inventory";
+
+describe("fetchCorePilotCommitContext", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.mocked(fetchPagedReviewsInventory).mockReset();
+  });
+
+  it("does not call architecture-only reviews inventory on the Security product line", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "security");
+
+    const context = await fetchCorePilotCommitContext();
+
+    expect(fetchPagedReviewsInventory).not.toHaveBeenCalled();
+    expect(context.hasCommittedManifest).toBe(false);
+    expect(context.latestRunId).toBeNull();
   });
 });

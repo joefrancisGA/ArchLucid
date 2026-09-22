@@ -7,8 +7,13 @@ import type { ReactElement } from "react";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
@@ -21,7 +26,10 @@ import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { resolveFindingActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
 import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
 import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
-import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  resolveQuickDecisionFindingDispositionHref,
+  resolveQuickDecisionFindingInspectHref,
+} from "@/lib/findings/finding-evidence-navigation";
 import {
   buildQuickDecisionFindingEvidenceLinks,
   quickDecisionRecommendationSnippet,
@@ -38,6 +46,7 @@ import {
   reviewFindingWatermarkKey,
 } from "@/lib/usability/last-visited-watermark";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { cn } from "@/lib/utils";
 
 export type QuickDecisionWorkspacePrimaryFindingCardProps = {
@@ -66,6 +75,12 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
   const findingWatermarkKey = reviewFindingWatermarkKey(runId, finding.findingId);
   const showNewSinceLastVisit = isActivityNewSinceLastVisit(findingWatermarkKey, findingActivityAt);
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const { isWorkingMode } = useWorkspaceMode();
+  const findingNavOptions = {
+    architectureId: props.context.architectureId,
+    isWorkingMode,
+  };
+  const showDecisionGradeHonesty = isDecisionGradeFinding(finding);
 
   return (
     <article
@@ -105,7 +120,33 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
               insightDensityScore={finding.insightDensityScore}
             />
           ) : null}
+          {isDecisionGradeFinding(finding) ? (
+            <>
+              <FindingTrustChip finding={finding} />
+              <FindingSemanticSupportBandChip
+                finding={finding}
+                showReason
+                structuralExecutionMode={props.context.structuralExecutionMode}
+              />
+            </>
+          ) : null}
+          {finding.classification !== null && finding.classification !== undefined ? (
+            <FindingClassificationChip
+              classification={finding.classification}
+              treatment={finding.treatment}
+              findingId={finding.findingId}
+              showReason
+            />
+          ) : null}
         </div>
+        {showDecisionGradeHonesty ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={`finding-workspace-density-honesty-${finding.findingId}`}
+          >
+            {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+          </p>
+        ) : null}
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {finding.title}
         </h3>
@@ -154,7 +195,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Button type="button" size="sm" variant="default" className="h-8" asChild>
           <Link
-            href={getFindingGovernanceDispositionHref(runId, finding.findingId)}
+            href={resolveQuickDecisionFindingDispositionHref(runId, finding.findingId, findingNavOptions)}
             prefetch={false}
             data-testid={`finding-record-disposition-${finding.findingId}`}
           >
@@ -163,7 +204,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         </Button>
         <Button type="button" size="sm" variant="outline" className="h-8" asChild>
           <Link
-            href={getFindingDetailHref(runId, finding.findingId)}
+            href={resolveQuickDecisionFindingInspectHref(runId, finding.findingId, findingNavOptions)}
             prefetch={false}
             onClick={() => {
               markLastVisitedNow(findingWatermarkKey, findingActivityAt);
@@ -231,7 +272,14 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       ) : null}
       {props.askPanelOpen ? (
         <div className="mt-3">
-          <FindingAskInlinePanel findingId={finding.findingId} defaultOpen />
+          <FindingAskInlinePanel
+            findingId={finding.findingId}
+            runId={runId}
+            defaultOpen
+            semanticSupportBand={finding.semanticSupportBand ?? null}
+            classification={finding.classification ?? null}
+            treatment={finding.treatment}
+          />
         </div>
       ) : null}
       <QuickDecisionWorkspaceFindingSupportingDetails context={props.context} finding={finding} />

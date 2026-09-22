@@ -6,7 +6,7 @@ import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus
 import { readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
 
 export type UseExtractUploadFolderZipInput = {
-  readonly onUpload: (file: File) => Promise<void>;
+  readonly onUpload: (file: File, fileLabel: string) => Promise<void>;
   readonly clearUploadState: () => void;
   readonly setUploadError: (error: {
     message: string;
@@ -40,13 +40,15 @@ export function useExtractUploadFolderZip({
       return;
     }
 
-    setSelectedFileLabel(`${built.zipFile.name} (folder packaged)`);
-    await onUpload(built.zipFile);
+    const fileLabel = `${built.zipFile.name} (folder packaged)`;
+    setSelectedFileLabel(fileLabel);
+    await onUpload(built.zipFile, fileLabel);
   }
 
   async function onZipSelected(file: File): Promise<void> {
     clearUploadState();
-    setSelectedFileLabel(`${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`);
+    const fileLabel = `${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`;
+    setSelectedFileLabel(fileLabel);
 
     const validation = await readArchLucidAzurePackageZipFromFile(file);
 
@@ -60,7 +62,7 @@ export function useExtractUploadFolderZip({
       return;
     }
 
-    await onUpload(file);
+    await onUpload(file, fileLabel);
   }
 
   function clearSelectionState(): void {

@@ -22,6 +22,15 @@ public sealed class RequiredAuditTrailOrphanProbeSqlTests
         RequiredAuditTrailOrphanProbeSql.GoldenManifestMissingFinalizedAudit.Should()
             .Contain("ManifestFinalized")
             .And.Contain("dbo.GoldenManifests");
+
+        RequiredAuditTrailOrphanProbeSql.ArchitectureShareGrantedMissingAudit.Should()
+            .Contain("ArchitectureIdentity.ShareGranted")
+            .And.Contain("dbo.ArchitectureShares")
+            .And.Contain("@GraceMinutes");
+
+        RequiredAuditTrailOrphanProbeSql.ArchitectureRestrictToSharesEnabledMissingAudit.Should()
+            .Contain("ArchitectureIdentity.RestrictToSharesEnabled")
+            .And.Contain("RestrictToShares = 1");
     }
 
     [Fact]

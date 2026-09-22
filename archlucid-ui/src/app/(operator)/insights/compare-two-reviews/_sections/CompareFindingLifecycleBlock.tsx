@@ -19,6 +19,7 @@ import {
   parseCompareFindingLifecycleStatusFromSearch,
 } from "@/lib/compare/compare-finding-lifecycle-status-url";
 import { CompareFindingLifecycleRecordsTable } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingLifecycleRecordsTable";
+import { useWorkingFindingInspectHrefOptions } from "@/hooks/use-working-finding-inspect-href-options";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
@@ -41,6 +42,7 @@ export function CompareFindingLifecycleBlock(props: CompareFindingLifecycleBlock
   const { summary, records = [], priorRunId = null, laterRunId = null } = props;
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const inspectHrefOptions = useWorkingFindingInspectHrefOptions();
   const currentSearch = searchParams.toString();
   const activeStatus = parseCompareFindingLifecycleStatusFromSearch(
     searchParams.get("comparisonStatus"),
@@ -118,7 +120,12 @@ export function CompareFindingLifecycleBlock(props: CompareFindingLifecycleBlock
       </p>
 
       {showRecords ? (
-        <CompareFindingLifecycleRecordsTable records={filteredRecords} priorRunId={prior} laterRunId={later} />
+        <CompareFindingLifecycleRecordsTable
+          records={filteredRecords}
+          priorRunId={prior}
+          laterRunId={later}
+          inspectHrefOptions={inspectHrefOptions}
+        />
       ) : null}
 
       {activeStatus !== null && records.length > 0 && filteredRecords.length === 0 ? (

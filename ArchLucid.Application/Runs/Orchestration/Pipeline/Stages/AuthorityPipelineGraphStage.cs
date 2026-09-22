@@ -18,6 +18,7 @@ public sealed class AuthorityPipelineGraphStage(
     IKnowledgeGraphService knowledgeGraphService,
     IGraphSnapshotRepository graphSnapshotRepository,
     IAuthorityPipelineStagePersistence stagePersistence,
+    IBoundArchitectureInventoryGraphOverlayApplicator inventoryGraphOverlayApplicator,
     ILogger<AuthorityPipelineGraphStage> logger,
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureKnowledgeModelGraphProjector? knowledgeModelGraphProjector = null) : IAuthorityPipelineGraphStage
@@ -30,6 +31,9 @@ public sealed class AuthorityPipelineGraphStage(
 
     private readonly IAuthorityPipelineStagePersistence _stagePersistence =
         stagePersistence ?? throw new ArgumentNullException(nameof(stagePersistence));
+
+    private readonly IBoundArchitectureInventoryGraphOverlayApplicator _inventoryGraphOverlayApplicator =
+        inventoryGraphOverlayApplicator ?? throw new ArgumentNullException(nameof(inventoryGraphOverlayApplicator));
 
     private readonly ILogger<AuthorityPipelineGraphStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -125,6 +129,11 @@ public sealed class AuthorityPipelineGraphStage(
 
         context.GraphResolution = graphResolution;
         GraphSnapshot graphSnapshot = graphResolution.Snapshot;
+        graphSnapshot = await _inventoryGraphOverlayApplicator.ApplyAsync(
+            context.Scope,
+            run,
+            graphSnapshot,
+            cancellationToken);
         context.GraphSnapshot = graphSnapshot;
 
         if (_logger.IsEnabled(LogLevel.Information))

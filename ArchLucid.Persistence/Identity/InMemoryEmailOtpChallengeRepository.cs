@@ -19,7 +19,10 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
             insert,
             TimeProvider.System.GetUtcNow());
 
-        _byId[row.Id] = row;
+        if (!_byId.TryAdd(row.Id, row))
+        {
+            throw new DuplicateEmailOtpChallengeException(row.Id);
+        }
 
         return Task.FromResult(row);
     }
@@ -91,7 +94,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         _ = cancellationToken;
 
         DateTimeOffset? latest = _byId.Values
-            .Where(row => row.NormalizedEmail == normalizedEmail)
+            .Where(row => row.NormalizedEmail == normalizedEmail && EmailOtpChallengeRepositoryCore.IsActive(row))
             .Select(row => (DateTimeOffset?)row.CreatedUtc)
             .OrderByDescending(row => row)
             .FirstOrDefault();
@@ -114,6 +117,25 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
                 continue;
 
             _byId[entry.Key] = EmailOtpChallengeRepositoryCore.Clone(row, invalidatedUtc: invalidatedUtc);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteActiveChallengesForEmailAsync(
+        string normalizedEmail,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        foreach (KeyValuePair<Guid, EmailOtpChallengeRecord> entry in _byId)
+        {
+            EmailOtpChallengeRecord row = entry.Value;
+
+            if (row.NormalizedEmail != normalizedEmail || !EmailOtpChallengeRepositoryCore.IsActive(row))
+                continue;
+
+            _byId.TryRemove(entry.Key, out _);
         }
 
         return Task.CompletedTask;
@@ -149,7 +171,8 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
                 insert,
                 TimeProvider.System.GetUtcNow());
 
-            _byId[created.Id] = created;
+            if (!_byId.TryAdd(created.Id, created))
+                throw new DuplicateEmailOtpChallengeException(created.Id);
 
             return Task.FromResult(created);
         }

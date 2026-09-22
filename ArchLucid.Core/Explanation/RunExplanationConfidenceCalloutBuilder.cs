@@ -121,7 +121,11 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
         {
-            if (citationsEl.ValueKind == JsonValueKind.Array)
+            if (citationsEl.ValueKind == JsonValueKind.Null)
+            {
+                citationCount = 0;
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.Array)
             {
                 citationCount = citationsEl.GetArrayLength();
             }
@@ -142,13 +146,21 @@ public static class RunExplanationConfidenceCalloutBuilder
             {
                 string? raw = citationsEl.GetString();
 
-                if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanCount))
+                if (string.IsNullOrWhiteSpace(raw))
+                {
+                    citationCount = 0;
+                }
+                else if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanCount))
                 {
                     citationCount = booleanCount ? 1 : 0;
                 }
                 else if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out int stringEncodedCount))
                 {
                     citationCount = stringEncodedCount;
+                }
+                else
+                {
+                    citationCount = 0;
                 }
             }
         }

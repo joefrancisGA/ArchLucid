@@ -14,6 +14,10 @@ public sealed class MicrosoftOpenApiCareerArtifactExportOperationTransformer : I
     [
         "v1/pilots/runs/{runId}/first-value-report",
         "v1/pilots/runs/{runId}/first-value-report.pdf",
+        "v1/artifacts/reviews/{runId}/export",
+        "v1/artifacts/runs/{runId}/export",
+        "v1/artifacts/reviews/{runId}/export/push",
+        "v1/artifacts/runs/{runId}/export/push",
     ];
 
     public Task TransformAsync(

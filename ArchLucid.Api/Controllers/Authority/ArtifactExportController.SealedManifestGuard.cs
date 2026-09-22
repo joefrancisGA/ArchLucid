@@ -14,14 +14,20 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class ArtifactExportController
 {
+    /// <summary>
+    ///     Maps artifact export <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapArtifactExportSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+
     /// <summary>Wave-21 suggestion 208: signed review record reads fail-closed when sealed manifest hash is missing or divergent.</summary>
     private IActionResult? EnsureSealedManifestHashOrConflict(ManifestDocument? manifest, string runIdLabel)
     {
         if (manifest is null)
         {
-            return this.ConflictProblem(
-                $"Signed review record read blocked for run '{runIdLabel}': committed golden manifest is missing for sealed manifest hash verification.",
-                ProblemTypes.Conflict);
+            return MapArtifactExportSealedManifestConflict(
+                new ConflictException(
+                    $"Signed review record read blocked for run '{runIdLabel}': committed golden manifest is missing for sealed manifest hash verification."));
         }
         try
         {
@@ -32,7 +38,7 @@ public sealed partial class ArtifactExportController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArtifactExportSealedManifestConflict(ex);
         }
 
         return null;
@@ -48,7 +54,7 @@ public sealed partial class ArtifactExportController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArtifactExportSealedManifestConflict(ex);
         }
 
         return null;
@@ -59,7 +65,16 @@ public sealed partial class ArtifactExportController
         Guid runId,
         CancellationToken cancellationToken)
     {
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArtifactExportSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

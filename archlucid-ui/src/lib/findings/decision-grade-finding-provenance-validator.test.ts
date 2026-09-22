@@ -50,6 +50,25 @@ describe("getDecisionGradeFindingProvenanceViolations (FC-38)", () => {
     expect(violations).toHaveLength(0);
   });
 
+  it("requires resolvable source pointer for evidence-backed findings (LN-005)", () => {
+    const violations = getDecisionGradeFindingProvenanceViolations({
+      findings: [
+        {
+          findingId: "evidence-1",
+          findingType: "PolicyViolation",
+          classification: "DecisionGradeFinding",
+          relatedNodeIds: ["node-1"],
+          trace: { rulesApplied: ["rule-1"], citations: [] },
+          payload: { trustLabel: "EvidenceBacked" },
+        },
+      ],
+    });
+
+    expect(violations).toContain(
+      "Finding 'evidence-1' (PolicyViolation) is evidence-backed but lacks a resolvable source pointer.",
+    );
+  });
+
   it("blocks decision-grade findings without typed-engine provenance", () => {
     const violations = getDecisionGradeFindingProvenanceViolations({
       findings: [

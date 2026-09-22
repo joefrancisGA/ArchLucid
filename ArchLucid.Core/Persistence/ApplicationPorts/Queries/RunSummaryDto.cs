@@ -168,6 +168,20 @@ public class RunSummaryDto
         set;
     } = StructuralExecutionMode.Simulator;
 
+    /// <summary>Working Career vs Rehearsal door captured at first execute start (CG-019). Null on legacy rows.</summary>
+    public string? WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UTC when <see cref="WorkingCareerRehearsalDoor" /> was first captured; null until execute stamps it.</summary>
+    public DateTime? ExecutePostureCapturedUtc
+    {
+        get;
+        set;
+    }
+
     /// <summary>Authority pipeline lifecycle phase for list/compare surfaces (wave-6 suggestion 58).</summary>
     public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
     {
@@ -177,6 +191,16 @@ public class RunSummaryDto
 
     /// <summary>Coordinator legacy status for list badges when execute ownership reconciliation marks terminal failure (DR-06).</summary>
     public string? LegacyRunStatus
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Parent architecture identity when the run is nested under a Working desk locator (ADR 0077 / SG-095).
+    ///     Null for legacy peer-only runs.
+    /// </summary>
+    public Guid? ArchitectureId
     {
         get;
         set;

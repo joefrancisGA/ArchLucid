@@ -5,9 +5,10 @@ import {
   START_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-workflow-labels";
 import {
-  ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE,
-  ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE,
-} from "@/lib/architecture/architecture-identity-desk-copy";
+  resolveWorkingSingleStartNavPresentation,
+  WORKING_SINGLE_START_NAV_TOOLTIP,
+} from "@/lib/system-not-job-no-create-architecture-vs-review-fork-working";
+import { resolveSystemNotJobWorkingArchitecturesListNavTitle } from "@/lib/system-not-job-draft-list-reachable-from-portfolio";
 import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
@@ -33,7 +34,7 @@ export const NEW_REVIEW_NAV_LINK_LABEL = BUYER_NEW_REVIEW_NAV_LABEL;
 
 const NEW_REVIEW_NAV_TOOLTIP_GUIDED = `${START_REVIEW_LABEL} — Quick review, Guided intake, or full wizard (Alt+N)`;
 
-const NEW_REVIEW_NAV_TOOLTIP_WORKING = `${START_REVIEW_LABEL} — open the draft editor (Alt+N)`;
+const NEW_REVIEW_NAV_TOOLTIP_WORKING = WORKING_SINGLE_START_NAV_TOOLTIP;
 
 const CREATE_ARCHITECTURE_NAV_TOOLTIP = `${CREATE_ARCHITECTURE_LABEL} — save drafts and resume later without starting a review`;
 
@@ -64,9 +65,9 @@ export function resolveGuidedArchitecturesListNavTitle(): string {
   return `${ARCHITECTURE_DRAFTS_LIST_LABEL} — saved architecture drafts; create and resume without starting a review`;
 }
 
-/** Sidebar tooltip for `/architecture/architectures` on Working — durable identity portfolio (CA-32). */
+/** Sidebar tooltip for `/architecture/architectures` on Working — identities plus open drafts (CA-32 / SN-029). */
 export function resolveWorkingArchitecturesListNavTitle(): string {
-  return `${ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE} — ${ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE}`;
+  return resolveSystemNotJobWorkingArchitecturesListNavTitle();
 }
 
 /** @deprecated Use {@link resolveGuidedArchitecturesListNavTitle} or {@link resolveWorkingArchitecturesListNavTitle}. */
@@ -157,6 +158,18 @@ export function resolveNavLinkPresentation(
     });
   }
 
+  if (workingMode) {
+    const workingSingleStart = resolveWorkingSingleStartNavPresentation(link.href);
+
+    if (workingSingleStart !== null) {
+      return applyBuyerNavVocabulary({
+        href: link.href,
+        label: workingSingleStart.label,
+        title: workingSingleStart.title,
+      });
+    }
+  }
+
   if (link.href === ARCHITECTURES_NEW_PATH && (buyerPolishedShell || vocabularyPassActive)) {
     return applyBuyerNavVocabulary({
       href: link.href,
@@ -169,7 +182,7 @@ export function resolveNavLinkPresentation(
     return applyBuyerNavVocabulary({
       href: link.href,
       label: resolveNewReviewNavLinkLabel(buyerPolishedShell || vocabularyPassActive),
-      title: resolveNewReviewNavLinkTitle(),
+      title: resolveNewReviewNavLinkTitle(workingMode),
     });
   }
 
@@ -195,7 +208,20 @@ export function resolveNavLinkPresentation(
 /** Quick actions and hero CTAs share the creation label with left nav. */
 export function resolveQuickActionNavLinkPresentation(
   link: NavLinkPresentationSource,
+  workingMode = false,
 ): NavLinkPresentationSource {
+  if (workingMode) {
+    const workingSingleStart = resolveWorkingSingleStartNavPresentation(link.href);
+
+    if (workingSingleStart !== null) {
+      return applyBuyerNavVocabulary({
+        href: link.href,
+        label: workingSingleStart.label,
+        title: workingSingleStart.title,
+      });
+    }
+  }
+
   if (link.href === ARCHITECTURES_NEW_PATH) {
     return applyBuyerNavVocabulary({
       href: link.href,

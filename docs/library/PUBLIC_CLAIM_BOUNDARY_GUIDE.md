@@ -104,7 +104,7 @@ Separates `(A)` product readiness from `(B)` procurement realism. Use in sales, 
 | Shared hallucination defense (M-211/M-212) | "One post-agent plane; mode varies thresholds/judges only; INV-002 labels" | "Simulator green = Real-safe" / "Forked Simulator vs Real defense stacks" |
 | Demo/anonymous read plane (M-217/M-218) | "Tenant/system/demo planes; structural = factory/catalog or static-only" | "AllowAnonymous = safe" / "DemoScopes pin is structural" / "Empty demo = no data" |
 | Decision-grade finding provenance (M-207/M-208) | "Structural ProvenanceKind + emission/commit gates; checklist exempt" | "All findings citation-bound" / "Prompt = fail-closed provenance" |
-| Faithfulness / support-ratio lanes (M-209/M-210) | "Structural→commit; semantic/RAG→async; cohort→promotion" | "Faithfulness score = commit gate" / "PilotStrict = legal truth" / "Cohort ratio = package safety" |
+| Faithfulness / support-ratio lanes (M-209/M-210) | "Structural→commit; semantic/RAG→async; cohort→promotion; support band = heuristic Working signal (ADR 0085)" | "Faithfulness score = commit gate" / "PilotStrict = legal truth" / "Cohort ratio = package safety" / "Semantically verified seal" / "Faithfulness-gated package (default)" |
 | Tenant DiD erosion (M-213/M-214) | "Predicates erode; primary = Layer A + INV-001; analyzers ≠ proof" | "WHERE TenantId = isolation" / "NetArchTest proves tenancy" / "RLS is the fix" |
 | Azure workload privilege seam (M-215/M-216) | "Bootstrap vs runtime SQL MI; AOAI User; PE ≠ least privilege" | "Prod API is non-db_owner" / "PE = private data plane" / "AOAI Contributor" |
 | Dapper/DDL/satellite ladder (M-219/M-220) | "Intentional Dapper stack; measured ladder before ORM" | "EF fixes isolation/DENYs" / "Satellites = halfway to ORM" |

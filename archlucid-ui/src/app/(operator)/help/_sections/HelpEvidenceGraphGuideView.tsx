@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpEvidenceGraphHeaderActions } from "@/app/(operator)/help/_sections/HelpEvidenceGraphHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { EvidenceGraphHelpRelatedNextStepsStrip } from "@/components/help/EvidenceGraphHelpRelatedNextStepsStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -176,6 +177,8 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
 
           {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-evidence-graph" showSsoOptional={false} />
 
         <EvidenceGraphHelpRelatedNextStepsStrip />
       </div>

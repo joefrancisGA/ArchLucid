@@ -1,0 +1,125 @@
+namespace ArchLucid.Contracts.InfraEvidence.DiagramPeel;
+
+/// <summary>Default peel catalog when SQL is unavailable or the table is empty (IE-17).</summary>
+public static class DiagramPeelCatalogDefaultSeed
+{
+    public const int DefaultCatalogVersion = 5;
+
+    public static DiagramPeelCatalogSnapshot BuildSnapshot()
+    {
+        return new DiagramPeelCatalogSnapshot
+        {
+            CatalogVersion = DefaultCatalogVersion,
+            Entries = BuildEntries(),
+        };
+    }
+
+    public static IReadOnlyList<DiagramPeelCatalogEntry> BuildEntries()
+    {
+        return
+        [
+            Entry("Microsoft.Network/networkWatchers", 10, "Platform noise — not topology"),
+            Entry("Microsoft.Insights/diagnosticSettings", 10, "Observability attachment"),
+            Entry("Microsoft.Resources/deployments", 10, "Deployment history"),
+            Entry("Microsoft.Authorization/locks", 10, "Governance metadata"),
+            Entry("Microsoft.Network/virtualNetworks/subnets", 20, "Child resource — nest under VNet swimlane"),
+            Entry("Microsoft.Network/networkSecurityGroups/securityRules", 20, "Child resource — rules on NSG"),
+            Entry("Microsoft.Network/routeTables/routes", 20, "Child resource — routes on table"),
+            Entry("Microsoft.Network/loadBalancers/backendAddressPools", 20, "Child resource — LB pool"),
+            Entry("Microsoft.Network/loadBalancers/probes", 20, "Child resource — LB probe"),
+            Entry("Microsoft.Network/applicationGateways/frontendIPConfigurations", 20, "Child resource — AppGw frontend"),
+            Entry("Microsoft.Storage/storageAccounts/blobServices", 20, "Child resource — storage sub-service"),
+            AlwaysDispose("Microsoft.Portal/dashboards", "Always dispose — portal dashboard"),
+            AlwaysDispose("Microsoft.OperationalInsights/workspaces", "Always dispose — Log Analytics workspace"),
+            AlwaysDispose("Microsoft.OperationsManagement/solutions", "Always dispose — monitoring solution"),
+            AlwaysDispose(
+                "Microsoft.AlertsManagement/smartDetectorAlertRules",
+                "Always dispose — smart detector alert rule"),
+            AlwaysDispose("Microsoft.Insights/metricAlerts", "Always dispose — metric alert"),
+            AlwaysDispose("Microsoft.Insights/workbooks", "Always dispose — monitoring workbook"),
+            AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
+            AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
+            AlwaysDispose(
+                "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                "Always dispose — private DNS virtual network link"),
+            AlwaysDispose(
+                "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
+                "Always dispose — DNS forwarding ruleset virtual network link"),
+            AlwaysDispose(
+                "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                "Always dispose — VNet peering child"),
+            AlwaysDispose("Microsoft.Network/dnsResolvers", "Always dispose — DNS resolver"),
+            AlwaysDispose("Microsoft.Compute/virtualMachines/extensions", "Always dispose — VM extension"),
+            AlwaysDispose("Microsoft.Compute/virtualMachineScaleSets/extensions", "Always dispose — VMSS extension"),
+            AlwaysDispose("Microsoft.HybridCompute/machines/extensions", "Always dispose — Arc extension"),
+            AlwaysDispose("Microsoft.Maintenance/maintenanceConfigurations", "Always dispose — maintenance window"),
+            AlwaysDispose("Microsoft.Maintenance/configurationAssignments", "Always dispose — maintenance assignment"),
+            Entry("Microsoft.Network/networkInterfaces", 30, "Attachment — VM/NIC hop"),
+            Entry("Microsoft.Network/publicIPAddresses", 40, "Attachment — address on NIC/LB"),
+            Entry("Microsoft.Compute/disks", 50, "Attachment — disk on VM"),
+            Backbone("Microsoft.Network/virtualNetworks"),
+            Backbone("Microsoft.Compute/virtualMachines"),
+            Backbone("Microsoft.Web/sites"),
+            Backbone("Microsoft.Storage/storageAccounts"),
+            Backbone("Microsoft.Sql/servers"),
+            Backbone("Microsoft.Sql/servers/databases"),
+            Backbone("Microsoft.Sql/managedInstances"),
+            Backbone("Microsoft.DBforPostgreSQL/flexibleServers"),
+            Backbone("Microsoft.DBforPostgreSQL/servers"),
+            Backbone("Microsoft.DBforMySQL/flexibleServers"),
+            Backbone("Microsoft.DBforMySQL/servers"),
+            Backbone("Microsoft.DocumentDB/databaseAccounts"),
+            Backbone("Microsoft.Cache/Redis"),
+            Backbone("Microsoft.DataFactory/factories"),
+            Backbone("Microsoft.Synapse/workspaces"),
+            Backbone("Microsoft.Databricks/workspaces"),
+            Backbone("Microsoft.PowerBIDedicated/capacities"),
+            Backbone("Microsoft.Fabric/capacities"),
+            Backbone("Microsoft.Compute/virtualMachineScaleSets"),
+            Backbone("Microsoft.ContainerService/managedClusters"),
+            Backbone("Microsoft.Web/serverFarms"),
+            Backbone("Microsoft.KeyVault/vaults"),
+            Backbone("Microsoft.ManagedIdentity/userAssignedIdentities"),
+            Backbone("Microsoft.Network/azureFirewalls"),
+            Backbone("Microsoft.Network/applicationGateways"),
+            Backbone("Microsoft.Network/loadBalancers"),
+            Backbone("Microsoft.Network/privateEndpoints"),
+        ];
+    }
+
+    private static DiagramPeelCatalogEntry Entry(string armResourceType, int peelRank, string notes)
+    {
+        return new DiagramPeelCatalogEntry
+        {
+            ArmResourceType = armResourceType,
+            PeelRank = peelRank,
+            AlwaysDispose = false,
+            IsEnabled = true,
+            Notes = notes,
+        };
+    }
+
+    private static DiagramPeelCatalogEntry AlwaysDispose(string armResourceType, string notes)
+    {
+        return new DiagramPeelCatalogEntry
+        {
+            ArmResourceType = armResourceType,
+            PeelRank = 0,
+            AlwaysDispose = true,
+            IsEnabled = true,
+            Notes = notes,
+        };
+    }
+
+    private static DiagramPeelCatalogEntry Backbone(string armResourceType)
+    {
+        return new DiagramPeelCatalogEntry
+        {
+            ArmResourceType = armResourceType,
+            PeelRank = null,
+            AlwaysDispose = false,
+            IsEnabled = true,
+            Notes = "Backbone — never peel",
+        };
+    }
+}

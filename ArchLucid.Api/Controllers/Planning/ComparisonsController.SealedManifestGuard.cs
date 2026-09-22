@@ -21,7 +21,16 @@ public sealed partial class ComparisonsController
             return null;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -35,11 +44,17 @@ public sealed partial class ComparisonsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapComparisonReplaySealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps comparison replay <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapComparisonReplaySealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedForExportRecordAsync(
         string exportRecordId,

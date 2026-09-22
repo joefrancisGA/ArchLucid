@@ -5,13 +5,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 /** Prominent one-click sample review entry on the First review guide — no tenant seeding required. */
-export function OnboardingSampleReviewShortcut(): React.JSX.Element {
+export function OnboardingSampleReviewShortcut(): React.JSX.Element | null {
+  if (isLiveOperatorShellRecoveryContext()) {
+    return null;
+  }
+
   return (
     <section
       aria-labelledby="onboarding-sample-review-heading"

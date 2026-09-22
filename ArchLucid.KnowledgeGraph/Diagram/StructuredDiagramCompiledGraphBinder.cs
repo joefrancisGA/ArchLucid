@@ -52,6 +52,7 @@ public static class StructuredDiagramCompiledGraphBinder
                 DiagramGraphNodeId = diagramNode.NodeId,
                 DiagramSourceId = diagramSourceId,
                 CanonicalGraphNodeId = boundTarget.NodeId,
+                SourceEvidenceItemId = TryReadSourceEvidenceItemId(diagramNode),
             });
         }
 
@@ -109,7 +110,31 @@ public static class StructuredDiagramCompiledGraphBinder
             target.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind] =
                 StructuredDiagramGraphProvenanceKinds.ObservedFact;
             target.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1";
+
+            if (!string.IsNullOrWhiteSpace(binding.SourceEvidenceItemId))
+            {
+                target.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] =
+                    binding.SourceEvidenceItemId.Trim();
+            }
         }
+    }
+
+    private static string? TryReadSourceEvidenceItemId(GraphNode diagramNode)
+    {
+        if (diagramNode.Properties is null)
+        {
+            return null;
+        }
+
+        if (!diagramNode.Properties.TryGetValue(
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                out string? evidenceItemId)
+            || string.IsNullOrWhiteSpace(evidenceItemId))
+        {
+            return null;
+        }
+
+        return evidenceItemId.Trim();
     }
 
     private static bool IsDiagramTopologyNode(GraphNode node)
@@ -121,6 +146,7 @@ public static class StructuredDiagramCompiledGraphBinder
         IReadOnlyList<GraphEdge> edges,
         IReadOnlyDictionary<string, string> diagramNodeIdRemap)
     {
+        HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
         List<GraphEdge> remapped = [];
 
         foreach (GraphEdge edge in edges)
@@ -129,6 +155,13 @@ public static class StructuredDiagramCompiledGraphBinder
             string toNodeId = RemapEndpoint(edge.ToNodeId, diagramNodeIdRemap);
 
             if (string.Equals(fromNodeId, toNodeId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string edgeKey = $"{fromNodeId}|{toNodeId}|{edge.EdgeType}";
+
+            if (!edgeKeys.Add(edgeKey))
             {
                 continue;
             }

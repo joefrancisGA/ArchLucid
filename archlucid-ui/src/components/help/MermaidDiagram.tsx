@@ -17,6 +17,7 @@ import {
   prepareMermaidSvgForResponsiveLayout,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
+import { renderMermaidSvgMarkup } from "@/lib/mermaid/mermaid-safe-render";
 
 export type MermaidDiagramProps = {
   readonly source: string;
@@ -140,21 +141,21 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
       setSvgMarkup(null);
 
       try {
-        const mermaidModule = await import("mermaid");
-        const mermaid = mermaidModule.default;
-
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: dark ? "dark" : "neutral",
-          securityLevel: "strict",
-          fontFamily: "ui-sans-serif, system-ui, sans-serif",
-          ...(themeVariables !== undefined ? { themeVariables: { ...themeVariables } } : {}),
+        const svg = await renderMermaidSvgMarkup(source, {
+          renderIdBase: renderId,
+          initialize: (mermaid) => {
+            mermaid.initialize({
+              startOnLoad: false,
+              theme: dark ? "dark" : "neutral",
+              securityLevel: "strict",
+              fontFamily: "ui-sans-serif, system-ui, sans-serif",
+              ...(themeVariables !== undefined ? { themeVariables: { ...themeVariables } } : {}),
+            });
+          },
         });
 
-        const result = await mermaid.render(renderId, source.trim());
-
         if (!canceled) {
-          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(svg));
         }
       }
       catch (error) {

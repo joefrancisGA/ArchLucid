@@ -8,6 +8,7 @@ import { HelpAuditTrailTechnicalReference } from "@/app/(operator)/help/_section
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AuditTrailHelpClaimDisciplineStrip } from "@/components/help/AuditTrailHelpClaimDisciplineStrip";
 import { AuditTrailHelpEvidenceOrientationStrip } from "@/components/help/AuditTrailHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -339,6 +340,8 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
 
           <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy={!buyerPolishedShell} />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-audit-trail" showSsoOptional={false} />
 
         {buyerPolishedShell ? <HelpAuditTrailSourcesOrientationStrip /> : null}
 

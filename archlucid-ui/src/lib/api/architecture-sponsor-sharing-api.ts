@@ -1,3 +1,6 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { sponsorPreliminaryShareMutationBlockedReason } from "@/lib/pilots/sponsor-preliminary-share-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostNoContent } from "@/lib/api/http";
 
 export type RecordSponsorPreliminaryArchitectureShareRequest = {
@@ -14,5 +17,13 @@ export async function recordSponsorPreliminaryArchitectureShare(
   body: RecordSponsorPreliminaryArchitectureShareRequest,
 ): Promise<void> {
   const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-preliminary-share`;
-  await apiPostNoContent(path, body);
+
+  try {
+    await apiPostNoContent(path, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = sponsorPreliminaryShareMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

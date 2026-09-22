@@ -1,7 +1,6 @@
-import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
+import { howProductWorksTitle, productLineDisplayName } from "@/lib/product-line/product-line-display-name";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { securityTrustEvidenceSourcesForProductLine } from "@/lib/product-line/securenow-evidence-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 /** Hero supporting line for `/assurance-status` — product name only; diligence contact stays ArchLucid security. */
@@ -32,11 +31,5 @@ export function operatorSecurityTrustNdaRequestHref(productLineId: ProductLineId
 }
 
 export function securityTrustEvidenceSources(productLineId: ProductLineId): readonly EvidenceSourceLink[] {
-  return [
-    { label: "Trust Center", href: "/trust" },
-    { label: "Product FAQ", href: "/faq" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "Privacy policy", href: "/privacy" },
-    { label: howProductWorksTitle(productLineId), href: inAppHelpHref("getting-started", "how-archlucid-works") },
-  ];
+  return securityTrustEvidenceSourcesForProductLine(productLineId);
 }

@@ -76,8 +76,6 @@ export type ArchitectureDraftPatchPayload = {
   readonly workflowIntent: typeof CREATE_ARCHITECTURE_INTENT;
   readonly structuredBrief: ReturnType<typeof structuredBriefToPatchPayload>;
   readonly openQuestions?: string;
-  readonly expectedUpdatedUtc?: string;
-  readonly forceOverwrite?: boolean;
 };
 
 /**
@@ -103,7 +101,9 @@ export function buildArchitectureDraftPatchPayload(
       : {}),
     businessOutcome: trimmedOutcome,
     ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
-    ...(fields.openQuestions.trim().length > 0 ? { openQuestions: fields.openQuestions.trim() } : { openQuestions: "" }),
+    ...( (fields.openQuestions?.trim() ?? "").length > 0
+      ? { openQuestions: fields.openQuestions.trim() }
+      : { openQuestions: "" }),
     actorSet: normalizeActorSetForAdmission(
       actorSet.actors.length > 0 ? actorSet : buildDefaultActorSet(),
     ),
@@ -112,7 +112,7 @@ export function buildArchitectureDraftPatchPayload(
   };
 }
 
-/** Maps a persisted draft document to workspace field state for readiness checks. */
+/** Maps a persisted architecture draft document to workspace field state for readiness checks. */
 export function architectureDraftFieldsFromDocument(draft: DraftRequestResponse): ArchitectureDraftFieldState {
   const bootstrapIntent = isArchitectureCreationBootstrapIntent(draft.document.freeTextIntent);
 

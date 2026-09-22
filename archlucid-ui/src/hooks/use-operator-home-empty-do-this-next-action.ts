@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useIsSampleWorkspaceSession } from "@/hooks/use-effective-operator-scope";
 import { useFeaturedCompletedSampleQuery } from "@/hooks/use-featured-completed-sample-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import {
@@ -17,6 +18,7 @@ import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
+import { readCachedUserPreferencesForMutators } from "@/lib/api/user-preferences";
 import {
   resolveEmptyHomeDoThisNext,
   type EmptyHomeDoThisNextAction,
@@ -70,6 +72,7 @@ export type OperatorHomeEmptyDoThisNextActionState = {
 export function useOperatorHomeEmptyDoThisNextAction(): OperatorHomeEmptyDoThisNextActionState {
   const readiness = useFinishSetupReadinessContext();
   const { isWorkingMode } = useWorkspaceMode();
+  const isSampleWorkspace = useIsSampleWorkspaceSession();
   const sampleQuery = useFeaturedCompletedSampleQuery();
   const featuredHref = resolveFeaturedSampleHref(sampleQuery.data);
   // Start false on SSR so production empty tenants do not inherit dev-default demo scope.
@@ -93,11 +96,17 @@ export function useOperatorHomeEmptyDoThisNextAction(): OperatorHomeEmptyDoThisN
       ? resolveDemoSeededOverviewSamplePackage(getEffectiveBrowserProxyScopeHeaders())
       : null;
   const sampleHref = demoSample?.href ?? featuredHref;
+  const firstSessionPurpose = readCachedUserPreferencesForMutators().firstSessionPurpose;
+  const liveDedicatedEmpty =
+    isWorkingMode && !demoSeeded && !isSampleWorkspace && firstSessionPurpose !== "training";
+
   const action = resolveEmptyHomeDoThisNext({
     setupContext: readiness.context,
     sampleHref,
     demoSeededOverview: demoSeeded,
     workingMode: isWorkingMode,
+    liveDedicatedEmpty,
+    firstSessionPurposeTraining: firstSessionPurpose === "training",
   });
   const sampleLoading = action.kind === "sample" && sampleQuery.isPending && !demoSeeded;
 

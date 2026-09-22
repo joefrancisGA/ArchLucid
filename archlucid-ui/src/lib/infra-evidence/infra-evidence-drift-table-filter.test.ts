@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import type { InfraEvidenceDiffChange } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import type { InfraEvidenceDiffChange, InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
+  DEFAULT_DRIFT_CHANGES_PAGE_SIZE,
+  driftTableFilterSearchParams,
+  filterDriftChanges,
+  parseDriftTableChangesPageSize,
+  parseDriftTableFilterState,
+  parseDriftTableIncludeUnchanged,
   parseDriftTableSortKey,
   sortDriftChanges,
   toggleDriftTableSort,
@@ -22,8 +28,27 @@ function buildChange(
     oldValue: null,
     newValue: null,
     riskClassification: null,
+    securitySignificance: null,
+    architectureSignificance: null,
     evidenceReference: null,
     ...overrides,
+  };
+}
+
+function buildDiff(
+  snapshotAId: string,
+  snapshotBId: string,
+): InfraEvidenceDiffSummary {
+  return {
+    diffId: "diff-1",
+    snapshotAId,
+    snapshotBId,
+    subscriptionId: "sub-1",
+    totalChanges: 2,
+    resourceAddedCount: 0,
+    resourceRemovedCount: 1,
+    resourceModifiedCount: 1,
+    createdUtc: "2026-01-01T00:00:00Z",
   };
 }
 
@@ -67,16 +92,211 @@ describe("infra-evidence-drift-table-filter", () => {
     expect(sorted.map((row) => row.changeId)).toEqual(["a", "b"]);
   });
 
+  it("hides resource-removed rows unless two inventory snapshots are being compared", () => {
+    const rows = [
+      buildChange("removed", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-removed", {
+        changeType: "ResourceRemoved",
+      }),
+      buildChange("modified", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-modified", {
+        changeType: "ResourceModified",
+      }),
+    ];
+
+    const sameSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "11111111-1111-1111-1111-111111111111",
+    );
+    const twoSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    );
+
+    const emptyFilters = {
+      riskFilter: "",
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+    };
+
+    expect(filterDriftChanges(rows, emptyFilters, sameSnapshotDiff)).toEqual([
+      rows[1],
+    ]);
+    expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual(rows);
+  });
+
+  it("suppresses nested resource-removed rows when comparing two inventories", () => {
+    const parentArmId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+    const childArmId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext";
+    const rows = [
+      buildChange("parent", parentArmId, {
+        changeType: "ResourceRemoved",
+      }),
+      buildChange("child", childArmId, {
+        changeType: "ResourceRemoved",
+      }),
+    ];
+    const twoSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    );
+    const emptyFilters = {
+      riskFilter: "",
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+    };
+
+    expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual([rows[0]]);
+  });
+
+  it("filters drift rows by none and unknown risk keys", () => {
+    const rows = [
+      buildChange("none", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-none", {
+        changeType: "ResourceModified",
+        riskClassification: null,
+      }),
+      buildChange("unknown", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-unknown", {
+        changeType: "ResourceModified",
+        riskClassification: "unknown",
+      }),
+      buildChange("elevated", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-elevated", {
+        changeType: "ResourceModified",
+        riskClassification: "elevated",
+      }),
+    ];
+    const twoSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    );
+
+    const baseFilters = {
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+    };
+
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "none" }, twoSnapshotDiff)).toEqual([rows[0]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "unknown" }, twoSnapshotDiff)).toEqual([rows[1]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "elevated" }, twoSnapshotDiff)).toEqual([rows[2]]);
+  });
+
+  it("filters drift rows by resource group, resource type, and property", () => {
+    const rows = [
+      buildChange("a", "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gw-a", {
+        changeType: "ResourceModified",
+        property: "sku",
+      }),
+      buildChange("b", "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Compute/virtualMachines/vm-b", {
+        changeType: "ResourceModified",
+        property: "tags",
+      }),
+    ];
+
+    expect(
+      filterDriftChanges(rows, {
+        riskFilter: "",
+        changeTypeFilter: "",
+        resourceFilter: "",
+        resourceGroupFilter: "rg-net",
+        resourceTypeFilter: "",
+        propertyFilter: "",
+      }),
+    ).toEqual([rows[0]]);
+    expect(
+      filterDriftChanges(rows, {
+        riskFilter: "",
+        changeTypeFilter: "",
+        resourceFilter: "",
+        resourceGroupFilter: "",
+        resourceTypeFilter: "microsoft.compute",
+        propertyFilter: "",
+      }),
+    ).toEqual([rows[1]]);
+    expect(
+      filterDriftChanges(rows, {
+        riskFilter: "",
+        changeTypeFilter: "",
+        resourceFilter: "",
+        resourceGroupFilter: "",
+        resourceTypeFilter: "",
+        propertyFilter: "sku",
+      }),
+    ).toEqual([rows[0]]);
+  });
+
+  it("parses and serializes includeUnchanged table filter state", () => {
+    expect(parseDriftTableIncludeUnchanged("1")).toBe(true);
+    expect(parseDriftTableIncludeUnchanged("true")).toBe(true);
+    expect(parseDriftTableIncludeUnchanged("")).toBe(false);
+
+    const parsed = parseDriftTableFilterState(new URLSearchParams("includeUnchanged=1"));
+    expect(parsed.includeUnchanged).toBe(true);
+    expect(driftTableFilterSearchParams(parsed).get("includeUnchanged")).toBe("1");
+  });
+
+  it("filters drift rows to risky changes only when riskyOnly is enabled", () => {
+    const rows = [
+      buildChange("none", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-none", {
+        changeType: "ResourceModified",
+        riskClassification: null,
+      }),
+      buildChange("unknown", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-unknown", {
+        changeType: "ResourceModified",
+        riskClassification: "unknown",
+      }),
+      buildChange("elevated", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-elevated", {
+        changeType: "ResourceModified",
+        riskClassification: "elevated",
+      }),
+    ];
+    const twoSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    );
+
+    const baseFilters = {
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+      riskFilter: "",
+      riskyOnly: true,
+    };
+
+    expect(filterDriftChanges(rows, baseFilters, twoSnapshotDiff)).toEqual([rows[2]]);
+  });
+
+  it("parses and serializes riskyOnly table filter state", () => {
+    const parsed = parseDriftTableFilterState(new URLSearchParams("riskyOnly=1"));
+    expect(parsed.riskyOnly).toBe(true);
+    expect(driftTableFilterSearchParams(parsed).get("riskyOnly")).toBe("1");
+  });
+
   it("toggles sort direction when the same column is selected again", () => {
     const next = toggleDriftTableSort(
       {
         riskFilter: "",
         changeTypeFilter: "",
         resourceFilter: "",
+        resourceGroupFilter: "",
+        resourceTypeFilter: "",
+        propertyFilter: "",
         sortBy: "resourceGroup",
         sortDir: "asc",
         changesPage: 2,
+        changesPageSize: 50,
         snapshotsPage: 1,
+        includeUnchanged: false,
+        riskyOnly: false,
       },
       "resourceGroup",
     );
@@ -84,5 +304,18 @@ describe("infra-evidence-drift-table-filter", () => {
     expect(next.sortBy).toBe("resourceGroup");
     expect(next.sortDir).toBe("desc");
     expect(next.changesPage).toBe(1);
+  });
+
+  it("parses and serializes allowed changes page sizes", () => {
+    expect(parseDriftTableChangesPageSize("20")).toBe(20);
+    expect(parseDriftTableChangesPageSize("50")).toBe(50);
+    expect(parseDriftTableChangesPageSize("100")).toBe(100);
+    expect(parseDriftTableChangesPageSize("7")).toBe(DEFAULT_DRIFT_CHANGES_PAGE_SIZE);
+
+    const parsed = parseDriftTableFilterState(new URLSearchParams("changesPage=3&changesPageSize=20"));
+    expect(parsed.changesPage).toBe(3);
+    expect(parsed.changesPageSize).toBe(20);
+    expect(driftTableFilterSearchParams(parsed).get("changesPageSize")).toBe("20");
+    expect(driftTableFilterSearchParams({ ...parsed, changesPageSize: 50 }).get("changesPageSize")).toBeNull();
   });
 });

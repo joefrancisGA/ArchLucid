@@ -101,7 +101,7 @@ public sealed partial class RunsController
         catch (ConflictException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "CommitRun conflict for run '{RunId}'.", runId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunsSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

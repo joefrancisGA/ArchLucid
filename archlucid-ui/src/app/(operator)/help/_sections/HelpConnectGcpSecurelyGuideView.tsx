@@ -7,6 +7,7 @@ import { HelpConnectGcpSecurelyHeaderActions } from "@/app/(operator)/help/_sect
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConnectGcpSecurelyHelpClaimDisciplineStrip } from "@/components/help/ConnectGcpSecurelyHelpClaimDisciplineStrip";
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpConnectGcpSecurelyBreadcrumb } from "@/components/help/HelpConnectGcpSecurelyBreadcrumb";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -386,6 +387,8 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
               ))}
             </ul>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-connect-gcp-securely" showSsoOptional={false} />
         </div>
         <HelpTopicTableOfContents headings={CONNECT_GCP_SECURELY_TOC_HEADINGS} enableScrollSpy />
       </div>

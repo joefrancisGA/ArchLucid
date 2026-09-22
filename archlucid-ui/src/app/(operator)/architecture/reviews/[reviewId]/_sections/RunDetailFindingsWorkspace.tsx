@@ -34,8 +34,10 @@ import {
 import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRunRehearsalCaption";
+import { WorkingCareerRehearsalChooser } from "@/components/governance/WorkingCareerRehearsalChooser";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import {
@@ -109,6 +111,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -116,6 +119,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
+  const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
+  const workingInstrument =
+    isWorkingMode && parentArchitectureId.length > 0
+      ? { architectureId: parentArchitectureId, isWorkingMode: true as const }
+      : undefined;
   const initialJobView = resolveFindingJobViewFromSearchParam(
     searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
   );
@@ -292,7 +301,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       : null;
   const metricPresentation = createHomeSurface
     ? architectureAssessmentFindingsPresentation(props.runId, triageVisibleCount)
-    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount);
+    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount, workingInstrument);
 
   const metricCountEl = (
     <div className="mb-3" data-testid="run-detail-findings-metric-count">
@@ -311,6 +320,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const showFindingStreamDualCount = architectWorkspaceChrome && (sealedStreamCount > 0 || agentStreamCount > 0);
   const findingsListProps = {
     runId: props.runId,
+    architectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
     findings: listFindings,
     sourceFindingsCount: props.findings.length,
     buyerPolishedShell: props.buyerPolishedShell,
@@ -338,12 +348,15 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       onShowAdvisoryChange: setShowAdvisory,
       managedExternally: true as const,
     },
+    structuralExecutionMode: props.structuralExecutionMode,
   };
   const findingsListEl = useDenseTable ? (
     <RunDetailFindingsDenseTable
       runId={props.runId}
+      architectureId={parentArchitectureId.length > 0 ? parentArchitectureId : null}
       findings={listFindings}
       showDensityScore={architectWorkspaceChrome}
+      structuralExecutionMode={props.structuralExecutionMode}
     />
   ) : (
     <RunDetailFindingsCardViewLazy {...findingsListProps} />
@@ -355,6 +368,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       ) : null}
       {architectWorkspaceChrome ? (
         <RunDetailFindingsListViewToggle workingMode={architectWorkspaceChrome} />
+      ) : null}
+      {architectWorkspaceChrome ? (
+        <WorkingCareerRehearsalChooser source="findings" />
       ) : null}
       <RunDetailFindingsToolbar
       findings={confidenceGatedForCounts}
@@ -400,6 +416,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   return (
     <FindingKeyboardTriageHost
       resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)}
+      defaultFocusFirstFinding={isWorkingMode && parentArchitectureId.length > 0}
       resolveDispositionBlockedReason={(findingId) => {
         const finding = props.findings.find((row) => row.findingId === findingId);
 
@@ -430,6 +447,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       {!createHomeSurface ? (
         <ReviewPackageGovernanceFindingsVocabularyRail
           runId={props.runId}
+          parentArchitectureId={props.parentArchitectureId}
           currentSurfaceId="review-package-findings"
         />
       ) : null}
@@ -459,7 +477,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         findings={props.findings}
         requestAssumptionTexts={props.requestAssumptionTexts}
       />
-      {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} /> : null}
+      {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} runId={props.runId} /> : null}
       {architectWorkspaceChrome ? (
         <div className="space-y-2" data-testid="run-detail-findings-density-desk-controls">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -476,6 +494,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
               [
                 ["decision-grade", `Decision-grade (${classificationCounts.decisionGrade})`],
                 ["checklist", `Checklist (${classificationCounts.checklist})`],
+                ["uncited", `Uncited (${classificationCounts.uncited})`],
                 ["all", `All (${confidenceVisibleScoped.length})`],
               ] as const
             ).map(([bandId, label]) => (

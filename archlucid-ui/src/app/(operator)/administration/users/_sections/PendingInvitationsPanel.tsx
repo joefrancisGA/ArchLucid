@@ -201,7 +201,7 @@ export function PendingInvitationsPanel({
 
   useEffect(() => {
     void load();
-  }, [load, refreshKey]);
+  }, [load, refreshKey, seededInvitations]);
 
   const { pending, resolved } = useMemo(() => partitionAdminUserInvitations(rows), [rows]);
   const visibleRows = showResolved ? [...pending, ...resolved] : pending;

@@ -65,8 +65,8 @@ export function SponsorDashboardDataProvider({ children }: { children: ReactNode
     setRefreshing(true);
 
     try {
-      await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundle });
-      await queryClient.refetchQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundle });
+      await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundlePrefix });
+      await queryClient.refetchQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundlePrefix });
       setLastRefreshedAt(new Date());
     } finally {
       setRefreshing(false);

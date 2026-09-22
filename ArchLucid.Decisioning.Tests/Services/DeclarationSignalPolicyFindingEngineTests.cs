@@ -98,6 +98,20 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
     }
 
     [Fact]
+    public async Task Declaration_security_with_hipaa_011_only_emits_public_access_not_https()
+    {
+        FixedComplianceRulePackProvider provider = new(CreatePack("hipaa-011"));
+        DeclarationSecurityBaselineFindingEngine sut = new(provider);
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("public network access", because: "data-protection theme");
+        findings[0].PolicyRuleId.Should().Be("hipaa-011");
+    }
+
+    [Fact]
     public async Task Declaration_security_with_hipaa_024_only_emits_transport_not_data_protection()
     {
         FixedComplianceRulePackProvider provider = new(CreatePack("hipaa-024"));

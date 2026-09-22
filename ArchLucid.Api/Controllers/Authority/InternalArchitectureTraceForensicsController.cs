@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
@@ -29,7 +30,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class InternalArchitectureTraceForensicsController(
+public sealed partial class InternalArchitectureTraceForensicsController(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IRunRepository authorityRunRepository,
     IScopeContextProvider scopeContextProvider,
@@ -62,42 +63,49 @@ public sealed class InternalArchitectureTraceForensicsController(
                 $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
                 ProblemTypes.ValidationFailed);
 
-        if (!Guid.TryParse(runId, out Guid runGuid))
-            return this.BadRequestProblem("runId must be a GUID.", ProblemTypes.ValidationFailed);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        if (!await RunExistsInScopeAsync(runId, cancellationToken))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        PagingParameters paging = new()
+        try
         {
-            PageNumber = pageNumber,
-            PageSize = pageSize
-        };
-        (int skip, int take) = paging.Normalize();
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
-            await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
-                scope,
-                runId,
-                skip,
-                take,
-                cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
 
-        return Ok(new AgentExecutionTraceForensicsPageResponse
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            if (!await RunExistsInScopeAsync(runId, cancellationToken))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            PagingParameters paging = new()
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            (int skip, int take) = paging.Normalize();
+
+            (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
+                await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
+                    scope,
+                    runId,
+                    skip,
+                    take,
+                    cancellationToken);
+
+            return Ok(new AgentExecutionTraceForensicsPageResponse
+            {
+                Traces = summaries.ToList(),
+                TotalCount = totalCount,
+                PageNumber = paging.PageNumber,
+                PageSize = paging.PageSize
+            });
+        }
+        catch (ConflictException ex)
         {
-            Traces = summaries.ToList(),
-            TotalCount = totalCount,
-            PageNumber = paging.PageNumber,
-            PageSize = paging.PageSize
-        });
+            return MapTraceForensicsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -123,18 +131,25 @@ public sealed class InternalArchitectureTraceForensicsController(
         if (!await RunExistsInScopeAsync(trace.RunId, cancellationToken))
             return this.NotFoundProblem($"Trace '{traceId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        if (!TryParseRunId(trace.RunId, out Guid runGuid))
+        try
+        {
+            if (!TryParseRunId(trace.RunId, out Guid runGuid))
+                return Ok(trace);
+
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             return Ok(trace);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        return Ok(trace);
+        }
+        catch (ConflictException ex)
+        {
+            return MapTraceForensicsSealedManifestConflict(ex);
+        }
     }
 
     private async Task<bool> RunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
@@ -149,29 +164,4 @@ public sealed class InternalArchitectureTraceForensicsController(
 
     private static bool TryParseRunId(string runId, out Guid runGuid) =>
         Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
-
-    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
-        ScopeContext scope,
-        Guid runId,
-        CancellationToken cancellationToken)
-    {
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.GoldenManifest is null)
-            return null;
-
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                _manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        return null;
-    }
 }

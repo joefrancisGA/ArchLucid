@@ -18,7 +18,16 @@ public sealed partial class RunComparisonController
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunComparisonSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -32,9 +41,15 @@ public sealed partial class RunComparisonController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunComparisonSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps run comparison read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapRunComparisonSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

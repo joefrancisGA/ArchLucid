@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -45,11 +46,13 @@ public interface IArchitectureIdentityService
         int page,
         int pageSize,
         bool includeArchived = false,
+        string? actorOidForShareFilter = null,
         CancellationToken cancellationToken = default);
 
     Task<ArchitectureIdentityDetail?> GetIdentityAsync(
         ScopeContext scope,
         Guid architectureId,
+        string? actorOidForShareFilter = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -87,11 +90,15 @@ public interface IArchitectureIdentityService
 
 public sealed class ArchitectureIdentityService(
     IArchitectureIdentityRepository architectureIdentityRepository,
+    IArchitectureShareRepository architectureShareRepository,
     IRunRepository runRepository,
     IDraftRequestRepository draftRequestRepository) : IArchitectureIdentityService
 {
     private readonly IArchitectureIdentityRepository _architectureIdentityRepository =
         architectureIdentityRepository ?? throw new ArgumentNullException(nameof(architectureIdentityRepository));
+
+    private readonly IArchitectureShareRepository _architectureShareRepository =
+        architectureShareRepository ?? throw new ArgumentNullException(nameof(architectureShareRepository));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -283,21 +290,57 @@ public sealed class ArchitectureIdentityService(
         int page,
         int pageSize,
         bool includeArchived = false,
+        string? actorOidForShareFilter = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return _architectureIdentityRepository.ListAsync(scope, page, pageSize, includeArchived, cancellationToken);
+        return _architectureIdentityRepository.ListAsync(
+            scope,
+            page,
+            pageSize,
+            includeArchived,
+            actorOidForShareFilter,
+            cancellationToken);
     }
 
-    public Task<ArchitectureIdentityDetail?> GetIdentityAsync(
+    public async Task<ArchitectureIdentityDetail?> GetIdentityAsync(
         ScopeContext scope,
         Guid architectureId,
+        string? actorOidForShareFilter = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return _architectureIdentityRepository.GetDetailAsync(scope, architectureId, cancellationToken);
+        ArchitectureIdentityDetail? detail = await _architectureIdentityRepository.GetDetailAsync(
+            scope,
+            architectureId,
+            cancellationToken);
+
+        if (detail is null)
+            return null;
+
+        if (string.IsNullOrWhiteSpace(actorOidForShareFilter))
+            return detail;
+
+        ArchitectureIdentityRecord? architecture = await _architectureIdentityRepository.GetByIdAsync(
+            scope,
+            architectureId,
+            cancellationToken);
+
+        if (architecture is null)
+            return null;
+
+        ArchitectureShareRecord? share = await _architectureShareRepository.TryGetAsync(
+            scope,
+            architectureId,
+            actorOidForShareFilter,
+            cancellationToken);
+
+        if (!ArchitectureShareAccessEvaluator.CanView(architecture, share))
+            return null;
+
+        return detail;
     }
 
     public async Task<ArchitectureIdentityRecord> EnsureForDraftAsync(

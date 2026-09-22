@@ -60,6 +60,31 @@ public sealed class LouvainGraphCommunityDetectorTests
 
         sut.DetectCommunities(new GraphSnapshot()).Should().BeEmpty();
     }
+
+    [Fact]
+    public void DetectCommunities_matches_edges_to_nodes_case_insensitively()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            Nodes =
+            [
+                new GraphNode { NodeId = "Node-A", Label = "A" },
+                new GraphNode { NodeId = "node-b", Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "node-a", ToNodeId = "NODE-B" },
+            ],
+        };
+
+        LouvainGraphCommunityDetector sut = new();
+
+        IReadOnlyList<GraphCommunity> communities = sut.DetectCommunities(snapshot);
+
+        communities.Should().ContainSingle();
+        communities[0].MemberNodeIds.Should().BeEquivalentTo(["Node-A", "node-b"]);
+    }
 }
 
 [Trait("Category", "Unit")]

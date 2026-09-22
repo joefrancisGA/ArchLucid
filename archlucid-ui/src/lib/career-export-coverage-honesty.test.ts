@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_LINE } from "@/lib/architecture/architecture-inventory-estate-gap-copy";
+import { FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION } from "@/lib/findings/finding-semantic-support-band-export";
+import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   formatCareerExportClassificationBandLine,
   formatCareerExportHonestyMarkdown,
@@ -97,6 +101,37 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     });
 
     expect(honesty.blockedForWorkingCareerExport).toBe(false);
+  });
+
+  it("includes inventory estate gap markdown when architecture inventory is unbound (AS-051)", () => {
+    const markdown = formatCareerExportHonestyMarkdown({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      architectureInventoryBound: false,
+    });
+
+    expect(markdown).toContain(ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_LINE);
+    expect(markdown).toMatch(/Inventory estate/i);
+  });
+
+  it("includes inventory freshness markdown when the bound snapshot is stale (AS-052)", () => {
+    const markdown = formatCareerExportHonestyMarkdown({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      architectureInventoryBound: true,
+      architectureInventorySnapshotCapturedUtc: "2026-07-18T12:00:00.000Z",
+    });
+
+    expect(markdown).toContain("Inventory freshness");
+    expect(markdown).toContain("Bound snapshot captured 2026-07-18");
   });
 
   it("formats shared markdown with measurement floor and classification bands", () => {
@@ -235,6 +270,37 @@ describe("career-export-coverage-honesty (PC-13)", () => {
       "privileged-access",
     ]);
     expect(honesty.measurementFloor.line).toContain("no Actor nodes");
+  });
+
+  it("includes semantic support band section when export findings are provided (AS-071)", () => {
+    const exportFindings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-1",
+        title: "Gateway posture",
+        recommendation: "Review gateway TLS.",
+        severityValue: 3,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+        semanticSupportBand: "Supported",
+      },
+    ];
+    const markdown = formatCareerExportHonestyMarkdown({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      exportFindings,
+    });
+
+    expect(markdown).toContain("## Semantic support");
+    expect(markdown).toContain(FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION);
+    expect(markdown).toContain("Supported");
   });
 
   it("strips markdown for print surfaces", () => {

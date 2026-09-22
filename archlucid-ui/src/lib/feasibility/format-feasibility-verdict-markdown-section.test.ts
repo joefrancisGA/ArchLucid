@@ -21,7 +21,7 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
 
     const markdown = formatFeasibilityVerdictMarkdownSection(verdict);
 
-    expect(markdown).toContain("Career export blocked");
+    expect(markdown).toContain("Record export blocked");
     expect(markdown).toContain(HARD_INFEASIBLE_MISSING_CITATION_EXPORT_BLOCKED_REASON);
     expect(markdown).not.toMatch(/bare impossible/i);
   });

@@ -23,6 +23,8 @@ export type PageContextualHelpEntry = {
 export type PageContextualHelpRow = {
   readonly prefix: string;
   readonly entry: PageContextualHelpEntry;
+  /** When true, match only when pathname equals `prefix` — not child segments. */
+  readonly exactPathOnly?: boolean;
 };
 
 /** Default drawer steps for `/help/*` mirror rows that orient architects to live settings hubs. */

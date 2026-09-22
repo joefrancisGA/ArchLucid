@@ -147,6 +147,8 @@ public sealed class StructuredDiagramAuthorityPipelineGraphTests
 
         GraphNode boundNode = result.Nodes.Single(node => node.NodeId == declarationNodeId);
         boundNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+        boundNode.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should().Be("doc-mermaid-tf-bind");
         boundNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
     }

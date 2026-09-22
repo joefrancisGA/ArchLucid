@@ -13,6 +13,7 @@ import {
 import type { ReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type ReviewPackagePlainSummarySlice = {
   readonly blockingFindingCount: number;
@@ -40,6 +41,7 @@ export type ReviewPackageSummaryHeaderProps = {
   readonly primaryActionRunId: string;
   readonly primaryActionHasGoldenManifest: boolean;
   readonly primaryActionCommitBlockedReason: string | null | undefined;
+  readonly primaryActionCommitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   readonly demoteHeaderFinalizeButton: boolean;
   /** When Do this next owns the page primary, demote the summary header duplicate to outline. */
   readonly demotePrimaryAction?: boolean;
@@ -69,6 +71,7 @@ export function ReviewPackageSummaryHeader(props: ReviewPackageSummaryHeaderProp
         runId={props.primaryActionRunId}
         hasGoldenManifest={props.primaryActionHasGoldenManifest}
         commitBlockedReason={props.primaryActionCommitBlockedReason}
+        commitBlockedBlocks={props.primaryActionCommitBlockedBlocks}
         demoted={props.demotePrimaryAction === true}
       />
 

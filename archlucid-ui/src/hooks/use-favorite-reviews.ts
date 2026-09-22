@@ -12,12 +12,14 @@ import {
   writeFavoriteReviews,
   type FavoriteReview,
 } from "@/lib/favorite-reviews";
+import { persistWorkingWorkspaceContinuityToServer } from "@/lib/operator/working-workspace-continuity-sync";
 
 export const FAVORITE_REVIEWS_CHANGED_EVENT = "archlucid:favorite-reviews-changed";
 
 export type FavoriteReviewInput = {
   readonly runId: string;
   readonly title?: string;
+  readonly architectureId?: string | null;
 };
 
 /** Shared favorite-review state for hub rows, detail header, and pinned lists. */
@@ -56,6 +58,9 @@ export function useFavoriteReviews(): {
     setFavorites(next);
     writeFavoriteReviews(next);
     window.dispatchEvent(new Event(FAVORITE_REVIEWS_CHANGED_EVENT));
+    void persistWorkingWorkspaceContinuityToServer().catch(() => {
+      /* offline or unauthenticated */
+    });
   }, []);
 
   const toggleFavorite = useCallback(

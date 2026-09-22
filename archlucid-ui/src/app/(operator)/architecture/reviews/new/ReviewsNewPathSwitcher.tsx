@@ -155,6 +155,7 @@ export function ReviewsNewPathSwitcher() {
 
     if (path === "guided-intake") {
       params.delete("intakeStep");
+      params.delete("scopeGate");
     }
 
     if (path !== "guided-intake") {

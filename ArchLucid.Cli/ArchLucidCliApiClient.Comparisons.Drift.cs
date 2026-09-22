@@ -12,7 +12,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.DriftAnalysisResponse drift = await _api.DriftAsync(comparisonRecordId, ct);
+            Gen.DriftAnalysisResponse drift = await _api.DriftAsync(comparisonRecordId, null, ct);
 
             return JsonSerializer.Serialize(drift, _jsonOptions);
         }
@@ -26,7 +26,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.DriftAnalysisResponse drift = await _api.DriftAsync(comparisonRecordId, ct);
+            Gen.DriftAnalysisResponse drift = await _api.DriftAsync(comparisonRecordId, null, ct);
 
             return DeserializeRoundTrip<DriftAnalysis>(drift);
         }

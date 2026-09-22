@@ -32,7 +32,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed class RunAgentEvaluationController(
+public sealed partial class RunAgentEvaluationController(
     IAuthorityQueryService authorityQueryService,
     IRunRepository authorityRunRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
@@ -58,74 +58,69 @@ public sealed class RunAgentEvaluationController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken).ConfigureAwait(false))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        if (TryParseRunId(runId, out Guid runGuid))
+        try
         {
-            RunDetailDto? detail =
-                await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+            if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken).ConfigureAwait(false))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-            if (detail?.GoldenManifest is not null)
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            if (TryParseRunId(runId, out Guid runGuid))
             {
-                try
-                {
-                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                        detail.GoldenManifest,
-                        runGuid.ToString("D"),
-                        manifestHashService);
-                }
-                catch (ConflictException ex)
-                {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-                }
+                IActionResult? sealedGuardResult =
+                    await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
             }
+
+            IReadOnlyList<AgentExecutionTrace> traces =
+                await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+            int skipped = traces.Count(static t =>
+                !t.ParseSucceeded || string.IsNullOrEmpty(t.ParsedResultJson));
+
+            AgentEvidencePackage? evidence =
+                await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+
+            IEnumerable<AgentExecutionTrace> eligible = traces.Where(static t =>
+                t.ParseSucceeded && !string.IsNullOrEmpty(t.ParsedResultJson));
+
+            AgentOutputEvaluationScore[] evaluatedRows =
+                await Task.WhenAll(
+                        eligible.Select(
+                            trace => EvaluateTraceRowAsync(trace, evidence, cancellationToken)))
+                    .ConfigureAwait(false);
+
+            List<AgentOutputEvaluationScore> advisoryScores = [.. evaluatedRows];
+
+            QualityGateDefinitionSnapshot advisoryDefinition =
+                QualityGateDefinitionSnapshotFactory.FromOptions(qualityGateOptions.CurrentValue);
+
+            AgentOutputEvaluationPerspective advisoryCurrent = AgentOutputEvaluationPerspectiveMapper.Build(
+                AgentOutputEvaluationPerspectiveMapper.AdvisoryCurrentAuthority,
+                advisoryScores,
+                skipped,
+                AgentOutputEvaluationPerspectiveMapper.ToDto(advisoryDefinition),
+                scores => AgentOutputEvaluationWorstGateAggregator.WorstOutcome(scores, agentOutputQualityGate));
+
+            AgentOutputEvaluationPerspective? recorded =
+                AgentOutputEvaluationRecordedPerspectiveBuilder.TryBuild(traces, advisoryScores, skipped);
+
+            AgentOutputEvaluationSummary summary = new()
+            {
+                RunId = runId,
+                EvaluatedAtUtc = TimeProvider.System.UtcNowDateTime(),
+                Recorded = recorded,
+                AdvisoryCurrent = advisoryCurrent,
+            };
+
+            return Ok(summary);
         }
-
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
-
-        int skipped = traces.Count(static t =>
-            !t.ParseSucceeded || string.IsNullOrEmpty(t.ParsedResultJson));
-
-        AgentEvidencePackage? evidence =
-            await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-
-        IEnumerable<AgentExecutionTrace> eligible = traces.Where(static t =>
-            t.ParseSucceeded && !string.IsNullOrEmpty(t.ParsedResultJson));
-
-        AgentOutputEvaluationScore[] evaluatedRows =
-            await Task.WhenAll(
-                    eligible.Select(
-                        trace => EvaluateTraceRowAsync(trace, evidence, cancellationToken)))
-                .ConfigureAwait(false);
-
-        List<AgentOutputEvaluationScore> advisoryScores = [.. evaluatedRows];
-
-        QualityGateDefinitionSnapshot advisoryDefinition =
-            QualityGateDefinitionSnapshotFactory.FromOptions(qualityGateOptions.CurrentValue);
-
-        AgentOutputEvaluationPerspective advisoryCurrent = AgentOutputEvaluationPerspectiveMapper.Build(
-            AgentOutputEvaluationPerspectiveMapper.AdvisoryCurrentAuthority,
-            advisoryScores,
-            skipped,
-            AgentOutputEvaluationPerspectiveMapper.ToDto(advisoryDefinition),
-            scores => AgentOutputEvaluationWorstGateAggregator.WorstOutcome(scores, agentOutputQualityGate));
-
-        AgentOutputEvaluationPerspective? recorded =
-            AgentOutputEvaluationRecordedPerspectiveBuilder.TryBuild(traces, advisoryScores, skipped);
-
-        AgentOutputEvaluationSummary summary = new()
+        catch (ConflictException ex)
         {
-            RunId = runId,
-            EvaluatedAtUtc = TimeProvider.System.UtcNowDateTime(),
-            Recorded = recorded,
-            AdvisoryCurrent = advisoryCurrent,
-        };
-
-        return Ok(summary);
+            return MapRunAgentEvaluationSealedManifestConflict(ex);
+        }
     }
 
     private async Task<AgentOutputEvaluationScore> EvaluateTraceRowAsync(

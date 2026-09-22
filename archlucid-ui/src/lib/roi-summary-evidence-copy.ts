@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   HUB_SECONDARY_FOLLOW_UPS_TITLES,
   hubSecondaryFollowUpsIntro,
@@ -13,6 +14,8 @@ export const ROI_SUMMARY_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.roiS
 
 export const ROI_SUMMARY_CLAIM_DISCIPLINE =
   "ROI summary hours and dollar estimates are directional portfolio metrics for the selected window — they are not invoices, financial reporting, or an audit export. Open Architecture reviews, Evidence trail, or Trust Center when you need export-ready records.";
+
+export const ROI_SUMMARY_SPONSOR_HONESTY_LINE = SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE;
 
 export const ROI_SUMMARY_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
   "ROI summary needs architecture reviews, methodology context, or official assurance materials",

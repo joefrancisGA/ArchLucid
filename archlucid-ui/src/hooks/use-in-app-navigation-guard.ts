@@ -4,6 +4,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
+  isAllowedProgrammaticNavigation,
+  isInternalAppHref,
+  isSameDocumentPath,
+} from "@/lib/in-app-navigation-guard-helpers";
+import { registerLivelihoodDocumentGuardDirty } from "@/lib/operator/livelihood-document-guard-dirty-registry";
+import {
   livelihoodDocumentGuardHrefFromSearch,
   parseLivelihoodDocumentGuardOpenFromSearch,
 } from "@/lib/operator/livelihood-document-guard-url";
@@ -18,22 +24,14 @@ export type UseInAppNavigationGuardArgs = {
   readonly message?: string;
 };
 
-function isSameDocumentPath(href: string): boolean {
-  const current = `${window.location.pathname}${window.location.search}`;
-
-  return href === current;
-}
-
-function isInternalAppHref(href: string): boolean {
-  if (!href.startsWith("/")) {
-    return false;
+function resolveNavigationHref(href: string): string {
+  if (href.startsWith("/")) {
+    return href;
   }
 
-  if (href.startsWith("//")) {
-    return false;
-  }
+  const url = new URL(href, window.location.origin);
 
-  return true;
+  return `${url.pathname}${url.search}`;
 }
 
 /** Blocks same-app link navigation when draft edits may be lost (tab close uses beforeunload). */
@@ -44,6 +42,9 @@ export function useInAppNavigationGuard(args: UseInAppNavigationGuardArgs) {
   const navGuardOpenParam = searchParams.get("navGuardOpen");
   const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
   const allowNavigationRef = useRef(false);
+  const routerRef = useRef(router);
+
+  routerRef.current = router;
 
   const dialogMessage = args.message ?? "You have unsaved architecture changes.";
 
@@ -89,6 +90,60 @@ export function useInAppNavigationGuard(args: UseInAppNavigationGuardArgs) {
 
     syncNavGuardOpenToUrl(dialogOpen);
   }, [navGuardOpenParam, pendingNavigation, syncNavGuardOpenToUrl]);
+
+  useEffect(() => {
+    if (!args.when) {
+      return;
+    }
+
+    return registerLivelihoodDocumentGuardDirty();
+  }, [args.when]);
+
+  useEffect(() => {
+    if (!args.when) {
+      return;
+    }
+
+    const activeRouter = routerRef.current;
+    const originalPush = activeRouter.push.bind(activeRouter);
+    const originalReplace = activeRouter.replace.bind(activeRouter);
+
+    function interceptNavigation(
+      href: string,
+      navigate: (nextHref: string, options?: { scroll?: boolean }) => void,
+      options?: { scroll?: boolean },
+    ): void {
+      if (allowNavigationRef.current) {
+        allowNavigationRef.current = false;
+        navigate(href, options);
+
+        return;
+      }
+
+      const resolvedHref = resolveNavigationHref(href);
+
+      if (!isInternalAppHref(resolvedHref) || isAllowedProgrammaticNavigation(resolvedHref)) {
+        navigate(href, options);
+
+        return;
+      }
+
+      setPendingNavigation({ href: resolvedHref, kind: "link" });
+    }
+
+    activeRouter.push = ((href: string, options?: { scroll?: boolean }) => {
+      interceptNavigation(href, originalPush, options);
+    }) as typeof activeRouter.push;
+
+    activeRouter.replace = ((href: string, options?: { scroll?: boolean }) => {
+      interceptNavigation(href, originalReplace, options);
+    }) as typeof activeRouter.replace;
+
+    return () => {
+      activeRouter.push = originalPush;
+      activeRouter.replace = originalReplace;
+    };
+  }, [args.when]);
 
   useEffect(() => {
     if (!args.when) {

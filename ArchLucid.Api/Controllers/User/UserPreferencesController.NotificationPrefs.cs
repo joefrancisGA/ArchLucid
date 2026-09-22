@@ -128,6 +128,70 @@ public sealed partial class UserPreferencesController
         return NoContent();
     }
 
+    /// <summary>Persists the authenticated user's Working Career vs Rehearsal door.</summary>
+    [HttpPut("working-career-rehearsal-door")]
+    [MutatingAuditExcluded("Personal Working Career/Rehearsal door stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkingCareerRehearsalDoor(
+        [FromBody] SetWorkingCareerRehearsalDoorRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string? normalized = WorkingCareerRehearsalDoorValues.NormalizeOrNull(body.Door);
+
+        if (normalized is null)
+        {
+            return this.BadRequestProblem("door must be 'career' or 'rehearsal'.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkingCareerRehearsalDoor,
+            normalized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's first-login Training vs live-workspace choice.</summary>
+    [HttpPut("first-session-purpose")]
+    [MutatingAuditExcluded("Personal first-session purpose stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetFirstSessionPurpose(
+        [FromBody] SetFirstSessionPurposeRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string? normalized = FirstSessionPurposeValues.NormalizeOrNull(body.Purpose);
+
+        if (normalized is null)
+        {
+            return this.BadRequestProblem("purpose must be 'live' or 'training'.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.FirstSessionPurpose,
+            normalized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
     /// <summary>Persists the authenticated user's workspace-mode graduation-offer preference.</summary>
     [HttpPut("workspace-mode-graduation-offer")]
     [MutatingAuditExcluded("Personal workspace-mode graduation offer stored in dbo.UserSettings; no durable tenant audit row required.")]
@@ -279,6 +343,37 @@ public sealed partial class UserPreferencesController
         await _userSettingsRepository.UpsertAsync(
             userId,
             UserSettingKeys.DeskContinuity,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's Working pins and recents.</summary>
+    [HttpPut("working-workspace-continuity")]
+    [MutatingAuditExcluded("Personal Working workspace continuity stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkingWorkspaceContinuity(
+        [FromBody] SetWorkingWorkspaceContinuityRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.Continuity is null)
+        {
+            return this.BadRequestProblem("continuity is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = WorkingWorkspaceContinuityValues.Serialize(body.Continuity);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkingWorkspaceContinuity,
             serialized,
             cancellationToken);
 

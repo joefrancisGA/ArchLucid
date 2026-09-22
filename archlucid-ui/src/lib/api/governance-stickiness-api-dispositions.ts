@@ -1,8 +1,14 @@
-import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
-
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
+import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispositions-blocked-reason";
+import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
+
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { notifyFinalizeReadinessRefresh } from "@/lib/review-quality/finalize-readiness-refresh-notify";
+import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import {
   type FindingDispositionEvent,
   type FindingDispositionKind,
@@ -30,11 +36,21 @@ export async function recordFindingDisposition(
 ): Promise<FindingDispositionEvent> {
   const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
 
-  return apiPostJson<FindingDispositionEvent>(
-    `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
-    body,
-    { extraHeaders: { "Idempotency-Key": idempotencyKey } },
-  );
+  try {
+    const result = await apiPostJson<FindingDispositionEvent>(
+      `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
+      body,
+      { extraHeaders: { "Idempotency-Key": idempotencyKey } },
+    );
+    notifyFinalizeReadinessRefresh(body.runId);
+
+    return result;
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingDispositionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Disposition POST with 401 session-recovery redirect and single idempotent replay (LP-19). */
@@ -45,7 +61,7 @@ export async function recordFindingDispositionWith401Resume(
 ): Promise<FindingDispositionEvent> {
   const idempotencyKey = options.idempotencyKey.trim();
 
-  return executeIdempotentLivelihoodMutation({
+  return withLivelihood401Resume({
     kind: "finding_disposition",
     returnPath: options.returnPath,
     idempotencyKey,
@@ -69,19 +85,41 @@ export async function recordBulkFindingDisposition(
     revisitDueUtc?: string;
     expectedCurrentDispositionRowVersionBase64ByFindingId?: Record<string, string>;
   },
-  options?: { readonly idempotencyKey?: string },
+  options?: { readonly idempotencyKey?: string; readonly refreshRunId?: string },
 ): Promise<RecordBulkFindingDispositionResponse> {
   const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
 
-  return apiPostJson<RecordBulkFindingDispositionResponse>(
-    `${governanceStickinessBase()}/findings/bulk-disposition`,
-    body,
-    { extraHeaders: { "Idempotency-Key": idempotencyKey } },
-  );
+  try {
+    const result = await apiPostJson<RecordBulkFindingDispositionResponse>(
+      `${governanceStickinessBase()}/findings/bulk-disposition`,
+      body,
+      { extraHeaders: { "Idempotency-Key": idempotencyKey } },
+    );
+
+    const refreshRunId = options?.refreshRunId?.trim();
+
+    if (refreshRunId !== undefined && refreshRunId.length > 0) {
+      notifyFinalizeReadinessRefresh(refreshRunId);
+    }
+
+    return result;
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingBulkDispositionBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function listFindingDispositions(findingId: string): Promise<FindingDispositionEvent[]> {
-  return apiGetSealedManifestAware<FindingDispositionEvent[]>(
-    `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
-  );
+  try {
+    return await apiGetSealedManifestAware<FindingDispositionEvent[]>(
+      `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingDispositionsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

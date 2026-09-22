@@ -1,5 +1,6 @@
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -15,13 +16,15 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         const string sql = """
                            INSERT INTO dbo.RemediationInstances
                                (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
-                                PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, AssessmentId,
+                                PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                PathNarrativeJson, AssessmentId,
                                 ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                 PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
                                 CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc)
                            VALUES
                                (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
-                                @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @AssessmentId,
+                                @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
+                                @PathNarrativeJson, @AssessmentId,
                                 @ControlId, @PreflightSnapshotId, @ExecutionSnapshotId, @VerificationSnapshotId, @WaveId,
                                 @PreflightResultJson, @VerificationResultJson, @CreatedByActorKey, @ApprovedByActorKey,
                                 @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @VerifiedUtc, @ClosedUtc);
@@ -33,12 +36,46 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
     }
 
+    public async Task InsertInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceRecord instance,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(instance);
+
+        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
+            throw new InvalidOperationException("Scoped remediation instance payload does not match project authority.");
+
+        const string sql = """
+                           INSERT INTO dbo.RemediationInstances
+                               (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                PathNarrativeJson, AssessmentId,
+                                ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
+                                PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc)
+                           VALUES
+                               (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
+                                @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
+                                @PathNarrativeJson, @AssessmentId,
+                                @ControlId, @PreflightSnapshotId, @ExecutionSnapshotId, @VerificationSnapshotId, @WaveId,
+                                @PreflightResultJson, @VerificationResultJson, @CreatedByActorKey, @ApprovedByActorKey,
+                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @VerifiedUtc, @ClosedUtc);
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(
+            new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
+    }
+
     public async Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
     {
         const string sql = """
                            UPDATE dbo.RemediationInstances
                            SET Status = @Status,
                                CloudResourceId = @CloudResourceId,
+                               PathId = @PathId,
+                               PathNarrativeJson = @PathNarrativeJson,
                                AssessmentId = @AssessmentId,
                                ControlId = @ControlId,
                                PreflightSnapshotId = @PreflightSnapshotId,
@@ -62,6 +99,76 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
     }
 
+    public async Task UpdateInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(mutation);
+
+        const string sql = """
+                           UPDATE dbo.RemediationInstances
+                           SET Status = @Status,
+                               CloudResourceId = @CloudResourceId,
+                               PathId = @PathId,
+                               PathNarrativeJson = @PathNarrativeJson,
+                               AssessmentId = @AssessmentId,
+                               ControlId = @ControlId,
+                               PreflightSnapshotId = @PreflightSnapshotId,
+                               ExecutionSnapshotId = @ExecutionSnapshotId,
+                               VerificationSnapshotId = @VerificationSnapshotId,
+                               WaveId = @WaveId,
+                               PreflightResultJson = @PreflightResultJson,
+                               VerificationResultJson = @VerificationResultJson,
+                               ApprovedByActorKey = @ApprovedByActorKey,
+                               UpdatedUtc = @UpdatedUtc,
+                               ApprovedUtc = @ApprovedUtc,
+                               ExecutedUtc = @ExecutedUtc,
+                               VerifiedUtc = @VerifiedUtc,
+                               ClosedUtc = @ClosedUtc
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND InstanceId = @InstanceId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    mutation.InstanceId,
+                    Status = (int)mutation.Status,
+                    mutation.CloudResourceId,
+                    mutation.PathId,
+                    mutation.PathNarrativeJson,
+                    mutation.AssessmentId,
+                    mutation.ControlId,
+                    mutation.PreflightSnapshotId,
+                    mutation.ExecutionSnapshotId,
+                    mutation.VerificationSnapshotId,
+                    mutation.WaveId,
+                    mutation.PreflightResultJson,
+                    mutation.VerificationResultJson,
+                    mutation.ApprovedByActorKey,
+                    mutation.UpdatedUtc,
+                    mutation.ApprovedUtc,
+                    mutation.ExecutedUtc,
+                    mutation.VerifiedUtc,
+                    mutation.ClosedUtc,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected != 1)
+            throw new InvalidOperationException("Scoped remediation instance mutation did not update exactly one record.");
+    }
+
     public async Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid instanceId,
@@ -69,10 +176,11 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
     {
         const string sql = """
                            SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
-                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, AssessmentId,
-                                  ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
-                                  PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                  CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId AND InstanceId = @InstanceId;
                            """;
@@ -83,6 +191,42 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, InstanceId = instanceId },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : MapInstance(row);
+    }
+
+    public async Task<RemediationInstanceRecord?> TryGetByIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND InstanceId = @InstanceId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        InstanceRow? row = await conn.QuerySingleOrDefaultAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    InstanceId = instanceId,
+                },
                 cancellationToken: cancellationToken));
 
         return row is null ? null : MapInstance(row);
@@ -116,6 +260,50 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                 cancellationToken: cancellationToken));
     }
 
+    public async Task InsertEvidenceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(evidence);
+
+        const string sql = """
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.RemediationInstances
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND InstanceId = @InstanceId
+                           )
+                               THROW 50012, 'Scoped remediation instance was not found for evidence insert.', 1;
+
+                           INSERT INTO dbo.RemediationEvidence
+                               (EvidenceId, InstanceId, TenantId, Phase, PayloadJson, ActorKey, CorrelationId, CreatedUtc)
+                           VALUES
+                               (@EvidenceId, @InstanceId, @TenantId, @Phase, @PayloadJson, @ActorKey, @CorrelationId, @CreatedUtc);
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    evidence.EvidenceId,
+                    evidence.InstanceId,
+                    Phase = (int)evidence.Phase,
+                    evidence.PayloadJson,
+                    evidence.ActorKey,
+                    evidence.CorrelationId,
+                    evidence.CreatedUtc,
+                },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceAsync(
         Guid tenantId,
         Guid instanceId,
@@ -139,16 +327,42 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return rows.Select(MapEvidence).ToList();
     }
 
+    public async Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        Guid instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT e.EvidenceId, e.InstanceId, e.TenantId, e.Phase, e.PayloadJson, e.ActorKey, e.CorrelationId, e.CreatedUtc
+                           FROM dbo.RemediationEvidence e
+                           INNER JOIN dbo.RemediationInstances i
+                               ON i.TenantId = e.TenantId AND i.InstanceId = e.InstanceId
+                           WHERE e.TenantId = @TenantId
+                             AND e.InstanceId = @InstanceId
+                             AND i.WorkspaceId = @WorkspaceId
+                             AND i.ProjectId = @ProjectId
+                           ORDER BY e.CreatedUtc;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<EvidenceRow> rows = await conn.QueryAsync<EvidenceRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, InstanceId = instanceId },
+                cancellationToken: cancellationToken));
+        return rows.Select(MapEvidence).ToList();
+    }
+
     public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
                            SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
-                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, AssessmentId,
-                                  ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
-                                  PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                  CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId
                            ORDER BY UpdatedUtc DESC;
@@ -158,6 +372,34 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
 
         IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+
+        return rows.Select(MapInstance).ToList();
+    }
+
+    public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY UpdatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
 
         return rows.Select(MapInstance).ToList();
     }
@@ -211,6 +453,51 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return (rows.Select(MapInstance).ToList(), totalCount);
     }
 
+    public async Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.RemediationInstances
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND CloudResourceId = @CloudResourceId;
+                                """;
+        const string listSql = """
+                               SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                      PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                      PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                      VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                      CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                      ExecutedUtc, VerifiedUtc, ClosedUtc
+                               FROM dbo.RemediationInstances
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND CloudResourceId = @CloudResourceId
+                               ORDER BY UpdatedUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+        object parameters = new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            CloudResourceId = cloudResourceId, Skip = skip, PageSize = safePageSize,
+        };
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+        return (rows.Select(MapInstance).ToList(), totalCount);
+    }
+
     public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
         Guid tenantId,
         Guid findingId,
@@ -218,10 +505,11 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
     {
         const string sql = """
                            SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
-                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, AssessmentId,
-                                  ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
-                                  PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                  CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId
                              AND FindingId = @FindingId
@@ -236,6 +524,34 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                 new { TenantId = tenantId, FindingId = findingId },
                 cancellationToken: cancellationToken));
 
+        return rows.Select(MapInstance).ToList();
+    }
+
+    public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND FindingId = @FindingId
+                           ORDER BY UpdatedUtc DESC;
+                           """;
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
+                cancellationToken: cancellationToken));
         return rows.Select(MapInstance).ToList();
     }
 
@@ -254,6 +570,8 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             AutomationLevel = (int)instance.AutomationLevel,
             Status = (int)instance.Status,
             instance.CloudResourceId,
+            instance.PathId,
+            instance.PathNarrativeJson,
             instance.AssessmentId,
             instance.ControlId,
             instance.PreflightSnapshotId,
@@ -287,6 +605,8 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             AutomationLevel = (RemediationAutomationLevel)row.AutomationLevel,
             Status = (RemediationInstanceStatus)row.Status,
             CloudResourceId = row.CloudResourceId,
+            PathId = row.PathId,
+            PathNarrativeJson = row.PathNarrativeJson,
             AssessmentId = row.AssessmentId,
             ControlId = row.ControlId,
             PreflightSnapshotId = row.PreflightSnapshotId,
@@ -387,6 +707,18 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         }
 
         public Guid? CloudResourceId
+        {
+            get;
+            init;
+        }
+
+        public Guid? PathId
+        {
+            get;
+            init;
+        }
+
+        public string? PathNarrativeJson
         {
             get;
             init;

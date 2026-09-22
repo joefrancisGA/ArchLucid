@@ -19,7 +19,7 @@ internal static class AgentExecutionTraceInsertParameters
         return new
         {
             RunId = SqlRunIdMapping.ToSqlRunId(trace.RunId),
-            trace.TaskId,
+            TaskId = AgentExecutionTraceUpsertPolicy.NormalizeTaskId(trace.TaskId),
             AgentType = trace.AgentType.ToString(),
             trace.AttemptIndex
         };
@@ -29,11 +29,13 @@ internal static class AgentExecutionTraceInsertParameters
     {
         ArgumentNullException.ThrowIfNull(trace);
 
+        string normalizedTaskId = AgentExecutionTraceUpsertPolicy.NormalizeTaskId(trace.TaskId);
+
         return new
         {
             trace.TraceId,
             RunId = SqlRunIdMapping.ToSqlRunId(trace.RunId),
-            trace.TaskId,
+            TaskId = normalizedTaskId,
             AgentType = trace.AgentType.ToString(),
             trace.AttemptIndex,
             trace.ParseSucceeded,

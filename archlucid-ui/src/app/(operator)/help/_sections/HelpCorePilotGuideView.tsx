@@ -25,7 +25,8 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_GUIDE_HEADINGS,
-  CORE_PILOT_HELP_PRIMARY_ACTIONS,
+  CORE_PILOT_HELP_WORKING_STEPPER_REPLACEMENT_COPY,
+  resolveCorePilotHelpPrimaryActions,
   resolveCorePilotHelpSummaryCopy,
   resolveCorePilotHelpSummaryTitle,
 } from "@/lib/core-pilot-help-guide-content";
@@ -148,13 +149,13 @@ function CorePilotSummaryCard(props: {
         ) : (
           <>
             <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
-              <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
-                {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
+              <Link href={resolveCorePilotHelpPrimaryActions(false).startReview.href}>
+                {resolveCorePilotHelpPrimaryActions(false).startReview.label}
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}>
-                {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
+              <Link href={resolveCorePilotHelpPrimaryActions(false).sampleReview.href}>
+                {resolveCorePilotHelpPrimaryActions(false).sampleReview.label}
               </Link>
             </Button>
           </>
@@ -390,8 +391,19 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           >
             <section aria-labelledby="run-the-first-review" className="space-y-3">
               <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Follow these five steps in order.</p>
-              <HelpCorePilotWorkflowStepper />
+              {isWorkingMode ? (
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="core-pilot-working-desk-guidance"
+                >
+                  {CORE_PILOT_HELP_WORKING_STEPPER_REPLACEMENT_COPY}
+                </p>
+              ) : (
+                <>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Follow these five steps in order.</p>
+                  <HelpCorePilotWorkflowStepper />
+                </>
+              )}
             </section>
 
             <HelpDisclosure
@@ -424,7 +436,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           {buyerPolishedShell ? null : <CorePilotHelpClosingPanel />}
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} enableScrollSpy /> : null}
       </div>
 
       {buyerPolishedShell ? <HelpCorePilotSourcesOrientationStrip /> : null}

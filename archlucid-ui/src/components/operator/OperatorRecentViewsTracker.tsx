@@ -11,6 +11,7 @@ import {
   persistDeskContinuityPatch,
   writeCachedLastOpenArchitectureId,
 } from "@/lib/desk-continuity-preference";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
 import {
   persistRecentViewsState,
   readStoredRecentViewsState,
@@ -18,6 +19,7 @@ import {
   recentViewLabelFromPathname,
   recordRecentView,
 } from "@/lib/operator/operator-recent-views";
+import { persistWorkingWorkspaceContinuityToServer } from "@/lib/operator/working-workspace-continuity-sync";
 
 /** Records the current route in localStorage for {@link OperatorRecentViewsPanel}. */
 export function OperatorRecentViewsTracker(): null {
@@ -41,14 +43,25 @@ export function OperatorRecentViewsTracker(): null {
     try {
       const state = readStoredRecentViewsState();
       const architectureId = extractArchitectureIdentityIdFromPathname(pathname, search);
+      const nestedRoute = parseArchitectureNestedRoute(pathname);
+      const parentArchitectureId =
+        architectureId ??
+        (nestedRoute?.childKind === "reviews" ? nestedRoute.architectureId : null);
       const next = recordRecentView(state, {
         href,
         label,
         kind: recentViewKindFromPathname(pathname, search),
         ...(architectureId !== null ? { architectureId } : {}),
+        ...(parentArchitectureId !== null ? { parentArchitectureId } : {}),
       });
 
       persistRecentViewsState(next);
+
+      if (isWorkingMode) {
+        void persistWorkingWorkspaceContinuityToServer().catch(() => {
+          /* offline or unauthenticated */
+        });
+      }
     }
     catch {
       /* ignore storage failures */

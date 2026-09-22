@@ -13,7 +13,7 @@ type GlobalSearchPackageResultsPanelProps = {
 
 export function GlobalSearchPackageResultsPanel(props: GlobalSearchPackageResultsPanelProps) {
   const { controller } = props;
-  const { inputId, searchResults, closePanel } = controller;
+  const { inputId, searchResults, closePanel, resolveFindingHref } = controller;
   const { packageHits, packageSearchLoading, packageSearchError, trimmedQuery } = searchResults;
 
   return (
@@ -54,7 +54,7 @@ export function GlobalSearchPackageResultsPanel(props: GlobalSearchPackageResult
                   </p>
                   {hit.findingId ? (
                     <Link
-                      href={`/architecture/reviews/${encodeURIComponent(hit.sourceId)}/findings/${encodeURIComponent(hit.findingId)}`}
+                      href={resolveFindingHref(hit.sourceId, hit.findingId)}
                       className={cn("mt-1 inline-block text-al-link underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.helper)}
                       onClick={() => closePanel()}
                     >

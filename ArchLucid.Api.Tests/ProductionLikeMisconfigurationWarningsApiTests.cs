@@ -53,6 +53,11 @@ public sealed class ProductionLikeMisconfigurationWarningsApiTests
                                 "ApiKey": {
                                   "Enabled": false
                                 }
+                              },
+                              "Auth": {
+                                "EmailOtp": {
+                                  "Enabled": false
+                                }
                               }
                             }
                             """u8.ToArray()));

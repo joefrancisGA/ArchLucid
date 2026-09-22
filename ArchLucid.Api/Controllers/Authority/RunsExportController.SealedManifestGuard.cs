@@ -18,7 +18,16 @@ public sealed partial class RunsExportController
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsExportSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -32,9 +41,15 @@ public sealed partial class RunsExportController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunsExportSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps run export read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapRunsExportSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

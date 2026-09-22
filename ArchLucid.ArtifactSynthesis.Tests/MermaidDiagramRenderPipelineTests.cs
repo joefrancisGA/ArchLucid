@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Contracts.Persistence.Graph;
 
 using FluentAssertions;
 
@@ -21,7 +22,8 @@ public sealed class MermaidDiagramRenderPipelineTests
             new MermaidDiagramRenderer(),
             new MermaidDiagramComplexityAnalyzer(),
             new MermaidDiagramDeterministicRepairer(),
-            new MermaidDiagramStructuralValidator()));
+            new MermaidDiagramStructuralValidator(),
+            new DiagramPeelCatalogDefaultProvider()));
 
     [Fact]
     public async Task RenderAsync_collapses_duplicate_edges_during_deterministic_repair()
@@ -46,6 +48,83 @@ public sealed class MermaidDiagramRenderPipelineTests
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         result.CollapseReport!.Entries.Should().Contain(entry => entry.Kind == "DuplicateEdge");
         result.PrimaryMermaid!.Split("-->", StringSplitOptions.None).Length.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task RenderAsync_preserves_inventory_node_metadata_through_deterministic_repair()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "inventory-metadata",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/core-vnet",
+                    Label = "core-vnet",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Network/virtualNetworks",
+                    ArmResourceGroup = "rg-network",
+                },
+            ],
+        };
+
+        MermaidDiagramRenderResult result = await pipeline.RenderAsync(new MermaidDiagramRenderRequest { Ast = ast });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.PrimaryMermaid.Should().Contain("al-type=Microsoft.Network/virtualNetworks");
+        result.PrimaryMermaid.Should().Contain("al-rg=rg-network");
+        result.PrimaryMermaid.Should().NotContain("] %% ");
+    }
+
+    [Fact]
+    public void Repair_preserves_layout_only_edges_as_invisible_links()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "layout-only",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "A", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "B", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "a", ToNodeId = "b", Label = string.Empty, IsLayoutOnly = true },
+            ],
+        };
+
+        MermaidDiagramDeterministicRepairer repairer = new();
+        DiagramAst repaired = repairer.Repair(ast, out _);
+        string mermaid = new MermaidDiagramRenderer().Render(repaired);
+
+        repaired.Edges.Should().ContainSingle(edge => edge.IsLayoutOnly);
+        mermaid.Should().Contain("~~~");
+        mermaid.Should().NotContain("-->");
+    }
+
+    [Fact]
+    public async Task RenderAsync_layout_only_invisible_links_succeed()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "layout-only-validate",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "A", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "B", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "a", ToNodeId = "b", Label = string.Empty, IsLayoutOnly = true },
+            ],
+        };
+
+        MermaidDiagramRenderResult result = await pipeline.RenderAsync(new MermaidDiagramRenderRequest { Ast = ast });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.PrimaryMermaid.Should().Contain("~~~");
+        result.ValidationErrors.Should().BeNullOrEmpty();
     }
 
     [Fact]

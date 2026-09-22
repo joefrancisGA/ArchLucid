@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { usePilotRunDeltasQuery, resolvePilotRunDeltasQueryErrorMessage } from "@/hooks/use-pilot-run-deltas-query";
 import { useTenantBaselineRoiQuery } from "@/hooks/use-tenant-baseline-roi-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { downloadFirstValueReportPdf, markSponsorPackSent } from "@/lib/api";
@@ -29,6 +30,16 @@ import {
   evaluateCareerArtifactHonesty,
   type CareerArtifactHonestyInput,
 } from "@/lib/career-artifact/career-artifact-honesty";
+import {
+  resolveCareerArtifactExportHonestyDoorFields,
+  resolveSimulatorRehearsalBannerOnArtifactForExport,
+} from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
+import {
+  buildEmailRunToSponsorMailtoHref,
+  resolveEmailRunToSponsorRehearsalGate,
+  resolveEmailRunToSponsorSendBlocked,
+} from "@/lib/email-run-to-sponsor-rehearsal-gate";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
@@ -36,7 +47,7 @@ import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
 type ProofGateState =
   | { status: "skipped" }
   | { status: "loading" }
-  | { status: "error" }
+  | { status: "error"; message: string }
   | { status: "ok"; payload: PilotRunDeltasProofSummaryJson };
 
 function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
@@ -71,6 +82,7 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
   const [timeToFirstCommitHours, setTimeToFirstCommitHours] = useState<number | null>(null);
+  const [rehearsalEmailHonestyAcknowledged, setRehearsalEmailHonestyAcknowledged] = useState(false);
 
   const skipSidecarFetches =
     AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn();
@@ -80,8 +92,14 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
   const telemetrySentRef = useRef(false);
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: sidecarFetchesEnabled });
-  const { data: deltasPayload, isPending: deltasPending, isError: deltasError } = usePilotRunDeltasQuery(runId, {
+  const {
+    data: deltasPayload,
+    isPending: deltasPending,
+    isError: deltasError,
+    error: deltasQueryError,
+  } = usePilotRunDeltasQuery(runId, {
     enabled: sidecarFetchesEnabled,
   });
 
@@ -95,11 +113,17 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     }
 
     if (deltasError || deltasPayload === undefined) {
-      return { status: "error" };
+      return {
+        status: "error",
+        message:
+          deltasQueryError !== undefined && deltasQueryError !== null
+            ? resolvePilotRunDeltasQueryErrorMessage(deltasQueryError)
+            : "Could not load sponsor readiness signals for this review.",
+      };
     }
 
     return { status: "ok", payload: deltasPayload };
-  }, [skipSidecarFetches, deltasPending, deltasError, deltasPayload]);
+  }, [skipSidecarFetches, deltasPending, deltasError, deltasPayload, deltasQueryError]);
 
   const estimatedUsdSavings = useMemo((): number | null => {
     if (proofGate.status !== "ok") {
@@ -239,22 +263,42 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     proofGate.status === "ok"
     && isExternalSponsorPdfBlockedForExecutionMode(proofGate.payload)
     && !curatedSampleRun;
-  const careerArtifactVerdict = useMemo(() => {
+  const careerArtifactDoorFields = useMemo(() => {
     if (careerArtifactHonesty === undefined) {
       return null;
     }
 
+    return resolveCareerArtifactExportHonestyDoorFields({
+      progressSummary: careerArtifactHonesty.progressSummary,
+      structuralExecutionMode: careerArtifactHonesty.structuralExecutionMode,
+      workingCareerRehearsalDoor:
+        careerArtifactHonesty.progressSummary?.workingCareerRehearsalDoor ?? null,
+      liveDoor: effectiveDoor,
+    });
+  }, [careerArtifactHonesty, effectiveDoor]);
+
+  const careerArtifactVerdict = useMemo(() => {
+    if (careerArtifactHonesty === undefined || careerArtifactDoorFields === null) {
+      return null;
+    }
+
+    const simulatorRehearsalBannerOnArtifact = resolveSimulatorRehearsalBannerOnArtifactForExport(
+      careerArtifactDoorFields,
+    );
     const input: CareerArtifactHonestyInput = {
       ...careerArtifactHonesty,
+      ...careerArtifactDoorFields,
       artifactKind: "export",
       runId,
       curatedSampleRun,
       blockExternalSponsorDistribution: true,
       workingDesk: careerArtifactHonesty.workingDesk ?? true,
+      simulatorRehearsalBannerOnArtifact,
+      effectiveWorkingCareerRehearsalDoor: careerArtifactDoorFields.effectiveWorkingCareerRehearsalDoor,
     };
 
     return evaluateCareerArtifactHonesty(input);
-  }, [careerArtifactHonesty, curatedSampleRun, runId]);
+  }, [careerArtifactDoorFields, careerArtifactHonesty, curatedSampleRun, runId]);
   const blockSponsorPdfForCareerArtifact =
     careerArtifactVerdict !== null && !careerArtifactVerdict.canRender;
   const blockSponsorPdf =
@@ -263,8 +307,46 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     || blockSponsorPdfForAiGate
     || blockSponsorPdfForExecutionMode
     || blockSponsorPdfForCareerArtifact;
+  const rehearsalEmailGate = useMemo(() => {
+    const structuralExecutionMode: StructuralExecutionModeInput =
+      careerArtifactDoorFields?.structuralExecutionMode
+      ?? (proofGate.status === "ok"
+        ? (proofGate.payload.structuralExecutionMode as StructuralExecutionModeInput)
+        : undefined);
+
+    return resolveEmailRunToSponsorRehearsalGate({
+      workingDesk: careerArtifactHonesty?.workingDesk ?? true,
+      curatedSampleRun,
+      structuralExecutionMode,
+      effectiveWorkingCareerRehearsalDoor: careerArtifactDoorFields?.effectiveWorkingCareerRehearsalDoor ?? effectiveDoor,
+    });
+  }, [
+    careerArtifactDoorFields,
+    careerArtifactHonesty?.workingDesk,
+    curatedSampleRun,
+    effectiveDoor,
+    proofGate,
+  ]);
+  const blockSponsorEmailSend = resolveEmailRunToSponsorSendBlocked({
+    blockSponsorPdf,
+    requiresRehearsalEmailHonestyAck: rehearsalEmailGate.requiresRehearsalEmailHonestyAck,
+    rehearsalEmailHonestyAcknowledged,
+  });
+  const sponsorEmailMailtoHref = buildEmailRunToSponsorMailtoHref({
+    runId,
+    rehearsalSubjectPrefix: rehearsalEmailGate.rehearsalSubjectPrefix,
+    requiresRehearsalBodyDisclaimer: rehearsalEmailGate.requiresRehearsalEmailHonestyAck,
+  });
   const executionModeLabel =
     proofGate.status === "ok" ? formatStructuralExecutionModeLabel(proofGate.payload) : null;
+
+  function onComposeEmailToSponsor(): void {
+    if (blockSponsorEmailSend) {
+      return;
+    }
+
+    window.location.href = sponsorEmailMailtoHref;
+  }
 
   return {
     runId,
@@ -294,6 +376,12 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     blockSponsorPdfForCareerArtifact,
     careerArtifactVerdict,
     blockSponsorPdf,
+    blockSponsorEmailSend,
+    rehearsalEmailGate,
+    rehearsalEmailHonestyAcknowledged,
+    setRehearsalEmailHonestyAcknowledged,
+    sponsorEmailMailtoHref,
+    onComposeEmailToSponsor,
     executionModeLabel,
   };
 }

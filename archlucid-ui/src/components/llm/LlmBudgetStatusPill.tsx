@@ -12,11 +12,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { AUTH_MODE } from "@/lib/auth-config";
+import { shouldShowShellLlmBudgetStatusPill } from "@/lib/llm-monthly-budget-status";
 import {
-  llmBudgetRemainingPercent,
-  shouldShowShellLlmBudgetStatusPill,
-  type LlmMonthlyDollarBudgetStatus,
-} from "@/lib/llm-monthly-budget-status";
+  LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_BODY,
+  LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_TITLE,
+  resolveLlmBudgetStatusPillPresentation,
+} from "@/lib/llm/llm-budget-status-pill-career-honesty";
 import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
@@ -26,33 +27,12 @@ import {
 } from "@/lib/llm/llm-budget-status-pill-url";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
-import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function pillClassForBudgetLabel(label: string): string {
   const hover = "hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80";
 
   return cn(enterpriseStatusTagClass(resolveEnterpriseStatusKind(label, "budget")), hover);
-}
-
-function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: number | null): string {
-  const display = remainingPercent !== null ? `${remainingPercent}%` : " — ";
-  const paused =
-    status.blocksAdditionalLlmExecution ||
-    (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
-
-  return paused ? `AI budget: ${display} — paused` : `AI budget: ${display}`;
-}
-
-function buildPillAriaLabel(remainingPercent: number | null, paused: boolean): string {
-  if (remainingPercent === null) {
-    return "Monthly LLM budget allowance";
-  }
-
-  if (paused) {
-    return `Monthly LLM budget allowance: ${remainingPercent}% remaining, new reviews paused`;
-  }
-
-  return `Monthly LLM budget allowance: ${remainingPercent}% remaining`;
 }
 
 function isOperatorShellAuthenticated(): boolean {
@@ -115,12 +95,7 @@ export function LlmBudgetStatusPill() {
     return null;
   }
 
-  const remainingPercent = llmBudgetRemainingPercent(status);
-  const paused =
-    status.blocksAdditionalLlmExecution ||
-    (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
-  const label = buildPillLabel(status, remainingPercent);
-  const ariaLabel = buildPillAriaLabel(remainingPercent, paused);
+  const presentation = resolveLlmBudgetStatusPillPresentation(status);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -131,16 +106,28 @@ export function LlmBudgetStatusPill() {
           size="sm"
           className={cn(
             "h-6 shrink-0 border px-1.5 tabular-nums text-neutral-600 dark:text-neutral-300",
-            pillClassForBudgetLabel(label),
+            pillClassForBudgetLabel(presentation.label),
           )}
           data-testid="llm-budget-status-pill"
-          aria-label={ariaLabel}
+          aria-label={presentation.ariaLabel}
         >
-          {label}
+          {presentation.label}
         </Button>
       </PopoverTrigger>
       <PopoverContent data-testid="llm-budget-status-pill-popover">
         <LlmBudgetUtilizationMeter />
+        <div
+          className={cn(DESIGN_TOKENS.callout.info, "mt-3 p-3")}
+          data-testid="llm-budget-status-pill-career-honesty"
+          role="status"
+        >
+          <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_TITLE}
+          </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_BODY}
+          </p>
+        </div>
         <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
           <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
             Open AI usage and budget

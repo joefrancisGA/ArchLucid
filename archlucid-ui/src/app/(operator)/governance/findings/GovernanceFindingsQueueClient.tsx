@@ -33,7 +33,9 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 import {
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
 import { governanceFindingsClearAllFiltersHref, governanceFindingsShowAllFilteredFindingsHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
 import { governanceFindingsClearReviewScopeHref } from "@/lib/governance/governance-findings-clear-review-scope-url";
@@ -43,6 +45,7 @@ import { buildGovernanceFindingsArchitectureRunIdSet } from "@/lib/governance/go
 import { useGovernanceFindingsHideGenericState } from "@/hooks/use-governance-findings-hide-generic-state";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import type { InhabitedFindingsTrailBundleSnapshot } from "@/lib/inhabit/inhabited-findings-trail-bundle";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -50,6 +53,7 @@ export type { GovernanceFindingsQueueMode };
 
 export type GovernanceFindingsQueueClientProps = {
   readonly mode?: GovernanceFindingsQueueMode;
+  readonly inhabitedFindingsInitialTrailBundle?: InhabitedFindingsTrailBundleSnapshot | null;
 };
 
 /**
@@ -57,9 +61,15 @@ export type GovernanceFindingsQueueClientProps = {
  */
 export default function GovernanceFindingsQueueClient({
   mode = "tenant",
+  inhabitedFindingsInitialTrailBundle = null,
 }: GovernanceFindingsQueueClientProps) {
   const router = useRouter();
-  const pathname = usePathname() ?? (mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH);
+  const { productLine } = useProductLine();
+  const pathname = usePathname() ?? (
+    mode === "assigned-to-me"
+      ? assignedToMeFindingsPathForProductLine(productLine)
+      : GOVERNANCE_FINDINGS_PATH
+  );
   const searchParams = useSearchParams();
   const { hideGenericLowDensity, setHideGenericLowDensity } = useGovernanceFindingsHideGenericState();
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
@@ -67,29 +77,6 @@ export default function GovernanceFindingsQueueClient({
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeRecord = useOperatorScopeRecord();
   const assignedToMeWorkspaceLabel = resolveGovernanceAssignedToMeWorkspaceLabel();
-  const queueMode = useGovernanceFindingsQueueMode({ mode });
-  const {
-    isAssignedToMe,
-    buyerPolishedShell,
-    assignedToMeQuery,
-    assignedToMeCountQuery,
-    rows,
-    loading,
-    loadFailed,
-    refresh,
-    assignedToMeFetchBasis,
-    assignedToMeCheckedAt,
-    loadFailure,
-    pageTitle,
-    pageSubtitle,
-    navHref,
-    currentJobId,
-    loadFailedPreset,
-    assignedToMeCount,
-    assignedToMeLoadedFindingCount,
-    assignedToMeCountMismatch,
-  } = queueMode;
-  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
   const { isWorkingMode } = useWorkspaceMode();
   const {
     registerFilter,
@@ -130,6 +117,43 @@ export default function GovernanceFindingsQueueClient({
   const scopedRunContextQuery = useRunDetailWorkspaceContextBundleQuery(scopedRunId ?? "", {
     enabled: scopedRunId !== null && scopedRunId.length > 0,
   });
+  const scopedRunContextTitle =
+    scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.displayName ??
+    scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.runId ??
+    null;
+  const queueMode = useGovernanceFindingsQueueMode({
+    mode,
+    workingMode: isWorkingMode,
+    pathname,
+    scopedArchitectureId,
+    architectureDisplayName: architectureIdentityQuery.data?.displayName ?? null,
+    scopedRunId,
+    scopedRunTitle: scopedRunContextTitle,
+  });
+  const {
+    isAssignedToMe,
+    buyerPolishedShell,
+    assignedToMeQuery,
+    assignedToMeCountQuery,
+    rows,
+    loading,
+    loadFailed,
+    refresh,
+    assignedToMeFetchBasis,
+    assignedToMeCheckedAt,
+    loadFailure,
+    pageTitle,
+    pageSubtitle,
+    navHref,
+    currentJobId,
+    loadFailedPreset,
+    assignedToMeCount,
+    assignedToMeLoadedFindingCount,
+    assignedToMeCountMismatch,
+    tenantLastRefreshedAt,
+    tenantRefreshing,
+  } = queueMode;
+  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
   const scopedFindingLifecycleCompareHref = resolveScopedFindingLifecycleCompareHref(
     scopedRunId,
     scopedRunContextQuery.data?.priorCommittedRunId,
@@ -156,6 +180,8 @@ export default function GovernanceFindingsQueueClient({
     findingsSearchQuery,
     hideGenericLowDensity,
     isWorkingMode,
+    pathname,
+    scopedArchitectureId,
     scopeRecord,
   });
   usePrefetchItsmFindingCorrelations(synopsis.findingIds);
@@ -229,6 +255,7 @@ export default function GovernanceFindingsQueueClient({
           isAssignedToMe ? (
             <GovernanceFindingsAssignedToMeStatusBadge
               assignedToMeCount={assignedToMeCount}
+              assignedToMeFetchBasis={assignedToMeFetchBasis}
               loading={loading}
               loadFailed={loadFailed}
             />
@@ -240,6 +267,8 @@ export default function GovernanceFindingsQueueClient({
               assignedToMeWorkspaceLabel={assignedToMeWorkspaceLabel}
               assignedToMeCheckedAt={assignedToMeCheckedAt}
               assignedToMeRefreshing={assignedToMeQuery.refreshing}
+              principalDisplayName={currentPrincipal.name ?? "you"}
+              principalRoleLabel={currentPrincipal.primaryAppRole ?? "Operator"}
             />
           ) : undefined
         }
@@ -249,14 +278,20 @@ export default function GovernanceFindingsQueueClient({
               assignedToMeRefreshing={assignedToMeQuery.refreshing}
               onRefresh={refresh}
             />
-          ) : (
-            <PageContextualHelpButton />
-          )
+          ) : undefined
         }
         registerSummary={synopsis.registerSummary}
         scopedRunId={scopedRunId}
         loading={loading}
         currentJobId={currentJobId}
+        workingMode={isWorkingMode}
+        pathname={pathname}
+        scopedArchitectureId={scopedArchitectureId}
+        architectureDisplayName={architectureIdentityQuery.data?.displayName ?? null}
+        scopedRunTitle={scopedRunContextTitle}
+        onRefresh={refresh}
+        queueRefreshing={tenantRefreshing}
+        queueLastRefreshedAt={tenantLastRefreshedAt}
       />
       <GovernanceFindingsQueueTableShell
         isAssignedToMe={isAssignedToMe}
@@ -311,11 +346,8 @@ export default function GovernanceFindingsQueueClient({
         sponsorSynopsisPackageTitle={synopsis.sponsorSynopsisPackageTitle}
         sponsorSynopsisCounts={synopsis.sponsorSynopsisCounts}
         sponsorHandoffHref={synopsis.sponsorHandoffHref}
-        scopedRunContextTitle={
-          scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.displayName ??
-          scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.runId ??
-          null
-        }
+        scopedRunContextTitle={scopedRunContextTitle}
+        architectureDisplayName={architectureIdentityQuery.data?.displayName ?? null}
         continueLastFinding={synopsis.continueLastFinding}
         assignedToMeOldestFindingTarget={synopsis.assignedToMeOldestFindingTarget}
         firstFindingTriageTarget={synopsis.firstFindingTriageTarget}
@@ -335,6 +367,9 @@ export default function GovernanceFindingsQueueClient({
         assignedToMeCheckedAt={assignedToMeCheckedAt}
         assignedToMeFetchBasis={assignedToMeFetchBasis}
         currentJobId={currentJobId}
+        inhabitedFindingsInitialTrailBundle={inhabitedFindingsInitialTrailBundle}
+        queueLastRefreshedAt={tenantLastRefreshedAt}
+        queueRefreshing={tenantRefreshing}
       />
     </OperatorPageContainer>
   );

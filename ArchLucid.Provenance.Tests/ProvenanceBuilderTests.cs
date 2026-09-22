@@ -441,6 +441,69 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_deduplicates_influenced_by_graph_node_when_findings_list_case_variant_finding_ids()
+    {
+        const string graphNodeId = "node-1";
+        const string findingId = "finding-1";
+
+        GraphSnapshot graphSnap = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = graphNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                },
+            ],
+        };
+
+        FindingsSnapshot findings = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = findingId,
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Lower case id",
+                    Rationale = "r",
+                    RelatedNodeIds = [graphNodeId],
+                },
+                new Finding
+                {
+                    FindingId = findingId.ToUpperInvariant(),
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Upper case id",
+                    Rationale = "r",
+                    RelatedNodeIds = [graphNodeId],
+                },
+            ],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = graphSnap,
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Finding).Should().Be(1);
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode).Should().Be(1);
+    }
+
+    [Fact]
     public void Build_duplicate_finding_id_reuses_single_node()
     {
         Finding f = new()

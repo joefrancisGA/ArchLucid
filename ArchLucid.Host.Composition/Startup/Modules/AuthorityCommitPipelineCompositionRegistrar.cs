@@ -35,6 +35,10 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
+        services.Configure<FinalizeQualityGateOptions>(
+            configuration.GetSection(FinalizeQualityGateOptions.SectionPath));
+        services.AddScoped<IFinalizeQualityGate, FinalizeQualityGate>();
+        services.AddScoped<IRunAssumptionAcknowledgementService, RunAssumptionAcknowledgementService>();
         services.Configure<TechnologyConsistencyFindingEngineOptions>(
             configuration.GetSection(TechnologyConsistencyFindingEngineOptions.SectionPath));
         services.Configure<FindingEvidenceLinkageFindingEngineOptions>(
@@ -49,6 +53,7 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<PreFinalizeExecuteBaselineDriftEvaluator>();
         services.AddScoped<IPreFinalizeChecklistService, PreFinalizeChecklistService>();
+        services.AddScoped<IFinalizeReadinessService, FinalizeReadinessService>();
         services.AddScoped<IFindingMergeConflictResolutionService, FindingMergeConflictResolutionService>();
         services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
         services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();
@@ -79,12 +84,14 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.AddScoped<IAuthorityPipelineStagePersistence, AuthorityPipelineStagePersistence>();
         services.AddScoped<AuthorityPipelineStageContextHydrator>();
         services.AddScoped<IAuthorityPipelineContextIngestionStage, AuthorityPipelineContextIngestionStage>();
+        services.AddScoped<IBoundArchitectureInventoryGraphOverlayApplicator, BoundArchitectureInventoryGraphOverlayApplicator>();
         services.AddScoped<IAuthorityPipelineGraphStage, AuthorityPipelineGraphStage>();
         services.AddScoped<IAuthorityPipelineFindingsStage, AuthorityPipelineFindingsStage>();
         services.AddScoped<IAuthorityPipelineDecisioningStage, AuthorityPipelineDecisioningStage>();
         services.AddScoped<IAuthorityPipelineArtifactsStage, AuthorityPipelineArtifactsStage>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<ICommitPipelineManifestReuseService, CommitPipelineManifestReuseService>();
+        services.AddScoped<IFindingSemanticSupportBandFinalizeJudge, FindingSemanticSupportBandFinalizeJudge>();
         services.AddScoped<ICommitOutputIntegrityService, CommitOutputIntegrityService>();
         services.AddScoped<IReviewCompletedEventHandler, ReviewCompletedEventHandler>();
     }

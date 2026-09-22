@@ -12,6 +12,8 @@ import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorEr
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { downloadTraceabilityBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { traceabilityBundleExportBlockedReason } from "@/lib/runs/traceability-bundle-export-blocked-reason";
 import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
 import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recovery-copy";
 import {
@@ -19,6 +21,7 @@ import {
   verifyRunExportLineage,
 } from "@/lib/exports/run-export-lineage-verify";
 import { showError } from "@/lib/toast";
+
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -57,6 +60,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
   const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
 
   const onDownloadTraceabilityBundle = useCallback(async () => {
+
     if (collateralExportBlockedReason !== null) {
       return;
     }
@@ -77,14 +81,15 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
 
       await downloadTraceabilityBundleZip(runId);
     } catch (error: unknown) {
-      showError(
-        "Evidence bundle",
-        error instanceof Error ? error.message : "Could not download traceability bundle.",
-      );
+      const failure = toApiLoadFailure(error);
+      const blocked = traceabilityBundleExportBlockedReason(failure);
+
+      showError("Evidence bundle", blocked ?? failure.message);
     } finally {
       setTraceabilityBusy(false);
     }
   }, [collateralExportBlockedReason, props.isSample, runId, workingDesk]);
+
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -154,6 +159,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                   />
                 ) : null}
               </div>
+
             )}
             {evalChromeShell ? null : (
             <Button variant="outline" size="sm" asChild>

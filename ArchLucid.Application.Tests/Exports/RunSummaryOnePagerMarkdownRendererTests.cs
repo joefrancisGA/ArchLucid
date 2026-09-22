@@ -113,4 +113,27 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("Trial notice");
         markdown.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
     }
+
+    [Fact]
+    public void Render_includes_sendable_export_cover_when_present()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "run-abc",
+            SystemName = "Payments",
+            CriticalCount = 0,
+            HighCount = 0,
+            MediumCount = 0,
+            LowCount = 0,
+            SponsorReport = "Summary.",
+            TopFindingTitles = [],
+            SendableExportCoverPlainText = "Policy pack: azure-waf @ 2024.1\nExecution mode: Simulator",
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain("## Sendable export cover");
+        markdown.Should().Contain("Policy pack: azure-waf @ 2024.1");
+        markdown.Should().Contain("Execution mode: Simulator");
+    }
 }

@@ -33,7 +33,7 @@ public sealed partial class ArchLucidApiClient
                 return await CreateRunWithIdempotencyHeaderAsync(MapToGenerated(request)!, idempotencyKey.Trim(), ct);
             }
 
-            Gen.CreateArchitectureRunResponse created = await _api.RequestPOSTAsync(body, ct);
+            Gen.CreateArchitectureRunResponse created = await _api.RequestPOSTAsync(null, body, ct);
             CreateRunResponse? mapped = DeserializeRoundTrip<CreateRunResponse>(created);
 
             return CreateRunResult.Ok(mapped);

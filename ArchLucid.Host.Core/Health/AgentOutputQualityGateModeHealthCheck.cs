@@ -14,6 +14,8 @@ public sealed class AgentOutputQualityGateModeHealthCheck(IConfiguration configu
 
     public const string ModeDataKey = "mode";
 
+    public const string HoldOnUnsupportedSemanticSupportDataKey = "pilotStrictHoldOnUnsupportedSemanticSupport";
+
     public Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
         CancellationToken cancellationToken = default)
@@ -21,10 +23,12 @@ public sealed class AgentOutputQualityGateModeHealthCheck(IConfiguration configu
         ArgumentNullException.ThrowIfNull(configuration);
 
         AgentOutputQualityGateMode mode = ResolveMode(configuration);
+        bool holdOnUnsupported = ResolveHoldOnUnsupportedSemanticSupport(configuration);
 
         IReadOnlyDictionary<string, object> data = new Dictionary<string, object>
         {
             [ModeDataKey] = mode.ToString(),
+            [HoldOnUnsupportedSemanticSupportDataKey] = holdOnUnsupported,
         };
 
         string detail = mode switch
@@ -41,5 +45,12 @@ public sealed class AgentOutputQualityGateModeHealthCheck(IConfiguration configu
         IConfigurationSection section = configuration.GetSection(AgentOutputQualityGateOptions.SectionPath);
 
         return section.GetValue<AgentOutputQualityGateMode>(nameof(AgentOutputQualityGateOptions.Mode));
+    }
+
+    internal static bool ResolveHoldOnUnsupportedSemanticSupport(IConfiguration configuration)
+    {
+        IConfigurationSection section = configuration.GetSection(AgentOutputQualityGateOptions.SectionPath);
+
+        return section.GetValue<bool>(nameof(AgentOutputQualityGateOptions.PilotStrictHoldOnUnsupportedSemanticSupport));
     }
 }

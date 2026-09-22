@@ -33,4 +33,27 @@ public sealed class ItsmInboundJiraPayloadReaderTests
 
         ok.Should().BeFalse("inbound Jira sync contract requires issue.fields.status.name; changelog-only bodies are out of scope");
     }
+
+    [Fact]
+    public void TryRead_rejects_numeric_issue_key()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":12345,"fields":{"status":{"name":"Done"}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("Jira issue keys are string tokens in vendor payloads; numeric keys are rejected by design");
+    }
+
+    [Fact]
+    public void TryRead_trims_whitespace_from_status_name()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"  Done  "}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.StatusValue.Should().Be("Done");
+    }
 }

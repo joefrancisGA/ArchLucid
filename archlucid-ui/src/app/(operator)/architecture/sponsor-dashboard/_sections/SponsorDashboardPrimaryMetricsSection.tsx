@@ -54,6 +54,8 @@ import {
 } from "@/lib/roi-resolution-priority";
 
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 
 
 
@@ -174,6 +176,11 @@ export function SponsorDashboardPrimaryMetricsSection(
       </h2>
 
       <p className={OPERATOR_TYPOGRAPHY.sectionTitle}>{v.primaryMetricsSectionTitle}</p>
+
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="sponsor-primary-metrics-non-summing">
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
+      <PolicyPackInfluenceHonestyChip className="mb-1" />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 

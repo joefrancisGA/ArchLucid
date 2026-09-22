@@ -6,11 +6,11 @@
 import { REVIEW_ARTIFACTS_HELP_TOPIC_LABEL } from "@/lib/review-artifacts-evidence-copy";
 
 import { PAGE_HELP_TOPIC_ROWS_ADMIN } from "./page-help-topic-rows-admin";
-import { PAGE_HELP_TOPIC_ROWS_OPERATOR, type PageHelpTopic } from "./page-help-topic-rows-operator";
+import { PAGE_HELP_TOPIC_ROWS_OPERATOR, type PageHelpTopic, type PageHelpTopicRow } from "./page-help-topic-rows-operator";
 
-export type { PageHelpTopic };
+export type { PageHelpTopic, PageHelpTopicRow };
 
-export const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
+export const PAGE_HELP_TOPICS: readonly PageHelpTopicRow[] = [
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR,
   ...PAGE_HELP_TOPIC_ROWS_ADMIN,
 ];

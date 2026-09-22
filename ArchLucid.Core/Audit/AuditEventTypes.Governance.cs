@@ -109,6 +109,9 @@ public static partial class AuditEventTypes
     /// <summary>Operator pinned or updated pre-execute coverage acknowledgement on <c>dbo.Runs.AcknowledgedCoverageJson</c>.</summary>
     public const string RunCoverageAcknowledged = "RunCoverageAcknowledged";
 
+    /// <summary>Operator confirmed or revoked pre-finalize assumption acknowledgements on <c>dbo.Runs.AcknowledgedAssumptionsJson</c>.</summary>
+    public const string RunAssumptionsAcknowledged = "RunAssumptionsAcknowledged";
+
     /// <summary>
     ///     Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured
     ///     <c>ILogger</c> only).

@@ -7,7 +7,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const HELP_WORKING_DESK_QUICK_START_TITLE = "Use ArchLucid as your review desk" as const;
 
 export const HELP_WORKING_DESK_QUICK_START_COPY =
-  "Open an architecture identity, resume a child draft, inspect an architecture package, or start a new review." as const;
+  "Open an architecture identity desk, resume a child draft, triage cross-architecture jobs in Inbox, or start a new review when evidence is ready." as const;
 
 export const HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE = "If you are evaluating ArchLucid" as const;
 

@@ -33,4 +33,15 @@ describe("resolveContinueLastRiskException", () => {
     expect(match?.riskExceptionId).toBe("exc-z");
     expect(match?.href).toBe("/architecture/reviews/run-z/findings/finding-z");
   });
+
+  it("WA-002: continue-last uses nested focusedFinding when architecture is known", () => {
+    const match = resolveContinueLastRiskException(
+      [record({ riskExceptionId: "exc-z", findingId: "finding-z", runId: "run-z" })],
+      { architectureId: "arch-1", isWorkingMode: true },
+    );
+
+    expect(match?.href).toBe(
+      "/architecture/architectures/arch-1/findings?runId=run-z&focusedFinding=finding-z",
+    );
+  });
 });

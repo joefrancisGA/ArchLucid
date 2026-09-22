@@ -27,6 +27,7 @@ public static class DrRpoTopologyAnalyzer
 
         Dictionary<string, List<string>> adjacency = BuildAdjacency(graphSnapshot, nodesById);
         List<DrRpoTopologyGap> gaps = [];
+        HashSet<string> gapKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode requirement in graphSnapshot.GetNodesByType(GraphNodeTypes.Requirement))
         {
@@ -39,41 +40,98 @@ public static class DrRpoTopologyAnalyzer
                 continue;
             }
 
-            IReadOnlyList<GraphNode> datastores = FindLinkedDatastores(
+            CollectGapsForObjectiveSource(
                 graphSnapshot,
                 requirement.NodeId,
+                ResolveLabel(requirement),
+                rpoMinutes,
+                rtoMinutes,
+                linkedDatastoresOnly: true,
                 nodesById,
-                adjacency);
+                adjacency,
+                gaps,
+                gapKeys);
+        }
 
-            if (datastores.Count == 0)
+        foreach (GraphNode qualityAttribute in graphSnapshot.GetNodesByType(GraphNodeTypes.QualityAttribute))
+        {
+            if (!DrRpoQualityAttributeParser.TryParseRecoveryObjectives(
+                    qualityAttribute,
+                    out int? rpoMinutes,
+                    out int? rtoMinutes))
             {
                 continue;
             }
 
-            foreach (GraphNode datastore in datastores)
-            {
-                if (DrReplicaPropertyHeuristic.HasReplicaEvidence(datastore.Properties))
-                {
-                    continue;
-                }
-
-                gaps.Add(new DrRpoTopologyGap(
-                    requirement.NodeId,
-                    ResolveLabel(requirement),
-                    rpoMinutes,
-                    rtoMinutes,
-                    datastore.NodeId,
-                    ResolveLabel(datastore)));
-
-                if (gaps.Count >= MaxFindings)
-                {
-                    return gaps;
-                }
-            }
+            CollectGapsForObjectiveSource(
+                graphSnapshot,
+                qualityAttribute.NodeId,
+                ResolveLabel(qualityAttribute),
+                rpoMinutes,
+                rtoMinutes,
+                linkedDatastoresOnly: false,
+                nodesById,
+                adjacency,
+                gaps,
+                gapKeys);
         }
 
         return gaps;
     }
+
+    private static void CollectGapsForObjectiveSource(
+        GraphSnapshot graphSnapshot,
+        string sourceNodeId,
+        string sourceLabel,
+        int? rpoMinutes,
+        int? rtoMinutes,
+        bool linkedDatastoresOnly,
+        IReadOnlyDictionary<string, GraphNode> nodesById,
+        IReadOnlyDictionary<string, List<string>> adjacency,
+        List<DrRpoTopologyGap> gaps,
+        HashSet<string> gapKeys)
+    {
+        IReadOnlyList<GraphNode> datastores = FindLinkedDatastores(
+            graphSnapshot,
+            sourceNodeId,
+            nodesById,
+            adjacency);
+
+        if (datastores.Count == 0 && !linkedDatastoresOnly)
+            datastores = GetAllDatastoreTopologyNodes(graphSnapshot);
+
+        if (datastores.Count == 0)
+            return;
+
+        foreach (GraphNode datastore in datastores)
+        {
+            if (DrReplicaPropertyHeuristic.HasReplicaEvidence(datastore.Properties))
+                continue;
+
+            string gapKey = $"{sourceNodeId}|{datastore.NodeId}";
+
+            if (!gapKeys.Add(gapKey))
+                continue;
+
+            gaps.Add(new DrRpoTopologyGap(
+                sourceNodeId,
+                sourceLabel,
+                rpoMinutes,
+                rtoMinutes,
+                datastore.NodeId,
+                ResolveLabel(datastore)));
+
+            if (gaps.Count >= MaxFindings)
+                return;
+        }
+    }
+
+    private static IReadOnlyList<GraphNode> GetAllDatastoreTopologyNodes(GraphSnapshot graphSnapshot) =>
+        graphSnapshot.Nodes
+            .Where(IsDatastoreTopologyNode)
+            .GroupBy(static node => node.NodeId, StringComparer.OrdinalIgnoreCase)
+            .Select(static group => group.First())
+            .ToList();
 
     private static IReadOnlyList<GraphNode> FindLinkedDatastores(
         GraphSnapshot graphSnapshot,
@@ -189,25 +247,4 @@ public static class DrRpoTopologyAnalyzer
 
     private static string ResolveLabel(GraphNode node) =>
         string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
-
-    private static bool TryGetProperty(
-        IReadOnlyDictionary<string, string> properties,
-        string key,
-        out string? value)
-    {
-        foreach (KeyValuePair<string, string> entry in properties)
-        {
-            if (string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase)
-                && !string.IsNullOrWhiteSpace(entry.Value))
-            {
-                value = entry.Value.Trim();
-
-                return true;
-            }
-        }
-
-        value = null;
-
-        return false;
-    }
 }

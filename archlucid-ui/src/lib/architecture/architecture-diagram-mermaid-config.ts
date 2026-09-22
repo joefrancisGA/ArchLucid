@@ -1,0 +1,94 @@
+/** Light-mode inventory/architecture node fill — neutral slate surface on a white canvas. */
+export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
+  fill: "#f8fafc",
+  border: "#cbd5e1",
+  text: "#0f172a",
+  caption: "#475569",
+  edge: "#94a3b8",
+} as const;
+
+/** Dark-mode inventory/architecture node fill — slate on a dark canvas. */
+export const ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE = {
+  fill: "#334155",
+  border: "#cbd5e1",
+  text: "#f8fafc",
+  caption: "#cbd5e1",
+  edge: "#94a3b8",
+} as const;
+
+/** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 24;
+
+/** Vertical gap between dagre ranks (Mermaid flowchart.rankSpacing). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 36;
+
+/** Padding around the whole flowchart plate (Mermaid flowchart.padding). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 10;
+
+/** Reserved space above subgraph titles so resource group labels sit above the frame. */
+export const ARCHITECTURE_DIAGRAM_MERMAID_SUBGRAPH_TITLE_TOP_MARGIN = 22;
+
+/** Max node box width for inventory/architecture Mermaid canvases (flowchart.wrappingWidth). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 280;
+
+/** Shared Mermaid init for operator architecture and inventory diagrams. */
+export function createArchitectureDiagramMermaidConfig(dark: boolean): {
+  startOnLoad: false;
+  suppressErrorRendering: true;
+  theme: "dark" | "neutral";
+  securityLevel: "strict";
+  fontFamily: string;
+  flowchart: {
+    htmlLabels: false;
+    curve: "linear";
+    padding: number;
+    nodeSpacing: number;
+    rankSpacing: number;
+    subGraphTitleMargin: {
+      top: number;
+      bottom: number;
+    };
+    wrappingWidth: number;
+    useMaxWidth: false;
+  };
+  themeVariables: Record<string, string>;
+} {
+  const node = dark ? ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE;
+
+  return {
+    startOnLoad: false,
+    suppressErrorRendering: true,
+    theme: dark ? "dark" : "neutral",
+    securityLevel: "strict",
+    fontFamily: "ui-sans-serif, system-ui, sans-serif",
+    flowchart: {
+      htmlLabels: false,
+      // IDL-07 briefly loosened gaps for the zero-edge grid; IDT-01 re-tightens for sparse forests.
+      // linear keeps connectors short. Do not set flowchart.ranker — Mermaid 11's dagre adapter
+      // does not forward it for flowcharts (a no-op that later agents kept "tuning").
+      curve: "linear",
+      padding: ARCHITECTURE_DIAGRAM_MERMAID_PADDING,
+      nodeSpacing: ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING,
+      rankSpacing: ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING,
+      subGraphTitleMargin: {
+        top: ARCHITECTURE_DIAGRAM_MERMAID_SUBGRAPH_TITLE_TOP_MARGIN,
+        bottom: 0,
+      },
+      wrappingWidth: ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
+      useMaxWidth: false,
+    },
+    themeVariables: {
+      fontSize: "15px",
+      // Transparent SVG plate — node fill comes from the neutral palette on the viewport canvas.
+      background: "transparent",
+      primaryColor: node.fill,
+      mainBkg: node.fill,
+      clusterBkg: dark ? "transparent" : "transparent",
+      clusterBorder: dark ? "#94a3b8" : "#475569",
+      primaryBorderColor: node.border,
+      lineColor: node.edge,
+      primaryTextColor: node.text,
+      secondaryTextColor: dark ? "#e2e8f0" : "#1e293b",
+    },
+  };
+}

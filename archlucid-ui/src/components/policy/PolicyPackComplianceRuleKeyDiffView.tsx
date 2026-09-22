@@ -7,8 +7,8 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const rowCls: Record<ComplianceRuleKeyDiffItem["changeType"], string> = {
-  added: "border-emerald-700/40 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-950/20",
-  removed: "border-rose-600/40 bg-rose-50/50 dark:border-rose-800/50 dark:bg-rose-950/20",
+  added: "border-neutral-300 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
+  removed: "border-neutral-300 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
   unchanged: "border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950/40",
 };
 
@@ -29,6 +29,8 @@ export type PolicyPackComplianceRuleKeyDiffViewProps = {
   readonly afterKeys: readonly string[];
   readonly beforeLabel?: string;
   readonly afterLabel?: string;
+  /** When false, render nothing — parent gates on preview run state. */
+  readonly visible?: boolean;
 };
 
 /**
@@ -37,6 +39,14 @@ export type PolicyPackComplianceRuleKeyDiffViewProps = {
 export function PolicyPackComplianceRuleKeyDiffView(
   props: PolicyPackComplianceRuleKeyDiffViewProps,
 ): React.JSX.Element {
+  if (props.visible === false) {
+    return (
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rule-key-diff-gated">
+        Run policy impact preview to compare compliance rule keys for this review.
+      </p>
+    );
+  }
+
   const items = diffComplianceRuleKeys(props.beforeKeys, props.afterKeys);
   const changedItems = items.filter((item) => item.changeType !== "unchanged");
   const beforeLabel = props.beforeLabel ?? "Before (current effective merge)";

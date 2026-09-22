@@ -133,13 +133,17 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Graph nodes → Findings (finding influenced by graph context)
-        foreach (Finding f in findings.Findings)
+        foreach (IGrouping<string, Finding> findingGroup in findings.Findings.GroupBy(
+                     f => f.FindingId,
+                     StringComparer.OrdinalIgnoreCase))
         {
-            string fk = $"finding:{f.FindingId}";
+            string fk = $"finding:{findingGroup.Key}";
             if (!nodeMap.TryGetValue(fk, out Guid findingNodeId))
                 continue;
 
-            foreach (string relatedId in f.RelatedNodeIds.Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (string relatedId in findingGroup
+                         .SelectMany(f => f.RelatedNodeIds)
+                         .Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string gk = $"graph:{relatedId}";
                 if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid))

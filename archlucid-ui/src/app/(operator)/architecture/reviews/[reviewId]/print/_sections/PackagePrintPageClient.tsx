@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 import { usePackagePrintMeetingCaptureQuery } from "@/hooks/use-package-print-meeting-capture-query";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
@@ -16,7 +17,9 @@ import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
 import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { resolvePackagePrintRehearsalHonestyStrip } from "@/lib/package-print-rehearsal-honesty";
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -27,7 +30,11 @@ import {
   buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
+  resolvePackagePrintSemanticSupportBandStampLine,
 } from "@/lib/package-print-view";
+import { extractSealedQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-stream-resolver";
+import type { RunDetail } from "@/types/authority";
+
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +51,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const pathname = usePathname() ?? "";
   const parentArchitectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const workingDesk = useProductionDeskChrome();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const { reviewJobHref: printBackHref } = useWorkingBackLocator({
     reviewId: runId,
     reviewTab: "review-package",
@@ -84,6 +92,15 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       workingDesk: true,
     });
 
+    const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+      progressSummary: bundle.progressSummary ?? summaryQuery.data,
+      structuralExecutionMode:
+        bundle.progressSummary?.structuralExecutionMode ?? summaryQuery.data.structuralExecutionMode,
+      workingCareerRehearsalDoor:
+        bundle.progressSummary?.workingCareerRehearsalDoor ?? summaryQuery.data.workingCareerRehearsalDoor,
+      liveDoor: effectiveDoor,
+    });
+
     return evaluateCareerArtifactHonesty({
       artifactKind: "export",
       runId: summaryQuery.data.runId,
@@ -94,7 +111,55 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       enginesSucceeded: bundle.buyerSummary.findingCoverageSummary?.enginesSucceeded ?? null,
       workingDesk: true,
       transparencyTrail: bundle.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+      ...doorFields,
     }).headerLines.join("\n");
+  }, [coverageHonestyQuery.data, effectiveDoor, summaryQuery.data, workingDesk]);
+
+  const rehearsalHonestyStrip = useMemo(() => {
+    if (!workingDesk || summaryQuery.data === undefined) {
+      return null;
+    }
+
+    const bundle = coverageHonestyQuery.data;
+    const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+      progressSummary: bundle?.progressSummary ?? summaryQuery.data,
+      structuralExecutionMode:
+        bundle?.progressSummary?.structuralExecutionMode ?? summaryQuery.data.structuralExecutionMode,
+      workingCareerRehearsalDoor:
+        bundle?.progressSummary?.workingCareerRehearsalDoor ?? summaryQuery.data.workingCareerRehearsalDoor,
+      liveDoor: effectiveDoor,
+    });
+
+    return resolvePackagePrintRehearsalHonestyStrip({
+      workingDesk: true,
+      structuralExecutionMode: doorFields.structuralExecutionMode,
+      effectiveWorkingCareerRehearsalDoor: doorFields.effectiveWorkingCareerRehearsalDoor,
+    });
+  }, [coverageHonestyQuery.data, effectiveDoor, summaryQuery.data, workingDesk]);
+
+  const semanticSupportBandStampLine = useMemo(() => {
+    if (!workingDesk || summaryQuery.data === undefined || coverageHonestyQuery.data === undefined) {
+      return null;
+    }
+
+    const buyerSummary = coverageHonestyQuery.data.buyerSummary as
+      | (Record<string, unknown> & { findingsSnapshot?: unknown })
+      | undefined;
+    const pseudoDetail = {
+      findingsSnapshot: buyerSummary?.findingsSnapshot ?? null,
+      run: { runId: summaryQuery.data.runId },
+      results: [],
+    } as unknown as RunDetail;
+    const findings = extractSealedQuickDecisionFindingsFromRunDetail(pseudoDetail);
+
+    if (findings.length === 0) {
+      return null;
+    }
+
+    return resolvePackagePrintSemanticSupportBandStampLine(
+      findings,
+      summaryQuery.data.structuralExecutionMode ?? null,
+    );
   }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
 
   if (summaryQuery.isPending) {
@@ -131,6 +196,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
         : null,
+    semanticSupportBandStampLine,
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
@@ -140,6 +206,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       && coverageHonestyQuery.data !== undefined
       && analysisStagesCompleteOnSummary(summaryQuery.data)
       && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
+    rehearsalHonestyStrip,
+
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
@@ -157,8 +225,9 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
-          <Link href={printBackHref} data-testid="package-print-blocked-back">
-            {PACKAGE_PRINT_BACK_LABEL}
+          <Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
+            Back to architecture package
+
           </Link>
         </Button>
       </div>
@@ -170,6 +239,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       presentation={presentation}
       listScopedRunId={listScopedRunId}
       parentArchitectureId={parentArchitectureId}
+
       meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );

@@ -42,6 +42,7 @@ import {
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ReviewStartStageId } from "@/lib/review-start-progress-stages";
+import { shouldRenderSpawnLockedHandoffLayout } from "@/lib/system-not-job-spawn-lock-handoff-layout";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
@@ -132,6 +133,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly canStartReview: boolean;
   readonly handleStartReview: () => void | Promise<void>;
   readonly saveDraft: () => Promise<boolean>;
+  readonly wasLastSaveConflict?: () => boolean;
   readonly setExitPending: (pending: boolean) => void;
   readonly hasPersistedDraft: boolean;
   readonly qualityAttributesEncouragementOpen: boolean;
@@ -139,16 +141,22 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly handleEncourageAddQualityAttributes: () => void;
   readonly handleContinueWithoutQualityAttributes: () => void;
   readonly nextDraft: Parameters<typeof ArchitectureDraftNextDraftFooter>[0]["target"] | null;
+  readonly workLeaseBanner?: React.ReactNode;
 };
 
 function WorkingNestedDraftIdentityAnchors(props: {
   readonly parentArchitectureId?: string | null;
+  readonly handoffEditorLocked?: boolean;
 }): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
   const architectureId = props.parentArchitectureId?.trim() ?? "";
 
   if (!isWorkingMode || architectureId.length === 0) {
     return null;
+  }
+
+  if (props.handoffEditorLocked === true) {
+    return <WorkingNestedArchitectureIdentityChromeMount parentArchitectureId={architectureId} />;
   }
 
   return (
@@ -233,16 +241,21 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     );
   }
 
-  if (isWorkingMode && handoffEditorLocked && linkedReviewId !== null) {
+  if (shouldRenderSpawnLockedHandoffLayout({ handoffEditorLocked, linkedReviewId })) {
+    const resolvedLinkedReviewId = linkedReviewId!.trim();
+
     return (
       <div className="space-y-4" data-testid="architecture-draft-workspace">
-        <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
+        <WorkingNestedDraftIdentityAnchors
+          parentArchitectureId={props.parentArchitectureId}
+          handoffEditorLocked={handoffEditorLocked}
+        />
         <ArchitectureDraftWorkspaceHeaderChrome {...props} />
         <ArchitectureDraftHandoffPanel
           draftId={draftId}
           parentArchitectureId={props.parentArchitectureId}
           workspaceHeading={workspaceHeading}
-          linkedReviewId={linkedReviewId}
+          linkedReviewId={resolvedLinkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
           fields={fields}
         />
@@ -315,7 +328,10 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
           {ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY}
         </p>
       ) : null}
-      <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
+      <WorkingNestedDraftIdentityAnchors
+        parentArchitectureId={props.parentArchitectureId}
+        handoffEditorLocked={props.handoffEditorLocked}
+      />
     </>
   );
 

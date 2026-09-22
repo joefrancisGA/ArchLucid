@@ -44,6 +44,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   const exportState = useAuditPageExport({
     fromUtc: filters.fromUtc,
     toUtc: filters.toUtc,
+    scopedRunId: filters.runId,
     currentFilters,
     setFailure: filters.setFailure,
   });

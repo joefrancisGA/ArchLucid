@@ -47,7 +47,7 @@ public sealed class ExecDigestPreferencesMapperTests
 
         ExecDigestPreferencesResponse response = ExecDigestPreferencesMapper.ToResponse(row);
 
-        response.IanaTimeZoneId.Should().Be("UTC");
+        response.IanaTimeZoneId.Should().Be("America/New_York");
     }
 
     [Fact]

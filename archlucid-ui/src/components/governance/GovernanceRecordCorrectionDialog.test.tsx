@@ -10,10 +10,6 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-vi.mock("@/hooks/use-resume-pending-livelihood-mutation", () => ({
-  useResumePendingLivelihoodMutation: () => undefined,
-}));
-
 vi.mock("@/lib/governance/governance-mutation-correction-api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/governance/governance-mutation-correction-api")>();
 

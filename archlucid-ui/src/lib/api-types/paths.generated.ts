@@ -148,7 +148,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -416,7 +419,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -551,7 +557,10 @@ export interface paths {
                     startIndex?: number;
                     count?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -671,7 +680,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -803,7 +815,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -924,7 +939,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -1049,7 +1067,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -1179,7 +1200,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1313,7 +1337,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1447,7 +1474,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1585,7 +1615,10 @@ export interface paths {
                     startIndex?: number;
                     count?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1705,7 +1738,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1837,7 +1873,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -1958,7 +1997,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -2080,7 +2122,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -2203,7 +2248,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -2333,7 +2381,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2465,7 +2516,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2602,7 +2656,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     aliasId: string;
                 };
@@ -2747,7 +2804,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     aliasId: string;
                 };
@@ -2885,7 +2945,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     aliasId: string;
                     taskType: string;
@@ -3028,7 +3091,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3164,7 +3230,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3302,7 +3371,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     keyId: string;
                 };
@@ -3443,7 +3515,10 @@ export interface paths {
                 query?: {
                     maxCount?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3579,7 +3654,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3717,7 +3795,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3860,7 +3941,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3996,7 +4080,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4134,7 +4221,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4285,7 +4375,10 @@ export interface paths {
                 query?: {
                     subscriptionId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4426,7 +4519,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4571,7 +4667,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4722,7 +4821,10 @@ export interface paths {
                 query?: {
                     includeAdvisory?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4860,7 +4962,10 @@ export interface paths {
                 query?: {
                     includeEffectiveValues?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4998,7 +5103,10 @@ export interface paths {
                 query?: {
                     includeEffectiveValues?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5134,7 +5242,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5272,7 +5383,10 @@ export interface paths {
                 query?: {
                     frontendBuildId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5408,7 +5522,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5544,7 +5661,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5682,7 +5802,10 @@ export interface paths {
                 query?: {
                     maxSampleRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5807,7 +5930,10 @@ export interface paths {
                     dryRun?: boolean;
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5946,7 +6072,10 @@ export interface paths {
                     dryRun?: boolean;
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6085,7 +6214,10 @@ export interface paths {
                     dryRun?: boolean;
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6224,7 +6356,10 @@ export interface paths {
                     dryRun?: boolean;
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6358,7 +6493,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6496,7 +6634,10 @@ export interface paths {
                 query?: {
                     maxSampleRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6621,7 +6762,10 @@ export interface paths {
                     dryRun?: boolean;
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6755,7 +6899,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6891,7 +7038,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -7027,7 +7177,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -7163,7 +7316,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -7299,7 +7455,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -7435,7 +7594,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -7573,7 +7735,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     resultId: string;
                 };
@@ -7712,7 +7877,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -7850,7 +8018,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -8001,7 +8172,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -8144,7 +8318,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -8285,7 +8462,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -8428,7 +8608,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -8550,7 +8733,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -8693,7 +8879,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -8829,7 +9018,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -8972,7 +9164,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -9112,7 +9307,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -9254,7 +9452,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -9378,7 +9579,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -9525,7 +9729,10 @@ export interface paths {
                 query?: {
                     confirmRemoveLast?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                     normalizedRecoveryAdminEmail: string;
@@ -9663,7 +9870,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -9807,7 +10017,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -9951,7 +10164,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -10089,7 +10305,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     normalizedDomain: string;
                 };
@@ -10225,7 +10444,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -10363,7 +10585,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -10508,7 +10733,10 @@ export interface paths {
                 query?: {
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -10644,7 +10872,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     outboxId: string;
                 };
@@ -10787,7 +11018,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     outboxId: string;
                 };
@@ -10924,7 +11158,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     outboxId: string;
                 };
@@ -11067,7 +11304,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -11218,7 +11458,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -11369,7 +11612,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -11519,7 +11765,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -11655,7 +11904,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -11793,7 +12045,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -11936,7 +12191,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -12074,7 +12332,10 @@ export interface paths {
                     periodStart?: string;
                     periodEnd?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -12223,7 +12484,10 @@ export interface paths {
                     correlationId?: string;
                     search?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -12362,7 +12626,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -12503,7 +12770,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -12642,7 +12912,10 @@ export interface paths {
                     days?: number;
                     comparePrevious?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -12778,7 +13051,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -12915,7 +13191,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     bundleContentFile: string;
                 };
@@ -13061,7 +13340,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -13199,7 +13481,10 @@ export interface paths {
                 query?: {
                     templateName?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -13338,7 +13623,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -13474,7 +13762,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -13595,7 +13886,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -13739,7 +14033,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -13877,7 +14174,10 @@ export interface paths {
                 query?: {
                     includeDemo?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -14016,7 +14316,10 @@ export interface paths {
                     quarter?: string;
                     minTenants?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -14155,7 +14458,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -14277,7 +14583,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -14421,7 +14730,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     roleId: string;
                 };
@@ -14572,7 +14884,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     roleId: string;
                 };
@@ -14715,7 +15030,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -14860,7 +15178,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -15003,7 +15324,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -15123,7 +15447,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -15258,7 +15585,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -15391,7 +15721,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -15530,7 +15863,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -15651,7 +15987,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -15782,7 +16121,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -15915,7 +16257,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16036,7 +16381,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16167,7 +16515,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16300,7 +16651,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16438,7 +16792,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16581,7 +16938,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16703,7 +17063,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16833,7 +17196,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -16964,7 +17330,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17098,7 +17467,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17220,7 +17592,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17354,7 +17729,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17475,7 +17853,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17603,7 +17984,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17736,7 +18120,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17857,7 +18244,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -17988,7 +18378,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -18121,7 +18514,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -18257,7 +18653,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -18378,7 +18777,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -18521,7 +18923,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -18655,7 +19060,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -18793,7 +19201,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -18932,7 +19343,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -19054,7 +19468,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -19199,7 +19616,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -19343,7 +19763,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -19474,7 +19897,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -19613,7 +20039,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -19753,7 +20182,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -19893,7 +20325,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -20033,7 +20468,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -20180,7 +20618,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -20314,7 +20755,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -20446,7 +20890,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -20586,7 +21033,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -20726,7 +21176,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -20864,7 +21317,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -21004,7 +21460,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -21136,7 +21595,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -21275,7 +21737,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     invitationId: string;
                 };
@@ -21411,7 +21876,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -21559,7 +22027,10 @@ export interface paths {
                 query?: {
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -21698,7 +22169,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     digestId: string;
                 };
@@ -21842,7 +22316,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -21964,7 +22441,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -22115,7 +22595,10 @@ export interface paths {
                 query?: {
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     scheduleId: string;
                 };
@@ -22258,7 +22741,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     scheduleId: string;
                 };
@@ -22401,7 +22887,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     recommendationId: string;
                 };
@@ -22554,7 +23043,10 @@ export interface paths {
                 query?: {
                     compareToRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -22698,7 +23190,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -22839,7 +23334,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -22975,7 +23473,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -23097,7 +23598,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -23248,7 +23752,10 @@ export interface paths {
                 query?: {
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     routingSubscriptionId: string;
                 };
@@ -23391,7 +23898,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     routingSubscriptionId: string;
                 };
@@ -23530,7 +24040,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -23652,7 +24165,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -23794,7 +24310,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -23939,7 +24458,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -24084,7 +24606,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -24234,7 +24759,10 @@ export interface paths {
                     includeArchived?: boolean;
                     cursor?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -24381,7 +24909,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -24524,7 +25055,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -24673,7 +25207,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -24811,7 +25348,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     alertId: string;
                 };
@@ -24959,7 +25499,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     alertId: string;
                 };
@@ -25106,7 +25649,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     alertId: string;
                 };
@@ -25243,7 +25789,10 @@ export interface paths {
                 query?: {
                     industryVertical?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -25379,7 +25928,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -25515,7 +26067,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -25651,7 +26206,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -25787,7 +26345,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -25931,7 +26492,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -26080,7 +26644,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -26235,7 +26802,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -26312,13 +26882,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -26384,7 +26957,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -26536,7 +27112,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -26615,13 +27194,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -26689,7 +27271,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -26768,13 +27353,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -26842,7 +27430,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -26993,7 +27584,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -27144,7 +27738,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -27312,7 +27909,10 @@ export interface paths {
                     Skip?: number;
                     Limit?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -27462,7 +28062,10 @@ export interface paths {
                 query?: {
                     maxCount?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -27600,7 +28203,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -27758,7 +28364,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -27898,7 +28507,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -27980,13 +28592,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -28050,7 +28665,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -28203,7 +28821,10 @@ export interface paths {
                 query?: {
                     format?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -28360,7 +28981,10 @@ export interface paths {
                 query?: {
                     format?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -28535,7 +29159,10 @@ export interface paths {
                     replayMode?: string;
                     persistReplay?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -28690,7 +29317,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -28847,7 +29477,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     comparisonRecordId: string;
                 };
@@ -28999,7 +29632,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -29156,7 +29792,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -29284,7 +29923,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -29420,6 +30062,150 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/draft/prior-package-semantics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    priorRunId?: string;
+                };
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PriorPackageSemanticCountsDto"];
+                        "text/json": components["schemas"]["PriorPackageSemanticCountsDto"];
+                        "text/plain": components["schemas"]["PriorPackageSemanticCountsDto"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/draft/{draftId}": {
         parameters: {
             query?: never;
@@ -29430,7 +30216,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -29564,7 +30353,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -29713,7 +30505,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -29860,7 +30655,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -30007,7 +30805,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -30160,7 +30961,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -30311,7 +31115,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -30460,7 +31267,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -30605,7 +31415,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -30743,7 +31556,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -30892,7 +31708,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -31045,7 +31864,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -31192,7 +32014,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -31345,7 +32170,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     draftId: string;
                 };
@@ -31486,6 +32314,584 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/draft/{draftId}/work-lease": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/work-lease/acquire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                        "text/json": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                        "text/plain": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureWorkLeaseConflictResponse"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ArchitectureWorkLeaseConflictResponse"];
+                        "text/plain": components["schemas"]["ArchitectureWorkLeaseConflictResponse"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/work-lease/heartbeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                        "text/json": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                        "text/plain": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/work-lease/steal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                        "text/json": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                        "text/plain": components["schemas"]["ArchitectureWorkLeaseResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/evidence/extract-text": {
         parameters: {
             query?: never;
@@ -31498,7 +32904,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -31648,7 +33057,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -31799,7 +33211,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -31952,7 +33367,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -32107,7 +33525,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -32258,7 +33679,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     wizardId: string;
                 };
@@ -32387,7 +33811,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     wizardId: string;
                 };
@@ -32539,7 +33966,10 @@ export interface paths {
                     leftVersion?: string;
                     rightVersion?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -32684,7 +34114,10 @@ export interface paths {
                     leftVersion?: string;
                     rightVersion?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -32829,7 +34262,10 @@ export interface paths {
                     leftVersion?: string;
                     rightVersion?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -32974,7 +34410,10 @@ export interface paths {
                     leftVersion?: string;
                     rightVersion?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -33116,7 +34555,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -33260,7 +34702,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -33404,7 +34849,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -33552,8 +35000,13 @@ export interface paths {
                     includeRuntimePlatform?: boolean;
                     relationshipLabels?: string;
                     groupBy?: string;
+                    includeSemanticOverlay?: boolean;
+                    semanticOverlayMaxNodes?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -33700,7 +35153,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -33844,7 +35300,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -33995,7 +35454,10 @@ export interface paths {
                     includeComponentControls?: boolean;
                     maxRelationships?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -34139,7 +35601,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestVersion: string;
                 };
@@ -34283,7 +35748,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -34427,7 +35895,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -34584,7 +36055,10 @@ export interface paths {
                 query?: {
                     sourceState?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -34726,7 +36200,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -34870,7 +36347,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -35035,7 +36515,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -35185,7 +36668,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -35273,13 +36759,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -35347,7 +36836,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -35498,7 +36990,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -35643,7 +37138,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     operationId: string;
                 };
@@ -35798,7 +37296,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -35949,7 +37450,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -36100,7 +37604,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -36251,6 +37758,8 @@ export interface paths {
                 query?: never;
                 header?: {
                     "Idempotency-Key"?: string;
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
                 };
                 path?: never;
                 cookie?: never;
@@ -36398,7 +37907,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -36543,7 +38055,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     requestId: string;
                 };
@@ -36680,7 +38195,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     requestId: string;
                 };
@@ -36829,7 +38347,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     requestId: string;
                 };
@@ -36971,7 +38492,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     requestId: string;
                 };
@@ -37121,7 +38645,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     requestId: string;
                 };
@@ -37268,7 +38795,10 @@ export interface paths {
                     LeftRunId?: string;
                     RightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -37422,7 +38952,10 @@ export interface paths {
                     LeftRunId?: string;
                     RightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -37576,7 +39109,10 @@ export interface paths {
                     LeftRunId?: string;
                     RightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -37730,7 +39266,10 @@ export interface paths {
                     LeftRunId?: string;
                     RightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -37884,7 +39423,10 @@ export interface paths {
                     LeftRunId?: string;
                     RightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -38038,7 +39580,10 @@ export interface paths {
                     LeftRunId?: string;
                     RightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -38194,7 +39739,10 @@ export interface paths {
                     LeftRunId?: string;
                     RightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -38352,7 +39900,10 @@ export interface paths {
                     leftExportRecordId?: string;
                     rightExportRecordId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -38499,7 +40050,10 @@ export interface paths {
                     leftExportRecordId?: string;
                     rightExportRecordId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -38645,7 +40199,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     exportRecordId: string;
                 };
@@ -38791,7 +40348,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     exportRecordId: string;
                 };
@@ -38944,7 +40504,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     exportRecordId: string;
                 };
@@ -39095,7 +40658,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -39255,7 +40821,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -39410,7 +40979,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -39569,7 +41141,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -39728,7 +41303,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -39875,7 +41453,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -40034,7 +41615,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -40181,7 +41765,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -40263,13 +41850,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -40337,7 +41927,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -40472,6 +42065,305 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/review/{runId}/assumptions/acknowledgement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RunAssumptionAcknowledgementDocument"];
+                        "text/json": components["schemas"]["RunAssumptionAcknowledgementDocument"];
+                        "text/plain": components["schemas"]["RunAssumptionAcknowledgementDocument"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PutRunAssumptionAcknowledgementRequest"];
+                    "application/json": null | components["schemas"]["PutRunAssumptionAcknowledgementRequest"];
+                    "text/json": null | components["schemas"]["PutRunAssumptionAcknowledgementRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RunAssumptionAcknowledgementDocument"];
+                        "text/json": components["schemas"]["RunAssumptionAcknowledgementDocument"];
+                        "text/plain": components["schemas"]["RunAssumptionAcknowledgementDocument"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/review/{runId}/clarification-questions": {
         parameters: {
             query?: never;
@@ -40484,7 +42376,10 @@ export interface paths {
                 query?: {
                     priorRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -40637,7 +42532,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -40790,7 +42688,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -40945,7 +42846,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -41112,7 +43016,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -41261,7 +43168,10 @@ export interface paths {
                 query?: {
                     disposition?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     evidenceItemId: string;
@@ -41407,7 +43317,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -41566,7 +43479,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -41715,7 +43631,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -41878,7 +43797,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -42024,7 +43946,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -42187,7 +44112,10 @@ export interface paths {
                     cursorPriorityRank?: number;
                     cursorFindingRecordId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -42347,7 +44275,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -42488,7 +44419,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -42644,7 +44578,10 @@ export interface paths {
                 query?: {
                     includeTypedPayload?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -42800,7 +44737,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -42963,7 +44903,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -43045,13 +44988,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -43115,7 +45061,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -43280,7 +45229,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -43435,7 +45387,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -43592,7 +45547,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -43742,7 +45700,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -43895,7 +45856,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -44048,7 +46012,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -44201,7 +46168,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -44354,7 +46324,10 @@ export interface paths {
                     pageNumber?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -44514,7 +46487,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -44666,7 +46642,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -44816,7 +46795,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -44956,7 +46938,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     artifactId: string;
@@ -45097,7 +47082,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -45238,7 +47226,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -45379,7 +47370,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -45532,7 +47526,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     exportRecordId: string;
                 };
@@ -45684,7 +47681,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -45843,7 +47843,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -46002,7 +48005,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -46149,7 +48155,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -46308,7 +48317,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -46455,7 +48467,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -46537,13 +48552,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -46611,7 +48629,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -46756,7 +48777,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -46906,7 +48930,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -47051,7 +49078,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -47205,7 +49235,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -47277,13 +49310,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -47349,7 +49385,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -47499,7 +49538,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -47639,7 +49681,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     artifactId: string;
@@ -47782,7 +49827,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -47855,13 +49903,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -47927,7 +49978,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -48073,7 +50127,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -48226,7 +50283,10 @@ export interface paths {
                 query?: {
                     snapshotId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -48375,7 +50435,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -48526,7 +50589,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -48667,7 +50733,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -48817,7 +50886,10 @@ export interface paths {
                     excludeRunId?: string;
                     occupancyKind?: components["schemas"]["WorkspaceSystemNameOccupancyKind"];
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -48957,7 +51029,10 @@ export interface paths {
                     pageSize?: number;
                     includeArchived?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -49096,7 +51171,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     architectureId: string;
                 };
@@ -49230,7 +51308,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     architectureId: string;
                 };
@@ -49367,6 +51448,579 @@ export interface paths {
         };
         trace?: never;
     };
+    "/v1/architectures/{architectureId}/inventory-binding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    architectureId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureInventoryBindingResponse"];
+                        "text/json": components["schemas"]["ArchitectureInventoryBindingResponse"];
+                        "text/plain": components["schemas"]["ArchitectureInventoryBindingResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    architectureId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["AttachArchitectureInventoryBindingRequest"];
+                    "application/json": null | components["schemas"]["AttachArchitectureInventoryBindingRequest"];
+                    "text/json": null | components["schemas"]["AttachArchitectureInventoryBindingRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureInventoryBindingResponse"];
+                        "text/json": components["schemas"]["ArchitectureInventoryBindingResponse"];
+                        "text/plain": components["schemas"]["ArchitectureInventoryBindingResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    architectureId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architectures/{architectureId}/restrict-to-shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    architectureId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PatchArchitectureRestrictToSharesRequest"];
+                    "application/json": null | components["schemas"]["PatchArchitectureRestrictToSharesRequest"];
+                    "text/json": null | components["schemas"]["PatchArchitectureRestrictToSharesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/plain": components["schemas"]["ArchitectureShareListResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/v1/architectures/{architectureId}/seal-delta": {
         parameters: {
             query?: never;
@@ -49377,7 +52031,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     architectureId: string;
                 };
@@ -49511,6 +52168,450 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architectures/{architectureId}/shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    architectureId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/plain": components["schemas"]["ArchitectureShareListResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    architectureId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PutArchitectureShareRequest"];
+                    "application/json": null | components["schemas"]["PutArchitectureShareRequest"];
+                    "text/json": null | components["schemas"]["PutArchitectureShareRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/plain": components["schemas"]["ArchitectureShareListResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architectures/{architectureId}/shares/{targetActorOid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    architectureId: string;
+                    targetActorOid: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/json": components["schemas"]["ArchitectureShareListResponse"];
+                        "text/plain": components["schemas"]["ArchitectureShareListResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/artifacts/reviews/{runId}/decision-receipt": {
         parameters: {
             query?: never;
@@ -49521,7 +52622,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -49661,7 +52765,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -49732,7 +52839,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["CareerArtifactBlockedProblemDetails"];
                         "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -49803,7 +52910,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -49888,7 +52998,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ProblemDetails"];
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["CareerArtifactBlockedProblemDetails"];
                         "text/json": components["schemas"]["ProblemDetails"];
                         "text/plain": components["schemas"]["ProblemDetails"];
                     };
@@ -49956,7 +53066,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -50106,7 +53219,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -50256,7 +53372,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -50407,7 +53526,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -50478,7 +53600,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["CareerArtifactBlockedProblemDetails"];
                         "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -50549,7 +53671,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -50634,7 +53759,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ProblemDetails"];
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["CareerArtifactBlockedProblemDetails"];
                         "text/json": components["schemas"]["ProblemDetails"];
                         "text/plain": components["schemas"]["ProblemDetails"];
                     };
@@ -50702,7 +53827,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -50852,7 +53980,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -51002,7 +54133,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -51153,7 +54287,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestId: string;
                 };
@@ -51303,7 +54440,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestId: string;
                     artifactId: string;
@@ -51444,7 +54584,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestId: string;
                     artifactId: string;
@@ -51595,7 +54738,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestId: string;
                 };
@@ -51737,7 +54883,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -51888,7 +55037,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -52029,7 +55181,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -52168,7 +55323,10 @@ export interface paths {
                     cursor?: string;
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -52311,7 +55469,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -52456,7 +55617,10 @@ export interface paths {
                     maxRows?: number;
                     format?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -52609,7 +55773,10 @@ export interface paths {
                     runId?: string;
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -52757,7 +55924,10 @@ export interface paths {
                     take?: number;
                     includeDataJson?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -52902,7 +56072,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -53042,7 +56215,10 @@ export interface paths {
                 query?: {
                     returnUrl?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -53188,7 +56364,10 @@ export interface paths {
                     returnUrl?: string;
                     invitationToken?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -53326,7 +56505,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -53473,7 +56655,10 @@ export interface paths {
                 query?: {
                     returnUrl?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -53615,7 +56800,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -53757,7 +56945,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -53902,7 +57093,10 @@ export interface paths {
                 query?: {
                     token?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -54040,7 +57234,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -54180,7 +57377,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -54318,7 +57518,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -54460,7 +57663,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -54603,7 +57809,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     proposalId: string;
                 };
@@ -54736,7 +57945,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     proposalId: string;
                 };
@@ -54875,7 +58087,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     identityId: string;
                 };
@@ -55008,7 +58223,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -55150,7 +58368,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -55292,7 +58513,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -55431,7 +58655,10 @@ export interface paths {
                     leftManifestId?: string;
                     rightManifestId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -55576,7 +58803,10 @@ export interface paths {
                     leftRunId?: string;
                     rightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -55723,7 +58953,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     projectId: string;
                 };
@@ -55878,7 +59111,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -56035,7 +59271,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -56186,7 +59425,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -56339,7 +59581,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -56492,7 +59737,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -56638,7 +59886,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -56792,7 +60043,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -56939,7 +60193,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -57089,7 +60346,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -57242,7 +60502,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -57395,7 +60658,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -57542,7 +60808,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -57692,7 +60961,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -57845,7 +61117,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -57998,7 +61273,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -58151,7 +61429,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -58295,7 +61576,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -58439,7 +61723,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -58578,7 +61865,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -58722,7 +62012,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     decisionKey: string;
@@ -58872,7 +62165,10 @@ export interface paths {
                 query?: {
                     depth?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     nodeId: string;
@@ -59017,7 +62313,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -59161,7 +62460,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     manifestId: string;
                 };
@@ -59314,7 +62616,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -59436,7 +62741,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -59582,7 +62890,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     connectionId: string;
                 };
@@ -59716,7 +63027,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -59838,7 +63152,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -59981,7 +63298,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     packageId: string;
                 };
@@ -60124,7 +63444,10 @@ export interface paths {
                 query?: {
                     runId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -60274,7 +63597,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -60419,7 +63745,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     sessionId: string;
                     chunkIndex: number;
@@ -60563,7 +63892,10 @@ export interface paths {
                 query?: {
                     runId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     sessionId: string;
                 };
@@ -60704,7 +64036,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -60825,7 +64160,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -60968,7 +64306,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -61110,7 +64451,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -61242,7 +64586,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -61375,7 +64722,10 @@ export interface paths {
                     baseRunId?: string;
                     targetRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -61517,7 +64867,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -61639,7 +64992,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -61786,7 +65142,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -61924,7 +65283,10 @@ export interface paths {
                 query?: {
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     threadId: string;
                 };
@@ -62065,7 +65427,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -62200,7 +65565,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -62346,7 +65714,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -62484,7 +65855,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -62629,7 +66003,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -62768,7 +66145,10 @@ export interface paths {
                     leftRunId?: string;
                     rightRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -62913,7 +66293,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -63052,7 +66435,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -63196,7 +66582,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -63342,7 +66731,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     catchAll: string;
                 };
@@ -63472,7 +66864,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -63611,7 +67006,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -63749,7 +67147,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -63890,7 +67291,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -64029,7 +67433,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -64167,7 +67574,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -64315,7 +67725,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -64456,7 +67869,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -64604,7 +68020,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -64745,7 +68164,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -64886,7 +68308,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -65027,7 +68452,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -65166,7 +68594,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -65302,7 +68733,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -65424,7 +68858,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -65575,7 +69012,10 @@ export interface paths {
                 query?: {
                     digestIds?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -65714,7 +69154,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     digestId: string;
                 };
@@ -65857,7 +69300,10 @@ export interface paths {
                 query?: {
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     subscriptionId: string;
                 };
@@ -66000,7 +69446,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     subscriptionId: string;
                 };
@@ -66143,7 +69592,10 @@ export interface paths {
                     explainRun?: boolean;
                     includeComparisonExplanation?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -66285,7 +69737,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -66443,7 +69898,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -66590,7 +70048,10 @@ export interface paths {
                     runId?: string;
                     asOf?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -66748,7 +70209,10 @@ export interface paths {
                 query?: {
                     max?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -66889,7 +70353,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     planId: string;
                 };
@@ -67028,7 +70495,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     candidateId: string;
                 };
@@ -67171,7 +70641,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     candidateId: string;
                 };
@@ -67313,7 +70786,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     candidateId: string;
                 };
@@ -67456,7 +70932,10 @@ export interface paths {
                 query?: {
                     format?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     candidateId: string;
                 };
@@ -67602,7 +71081,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     candidateId: string;
                 };
@@ -67747,7 +71229,10 @@ export interface paths {
                     baseRunId?: string;
                     targetRunId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -67889,7 +71374,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -68033,7 +71521,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -68177,7 +71668,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -68324,7 +71818,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -68472,7 +71969,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -68619,7 +72119,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -68767,7 +72270,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     packageId: string;
                 };
@@ -68910,7 +72416,10 @@ export interface paths {
                 query?: {
                     runId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -69060,7 +72569,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -69205,7 +72717,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     sessionId: string;
                     chunkIndex: number;
@@ -69349,7 +72864,10 @@ export interface paths {
                 query?: {
                     runId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     sessionId: string;
                 };
@@ -69490,7 +73008,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     packageId: string;
                 };
@@ -69633,7 +73154,10 @@ export interface paths {
                 query?: {
                     runId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -69783,7 +73307,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -69928,7 +73455,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     sessionId: string;
                     chunkIndex: number;
@@ -70072,7 +73602,10 @@ export interface paths {
                 query?: {
                     runId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     sessionId: string;
                 };
@@ -70215,7 +73748,10 @@ export interface paths {
                 query?: {
                     includeTypedPayload?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -70367,7 +73903,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -70445,13 +73984,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -70501,7 +74043,149 @@ export interface paths {
                 };
             };
         };
-        delete?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    findingId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["FindingUnmuteRequest"];
+                    "application/json": null | components["schemas"]["FindingUnmuteRequest"];
+                    "text/json": null | components["schemas"]["FindingUnmuteRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -70518,7 +74202,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -70672,7 +74359,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -70794,7 +74484,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -70940,7 +74633,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     connectionId: string;
                 };
@@ -71076,7 +74772,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -71227,7 +74926,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -71376,7 +75078,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -71526,7 +75231,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -71688,7 +75396,10 @@ export interface paths {
                 query?: {
                     dryRun?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -71848,7 +75559,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -72008,7 +75722,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     approvalRequestId: string;
                 };
@@ -72168,7 +75885,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     approvalRequestId: string;
                 };
@@ -72321,7 +76041,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     approvalRequestId: string;
                 };
@@ -72476,7 +76199,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     approvalRequestId: string;
                 };
@@ -72640,7 +76366,10 @@ export interface paths {
                     toUtc?: string;
                     bucketMinutes?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -72794,7 +76523,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -72947,7 +76679,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -73109,7 +76844,10 @@ export interface paths {
                     maxDecisions?: number;
                     maxChanges?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -73279,7 +77017,10 @@ export interface paths {
                     maxConfidence?: number | string;
                     buyerConfidenceSource?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -73426,7 +77167,10 @@ export interface paths {
                 query?: {
                     projectId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -73578,7 +77322,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -73705,7 +77452,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -73858,7 +77608,10 @@ export interface paths {
                     projectId?: string;
                     maxRows?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -74005,7 +77758,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -74058,16 +77814,13 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Not Found */
+                /** @description Not Found. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Method Not Allowed. */
@@ -74154,7 +77907,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -74284,7 +78040,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -74437,7 +78196,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -74595,7 +78357,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -74745,7 +78510,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -74902,7 +78670,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -75062,7 +78833,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -75132,12 +78906,13 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -75210,7 +78985,10 @@ export interface paths {
                     pageSize?: number;
                     page?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -75282,12 +79060,13 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -75357,7 +79136,10 @@ export interface paths {
                 query?: {
                     projectId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -75511,7 +79293,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -75654,6 +79439,164 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/pre-finalize/readiness/{runId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    acknowledgedAssumptionIds?: string[];
+                };
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FinalizeReadinessResult"];
+                        "text/json": components["schemas"]["FinalizeReadinessResult"];
+                        "text/plain": components["schemas"]["FinalizeReadinessResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/pre-finalize/simulate": {
         parameters: {
             query?: never;
@@ -75666,7 +79609,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -75825,7 +79771,10 @@ export interface paths {
                 query?: {
                     dryRun?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -75983,7 +79932,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -76107,7 +80059,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -76250,7 +80205,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -76378,7 +80336,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -76529,7 +80490,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -76673,7 +80637,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     scheduleId: string;
                 };
@@ -76825,7 +80792,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -76976,7 +80946,10 @@ export interface paths {
                 query?: {
                     projectId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -77107,7 +81080,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -77258,7 +81234,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     riskExceptionId: string;
                 };
@@ -77408,7 +81387,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     riskExceptionId: string;
                 };
@@ -77550,7 +81532,10 @@ export interface paths {
                     maxRows?: number;
                     assignedToMe?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -77697,7 +81682,10 @@ export interface paths {
                 query?: {
                     projectId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -77842,7 +81830,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -77995,7 +81986,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -78150,7 +82144,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -78298,7 +82295,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -78451,7 +82451,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -78599,7 +82602,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -78743,7 +82749,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -78813,12 +82822,13 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -78888,7 +82898,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -79034,7 +83047,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assessmentId: string;
                     snapshotId: string;
@@ -79183,7 +83199,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assessmentId: string;
                     snapshotId: string;
@@ -79333,7 +83352,10 @@ export interface paths {
                 query?: {
                     subscriptionId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -79455,7 +83477,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -79600,7 +83625,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     diffId: string;
                 };
@@ -79748,7 +83776,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     diffId: string;
                 };
@@ -79894,7 +83925,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     diffId: string;
                 };
@@ -80045,7 +84079,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -80183,7 +84220,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -80321,7 +84361,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -80467,7 +84510,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -80603,7 +84649,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -80748,7 +84797,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assetId: string;
                 };
@@ -80889,7 +84941,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assetId: string;
                 };
@@ -81030,7 +85085,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assetId: string;
                 };
@@ -81173,7 +85231,10 @@ export interface paths {
                 query?: {
                     context?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -81319,7 +85380,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -81463,7 +85527,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     cloudResourceId: string;
                 };
@@ -81622,10 +85689,14 @@ export interface paths {
             parameters: {
                 query?: {
                     cloudResourceId?: string;
+                    includeUnchanged?: boolean;
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     diffId: string;
                 };
@@ -81771,7 +85842,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -81913,7 +85987,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -82052,7 +86129,10 @@ export interface paths {
                     cloudResourceId?: string;
                     findingId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -82177,7 +86257,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -82323,7 +86406,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     instanceId: string;
                 };
@@ -82469,7 +86555,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     instanceId: string;
                 };
@@ -82616,7 +86705,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     instanceId: string;
                 };
@@ -82769,7 +86861,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     instanceId: string;
                 };
@@ -82916,7 +87011,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     instanceId: string;
                 };
@@ -83069,7 +87167,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     instanceId: string;
                 };
@@ -83222,7 +87323,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     instanceId: string;
                 };
@@ -83377,7 +87481,10 @@ export interface paths {
                     pageSize?: number;
                     subscriptionId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -83506,6 +87613,149 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/infra-evidence/snapshots/{snapshotId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    snapshotId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/infra-evidence/snapshots/{snapshotId}/diffs": {
         parameters: {
             query?: never;
@@ -83516,7 +87766,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     snapshotId: string;
                 };
@@ -83650,6 +87903,157 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/infra-evidence/snapshots/{snapshotId}/inventory-rows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cloudResourceId?: string;
+                    page?: number;
+                    pageSize?: number;
+                };
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    snapshotId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResponseOfAzureInventoryChangeRecord"];
+                        "text/json": components["schemas"]["PagedResponseOfAzureInventoryChangeRecord"];
+                        "text/plain": components["schemas"]["PagedResponseOfAzureInventoryChangeRecord"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/infra-evidence/snapshots/{snapshotId}/mermaid": {
         parameters: {
             query?: never;
@@ -83663,8 +88067,14 @@ export interface paths {
                     mode?: string;
                     fallbackKey?: string;
                     seedNodeId?: string;
+                    includeNeverShow?: boolean;
+                    hideTiers?: string;
+                    includePrivateEndpointNodes?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     snapshotId: string;
                 };
@@ -83814,8 +88224,14 @@ export interface paths {
                     mode?: string;
                     fallbackKey?: string;
                     seedNodeId?: string;
+                    includeNeverShow?: boolean;
+                    hideTiers?: string;
+                    includePrivateEndpointNodes?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     snapshotId: string;
                 };
@@ -83953,8 +88369,14 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
-                header?: never;
+                query?: {
+                    includeNeverShow?: boolean;
+                    includePrivateEndpointNodes?: boolean;
+                };
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     snapshotId: string;
                 };
@@ -84088,6 +88510,586 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    snapshotId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OperatorInferredConnectionResponse"][];
+                        "text/json": components["schemas"]["OperatorInferredConnectionResponse"][];
+                        "text/plain": components["schemas"]["OperatorInferredConnectionResponse"][];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    snapshotId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["OperatorInferredConnectionConfirmApiRequest"];
+                    "application/json": null | components["schemas"]["OperatorInferredConnectionConfirmApiRequest"];
+                    "text/json": null | components["schemas"]["OperatorInferredConnectionConfirmApiRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    snapshotId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["OperatorInferredConnectionDismissApiRequest"];
+                    "application/json": null | components["schemas"]["OperatorInferredConnectionDismissApiRequest"];
+                    "text/json": null | components["schemas"]["OperatorInferredConnectionDismissApiRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/questionnaire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    snapshotId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InferenceQuestionnaireListResponse"];
+                        "text/json": components["schemas"]["InferenceQuestionnaireListResponse"];
+                        "text/plain": components["schemas"]["InferenceQuestionnaireListResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/infra-evidence/snapshots/{snapshotId}/terraform-advisory": {
         parameters: {
             query?: never;
@@ -84098,7 +89100,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     snapshotId: string;
                 };
@@ -84242,7 +89247,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -84378,7 +89386,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -84514,7 +89525,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     project: string;
                 };
@@ -84655,7 +89669,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -84776,7 +89793,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -84922,7 +89942,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -85056,7 +90079,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -85194,7 +90220,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -85339,7 +90368,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -85482,7 +90514,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     provider: string;
                 };
@@ -85609,7 +90644,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     provider: string;
                 };
@@ -85744,7 +90782,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     provider: string;
                 };
@@ -85880,7 +90921,10 @@ export interface paths {
                 query?: {
                     findingId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86005,7 +91049,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86134,7 +91181,10 @@ export interface paths {
                     findingId?: string;
                     provider?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86256,7 +91306,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86399,7 +91452,10 @@ export interface paths {
                 query?: {
                     findingIds?: string[];
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86538,7 +91594,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86676,7 +91735,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86815,7 +91877,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -86978,7 +92043,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -87099,7 +92167,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -87243,7 +92314,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     provider: string;
                 };
@@ -87384,7 +92458,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -87512,7 +92589,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -87651,7 +92731,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -87788,7 +92871,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -87930,7 +93016,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -88070,7 +93159,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -88206,7 +93298,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -88350,7 +93445,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -88499,7 +93597,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -88650,7 +93751,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -88799,7 +93903,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -88950,7 +94057,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -89101,7 +94211,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -89250,7 +94363,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     routingSubscriptionId: string;
                 };
@@ -89398,7 +94514,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -89536,7 +94655,10 @@ export interface paths {
                 query?: {
                     rollupDate?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -89675,7 +94797,10 @@ export interface paths {
                     rollupDate?: string;
                     format?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -89820,7 +94945,10 @@ export interface paths {
                 query?: {
                     rollupDate?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -89959,7 +95087,10 @@ export interface paths {
                     pageNumber?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -90109,7 +95240,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -90265,7 +95399,10 @@ export interface paths {
                     pageNumber?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -90417,7 +95554,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -90579,7 +95719,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -90743,7 +95886,10 @@ export interface paths {
                 query?: {
                     pilotTryRealModeFellBack?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -90891,7 +96037,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     traceId: string;
                 };
@@ -91043,7 +96192,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -91197,7 +96349,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -91337,7 +96492,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     grantId: string;
                 };
@@ -91462,7 +96620,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     grantId: string;
                 };
@@ -91593,7 +96754,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     jobId: string;
                 };
@@ -91743,7 +96907,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     jobId: string;
                 };
@@ -91899,7 +97066,10 @@ export interface paths {
                     maxThemes?: string;
                     maxPlans?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -92043,7 +97213,10 @@ export interface paths {
                     since?: string;
                     maxPlansToMaterialize?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -92182,7 +97355,10 @@ export interface paths {
                 query?: {
                     maxPlans?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -92321,7 +97497,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     id: string;
                 };
@@ -92472,7 +97651,10 @@ export interface paths {
                     maxReportArtifactLinks?: string;
                     maxReportRunLinks?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -92621,7 +97803,10 @@ export interface paths {
                     maxReportArtifactLinks?: string;
                     maxReportRunLinks?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -92763,7 +97948,10 @@ export interface paths {
                     maxThemes?: string;
                     maxPlans?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -92904,7 +98092,10 @@ export interface paths {
                 query?: {
                     maxThemes?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -93045,7 +98236,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -93184,7 +98378,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -93321,7 +98518,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -93462,7 +98662,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -93613,7 +98816,10 @@ export interface paths {
                 query?: {
                     sourceState?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -93749,7 +98955,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -93885,7 +99094,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runKey: string;
                 };
@@ -94022,7 +99234,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94157,7 +99372,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94300,7 +99518,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94437,7 +99658,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94579,7 +99803,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94721,7 +99948,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94861,7 +100091,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94988,7 +100221,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -95144,7 +100380,10 @@ export interface paths {
                     token?: string;
                     runId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -95288,7 +100527,10 @@ export interface paths {
                 query?: {
                     token?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -95425,7 +100667,10 @@ export interface paths {
                 query?: {
                     token?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -95550,6 +100795,1567 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/operational-security/architect-metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fromSnapshotId?: string;
+                    toSnapshotId?: string;
+                };
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecureNowArchitectOutcomeMetricsResponse"];
+                        "text/json": components["schemas"]["SecureNowArchitectOutcomeMetricsResponse"];
+                        "text/plain": components["schemas"]["SecureNowArchitectOutcomeMetricsResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/asset-assertions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityAssetAssertionResponse"][];
+                        "text/json": components["schemas"]["SecurityAssetAssertionResponse"][];
+                        "text/plain": components["schemas"]["SecurityAssetAssertionResponse"][];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SecurityAssetAssertionCreateApiRequest"];
+                    "application/json": null | components["schemas"]["SecurityAssetAssertionCreateApiRequest"];
+                    "text/json": null | components["schemas"]["SecurityAssetAssertionCreateApiRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityAssetAssertionCreateApiResponse"];
+                        "text/json": components["schemas"]["SecurityAssetAssertionCreateApiResponse"];
+                        "text/plain": components["schemas"]["SecurityAssetAssertionCreateApiResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/asset-assertions/sweep-expired": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityAssetAssertionExpirySweepApiResponse"];
+                        "text/json": components["schemas"]["SecurityAssetAssertionExpirySweepApiResponse"];
+                        "text/plain": components["schemas"]["SecurityAssetAssertionExpirySweepApiResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/asset-assertions/{assertionId}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    assertionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SecurityAssetAssertionRenewApiRequest"];
+                    "application/json": null | components["schemas"]["SecurityAssetAssertionRenewApiRequest"];
+                    "text/json": null | components["schemas"]["SecurityAssetAssertionRenewApiRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/asset-assertions/{assertionId}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    assertionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SecurityAssetAssertionRevokeApiRequest"];
+                    "application/json": null | components["schemas"]["SecurityAssetAssertionRevokeApiRequest"];
+                    "text/json": null | components["schemas"]["SecurityAssetAssertionRevokeApiRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/declared-connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityDeclaredConnectionResponse"][];
+                        "text/json": components["schemas"]["SecurityDeclaredConnectionResponse"][];
+                        "text/plain": components["schemas"]["SecurityDeclaredConnectionResponse"][];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SecurityDeclaredConnectionCreateApiRequest"];
+                    "application/json": null | components["schemas"]["SecurityDeclaredConnectionCreateApiRequest"];
+                    "text/json": null | components["schemas"]["SecurityDeclaredConnectionCreateApiRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityDeclaredConnectionCreateApiResponse"];
+                        "text/json": components["schemas"]["SecurityDeclaredConnectionCreateApiResponse"];
+                        "text/plain": components["schemas"]["SecurityDeclaredConnectionCreateApiResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/declared-connections/sweep-expired": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityDeclaredConnectionExpirySweepApiResponse"];
+                        "text/json": components["schemas"]["SecurityDeclaredConnectionExpirySweepApiResponse"];
+                        "text/plain": components["schemas"]["SecurityDeclaredConnectionExpirySweepApiResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/declared-connections/{connectionId}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    connectionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SecurityDeclaredConnectionRenewApiRequest"];
+                    "application/json": null | components["schemas"]["SecurityDeclaredConnectionRenewApiRequest"];
+                    "text/json": null | components["schemas"]["SecurityDeclaredConnectionRenewApiRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/declared-connections/{connectionId}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    connectionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SecurityDeclaredConnectionRevokeApiRequest"];
+                    "application/json": null | components["schemas"]["SecurityDeclaredConnectionRevokeApiRequest"];
+                    "text/json": null | components["schemas"]["SecurityDeclaredConnectionRevokeApiRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/operational-security/findings": {
         parameters: {
             query?: never;
@@ -95562,7 +102368,10 @@ export interface paths {
                 query?: {
                     status?: components["schemas"]["OperationalSecurityFindingStatus"];
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -95700,7 +102509,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -95843,7 +102655,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -95974,6 +102789,736 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/operational-security/paths": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    snapshotId?: string;
+                    pathKind?: components["schemas"]["PathKind"];
+                    confidenceBand?: components["schemas"]["PathConfidenceBand"];
+                    cloudResourceId?: string;
+                    page?: number;
+                    pageSize?: number;
+                };
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResponseOfSecurityEvidencePathSummaryResponse"];
+                        "text/json": components["schemas"]["PagedResponseOfSecurityEvidencePathSummaryResponse"];
+                        "text/plain": components["schemas"]["PagedResponseOfSecurityEvidencePathSummaryResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/paths/ranked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    snapshotId?: string;
+                    page?: number;
+                    pageSize?: number;
+                };
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityEvidencePathRankedPageResponse"];
+                        "text/json": components["schemas"]["SecurityEvidencePathRankedPageResponse"];
+                        "text/plain": components["schemas"]["SecurityEvidencePathRankedPageResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/paths/{pathId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    pathId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityEvidencePathDetailResponse"];
+                        "text/json": components["schemas"]["SecurityEvidencePathDetailResponse"];
+                        "text/plain": components["schemas"]["SecurityEvidencePathDetailResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/paths/{pathId}/explanations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    pathId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["BuildSecurityEvidencePathExplanationRequest"];
+                    "application/json": null | components["schemas"]["BuildSecurityEvidencePathExplanationRequest"];
+                    "text/json": null | components["schemas"]["BuildSecurityEvidencePathExplanationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityEvidencePathExplanationResultResponse"];
+                        "text/json": components["schemas"]["SecurityEvidencePathExplanationResultResponse"];
+                        "text/plain": components["schemas"]["SecurityEvidencePathExplanationResultResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operational-security/paths/{pathId}/rank": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path: {
+                    pathId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityEvidencePathRankDetailResponse"];
+                        "text/json": components["schemas"]["SecurityEvidencePathRankDetailResponse"];
+                        "text/plain": components["schemas"]["SecurityEvidencePathRankDetailResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/operational-security/remediation-metrics": {
         parameters: {
             query?: never;
@@ -95984,7 +103529,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -96120,7 +103668,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -96258,7 +103809,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -96403,7 +103957,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -96541,7 +104098,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -96679,7 +104239,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -96815,7 +104378,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     patternId: string;
                 };
@@ -96958,7 +104524,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     patternId: string;
                 };
@@ -97098,7 +104667,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     patternId: string;
                 };
@@ -97238,7 +104810,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     patternId: string;
                 };
@@ -97378,7 +104953,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     patternId: string;
                 };
@@ -97516,7 +105094,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     findingId: string;
                 };
@@ -97657,7 +105238,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -97793,7 +105377,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -97929,7 +105516,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -98056,7 +105646,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -98202,7 +105795,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -98324,7 +105920,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -98467,7 +106066,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     waveId: string;
                 };
@@ -98608,7 +106210,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     operationId: string;
                 };
@@ -98760,7 +106365,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     operationId: string;
                 };
@@ -98913,7 +106521,10 @@ export interface paths {
                 query?: {
                     surface?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -99038,7 +106649,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -99190,7 +106804,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     viewId: string;
                 };
@@ -99324,7 +106941,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -99462,7 +107082,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -99607,7 +107230,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -99676,12 +107302,13 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -99748,7 +107375,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -99884,7 +107514,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -100022,7 +107655,10 @@ export interface paths {
                 query?: {
                     count?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -100084,12 +107720,13 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -100158,7 +107795,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -100300,7 +107940,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -100438,7 +108081,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -100503,12 +108149,13 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -100579,7 +108226,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -100719,7 +108369,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -100871,7 +108524,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -101021,7 +108677,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -101161,7 +108820,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -101301,7 +108963,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -101423,7 +109088,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -101565,7 +109233,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -101704,7 +109375,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -101840,7 +109514,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -101976,7 +109653,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -102101,7 +109781,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -102252,7 +109935,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assignmentId: string;
                 };
@@ -102391,7 +110077,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assignmentId: string;
                 };
@@ -102537,7 +110226,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     assignmentId: string;
                 };
@@ -102682,7 +110374,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -102823,7 +110518,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -102964,7 +110662,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -103110,7 +110811,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackCatalogEntryId: string;
                 };
@@ -103254,7 +110958,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -103400,7 +111107,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -103546,7 +111256,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -103685,7 +111398,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -103826,7 +111542,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -103969,7 +111688,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -104109,7 +111831,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -104251,7 +111976,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                 };
@@ -104390,7 +112118,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                 };
@@ -104543,7 +112274,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                 };
@@ -104685,7 +112419,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                 };
@@ -104825,7 +112562,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                 };
@@ -104978,7 +112718,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                 };
@@ -105129,7 +112872,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                 };
@@ -105273,7 +113019,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     policyPackId: string;
                     packVersion: string;
@@ -105420,7 +113169,10 @@ export interface paths {
                 query?: {
                     since?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -105561,7 +113313,10 @@ export interface paths {
                 query?: {
                     since?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -105703,7 +113458,10 @@ export interface paths {
                     since?: string;
                     maxOpportunities?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -105848,7 +113606,10 @@ export interface paths {
                     maxReportImprovements?: string;
                     maxReportTriage?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -105996,7 +113757,10 @@ export interface paths {
                     maxReportImprovements?: string;
                     maxReportTriage?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -106137,7 +113901,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -106278,7 +114045,10 @@ export interface paths {
                 query?: {
                     since?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -106420,7 +114190,10 @@ export interface paths {
                     since?: string;
                     maxTriageItems?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -106559,7 +114332,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -106703,7 +114479,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     decisionKey: string;
@@ -106850,7 +114629,10 @@ export interface paths {
                 query?: {
                     depth?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     nodeId: string;
@@ -106995,7 +114777,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -107141,7 +114926,10 @@ export interface paths {
                 query?: {
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -107277,7 +115065,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -107418,7 +115209,10 @@ export interface paths {
                 query?: {
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -107556,7 +115350,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -107695,7 +115492,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -107834,7 +115634,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -107980,7 +115783,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -108118,7 +115924,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -108278,7 +116087,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -108419,7 +116231,10 @@ export interface paths {
                     manifestId?: string;
                     topK?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -108563,7 +116378,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -108706,7 +116524,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -108746,7 +116567,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["CrossTenantPortfolioSummaryResponse"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -108843,7 +116664,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -108980,7 +116804,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -109129,7 +116956,10 @@ export interface paths {
                     format?: string;
                     generateNarrative?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -109272,7 +117102,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -109418,7 +117251,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -109569,7 +117405,10 @@ export interface paths {
                     page?: number;
                     pageSize?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -109714,7 +117553,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -109861,7 +117703,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -110014,7 +117859,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -110152,7 +118000,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -110319,7 +118170,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     policyPackId: string;
@@ -110476,7 +118330,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     format: string;
@@ -110624,7 +118481,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -110759,7 +118619,10 @@ export interface paths {
                 query?: {
                     async?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -110935,7 +118798,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     reportId: string;
@@ -111083,7 +118949,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     reportId: string;
@@ -111149,13 +119018,14 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -111223,7 +119093,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     reportId: string;
@@ -111289,13 +119162,14 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/markdown": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -111369,7 +119243,10 @@ export interface paths {
                     cursorPriorityRank?: number;
                     cursorFindingRecordId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -111529,7 +119406,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -111663,7 +119543,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     findingId: string;
@@ -111742,13 +119625,16 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict. */
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -111814,7 +119700,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -111961,7 +119850,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -112108,7 +120000,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -112256,7 +120151,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -112406,7 +120304,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -112553,7 +120454,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                 };
@@ -112712,7 +120616,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     runId: string;
                     entryId: string;
@@ -112869,7 +120776,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113008,7 +120918,10 @@ export interface paths {
                     q?: string;
                     take?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113146,7 +121059,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113289,7 +121205,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113413,7 +121332,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113562,7 +121484,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113700,7 +121625,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113832,7 +121760,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -113968,7 +121899,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -114100,7 +122034,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -114241,7 +122178,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -114380,7 +122320,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -114504,7 +122447,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -114647,7 +122593,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -114771,7 +122720,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -114915,7 +122867,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -115051,7 +123006,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -115187,7 +123145,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -115325,7 +123286,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -115461,7 +123425,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -115599,7 +123566,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -115737,7 +123707,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -115882,7 +123855,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116007,7 +123983,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116153,7 +124132,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116277,7 +124259,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116424,7 +124409,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116563,7 +124551,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116704,7 +124695,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116842,7 +124836,10 @@ export interface paths {
                 query?: {
                     days?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -116984,7 +124981,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -117120,7 +125120,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -117262,7 +125265,10 @@ export interface paths {
                     fromUtc?: string;
                     toUtc?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -117405,7 +125411,10 @@ export interface paths {
                 query?: {
                     rollingDays?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -117547,7 +125556,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -117672,7 +125684,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -117818,7 +125833,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -117954,7 +125972,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -118090,7 +126111,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -118229,7 +126253,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -118368,7 +126395,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -118510,7 +126540,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     workspaceId: string;
                     projectId: string;
@@ -118650,7 +126683,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     workspaceId: string;
                     projectId: string;
@@ -118795,7 +126831,10 @@ export interface paths {
                     from?: string;
                     to?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -118943,7 +126982,10 @@ export interface paths {
                     from?: string;
                     to?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -119088,7 +127130,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -119224,7 +127269,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -119361,7 +127409,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -119502,7 +127553,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -119643,7 +127697,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -119784,7 +127841,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -119793,6 +127853,150 @@ export interface paths {
                     "application/*+json": null | components["schemas"]["SetFindingsVisibilityPreferencesRequest"];
                     "application/json": null | components["schemas"]["SetFindingsVisibilityPreferencesRequest"];
                     "text/json": null | components["schemas"]["SetFindingsVisibilityPreferencesRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/preferences/first-session-purpose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SetFirstSessionPurposeRequest"];
+                    "application/json": null | components["schemas"]["SetFirstSessionPurposeRequest"];
+                    "text/json": null | components["schemas"]["SetFirstSessionPurposeRequest"];
                 };
             };
             responses: {
@@ -119925,7 +128129,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -120066,7 +128273,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -120207,7 +128417,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -120348,7 +128561,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -120489,7 +128705,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -120498,6 +128717,294 @@ export interface paths {
                     "application/*+json": null | components["schemas"]["SetWhereToGoNextVisibilityRequest"];
                     "application/json": null | components["schemas"]["SetWhereToGoNextVisibilityRequest"];
                     "text/json": null | components["schemas"]["SetWhereToGoNextVisibilityRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/preferences/working-career-rehearsal-door": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SetWorkingCareerRehearsalDoorRequest"];
+                    "application/json": null | components["schemas"]["SetWorkingCareerRehearsalDoorRequest"];
+                    "text/json": null | components["schemas"]["SetWorkingCareerRehearsalDoorRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/preferences/working-workspace-continuity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SetWorkingWorkspaceContinuityRequest"];
+                    "application/json": null | components["schemas"]["SetWorkingWorkspaceContinuityRequest"];
+                    "text/json": null | components["schemas"]["SetWorkingWorkspaceContinuityRequest"];
                 };
             };
             responses: {
@@ -120630,7 +129137,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -120771,7 +129281,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -120916,7 +129429,10 @@ export interface paths {
                     from?: string;
                     to?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -121067,7 +129583,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     jobId: string;
                 };
@@ -121226,7 +129745,10 @@ export interface paths {
                     from?: string;
                     to?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     tenantId: string;
                 };
@@ -121381,7 +129903,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -121532,7 +130057,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path: {
                     subscriptionId: string;
                 };
@@ -121680,7 +130208,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
+                    "X-ArchLucid-Product-Line"?: "architecture" | "security";
+                };
                 path?: never;
                 cookie?: never;
             };

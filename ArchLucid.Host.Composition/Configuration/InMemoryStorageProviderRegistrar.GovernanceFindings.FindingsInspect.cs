@@ -1,3 +1,4 @@
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Runs.Orchestration;
@@ -42,6 +43,8 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IFindingsSnapshotRepository>(static sp =>
             new InMemoryFindingsSnapshotRepository(sp.GetRequiredService<IScopeContextProvider>()));
         services.AddSingleton<IFindingRecordMuteRepository, InMemoryFindingRecordMuteRepository>();
+        services.AddSingleton<IFindingSemanticSupportBandOverlayRepository, InMemoryFindingSemanticSupportBandOverlayRepository>();
+        services.AddSingleton<FindingSemanticSupportBandOverlayWriter>();
         services.AddSingleton<IFindingRecordRemediationAssignmentRepository, InMemoryFindingRecordRemediationAssignmentRepository>();
         services.AddSingleton<IFindingInspectReadRepository>(sp =>
             new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));
@@ -83,15 +86,31 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IAuditEvidenceRequirementRepository, NoOpAuditEvidenceRequirementRepository>();
         services.AddSingleton<IAuditControlEvaluationRepository, NoOpAuditControlEvaluationRepository>();
         services.AddSingleton<IAuditAssessmentRepository, NoOpAuditAssessmentRepository>();
+        services.AddSingleton<IProjectScopedAuditAssessmentRepository>(static sp =>
+            new ProjectScopedAuditAssessmentRepositoryAdapter(sp.GetRequiredService<IAuditAssessmentRepository>()));
         services.AddSingleton<IAuditEvidenceSnapshotRepository, NoOpAuditEvidenceSnapshotRepository>();
+        services.AddSingleton<IProjectScopedAuditEvidenceSnapshotRepository>(static sp =>
+            new ProjectScopedAuditEvidenceSnapshotRepositoryAdapter(sp.GetRequiredService<IAuditEvidenceSnapshotRepository>()));
         services.AddSingleton<IAuditManualEvidenceRepository, NoOpAuditManualEvidenceRepository>();
         services.AddSingleton<IAuditControlTimelineRepository, NoOpAuditControlTimelineRepository>();
         services.AddSingleton<ISecurityCrosswalkRepository, NoOpSecurityCrosswalkRepository>();
         services.AddSingleton<IOperationalSecurityFindingRepository, NoOpOperationalSecurityFindingRepository>();
+        services.AddSingleton<IProjectScopedOperationalSecurityFindingRepository>(static sp =>
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(sp.GetRequiredService<IOperationalSecurityFindingRepository>()));
+        services.AddSingleton<ISecurityEvidencePathRepository, NoOpSecurityEvidencePathRepository>();
+        services.AddSingleton<ISecurityEvidencePathExplanationRepository, NoOpSecurityEvidencePathExplanationRepository>();
+        services.AddSingleton<ISecurityEvidencePathRankRepository, NoOpSecurityEvidencePathRankRepository>();
+        services.AddSingleton<ISecurityEvidenceCutPointRepository, NoOpSecurityEvidenceCutPointRepository>();
+        services.AddSingleton<ISecurityEvidencePathRoutingRepository, NoOpSecurityEvidencePathRoutingRepository>();
         services.AddSingleton<IOperationalSecurityExceptionRepository, NoOpOperationalSecurityExceptionRepository>();
+        services.AddSingleton<ISecurityAssetAssertionRepository, NoOpSecurityAssetAssertionRepository>();
+        services.AddSingleton<ISecurityDeclaredConnectionRepository, NoOpSecurityDeclaredConnectionRepository>();
+        services.AddSingleton<IOperatorInferredConnectionRepository, NoOpOperatorInferredConnectionRepository>();
         services.AddSingleton<IRemediationPatternRepository, NoOpRemediationPatternRepository>();
         services.AddSingleton<IRemediationPatternMatchRepository, NoOpRemediationPatternMatchRepository>();
         services.AddSingleton<IRemediationInstanceRepository, NoOpRemediationInstanceRepository>();
+        services.AddSingleton<IProjectScopedRemediationInstanceRepository>(static sp =>
+            new ProjectScopedRemediationInstanceRepositoryAdapter(sp.GetRequiredService<IRemediationInstanceRepository>()));
         services.AddSingleton<IRemediationPrioritizationRepository, NoOpRemediationPrioritizationRepository>();
         services.AddSingleton<IRemediationWaveRepository, NoOpRemediationWaveRepository>();
         services.AddSingleton<IArchitectureDiagramModelRepository, NoOpArchitectureDiagramModelRepository>();

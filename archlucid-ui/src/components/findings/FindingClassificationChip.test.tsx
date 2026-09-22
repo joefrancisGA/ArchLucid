@@ -21,9 +21,28 @@ describe("FindingClassificationChip (SD-12)", () => {
     expect(screen.getByTestId("finding-classification-chip-f-2")).toHaveTextContent("Checklist coverage");
   });
 
+  it("renders checklist-demoted when treatment demotes a finding", () => {
+    render(
+      <FindingClassificationChip
+        classification="ChecklistCoverage"
+        treatment={1}
+        findingId="f-demoted"
+      />,
+    );
+
+    expect(screen.getByTestId("finding-classification-chip-f-demoted")).toHaveTextContent("Checklist-demoted");
+  });
+
   it("renders nothing when classification is absent", () => {
     const { container } = render(<FindingClassificationChip classification={null} findingId="f-3" />);
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows showReason honesty under the classification chip", () => {
+    render(<FindingClassificationChip classification="DecisionGradeFinding" findingId="f-4" showReason />);
+
+    expect(screen.getByTestId("finding-classification-chip-wrap-f-4")).toBeInTheDocument();
+    expect(screen.getByText(/Policy-mapped or insight-density-promoted/i)).toBeInTheDocument();
   });
 });

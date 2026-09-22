@@ -69,6 +69,34 @@ describe("adr-from-run", () => {
     expect(md).toContain("Driver A");
   });
 
+  it("buildMadrMarkdownFromRun includes semantic support band per finding (AS-071)", () => {
+    const input: AdrGeneratorRunInput = {
+      runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
+      projectId: "p1",
+      reviewTitle: "Spike: data residency",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [
+        {
+          findingId: "f1",
+          title: "Store PII in-region",
+          recommendation: "Encrypt and pin region.",
+          severityLabel: "High",
+          aiReasoningExcerpt: "Model cited graph path.",
+          semanticSupportBand: "Unsupported",
+          semanticSupportBandScorerVersion: "as057-v1",
+        },
+      ],
+    };
+
+    const md = buildMadrMarkdownFromRun(input);
+
+    expect(md).toContain("**Semantic support:** Unsupported (scorer as057-v1)");
+  });
+
   it("buildMadrMarkdownFromRun prepends shared career export honesty when provided (PC-13)", () => {
     const input: AdrGeneratorRunInput = {
       runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",

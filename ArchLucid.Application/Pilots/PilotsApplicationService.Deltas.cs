@@ -4,6 +4,7 @@ using ArchLucid.Application.Roi;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pilots;
@@ -102,13 +103,24 @@ public sealed partial class PilotsApplicationService
         PilotBaselineRecord? scorecardBaselines =
             await _pilotBaselineRepository.GetAsync(scope.TenantId, ct).ConfigureAwait(false);
 
+        bool isSampleRun = false;
+
+        if (Guid.TryParse(runId.Trim(), out Guid runGuid))
+        {
+            RunSummaryDto? summary = await _authorityQueryService
+                .GetRunSummaryAsync(scope, runGuid, ct)
+                .ConfigureAwait(false);
+            isSampleRun = summary?.IsSample ?? false;
+        }
+
         return PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
             detail.Run,
             detail.Manifest,
             deltas,
             snapshot,
             extractorCollectionTimestampUtc,
-            scorecardBaselines);
+            scorecardBaselines,
+            isSampleRun: isSampleRun);
     }
 
     /// <inheritdoc />

@@ -97,18 +97,21 @@ describe("ConnectorOperationsDashboard", () => {
     render(<ConnectorOperationsDashboard />);
 
     expect(await screen.findByTestId("integration-readiness-tile-connected")).toHaveTextContent(
-      "Integrations connected",
+      "Integrations configured",
     );
     expect(screen.getByTestId("integration-readiness-tile-connected")).toHaveTextContent(
-      /0 of 3 — none required/i,
+      /0 of 4 — none required/i,
     );
     expect(screen.getByTestId("integration-readiness-last-checked")).toHaveTextContent(/Configuration read at/i);
     expect(screen.queryByText(/^Last checked:/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("integration-readiness-workspace-scope")).toHaveTextContent(/Workspace scope:/i);
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Configure Teams notifications" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Configure" })).not.toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Open setup" }).length).toBeGreaterThan(0);
-    expect(screen.queryByLabelText("Status: Ready")).toBeNull();
-    expect(screen.getAllByLabelText("Status: Recommended").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: /^Open setup for /i }).length).toBeGreaterThan(0);
+    expect(screen.queryByLabelText("Configuration status: Ready")).toBeNull();
+    expect(screen.getAllByLabelText("Pilot policy: Recommended").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("Configuration status: Not configured").length).toBeGreaterThan(0);
   });
 });

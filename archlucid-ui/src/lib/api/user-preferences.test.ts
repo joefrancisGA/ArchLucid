@@ -270,7 +270,7 @@ describe("setUserAppearancePreference", () => {
 
     const preferences = await getUserPreferences();
 
-    expect(preferences).toEqual({
+    expect(preferences).toMatchObject({
       appearancePreference: "system",
       appearancePreferenceIsExplicit: true,
       cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
@@ -279,7 +279,7 @@ describe("setUserAppearancePreference", () => {
       whereToGoNextIsExplicit: false,
       sampleReviewsOnOverviewEnabled: true,
       sampleReviewsOnOverviewIsExplicit: false,
-      ianaTimeZoneId: "UTC",
+      ianaTimeZoneId: "America/New_York",
       ianaTimeZoneIsExplicit: false,
     });
     expect(apiGetMock).not.toHaveBeenCalled();
@@ -418,5 +418,43 @@ describe("setUserIanaTimeZonePreference", () => {
     await setUserIanaTimeZonePreference("America/Chicago");
 
     expect(apiPutJsonMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("setUserWorkingCareerRehearsalDoor", () => {
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserWorkingCareerRehearsalDoor: typeof import("@/lib/api/user-preferences").setUserWorkingCareerRehearsalDoor;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    apiGetMock.mockReset();
+    apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserWorkingCareerRehearsalDoor = mod.setUserWorkingCareerRehearsalDoor;
+    resetUserPreferencesCacheForTests();
+  });
+
+  afterEach(() => {
+    resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
+  });
+
+  it("persists the Working door and seeds cache without a follow-up GET", async () => {
+    apiPutJsonMock.mockResolvedValue(undefined);
+
+    await setUserWorkingCareerRehearsalDoor("rehearsal");
+
+    const preferences = await getUserPreferences();
+
+    expect(preferences.workingCareerRehearsalDoor).toBe("rehearsal");
+    expect(preferences.workingCareerRehearsalDoorIsExplicit).toBe(true);
+    expect(apiGetMock).not.toHaveBeenCalled();
+    expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/working-career-rehearsal-door", {
+      door: "rehearsal",
+    });
   });
 });

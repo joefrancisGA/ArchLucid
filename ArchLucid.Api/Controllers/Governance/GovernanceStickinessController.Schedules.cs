@@ -45,6 +45,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync(
+            request!.SourceRunId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ArchitectureReviewRecurrenceSchedule schedule =
@@ -58,7 +65,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
         catch (ArgumentException ex)
         {
@@ -86,7 +93,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
     }
 
@@ -152,6 +159,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync(
+            scheduleId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             RecurrenceScheduleUpdateResult result =
@@ -175,7 +189,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
         }
     }
 }

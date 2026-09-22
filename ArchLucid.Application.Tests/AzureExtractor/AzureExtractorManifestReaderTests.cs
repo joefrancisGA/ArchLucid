@@ -21,6 +21,63 @@ public sealed class AzureExtractorManifestReaderTests
         m.Should().NotBeNull();
         m.SchemaVersion.Should().Be(1);
         m.SubscriptionId.Should().NotBeNullOrWhiteSpace();
+        m.SubscriptionName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryRead_normalized_when_manifest_has_subscription_name_returns_name()
+    {
+        using MemoryStream zip = ZipWithManifest(
+            """
+            {"schemaVersion":1,"scriptVersion":"1.0","collectionTimestamp":"2026-05-06T13:01:02Z",
+            "subscriptionId":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","subscriptionName":"Contoso Production",
+            "scope":"/sub/x","switchesUsed":[],"azModuleVersion":"test"}
+            """);
+
+        (AzureExtractorNormalizedManifest? m, string? err) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(zip);
+
+        err.Should().BeNull();
+        m.Should().NotBeNull();
+        m!.SubscriptionName.Should().Be("Contoso Production");
+    }
+
+    [Fact]
+    public void TryRead_drops_guid_subscription_name()
+    {
+        using MemoryStream zip = ZipWithManifest(
+            """
+            {"schemaVersion":1,"scriptVersion":"1.0","collectionTimestamp":"2026-05-06T13:01:02Z",
+            "subscriptionId":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            "subscriptionName":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            "scope":"/sub/x","switchesUsed":[],"azModuleVersion":"test"}
+            """);
+
+        (AzureExtractorNormalizedManifest? m, string? err) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(zip);
+
+        err.Should().BeNull();
+        m.Should().NotBeNull();
+        m!.SubscriptionName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryRead_normalized_when_manifest_has_management_group_scope_returns_manifest()
+    {
+        using MemoryStream zip = ZipWithManifest(
+            """
+            {"schemaVersion":1,"scriptVersion":"1.0","collectionTimestamp":"2026-05-06T13:01:02Z",
+            "subscriptionId":null,"managementGroupId":"corp-prod",
+            "scope":"/providers/Microsoft.Management/managementGroups/corp-prod","switchesUsed":[],"azModuleVersion":"test"}
+            """);
+
+        (AzureExtractorNormalizedManifest? m, string? err) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(zip);
+
+        err.Should().BeNull();
+        m.Should().NotBeNull();
+        m!.SubscriptionId.Should().BeEmpty();
+        m.ScopeDescriptor.Should().Contain("managementGroups/corp-prod");
     }
 
     [Fact]

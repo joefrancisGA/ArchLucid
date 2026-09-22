@@ -41,7 +41,7 @@ export const BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD =
 export const BUYER_RISK_REGISTER_EMPTY_TITLE = "No findings in this workspace yet";
 
 export const BUYER_RISK_REGISTER_EMPTY_BODY =
-  "Findings from architecture reviews appear here as they are recorded. Start or open a review to capture assessment results.";
+  "Findings from architecture reviews appear here as they are recorded. Decision-grade findings need a recorded disposition before sponsor send. Start or open a review to capture assessment results.";
 
 export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View approval";
 

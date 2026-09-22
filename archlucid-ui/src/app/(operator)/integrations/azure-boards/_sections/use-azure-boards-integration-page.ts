@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -91,6 +92,10 @@ export type UseAzureBoardsIntegrationPageResult = {
 };
 
 export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageResult {
+  const pathname = usePathname() ?? "/integrations/azure-boards";
+  const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const canMutate = useOperateCapability();
   const showOperatorNotes = isShowSystemAdministrationNavEnabled();
   const [organizationUrl, setOrganizationUrl] = useState("");
@@ -145,6 +150,7 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
     (settings?.projectName?.trim().length ?? 0) > 0 && (settings?.defaultWorkItemType?.trim().length ?? 0) > 0;
 
   const mutations = useAzureBoardsConnectionMutations({
+    livelihoodReturnPath,
     canMutate,
     organizationUrl,
     tokenReference,

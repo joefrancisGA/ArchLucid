@@ -53,7 +53,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
         if (verdict is not null && DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
         {
             sb.AppendLine(
-                $"- **Feasibility verdict:** {FormatVerdictKindLabel(verdict.Kind)} — treat exports as a reasoned decision record, not approval to proceed.");
+                $"- **Feasibility verdict:** {SponsorFeasibilityHardCitationHonestyFormatter.FormatVerdictKindLabelForSponsor(verdict)} — treat exports as a reasoned decision record, not approval to proceed.");
         }
 
         if (context.AnalysisStagesComplete && context.ActorNodeCount == 0)
@@ -93,7 +93,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
         if (verdict is not null && DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
         {
             lines.Add(
-                $"Feasibility verdict: {FormatVerdictKindLabel(verdict.Kind)} — treat exports as a reasoned decision record, not approval to proceed.");
+                $"Feasibility verdict: {SponsorFeasibilityHardCitationHonestyFormatter.FormatVerdictKindLabelForSponsor(verdict)} — treat exports as a reasoned decision record, not approval to proceed.");
         }
 
         if (context.AnalysisStagesComplete && context.ActorNodeCount == 0)

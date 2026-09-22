@@ -12,6 +12,12 @@ import {
   findingWorkItemReviewLinkLabel,
 } from "@/lib/finding-work-item-product-copy";
 
+import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
+import {
+  formatFindingClassificationExportLine,
+  formatFindingWorkItemPolicyInfluenceExportLine,
+} from "@/lib/findings/finding-work-item-classification-export";
+
 import { resolveFindingWorkItemCoverageHonestyFromInput } from "./copy-finding-as-work-item-coverage-honesty";
 
 import {
@@ -100,6 +106,13 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);
   const trustLine = formatFindingTrustExportLine(input);
   const trustJson = findingTrustExportJsonFields(input);
+  const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
+    classification: input.classification ?? "DecisionGradeFinding",
+    semanticSupportBand: input.semanticSupportBand ?? null,
+    semanticSupportBandScorerVersion: input.semanticSupportBandScorerVersion ?? null,
+  });
+  const classificationLine = formatFindingClassificationExportLine(input.classification ?? null, input.treatment);
+  const policyInfluenceLine = formatFindingWorkItemPolicyInfluenceExportLine();
   const coverageHonestyLine = coverageHonestyLineForExport(input);
   const coverageHonestyJson = coverageHonestyJsonFields(input);
 
@@ -118,6 +131,14 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         status: "Not available",
         ruleId: ruleLine,
         ...trustJson,
+        ...(semanticSupportFields === null
+          ? {}
+          : {
+              semanticSupportBand: semanticSupportFields.semanticSupportBand,
+              semanticSupportBandScorerVersion: semanticSupportFields.semanticSupportBandScorerVersion,
+            }),
+        ...(classificationLine === null ? {} : { classification: classificationLine }),
+        policyInfluenceHonesty: policyInfluenceLine,
         ...coverageHonestyJson,
         whatWasFlagged: whatFlagged,
         whyItMatters,
@@ -147,6 +168,12 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
     if (trustLine !== null) {
       lines.push(`*Trust label:* ${trustLine}`);
     }
+
+    if (classificationLine !== null) {
+      lines.push(`*Classification:* ${classificationLine}`);
+    }
+
+    lines.push(`*Policy influence:* ${policyInfluenceLine}`);
 
     if (coverageHonestyLine !== null) {
       lines.push(`*Coverage honesty:* ${coverageHonestyLine}`);
@@ -188,6 +215,12 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
     if (trustLine !== null) {
       descriptionLines.push(`Trust label: ${trustLine}`);
     }
+
+    if (classificationLine !== null) {
+      descriptionLines.push(`Classification: ${classificationLine}`);
+    }
+
+    descriptionLines.push(`Policy influence: ${policyInfluenceLine}`);
 
     if (coverageHonestyLine !== null) {
       descriptionLines.push(`Coverage honesty: ${coverageHonestyLine}`);
@@ -233,6 +266,12 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   if (trustLine !== null) {
     markdownLines.push("**Trust label:** " + trustLine);
   }
+
+  if (classificationLine !== null) {
+    markdownLines.push("**Classification:** " + classificationLine);
+  }
+
+  markdownLines.push("**Policy influence:** " + policyInfluenceLine);
 
   if (coverageHonestyLine !== null) {
     markdownLines.push("**Coverage honesty:** " + coverageHonestyLine);

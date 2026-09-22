@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react";
+import type { HTMLAttributes, KeyboardEvent, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react";
 
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 
@@ -54,16 +54,80 @@ export function EnterpriseTableBody({
 export function EnterpriseTableRow({
   className,
   selected,
+  interactive,
   children,
   ...rest
-}: HTMLAttributes<HTMLTableRowElement> & { selected?: boolean }): React.ReactElement {
+}: HTMLAttributes<HTMLTableRowElement> & {
+  selected?: boolean;
+  /** When true, row participates in roving keyboard focus with visible focus ring. */
+  interactive?: boolean;
+}): React.ReactElement {
   return (
     <tr
       className={cn(
         DESIGN_TOKENS.table.row,
         selected ? DESIGN_TOKENS.table.rowSelected : null,
+        interactive
+          ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--al-accent-interactive)]"
+          : null,
         className,
       )}
+      {...rest}
+    >
+      {children}
+    </tr>
+  );
+}
+
+export type EnterpriseTableInteractiveRowProps = HTMLAttributes<HTMLTableRowElement> & {
+  readonly selected?: boolean;
+  readonly interactive?: boolean;
+  readonly onActivate?: () => void;
+};
+
+/** Selectable operator table row with keyboard activation (Enter/Space) and valid selection semantics. */
+export function EnterpriseTableInteractiveRow({
+  className,
+  selected = false,
+  interactive = true,
+  onActivate,
+  onClick,
+  onKeyDown,
+  children,
+  ...rest
+}: EnterpriseTableInteractiveRowProps): React.ReactElement {
+  function handleKeyDown(event: KeyboardEvent<HTMLTableRowElement>) {
+    onKeyDown?.(event);
+
+    if (event.defaultPrevented || !interactive || onActivate === undefined) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onActivate();
+    }
+  }
+
+  return (
+    <tr
+      className={cn(
+        DESIGN_TOKENS.table.row,
+        selected ? DESIGN_TOKENS.table.rowSelected : null,
+        interactive ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" : null,
+        className,
+      )}
+      role="row"
+      tabIndex={interactive ? 0 : undefined}
+      aria-selected={interactive ? selected : undefined}
+      onClick={(event) => {
+        onClick?.(event);
+
+        if (!event.defaultPrevented && interactive) {
+          onActivate?.();
+        }
+      }}
+      onKeyDown={handleKeyDown}
       {...rest}
     >
       {children}

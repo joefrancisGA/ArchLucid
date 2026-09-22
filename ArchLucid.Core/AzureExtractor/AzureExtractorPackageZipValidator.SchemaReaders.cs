@@ -17,6 +17,9 @@ public static partial class AzureExtractorPackageZipValidator
 
             using JsonDocument document = JsonDocument.Parse(manifestStream);
 
+            if (document.RootElement.ValueKind is not JsonValueKind.Object)
+                return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
+
             if (!TryGetPropertyCaseInsensitive(document.RootElement, "schemaVersion", out JsonElement schemaVersionElement))
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
 
@@ -73,13 +76,19 @@ public static partial class AzureExtractorPackageZipValidator
     {
         ArgumentNullException.ThrowIfNull(resourcesEntry);
 
-        return TryReadArrayRootSchemaError(resourcesEntry, AzureExtractorPackageZipEntryNames.Resources);
+        return TryReadArrayRootSchemaError(
+            resourcesEntry,
+            AzureExtractorPackageZipEntryNames.Resources,
+            allowSingleObjectUnwrap: false);
     }
 
     private static string? TryReadOptionalInventoryArraySchemaError(ZipArchiveEntry entry, string entryName) =>
-        TryReadArrayRootSchemaError(entry, entryName);
+        TryReadArrayRootSchemaError(entry, entryName, allowSingleObjectUnwrap: true);
 
-    private static string? TryReadArrayRootSchemaError(ZipArchiveEntry entry, string entryName)
+    private static string? TryReadArrayRootSchemaError(
+        ZipArchiveEntry entry,
+        string entryName,
+        bool allowSingleObjectUnwrap)
     {
         ArgumentNullException.ThrowIfNull(entry);
 
@@ -89,7 +98,14 @@ public static partial class AzureExtractorPackageZipValidator
             using JsonDocument document = JsonDocument.Parse(stream);
 
             if (document.RootElement.ValueKind is JsonValueKind.Array)
+            {
                 return null;
+            }
+
+            if (allowSingleObjectUnwrap && AzureExtractorJsonArrayRoot.IsValidOptionalCompanionRoot(document.RootElement))
+            {
+                return null;
+            }
 
             return $"{entryName} root must be a JSON array.";
         }

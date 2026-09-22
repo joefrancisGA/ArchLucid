@@ -156,6 +156,64 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
             .And.Contain("application/vnd.jgraph.mxfile");
     }
 
+    [SkippableFact]
+    public async Task OpenApi_v1_json_documents_architecture_share_crud_and_restrict_flag()
+    {
+        using HttpClient client = factory.CreateClient(
+            new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        using HttpResponseMessage response = await client.GetAsync(OpenApiDocumentPath);
+        await response.EnsureSuccessForTestAsync();
+        string body = await response.Content.ReadAsStringAsync();
+        JsonNode? root = JsonNode.Parse(body);
+        root.Should().NotBeNull();
+
+        JsonObject? paths = root!["paths"]?.AsObject();
+        paths.Should().NotBeNull();
+
+        paths!.ContainsKey("/v1/architectures/{architectureId}/shares").Should().BeTrue(
+            "AS-099: list shares endpoint must stay documented");
+        paths.ContainsKey("/v1/architectures/{architectureId}/shares/{targetActorOid}").Should().BeTrue(
+            "AS-099: revoke share endpoint must stay documented");
+        paths.ContainsKey("/v1/architectures/{architectureId}/restrict-to-shares").Should().BeTrue(
+            "AS-099: restrict-to-shares opt-in endpoint must stay documented");
+
+        JsonNode? listSharesGet = paths["/v1/architectures/{architectureId}/shares"]?["get"];
+        listSharesGet.Should().NotBeNull();
+        listSharesGet!["responses"]?["200"]?["content"]?["application/json"]?["schema"]?["$ref"]?.GetValue<string>()
+            .Should().Contain("ArchitectureShareListResponse");
+
+        JsonNode? grantSharePut = paths["/v1/architectures/{architectureId}/shares"]?["put"];
+        grantSharePut.Should().NotBeNull();
+        string grantRequestSchema = grantSharePut!["requestBody"]?["content"]?["application/json"]?["schema"]?.ToJsonString()
+            ?? string.Empty;
+        grantRequestSchema.Should().Contain("PutArchitectureShareRequest");
+
+        JsonNode? revokeShareDelete = paths["/v1/architectures/{architectureId}/shares/{targetActorOid}"]?["delete"];
+        revokeShareDelete.Should().NotBeNull();
+
+        JsonNode? restrictPatch = paths["/v1/architectures/{architectureId}/restrict-to-shares"]?["patch"];
+        restrictPatch.Should().NotBeNull();
+        restrictPatch!["responses"]?["200"]?["content"]?["application/json"]?["schema"]?["$ref"]?.GetValue<string>()
+            .Should().Contain("ArchitectureShareListResponse");
+
+        JsonObject? schemas = root["components"]?["schemas"]?.AsObject();
+        schemas.Should().NotBeNull();
+
+        JsonObject? shareListSchema = schemas!["ArchitectureShareListResponse"]?.AsObject();
+        shareListSchema.Should().NotBeNull();
+        JsonObject shareListProperties = shareListSchema!["properties"]!.AsObject();
+        shareListProperties.ContainsKey("architectureId").Should().BeTrue();
+        shareListProperties.ContainsKey("restrictToShares").Should().BeTrue();
+        shareListProperties.ContainsKey("shares").Should().BeTrue();
+
+        JsonObject? restrictRequestSchema = schemas["PatchArchitectureRestrictToSharesRequest"]?.AsObject();
+        restrictRequestSchema.Should().NotBeNull();
+        JsonObject restrictRequestProperties = restrictRequestSchema!["properties"]!.AsObject();
+        restrictRequestProperties.ContainsKey("restrictToShares").Should().BeTrue();
+        restrictRequestProperties.ContainsKey("confirmRestrict").Should().BeTrue();
+    }
+
     private static void AssertRequiredProperties(JsonObject schemas, string schemaName, params string[] expected)
     {
         JsonObject? schema = schemas[schemaName]?.AsObject();

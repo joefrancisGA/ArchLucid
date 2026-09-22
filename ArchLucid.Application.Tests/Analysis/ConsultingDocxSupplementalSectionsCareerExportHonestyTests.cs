@@ -3,6 +3,8 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance;
 
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -47,5 +49,35 @@ public sealed class ConsultingDocxSupplementalSectionsCareerExportHonestyTests
         ConsultingDocxSupplementalSections.AddCareerExportHonesty(body, null);
 
         body.InnerText.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SendableExportCoverPresenter_includes_policy_pack_gate_and_execution_mode()
+    {
+        CareerExportCoverageHonestyInput input = new(
+            new SponsorReviewCoverageHonestyContext(
+                RunId: "run-1",
+                Verdict: new FeasibilityVerdict
+                {
+                    Kind = FeasibilityVerdictKind.SoftInfeasible,
+                    Summary = "Sample gate summary",
+                },
+                AnalysisStagesComplete: true,
+                ActorNodeCount: 1),
+            EnginesSucceeded: 4,
+            WorkingDesk: true,
+            ClassificationCounts: null,
+            CatalogAdvisoryEngineFailureCount: 0,
+            PreCommitGateEnabled: true,
+            StructuralExecutionMode: StructuralExecutionMode.Simulator,
+            IsSampleRun: false,
+            RuleSetId: "azure-waf",
+            RuleSetVersion: "2024.1");
+
+        IReadOnlyList<string> lines = ConsultingDocxSendableExportCoverPresenter.RenderPlainTextLines(input);
+
+        lines.Should().Contain("Policy pack: azure-waf @ 2024.1");
+        lines.Should().ContainSingle(line => line.StartsWith("Gate outcome:", StringComparison.Ordinal));
+        lines.Should().Contain("Execution mode: Simulator");
     }
 }

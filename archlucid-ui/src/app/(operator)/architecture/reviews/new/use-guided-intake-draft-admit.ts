@@ -77,6 +77,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
 
     try {
       let id = core.draftId;
+      let expectedUpdatedUtc: string | null = null;
 
       if (id === null) {
         const created = await createDraftRequest(
@@ -85,6 +86,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
           priorRunId,
         );
         id = created.draftId;
+        expectedUpdatedUtc = created.updatedUtc;
         core.setDraftId(id);
         core.setDraftStatus(created.status);
       }
@@ -97,6 +99,8 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
         focusedPilotModeEnabled,
         workflowIntent: isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
         structuredBrief: structuredBriefToPatchPayload(core.structuredBrief),
+        expectedUpdatedUtc:
+          expectedUpdatedUtc?.trim() || (await getDraftRequest(id)).updatedUtc,
       });
 
       const admission = await admitDraftRequest(id);
@@ -202,7 +206,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
   const skipQuestion = useCallback(
     async (questionKey: string) => {
       if (core.draftId === null) {
-        core.setSubmitError(new Error("Draft is not ready yet. Go back and continue from the brief step."));
+        core.setSubmitError(new Error("Architecture draft is not ready yet. Go back and continue from the brief step."));
 
         return;
       }

@@ -49,7 +49,13 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
     ownerLabel: "You",
   });
 
-  return { ...entry, customerStatus };
+  const architectureId = summary.architectureId?.trim() ?? "";
+
+  return {
+    ...entry,
+    customerStatus,
+    parentArchitectureId: architectureId.length > 0 ? architectureId : entry.parentArchitectureId ?? null,
+  };
 }
 
 export function mapDraftSummariesToRegistryEntries(

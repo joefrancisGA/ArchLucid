@@ -31,7 +31,11 @@ import {
   type ReviewPipelineDiagnosticContext,
 } from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
-import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
+import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
+import { resolveWorkingPipelineEngineeringCompleteStatus } from "@/lib/runs/pipeline-complete-career-honesty-copy";
+import { resolveRunProgressTrackerCareerHonesty } from "@/lib/runs/run-progress-tracker-career-honesty";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
@@ -68,13 +72,23 @@ export function useRunProgressTracker({
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const pipelineDebugEnabled = isReviewPipelineDebugEnabled();
   const workingDesk = useProductionDeskChrome();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const [preFinalizeTerminal, setPreFinalizeTerminal] = useState(() =>
     resolvePreFinalizeTerminal(initialSummary, preFinalizeReadyToFinalize),
   );
-  const gateSuppressesReady = shouldSuppressReadyToFinalizeForPreCommitGateHonesty({
+  const honestyWorkingCareerRehearsalDoor = resolveHonestyWorkingCareerRehearsalDoor({
+    stampedDoor: initialSummary?.workingCareerRehearsalDoor,
+    liveDoor: workingDesk ? effectiveDoor : undefined,
+  });
+  const gateSuppressesReady = shouldSuppressReadyToFinalizeForCareerHonesty({
     workingDesk,
     preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled,
+    structuralExecutionMode: initialSummary?.structuralExecutionMode,
+    isSample: initialSummary?.isSample,
+    hostAgentExecutionMode: healthQuery.data?.agentExecutionMode,
+    hostQualityGateMode: healthQuery.data?.agentOutputQualityGateMode,
+    effectiveWorkingCareerRehearsalDoor: honestyWorkingCareerRehearsalDoor,
   });
   const effectivePreFinalizeTerminal = preFinalizeTerminal && !gateSuppressesReady;
   const pipelineTerminalFailure = isReviewPipelineTerminalFailure(diagnosticContext);
@@ -179,6 +193,7 @@ export function useRunProgressTracker({
     enabled: pollEnabled,
     isComplete: clientPhase === "complete",
     reviewLabel: summary?.displayName ?? summary?.description ?? null,
+    requestId: summary?.requestId ?? null,
   });
 
   useEffect(() => {
@@ -248,6 +263,15 @@ export function useRunProgressTracker({
   }, []);
 
   const activeSummary = summary ?? initialSummary;
+  const careerHonestyPresentation = useMemo(
+    () =>
+      resolveRunProgressTrackerCareerHonesty({
+        workingDesk,
+        structuralExecutionMode: activeSummary?.structuralExecutionMode,
+        effectiveWorkingCareerRehearsalDoor: honestyWorkingCareerRehearsalDoor,
+      }),
+    [activeSummary?.structuralExecutionMode, honestyWorkingCareerRehearsalDoor, workingDesk],
+  );
   const ctx = stageDone(activeSummary?.hasContextSnapshot);
   const graph = stageDone(activeSummary?.hasGraphSnapshot);
   const findings = stageDone(activeSummary?.hasFindingsSnapshot);
@@ -287,6 +311,17 @@ export function useRunProgressTracker({
   );
 
   const liveStatus = useMemo(() => {
+    const analysisCompleteWithoutSeal =
+      analysisStagesComplete(activeSummary) && !stageDone(activeSummary?.hasGoldenManifest);
+
+    if (
+      careerHonestyPresentation !== null
+      && gateSuppressesReady
+      && (preFinalizeTerminal || analysisCompleteWithoutSeal)
+    ) {
+      return careerHonestyPresentation.terminalLiveStatus;
+    }
+
     if (effectivePreFinalizeTerminal) {
       return "Ready to finalize — use Finalize review to create the finalized review record for this architecture review.";
     }
@@ -336,6 +371,16 @@ export function useRunProgressTracker({
     }
 
     if (clientPhase === "complete") {
+      const engineeringCompleteStatus = resolveWorkingPipelineEngineeringCompleteStatus({
+        workingDesk,
+        structuralExecutionMode: activeSummary?.structuralExecutionMode,
+        effectiveWorkingCareerRehearsalDoor: honestyWorkingCareerRehearsalDoor,
+      });
+
+      if (engineeringCompleteStatus !== null) {
+        return engineeringCompleteStatus;
+      }
+
       return "Pipeline complete — refresh for full detail.";
     }
 
@@ -351,6 +396,12 @@ export function useRunProgressTracker({
 
     return `${completedPipelineStages} of 4 ${pipelineJobLabel.stageSummaryNoun} stages complete (${transport}).`;
   }, [
+    activeSummary,
+    careerHonestyPresentation,
+    gateSuppressesReady,
+    honestyWorkingCareerRehearsalDoor,
+    preFinalizeTerminal,
+    workingDesk,
     workingDeskProgressCopy,
     buyerAssessmentCopy,
     pipelineJobLabel.stageSummaryNoun,
@@ -377,6 +428,11 @@ export function useRunProgressTracker({
 
   const shouldRender =
     pollEnabled || effectivePreFinalizeTerminal || buyerAssessmentCopy || pipelineTerminalFailure;
+
+  const analysisCompleteWithoutSealedRecord =
+    analysisStagesComplete(activeSummary) && !manifest;
+
+  const showQuietEnginesCompletenessHint = workingDesk && analysisCompleteWithoutSealedRecord;
 
   return {
     runId,
@@ -421,10 +477,12 @@ export function useRunProgressTracker({
     pipelineJobLabel,
     terminalFailureDiagnosis,
     liveStatus,
+    careerHonestyPresentation,
     showNotificationOptIn,
     handleEnableNotifications,
     resumeWatching,
     shouldRender,
+    showQuietEnginesCompletenessHint,
   };
 }
 

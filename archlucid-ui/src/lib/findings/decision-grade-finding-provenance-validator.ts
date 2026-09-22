@@ -1,4 +1,5 @@
 import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE } from "@/lib/findings/review-detail-findings-classification-band";
+import { normalizeFindingTrustLabelName } from "@/lib/findings/finding-provenance-display";
 
 type ParsedFinding = {
   readonly findingId: string;
@@ -137,6 +138,41 @@ function hasInventoryDrivenEngineProvenance(finding: ParsedFinding): boolean {
   return requirementName !== null || recommendationId !== null;
 }
 
+function readTrustLabelName(finding: ParsedFinding): string | null {
+  const fromPayload = finding.payload !== null ? readTrimmedString(finding.payload.trustLabel) : null;
+
+  return normalizeFindingTrustLabelName(fromPayload);
+}
+
+function hasResolvableSourcePointer(finding: ParsedFinding): boolean {
+  if (finding.traceCitations.length > 0) {
+    return true;
+  }
+
+  if (finding.payload === null) {
+    return false;
+  }
+
+  const evidenceRefs = finding.payload.evidence;
+
+  if (!Array.isArray(evidenceRefs)) {
+    return false;
+  }
+
+  return evidenceRefs.some((entry) => {
+    if (entry === null || typeof entry !== "object") {
+      return false;
+    }
+
+    const record = entry as Record<string, unknown>;
+    const artifactId = readTrimmedString(record.artifactId);
+    const excerpt = readTrimmedString(record.excerpt);
+    const lineRange = readTrimmedString(record.lineRange);
+
+    return artifactId !== null || excerpt !== null || lineRange !== null;
+  });
+}
+
 function hasTypedEngineProvenance(finding: ParsedFinding): boolean {
   if (hasInventoryDrivenEngineProvenance(finding)) {
     return true;
@@ -166,6 +202,10 @@ function getViolation(finding: ParsedFinding): string | null {
   }
 
   if (hasTypedEngineProvenance(finding)) {
+    if (readTrustLabelName(finding) === "EvidenceBacked" && !hasResolvableSourcePointer(finding)) {
+      return `Finding '${finding.findingId}' (${finding.findingType}) is evidence-backed but lacks a resolvable source pointer.`;
+    }
+
     return null;
   }
 

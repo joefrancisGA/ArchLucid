@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Audit;
 
@@ -15,7 +16,8 @@ public static class AuditEventCsvResponseWriter
         ExportFormatterService exportFormatter,
         IAsyncEnumerable<AuditEvent> events,
         string attachmentFileName,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        AuditExportCareerPostureStamp? postureStamp = null)
     {
         ArgumentNullException.ThrowIfNull(response);
         ArgumentNullException.ThrowIfNull(exportFormatter);
@@ -29,10 +31,15 @@ public static class AuditEventCsvResponseWriter
         await using StreamWriter writer = new(response.Body, Encoding.UTF8, bufferSize: 16_384, leaveOpen: true);
         writer.NewLine = "\n";
 
+        await AuditEventCsvLineFormatter.WriteHonestyPreambleAsync(writer, postureStamp, cancellationToken);
         await AuditEventCsvLineFormatter.WriteHeaderLineAsync(writer, cancellationToken);
 
         await foreach (AuditEvent auditEvent in events.WithCancellation(cancellationToken))
-            await writer.WriteLineAsync(AuditEventCsvLineFormatter.FormatEventLine(exportFormatter, auditEvent).AsMemory(), cancellationToken);
+        {
+            await writer.WriteLineAsync(
+                AuditEventCsvLineFormatter.FormatEventLine(exportFormatter, auditEvent, postureStamp).AsMemory(),
+                cancellationToken);
+        }
 
         await writer.FlushAsync(cancellationToken);
     }

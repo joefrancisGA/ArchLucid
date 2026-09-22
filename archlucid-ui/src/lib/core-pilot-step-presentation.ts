@@ -1,11 +1,15 @@
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { buildAzureExtractUploadHref } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const CORE_PILOT_FINAL_STEP_INDEX = CORE_PILOT_STEPS.length - 1;
 
+export const CORE_PILOT_AZURE_INVENTORY_STEP_INDEX = 3;
+
 export type CorePilotCommitPresentationContext = {
   readonly hasCommittedManifest: boolean;
   readonly latestCommittedRunId: string | null;
+  readonly latestRunId: string | null;
 };
 
 export type CorePilotStepPresentation = {
@@ -57,6 +61,13 @@ export function resolveCorePilotStepPresentation(
     href: step.primaryHref,
     label: step.primaryLabel,
   };
+
+  if (stepIndex === CORE_PILOT_AZURE_INVENTORY_STEP_INDEX) {
+    return {
+      href: buildAzureExtractUploadHref(ctx.latestRunId),
+      label: step.primaryLabel,
+    };
+  }
 
   if (stepIndex !== CORE_PILOT_FINAL_STEP_INDEX) {
     return defaultPresentation;

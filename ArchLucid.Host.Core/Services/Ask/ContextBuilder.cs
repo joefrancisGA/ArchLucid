@@ -1,3 +1,5 @@
+using ArchLucid.Application.Ask;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Provenance;
@@ -13,7 +15,8 @@ public static class ContextBuilder
     public static object BuildContext(
         ManifestDocument? manifest,
         GraphViewModel? provenance,
-        ComparisonResult? comparison)
+        ComparisonResult? comparison,
+        FindingsSnapshot? findingsSnapshot = null)
     {
         if (manifest is null)
 
@@ -43,6 +46,8 @@ public static class ContextBuilder
                 d.SupportingFindingIds
             }),
             Findings = manifest.Provenance.SourceFindingIds,
+            DecisionGradeFindingsWithSemanticSupport =
+                AskCitedFindingsSemanticSupportBandHonesty.BuildDecisionGradeFindingBandIndex(findingsSnapshot),
             manifest.Provenance.SourceGraphNodeIds,
             manifest.Provenance.AppliedRuleIds,
             ComplianceGaps = manifest.Compliance.Gaps,

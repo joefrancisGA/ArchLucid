@@ -19,7 +19,16 @@
      Wave 17: architecture-object-00-index.md (AO-01–50).
      Wave 18: system-desk-00-index.md (SY-01–SY-100).
      Wave 19: working-seat-00-index.md (WS-01–WS-24) — stop buyer polish on Working.
-     Wave 20: livelihood-proof-00-index.md (LP-01–LP-20) — persist gates after chrome. -->
+     Wave 20: livelihood-proof-00-index.md (LP-01–LP-20) — persist gates after chrome.
+     Wave 21: finding-pointer-00-index.md (FP-01–24) shipped.
+     Wave 22: architecture-spine-00-index.md (AS-001–100) shipped.
+     Wave 23: lost-write-00-index.md (LW-001–LW-100) shipped — do not re-run.
+     Waves 24–31: livelihood-gravity-00-index.md (CG/SN/LN/MG/DI/CE/DW/RP) shipped.
+     Wave 32: system-gravity-00-index.md (SG-001–120) — issue-2 residual.
+     Wave 33: livelihood-day-00-index.md (LY-001–120) — finalize judge default-on.
+     Wave 34: inhabit-00-index.md (IH-001–080) — inhabit the architecture; findings as afternoon document.
+     Inhabit remain (not wave 35): inhabit-remain-00-index.md (IR-001–018).
+     Inhabit post-IR leftovers (not wave 35): inhabit-post-00-index.md (IP-001–015). -->
 
 # Professional-tool mitigations — Composer prompt set
 
@@ -44,8 +53,19 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 **Wave 10:** [`.cursor/prompts/sealed-desk-00-index.md`](sealed-desk-00-index.md) (**SD-01–12**).
 **Wave 11:** [`.cursor/prompts/career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.
 **Wave 12:** [`.cursor/prompts/livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) (**LK-01–15**). Do **not** paste IS-15.
-     Wave 13: durable-architecture-00-index.md (DA-01–12) — do not paste after CA.
-     Wave 14: customer-architecture-00-index.md (CA-01–50).
+**Wave 13:** [`durable-architecture-00-index.md`](durable-architecture-00-index.md) (**DA-01–12**). Do not paste after CA.
+**Wave 14:** [`customer-architecture-00-index.md`](customer-architecture-00-index.md) (**CA-01–50**).
+**Wave 21 (shipped):** [`finding-pointer-00-index.md`](finding-pointer-00-index.md) (**FP-01–24**). Do not re-run.
+**Wave 22 (shipped):** [`architecture-spine-00-index.md`](architecture-spine-00-index.md) (**AS-001–100**). Do not re-run.
+**Wave 23 (shipped):** [`lost-write-00-index.md`](lost-write-00-index.md) (**LW-001–LW-100**). Do not re-run.
+**Waves 24–31 (shipped):** [`livelihood-gravity-00-index.md`](livelihood-gravity-00-index.md) — **CG**, **SN**, **LN**, **MG**, **DI**, **CE**, **DW**, **RP**. **SN** is system-not-job, not SecureNow brand.
+**Wave 32 (ready):** [`system-gravity-00-index.md`](system-gravity-00-index.md) (**SG-001–120**) — issue-2 residual: instrument after spawn is still the nested review job. Do not re-run AO / SY / SN / CE.
+**Wave 33:** [`livelihood-day-00-index.md`](livelihood-day-00-index.md) (**LY-001–120**). Do not re-run SG-001–081.
+**Wave 34:** [`inhabit-00-index.md`](inhabit-00-index.md) (**IH-001–080**, ADR **0100**) — inhabit the architecture; findings as the afternoon document. Do not re-run SG / LY product bodies except as a numbered leftover.
+
+**2026-09-13 leftover diagnosis (start/completeness honesty — do not start wave 35):** [`docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) — IH-025 / IH-041 / IH-043 remaining surfaces after inhabit wave 34.
+
+**Inhabit remain (not wave 35):** [`inhabit-remain-00-index.md`](inhabit-remain-00-index.md) (**IR-001–IR-018**, closed). **Post-IR leftovers (not wave 35):** [`inhabit-post-00-index.md`](inhabit-post-00-index.md) (**IP-001–IP-015**) — secondary inspector landings after remain close. Spine: [`docs/architecture/INHABIT_POST_IR_COMPOSER_PROMPTS.md`](../../docs/architecture/INHABIT_POST_IR_COMPOSER_PROMPTS.md). Do not paste a new 80-prompt pack.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 

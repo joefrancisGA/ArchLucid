@@ -8,4 +8,7 @@ public sealed class ExecDigestSponsorDeepLinkHighlightedRunDto
     public int SignificanceScore { get; init; }
 
     public string? Caption { get; init; }
+
+    /// <summary>CG-037 — rehearsal label when the highlighted run is not Career + Real.</summary>
+    public string? RehearsalRowLabel { get; init; }
 }

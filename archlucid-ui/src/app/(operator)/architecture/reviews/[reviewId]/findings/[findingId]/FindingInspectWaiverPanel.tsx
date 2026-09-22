@@ -15,6 +15,10 @@ import {
   EXPIRATION_HELP,
   EXPIRATION_LABEL,
 } from "@/lib/findings/finding-governance-action-copy";
+import {
+  INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
+  INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
+} from "@/lib/inhabit/inhabit-disposition-history-copy";
 
 import type { FindingInspectDispositionControlsViewModel } from "./use-finding-inspect-disposition-controls";
 
@@ -181,10 +185,12 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
         ) : null}
       </section>
 
-      {history.length > 0 ? (
-        <section className="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Disposition history</h3>
-          <ul className="m-0 list-disc space-y-1 pl-5">
+      <section className="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+        <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {INHABIT_DISPOSITION_HISTORY_SECTION_TITLE}
+        </h3>
+        {history.length > 0 ? (
+          <ul className="m-0 list-disc space-y-1 pl-5" data-testid="finding-inspect-disposition-history-list">
             {history.map((event) => (
               <li key={event.eventId}>
                 {event.disposition}  —  {event.occurredAtUtc}
@@ -192,8 +198,15 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
               </li>
             ))}
           </ul>
-        </section>
-      ) : null}
+        ) : (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="finding-inspect-disposition-history-empty"
+          >
+            {INHABIT_DISPOSITION_HISTORY_EMPTY_BODY}
+          </p>
+        )}
+      </section>
 
       <ConfirmationDialog
         open={pendingWaiverCreateConfirm}

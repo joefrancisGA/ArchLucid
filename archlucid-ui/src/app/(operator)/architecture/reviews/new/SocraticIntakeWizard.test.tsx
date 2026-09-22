@@ -315,6 +315,12 @@ describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
+    getDraftRequest.mockResolvedValue({
+      draftId: "draft-1",
+      updatedUtc: "2026-08-05T12:00:00Z",
+      status: "Drafting",
+      document: {},
+    });
     routerPush.mockReset();
     routerReplace.mockReset();
     suggestAnswersFromEvidence.mockReset();
@@ -325,7 +331,7 @@ describe("SocraticIntakeWizard", () => {
     window.sessionStorage.clear();
   });
 
-  it("shows the saved architecture system name instead of the draft id in the banner", async () => {
+  it("shows the saved architecture system name instead of the architecture draft id in the banner", async () => {
     const sourceArchitectureId = "ef3f1b90-69e3-42be-bc2b-0533f5a6d84a";
 
     searchParamsGet.mockImplementation((key: string) => {
@@ -700,7 +706,7 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.queryByText(/Minimum 10 characters/i)).not.toBeInTheDocument();
   });
 
-  it("creates, patches, and admits a draft when intent and outcome are provided", async () => {
+  it("creates, patches, and admits an architecture draft when intent and outcome are provided", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
     admitDraftRequest.mockResolvedValue({
@@ -1413,7 +1419,7 @@ describe("SocraticIntakeWizard", () => {
       expect(submitDraftRequest).toHaveBeenCalledWith("draft-1", expect.any(String));
     });
 
-    // A patch here would be rejected: the draft is immutable in status Admitted.
+    // A patch here would be rejected: the architecture draft is immutable in status Admitted.
     expect(patchDraftRequest).toHaveBeenCalledTimes(1);
   });
 

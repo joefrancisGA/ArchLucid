@@ -12,7 +12,7 @@ internal static partial class RunRepositorySql
                                      GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchitectureId, ArchitectureVersionId, ArchivedUtc,
                                      ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                      IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                     StructuralExecutionMode,
+                                     StructuralExecutionMode, WorkingCareerRehearsalDoor, ExecutePostureCapturedUtc,
                                      RetryCount, LastFailureReason, PackageOrigin, CreatedByUserId,
                                      PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
                                      PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
@@ -28,7 +28,7 @@ internal static partial class RunRepositorySql
                                      @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchitectureId, @ArchitectureVersionId, @ArchivedUtc,
                                      @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
                                      @IsDemoWelcomeRun, @IsPublicShowcase, @IsSample, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
-                                     @StructuralExecutionMode,
+                                     @StructuralExecutionMode, @WorkingCareerRehearsalDoor, @ExecutePostureCapturedUtc,
                                      @RetryCount, @LastFailureReason, @PackageOrigin, @CreatedByUserId,
                                      @PinnedPolicyPackIdsJson, @PinnedPolicyPackIdsHashSha256,
                                      @PinnedEvidencePackagePinsJson, @PinnedEvidencePackagePinsHashSha256,
@@ -84,7 +84,7 @@ internal static partial class RunRepositorySql
                                                             WHERE TenantId = @TenantId
                                                               AND WorkspaceId = @WorkspaceId
                                                               AND ScopeProjectId = @ScopeProjectId
-                                                              AND UPPER(LTRIM(RTRIM(ProjectId))) = @NormalizedAuthorityProjectSlug
+                                                              AND {CollapsedUpperProjectId} = @NormalizedAuthorityProjectSlug
                                                               AND ArchivedUtc IS NULL
                                                               AND GraphSnapshotId IS NOT NULL
                                                               AND CreatedUtc <= @AsOfUtc
@@ -121,11 +121,14 @@ internal static partial class RunRepositorySql
                                      RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
                                      PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
                                      StructuralExecutionMode = @StructuralExecutionMode,
+                                     WorkingCareerRehearsalDoor = @WorkingCareerRehearsalDoor,
+                                     ExecutePostureCapturedUtc = @ExecutePostureCapturedUtc,
                                      RetryCount = @RetryCount,
                                      LastFailureReason = @LastFailureReason,
                                      EngineProvenanceJson = @EngineProvenanceJson,
                                      GovernanceScopeJson = @GovernanceScopeJson,
                                      AcknowledgedCoverageJson = @AcknowledgedCoverageJson,
+                                     AcknowledgedAssumptionsJson = @AcknowledgedAssumptionsJson,
                                      ImproveLoopEvidenceJson = @ImproveLoopEvidenceJson,
                                      KnowledgeModelId = @KnowledgeModelId,
                                      PackageOrigin = @PackageOrigin,

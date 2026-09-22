@@ -53,7 +53,7 @@ public sealed partial class AdvisorySchedulingController
             }
             catch (ConflictException ex)
             {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                return MapDigestSealedManifestConflict(ex);
             }
         }
 
@@ -93,7 +93,7 @@ public sealed partial class AdvisorySchedulingController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDigestSealedManifestConflict(ex);
         }
 
         return Ok(digest);

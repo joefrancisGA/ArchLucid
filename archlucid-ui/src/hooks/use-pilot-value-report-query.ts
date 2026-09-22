@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -20,10 +21,11 @@ export function usePilotValueReportQuery(
   toUtc: string,
   options?: UsePilotValueReportQueryOptions,
 ) {
+  const scope = useOperatorScopeQueryKey();
   const fromKey = fromUtc ?? "open";
 
   return useQuery<PilotValueReportJson>({
-    queryKey: operatorQueryKeys.pilotValueReport(fromKey, toUtc),
+    queryKey: operatorQueryKeys.pilotValueReport(scope, fromKey, toUtc),
     queryFn: () => fetchPilotValueReportJson(fromUtc, toUtc),
     enabled: options?.enabled ?? true,
     refetchInterval: options?.refetchIntervalMs ?? false,

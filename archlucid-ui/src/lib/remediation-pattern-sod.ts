@@ -29,16 +29,50 @@ export function canApproveRemediationPatternVersion(
   return !actorIdentities.includes(author);
 }
 
+export function canSubmitRemediationPatternVersion(
+  version: RemediationPatternVersionRecord,
+  canMutate: boolean,
+): boolean {
+  if (!canMutate) {
+    return false;
+  }
+
+  return version.status === REMEDIATION_PATTERN_STATUS.draft;
+}
+
+export function remediationPatternSubmitBlockedReason(
+  version: RemediationPatternVersionRecord | null,
+  canMutate: boolean,
+): string | null {
+  if (!canMutate) {
+    return "Execute authority is required to submit patterns.";
+  }
+
+  if (version === null) {
+    return "Select a Draft version to submit for review.";
+  }
+
+  if (version.status !== REMEDIATION_PATTERN_STATUS.draft) {
+    return "Only Draft versions can be submitted for review.";
+  }
+
+  return null;
+}
+
 export function remediationPatternApprovalBlockedReason(
   version: RemediationPatternVersionRecord,
   principal: CurrentPrincipal,
   canMutate: boolean,
+  hasViewedVersionContent = true,
 ): string | null {
   if (!canMutate)
     return "Execute authority is required to approve patterns.";
 
   if (version.status !== REMEDIATION_PATTERN_STATUS.underReview)
     return "Only versions under review can be approved.";
+
+  if (!hasViewedVersionContent)
+    return "Review the pattern content panel before approving this version.";
 
   if (!canApproveRemediationPatternVersion(version, principal, canMutate))
     return "Approver cannot be the same actor as the pattern author (segregation of duties).";

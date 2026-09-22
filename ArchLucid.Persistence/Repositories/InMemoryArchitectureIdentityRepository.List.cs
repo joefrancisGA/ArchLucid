@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -15,19 +16,23 @@ public sealed partial class InMemoryArchitectureIdentityRepository
     private readonly IDraftRequestRepository? _draftRequestRepository;
     private readonly IRunRepository? _runRepository;
     private readonly IArchitectureVersionRepository? _architectureVersionRepository;
+    private readonly IArchitectureShareRepository? _shareRepository;
 
-    public InMemoryArchitectureIdentityRepository()
+    public InMemoryArchitectureIdentityRepository(IArchitectureShareRepository? shareRepository = null)
     {
+        _shareRepository = shareRepository;
     }
 
     public InMemoryArchitectureIdentityRepository(
         IDraftRequestRepository draftRequestRepository,
         IRunRepository runRepository,
-        IArchitectureVersionRepository? architectureVersionRepository = null)
+        IArchitectureVersionRepository? architectureVersionRepository = null,
+        IArchitectureShareRepository? shareRepository = null)
     {
         _draftRequestRepository = draftRequestRepository ?? throw new ArgumentNullException(nameof(draftRequestRepository));
         _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
         _architectureVersionRepository = architectureVersionRepository;
+        _shareRepository = shareRepository;
     }
 
     public async Task<ArchitectureIdentityListPage> ListAsync(
@@ -35,6 +40,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository
         int page,
         int pageSize,
         bool includeArchived = false,
+        string? actorOidForShareFilter = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -51,6 +57,12 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             .OrderByDescending(record => record.UpdatedUtc)
             .ThenByDescending(record => record.ArchitectureId)
             .ToList();
+
+        identities = await FilterByShareVisibilityAsync(
+            scope,
+            identities,
+            actorOidForShareFilter,
+            cancellationToken);
 
         int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
         List<ArchitectureIdentityRecord> pageRecords = identities.Skip(skip).Take(safePageSize).ToList();

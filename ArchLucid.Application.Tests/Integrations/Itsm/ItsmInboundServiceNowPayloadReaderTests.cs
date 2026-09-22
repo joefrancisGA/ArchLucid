@@ -50,4 +50,16 @@ public sealed class ItsmInboundServiceNowPayloadReaderTests
         result.StatusValue.Should().Be("4");
         result.AlternateStatusValue.Should().Be("6");
     }
+
+    [Fact]
+    public void TryRead_accepts_numeric_incident_state()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{"sys_id":"{{SysId}}","incident_state":6}""");
+
+        bool ok = new ItsmInboundServiceNowPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.StatusValue.Should().Be("6");
+    }
 }

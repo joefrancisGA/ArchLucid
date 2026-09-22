@@ -76,6 +76,8 @@ public sealed class ArchitectureRunExecuteOrchestratorCreateArgs
 
     public IExecuteTimeGovernanceScopeCaptureService? ExecuteTimeGovernanceScopeCaptureService { get; init; }
 
+    public IExecuteTimeCareerPostureCaptureService? ExecuteTimeCareerPostureCaptureService { get; init; }
+
     public TechnologyLedgerTopologyProposalSeeder? TopologyProposalSeeder { get; init; }
 
     public DemoExpensiveActionGate? DemoExpensiveActionGate { get; init; }

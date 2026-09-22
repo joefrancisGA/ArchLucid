@@ -16,12 +16,13 @@ import {
   policyPacksRefreshAssistReaderLine,
   policyPacksRefreshAssistReaderLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   GOVERNANCE_POLICY_PACKS_BUYER_START_HERE_HELPER,
   GOVERNANCE_POLICY_PACKS_LOAD_ERROR,
-  GOVERNANCE_POLICY_PACKS_PAGE_LEAD,
   GOVERNANCE_POLICY_PACKS_PRIMARY_CONTENT_ID,
   GOVERNANCE_POLICY_PACKS_SKIP_LINK_LABEL,
+  resolveGovernancePolicyPacksPageLead,
 } from "@/lib/governance-policy-packs-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
@@ -39,7 +40,11 @@ import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPacksContinueLastViewedRow } from "./PolicyPacksContinueLastViewedRow";
-import { resolveContinueLastPolicyPack } from "@/lib/resolve-continue-last-policy-pack";
+import { resolveContinueLastPolicyPackDetail } from "@/lib/resolve-continue-last-policy-pack";
+import { PolicyPacksHubScopeBanner } from "@/lib/policy/policy-packs-hub-scope-banner";
+import { policyPacksDataStaleCue } from "@/lib/policy/policy-pack-freshness";
+import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPacksWorkspaceSelectionWithPreview } from "./PolicyPacksWorkspaceSelectionWithPreview";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -94,11 +99,31 @@ function resolveSurfaceTabFromValue(value: string): "my-packs" | "catalog" {
 
 export function PolicyPacksPageView(props: Props) {
   const m = props.model;
+  const { productLine } = useProductLine();
+  const pageLead = resolveGovernancePolicyPacksPageLead(productLine);
   const surfaceTab = resolveSurfaceTab(m.pageTab);
   const authoringInnerTab = resolveAuthoringInnerTab(m.pageTab);
   const enforcedRuleRows = buildPolicyPackEnforcedRuleRows(m.effectiveContent, m.effective?.packs ?? []);
   const enforcedRuleCount = enforcedRuleRows.length;
-  const continueLastPack = useMemo(() => resolveContinueLastPolicyPack(m.packs), [m.packs]);
+  const continueLastDetail = useMemo(() => resolveContinueLastPolicyPackDetail(m.packs), [m.packs]);
+  const nowMs = useOperatorRelativeFreshnessNowMs();
+  const staleCue = policyPacksDataStaleCue(m.lastRefreshedAt, nowMs);
+  const registeredPackCount = m.packs.length;
+  const workspaceAssignmentCount = m.workspaceSelectionItems.length;
+
+  const impactPreviewPanel =
+    !m.buyerPolishedShell ? (
+      <PolicyPackImpactPreviewPanel
+        effectiveContent={m.effectiveContent}
+        selectedPackId={m.selectedPackId}
+        packVersions={m.packVersions}
+        packs={m.packs}
+        scopedReviewId={m.pickedReviewId}
+        initialPackAId={m.pickedPackAId}
+        initialPackBId={m.pickedPackBId}
+        onPickReview={m.setPickedReviewId}
+      />
+    ) : null;
 
   const workspaceTabs = (
     <Tabs
@@ -142,18 +167,20 @@ export function PolicyPacksPageView(props: Props) {
         ) : null}
 
         {!m.buyerPolishedShell ? (
-          <PolicyPackImpactPreviewPanel
-            effectiveContent={m.effectiveContent}
-            selectedPackId={m.selectedPackId}
-            packVersions={m.packVersions}
-            scopedReviewId={m.pickedReviewId}
-            onPickReview={m.setPickedReviewId}
-          />
+          <div className="mb-4 space-y-2">
+            <PolicyPacksHubScopeBanner />
+            {!m.canMutatePacks ? (
+              <StatusTag kind="neutral" label="Read-only — inspect packs and effective policy" data-testid="policy-packs-role-capability" />
+            ) : (
+              <StatusTag kind="ready" label="Can change pack assignments for this scope" data-testid="policy-packs-role-capability" />
+            )}
+          </div>
         ) : null}
 
         <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
           <PolicyPacksWorkspaceSelectionWithPreview
             canMutatePacks={m.canMutatePacks}
+            registeredPackCount={registeredPackCount}
             items={m.workspaceSelectionItems}
             loading={m.workspaceSelectionLoading || m.loading}
             togglingAssignmentId={m.togglingAssignmentId}
@@ -166,8 +193,13 @@ export function PolicyPacksPageView(props: Props) {
             }}
           />
 
-          {continueLastPack !== null ? (
-            <PolicyPacksContinueLastViewedRow pack={continueLastPack} scopedReviewId={m.pickedReviewId} />
+          {continueLastDetail !== null ? (
+            <PolicyPacksContinueLastViewedRow
+              pack={continueLastDetail.pack}
+              scopedReviewId={m.pickedReviewId}
+              source={continueLastDetail.source}
+              viewedAtUtc={continueLastDetail.viewedAtUtc}
+            />
           ) : null}
 
           <PolicyPacksRegisteredListSection
@@ -178,6 +210,8 @@ export function PolicyPacksPageView(props: Props) {
             selectedPackId={m.selectedPackId}
             onSelectedPackIdChange={m.setSelectedPackId}
           />
+
+          {impactPreviewPanel}
 
           {!m.buyerPolishedShell ? (
             <div data-testid="policy-packs-advanced-options">
@@ -279,7 +313,8 @@ export function PolicyPacksPageView(props: Props) {
     ) : (
       <PolicyPacksMetricStrip
         buyerPolishedShell={m.buyerPolishedShell}
-        packCount={m.packs.length}
+        packCount={registeredPackCount}
+        workspaceAssignmentCount={workspaceAssignmentCount}
         effective={m.effective}
         selectedPackSummary={m.selectedPackSummary}
       />
@@ -321,7 +356,7 @@ export function PolicyPacksPageView(props: Props) {
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="governance-policy-packs-intro"
         >
-          {GOVERNANCE_POLICY_PACKS_PAGE_LEAD}
+          {pageLead}
         </p>
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -384,10 +419,11 @@ export function PolicyPacksPageView(props: Props) {
       ) : null}
 
       <PolicyPacksPageHeader
-        subtitle={policyPacksPageSubtitle(m.buyerPolishedShell)}
+        subtitle={policyPacksPageSubtitle(m.buyerPolishedShell, productLine)}
         refreshing={m.loading}
         lastRefreshedAt={m.lastRefreshedAt}
         onRefresh={m.load}
+        staleCue={staleCue}
         breadcrumb={m.buyerPolishedShell ? <PolicyPacksBreadcrumb /> : undefined}
       />
 

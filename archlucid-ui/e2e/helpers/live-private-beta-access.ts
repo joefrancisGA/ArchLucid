@@ -3,7 +3,7 @@
  * `/me` scope assertions. CI cannot run a real IdP OIDC redirect — inject minted JWTs into
  * sessionStorage to simulate post-sign-in state and validate returnUrl / deep-link behavior.
  */
-import type { APIRequestContext, Page } from "@playwright/test";
+import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
 import {
   OIDC_DISPLAY_NAME_KEY,
@@ -16,6 +16,7 @@ import {
 } from "./jwt-token-provider";
 import { collectArchLucidRoleClaimValues } from "@/lib/nav-authority";
 import { liveApiBase, liveE2eHarnessHeaders, liveJsonHeaders, resolveLiveJwtMode } from "./live-api-client";
+import { throwIfNotOk } from "./live-api-response";
 
 /** Matches {@link ScopeIds.DefaultTenant} when JWT omits scope claims. */
 export const LIVE_E2E_DEFAULT_TENANT_ID = "11111111-1111-1111-1111-111111111111";
@@ -103,7 +104,10 @@ export async function primeJwtBrowserSession(page: Page, accessToken: string): P
       await fetch(bffPath, {
         method: "POST",
         credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Origin: window.location.origin,
+        },
         body: JSON.stringify({ access_token: token, expires_in: 3600 }),
       });
     },
@@ -133,6 +137,15 @@ export async function primePrivateBetaBrowserPage(
   }
 
   await primeJwtBrowserSession(page, accessToken);
+
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(appOrigin)) {
+    await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
+  }
+
+  // Init-script BFF POST can race the first navigation; issue cookies on a live document before mutating /api/proxy.
+  await writeJwtBrowserSession(page, accessToken);
 }
 
 /** Primes JwtBearer private-beta defaults when LIVE_JWT_TOKEN is configured; no-op in OIDC mode. */
@@ -152,30 +165,54 @@ export async function primePrivateBetaBrowserSessionIfJwtMode(
 /** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(appOrigin)) {
+    await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
+  }
 
   await page.evaluate(
-    async ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
+    ({ expiresKey, expiresAt, displayKey }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
       sessionStorage.setItem(displayKey, "e2e-user");
-      await fetch(bffPath, {
+    },
+    {
+      expiresKey: OIDC_EXPIRES_AT_MS_KEY,
+      displayKey: OIDC_DISPLAY_NAME_KEY,
+      expiresAt: expiresAtMs,
+    },
+  );
+
+  // Playwright APIRequestContext (page.request) does not send Origin; isSameOriginBffRequest then 403s.
+  // Same-origin fetch from the already-navigated document sends Origin + cookies.
+  const result = await page.evaluate(
+    async ({ path, token }) => {
+      const response = await fetch(path, {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ access_token: token, expires_in: 3600 }),
       });
+      const body = (await response.text()).slice(0, 400);
+
+      return { ok: response.ok, status: response.status, body };
     },
-    {
-      expiresKey: OIDC_EXPIRES_AT_MS_KEY,
-      displayKey: OIDC_DISPLAY_NAME_KEY,
-      bffPath: "/api/auth/bff-session",
-      token: accessToken,
-      expiresAt: expiresAtMs,
-    },
+    { path: "/api/auth/bff-session", token: accessToken },
   );
+
+  if (!result.ok) {
+    throw new Error(`POST /api/auth/bff-session failed ${result.status}: ${result.body}`);
+  }
 }
 
 /** Clears OIDC session hints to simulate expiry / signed-out state. */
 export async function clearJwtBrowserSession(page: Page): Promise<void> {
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(appOrigin)) {
+    await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
+  }
+
   await page.evaluate(
     async ({ expiresKey, displayKey, bffPath }) => {
       sessionStorage.removeItem(expiresKey);
@@ -316,9 +353,7 @@ export async function createAdminUserInvite(
   });
 
   if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`POST /v1/admin/users/invite failed ${res.status()}: ${body.slice(0, 400)}`);
+    await throwIfNotOk(res, "POST /v1/admin/users/invite");
   }
 
   const created = (await res.json()) as {
@@ -523,11 +558,7 @@ export async function listPendingInvitations(request: APIRequestContext): Promis
     headers: liveJsonHeaders(),
   });
 
-  if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`GET /v1/admin/users/invitations failed ${res.status()}: ${body.slice(0, 400)}`);
-  }
+  await throwIfNotOk(res, "GET /v1/admin/users/invitations");
 
   const body = (await res.json()) as { invitations?: unknown[] };
 
@@ -614,9 +645,7 @@ export async function createScimAdminToken(request: APIRequestContext): Promise<
   });
 
   if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`POST /v1/admin/scim/tokens failed ${res.status()}: ${body.slice(0, 400)}`);
+    await throwIfNotOk(res, "POST /v1/admin/scim/tokens");
   }
 
   const created = (await res.json()) as { id?: string; plaintextToken?: string };
@@ -689,20 +718,48 @@ export async function submitAdminInviteFromUsersUi(
   await openInviteForm(page);
   await page.getByTestId("settings-roles-invite-email").fill(email);
   await page.getByTestId("settings-roles-invite-role").click();
+  await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).waitFor({ state: "visible", timeout: 15_000 });
   await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
-  await page.getByTestId("settings-roles-invite-submit").click();
+
+  const submitButton = page.getByTestId("settings-roles-invite-submit");
+  await submitButton.waitFor({ state: "visible", timeout: 15_000 });
+  await expect(submitButton).toBeEnabled({ timeout: 15_000 });
+
+  const inviteResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/proxy/v1/admin/users/invite") && response.request().method() === "POST",
+    { timeout: 90_000 },
+  );
+
+  await submitButton.click();
+
+  let inviteResponseStatus: number | undefined;
+  let inviteResponseBody = "";
+
+  try {
+    const inviteResponse = await inviteResponsePromise;
+    inviteResponseStatus = inviteResponse.status();
+    inviteResponseBody = await inviteResponse.text();
+  } catch {
+    // Fall through to UI assertions — some builds surface only toast + seeded rows.
+  }
 
   const pendingRow = page.locator("tr", { hasText: email });
   const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
 
   try {
     await Promise.race([
-      pendingRow.waitFor({ state: "visible", timeout: 60_000 }),
-      conflictCopy.waitFor({ state: "visible", timeout: 60_000 }),
+      pendingRow.waitFor({ state: "visible", timeout: 90_000 }),
+      conflictCopy.waitFor({ state: "visible", timeout: 90_000 }),
     ]);
   } catch {
+    const inviteHint =
+      inviteResponseStatus !== undefined
+        ? ` Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`
+        : " Invite POST did not complete within 90s.";
+
     throw new Error(
-      `Admin invite UI for ${email} did not show a pending row or conflict message within 60s after submit.`,
+      `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit.${inviteHint}`,
     );
   }
 }

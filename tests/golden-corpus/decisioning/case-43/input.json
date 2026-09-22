@@ -17,7 +17,9 @@
         "sourceId": null,
         "properties": {
           "kind": "Machine",
-          "trustOrigin": "Internal"
+          "trustOrigin": "Internal",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000043/resourceGroups/rg-golden/providers/Microsoft.Web/sites/billing-func",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000043/resourceGroups/rg-golden/providers/Microsoft.Web/sites/billing-func"
         },
         "reasoningTrace": null
       },
@@ -30,7 +32,9 @@
         "sourceId": null,
         "properties": {
           "terraformType": "azurerm_role_assignment",
-          "roleName": "Contributor"
+          "roleName": "Contributor",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000043/resourceGroups/rg-golden/providers/Microsoft.Authorization/roleAssignments/billing-contributor-sa",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000043/resourceGroups/rg-golden/providers/Microsoft.Authorization/roleAssignments/billing-contributor-sa"
         },
         "reasoningTrace": null
       },
@@ -43,7 +47,9 @@
         "sourceId": null,
         "properties": {
           "category": "storage",
-          "topologySensitivity": "data-bearing"
+          "topologySensitivity": "data-bearing",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000043/resourceGroups/rg-golden/providers/Microsoft.Storage/storageAccounts/sa-audit-prod",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000043/resourceGroups/rg-golden/providers/Microsoft.Storage/storageAccounts/sa-audit-prod"
         },
         "reasoningTrace": null
       }

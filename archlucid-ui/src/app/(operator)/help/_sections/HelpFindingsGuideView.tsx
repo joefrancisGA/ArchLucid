@@ -8,6 +8,7 @@ import { HelpFindingsHeaderActions } from "@/app/(operator)/help/_sections/HelpF
 import { HelpFindingsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpFindingsSourcesOrientationStrip";
 import { HelpFindingsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -15,35 +16,33 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   FINDINGS_HELP_ACTIONS,
   FINDINGS_HELP_ACTIONS_INTRO,
-  FINDINGS_HELP_ANATOMY_FIELDS,
   FINDINGS_HELP_CLAIM_HEADING_ID,
-  FINDINGS_HELP_EVIDENCE_ACTIONS,
   FINDINGS_HELP_EVIDENCE_INTRO,
   FINDINGS_HELP_EVIDENCE_ITEMS,
-  FINDINGS_HELP_GOVERNANCE_INTRO,
-  FINDINGS_HELP_GOVERNANCE_ITEMS,
   FINDINGS_HELP_GUIDE_HEADINGS,
   FINDINGS_HELP_LIFECYCLE_STAGES,
-  FINDINGS_HELP_OVERVIEW,
-  FINDINGS_HELP_PAGE_SUBTITLE,
   FINDINGS_HELP_PAGE_TITLE,
-  FINDINGS_HELP_PRIMARY_ACTIONS,
   FINDINGS_HELP_PROVENANCE_AXES,
-  FINDINGS_HELP_PROVENANCE_INTRO,
-  FINDINGS_HELP_PROVENANCE_NON_CLAIM,
   FINDINGS_HELP_PROVENANCE_ORIGINS,
   FINDINGS_HELP_PROVENANCE_TITLE,
-  FINDINGS_HELP_RELATED_PRODUCT_DOCS,
   FINDINGS_HELP_RESPOND_INTRO,
-  FINDINGS_HELP_ROLE_GUIDANCE,
+  findingsHelpProvenanceIntro,
+  findingsHelpProvenanceNonClaim,
+  findingsHelpRoleGuidance,
+  findingsHelpSemanticSupportCopy,
   FINDINGS_HELP_SEVERITY_INTRO,
   FINDINGS_HELP_SEVERITY_ROWS,
-  FINDINGS_HELP_WHAT_IS_BODY,
+  findingsHelpAnatomyFields,
+  findingsHelpEvidenceActions,
+  findingsHelpGovernanceIntro,
+  findingsHelpGovernanceItems,
+  findingsHelpOverview,
+  findingsHelpPageSubtitle,
+  findingsHelpPrimaryActions,
+  findingsHelpRelatedLinks,
+  findingsHelpWhatIsBody,
 } from "@/lib/findings/findings-help-guide-content";
-import {
-  FINDINGS_HELP_CANONICAL_PATH,
-  FINDINGS_HELP_CLAIM_DISCIPLINE,
-} from "@/lib/findings/findings-help-evidence-copy";
+import { FINDINGS_HELP_CANONICAL_PATH, resolveFindingsHelpClaimDiscipline } from "@/lib/findings/findings-help-evidence-copy";
 import {
   FINDINGS_HELP_FIRST_VIEWPORT_TEST_ID,
   FINDINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -61,6 +60,9 @@ import {
 } from "@/lib/design-tokens";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpFindingsGuideViewProps = {
@@ -78,7 +80,8 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function FindingsAnatomyPanel(): React.ReactElement {
+function FindingsAnatomyPanel(props: { readonly productLineId: ProductLineId }): React.ReactElement {
+  const anatomyFields = findingsHelpAnatomyFields(props.productLineId);
   return (
     <div
       className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
@@ -88,7 +91,7 @@ function FindingsAnatomyPanel(): React.ReactElement {
         Example finding
       </p>
       <dl className="m-0 grid gap-3 sm:grid-cols-2">
-        {FINDINGS_HELP_ANATOMY_FIELDS.map((field) => (
+        {anatomyFields.map((field) => (
           <div key={field.label} className="min-w-0">
             <dt className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{field.label}</dt>
             <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{field.description}</dd>
@@ -148,7 +151,10 @@ function LifecycleList(): React.ReactElement {
   );
 }
 
-function FindingsActionPanel(): React.ReactElement {
+function FindingsActionPanel(props: { readonly productLineId: ProductLineId }): React.ReactElement {
+  const primaryActions = findingsHelpPrimaryActions(props.productLineId);
+  const secureNowShell = isSecureNowProductLine(props.productLineId);
+
   return (
     <section
       className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -163,21 +169,34 @@ function FindingsActionPanel(): React.ReactElement {
       </h2>
       <div className="flex flex-wrap items-center gap-2">
         <Button asChild size="sm" variant="primary">
-          <Link href={FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href}>
-            {FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label}
-          </Link>
+          <Link href={primaryActions.openFindings.href}>{primaryActions.openFindings.label}</Link>
         </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link href={FINDINGS_HELP_PRIMARY_ACTIONS.searchEvidence.href}>
-            {FINDINGS_HELP_PRIMARY_ACTIONS.searchEvidence.label}
+        {secureNowShell && "openAssignedToMe" in primaryActions ? (
+          <Button asChild size="sm" variant="outline">
+            <Link href={primaryActions.openAssignedToMe.href}>{primaryActions.openAssignedToMe.label}</Link>
+          </Button>
+        ) : null}
+        {!secureNowShell && "searchEvidence" in primaryActions ? (
+          <Button asChild size="sm" variant="outline">
+            <Link href={primaryActions.searchEvidence.href}>{primaryActions.searchEvidence.label}</Link>
+          </Button>
+        ) : null}
+        {secureNowShell && "openPolicyPacks" in primaryActions ? (
+          <Link
+            href={primaryActions.openPolicyPacks.href}
+            className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
+          >
+            {primaryActions.openPolicyPacks.label}
           </Link>
-        </Button>
-        <Link
-          href={FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.href}
-          className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
-        >
-          {FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.label}
-        </Link>
+        ) : null}
+        {!secureNowShell && "governanceDecisions" in primaryActions ? (
+          <Link
+            href={primaryActions.governanceDecisions.href}
+            className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
+          >
+            {primaryActions.governanceDecisions.label}
+          </Link>
+        ) : null}
       </div>
     </section>
   );
@@ -186,6 +205,19 @@ function FindingsActionPanel(): React.ReactElement {
 /** Buyer-safe findings orientation for `/help/findings`. */
 export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.ReactElement {
   void props.entry;
+  const productLineId = resolveProductLineIdFromEnv();
+  const pageSubtitle = findingsHelpPageSubtitle(productLineId);
+  const overview = findingsHelpOverview(productLineId);
+  const whatIsBody = findingsHelpWhatIsBody(productLineId);
+  const evidenceActions = findingsHelpEvidenceActions(productLineId);
+  const governanceIntro = findingsHelpGovernanceIntro(productLineId);
+  const governanceItems = findingsHelpGovernanceItems(productLineId);
+  const relatedLinks = findingsHelpRelatedLinks(productLineId);
+  const claimDiscipline = resolveFindingsHelpClaimDiscipline(productLineId);
+  const provenanceIntro = findingsHelpProvenanceIntro(productLineId);
+  const semanticSupportCopy = findingsHelpSemanticSupportCopy(productLineId);
+  const provenanceNonClaim = findingsHelpProvenanceNonClaim(productLineId);
+  const roleGuidance = findingsHelpRoleGuidance(productLineId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "findings-help",
@@ -212,17 +244,17 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           <HelpTopicGuidePageHeader
             title={FINDINGS_HELP_PAGE_TITLE}
             titleTestId="help-findings-page-title"
-            subtitle={FINDINGS_HELP_PAGE_SUBTITLE}
+            subtitle={pageSubtitle}
             navHref={FINDINGS_HELP_CANONICAL_PATH}
             headingLevel="h1"
-            claimDiscipline={FINDINGS_HELP_CLAIM_DISCIPLINE}
+            claimDiscipline={claimDiscipline}
             claimDisciplineTestId={FINDINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             actions={<HelpFindingsHeaderActions />}
           />
         ) : (
           <header className={HELP_PAGE_LAYOUT.articleHeader}>
             <HelpTopicTitleRow title={FINDINGS_HELP_PAGE_TITLE} actions={<HelpFindingsHeaderActions />} />
-            <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{FINDINGS_HELP_PAGE_SUBTITLE}</p>
+            <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{pageSubtitle}</p>
           </header>
         )}
 
@@ -238,7 +270,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
         >
           {buyerPolishedShell ? (
             <>
-              <FindingsActionPanel />
+              <FindingsActionPanel productLineId={productLineId} />
               <HelpFindingsWorkspaceReadinessStrip />
             </>
           ) : null}
@@ -249,12 +281,12 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             {!buyerPolishedShell ? <FindingsHelpEvidenceOrientationStrip /> : null}
 
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-findings-overview">
-              {FINDINGS_HELP_OVERVIEW}
+              {overview}
             </p>
 
             {!buyerPolishedShell ? (
               <>
-                <FindingsActionPanel />
+                <FindingsActionPanel productLineId={productLineId} />
                 <HelpFindingsWorkspaceReadinessStrip />
               </>
             ) : null}
@@ -264,7 +296,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
               className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
             >
               <HelpSectionHeading id="what-a-finding-is">What a finding is</HelpSectionHeading>
-              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_WHAT_IS_BODY}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{whatIsBody}</p>
             </section>
 
             <section
@@ -272,7 +304,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
               className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
             >
               <HelpSectionHeading id="anatomy-of-a-finding">Anatomy of a finding</HelpSectionHeading>
-              <FindingsAnatomyPanel />
+              <FindingsAnatomyPanel productLineId={productLineId} />
             </section>
 
             <section
@@ -281,7 +313,8 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
               data-testid="help-findings-provenance"
             >
               <HelpSectionHeading id="where-findings-come-from">{FINDINGS_HELP_PROVENANCE_TITLE}</HelpSectionHeading>
-              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_INTRO}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{provenanceIntro}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{semanticSupportCopy}</p>
               <ul className={HELP_PAGE_LAYOUT.bulletList}>
                 {FINDINGS_HELP_PROVENANCE_AXES.map((row) => (
                   <li key={row.axis}>
@@ -300,7 +333,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
                   </li>
                 ))}
               </ul>
-              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_NON_CLAIM}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{provenanceNonClaim}</p>
             </section>
 
             <section
@@ -324,7 +357,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
                 ))}
               </ul>
               <div className="grid gap-3 sm:grid-cols-2" data-testid="help-findings-evidence-actions">
-                {FINDINGS_HELP_EVIDENCE_ACTIONS.map((action) => (
+                {evidenceActions.map((action) => (
                   <div
                     key={action.label}
                     className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
@@ -365,9 +398,9 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
               className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
             >
               <HelpSectionHeading id="findings-and-governance">Findings and approval</HelpSectionHeading>
-              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_GOVERNANCE_INTRO}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{governanceIntro}</p>
               <ul className={HELP_PAGE_LAYOUT.bulletList}>
-                {FINDINGS_HELP_GOVERNANCE_ITEMS.map((item) => (
+                {governanceItems.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
@@ -379,7 +412,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             >
               <HelpSectionHeading id="role-guidance">What each role usually does</HelpSectionHeading>
               <div className="grid gap-3 sm:grid-cols-2" data-testid="help-findings-role-guidance">
-                {FINDINGS_HELP_ROLE_GUIDANCE.map((entry) => (
+                {roleGuidance.map((entry) => (
                   <div
                     key={entry.role}
                     className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
@@ -393,16 +426,18 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
 
             <p className={cn("m-0 pt-2", OPERATOR_TYPOGRAPHY.label)}>
               <Link
-                href={FINDINGS_HELP_RELATED_PRODUCT_DOCS.href}
+                href={relatedLinks.auditTrail.href}
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
               >
-                {FINDINGS_HELP_RELATED_PRODUCT_DOCS.label}
+                {relatedLinks.auditTrail.label}
               </Link>
             </p>
           </div>
 
           <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-findings" showSsoOptional={false} />
 
         {buyerPolishedShell ? <HelpFindingsSourcesOrientationStrip /> : null}
       </div>

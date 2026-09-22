@@ -1,13 +1,37 @@
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
+import {
+  buildSemanticSupportBandExportStamp,
+  resolveSupportingFindingSemanticSupportBands,
+  type SemanticSupportBandExportStamp,
+} from "@/lib/findings/finding-semantic-support-band-export";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
 export const DECISION_REGISTER_EXPORT_DISPOSITION_HONESTY_HEADER =
   "Disposition honesty: confidenceSource and buyerConfidenceSource describe how each row's confidence was determined — do not treat Unknown or heuristic basis as evidence-backed without review.";
+
+export type DecisionRegisterExportContext = {
+  readonly findings?: readonly QuickDecisionFinding[];
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+};
+
+export type DecisionRegisterExportSemanticSupportBandStampDocument = {
+  readonly scorerVersion: string;
+  readonly supported: number;
+  readonly unchecked: number;
+  readonly unsupported: number;
+  readonly notScored: number;
+  readonly decisionGradeTotal: number;
+  readonly stampLine: string | null;
+};
 
 export type DecisionRegisterExportDocument = {
   readonly schema: "archlucid.decision-register-export.v1";
   readonly exportedAtUtc: string;
   readonly dispositionHonesty: string;
   readonly decisionCount: number;
+  readonly semanticSupportBandStamp?: DecisionRegisterExportSemanticSupportBandStampDocument;
   readonly decisions: readonly DecisionRegisterExportRow[];
 };
 
@@ -24,6 +48,7 @@ export type DecisionRegisterExportRow = {
   readonly runId: string;
   readonly manifestId: string;
   readonly supportingFindingIds: readonly string[];
+  readonly supportingFindingSemanticSupportBands?: Record<string, FindingSemanticSupportBandValue>;
 };
 
 function escapeCsvCell(value: string): string {
@@ -52,41 +77,81 @@ function formatDispositionSource(value: string | null | undefined): string {
   return trimmed;
 }
 
+function mapSemanticSupportBandStampDocument(
+  stamp: SemanticSupportBandExportStamp,
+): DecisionRegisterExportSemanticSupportBandStampDocument {
+  return {
+    scorerVersion: stamp.scorerVersion,
+    supported: stamp.counts.supported,
+    unchecked: stamp.counts.unchecked,
+    unsupported: stamp.counts.unsupported,
+    notScored: stamp.counts.notScored,
+    decisionGradeTotal: stamp.counts.decisionGradeTotal,
+    stampLine: stamp.stampLine,
+  };
+}
+
 export function mapDecisionRegisterExportRows(
   decisions: readonly ArchitectureDecisionRegisterEntry[],
+  context?: DecisionRegisterExportContext,
 ): DecisionRegisterExportRow[] {
-  return decisions.map((decision) => ({
-    decisionId: decision.decisionId,
-    title: decision.title,
-    category: decision.category,
-    selectedOption: decision.selectedOption,
-    rationale: decision.rationale,
-    confidence: formatConfidence(decision),
-    confidenceSource: formatDispositionSource(decision.confidenceSource),
-    buyerConfidenceSource: formatDispositionSource(decision.buyerConfidenceSource),
-    recordedAtUtc: decision.recordedAtUtc,
-    runId: decision.runId,
-    manifestId: decision.manifestId,
-    supportingFindingIds: decision.supportingFindingIds ?? [],
-  }));
+  const findings = context?.findings ?? [];
+
+  return decisions.map((decision) => {
+    const supportingFindingIds = decision.supportingFindingIds ?? [];
+    const supportingFindingSemanticSupportBands =
+      findings.length === 0
+        ? undefined
+        : resolveSupportingFindingSemanticSupportBands(supportingFindingIds, findings);
+
+    return {
+      decisionId: decision.decisionId,
+      title: decision.title,
+      category: decision.category,
+      selectedOption: decision.selectedOption,
+      rationale: decision.rationale,
+      confidence: formatConfidence(decision),
+      confidenceSource: formatDispositionSource(decision.confidenceSource),
+      buyerConfidenceSource: formatDispositionSource(decision.buyerConfidenceSource),
+      recordedAtUtc: decision.recordedAtUtc,
+      runId: decision.runId,
+      manifestId: decision.manifestId,
+      supportingFindingIds,
+      ...(supportingFindingSemanticSupportBands !== undefined
+      && Object.keys(supportingFindingSemanticSupportBands).length > 0
+        ? { supportingFindingSemanticSupportBands }
+        : {}),
+    };
+  });
 }
 
 export function buildDecisionRegisterExportDocument(
   decisions: readonly ArchitectureDecisionRegisterEntry[],
+  context?: DecisionRegisterExportContext,
 ): DecisionRegisterExportDocument {
+  const findings = context?.findings ?? [];
+  const semanticStamp =
+    findings.length === 0
+      ? null
+      : buildSemanticSupportBandExportStamp(findings, context?.structuralExecutionMode);
+
   return {
     schema: "archlucid.decision-register-export.v1",
     exportedAtUtc: new Date().toISOString(),
     dispositionHonesty: DECISION_REGISTER_EXPORT_DISPOSITION_HONESTY_HEADER,
     decisionCount: decisions.length,
-    decisions: mapDecisionRegisterExportRows(decisions),
+    ...(semanticStamp === null
+      ? {}
+      : { semanticSupportBandStamp: mapSemanticSupportBandStampDocument(semanticStamp) }),
+    decisions: mapDecisionRegisterExportRows(decisions, context),
   };
 }
 
 export function formatDecisionRegisterExportJson(
   decisions: readonly ArchitectureDecisionRegisterEntry[],
+  context?: DecisionRegisterExportContext,
 ): string {
-  return `${JSON.stringify(buildDecisionRegisterExportDocument(decisions), null, 2)}\n`;
+  return `${JSON.stringify(buildDecisionRegisterExportDocument(decisions, context), null, 2)}\n`;
 }
 
 export function formatDecisionRegisterExportCsv(
@@ -133,9 +198,10 @@ function triggerBinaryDownload(content: string, mimeType: string, filename: stri
 export function triggerDecisionRegisterJsonDownload(
   decisions: readonly ArchitectureDecisionRegisterEntry[],
   filename = "architecture-decision-register.json",
+  context?: DecisionRegisterExportContext,
 ): void {
   triggerBinaryDownload(
-    formatDecisionRegisterExportJson(decisions),
+    formatDecisionRegisterExportJson(decisions, context),
     "application/json;charset=utf-8",
     filename,
   );

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   PRODUCT_LINE_DISPLAY_NAME,
+  SECURENOW_BLANK_FAVICON_URL,
   accessDeniedBody,
   accessDeniedHeading,
   accessDeniedMailtoSubject,
@@ -19,6 +20,8 @@ import {
   productLineManagedIdentityObjectIdLabel,
   productLinePasswordlessExplanation,
   productLinePoweredByLine,
+  productLineRootManifestPath,
+  productLineRootMetadataIcons,
   productLineShowsArchLucidMark,
   productLineTenantIdLabel,
   productLineTitleTemplate,
@@ -36,6 +39,16 @@ describe("productLineDisplayName", () => {
     expect(productLineDisplayName("security")).toBe("SecureNow");
     expect(productLineShowsArchLucidMark("architecture")).toBe(true);
     expect(productLineShowsArchLucidMark("security")).toBe(false);
+    expect(productLineRootMetadataIcons("architecture")).toEqual({
+      icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
+    });
+    expect(productLineRootMetadataIcons("security")).toEqual({
+      icon: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png", sizes: "32x32" }],
+      shortcut: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png" }],
+    });
+    expect(productLineRootManifestPath("architecture")).toBe("/manifest.webmanifest");
+    expect(productLineRootManifestPath("security")).toBeUndefined();
   });
 });
 
@@ -124,5 +137,15 @@ describe("localizeProductCopy", () => {
   it("exposes SecureNow federation field labels", () => {
     expect(productLineTenantIdLabel("security")).toBe("SecureNow tenant ID");
     expect(productLineManagedIdentityObjectIdLabel("security")).toBe("SecureNow managed identity object ID");
+  });
+
+  it("rewrites architecture review vocabulary to security reviews for SecureNow", () => {
+    expect(localizeProductCopy("security", "Upload inventory for architecture reviews.")).toBe(
+      "Upload inventory for security reviews.",
+    );
+    expect(localizeProductCopy("security", "Start a new Architecture review")).toBe("Start a new Security review");
+    expect(localizeProductCopy("architecture", "Upload inventory for architecture reviews.")).toBe(
+      "Upload inventory for architecture reviews.",
+    );
   });
 });

@@ -10,8 +10,11 @@ import { ShareableReviewLinkButton } from "@/components/usability/ShareableRevie
 import { WorkingReviewCopyLinkButton } from "@/components/reviews/WorkingReviewCopyLinkButton";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
@@ -86,7 +89,10 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
 
       void downloadRunPackageExport(props.runId, step.exportFormat)
         .catch((error: unknown) => {
-          showError(step.label, error instanceof Error ? error.message : "Download failed.");
+          const failure = toApiLoadFailure(error);
+          const blocked = runPackageExportMutationBlockedReason(failure);
+
+          showError(step.label, blocked ?? failure.message);
         })
         .finally(() => {
           setExportBusyStepId(null);
@@ -231,6 +237,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
               {collateralExportBlockedReason}
             </p>
           ) : null}
+          <SponsorExportSendHonestyStrip className="w-full pt-2" testIdPrefix="review-header-share-export" />
         </div>
       </PopoverContent>
     </Popover>

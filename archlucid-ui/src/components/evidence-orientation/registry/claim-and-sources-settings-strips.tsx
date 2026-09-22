@@ -34,10 +34,12 @@ import {
   AUTH_DOMAINS_SETTINGS_SOURCES,
   AUTH_DOMAINS_SETTINGS_SOURCES_INTRO,
 } from "@/lib/auth-domains-settings-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE,
-  PREFERENCES_SETTINGS_SOURCES,
   PREFERENCES_SETTINGS_SOURCES_INTRO,
+  preferencesSettingsSources,
 } from "@/lib/preferences-settings-evidence-copy";
 import {
   SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE,
@@ -252,14 +254,16 @@ export function OperatorBillingSettingsEvidenceOrientationStrip(): React.JSX.Ele
 }
 
 export function PreferencesSettingsEvidenceOrientationStrip(
-  props: { readonly readingBodyClassName?: string } = {},
+  props: { readonly productLineId?: ProductLineId; readonly readingBodyClassName?: string } = {},
 ): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="preferences-settings"
       sourcesTitle={PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
-      sources={PREFERENCES_SETTINGS_SOURCES}
+      sources={preferencesSettingsSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
       hubSecondary

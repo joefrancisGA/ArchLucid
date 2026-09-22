@@ -46,6 +46,7 @@ const CLUSTER_DISPOSITION_LABELS: Record<ClusterDisposition, string> = {
 
 export type RootCauseClusterDispositionStripProps = {
   readonly findings: readonly QuickDecisionFinding[];
+  readonly runId?: string;
 };
 
 /** TB-2326: one disposition action per root-cause cluster before triage. */
@@ -172,7 +173,7 @@ export function RootCauseClusterDispositionStrip(
             ? {}
             : { expectedCurrentDispositionRowVersionBase64ByFindingId }),
         },
-        { idempotencyKey },
+        { idempotencyKey, refreshRunId: props.runId?.trim() || undefined },
       );
 
       if (result.processedCount <= 0) {

@@ -124,4 +124,41 @@ describe("SessionIdleTimeoutGuard", () => {
 
     expect(pushMock).toHaveBeenCalledTimes(1);
   });
+
+  it("routes sibling auth-cleared broadcast to session-expired (LW-084)", () => {
+    let channels: Array<{
+      addEventListener: ReturnType<typeof vi.fn>;
+      close: ReturnType<typeof vi.fn>;
+    }> = [];
+
+    class TestBroadcastChannel {
+      addEventListener = vi.fn();
+      close = vi.fn();
+      postMessage = vi.fn();
+      removeEventListener = vi.fn();
+
+      constructor() {
+        channels.push(this);
+      }
+    }
+
+    vi.stubGlobal("BroadcastChannel", TestBroadcastChannel);
+
+    render(<SessionIdleTimeoutGuard />);
+
+    const channel = channels[0];
+    const handler = channel?.addEventListener.mock.calls.find(([eventName]) => eventName === "message")?.[1] as
+      | ((event: MessageEvent) => void)
+      | undefined;
+
+    handler?.({ data: { type: "auth-cleared" } } as MessageEvent);
+
+    expect(pushMock).toHaveBeenCalledTimes(1);
+
+    const [destination] = pushMock.mock.calls[0] as [string];
+
+    expect(destination.startsWith("/auth/session-expired?reason=idle-timeout&returnUrl=")).toBe(true);
+
+    vi.unstubAllGlobals();
+  });
 });

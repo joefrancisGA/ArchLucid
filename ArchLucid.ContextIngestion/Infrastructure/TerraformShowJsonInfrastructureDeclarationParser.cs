@@ -49,7 +49,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser(
                 return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
             }
 
-            if (TryGetPropertyIgnoreCase(values, "root_module", out JsonElement rootModule))
+            if (TryGetPropertyIgnoreCase(values, "root_module", out JsonElement rootModule)
+                || TryGetPropertyIgnoreCase(values, "rootModule", out rootModule))
             {
                 labelTotals = CountTerraformLabelOccurrences(rootModule);
                 CollectFromModule(rootModule, moduleAddress: string.Empty, declaration, results, labelTotals, labelSeen);

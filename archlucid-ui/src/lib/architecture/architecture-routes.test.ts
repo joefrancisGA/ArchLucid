@@ -12,7 +12,9 @@ import {
   architectureNestedComparePath,
   architectureNestedFindingsPath,
   architectureNestedGraphPath,
+  architectureNestedImpactPreviewPath,
   architectureNestedReviewPath,
+  parseArchitectureNestedImpactPreviewArchitectureId,
   parseArchitectureNestedAskArchitectureId,
   parseArchitectureNestedToolArchitectureId,
   ARCHITECTURES_NEW_PATH,
@@ -99,6 +101,17 @@ describe("architecture-routes", () => {
       parseArchitectureNestedToolArchitectureId(
         "/architecture/architectures/architecture-identity-001/compare",
         "compare",
+      ),
+    ).toBe("architecture-identity-001");
+  });
+
+  it("SN-007: builds nested Impact preview path under architecture desk", () => {
+    expect(architectureNestedImpactPreviewPath("architecture-identity-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/impact-preview",
+    );
+    expect(
+      parseArchitectureNestedImpactPreviewArchitectureId(
+        "/architecture/architectures/architecture-identity-001/impact-preview",
       ),
     ).toBe("architecture-identity-001");
   });

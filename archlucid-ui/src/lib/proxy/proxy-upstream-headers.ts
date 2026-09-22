@@ -11,6 +11,7 @@ import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { resolveBffSessionBearerFromRequest } from "@/lib/proxy/bff-session-cookie";
 import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-execution-mode-upstream";
 import { applyDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
+import { applyProductLineUpstreamHeader } from "@/lib/proxy/product-line-upstream-header";
 import { isPublicAnonymousProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
@@ -83,6 +84,7 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
 
   applyDevAgentExecutionModeUpstreamHeader(h, request);
   applyDevRoleOverrideUpstreamHeader(h, request);
+  applyProductLineUpstreamHeader(h, request);
 
   return h;
 }

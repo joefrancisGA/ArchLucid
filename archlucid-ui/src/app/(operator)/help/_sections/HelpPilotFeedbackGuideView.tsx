@@ -4,6 +4,7 @@ import { HelpPilotFeedbackClaimOrientationStrip } from "@/app/(operator)/help/_s
 import { HelpPilotFeedbackHeaderActions } from "@/app/(operator)/help/_sections/HelpPilotFeedbackHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -126,6 +127,8 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
             {PILOT_FEEDBACK_HELP_OVERVIEW}
           </p>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="help-pilot-feedback" showSsoOptional={false} />
+
           <section
             className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-pilot-feedback-action-panel"
@@ -191,7 +194,7 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
             </div>
           </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
         </div>
 
         <div data-testid="help-pilot-feedback-orientation-bottom">

@@ -58,6 +58,11 @@ internal static class GoldenCorpusDiagramDeclarationOmissionGraphFactory
                     Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["name"] = "payments-kv",
+                        ["type"] = "Microsoft.KeyVault/vaults",
+                        ["resourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000072/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/payments-kv",
+                        ["armResourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000072/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/payments-kv",
                     },
                 },
             ],
