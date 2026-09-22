@@ -995,8 +995,23 @@ export async function gotoLiveRunDetailPage(
   });
 }
 
+/** One reload covers a transient demo-seed error shell before the readiness check fails closed. */
+export function shouldReloadReviewDetailAfterErrorShell(reloadAttempt: number): boolean {
+  return reloadAttempt < 1;
+}
+
+/** Formats terminal-shell diagnostics so callers can fail before the long readiness retry. */
+export function reviewDetailErrorShellMessage(visibleText: string): string {
+  const compactText = visibleText.replace(/\s+/g, " ").trim().slice(0, 1200);
+  return `Review detail error shell is visible (Something went wrong). Visible text: ${compactText}`;
+}
+
 /** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
-export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
+export async function expectLiveRunDetailPageReady(
+  page: Page,
+  timeoutMs = 120_000,
+  reloadAttempt = 0,
+): Promise<void> {
   const loadingReviewDetail = page.getByLabel("Loading review detail");
   const reviewDetailRoot = page.getByTestId("review-detail-root");
   const mainHeading = page.locator("main h1").first();
@@ -1009,7 +1024,14 @@ export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_0
   // workspace wrapper catches this error and re-seeds the scope on the next attempt.
   await expect(loadingReviewDetail).toHaveCount(0, { timeout: Math.min(timeoutMs, 5_000) });
   if ((await main.getByText(/Something went wrong/i).count().catch(() => 0)) > 0) {
-    throw new Error("Review detail error shell is visible (Something went wrong).");
+    const text = (await main.textContent().catch(() => null)) ?? "";
+
+    if (shouldReloadReviewDetailAfterErrorShell(reloadAttempt)) {
+      await page.reload({ waitUntil: "domcontentloaded" });
+      return expectLiveRunDetailPageReady(page, timeoutMs, reloadAttempt + 1);
+    }
+
+    throw new Error(reviewDetailErrorShellMessage(text));
   }
   if ((await loadFailure.count()) > 0) {
     throw new Error("Review detail load-failure surface is visible (run-detail-load-failure).");

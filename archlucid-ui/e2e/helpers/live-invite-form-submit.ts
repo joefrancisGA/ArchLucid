@@ -78,6 +78,16 @@ export async function submitAdminInviteFromUsersUi(
       if (attempt === 3) {
         throw error;
       }
+
+      // React controlled inputs can ignore Playwright's fill when the settings
+      // surface remounts. Commit through the native setter so onChange runs.
+      await emailInput.evaluate((element, value) => {
+        const input = element as HTMLInputElement;
+        const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+        descriptor?.set?.call(input, value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }, email);
     }
   }
 

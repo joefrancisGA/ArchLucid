@@ -183,7 +183,8 @@ if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
   # Skip create-run warm when the API is not accepting connections (curl HTTP 000).
   # A hung 120s POST does not help invite-wave Playwright and delays JWT refresh.
   if curl -fsS --max-time 5 "${API_URL}/health/ready" >/dev/null; then
-    CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+    warm_suffix="$(date +%s)-$$"
+    CREATE_BODY="{\"requestId\":\"WARM-PRIVATE-BETA-${warm_suffix}\",\"description\":\"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.\",\"systemName\":\"PrivateBetaPipelineWarm-${warm_suffix}\",\"environment\":\"prod\",\"cloudProvider\":1,\"constraints\":[],\"requiredCapabilities\":[\"SQL\"],\"assumptions\":[],\"priorManifestVersion\":null}"
     warm_path_post_optional \
       "create architecture run" \
       "${API_URL}/v1/architecture/request" \
