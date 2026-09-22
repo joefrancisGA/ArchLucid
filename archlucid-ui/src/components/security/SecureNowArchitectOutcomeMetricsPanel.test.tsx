@@ -19,20 +19,28 @@ vi.mock("@/hooks/use-securenow-architect-metrics-query", () => ({
 import { useInfraEvidenceSnapshotsQuery } from "@/hooks/use-infra-evidence-snapshots-query";
 import { useSecureNowArchitectOutcomeMetricsQuery } from "@/hooks/use-securenow-architect-metrics-query";
 
-function renderPanel() {
+function renderPanel(
+  props: Partial<React.ComponentProps<typeof SecureNowArchitectOutcomeMetricsPanel>> = {},
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <SecureNowArchitectOutcomeMetricsPanel />
+      <SecureNowArchitectOutcomeMetricsPanel
+        fromSnapshotId={null}
+        toSnapshotId={null}
+        hasUrlSnapshotPair={false}
+        onSnapshotPairChange={vi.fn()}
+        {...props}
+      />
     </QueryClientProvider>,
   );
 }
 
 describe("SecureNowArchitectOutcomeMetricsPanel", () => {
-  it("shows empty copy when fewer than two snapshots exist", () => {
+  it("shows compact empty copy when fewer than two snapshots exist", () => {
     vi.mocked(useInfraEvidenceSnapshotsQuery).mockReturnValue({
       data: {
         items: [
@@ -53,20 +61,32 @@ describe("SecureNowArchitectOutcomeMetricsPanel", () => {
       },
       isError: false,
       isLoading: false,
+      isFetching: false,
+      dataUpdatedAt: Date.now(),
+      refetch: vi.fn(),
     } as ReturnType<typeof useInfraEvidenceSnapshotsQuery>);
     vi.mocked(useSecureNowArchitectOutcomeMetricsQuery).mockReturnValue({
       data: undefined,
       isError: false,
       isLoading: false,
+      isFetching: false,
+      dataUpdatedAt: 0,
+      refetch: vi.fn(),
     } as ReturnType<typeof useSecureNowArchitectOutcomeMetricsQuery>);
 
-    renderPanel();
+    renderPanel({
+      snapshotsEmptyPreset: {
+        title: "Snapshot comparison unavailable",
+        description: "Need two snapshots",
+        testId: "securenow-architect-snapshots-empty",
+      },
+    });
 
     expect(screen.getByText(SECURENOW_ARCHITECT_METRICS_TITLE)).toBeInTheDocument();
-    expect(screen.getByText(/At least two inventory snapshots/i)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-architect-snapshots-empty")).toBeInTheDocument();
   });
 
-  it("renders headline architect outcome metrics for a snapshot pair", () => {
+  it("renders signed architect outcome metrics for a snapshot pair", () => {
     vi.mocked(useInfraEvidenceSnapshotsQuery).mockReturnValue({
       data: {
         items: [
@@ -96,6 +116,9 @@ describe("SecureNowArchitectOutcomeMetricsPanel", () => {
       },
       isError: false,
       isLoading: false,
+      isFetching: false,
+      dataUpdatedAt: Date.now(),
+      refetch: vi.fn(),
     } as ReturnType<typeof useInfraEvidenceSnapshotsQuery>);
     vi.mocked(useSecureNowArchitectOutcomeMetricsQuery).mockReturnValue({
       data: {
@@ -113,13 +136,21 @@ describe("SecureNowArchitectOutcomeMetricsPanel", () => {
       },
       isError: false,
       isLoading: false,
+      isFetching: false,
+      dataUpdatedAt: Date.now(),
+      refetch: vi.fn(),
     } as ReturnType<typeof useSecureNowArchitectOutcomeMetricsQuery>);
 
-    renderPanel();
+    renderPanel({
+      fromSnapshotId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      toSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      hasUrlSnapshotPair: true,
+    });
 
     expect(screen.getByTestId("securenow-architect-outcome-metrics-grid")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_ARCHITECT_METRICS_CRITICAL_PATHS_REMOVED)).toBeInTheDocument();
-    expect(screen.getByTestId("securenow-architect-metric-Critical/high paths removed")).toHaveTextContent("3");
+    expect(screen.getByTestId("securenow-architect-metric-Critical/high paths removed")).toHaveTextContent("+3");
+    expect(screen.getByTestId("securenow-architect-metrics-provenance")).toBeInTheDocument();
     expect(screen.getByText(/SA11-metrics-v1/)).toBeInTheDocument();
   });
 

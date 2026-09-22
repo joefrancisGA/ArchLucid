@@ -1,6 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const selectFinding = vi.fn();
+const selectPath = vi.fn();
+const setSnapshotPair = vi.fn();
+
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({
     productLine: "security",
@@ -14,6 +18,20 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
 
 vi.mock("@/hooks/use-operator-relative-freshness-now-ms", () => ({
   useOperatorRelativeFreshnessNowMs: () => Date.now(),
+}));
+
+vi.mock("@/app/(operator)/governance/remediation-factory/use-remediation-factory-url-state", () => ({
+  useRemediationFactoryUrlState: () => ({
+    findingId: null,
+    pathId: null,
+    fromSnapshotId: null,
+    toSnapshotId: null,
+    hasSnapshotPair: false,
+    selectFinding,
+    selectPath,
+    setSnapshotPair,
+    syncSelection: vi.fn(),
+  }),
 }));
 
 vi.mock("@/hooks/use-remediation-factory-query", () => ({
@@ -121,20 +139,24 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
 }));
 
 import { RemediationFactoryClient } from "./RemediationFactoryClient";
+import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import {
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
+import { REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE } from "./remediation-factory-metric-presentation";
 
 describe("RemediationFactoryClient", () => {
-  it("renders executive cards, operator table, simulator disclaimer, and path inspect panel", () => {
+  it("renders executive cards, keyboard-selectable tables, help, context strip, and path inspect panel", () => {
     render(<RemediationFactoryClient />);
 
     expect(screen.getByTestId("remediation-factory-page")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-page-title")).toHaveTextContent("Remediation factory");
     expect(screen.getByTestId("remediation-factory-claim-discipline")).toHaveTextContent("sealed-record proof");
     expect(screen.getByTestId("remediation-factory-last-refreshed")).toBeInTheDocument();
-    expect(screen.getByText("Open findings")).toBeInTheDocument();
+    expect(screen.getByTestId("remediation-factory-context-strip")).toBeInTheDocument();
+    expect(screen.getByText(REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_RANKED_PATHS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-outcome-metrics-panel")).toBeInTheDocument();
@@ -146,12 +168,12 @@ describe("RemediationFactoryClient", () => {
 
     fireEvent.click(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
 
-    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
+    expect(selectFinding).toHaveBeenCalledWith("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
     fireEvent.click(
       screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
     );
 
-    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
+    expect(selectPath).toHaveBeenCalledWith("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
   });
 });

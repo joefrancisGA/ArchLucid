@@ -54,14 +54,22 @@ export function EnterpriseTableBody({
 export function EnterpriseTableRow({
   className,
   selected,
+  interactive,
   children,
   ...rest
-}: HTMLAttributes<HTMLTableRowElement> & { selected?: boolean }): React.ReactElement {
+}: HTMLAttributes<HTMLTableRowElement> & {
+  selected?: boolean;
+  /** When true, row participates in roving keyboard focus with visible focus ring. */
+  interactive?: boolean;
+}): React.ReactElement {
   return (
     <tr
       className={cn(
         DESIGN_TOKENS.table.row,
         selected ? DESIGN_TOKENS.table.rowSelected : null,
+        interactive
+          ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--al-accent-interactive)]"
+          : null,
         className,
       )}
       {...rest}

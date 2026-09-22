@@ -6,6 +6,8 @@ import type { Ref } from "react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorAdvisorySimulatorProvenanceBlock } from "@/components/usability/OperatorAdvisorySimulatorProvenanceBlock";
@@ -179,7 +181,7 @@ function PathExplanationSection(props: {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PATH_INSPECT_EXPLANATION_LEAD}</p>
       <Button
         type="button"
-        variant="default"
+        variant="outline"
         size="sm"
         disabled={props.isGenerating}
         onClick={props.onGenerate}
@@ -280,14 +282,41 @@ function InspectSelectionIdentityHeader(props: {
   return null;
 }
 
+function resolvePathInspectSubjectLabel(input: {
+  readonly findingId: string | null;
+  readonly selectedFinding: RemediationPrioritizedFinding | null | undefined;
+  readonly selectedPath: SecurityEvidencePathRankSummary | null | undefined;
+}): string | null {
+  if (input.selectedFinding != null) {
+    const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.patternKey ?? input.selectedFinding.findingId;
+
+    return `Finding ${rankHint} · control ${input.selectedFinding.controlId ?? "—"} · pattern ${input.selectedFinding.patternKey ?? "—"}`;
+  }
+
+  if (input.selectedPath != null) {
+    return `Path ${input.selectedPath.pathKind} · rank ${input.selectedPath.rankOrder} · ${input.selectedPath.pathId}`;
+  }
+
+  if (input.findingId != null) {
+    return `Finding ${input.findingId}`;
+  }
+
+  return null;
+}
+
 export function SecurityEvidencePathInspectPanel(props: {
   readonly findingId: string | null;
   readonly pathIdOverride?: string | null;
   readonly panelRef?: Ref<HTMLElement | null>;
+  readonly selectedFinding?: RemediationPrioritizedFinding | null;
+  readonly selectedPath?: SecurityEvidencePathRankSummary | null;
   readonly selectedFindingSummary?: RemediationPrioritizedFinding | null;
   readonly selectedPathSummary?: SecurityEvidencePathRankSummary | null;
   readonly hasInventoryRows?: boolean;
+  readonly selectPromptPreset?: EnterpriseCompactEmptyStateProps;
 }) {
+  const selectedFinding = props.selectedFinding ?? props.selectedFindingSummary;
+  const selectedPath = props.selectedPath ?? props.selectedPathSummary;
   const findingQuery = useOperationalSecurityFindingDetailQuery(props.findingId);
   const resolvedPathId = props.pathIdOverride ?? findingQuery.data?.pathId ?? null;
   const pathQuery = useSecurityEvidencePathDetailQuery(resolvedPathId);
@@ -308,6 +337,11 @@ export function SecurityEvidencePathInspectPanel(props: {
   const hasSelection = props.findingId != null || props.pathIdOverride != null;
   const isLoadingFinding = props.findingId != null && findingQuery.isLoading;
   const isLoadingPath = resolvedPathId != null && pathQuery.isLoading;
+  const subjectLabel = resolvePathInspectSubjectLabel({
+    findingId: props.findingId,
+    selectedFinding,
+    selectedPath,
+  });
 
   useEffect(() => {
     setExplanation(null);
@@ -351,7 +385,8 @@ export function SecurityEvidencePathInspectPanel(props: {
       ref={props.panelRef}
       tabIndex={-1}
       className={cn(
-        "space-y-4 rounded-md border border-border bg-card p-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "space-y-4 rounded-md border border-border border-l-4 border-l-[var(--al-accent-interactive)] bg-muted/20 p-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        hasSelection ? "shadow-sm" : undefined,
       )}
       aria-label={SECURENOW_PATH_INSPECT_PANEL_TITLE}
       data-testid="security-evidence-path-inspect-panel"
@@ -359,14 +394,27 @@ export function SecurityEvidencePathInspectPanel(props: {
       <header className="space-y-1">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_INSPECT_PANEL_TITLE}</h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
+        {subjectLabel != null ? (
+          <p
+            className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+            aria-live="polite"
+            data-testid="security-evidence-path-inspect-subject"
+          >
+            Selected subject: {subjectLabel}
+          </p>
+        ) : null}
       </header>
 
       {hasSelection === false ? (
-        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="security-evidence-path-inspect-select-hint">
-          {props.hasInventoryRows === true
-            ? SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT
-            : "Upload inventory and extract relationships before path inspect can show ranked rows."}
-        </p>
+        props.selectPromptPreset != null ? (
+          <EnterpriseCompactEmptyState {...props.selectPromptPreset} />
+        ) : (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="security-evidence-path-inspect-select-hint">
+            {props.hasInventoryRows === true
+              ? SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT
+              : "Upload inventory and extract relationships before path inspect can show ranked rows."}
+          </p>
+        )
       ) : isLoadingFinding || isLoadingPath ? (
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_LOADING}</p>
       ) : findingQuery.isError || pathQuery.isError ? (
@@ -380,8 +428,8 @@ export function SecurityEvidencePathInspectPanel(props: {
       ) : (
         <>
           <InspectSelectionIdentityHeader
-            findingSummary={props.selectedFindingSummary}
-            pathSummary={props.selectedPathSummary}
+            findingSummary={selectedFinding}
+            pathSummary={selectedPath}
             findingId={props.findingId}
             pathId={resolvedPathId}
           />
