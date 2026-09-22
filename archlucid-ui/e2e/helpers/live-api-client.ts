@@ -83,7 +83,7 @@ function privateBetaCreateRunTimeoutError(error: unknown): Error {
     `${process.env.RUNNER_TEMP ?? "<runner-temp>"}/live-api-beta-access.log`;
 
   return new Error(
-    `Private-beta create-run timed out after one 600s attempt: ${message}. Inspect API logs at ${apiLog} and the Playwright test-results directory.`,
+    `Private-beta create-run timed out after one ${architectureRequestAttemptHttpTimeoutMs()}ms attempt: ${message}. Inspect API logs at ${apiLog} and the Playwright test-results directory.`,
   );
 }
 
