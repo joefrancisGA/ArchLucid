@@ -363,7 +363,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpSealedVsDecisionRegisterGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "sketch-a-change") {
-    return <HelpSketchAChangeGuideView entry={loaded.entry} />;
+    return <HelpSketchAChangeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "impact-preview-vs-architecture-envelope") {
     return (
