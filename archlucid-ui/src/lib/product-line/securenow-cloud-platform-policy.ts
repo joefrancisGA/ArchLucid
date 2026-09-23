@@ -27,11 +27,6 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "slack-integration",
 ];
 
-/** Help topic slugs shown only in the SecureNow Security shell. */
-export const ARCHITECTURE_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
-  "security-evidence-paths",
-];
-
 /** Help search drawer topic ids hidden in the SecureNow shell. */
 export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "connect-aws",
@@ -95,7 +90,7 @@ export function isHelpTopicExcludedForProductLine(slug: string, productLineId: P
     return SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS.includes(slug);
   }
 
-  return ARCHITECTURE_EXCLUDED_HELP_TOPIC_SLUGS.includes(slug);
+  return false;
 }
 
 export function isHelpSearchTopicExcludedForProductLine(topicId: string, productLineId: ProductLineId): boolean {
