@@ -76,9 +76,11 @@ export type UseGovernanceWorkflowMutationsResult = {
   readonly setReviewComment: (value: string) => void;
   readonly pendingPromote: GovernanceWorkflowPromotePending | null;
   readonly setPendingPromote: (value: GovernanceWorkflowPromotePending | null) => void;
+  readonly setPendingPromoteRequest: (value: GovernanceApprovalRequest | null) => void;
   readonly pendingPromoteRequestRef: MutableRefObject<GovernanceApprovalRequest | null>;
   readonly pendingActivate: GovernanceWorkflowActivatePending | null;
   readonly setPendingActivate: (value: GovernanceWorkflowActivatePending | null) => void;
+  readonly setPendingActivatePromotion: (value: GovernancePromotionRecord | null) => void;
   readonly pendingActivatePromotionRef: MutableRefObject<GovernancePromotionRecord | null>;
   readonly onSubmitApproval: () => Promise<void>;
   readonly onConfirmReview: () => Promise<void>;
@@ -141,9 +143,15 @@ export function useGovernanceWorkflowMutations(
 
   const [pendingPromote, setPendingPromote] = useState<GovernanceWorkflowPromotePending | null>(null);
   const pendingPromoteRequestRef = useRef<GovernanceApprovalRequest | null>(null);
+  const setPendingPromoteRequest = useCallback((value: GovernanceApprovalRequest | null) => {
+    pendingPromoteRequestRef.current = value;
+  }, []);
 
   const [pendingActivate, setPendingActivate] = useState<GovernanceWorkflowActivatePending | null>(null);
   const pendingActivatePromotionRef = useRef<GovernancePromotionRecord | null>(null);
+  const setPendingActivatePromotion = useCallback((value: GovernancePromotionRecord | null) => {
+    pendingActivatePromotionRef.current = value;
+  }, []);
 
   const [activateBusyId, setActivateBusyId] = useState<string | null>(null);
 
@@ -160,10 +168,10 @@ export function useGovernanceWorkflowMutations(
 
     setPendingReview(null);
     setPendingPromote(null);
-    pendingPromoteRequestRef.current = null;
+    setPendingPromoteRequest(null);
     setPendingActivate(null);
-    pendingActivatePromotionRef.current = null;
-  }, [canMutateWorkflow]);
+    setPendingActivatePromotion(null);
+  }, [canMutateWorkflow, setPendingActivatePromotion, setPendingPromoteRequest]);
 
   const onSubmitApproval = useCallback(async () => {
     if (!canMutateWorkflow) {
@@ -441,9 +449,11 @@ export function useGovernanceWorkflowMutations(
     pendingPromote,
     setPendingPromote,
     pendingPromoteRequestRef,
+    setPendingPromoteRequest,
     pendingActivate,
     setPendingActivate,
     pendingActivatePromotionRef,
+    setPendingActivatePromotion,
     onSubmitApproval,
     onConfirmReview,
     onConfirmPromote,
