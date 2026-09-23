@@ -225,16 +225,36 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     };
   }, [selectedDeclaredEdge]);
 
-  const nodeRows = useMemo(() => {
-    const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
+  const connectedNodeIds = useMemo(() => {
+    const ids = new Set<string>();
 
-    return sortedNodes.slice(0, 200);
-  }, [nodeSortDir, nodeSortKey, outline.nodes]);
-  const edgeRows = useMemo(() => {
-    const sortedEdges = sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir);
+    for (const edge of outline.edges) {
+      ids.add(edge.from);
+      ids.add(edge.to);
+    }
 
-    return sortedEdges.slice(0, 200);
-  }, [edgeSortDir, edgeSortKey, outline.edges, outline.nodes]);
+    return ids;
+  }, [outline.edges]);
+  const allConnectedNodes = useMemo(
+    () => outline.nodes.filter((node) => connectedNodeIds.has(node.id)),
+    [connectedNodeIds, outline.nodes],
+  );
+  const allUnconnectedNodes = useMemo(
+    () => outline.nodes.filter((node) => !connectedNodeIds.has(node.id)),
+    [connectedNodeIds, outline.nodes],
+  );
+  const connectedNodeRows = useMemo(
+    () => sortInfraEvidenceDiagramOutlineNodes(allConnectedNodes, nodeSortKey, nodeSortDir),
+    [allConnectedNodes, nodeSortDir, nodeSortKey],
+  );
+  const unconnectedNodeRows = useMemo(
+    () => sortInfraEvidenceDiagramOutlineNodes(allUnconnectedNodes, nodeSortKey, nodeSortDir),
+    [allUnconnectedNodes, nodeSortDir, nodeSortKey],
+  );
+  const edgeRows = useMemo(
+    () => sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir),
+    [edgeSortDir, edgeSortKey, outline.edges, outline.nodes],
+  );
   const showNeighborhoodActions = onFocusNeighborhood != null;
   const showEdgesSection = outline.edges.length > 0;
 
@@ -335,7 +355,12 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   </tr>
                 </thead>
                 <tbody>
-                  {nodeRows.map((node) => (
+                  <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
+                    <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
+                      Connected nodes ({allConnectedNodes.length})
+                    </th>
+                  </tr>
+                  {connectedNodeRows.map((node) => (
                     <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
                       <td className="px-3 py-2">
                         <InfraEvidenceDiagramOutlineNodeLabel node={node} />
@@ -360,9 +385,45 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       ) : null}
                     </tr>
                   ))}
+                  {allUnconnectedNodes.length > 0 ? (
+                    <>
+                      <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
+                        <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
+                          Unconnected nodes ({allUnconnectedNodes.length})
+                        </th>
+                      </tr>
+                      {unconnectedNodeRows.map((node) => (
+                        <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
+                          <td className="px-3 py-2">
+                            <InfraEvidenceDiagramOutlineNodeLabel node={node} />
+                          </td>
+                          <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
+                          <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
+                            {formatOutlineCell(node.resourceGroup)}
+                          </td>
+                          {showNeighborhoodActions ? (
+                            <td className="px-3 py-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
+                                aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
+                                onClick={() => {
+                                  onFocusNeighborhood(node);
+                                }}
+                              >
+                                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                              </Button>
+                            </td>
+                          ) : null}
+                        </tr>
+                      ))}
+                    </>
+                  ) : null}
                 </tbody>
               </table>
-              {nodeRows.length === 0 ? (
+              {outline.nodes.length === 0 ? (
                 <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   No nodes parsed from the Mermaid source.
                 </p>

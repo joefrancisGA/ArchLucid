@@ -23,7 +23,7 @@ This was the one piece of #3587 (`084b91e2d2`) that does not touch the canvas. #
 
 1. Branch `drs/01-outline-sections` from `revert/diagram-icon-layout-3585-3592`.
 2. Split outline node rows into connected and unconnected using edge endpoints. Section header copy, sentence case: `Connected nodes (N)` and `Unconnected nodes (N)`. Omit the unconnected header when that count is 0.
-3. Keep the 200-row cap. Count data rows only, not the section headers.
+3. List every node and every edge. Do not cap the outline at 200 rows. The listing must match the diagram.
 4. Sort tests must use the first **data** row inside the connected section (`getFirstConnectedDataRow`), not `getAllByRole("row")[1]` and not `.some(...)`.
 5. Do not edit forest layout, SVG sanitizer, icon assets, edge colors, or `ArchitectureDiagramViewer.tsx`.
 
