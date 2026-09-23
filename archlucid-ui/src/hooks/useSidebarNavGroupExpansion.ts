@@ -63,13 +63,17 @@ export function useSidebarNavGroupExpansion(): {
     );
   }, []);
 
-  const persist = useCallback(
+  const persistLocal = useCallback((next: SidebarNavGroupExpansionState) => {
+    setExpansion(next);
+    writeSidebarNavGroupExpansionState(next);
+  }, []);
+
+  const persistWithUrl = useCallback(
     (next: SidebarNavGroupExpansionState) => {
-      setExpansion(next);
-      writeSidebarNavGroupExpansionState(next);
+      persistLocal(next);
       syncExpandedGroupsToUrl(next);
     },
-    [syncExpandedGroupsToUrl],
+    [persistLocal, syncExpandedGroupsToUrl],
   );
 
   useEffect(() => {
@@ -113,24 +117,24 @@ export function useSidebarNavGroupExpansion(): {
         return;
       }
 
-      persist({
+      persistLocal({
         ...current,
         [groupId]: expanded,
       });
     },
-    [persist],
+    [persistLocal],
   );
 
   const toggleGroupExpanded = useCallback(
     (groupId: SidebarCollapsibleNavGroupId) => {
       const current = readSidebarNavGroupExpansionState();
 
-      persist({
+      persistWithUrl({
         ...current,
         [groupId]: !current[groupId],
       });
     },
-    [persist],
+    [persistWithUrl],
   );
 
   return {
