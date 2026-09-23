@@ -20,6 +20,8 @@ import {
 export type SessionAiReadinessOptions = {
   /** When true (failed review with AI recovery), auto-run the live probe on page load even in Simulator mode. */
   readonly requireLiveProbe?: boolean;
+  /** When true, skip live probe side effects — used when shell provider state is returned from an isolated hook instance. */
+  readonly probeSuppressed?: boolean;
 };
 
 export type SessionAiReadinessState = {
@@ -44,13 +46,14 @@ export function useSessionAiReadinessCore(
   options?: SessionAiReadinessOptions,
 ): SessionAiReadinessState {
   const requireLiveProbe = options?.requireLiveProbe === true;
+  const probeSuppressed = options?.probeSuppressed === true;
   const { mode: sessionMode, isSimulator, isLoading: modeLoading } = useAgentExecutionMode();
   const healthQuery = useHealthReadySummaryQuery();
   const hostMode = parseAgentExecutionModeWire(healthQuery.data?.agentExecutionMode);
   const hasDevOverride =
     isDevTestingOverridesEnabled() && readDevAgentExecutionModeOverrideFromDocument() !== null;
   const isSessionReal = !isSimulator && sessionMode === "Real";
-  const shouldProbe = isSessionReal || requireLiveProbe;
+  const shouldProbe = !probeSuppressed && (isSessionReal || requireLiveProbe);
   const healthSummaryReady = healthQuery.isSuccess;
   const probeMayRun = shouldProbe && healthSummaryReady;
 

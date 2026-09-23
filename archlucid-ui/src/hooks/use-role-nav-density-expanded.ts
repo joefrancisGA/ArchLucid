@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY } from "@/lib/role-shaped-nav-density";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRoleNavDensityShowFullNavOpenFromSearch,
   roleNavDensityShowFullNavDisclosureHrefFromSearch,
@@ -39,32 +40,33 @@ export function useRoleNavDensityExpanded(): {
   readonly setShowFullNav: (value: boolean) => void;
   readonly toggleShowFullNav: () => void;
 } {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
   const roleNavDensityShowFullNavOpenParam = searchParams.get("roleNavDensityShowFullNavOpen");
   const [showFullNav, setShowFullNavState] = useState(false);
 
   const syncShowFullNavToUrl = useCallback(
     (open: boolean) => {
-      router.replace(roleNavDensityShowFullNavDisclosureHrefFromSearch(currentSearch, open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        roleNavDensityShowFullNavDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [currentSearch, pathname, router],
+    [pathname],
   );
 
   useEffect(() => {
-    const fromUrl = parseRoleNavDensityShowFullNavOpenFromSearch(roleNavDensityShowFullNavOpenParam);
+    setShowFullNavState((current) => {
+      const fromUrl = parseRoleNavDensityShowFullNavOpenFromSearch(roleNavDensityShowFullNavOpenParam);
 
-    if (roleNavDensityShowFullNavOpenParam !== null) {
-      setShowFullNavState(fromUrl);
+      if (roleNavDensityShowFullNavOpenParam !== null) {
+        return current === fromUrl ? current : fromUrl;
+      }
 
-      return;
-    }
+      const fromStorage = readShowFullNavFromStorage();
 
-    setShowFullNavState(readShowFullNavFromStorage());
+      return current === fromStorage ? current : fromStorage;
+    });
   }, [roleNavDensityShowFullNavOpenParam]);
 
   const setShowFullNav = useCallback(

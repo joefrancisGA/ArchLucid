@@ -2,7 +2,7 @@
 
 import { CircleUser } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -23,6 +23,7 @@ import {
   accountSettingsMenuHrefFromSearch,
   parseAccountSettingsMenuOpenFromSearch,
 } from "@/lib/operator/account-settings-menu-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export const ACCOUNT_SETTINGS_MENU_ARIA_LABEL = "Your account settings";
@@ -58,7 +59,6 @@ export function computeAccountSettingsMenuPanelStyle(trigger: HTMLElement): CSSP
  * scrollbar in the top bar that kills demos.
  */
 export function AccountSettingsMenu(): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const accountMenuOpenParam = searchParams.get("accountMenuOpen");
@@ -73,11 +73,12 @@ export function AccountSettingsMenu(): React.JSX.Element {
 
   const syncAccountMenuOpenToUrl = useCallback(
     (menuOpen: boolean) => {
-      router.replace(accountSettingsMenuHrefFromSearch(searchParams.toString(), menuOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        accountSettingsMenuHrefFromSearch(readWindowLocationSearch(), menuOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
@@ -92,7 +93,11 @@ export function AccountSettingsMenu(): React.JSX.Element {
   );
 
   useEffect(() => {
-    setOpenState(parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam));
+    setOpenState((current) => {
+      const next = parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam);
+
+      return current === next ? current : next;
+    });
   }, [accountMenuOpenParam]);
 
   const closeMenu = useCallback(() => {

@@ -29,12 +29,21 @@ export function useSessionAiReadiness(options?: SessionAiReadinessOptions): Sess
   const requireLiveProbe = options?.requireLiveProbe === true;
   const context = useContext(SessionAiReadinessContext);
   const optsProvided = options !== undefined;
+  const useProviderState = optsProvided && !requireLiveProbe && context !== null;
   // When callers pass options (review failure recovery), always run the isolated core so
-  // toggling requireLiveProbe cannot change hook order between renders.
-  const isolated = useSessionAiReadinessCore(optsProvided ? options : undefined);
+  // toggling requireLiveProbe cannot change hook order between renders. Suppress duplicate
+  // probe churn when the shell provider already owns live readiness state.
+  const isolated = useSessionAiReadinessCore(
+    optsProvided
+      ? {
+          ...options,
+          probeSuppressed: useProviderState,
+        }
+      : undefined,
+  );
 
   if (optsProvided) {
-    if (!requireLiveProbe && context !== null) {
+    if (useProviderState) {
       return context;
     }
 

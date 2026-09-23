@@ -27,8 +27,9 @@ import {
   workspaceAiAvailableDetail,
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 export type WorkspaceAiAvailabilityPanelProps = {
@@ -315,7 +316,6 @@ function WorkspaceAiProbeDiagnostics(props: {
   readonly compact?: boolean;
 }): React.JSX.Element {
   const { result, compact = false } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const workspaceAiProbeDebugMetadataOpenParam = searchParams.get("workspaceAiProbeDebugMetadataOpen");
@@ -324,23 +324,31 @@ function WorkspaceAiProbeDiagnostics(props: {
   );
   const syncDebugMetadataOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setDebugMetadataOpen = useCallback(
     (open: boolean) => {
+      if (debugMetadataOpen === open) {
+        return;
+      }
+
       setDebugMetadataOpenState(open);
       syncDebugMetadataOpenToUrl(open);
     },
-    [syncDebugMetadataOpenToUrl],
+    [debugMetadataOpen, syncDebugMetadataOpenToUrl],
   );
 
   useEffect(() => {
-    setDebugMetadataOpenState(parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam));
+    setDebugMetadataOpenState((current) => {
+      const next = parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam);
+
+      return current === next ? current : next;
+    });
   }, [workspaceAiProbeDebugMetadataOpenParam]);
 
   const deploymentName = resolveProbeDeploymentName(result.debug);
@@ -432,7 +440,6 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
     probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
   const probeTriggerLabel =
     probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "AI availability details";
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const workspaceAiProbeDiagnosticsOpenParam = searchParams.get("workspaceAiProbeDiagnosticsOpen");
@@ -442,26 +449,32 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
 
   const syncProbeDiagnosticsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setProbeDiagnosticsOpen = useCallback(
     (open: boolean) => {
+      if (probeDiagnosticsOpen === open) {
+        return;
+      }
+
       setProbeDiagnosticsOpenState(open);
       syncProbeDiagnosticsOpenToUrl(open);
     },
-    [syncProbeDiagnosticsOpenToUrl],
+    [probeDiagnosticsOpen, syncProbeDiagnosticsOpenToUrl],
   );
 
   useEffect(() => {
-    setProbeDiagnosticsOpenState(
-      parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
-    );
+    setProbeDiagnosticsOpenState((current) => {
+      const next = parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam);
+
+      return current === next ? current : next;
+    });
   }, [workspaceAiProbeDiagnosticsOpenParam]);
 
   return (

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { shouldPollServiceBusHealthDegradedBanner } from "@/lib/shell-banner-poll-policy";
 import {
   parseServiceBusHealthTechnicalProbeOpenFromSearch,
@@ -31,7 +32,6 @@ function isServiceBusBannerSuppressed(): boolean {
  * Global warning when Azure Service Bus readiness is Unhealthy or Degraded (`azure_service_bus` on `GET /health/ready`).
  */
 export function ServiceBusHealthBanner() {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const serviceBusHealthTechnicalProbeOpenParam = searchParams.get("serviceBusHealthTechnicalProbeOpen");
@@ -41,26 +41,32 @@ export function ServiceBusHealthBanner() {
 
   const syncTechnicalProbeOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        serviceBusHealthTechnicalProbeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        serviceBusHealthTechnicalProbeDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalProbeOpen = useCallback(
     (open: boolean) => {
+      if (technicalProbeOpen === open) {
+        return;
+      }
+
       setTechnicalProbeOpenState(open);
       syncTechnicalProbeOpenToUrl(open);
     },
-    [syncTechnicalProbeOpenToUrl],
+    [syncTechnicalProbeOpenToUrl, technicalProbeOpen],
   );
 
   useEffect(() => {
-    setTechnicalProbeOpenState(
-      parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam),
-    );
+    setTechnicalProbeOpenState((current) => {
+      const next = parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam);
+
+      return current === next ? current : next;
+    });
   }, [serviceBusHealthTechnicalProbeOpenParam]);
 
   const documentHidden = useDocumentHidden();

@@ -26,6 +26,7 @@ import {
   shellInFlightPopoverHrefFromSearch,
 } from "@/lib/operator/shell-in-flight-popover-url";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 /**
@@ -52,18 +53,22 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
 
   const syncInFlightPopoverOpenToUrl = useCallback(
     (popoverOpen: boolean) => {
-      router.replace(shellInFlightPopoverHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        shellInFlightPopoverHrefFromSearch(readWindowLocationSearch(), popoverOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncInFlightPopoverOpenToUrl(next);
+
+        if (next !== current) {
+          syncInFlightPopoverOpenToUrl(next);
+        }
 
         return next;
       });
@@ -73,19 +78,22 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
 
   const syncInFlightCancelIdToUrl = useCallback(
     (operationId: string | null) => {
-      router.replace(
-        shellInFlightCancelConfirmHrefFromSearch(searchParams.toString(), operationId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        shellInFlightCancelConfirmHrefFromSearch(readWindowLocationSearch(), operationId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPendingCancelOperationId = useCallback(
     (value: SetStateAction<string | null>) => {
       setPendingCancelOperationIdState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncInFlightCancelIdToUrl(next);
+
+        if ((next ?? null) !== (current ?? null)) {
+          syncInFlightCancelIdToUrl(next);
+        }
 
         return next;
       });

@@ -48,4 +48,17 @@ describe("useSessionAiReadiness", () => {
 
     expect(useSessionAiReadinessCore).toHaveBeenCalledTimes(4);
   });
+
+  it("suppresses isolated probe churn when provider state is returned", () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <SessionAiReadinessProvider>{children}</SessionAiReadinessProvider>
+    );
+
+    renderHook(() => useSessionAiReadiness({ requireLiveProbe: false }), { wrapper });
+
+    expect(useSessionAiReadinessCore).toHaveBeenLastCalledWith({
+      requireLiveProbe: false,
+      probeSuppressed: true,
+    });
+  });
 });
