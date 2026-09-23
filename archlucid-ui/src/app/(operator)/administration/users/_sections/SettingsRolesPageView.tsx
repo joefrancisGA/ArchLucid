@@ -220,13 +220,15 @@ export function SettingsRolesPageView(props: Props) {
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {
-      setActiveTab(
-        settingsUsersTabFromLocation(
+      setActiveTab((current) => {
+        const next = settingsUsersTabFromLocation(
           window.location.pathname,
           new URLSearchParams(window.location.search).get("tab"),
           canManageApiKeys,
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncActiveTabFromUrl();

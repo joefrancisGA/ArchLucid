@@ -120,7 +120,11 @@ export function useReviewDetailWorkspaceTabs(
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {
-      setActiveTab(readReviewDetailTabFromWindowLocation());
+      setActiveTab((current) => {
+        const next = readReviewDetailTabFromWindowLocation();
+
+        return current === next ? current : next;
+      });
     };
 
     syncActiveTabFromUrl();
