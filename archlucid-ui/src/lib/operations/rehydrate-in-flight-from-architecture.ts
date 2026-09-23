@@ -1,4 +1,5 @@
 import { getArchitectureIdentity } from "@/lib/api/architecture-identity-api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { getOperation } from "@/lib/api/operations-api";
 import {
   getInFlightOperations,
@@ -11,6 +12,7 @@ import {
   reviewPipelineOperationId,
 } from "@/lib/operations/review-pipeline-in-flight";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
 
 export type RehydrateInFlightOperationsScope = {
@@ -41,7 +43,22 @@ export async function rehydrateInFlightOperationsFromArchitecture(
     return 0;
   }
 
-  const identity = await getArchitectureIdentity(architectureId);
+  if (!isUuidLike(architectureId)) {
+    return 0;
+  }
+
+  let identity: Awaited<ReturnType<typeof getArchitectureIdentity>>;
+
+  try {
+    identity = await getArchitectureIdentity(architectureId);
+  } catch (error: unknown) {
+    if (isApiRequestError(error) && error.httpStatus === 404) {
+      return 0;
+    }
+
+    throw error;
+  }
+
   const knownOperationIds = new Set(getInFlightOperations().map((row) => row.operationId));
   let restored = 0;
 
