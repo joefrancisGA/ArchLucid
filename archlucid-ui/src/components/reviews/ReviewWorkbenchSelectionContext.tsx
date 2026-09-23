@@ -11,6 +11,10 @@ import {
 } from "react";
 
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
+import {
+  REVIEW_DETAIL_FINDING_PARAM,
+  REVIEW_DETAIL_URL_CHANGED_EVENT,
+} from "@/lib/review-detail-workspace-tabs";
 
 export type ReviewWorkbenchSelectionContextValue = {
   readonly selectedFindingId: string | null;
@@ -31,21 +35,43 @@ export type ReviewWorkbenchSelectionProviderProps = {
   readonly onFocusColumnChange?: (column: ReviewWorkbenchColumnId) => void;
 };
 
+function readFindingIdFromWindowLocation(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const trimmed =
+    new URL(window.location.href).searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 /** Shared finding + column selection for the Working-mode three-column workbench (PT-12). */
 export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelectionProviderProps): React.JSX.Element {
   const [selectedFindingId, setSelectedFindingIdState] = useState<string | null>(
-    props.initialFindingId ?? null,
+    () => readFindingIdFromWindowLocation() ?? props.initialFindingId ?? null,
   );
-  const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
+  const [highlightedNodeId, setHighlightedNodeIdState] = useState<string | null>(null);
   const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(
     props.initialFocusColumn ?? null,
   );
 
   useEffect(() => {
-    if (props.initialFindingId !== undefined) {
-      setSelectedFindingIdState(props.initialFindingId);
-    }
-  }, [props.initialFindingId]);
+    const syncFindingIdFromUrl = (): void => {
+      const urlFindingId = readFindingIdFromWindowLocation();
+
+      setSelectedFindingIdState((current) => (current === urlFindingId ? current : urlFindingId));
+    };
+
+    syncFindingIdFromUrl();
+    window.addEventListener("popstate", syncFindingIdFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFindingIdFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
+    };
+  }, []);
 
   const setSelectedFindingId = useCallback(
     (findingId: string | null) => {
@@ -60,6 +86,10 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
     },
     [props.onFindingIdChange],
   );
+
+  const setHighlightedNodeId = useCallback((nodeId: string | null) => {
+    setHighlightedNodeIdState((current) => (current === nodeId ? current : nodeId));
+  }, []);
 
   const setWorkbenchFocusColumn = useCallback(
     (column: ReviewWorkbenchColumnId) => {
@@ -87,6 +117,7 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
     [
       highlightedNodeId,
       selectedFindingId,
+      setHighlightedNodeId,
       setSelectedFindingId,
       setWorkbenchFocusColumn,
       workbenchFocusColumn,

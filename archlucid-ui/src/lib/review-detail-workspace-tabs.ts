@@ -8,6 +8,9 @@ export const REVIEW_DETAIL_FINDING_PARAM = "findingId" as const;
 
 export const REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM = "workbenchFocus" as const;
 
+/** Fired after {@link writeReviewDetailTabToUrl} mutates the address bar via `history.replaceState`. */
+export const REVIEW_DETAIL_URL_CHANGED_EVENT = "archlucid:review-detail-url-changed" as const;
+
 export const REVIEW_WORKBENCH_FOCUS_COLUMN_IDS = ["architecture", "findings", "evidence"] as const;
 
 export type ReviewWorkbenchFocusColumnId = (typeof REVIEW_WORKBENCH_FOCUS_COLUMN_IDS)[number];
@@ -198,6 +201,7 @@ export function writeReviewDetailTabToUrl(
   }
 
   window.history.replaceState(null, "", url.toString());
+  window.dispatchEvent(new Event(REVIEW_DETAIL_URL_CHANGED_EVENT));
 }
 
 /** Reads the active review tab from the current browser location. */
