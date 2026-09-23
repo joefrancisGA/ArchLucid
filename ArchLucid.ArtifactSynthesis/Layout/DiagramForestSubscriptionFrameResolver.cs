@@ -2,14 +2,17 @@ using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
-/// <summary>Legacy compatibility shim for the retired subscription-level page frame.</summary>
+/// <summary>Resolves the subscription-level page frame for subscription-scoped inventory views.</summary>
 public static class DiagramForestSubscriptionFrameResolver
 {
     public static bool ShouldDraw(string title)
     {
         ArgumentNullException.ThrowIfNull(title);
 
-        return false;
+        return title.Contains("Azure inventory", StringComparison.OrdinalIgnoreCase)
+            && !title.Contains("(ResourceGroup)", StringComparison.OrdinalIgnoreCase)
+            && !title.Contains("(SelectedResources)", StringComparison.OrdinalIgnoreCase)
+            && !title.Contains("(DependencyNeighborhood)", StringComparison.OrdinalIgnoreCase);
     }
 
     public static DiagramForestNestedFrameBounds? Resolve(

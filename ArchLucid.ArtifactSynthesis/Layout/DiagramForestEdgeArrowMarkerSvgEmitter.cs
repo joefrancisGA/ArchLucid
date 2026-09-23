@@ -26,7 +26,7 @@ public static class DiagramForestEdgeArrowMarkerSvgEmitter
             new XElement(
                 svgNamespace + "path",
                 new XAttribute("d", "M 0 0 L 10 5 L 0 10 z"),
-                new XAttribute("fill", FormatColor("#111827")))));
+                new XAttribute("fill", FormatColor("#94a3b8")))));
         root.Add(defs);
     }
 

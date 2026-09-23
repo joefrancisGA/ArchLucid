@@ -20,8 +20,6 @@ export type ArchitectureDiagramSvgPaletteOptions = {
 };
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const EMBEDDED_PNG_DATA_URI_REGEXP =
-  /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/;
 
 const CLUSTER_LABEL_INSET_PX = 4;
 const CLUSTER_TITLE_BAND_EXTRA_INSET_PX = 4;
@@ -137,12 +135,6 @@ function paintArchitectureDiagramNodePalette(svg: Element, dark: boolean): void 
   for (const path of edgePaths) {
     path.setAttribute("stroke", palette.edge);
     path.setAttribute("fill", "none");
-  }
-
-  const arrowMarkers = svg.querySelectorAll("marker#al-edge-arrow path");
-
-  for (const markerPath of arrowMarkers) {
-    markerPath.setAttribute("fill", palette.edge);
   }
 }
 
@@ -682,7 +674,5 @@ export function sanitizeArchitectureDiagramSvg(
   return DOMPurify.sanitize(withVisibleLabels, {
     USE_PROFILES: { svg: true, svgFilters: true },
     FORBID_TAGS: ["script", "foreignObject"],
-    ADD_ATTR: ["data-file", "href", "xlink:href"],
-    ALLOWED_URI_REGEXP: EMBEDDED_PNG_DATA_URI_REGEXP,
   });
 }

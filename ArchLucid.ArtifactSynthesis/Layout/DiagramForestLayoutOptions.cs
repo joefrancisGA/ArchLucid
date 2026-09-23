@@ -93,31 +93,4 @@ public sealed class DiagramForestLayoutOptions
         get;
         init;
     } = 6;
-
-    /// <summary>Empty width between data-flow stage columns (edge gutter).</summary>
-    public int DataFlowColumnGutter
-    {
-        get;
-        init;
-    } = DefaultDataFlowColumnGutter;
-
-    /// <summary>Title band above the first card in each data-flow column.</summary>
-    public int DataFlowStageLabelBand
-    {
-        get;
-        init;
-    } = DefaultDataFlowStageLabelBand;
-
-    /// <summary>Reserved band above stage titles for stage-skipping edges.</summary>
-    public int DataFlowSkyLaneHeight
-    {
-        get;
-        init;
-    } = DefaultDataFlowSkyLaneHeight;
-
-    public const int DefaultDataFlowColumnGutter = 64;
-
-    public const int DefaultDataFlowStageLabelBand = 28;
-
-    public const int DefaultDataFlowSkyLaneHeight = 36;
 }

@@ -72,31 +72,13 @@ public static class DiagramForestNodeSvgEmitter
                     contentHeight));
         }
 
-        if (metrics.AzureIcon is not null)
-        {
-            group.Add(
-                new XElement(
-                    svgNamespace + "image",
-                    new XAttribute("class", "azure-icon"),
-                    new XAttribute("data-file", metrics.AzureIcon.File),
-                    new XAttribute("x", Format(pictogramX)),
-                    new XAttribute("y", Format(pictogramY)),
-                    new XAttribute("width", Format(options.PictogramSize)),
-                    new XAttribute("height", Format(options.PictogramSize)),
-                    new XAttribute("href", metrics.AzureIcon.DataUri),
-                    new XAttribute(XNamespace.Get("http://www.w3.org/1999/xlink") + "href", metrics.AzureIcon.DataUri),
-                    new XAttribute("preserveAspectRatio", "xMidYMid meet")));
-        }
-        else
-        {
-            group.Add(
-                DiagramInventoryPictogramSvgEmitter.Emit(
-                    svgNamespace,
-                    metrics.PictogramKind,
-                    options.PictogramSize,
-                    pictogramX,
-                    pictogramY));
-        }
+        group.Add(
+            DiagramInventoryPictogramSvgEmitter.Emit(
+                svgNamespace,
+                metrics.PictogramKind,
+                options.PictogramSize,
+                pictogramX,
+                pictogramY));
 
         XElement text = new(
             svgNamespace + "text",
