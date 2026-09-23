@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
@@ -37,7 +37,7 @@ import {
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseScopeSwitcherTechnicalDetailsOpenFromSearch,
   scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch,
@@ -85,7 +85,6 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
     workspaceId,
     workspaces,
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const [scopeSwitcherTechnicalDetailsOpen, setScopeSwitcherTechnicalDetailsOpenState] = useState(() =>
     parseScopeSwitcherTechnicalDetailsOpenFromSearch(
@@ -96,12 +95,12 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
   );
   const syncScopeSwitcherTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      replaceIfHrefChanged(
-        router,
-        scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+      commitHrefIfChanged(
+        scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router],
+    [pathname],
   );
   const setScopeSwitcherTechnicalDetailsOpen = useCallback(
     (open: boolean) => {

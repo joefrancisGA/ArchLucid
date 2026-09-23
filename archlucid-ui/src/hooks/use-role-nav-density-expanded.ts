@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY } from "@/lib/role-shaped-nav-density";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -41,8 +41,6 @@ export function useRoleNavDensityExpanded(): {
   readonly toggleShowFullNav: () => void;
 } {
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const roleNavDensityShowFullNavOpenParam = searchParams.get("roleNavDensityShowFullNavOpen");
   const [showFullNav, setShowFullNavState] = useState(false);
 
   const syncShowFullNavToUrl = useCallback(
@@ -56,18 +54,31 @@ export function useRoleNavDensityExpanded(): {
   );
 
   useEffect(() => {
-    setShowFullNavState((current) => {
-      const fromUrl = parseRoleNavDensityShowFullNavOpenFromSearch(roleNavDensityShowFullNavOpenParam);
+    const syncShowFullNavFromUrl = (): void => {
+      const roleNavDensityShowFullNavOpenParam = new URLSearchParams(window.location.search).get(
+        "roleNavDensityShowFullNavOpen",
+      );
 
-      if (roleNavDensityShowFullNavOpenParam !== null) {
-        return current === fromUrl ? current : fromUrl;
-      }
+      setShowFullNavState((current) => {
+        const fromUrl = parseRoleNavDensityShowFullNavOpenFromSearch(roleNavDensityShowFullNavOpenParam);
 
-      const fromStorage = readShowFullNavFromStorage();
+        if (roleNavDensityShowFullNavOpenParam !== null) {
+          return current === fromUrl ? current : fromUrl;
+        }
 
-      return current === fromStorage ? current : fromStorage;
-    });
-  }, [roleNavDensityShowFullNavOpenParam]);
+        const fromStorage = readShowFullNavFromStorage();
+
+        return current === fromStorage ? current : fromStorage;
+      });
+    };
+
+    syncShowFullNavFromUrl();
+    window.addEventListener("popstate", syncShowFullNavFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShowFullNavFromUrl);
+    };
+  }, []);
 
   const setShowFullNav = useCallback(
     (value: boolean) => {

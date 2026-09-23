@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GuidedModeSwitchToWorkingDialog } from "@/components/workspace-mode/GuidedModeSwitchToWorkingDialog";
@@ -30,10 +30,12 @@ export type GuidedModeTopBarChipProps = {
 export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactElement | null {
   const { mode, mounted, setAndPersist } = useWorkspaceMode();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const workspaceSwitchConfirmParam = searchParams.get("workspaceSwitchConfirm");
   const [dialogOpen, setDialogOpenState] = useState(() =>
-    parseWorkspaceModeSwitchConfirmOpenFromSearch(workspaceSwitchConfirmParam),
+    parseWorkspaceModeSwitchConfirmOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("workspaceSwitchConfirm"),
+    ),
   );
   const dialogOpenRef = useRef(dialogOpen);
   dialogOpenRef.current = dialogOpen;
@@ -57,6 +59,11 @@ export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactEle
       const current = dialogOpenRef.current;
       const next = typeof value === "function" ? value(current) : value;
 
+      if (current === next) {
+        return;
+      }
+
+      dialogOpenRef.current = next;
       setDialogOpenState(next);
       syncWorkspaceSwitchConfirmToUrl(next);
     },
@@ -64,12 +71,26 @@ export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactEle
   );
 
   useEffect(() => {
-    setDialogOpenState((current) => {
-      const next = parseWorkspaceModeSwitchConfirmOpenFromSearch(workspaceSwitchConfirmParam);
+    const syncDialogOpenFromUrl = (): void => {
+      const next = parseWorkspaceModeSwitchConfirmOpenFromSearch(
+        new URLSearchParams(window.location.search).get("workspaceSwitchConfirm"),
+      );
 
-      return current === next ? current : next;
-    });
-  }, [workspaceSwitchConfirmParam]);
+      if (dialogOpenRef.current === next) {
+        return;
+      }
+
+      dialogOpenRef.current = next;
+      setDialogOpenState(next);
+    };
+
+    syncDialogOpenFromUrl();
+    window.addEventListener("popstate", syncDialogOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDialogOpenFromUrl);
+    };
+  }, []);
 
   if (!mounted || !isGuidedWorkspaceMode(mode)) {
     return null;

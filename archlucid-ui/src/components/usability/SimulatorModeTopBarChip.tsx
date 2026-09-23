@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type SetStateAction } from "react";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import {
   AlertDialog,
@@ -52,14 +52,16 @@ export type SimulatorModeTopBarChipProps = {
  */
 export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const simulatorModeConfirmOpenParam = searchParams.get("simulatorModeConfirmOpen");
   const { mode, isSimulator, isLoading } = useAgentExecutionMode();
   const readiness = useSessionAiReadiness();
   const healthQuery = useHealthReadySummaryQuery();
   const [devOverride, setDevOverride] = useState<DevAgentExecutionModeOverride | null>(null);
   const [confirmOpen, setConfirmOpenState] = useState(() =>
-    parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam),
+    parseSimulatorModeConfirmOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("simulatorModeConfirmOpen"),
+    ),
   );
   const confirmOpenRef = useRef(confirmOpen);
   confirmOpenRef.current = confirmOpen;
@@ -78,6 +80,11 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
       const current = confirmOpenRef.current;
       const next = typeof value === "function" ? value(current) : value;
 
+      if (current === next) {
+        return;
+      }
+
+      confirmOpenRef.current = next;
       setConfirmOpenState(next);
       syncConfirmOpenToUrl(next);
     },
@@ -85,12 +92,26 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
   );
 
   useEffect(() => {
-    setConfirmOpenState((current) => {
-      const next = parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam);
+    const syncConfirmOpenFromUrl = (): void => {
+      const next = parseSimulatorModeConfirmOpenFromSearch(
+        new URLSearchParams(window.location.search).get("simulatorModeConfirmOpen"),
+      );
 
-      return current === next ? current : next;
-    });
-  }, [simulatorModeConfirmOpenParam]);
+      if (confirmOpenRef.current === next) {
+        return;
+      }
+
+      confirmOpenRef.current = next;
+      setConfirmOpenState(next);
+    };
+
+    syncConfirmOpenFromUrl();
+    window.addEventListener("popstate", syncConfirmOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncConfirmOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {

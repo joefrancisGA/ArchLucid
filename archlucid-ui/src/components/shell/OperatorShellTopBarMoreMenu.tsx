@@ -1,7 +1,7 @@
 "use client";
 
 import { MoreHorizontal } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -55,9 +55,13 @@ type OperatorShellTopBarMoreMenuProps = {
  */
 export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuProps): React.JSX.Element {
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const shellMoreOpenParam = searchParams.get("shellMoreOpen");
-  const [open, setOpenState] = useState(() => parseShellTopBarMoreOpenFromSearch(shellMoreOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseShellTopBarMoreOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("shellMoreOpen"),
+    ),
+  );
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const openRef = useRef(open);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -81,11 +85,38 @@ export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuPr
       const current = openRef.current;
       const next = typeof value === "function" ? value(current) : value;
 
+      if (current === next) {
+        return;
+      }
+
+      openRef.current = next;
       setOpenState(next);
       syncShellMoreOpenToUrl(next);
     },
     [syncShellMoreOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncShellMoreOpenFromUrl = (): void => {
+      const next = parseShellTopBarMoreOpenFromSearch(
+        new URLSearchParams(window.location.search).get("shellMoreOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncShellMoreOpenFromUrl();
+    window.addEventListener("popstate", syncShellMoreOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShellMoreOpenFromUrl);
+    };
+  }, []);
 
   const close = useCallback(() => {
     setOpen(false);

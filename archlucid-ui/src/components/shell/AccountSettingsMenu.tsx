@@ -2,7 +2,7 @@
 
 import { CircleUser } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -60,9 +60,13 @@ export function computeAccountSettingsMenuPanelStyle(trigger: HTMLElement): CSSP
  */
 export function AccountSettingsMenu(): React.JSX.Element {
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const accountMenuOpenParam = searchParams.get("accountMenuOpen");
-  const [open, setOpenState] = useState(() => parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseAccountSettingsMenuOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("accountMenuOpen"),
+    ),
+  );
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const openRef = useRef(open);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -86,6 +90,11 @@ export function AccountSettingsMenu(): React.JSX.Element {
       const current = openRef.current;
       const next = typeof value === "function" ? value(current) : value;
 
+      if (current === next) {
+        return;
+      }
+
+      openRef.current = next;
       setOpenState(next);
       syncAccountMenuOpenToUrl(next);
     },
@@ -93,12 +102,26 @@ export function AccountSettingsMenu(): React.JSX.Element {
   );
 
   useEffect(() => {
-    setOpenState((current) => {
-      const next = parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam);
+    const syncAccountMenuOpenFromUrl = (): void => {
+      const next = parseAccountSettingsMenuOpenFromSearch(
+        new URLSearchParams(window.location.search).get("accountMenuOpen"),
+      );
 
-      return current === next ? current : next;
-    });
-  }, [accountMenuOpenParam]);
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncAccountMenuOpenFromUrl();
+    window.addEventListener("popstate", syncAccountMenuOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAccountMenuOpenFromUrl);
+    };
+  }, []);
 
   const closeMenu = useCallback(() => {
     setOpen(false);

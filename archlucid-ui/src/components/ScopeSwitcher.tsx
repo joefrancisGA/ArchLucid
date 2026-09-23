@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS } from "@/lib/design-tokens";
 
 import { ChevronsUpDown } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -57,7 +57,7 @@ import {
   shouldUseSampleWorkspaceFallback,
   WORKSPACES_PATH,
 } from "@/components/scope-switcher-workspace-list";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseScopeSwitcherOpenFromSearch,
   scopeSwitcherHrefFromSearch,
@@ -80,7 +80,6 @@ type ScopeSwitcherProps = {
  */
 export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const density = props.density ?? "default";
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [open, setOpenState] = useState(() =>
@@ -104,17 +103,21 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
 
   const syncScopeOpenToUrl = useCallback(
     (popoverOpen: boolean) => {
-      replaceIfHrefChanged(
-        router,
-        scopeSwitcherHrefFromSearch(window.location.search.slice(1), popoverOpen, pathname),
+      commitHrefIfChanged(
+        scopeSwitcherHrefFromSearch(readWindowLocationSearch(), popoverOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       const next = typeof value === "function" ? value(openRef.current) : value;
+
+      if (openRef.current === next) {
+        return;
+      }
 
       openRef.current = next;
       setOpenState(next);
