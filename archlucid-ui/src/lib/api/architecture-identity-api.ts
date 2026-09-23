@@ -68,6 +68,10 @@ export async function getArchitectureIdentity(
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureIdentityBlockedReason(failure);
 
+    if (failure.httpStatus === 404) {
+      throw error;
+    }
+
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 }
