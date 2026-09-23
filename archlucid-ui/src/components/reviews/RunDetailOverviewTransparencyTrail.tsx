@@ -37,9 +37,7 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
 
   const syncDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      commitHrefIfChanged(transparencyTrailHrefFromSearch(window.location.search.slice(1), open, pathname), {
-        notify: true,
-      });
+      commitHrefIfChanged(transparencyTrailHrefFromSearch(window.location.search.slice(1), open, pathname));
     },
     [pathname],
   );
@@ -58,11 +56,11 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
 
   useEffect(() => {
     const syncDetailsOpenFromUrl = (): void => {
-      setDetailsOpenState(
-        parseTransparencyTrailOpenFromSearch(
-          new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
-        ),
+      const nextOpen = parseTransparencyTrailOpenFromSearch(
+        new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
       );
+
+      setDetailsOpenState((current) => (current === nextOpen ? current : nextOpen));
     };
 
     syncDetailsOpenFromUrl();

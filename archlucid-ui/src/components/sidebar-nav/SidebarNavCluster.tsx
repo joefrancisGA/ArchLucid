@@ -112,7 +112,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       return;
     }
 
-    commitHrefIfChanged(nextHref, { notify: true });
+    commitHrefIfChanged(nextHref, { notify: false });
   }, [more.length, pathname, urlMoreGroupOpen]);
 
   function replaceSidebarMoreGroupInUrl(groupId: string | null): void {
@@ -122,7 +122,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       return;
     }
 
-    commitHrefIfChanged(nextHref, { notify: true });
+    commitHrefIfChanged(nextHref, { notify: false });
   }
 
   if (linksForRender.length === 0) {

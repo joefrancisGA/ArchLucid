@@ -159,7 +159,7 @@ export function RunDetailRunExplanationCollapsible(
     (open: boolean) => {
       commitHrefIfChanged(
         runAssessmentNarrativeHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -181,7 +181,7 @@ export function RunDetailRunExplanationCollapsible(
     (open: boolean) => {
       commitHrefIfChanged(
         runCoverageCurationDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -203,7 +203,7 @@ export function RunDetailRunExplanationCollapsible(
     (open: boolean) => {
       commitHrefIfChanged(
         runImpactAnalysisDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -225,7 +225,7 @@ export function RunDetailRunExplanationCollapsible(
     (open: boolean) => {
       commitHrefIfChanged(
         runFindingExplainabilityDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],

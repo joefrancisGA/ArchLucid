@@ -114,7 +114,7 @@ export function PendingInvitationsPanel({
     (resolvedVisible: boolean) => {
       commitHrefIfChanged(
         settingsInvitesShowResolvedHrefFromSearch(window.location.search.slice(1), resolvedVisible, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname, router],
@@ -165,7 +165,7 @@ export function PendingInvitationsPanel({
     (invitationId: string | null) => {
       commitHrefIfChanged(
         settingsUsersInviteRevokeHrefFromSearch(window.location.search.slice(1), invitationId, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname, router],

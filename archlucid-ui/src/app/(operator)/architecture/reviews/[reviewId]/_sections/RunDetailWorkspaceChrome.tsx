@@ -214,7 +214,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     (open: boolean) => {
       commitHrefIfChanged(
         runDetailRecordMetadataHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname, router],

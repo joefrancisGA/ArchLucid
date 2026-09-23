@@ -59,7 +59,7 @@ export function useSidebarNavGroupExpansion(): {
         expandedGroupIdsFromState(state),
         pathnameRef.current,
       ),
-      { notify: true },
+      { notify: false },
     );
   }, []);
 

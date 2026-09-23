@@ -56,7 +56,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
     (nextOpen: boolean) => {
       commitHrefIfChanged(
         reviewHeaderShareMenuHrefFromSearch(window.location.search.slice(1), nextOpen, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],

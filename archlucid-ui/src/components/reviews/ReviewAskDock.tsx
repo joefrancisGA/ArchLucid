@@ -73,7 +73,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
           { open: nextOpen, threadId: nextThreadId },
           pathname,
         ),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -112,10 +112,10 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
       }
 
       disabledCleanupAttemptedRef.current = false;
-      setOpenState(urlAskDockOpen);
+      setOpenState((current) => (current === urlAskDockOpen ? current : urlAskDockOpen));
 
       if (urlAskThreadId.length > 0) {
-        setThreadIdState(urlAskThreadId);
+        setThreadIdState((current) => (current === urlAskThreadId ? current : urlAskThreadId));
       }
     };
 

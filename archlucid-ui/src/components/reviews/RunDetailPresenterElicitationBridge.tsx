@@ -120,7 +120,7 @@ export function RunDetailPresenterElicitationBridge(
     syncedPresenterQuestionIdRef.current = nextQuestionId;
     commitHrefIfChanged(
       reviewPresenterElicitationHrefFromSearch(window.location.search.slice(1), nextQuestionId, pathname),
-      { notify: true },
+      { notify: false },
     );
   }, [pathname, primaryQuestionKey, showElicitation]);
 

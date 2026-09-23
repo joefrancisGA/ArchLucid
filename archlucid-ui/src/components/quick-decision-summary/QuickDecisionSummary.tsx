@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import type { ReactElement } from "react";
 
@@ -41,6 +41,7 @@ import {
   parseQuickDecisionReasoningFindingIdFromSearch,
   quickDecisionReasoningPanelsHrefFromSearch,
 } from "@/lib/reviews/quick-decision-reasoning-panels-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { QuickDecisionSummaryCardView } from "./QuickDecisionSummaryCardView";
 import { QuickDecisionSummaryDialogs } from "./QuickDecisionSummaryDialogs";
@@ -201,7 +202,6 @@ function splitDerivedState(state: QuickDecisionSummaryDerivedState): {
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
 export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const searchParams = useSearchParams();
   const muteFindingIdParam = searchParams.get("muteFindingId");
@@ -212,11 +212,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
 
   const syncShowMutedToUrl = useCallback(
     (showMuted: boolean) => {
-      router.replace(quickDecisionMutedFilterHrefFromSearch(searchParams.toString(), showMuted, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        quickDecisionMutedFilterHrefFromSearch(window.location.search.slice(1), showMuted, pathname),
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const mutedVisibility = useMemo(
@@ -271,29 +271,29 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
 
   const syncMuteFindingIdToUrl = useCallback(
     (findingId: string | null) => {
-      router.replace(quickDecisionMutePanelsHrefFromSearch(searchParams.toString(), findingId, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        quickDecisionMutePanelsHrefFromSearch(window.location.search.slice(1), findingId, pathname),
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const syncReasoningFindingIdToUrl = useCallback(
     (findingId: string | null) => {
-      router.replace(quickDecisionReasoningPanelsHrefFromSearch(searchParams.toString(), findingId, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        quickDecisionReasoningPanelsHrefFromSearch(window.location.search.slice(1), findingId, pathname),
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const syncAskFindingIdToUrl = useCallback(
     (findingId: string | null) => {
-      router.replace(quickDecisionAskPanelsHrefFromSearch(searchParams.toString(), findingId, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        quickDecisionAskPanelsHrefFromSearch(window.location.search.slice(1), findingId, pathname),
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   function handleReasoningDialogOpenChange(open: boolean): void {

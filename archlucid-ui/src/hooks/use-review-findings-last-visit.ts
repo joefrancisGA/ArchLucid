@@ -60,7 +60,7 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
       const windowSearch = windowSearchParams.toString();
       const nextHref = buildReviewFindingsLastVisitHref(pathname, windowSearch, lastVisit);
 
-      commitHrefIfChanged(nextHref, { notify: true });
+      commitHrefIfChanged(nextHref);
       reviewFindingsLastVisitRestoredRunIds.add(runId);
     };
 

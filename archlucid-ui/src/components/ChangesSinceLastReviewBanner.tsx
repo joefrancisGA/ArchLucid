@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
@@ -16,6 +16,7 @@ import {
   changesSinceLastReviewDisclosureHrefFromSearch,
   parseChangesSinceLastReviewOpenFromSearch,
 } from "@/lib/runs/changes-since-last-review-disclosure-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 export type ChangesSinceLastReviewBannerProps = {
   readonly priorReviewDateLabel: string;
@@ -27,12 +28,13 @@ export type ChangesSinceLastReviewBannerProps = {
 
 /** Collapsible read-only delta banner vs the prior committed review on the same project. */
 export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBannerProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const changesSinceLastReviewOpenParam = searchParams.get("changesSinceLastReviewOpen");
   const [bannerOpen, setBannerOpenState] = useState(() =>
-    parseChangesSinceLastReviewOpenFromSearch(changesSinceLastReviewOpenParam),
+    parseChangesSinceLastReviewOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("changesSinceLastReviewOpen"),
+    ),
   );
   const compareHref = comparePageHrefAdaptive(props.priorRunId, props.currentRunId);
   const compareLinkLabel = isBuyerPolishedOperatorShellEnv()
@@ -42,11 +44,11 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
 
   const syncBannerOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(changesSinceLastReviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        changesSinceLastReviewDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setBannerOpen = useCallback(
@@ -58,8 +60,21 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
   );
 
   useEffect(() => {
-    setBannerOpenState(parseChangesSinceLastReviewOpenFromSearch(changesSinceLastReviewOpenParam));
-  }, [changesSinceLastReviewOpenParam]);
+    const syncBannerOpenFromUrl = (): void => {
+      const nextOpen = parseChangesSinceLastReviewOpenFromSearch(
+        new URLSearchParams(window.location.search).get("changesSinceLastReviewOpen"),
+      );
+
+      setBannerOpenState((current) => (current === nextOpen ? current : nextOpen));
+    };
+
+    syncBannerOpenFromUrl();
+    window.addEventListener("popstate", syncBannerOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncBannerOpenFromUrl);
+    };
+  }, []);
 
 
   if (blockedReason.length > 0) {

@@ -50,7 +50,7 @@ export function useAppShellState() {
     (open: boolean, tab: HelpTabId = helpGuidesInitialTab) => {
       commitHrefIfChanged(
         helpPanelOverlayHrefFromSearch(readCommittedSearchParams().toString(), { open, tab, query: "" }, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [helpGuidesInitialTab, pathname],
@@ -60,7 +60,7 @@ export function useAppShellState() {
     (open: boolean, query: string = "") => {
       commitHrefIfChanged(
         helpDocSearchPanelHrefFromSearch(readCommittedSearchParams().toString(), { open, query }, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -124,7 +124,7 @@ export function useAppShellState() {
     setHelpGuidesOpenState(true);
     commitHrefIfChanged(
       helpPanelOverlayHrefFromSearch(readCommittedSearchParams().toString(), { open: true, tab: initialTab, query: "" }, pathname),
-      { notify: true },
+      { notify: false },
     );
   }, [pathname]);
 

@@ -46,7 +46,7 @@ export function useGlobalSearchBar() {
       }
 
       commitHrefIfChanged(globalSearchBarOverlayHrefFromSearch(currentSearch, panelOpen, pathname), {
-        notify: true,
+        notify: false,
       });
     },
     [pathname],

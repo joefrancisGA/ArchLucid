@@ -62,7 +62,7 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
     (expanded: boolean) => {
       commitHrefIfChanged(
         runDetailWorkspaceDisclosuresExpandedHrefFromSearch(window.location.search.slice(1), expanded, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -101,12 +101,18 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
       }
 
       const nodes = document.querySelectorAll<HTMLDetailsElement>("details[data-workspace-disclosure]");
+      let changed = false;
 
       for (const node of nodes) {
-        node.open = expandedFromUrl;
+        if (node.open !== expandedFromUrl) {
+          node.open = expandedFromUrl;
+          changed = true;
+        }
       }
 
-      setRevision((value) => value + 1);
+      if (changed) {
+        setRevision((value) => value + 1);
+      }
     };
 
     syncDisclosuresExpandedFromUrl();

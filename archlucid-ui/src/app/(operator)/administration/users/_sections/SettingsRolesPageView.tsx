@@ -134,7 +134,7 @@ export function SettingsRolesPageView(props: Props) {
           open,
           hubPathname,
         ),
-        { notify: true },
+        { notify: false },
       );
     },
     [currentSearch, hubPathname],

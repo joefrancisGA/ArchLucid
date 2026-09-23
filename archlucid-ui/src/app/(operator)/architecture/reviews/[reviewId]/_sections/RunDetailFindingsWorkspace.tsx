@@ -173,7 +173,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
       commitHrefIfChanged(
         reviewFindingsClassificationBandHrefFromSearch(window.location.search.slice(1), pathname, next),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname, router],
