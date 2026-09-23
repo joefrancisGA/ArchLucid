@@ -24,20 +24,28 @@ export function HelpConfigurationReferenceProvenanceFooter(
     >
       <HelpTopicRegistryProvenanceLine entry={entry} />
       {sourceDocPath.length > 0 ? (
-        <details className={HELP_PAGE_LAYOUT.details}>
-          <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {CONFIGURATION_REFERENCE_HELP_PROVENANCE_DISCLOSURE_TITLE}
-          </summary>
+        <>
           <p
             className={cn("m-0 mt-2 font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="help-configuration-reference-source-doc-path"
+            data-testid="help-configuration-reference-source-doc-path-inline"
           >
-            {sourceDocPath}
+            Source: {sourceDocPath}
           </p>
-          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {humanizeMarkdownFileReference(sourceDocPath)}
-          </p>
-        </details>
+          <details className={HELP_PAGE_LAYOUT.details}>
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {CONFIGURATION_REFERENCE_HELP_PROVENANCE_DISCLOSURE_TITLE}
+            </summary>
+            <p
+              className={cn("m-0 mt-2 font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-configuration-reference-source-doc-path"
+            >
+              {sourceDocPath}
+            </p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {humanizeMarkdownFileReference(sourceDocPath)}
+            </p>
+          </details>
+        </>
       ) : null}
     </footer>
   );

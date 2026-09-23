@@ -646,6 +646,17 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TAG = "Not mapped" a
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_EXPORT_DISABLED_NO_SNAPSHOT =
   "Select a snapshot with inventory evidence before downloading the advisory ZIP." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING =
+  "Advisory Terraform is reconstructed from inventory evidence — review before any apply; exports are not validated for safe cloud apply." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING_ID =
+  "infra-terraform-apply-safety-warning" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_INVALID_ENTER =
+  "Enter a valid cloud resource UUID or pick a resource from the list." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HUB_LOAD_RETRY_ACTION = "Retry load" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD =

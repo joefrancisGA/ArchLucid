@@ -119,12 +119,12 @@ describe("HelpConfigurationReferenceGuideView", () => {
     ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openIdentityProviders.href);
 
     expect(
-      within(actionPanel).getByRole("link", {
+      within(actionPanel).queryByRole("link", {
         name: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.label,
       }),
-    ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href);
+    ).toBeNull();
 
-    expect(within(actionPanel).getAllByLabelText(/^Status:/)).toHaveLength(3);
+    expect(within(actionPanel).getAllByLabelText(/^Status:/)).toHaveLength(2);
 
     expect(screen.getByText("Not available in product")).toBeInTheDocument();
 

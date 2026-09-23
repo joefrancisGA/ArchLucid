@@ -2,17 +2,20 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import { HelpInspectStoredEvidenceBreadcrumb } from "@/app/(operator)/help/_sections/HelpInspectStoredEvidenceBreadcrumb";
 import { HelpInspectStoredEvidenceHeaderActions } from "@/app/(operator)/help/_sections/HelpInspectStoredEvidenceHeaderActions";
+import { HelpInspectStoredEvidenceProvenanceFooter } from "@/app/(operator)/help/_sections/HelpInspectStoredEvidenceProvenanceFooter";
 import { HelpInspectStoredEvidenceTechnicalReference } from "@/app/(operator)/help/_sections/HelpInspectStoredEvidenceTechnicalReference";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
+  DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -32,7 +35,7 @@ import {
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_INTRO,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PREVIEW_KEYBOARD_ROWS,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_BODY,
-  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS,
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINK_GROUPS,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID,
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_BODY,
@@ -58,8 +61,10 @@ import { EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PATH } from "@/lib/evidenc
 import {
   EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RETURN_TO_REVIEW_EVIDENCE_LABEL,
   resolveInspectStoredEvidenceHelpReturnHref,
+  resolveInspectStoredEvidenceHelpReturnHrefFromRecentViews,
 } from "@/lib/evidence-source-inspect-help-stored-evidence-return";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import { readStoredRecentViewsState } from "@/lib/operator/operator-recent-views";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -103,9 +108,25 @@ export function HelpInspectStoredEvidenceGuideView(
   void props.markdown;
   const { entry } = props;
   const searchParams = useSearchParams();
-  const returnToReviewEvidenceHref = resolveInspectStoredEvidenceHelpReturnHref(
-    searchParams.get("returnTo") ?? undefined,
-  );
+  const [recentViewsLoaded, setRecentViewsLoaded] = useState(false);
+  const returnToReviewEvidenceHref = useMemo(() => {
+    const fromReturnTo = resolveInspectStoredEvidenceHelpReturnHref(searchParams.get("returnTo") ?? undefined);
+
+    if (fromReturnTo !== null) {
+      return fromReturnTo;
+    }
+
+    if (!recentViewsLoaded) {
+      return null;
+    }
+
+    return resolveInspectStoredEvidenceHelpReturnHrefFromRecentViews(readStoredRecentViewsState());
+  }, [recentViewsLoaded, searchParams]);
+
+  useEffect(() => {
+    setRecentViewsLoaded(true);
+  }, []);
+
   const contentGridClass = resolveHelpPageContentGridClass(
     EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_GUIDE_HEADINGS.length,
   );
@@ -132,18 +153,6 @@ export function HelpInspectStoredEvidenceGuideView(
       >
         <HelpInspectStoredEvidenceBreadcrumb />
 
-        {returnToReviewEvidenceHref !== null ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link
-              className={OPERATOR_LINK.inline}
-              href={returnToReviewEvidenceHref}
-              data-testid="help-inspect-stored-evidence-return-to-review-evidence"
-            >
-              {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RETURN_TO_REVIEW_EVIDENCE_LABEL}
-            </Link>
-          </p>
-        ) : null}
-
         <HelpTopicGuidePageHeader
           title={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TITLE}
           titleTestId="help-inspect-stored-evidence-page-title"
@@ -153,8 +162,23 @@ export function HelpInspectStoredEvidenceGuideView(
           headingLevel="h1"
           claimDiscipline={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CLAIM_DISCIPLINE}
           claimDisciplineTestId={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
-          metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-          actions={<HelpInspectStoredEvidenceHeaderActions />}
+          actions={
+            <div className="flex flex-col items-end gap-2">
+              {returnToReviewEvidenceHref !== null ? (
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  data-testid="help-inspect-stored-evidence-return-to-review-evidence"
+                >
+                  <Link href={returnToReviewEvidenceHref}>
+                    {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RETURN_TO_REVIEW_EVIDENCE_LABEL}
+                  </Link>
+                </Button>
+              ) : null}
+              <HelpInspectStoredEvidenceHeaderActions entry={entry} />
+            </div>
+          }
         />
 
         <div
@@ -168,7 +192,11 @@ export function HelpInspectStoredEvidenceGuideView(
 
           <section
             aria-labelledby={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_HEADING_ID}
-            className="max-w-3xl space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            className={cn(
+              DESIGN_TOKENS.surface.card,
+              HELP_PAGE_LAYOUT.tierEmphasisPanel,
+              "max-w-3xl space-y-3 p-4",
+            )}
             data-testid="help-inspect-stored-evidence-safety-callout"
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -183,13 +211,13 @@ export function HelpInspectStoredEvidenceGuideView(
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_TITLE}
               </h2>
               <StatusTag
-                kind="neutral"
+                kind="needs-attention"
                 label={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_STATUS_TAG}
                 data-testid="help-inspect-stored-evidence-safety-status-tag"
               />
             </div>
             <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
               data-testid="help-inspect-stored-evidence-safety-detail"
             >
               {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SAFETY_BODY}
@@ -210,22 +238,13 @@ export function HelpInspectStoredEvidenceGuideView(
               <p className={readingBodyClass} data-testid="help-inspect-stored-evidence-seat-working">
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_WORKING}
               </p>
-              <p
-                className={cn(readingBodyClass, "text-al-text-secondary")}
-                data-testid="help-inspect-stored-evidence-seat-guided"
-              >
+              <p className={readingBodyClass} data-testid="help-inspect-stored-evidence-seat-guided">
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_GUIDED}
               </p>
-              <p
-                className={cn(readingBodyClass, "text-al-text-secondary")}
-                data-testid="help-inspect-stored-evidence-seat-securenow"
-              >
+              <p className={readingBodyClass} data-testid="help-inspect-stored-evidence-seat-securenow">
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_APPLICABILITY_SECURENOW}
               </p>
-              <p
-                className={cn(readingBodyClass, "text-al-text-secondary")}
-                data-testid="help-inspect-stored-evidence-record-practice"
-              >
+              <p className={readingBodyClass} data-testid="help-inspect-stored-evidence-record-practice">
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RECORD_PRACTICE_BODY}
               </p>
             </section>
@@ -270,7 +289,7 @@ export function HelpInspectStoredEvidenceGuideView(
                 Authority and audit recording
               </HelpSectionHeading>
               <p className={readingBodyClass}>{EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_AUDIT_BODY}</p>
-              <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-inspect-stored-evidence-scope-nav">
+              <p className={readingBodyClass} data-testid="help-inspect-stored-evidence-scope-nav">
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_SCOPE_NAV_BODY}
               </p>
             </section>
@@ -326,21 +345,30 @@ export function HelpInspectStoredEvidenceGuideView(
               <HelpSectionHeading id={EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID}>
                 {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING}
               </HelpSectionHeading>
-              <ul className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}>
-                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS.map((link) => (
-                  <li key={link.href} className="max-w-3xl">
-                    <Link className={OPERATOR_LINK.nav} href={link.href}>
-                      {link.label}
-                    </Link>
-                    {link.description !== undefined ? (
-                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        {link.description}
-                      </p>
-                    ) : null}
-                  </li>
+              <div className="space-y-4">
+                {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINK_GROUPS.map((group) => (
+                  <div key={group.heading} className="space-y-2" data-testid={`help-inspect-stored-evidence-related-${group.heading.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{group.heading}</h3>
+                    <ul className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}>
+                      {group.links.map((link) => (
+                        <li key={link.href} className="max-w-3xl">
+                          <Link className={OPERATOR_LINK.nav} href={link.href}>
+                            {link.label}
+                          </Link>
+                          {link.description !== undefined ? (
+                            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                              {link.description}
+                            </p>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </section>
+
+            <HelpInspectStoredEvidenceProvenanceFooter entry={entry} />
           </div>
 
           <HelpTopicTableOfContents

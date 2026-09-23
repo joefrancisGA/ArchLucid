@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
 
+import { HELP_CONFIGURATION_REFERENCE_PRINT_PREPARE_EVENT } from "@/lib/help/help-configuration-reference-print-events";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import {
   helpConfigurationReferenceCatalogDisclosureHrefFromSearch,
@@ -63,6 +64,18 @@ export function HelpConfigurationReferenceCatalogDisclosure(
     );
   }, [openParam]);
 
+  useEffect(() => {
+    function onPrintPrepare(): void {
+      setOpen(true);
+    }
+
+    window.addEventListener(HELP_CONFIGURATION_REFERENCE_PRINT_PREPARE_EVENT, onPrintPrepare);
+
+    return () => {
+      window.removeEventListener(HELP_CONFIGURATION_REFERENCE_PRINT_PREPARE_EVENT, onPrintPrepare);
+    };
+  }, [setOpen]);
+
   return (
     <HelpLazyDetails
       id={props.id}
@@ -76,6 +89,7 @@ export function HelpConfigurationReferenceCatalogDisclosure(
       open={open}
       onOpenChange={setOpen}
       mountOnHash
+      mountBodyHiddenWhenClosed
     >
       <CatalogBodyMount onMount={props.onBodyMount}>{props.children}</CatalogBodyMount>
     </HelpLazyDetails>

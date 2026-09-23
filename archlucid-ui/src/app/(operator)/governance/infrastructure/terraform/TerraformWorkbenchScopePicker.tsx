@@ -13,6 +13,7 @@ import {
   formatCloudResourceDisplayName,
 } from "@/lib/infra-evidence/format-azure-resource-display";
 import {
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_INVALID_ENTER,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_LABEL,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_PLACEHOLDER,
 } from "@/lib/governance/governance-infrastructure-copy";
@@ -39,6 +40,8 @@ export function TerraformWorkbenchScopePicker(props: TerraformWorkbenchScopePick
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState<readonly CloudResourceSummary[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [invalidEnterMessage, setInvalidEnterMessage] = useState<string | null>(null);
+  const searchStatusId = `${controlId}-search-status`;
 
   const navigateToResource = useCallback(
     (cloudResourceId: string) => {
@@ -132,9 +135,14 @@ export function TerraformWorkbenchScopePicker(props: TerraformWorkbenchScopePick
       const trimmed = query.trim();
 
       if (UUID_PATTERN.test(trimmed)) {
+        setInvalidEnterMessage(null);
         navigateToResource(trimmed);
         setQuery("");
+
+        return;
       }
+
+      setInvalidEnterMessage(GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_INVALID_ENTER);
 
       return;
     }
@@ -146,7 +154,12 @@ export function TerraformWorkbenchScopePicker(props: TerraformWorkbenchScopePick
   };
 
   return (
-    <div ref={containerRef} className="grid max-w-xl gap-2" data-testid="infra-terraform-scope-picker">
+    <div
+      ref={containerRef}
+      className="grid max-w-xl gap-2"
+      data-testid="infra-terraform-scope-picker"
+      aria-busy={loading}
+    >
       <Label htmlFor={controlId}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_LABEL}</Label>
       <Input
         ref={inputRef}
@@ -158,7 +171,9 @@ export function TerraformWorkbenchScopePicker(props: TerraformWorkbenchScopePick
         aria-autocomplete="list"
         aria-haspopup="listbox"
         aria-expanded={open && options.length > 0}
+        aria-describedby={invalidEnterMessage != null ? `${controlId}-invalid-enter` : searchStatusId}
         aria-controls={open && options.length > 0 ? `${controlId}-listbox` : undefined}
+        aria-invalid={invalidEnterMessage != null}
         aria-activedescendant={
           open && activeIndex >= 0 && options[activeIndex] != null
             ? `${controlId}-option-${activeIndex}`
@@ -183,8 +198,21 @@ export function TerraformWorkbenchScopePicker(props: TerraformWorkbenchScopePick
           setQuery(event.target.value);
           setOpen(true);
           setActiveIndex(-1);
+          setInvalidEnterMessage(null);
         }}
       />
+      <p id={searchStatusId} className="sr-only" role="status" aria-live="polite">
+        {loading ? "Searching cloud resources…" : ""}
+      </p>
+      {invalidEnterMessage != null ? (
+        <p
+          id={`${controlId}-invalid-enter`}
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="alert"
+        >
+          {invalidEnterMessage}
+        </p>
+      ) : null}
       {open && (loading || options.length > 0) ? (
         <ul
           id={`${controlId}-listbox`}

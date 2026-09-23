@@ -64,23 +64,29 @@ export function HelpConfigurationReferenceActionPanel(): React.ReactElement {
         };
 
   const identityLoadFailed = !identityPending && (identityBundle === null || identityBundle === undefined);
-
-  const ssoStatus = resolveConfigurationReferenceSsoSurfaceStatus(identityInput, identityLoadFailed);
-  const identityProvidersStatus = resolveConfigurationReferenceIdentityProvidersSurfaceStatus(
-    identityInput,
+  const statusInput = {
+    identity: identityInput,
+    identityPending,
     identityLoadFailed,
-  );
+  };
+
+  const ssoStatus = resolveConfigurationReferenceSsoSurfaceStatus(statusInput);
+  const identityProvidersStatus = resolveConfigurationReferenceIdentityProvidersSurfaceStatus(statusInput);
 
   const configLintAvailable = includeHostConfigurationLint && !configLintPending && configLintData !== undefined;
+  const configLintLoadFailed = configLintAvailable && configLintData.loadFailed === true;
   const configLintBlockingCount =
     configLintAvailable && configLintData !== undefined && !configLintData.loadFailed
       ? configLintData.blockingCount
       : null;
 
-  const configurationSummaryStatus = resolveConfigurationReferenceConfigurationSummarySurfaceStatus(
+  const configurationSummaryStatus = resolveConfigurationReferenceConfigurationSummarySurfaceStatus({
+    includeHostConfigurationLint,
+    configLintPending,
     configLintAvailable,
+    configLintLoadFailed,
     configLintBlockingCount,
-  );
+  });
 
   return (
     <section
@@ -108,12 +114,14 @@ export function HelpConfigurationReferenceActionPanel(): React.ReactElement {
           statusKind={identityProvidersStatus.kind}
           statusLabel={identityProvidersStatus.label}
         />
-        <SurfaceActionRow
-          label={CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.label}
-          href={CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href}
-          statusKind={configurationSummaryStatus.kind}
-          statusLabel={configurationSummaryStatus.label}
-        />
+        {includeHostConfigurationLint ? (
+          <SurfaceActionRow
+            label={CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.label}
+            href={CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href}
+            statusKind={configurationSummaryStatus.kind}
+            statusLabel={configurationSummaryStatus.label}
+          />
+        ) : null}
       </ul>
     </section>
   );

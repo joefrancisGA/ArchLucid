@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_RECENT_MAPPINGS_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ContinueLastInfraEvidenceTerraformWorkbenchTarget } from "@/lib/resolve-continue-last-infra-evidence-terraform-workbench";
-import { formatRelativeTime } from "@/lib/relative-time";
+import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 export type TerraformWorkbenchRecentMappingsTableProps = {
@@ -67,10 +68,19 @@ export function TerraformWorkbenchRecentMappingsTable(
                   {target.label}
                 </Link>
               </td>
-              <td className="py-2 pr-3 font-mono text-xs text-al-text-secondary">
-                {formatSnapshotShortId(target.snapshotId)}
+              <td className="py-2 pr-3">
+                <span className="inline-flex items-center gap-1 font-mono text-xs text-al-text-secondary">
+                  {formatSnapshotShortId(target.snapshotId)}
+                  {target.snapshotId.trim().length > 0 ? (
+                    <CopyIdButton value={target.snapshotId} aria-label="Copy snapshot id" />
+                  ) : null}
+                </span>
               </td>
-              <td className="py-2 text-al-text-secondary">{formatRelativeTime(target.viewedAtUtc)}</td>
+              <td className="py-2 text-al-text-secondary">
+                <time dateTime={target.viewedAtUtc} title={formatAbsoluteUpdatedAtTitle(target.viewedAtUtc)}>
+                  {formatRelativeTime(target.viewedAtUtc)}
+                </time>
+              </td>
             </tr>
           ))}
         </tbody>
