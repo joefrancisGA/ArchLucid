@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { FindingPolicyPackBadge } from "@/components/findings/FindingPolicyPackBadge";
 import { FindingPolicyRuleBadge } from "@/components/findings/FindingPolicyRuleBadge";
@@ -24,33 +26,42 @@ export type FindingPolicyTraceabilityBadgesProps = {
 
 /** Prominent pack + rule badges that open an inline policy rule preview dialog. */
 export function FindingPolicyTraceabilityBadges(props: FindingPolicyTraceabilityBadgesProps): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const rulePreviewIdParam = searchParams.get("rulePreviewId");
   const pack = props.pack ?? null;
   const policy = props.policy ?? null;
   const ruleId = policy?.ruleId ?? "";
   const ruleLabel = policy?.ruleLabel ?? null;
-  const [previewOpen, setPreviewOpenState] = useState(() => {
-    const urlRuleId = parsePolicyRulePreviewIdFromSearch(rulePreviewIdParam);
+  const readPreviewOpenFromUrl = (): boolean => {
+    const urlRuleId = parsePolicyRulePreviewIdFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("rulePreviewId"),
+    );
 
     return urlRuleId.length > 0 && urlRuleId === ruleId.trim();
-  });
+  };
+  const [previewOpen, setPreviewOpenState] = useState(readPreviewOpenFromUrl);
+  const previewOpenRef = useRef(previewOpen);
+  previewOpenRef.current = previewOpen;
 
   const syncRulePreviewIdToUrl = useCallback(
     (nextRuleId: string | null) => {
-      router.replace(policyRulePreviewPanelsHrefFromSearch(searchParams.toString(), nextRuleId, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        policyRulePreviewPanelsHrefFromSearch(readWindowLocationSearch(), nextRuleId, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPreviewOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setPreviewOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (previewOpenRef.current === next) {
+          return current;
+        }
+
+        previewOpenRef.current = next;
         syncRulePreviewIdToUrl(next && ruleId.trim().length > 0 ? ruleId : null);
 
         return next;
@@ -60,19 +71,24 @@ export function FindingPolicyTraceabilityBadges(props: FindingPolicyTraceability
   );
 
   useEffect(() => {
-    const urlRuleId = parsePolicyRulePreviewIdFromSearch(rulePreviewIdParam);
-    const trimmedRuleId = ruleId.trim();
+    const syncPreviewOpenFromUrl = (): void => {
+      const next = readPreviewOpenFromUrl();
 
-    if (urlRuleId.length > 0 && urlRuleId === trimmedRuleId) {
-      setPreviewOpenState(true);
+      if (previewOpenRef.current === next) {
+        return;
+      }
 
-      return;
-    }
+      previewOpenRef.current = next;
+      setPreviewOpenState(next);
+    };
 
-    if (urlRuleId.length === 0) {
-      setPreviewOpenState(false);
-    }
-  }, [ruleId, rulePreviewIdParam]);
+    syncPreviewOpenFromUrl();
+    window.addEventListener("popstate", syncPreviewOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPreviewOpenFromUrl);
+    };
+  }, [ruleId]);
 
   if (pack === null && policy === null) {
     return null;

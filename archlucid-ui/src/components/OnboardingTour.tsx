@@ -3,8 +3,10 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,20 +32,26 @@ type Rect = { top: number; left: number; width: number; height: number };
  * alongside the welcome modal.
  */
 export function OnboardingTour() {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const onboardingTourOpenParam = searchParams.get("onboardingTourOpen");
-  const onboardingTourStepParam = searchParams.get("onboardingTourStep");
-  const [open, setOpenState] = useState(() => parseOnboardingTourOpenFromSearch(onboardingTourOpenParam));
-  const [stepIndex, setStepIndexState] = useState(() => {
-    const urlStep = parseOnboardingTourStepFromSearch(onboardingTourStepParam);
+  const steps = OPERATOR_ONBOARDING_TOUR_STEPS;
+  const readTourStateFromUrl = (): { open: boolean; stepIndex: number } => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+    const urlStep = parseOnboardingTourStepFromSearch(params.get("onboardingTourStep"));
 
-    return urlStep ?? 0;
-  });
+    return {
+      open: parseOnboardingTourOpenFromSearch(params.get("onboardingTourOpen")),
+      stepIndex: urlStep ?? 0,
+    };
+  };
+  const initialTour = readTourStateFromUrl();
+  const [open, setOpenState] = useState(() => initialTour.open);
+  const [stepIndex, setStepIndexState] = useState(() => initialTour.stepIndex);
+  const openRef = useRef(open);
+  openRef.current = open;
+  const stepIndexRef = useRef(stepIndex);
+  stepIndexRef.current = stepIndex;
   const [highlight, setHighlight] = useState<Rect | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const steps = OPERATOR_ONBOARDING_TOUR_STEPS;
   const step = steps[Math.min(stepIndex, steps.length - 1)];
 
   const stepCount = steps.length;
@@ -52,35 +60,48 @@ export function OnboardingTour() {
 
   const syncTourToUrl = useCallback(
     (state: { open: boolean; stepIndex: number }) => {
-      router.replace(onboardingTourOverlayHrefFromSearch(searchParams.toString(), state, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        onboardingTourOverlayHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncTourToUrl({ open: next, stepIndex });
+
+        if (openRef.current === next) {
+          return current;
+        }
+
+        openRef.current = next;
+        syncTourToUrl({ open: next, stepIndex: stepIndexRef.current });
 
         return next;
       });
     },
-    [stepIndex, syncTourToUrl],
+    [syncTourToUrl],
   );
 
   const setStepIndex = useCallback(
     (value: SetStateAction<number>) => {
       setStepIndexState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncTourToUrl({ open, stepIndex: next });
+
+        if (stepIndexRef.current === next) {
+          return current;
+        }
+
+        stepIndexRef.current = next;
+        syncTourToUrl({ open: openRef.current, stepIndex: next });
 
         return next;
       });
     },
-    [open, syncTourToUrl],
+    [syncTourToUrl],
   );
 
   const closeAndPersist = useCallback(() => {
@@ -173,21 +194,43 @@ export function OnboardingTour() {
   }, [setOpen, setStepIndex]);
 
   useEffect(() => {
-    const urlOpen = parseOnboardingTourOpenFromSearch(onboardingTourOpenParam);
+    const syncTourFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const urlOpen = parseOnboardingTourOpenFromSearch(params.get("onboardingTourOpen"));
 
-    if (!urlOpen) {
-      setOpenState(false);
+      if (!urlOpen) {
+        if (openRef.current) {
+          openRef.current = false;
+          setOpenState(false);
+        }
 
-      return;
-    }
+        return;
+      }
 
-    setOpenState(true);
-    const urlStep = parseOnboardingTourStepFromSearch(onboardingTourStepParam);
+      if (!openRef.current) {
+        openRef.current = true;
+        setOpenState(true);
+      }
 
-    if (urlStep !== null) {
-      setStepIndexState(Math.min(urlStep, steps.length - 1));
-    }
-  }, [onboardingTourOpenParam, onboardingTourStepParam, steps.length]);
+      const urlStep = parseOnboardingTourStepFromSearch(params.get("onboardingTourStep"));
+
+      if (urlStep !== null) {
+        const nextStep = Math.min(urlStep, steps.length - 1);
+
+        if (stepIndexRef.current !== nextStep) {
+          stepIndexRef.current = nextStep;
+          setStepIndexState(nextStep);
+        }
+      }
+    };
+
+    syncTourFromUrl();
+    window.addEventListener("popstate", syncTourFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTourFromUrl);
+    };
+  }, [steps.length]);
 
   useEffect(() => {
     if (!open) {
