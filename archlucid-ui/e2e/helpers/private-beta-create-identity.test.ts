@@ -16,6 +16,12 @@ describe("private-beta create identity", () => {
     expect(
       isPrivateBetaCreateIdentityConflict(
         400,
+        "Run '5f181855-bd57-42cc-b700-d0871ec5f664' is committed; evidence-anchor header columns are immutable.",
+      ),
+    ).toBe(true);
+    expect(
+      isPrivateBetaCreateIdentityConflict(
+        400,
         "Findings snapshot is only partially complete; AuthorityPipeline:HaltOnPartialFindings is true.",
       ),
     ).toBe(false);
