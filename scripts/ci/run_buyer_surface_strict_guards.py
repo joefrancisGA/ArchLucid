@@ -187,6 +187,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "independent verification honesty",
+        ("python", "scripts/ci/check_independent_verification_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "shared hallucination defense plane honesty",
         ("python", "scripts/ci/check_shared_hallucination_defense_plane_honesty.py"),
         None,
