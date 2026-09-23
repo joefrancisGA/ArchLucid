@@ -527,6 +527,24 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL = "Resourc
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL = "None" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SCOPE_ALL_LABEL = "All resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLEAR_FILTERS_LABEL = "Clear filters" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_UNAPPLIED_FILTERS_LABEL = "Unapplied filter changes" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SORT_PAGE_LOCAL_DISCLOSURE =
+  "Sorting applies to the current page only." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_MARKERS_KEY_LABEL =
+  "F findings · R remediation · D drift" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_LATEST_SNAPSHOT_LABEL = "Latest inventory" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_PINNED_SNAPSHOT_LABEL = "Pinned snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_AS_OF_LABEL = "Inventory as of" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL = "Opening resource evidence hub…" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_TITLE = "Resource evidence hub" as const;

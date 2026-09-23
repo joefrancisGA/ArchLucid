@@ -18,6 +18,16 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionDeskChrome: (): boolean => true,
 }));
 
+vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
+  fetchInfraEvidenceSnapshots: vi.fn(async () => ({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 20,
+    hasMore: false,
+  })),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
   fetchCloudResourceExplorerPage: vi.fn(async () => ({
     items: [],
