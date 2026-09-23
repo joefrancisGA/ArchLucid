@@ -30,14 +30,38 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("resolveArchitectureRouteSegment", () => {
-  it("resolves registered sample package slugs without calling the identity API", async () => {
+  it("prefers a persisted architecture identity over a colliding sample package slug", async () => {
+    getArchitectureIdentity.mockResolvedValue({ architectureId: CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug });
+
     const resolved = await resolveArchitectureRouteSegment(CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug);
 
     expect(resolved).toEqual({
       kind: "identity",
       architectureId: CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug,
     });
-    expect(getArchitectureIdentity).not.toHaveBeenCalled();
+    expect(getDraftRequest).not.toHaveBeenCalled();
+  });
+
+  it("falls back to a registered sample package slug after an identity 404", async () => {
+    getArchitectureIdentity.mockRejectedValue(
+      new ApiRequestError("Not Found: The requested resource was not found.", {
+        problem: {
+          title: "Not Found",
+          detail: "The requested resource was not found.",
+          status: 404,
+        },
+        correlationId: null,
+        httpStatus: 404,
+      }),
+    );
+
+    const resolved = await resolveArchitectureRouteSegment(CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug);
+
+    expect(resolved).toEqual({
+      kind: "identity",
+      architectureId: CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug,
+    });
+    expect(getDraftRequest).not.toHaveBeenCalled();
   });
 
   it("falls back to a legacy draft when identity probing returns a 404", async () => {
