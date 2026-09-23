@@ -7,19 +7,16 @@ import { useCallback, useEffect, useState } from "react";
 import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useResolvedReviewDetailActiveTab } from "@/hooks/use-resolved-review-detail-active-tab";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
-  runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch,
-} from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
+  runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch} from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
 import { cn } from "@/lib/utils";
 
 import { contextualizeReviewPackagePrimaryActionForActiveTab } from "./contextualize-review-package-primary-action";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
 import {
   resolveReviewPackageApprovalBlockerKind,
-  resolveReviewPackageBlockerHelperText,
-} from "./resolve-review-package-approval-blocker";
+  resolveReviewPackageBlockerHelperText} from "./resolve-review-package-approval-blocker";
 import type { ResolveReviewPackagePrimaryActionInput } from "./resolve-review-package-primary-action";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
 import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
@@ -92,11 +89,9 @@ export function RunDetailWorkspaceStickyActions(
 
     syncTechnicalDetailOpenFromUrl();
     window.addEventListener("popstate", syncTechnicalDetailOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncTechnicalDetailOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncTechnicalDetailOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncTechnicalDetailOpenFromUrl);
     };
   }, []);
 
@@ -104,25 +99,20 @@ export function RunDetailWorkspaceStickyActions(
     tabLifecycle: {
       manifestId: props.manifestId,
       showProgressTracker: props.showProgressTracker,
-      runCompleted: props.primaryActionContext.runCompleted,
-    },
-  });
+      runCompleted: props.primaryActionContext.runCompleted}});
   const blockerKind = resolveReviewPackageApprovalBlockerKind({
     ...props.primaryActionContext,
-    commitBlockedReason: props.commitBlockedReason,
-  });
+    commitBlockedReason: props.commitBlockedReason});
   const contextualPrimaryAction = contextualizeReviewPackagePrimaryActionForActiveTab(
     props.primaryAction,
     activeTab,
     {
       ...props.primaryActionContext,
-      commitBlockedReason: props.commitBlockedReason,
-    },
+      commitBlockedReason: props.commitBlockedReason},
   );
   const blockingHelperText = resolveReviewPackageBlockerHelperText(blockerKind, {
     blockingFindingCount: props.primaryActionContext.blockingFindingCount,
-    commitBlockedSummary: props.commitBlockedReason,
-  });
+    commitBlockedSummary: props.commitBlockedReason});
   const technicalDetail = props.commitBlockedTechnicalDetail?.trim() ?? "";
   const stickyCommitBlockedReason =
     contextualPrimaryAction.kind === "finalize-package"

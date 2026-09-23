@@ -15,21 +15,17 @@ import {
   formatLinkedComponentStatus,
   resolveFindingDiagramSelectionSync,
   type ArchitectureFindingsDualPaneDiagramNode,
-  type ArchitectureFindingsDualPaneFindingRef,
-} from "@/lib/architecture/architecture-findings-dual-pane";
+  type ArchitectureFindingsDualPaneFindingRef} from "@/lib/architecture/architecture-findings-dual-pane";
 import { buildFindingDiagramSpotlight } from "@/lib/architecture/build-finding-diagram-spotlight";
 import {
   architectureDiagramFindingHrefFromSearch,
-  readArchitectureDiagramFindingIdFromWindowLocation,
-} from "@/lib/architecture/architecture-findings-dual-pane-url";
+  readArchitectureDiagramFindingIdFromWindowLocation} from "@/lib/architecture/architecture-findings-dual-pane-url";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,
-  type QuickDecisionFinding,
-} from "@/lib/quick-decision-summary-derive";
+  type QuickDecisionFinding} from "@/lib/quick-decision-summary-derive";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +44,7 @@ function toFindingRef(finding: QuickDecisionFinding): ArchitectureFindingsDualPa
   return {
     findingId: finding.findingId,
     title: finding.title,
-    wireJson: finding.aiReasoning?.wireJson ?? null,
-  };
+    wireJson: finding.aiReasoning?.wireJson ?? null};
 }
 
 /**
@@ -60,8 +55,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   const router = useRouter();
   const workingBackLocator = useWorkingBackLocator({
     reviewId: props.runId,
-    architectureId: props.architectureId,
-  });
+    architectureId: props.architectureId});
   const pathname = usePathname() ?? workingBackLocator.reviewJobHref;
   const searchParams = useSearchParams();
   const workbenchSelection = useReviewWorkbenchSelection();
@@ -111,11 +105,9 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
 
     syncFindingIdFromUrl();
     window.addEventListener("popstate", syncFindingIdFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncFindingIdFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
     };
   }, []);
 

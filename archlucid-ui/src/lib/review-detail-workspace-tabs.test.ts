@@ -84,7 +84,7 @@ describe("review-detail-workspace-tabs", () => {
     expect(window.location.search).toBe("?reviewTab=overview");
   });
 
-  it("skips replaceState and URL-changed event when the href is already committed", () => {
+  it("skips replaceState when the href is already committed", () => {
     window.history.replaceState(
       {},
       "",

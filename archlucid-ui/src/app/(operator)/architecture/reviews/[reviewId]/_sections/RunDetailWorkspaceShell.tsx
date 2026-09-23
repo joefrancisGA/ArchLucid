@@ -8,10 +8,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   parseRunDetailWorkspaceDisclosuresExpandedFromSearch,
-  runDetailWorkspaceDisclosuresExpandedHrefFromSearch,
-} from "@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url";
+  runDetailWorkspaceDisclosuresExpandedHrefFromSearch} from "@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 export type RunDetailWorkspaceLayoutProps = {
   readonly main: React.ReactNode;
@@ -117,19 +115,16 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
 
     syncDisclosuresExpandedFromUrl();
     window.addEventListener("popstate", syncDisclosuresExpandedFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDisclosuresExpandedFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncDisclosuresExpandedFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDisclosuresExpandedFromUrl);
     };
   }, []);
 
   const contextValue = useMemo(
     () => ({
       expandAll,
-      collapseAll,
-    }),
+      collapseAll}),
     [collapseAll, expandAll],
   );
 

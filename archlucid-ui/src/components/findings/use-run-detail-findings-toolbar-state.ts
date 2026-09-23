@@ -5,37 +5,30 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
   DEFAULT_FINDING_JOB_VIEW,
-  type FindingJobView,
-} from "@/lib/findings/finding-job-view";
+  type FindingJobView} from "@/lib/findings/finding-job-view";
 import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
 import {
   resolveReviewFindingsToolbarFilterFromSearchParam,
-  writeReviewFindingsToolbarFilterToUrl,
-} from "@/lib/findings/review-findings-toolbar-filter-url";
+  writeReviewFindingsToolbarFilterToUrl} from "@/lib/findings/review-findings-toolbar-filter-url";
 import {
   parseReviewFindingsToolbarSearchQuery,
-  reviewFindingsToolbarSearchHrefFromSearch,
-} from "@/lib/findings/review-findings-toolbar-search-url";
+  reviewFindingsToolbarSearchHrefFromSearch} from "@/lib/findings/review-findings-toolbar-search-url";
 import {
   parseFindingsGroundingFilterFromSearch,
-  parseFindingsOriginFilterFromSearch,
-} from "@/lib/findings/findings-provenance-url";
+  parseFindingsOriginFilterFromSearch} from "@/lib/findings/findings-provenance-url";
 import {
   parseReviewFindingsDomainFilterFromSearch,
   parseReviewFindingsOwnerFilterFromSearch,
   reviewFindingsDomainFilterHrefFromSearch,
   reviewFindingsOwnerFilterHrefFromSearch,
   reviewFindingsToolbarClearDomainHrefFromSearch,
-  reviewFindingsToolbarClearOwnerHrefFromSearch,
-} from "@/lib/findings/review-findings-toolbar-field-filters-url";
+  reviewFindingsToolbarClearOwnerHrefFromSearch} from "@/lib/findings/review-findings-toolbar-field-filters-url";
 import { parseReviewFindingsToolbarSortFromSearch } from "@/lib/findings/review-findings-toolbar-sort-url";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import type {
   RunDetailFindingsFilterKind,
-  RunDetailFindingsSortKind,
-} from "@/components/findings/run-detail-findings-toolbar-presentation";
+  RunDetailFindingsSortKind} from "@/components/findings/run-detail-findings-toolbar-presentation";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 function readCommittedSearchParams(): URLSearchParams {
   if (typeof window === "undefined") {
@@ -61,8 +54,7 @@ function readToolbarStateFromCommittedUrl(): {
     groundingFilter: parseFindingsGroundingFilterFromSearch(params.get("grounding")),
     ownerFilter: parseReviewFindingsOwnerFilterFromSearch(params.get("owner")),
     domainFilter: parseReviewFindingsDomainFilterFromSearch(params.get("domain")),
-    sort: parseReviewFindingsToolbarSortFromSearch(params.get("findingsSort")),
-  };
+    sort: parseReviewFindingsToolbarSortFromSearch(params.get("findingsSort"))};
 }
 
 export function useRunDetailFindingsToolbarState(options?: {
@@ -127,11 +119,9 @@ export function useRunDetailFindingsToolbarState(options?: {
 
     syncFromCommittedUrl();
     window.addEventListener("popstate", syncFromCommittedUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFromCommittedUrl);
 
     return () => {
       window.removeEventListener("popstate", syncFromCommittedUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFromCommittedUrl);
     };
   }, []);
 
@@ -261,6 +251,5 @@ export function useRunDetailFindingsToolbarState(options?: {
     originFilter,
     setOriginFilter,
     groundingFilter,
-    setGroundingFilter,
-  };
+    setGroundingFilter};
 }

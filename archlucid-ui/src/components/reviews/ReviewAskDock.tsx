@@ -22,12 +22,10 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseReviewAskDockOpenFromSearch,
   parseReviewAskDockThreadIdFromSearch,
-  reviewAskDockHrefFromSearch,
-} from "@/lib/reviews/review-ask-dock-url";
+  reviewAskDockHrefFromSearch} from "@/lib/reviews/review-ask-dock-url";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 const DEFAULT_REVIEW_QUESTION =
@@ -81,18 +79,26 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
   const setOpen = useCallback(
     (nextOpen: boolean) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       setOpenState(nextOpen);
       syncAskDockToUrl(nextOpen, threadId);
     },
-    [syncAskDockToUrl, threadId],
+    [open, syncAskDockToUrl, threadId],
   );
 
   const setThreadId = useCallback(
     (nextThreadId: string | null) => {
+      if (threadId === nextThreadId) {
+        return;
+      }
+
       setThreadIdState(nextThreadId);
       syncAskDockToUrl(open, nextThreadId);
     },
-    [open, syncAskDockToUrl],
+    [open, syncAskDockToUrl, threadId],
   );
 
   useEffect(() => {
@@ -121,11 +127,9 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
     syncAskDockFromUrl();
     window.addEventListener("popstate", syncAskDockFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncAskDockFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncAskDockFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncAskDockFromUrl);
     };
   }, [askDockDisabled, syncAskDockToUrl]);
 
@@ -143,15 +147,13 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
       const { response, error: streamError } = await askStream({
         question: trimmed,
         runId,
-        threadId: threadId ?? undefined,
-      });
+        threadId: threadId ?? undefined});
 
       if (streamError !== null) {
         setError({
           message: streamError,
           problem: null,
-          correlationId: null,
-        });
+          correlationId: null});
 
         return;
       }
@@ -160,8 +162,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setError({
           message: "Ask request returned no answer.",
           problem: null,
-          correlationId: null,
-        });
+          correlationId: null});
         return;
       }
 
@@ -178,14 +179,12 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setError({
           message: askBlockedReason(failure) ?? e.message,
           problem: e.problem,
-          correlationId: e.correlationId,
-        });
+          correlationId: e.correlationId});
       } else {
         setError({
           message: askBlockedReason(failure) ?? (e instanceof Error ? e.message : "Ask request failed."),
           problem: failure.problem,
-          correlationId: failure.correlationId,
-        });
+          correlationId: failure.correlationId});
       }
     }
   }, [askStream, isStreaming, question, resetStream, runId, threadId]);

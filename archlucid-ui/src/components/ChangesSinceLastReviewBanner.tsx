@@ -53,10 +53,14 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
 
   const setBannerOpen = useCallback(
     (open: boolean) => {
+      if (bannerOpen === open) {
+        return;
+      }
+
       setBannerOpenState(open);
       syncBannerOpenToUrl(open);
     },
-    [syncBannerOpenToUrl],
+    [bannerOpen, syncBannerOpenToUrl],
   );
 
   useEffect(() => {

@@ -8,8 +8,7 @@ import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-rev
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_FINDING_PARAM,
-  REVIEW_DETAIL_TAB_PARAM,
-  REVIEW_DETAIL_URL_CHANGED_EVENT,
+  REVIEW_DETAIL_TAB_PARAM, 
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
   readPresenterModeFromSearchParams,
@@ -17,14 +16,12 @@ import {
   resolveReviewDetailTabFromHash,
   resolveReviewDetailTabFromLocation,
   resolveReviewWorkbenchFocusColumn,
-  writeReviewDetailTabToUrl,
-} from "@/lib/review-detail-workspace-tabs";
+  writeReviewDetailTabToUrl} from "@/lib/review-detail-workspace-tabs";
 import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import {
   resolveReviewWorkspaceTabFromSearchParams,
-  resolveReviewWorkspaceVisibleTabs,
-} from "@/lib/resolve-review-workspace-visible-tabs";
+  resolveReviewWorkspaceVisibleTabs} from "@/lib/resolve-review-workspace-visible-tabs";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
@@ -97,8 +94,7 @@ export function useReviewDetailWorkspaceTabs(
       return resolveReviewWorkspaceVisibleTabs({
         ...props.tabLifecycle,
         lifecycle,
-        workingDesk: isWorkingMode,
-      });
+        workingDesk: isWorkingMode});
     }
 
     const fallbackInput =
@@ -129,11 +125,9 @@ export function useReviewDetailWorkspaceTabs(
 
     syncActiveTabFromUrl();
     window.addEventListener("popstate", syncActiveTabFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncActiveTabFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncActiveTabFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncActiveTabFromUrl);
     };
   }, []);
 
@@ -144,8 +138,7 @@ export function useReviewDetailWorkspaceTabs(
         hash: null,
         findingId: options?.findingId,
         workbenchFocus: options?.workbenchFocus ?? (isWorkbenchTab(tab) ? tab : null),
-        presenter: presenterMode ? true : null,
-      });
+        presenter: presenterMode ? true : null});
       markTabSeen(tab);
     },
     [markTabSeen, presenterMode],
@@ -213,8 +206,7 @@ export function useReviewDetailWorkspaceTabs(
 
   useIncrementalReviewFindingsRefresh({
     runId: props.runId,
-    enabled: pipelineInFlight,
-  });
+    enabled: pipelineInFlight});
 
   const workbench = useProfessionalWorkbenchEnabled();
   const workbenchVisible =
@@ -231,8 +223,7 @@ export function useReviewDetailWorkspaceTabs(
 
   useReviewWorkbenchShortcuts({
     enabled: workbenchVisible,
-    onFocusColumn: (column) => navigateTab(column, { workbenchFocus: column }),
-  });
+    onFocusColumn: (column) => navigateTab(column, { workbenchFocus: column })});
 
   return {
     activeTab,
@@ -248,8 +239,7 @@ export function useReviewDetailWorkspaceTabs(
     presenterMode,
     pipelineInFlight,
     inPipelineBanner,
-    counts,
-  };
+    counts};
 }
 
 export { isWorkbenchTab, WORKBENCH_TAB_IDS };

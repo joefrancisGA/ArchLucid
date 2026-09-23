@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
@@ -33,8 +32,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import {
-  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
-} from "@/lib/api/downloads-api";
+  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT} from "@/lib/api/downloads-api";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { showError } from "@/lib/toast";
 import {
@@ -42,12 +40,10 @@ import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
+  OPERATOR_TYPOGRAPHY} from "@/lib/design-tokens";
 import {
   parseRunDetailBuyerSponsorBriefExportsOpenFromSearch,
-  runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch,
-} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
+  runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
@@ -55,8 +51,7 @@ import type { TransparencyTrail } from "@/types/feasibility-verdict";
 function BuyerSponsorBriefExports({
   runId,
   usedStaticDemoRun,
-  manifestVersionForGuard,
-}: {
+  manifestVersionForGuard}: {
   runId: string;
   usedStaticDemoRun: boolean;
   manifestVersionForGuard?: string | null;
@@ -105,11 +100,9 @@ function BuyerSponsorBriefExports({
 
     syncSponsorBriefExportsOpenFromUrl();
     window.addEventListener("popstate", syncSponsorBriefExportsOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncSponsorBriefExportsOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncSponsorBriefExportsOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncSponsorBriefExportsOpenFromUrl);
     };
   }, []);
 
@@ -147,16 +140,14 @@ function DisabledExportButton({ label }: { label: string }) {
 function RunPackageExportButtons({
   runId,
   usedStaticDemoRun,
-  manifestVersionForGuard,
-}: {
+  manifestVersionForGuard}: {
   runId: string;
   usedStaticDemoRun: boolean;
   manifestVersionForGuard?: string | null;
 }) {
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
-    manifestVersion: manifestVersionForGuard,
-  });
+    manifestVersion: manifestVersionForGuard});
 
   if (usedStaticDemoRun) {
     return (
@@ -335,8 +326,7 @@ export function RunDetailPageHeader({
   hasGovernanceWarnings,
   usedStaticDemoRun = false,
   demoteFinalizeButton = false,
-  transparencyTrail = null,
-}: RunDetailPageHeaderProps) {
+  transparencyTrail = null}: RunDetailPageHeaderProps) {
   const buyerPolishedShell = useProductionEvalChrome();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);

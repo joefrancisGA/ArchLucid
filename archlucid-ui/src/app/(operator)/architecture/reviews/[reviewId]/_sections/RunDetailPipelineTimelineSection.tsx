@@ -19,10 +19,8 @@ import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeli
 import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
 import {
   parseRunPipelineTimelineOpenFromSearch,
-  runPipelineTimelineDisclosureHrefFromSearch,
-} from "@/lib/runs/run-pipeline-timeline-disclosure-url";
+  runPipelineTimelineDisclosureHrefFromSearch} from "@/lib/runs/run-pipeline-timeline-disclosure-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 const OPERATOR_INLINE_AUDIT_EVENT_LIMIT = 5;
@@ -193,11 +191,9 @@ export function RunDetailPipelineTimelineSection(
 
     syncOpenFromUrl();
     window.addEventListener("popstate", syncOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
     };
   }, []);
 

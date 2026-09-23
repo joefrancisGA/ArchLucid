@@ -19,11 +19,9 @@ import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invit
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseReviewHeaderShareMenuOpenFromSearch,
-  reviewHeaderShareMenuHrefFromSearch,
-} from "@/lib/reviews/review-header-share-menu-url";
+  reviewHeaderShareMenuHrefFromSearch} from "@/lib/reviews/review-header-share-menu-url";
 import { cn } from "@/lib/utils";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
@@ -90,22 +88,18 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
 
     syncShareMenuOpenFromUrl();
     window.addEventListener("popstate", syncShareMenuOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncShareMenuOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncShareMenuOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncShareMenuOpenFromUrl);
     };
   }, []);
   const inviteHref = buildInviteReviewerHref(props.runId, props.parentArchitectureId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,
-    findingsQueueHref: props.findingsQueueHref,
-  });
+    findingsQueueHref: props.findingsQueueHref});
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: props.runId,
-    manifestVersion: props.manifestVersion,
-  });
+    manifestVersion: props.manifestVersion});
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
   const shareMenuDisabled = props.disabled === true;
 

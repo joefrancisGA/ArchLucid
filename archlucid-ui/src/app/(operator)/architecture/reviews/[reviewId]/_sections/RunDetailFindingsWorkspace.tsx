@@ -23,14 +23,12 @@ import {
   filterFindingsForToolbar,
   sortFindingsForToolbar,
   useRunDetailFindingsToolbarState,
-  type RunDetailFindingsFilterKind,
-} from "@/components/findings/RunDetailFindingsToolbar";
+  type RunDetailFindingsFilterKind} from "@/components/findings/RunDetailFindingsToolbar";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
 import {
   architectureAssessmentFindingsPresentation,
-  reviewFindingsGovernanceQueuePresentation,
-} from "@/lib/metric-count-presentation";
+  reviewFindingsGovernanceQueuePresentation} from "@/lib/metric-count-presentation";
 import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRunRehearsalCaption";
@@ -42,50 +40,41 @@ import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-r
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import {
   useReviewFindingsLastVisitPersist,
-  useReviewFindingsLastVisitRestore,
-} from "@/hooks/use-review-findings-last-visit";
+  useReviewFindingsLastVisitRestore} from "@/hooks/use-review-findings-last-visit";
 import { useReviewFindingsVisibilityState } from "@/hooks/use-review-findings-visibility-state";
 import { isFindingMergeConflictReviewFinding } from "@/lib/review-quality/finding-quality-signals";
 import { deriveFindingsHiddenFilterHonesty } from "@/lib/findings/findings-hidden-filter-honesty";
 import {
   filterReviewDetailFindingsHideGeneric,
-  sortReviewDetailFindingsBySignal,
-} from "@/lib/findings/review-detail-findings-density-sort";
+  sortReviewDetailFindingsBySignal} from "@/lib/findings/review-detail-findings-density-sort";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import {
   countFindingsByClassificationBand,
   filterFindingsByClassificationBand,
-  type ReviewFindingsClassificationBandId,
-} from "@/lib/findings/review-detail-findings-classification-band";
+  type ReviewFindingsClassificationBandId} from "@/lib/findings/review-detail-findings-classification-band";
 import { COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT } from "@/lib/command-palette-handler-actions";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   deriveRunDetailFindingsTriageCounts,
-  formatFindingsExcludedSummaryLine,
-} from "@/lib/runs/run-detail-findings-triage-counts";
+  formatFindingsExcludedSummaryLine} from "@/lib/runs/run-detail-findings-triage-counts";
 import {
   defaultReviewFindingsListView,
-  parseReviewFindingsListViewFromSearch,
-} from "@/lib/findings/review-findings-list-view";
+  parseReviewFindingsListViewFromSearch} from "@/lib/findings/review-findings-list-view";
 import {
   parseReviewFindingsClassificationBandFromSearch,
   reviewFindingsClassificationBandHrefFromSearch,
-  REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM,
-} from "@/lib/findings/review-findings-last-visit-url";
+  REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM} from "@/lib/findings/review-findings-last-visit-url";
 import {
   resolveFindingJobViewFromSearchParam,
-  REVIEW_FINDINGS_JOB_VIEW_PARAM,
-} from "@/lib/findings/review-findings-job-view-url";
+  REVIEW_FINDINGS_JOB_VIEW_PARAM} from "@/lib/findings/review-findings-job-view-url";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE,
-  formatFindingStreamDualCountLine,
-} from "@/lib/finding-stream-product-of-record-copy";
+  formatFindingStreamDualCountLine} from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -137,14 +126,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     hideGenericLowDensity,
     setShowLowConfidence,
     setShowAdvisory,
-    setHideGenericLowDensity,
-  } = useReviewFindingsVisibilityState();
+    setHideGenericLowDensity} = useReviewFindingsVisibilityState();
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
 
   useReviewFindingsLastVisitRestore({
     runId: props.runId,
-    enabled: architectWorkspaceChrome,
-  });
+    enabled: architectWorkspaceChrome});
 
   function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
 
@@ -192,11 +179,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
     syncClassificationBandFromUrl();
     window.addEventListener("popstate", syncClassificationBandFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncClassificationBandFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncClassificationBandFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncClassificationBandFromUrl);
     };
   }, []);
 
@@ -217,8 +202,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     groundingFilter: toolbar.groundingFilter,
     sort: toolbar.sort,
     classificationBand,
-    hideGenericLowDensity,
-  });
+    hideGenericLowDensity});
 
   useEffect(() => {
     const onChecklistBand = () => {
@@ -275,8 +259,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       deriveFindingsHiddenFilterHonesty({
         toolbarFilteredCount: toolbarScopedFindings.length,
         visibleCount: listFindings.length,
-        hiddenFindings: hiddenByFilterFindings,
-      }),
+        hiddenFindings: hiddenByFilterFindings}),
     [hiddenByFilterFindings, listFindings.length, toolbarScopedFindings.length],
   );
   const showAllFilteredFindings = () => {
@@ -306,15 +289,13 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   );
   const exportFindings = buildWorkspaceCardRenderedFindings(listFindings, {
     showAdvisory,
-    showMuted: false,
-  });
+    showMuted: false});
   const firstListedFinding = listFindings[0];
   const findingsSecondaryViewPresentation =
     !createHomeSurface && firstListedFinding !== undefined
       ? buildCanonicalObjectSecondaryView("finding", "reviewPackageFindingsTab", {
           runId: props.runId,
-          findingId: firstListedFinding.findingId,
-        })
+          findingId: firstListedFinding.findingId})
       : null;
   const metricPresentation = createHomeSurface
     ? architectureAssessmentFindingsPresentation(props.runId, triageVisibleCount)
@@ -358,15 +339,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       showLowConfidence,
       onShowLowConfidenceChange: setShowLowConfidence,
       hiddenByConfidenceCount,
-      managedExternally: true as const,
-    },
+      managedExternally: true as const},
     advisoryVisibility: {
       showAdvisory,
       onShowAdvisoryChange: setShowAdvisory,
-      managedExternally: true as const,
-    },
-    structuralExecutionMode: props.structuralExecutionMode,
-  };
+      managedExternally: true as const},
+    structuralExecutionMode: props.structuralExecutionMode};
   const findingsListEl = useDenseTable ? (
     <RunDetailFindingsDenseTable
       runId={props.runId}

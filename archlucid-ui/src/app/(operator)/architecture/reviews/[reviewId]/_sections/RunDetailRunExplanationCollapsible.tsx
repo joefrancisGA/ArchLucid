@@ -14,8 +14,7 @@ import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklist
 import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
 import {
   hasFindingsSnapshotInsightDensityContent,
-  type FindingsSnapshotInsightDensityView,
-} from "@/lib/findings/findings-snapshot-insight-density";
+  type FindingsSnapshotInsightDensityView} from "@/lib/findings/findings-snapshot-insight-density";
 import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings/findings-what-if-analysis";
 import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -26,30 +25,24 @@ import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-exp
 import { cn } from "@/lib/utils";
 import {
   parseRunAssessmentNarrativeOpenFromSearch,
-  runAssessmentNarrativeHrefFromSearch,
-} from "@/lib/reviews/run-assessment-narrative-url";
+  runAssessmentNarrativeHrefFromSearch} from "@/lib/reviews/run-assessment-narrative-url";
 import {
   parseRunCoverageCurationOpenFromSearch,
-  runCoverageCurationDisclosureHrefFromSearch,
-} from "@/lib/reviews/run-coverage-curation-disclosure-url";
+  runCoverageCurationDisclosureHrefFromSearch} from "@/lib/reviews/run-coverage-curation-disclosure-url";
 import {
   parseRunFindingExplainabilityOpenFromSearch,
-  runFindingExplainabilityDisclosureHrefFromSearch,
-} from "@/lib/reviews/run-finding-explainability-disclosure-url";
+  runFindingExplainabilityDisclosureHrefFromSearch} from "@/lib/reviews/run-finding-explainability-disclosure-url";
 import {
   parseRunImpactAnalysisOpenFromSearch,
-  runImpactAnalysisDisclosureHrefFromSearch,
-} from "@/lib/reviews/run-impact-analysis-disclosure-url";
+  runImpactAnalysisDisclosureHrefFromSearch} from "@/lib/reviews/run-impact-analysis-disclosure-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
 import {
   FindingsWhatIfAnalysisPanelDeferred,
   RunDetailFindingsWorkspaceDeferred,
   RunExplanationSectionDeferred,
-  RunFindingExplainabilityTableDeferred,
-} from "./run-detail-explanation-collapsible-deferred-chunks";
+  RunFindingExplainabilityTableDeferred} from "./run-detail-explanation-collapsible-deferred-chunks";
 
 type RunDetailRunExplanationCollapsibleProps = {
   readonly runId: string;
@@ -116,8 +109,7 @@ export function RunDetailRunExplanationCollapsible(
     triageVisibleCount,
     graphSnapshot,
     structuralExecutionMode,
-    parentArchitectureId,
-  } = props;
+    parentArchitectureId} = props;
   const pathname = usePathname() ?? "/";
   const [assessmentNarrativeOpen, setAssessmentNarrativeOpenState] = useState(() =>
     parseRunAssessmentNarrativeOpenFromSearch(
@@ -271,11 +263,9 @@ export function RunDetailRunExplanationCollapsible(
 
     syncDisclosuresFromUrl();
     window.addEventListener("popstate", syncDisclosuresFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDisclosuresFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncDisclosuresFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDisclosuresFromUrl);
     };
   }, []);
 

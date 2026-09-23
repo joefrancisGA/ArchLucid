@@ -7,13 +7,11 @@ import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
 import type { FindingTrustPresentationInput } from "@/lib/findings/finding-trust-presentation";
 import {
   parseTransparencyTrailOpenFromSearch,
-  transparencyTrailHrefFromSearch,
-} from "@/lib/reviews/transparency-trail-open-url";
+  transparencyTrailHrefFromSearch} from "@/lib/reviews/transparency-trail-open-url";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type TransparencyTrailPanelProps = {
@@ -51,8 +49,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
   const syncInternalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(transparencyTrailHrefFromSearch(window.location.search.slice(1), open, pathname), {
-        notify: false,
-      });
+        notify: false});
     },
     [pathname],
   );
@@ -81,12 +78,10 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
     if (props.detailsOpen === undefined) {
       syncInternalDetailsOpenFromUrl();
       window.addEventListener("popstate", syncInternalDetailsOpenFromUrl);
-      window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncInternalDetailsOpenFromUrl);
     }
 
     return () => {
       window.removeEventListener("popstate", syncInternalDetailsOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncInternalDetailsOpenFromUrl);
     };
   }, [props.detailsOpen]);
 

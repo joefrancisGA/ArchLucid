@@ -11,7 +11,7 @@ export const REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM = "workbenchFocus" as const;
 /** Legacy alias hydrated into {@link REVIEW_DETAIL_FINDING_PARAM} (LS-01). */
 const ARCHITECTURE_DIAGRAM_FINDING_PARAM = "diagramFindingId" as const;
 
-/** Fired after {@link writeReviewDetailTabToUrl} mutates the address bar via `history.replaceState`. */
+/** Legacy custom event name; URL sync now uses popstate only (no dispatch). */
 export const REVIEW_DETAIL_URL_CHANGED_EVENT = "archlucid:review-detail-url-changed" as const;
 
 export const REVIEW_WORKBENCH_FOCUS_COLUMN_IDS = ["architecture", "findings", "evidence"] as const;
@@ -222,7 +222,6 @@ export function writeReviewDetailTabToUrl(
   }
 
   window.history.replaceState(null, "", nextHref);
-  window.dispatchEvent(new Event(REVIEW_DETAIL_URL_CHANGED_EVENT));
 }
 
 /** Mutates only `findingId` in the address bar (avoids stale tab/focus rewrites during selection sync). */
@@ -255,7 +254,6 @@ export function writeReviewDetailFindingIdToUrl(findingId: string | null): void 
   }
 
   window.history.replaceState(null, "", nextHref);
-  window.dispatchEvent(new Event(REVIEW_DETAIL_URL_CHANGED_EVENT));
 }
 
 /** Reads the active review tab from the current browser location. */

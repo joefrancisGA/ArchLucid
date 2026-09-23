@@ -8,9 +8,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRelatedSurfacesOpenFromSearch,
-  relatedSurfacesDisclosureHrefFromSearch,
-} from "@/lib/operator/related-surfaces-disclosure-url";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
+  relatedSurfacesDisclosureHrefFromSearch} from "@/lib/operator/related-surfaces-disclosure-url";
 import { cn } from "@/lib/utils";
 
 export const OPERATOR_RELATED_SURFACES_DISCLOSURE_TITLE = "Related surfaces";
@@ -71,11 +69,9 @@ export function OperatorRelatedSurfacesDisclosure(
 
     syncOpenFromUrl();
     window.addEventListener("popstate", syncOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
     };
   }, []);
 

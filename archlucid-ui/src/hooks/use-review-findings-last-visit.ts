@@ -5,20 +5,16 @@ import { usePathname } from "next/navigation";
 
 import type {
   RunDetailFindingsFilterKind,
-  RunDetailFindingsSortKind,
-} from "@/components/findings/run-detail-findings-toolbar-presentation";
+  RunDetailFindingsSortKind} from "@/components/findings/run-detail-findings-toolbar-presentation";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import {
   buildReviewFindingsLastVisitHref,
-  reviewFindingsLastVisitHasUrlParams,
-} from "@/lib/findings/review-findings-last-visit-url";
+  reviewFindingsLastVisitHasUrlParams} from "@/lib/findings/review-findings-last-visit-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   patchReviewFindingsLastVisit,
-  readReviewFindingsLastVisit,
-} from "@/lib/findings/review-findings-last-visit-storage";
+  readReviewFindingsLastVisit} from "@/lib/findings/review-findings-last-visit-storage";
 import type { ReviewFindingsClassificationBandId } from "@/lib/findings/review-detail-findings-classification-band";
 
 export type UseReviewFindingsLastVisitRestoreOptions = {
@@ -66,11 +62,9 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
 
     restoreFromLastVisitIfNeeded();
     window.addEventListener("popstate", restoreFromLastVisitIfNeeded);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, restoreFromLastVisitIfNeeded);
 
     return () => {
       window.removeEventListener("popstate", restoreFromLastVisitIfNeeded);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, restoreFromLastVisitIfNeeded);
     };
   }, [enabled, pathname, runId]);
 }
@@ -104,8 +98,7 @@ export function useReviewFindingsLastVisitPersist(options: UseReviewFindingsLast
     groundingFilter,
     sort,
     classificationBand,
-    hideGenericLowDensity,
-  } = options;
+    hideGenericLowDensity} = options;
 
   useEffect(() => {
     if (!enabled || runId.trim().length === 0) {
@@ -122,8 +115,7 @@ export function useReviewFindingsLastVisitPersist(options: UseReviewFindingsLast
       groundingFilter,
       sort,
       classificationBand,
-      hideGenericLowDensity,
-    });
+      hideGenericLowDensity});
   }, [
     classificationBand,
     domainFilter,

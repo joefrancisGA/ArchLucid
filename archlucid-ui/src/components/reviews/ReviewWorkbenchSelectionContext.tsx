@@ -8,14 +8,11 @@ import {
   useMemo,
   useRef,
   useState,
-  type ReactNode,
-} from "react";
+  type ReactNode} from "react";
 
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import {
-  readReviewDetailFindingIdFromWindowLocation,
-  REVIEW_DETAIL_URL_CHANGED_EVENT,
-} from "@/lib/review-detail-workspace-tabs";
+  readReviewDetailFindingIdFromWindowLocation} from "@/lib/review-detail-workspace-tabs";
 
 export type ReviewWorkbenchSelectionContextValue = {
   readonly selectedFindingId: string | null;
@@ -72,11 +69,9 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
 
     syncFindingIdFromUrl();
     window.addEventListener("popstate", syncFindingIdFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncFindingIdFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
     };
   }, []);
 
@@ -121,8 +116,7 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
       reconcileSelectedFindingId,
       setHighlightedNodeId,
       workbenchFocusColumn,
-      setWorkbenchFocusColumn,
-    }),
+      setWorkbenchFocusColumn}),
     [
       highlightedNodeId,
       reconcileSelectedFindingId,

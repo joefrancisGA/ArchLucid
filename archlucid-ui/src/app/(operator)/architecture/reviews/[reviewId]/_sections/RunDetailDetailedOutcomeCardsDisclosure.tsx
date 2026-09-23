@@ -5,11 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunDetailOutcomeCardsOpenFromSearch,
-  runDetailOutcomeCardsDisclosureHrefFromSearch,
-} from "@/lib/runs/run-detail-outcome-cards-disclosure-url";
+  runDetailOutcomeCardsDisclosureHrefFromSearch} from "@/lib/runs/run-detail-outcome-cards-disclosure-url";
 
 type RunDetailDetailedOutcomeCardsDisclosureProps = {
   readonly children: ReactNode;
@@ -62,11 +60,9 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
 
     syncOpenFromUrl();
     window.addEventListener("popstate", syncOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
     };
   }, []);
 

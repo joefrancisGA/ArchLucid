@@ -8,11 +8,9 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { BUYER_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunAdvancedAnalysisOpenFromSearch,
-  runAdvancedAnalysisDisclosureHrefFromSearch,
-} from "@/lib/runs/run-advanced-analysis-disclosure-url";
+  runAdvancedAnalysisDisclosureHrefFromSearch} from "@/lib/runs/run-advanced-analysis-disclosure-url";
 
 type RunDetailAdvancedAnalysisSectionProps = {
   readonly runId: string;
@@ -68,11 +66,9 @@ export function RunDetailAdvancedAnalysisSection(
 
     syncOpenFromUrl();
     window.addEventListener("popstate", syncOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
     };
   }, []);
 

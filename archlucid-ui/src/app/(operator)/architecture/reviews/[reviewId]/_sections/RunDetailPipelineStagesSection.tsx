@@ -13,18 +13,14 @@ import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import {
   mapPipelineStageOutcomeToStatusKind,
-  pipelineStageOutcomeLabel,
-} from "@/lib/map-pipeline-stage-outcome-status";
+  pipelineStageOutcomeLabel} from "@/lib/map-pipeline-stage-outcome-status";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunPipelineStagesOpenFromSearch,
-  runPipelineStagesDisclosureHrefFromSearch,
-} from "@/lib/runs/run-pipeline-stages-disclosure-url";
+  runPipelineStagesDisclosureHrefFromSearch} from "@/lib/runs/run-pipeline-stages-disclosure-url";
 import {
   parseRunPipelineStagesTechnicalOpenFromSearch,
-  runPipelineStagesTechnicalDisclosureHrefFromSearch,
-} from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
+  runPipelineStagesTechnicalDisclosureHrefFromSearch} from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -35,8 +31,7 @@ type RunDetailPipelineStagesSectionProps = {
 
 export function RunDetailPipelineStagesSection({
   stageTimeline,
-  otelTraceId,
-}: RunDetailPipelineStagesSectionProps): ReactElement | null {
+  otelTraceId}: RunDetailPipelineStagesSectionProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
     parseRunPipelineStagesOpenFromSearch(
@@ -117,11 +112,9 @@ export function RunDetailPipelineStagesSection({
 
     syncOpenFromUrl();
     window.addEventListener("popstate", syncOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
     };
   }, []);
 

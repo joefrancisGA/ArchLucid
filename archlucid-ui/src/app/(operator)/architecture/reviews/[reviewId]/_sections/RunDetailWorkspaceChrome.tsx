@@ -34,16 +34,13 @@ import { REVIEW_WORKSPACE_CLAIM_DISCIPLINE } from "@/lib/review-workspace-eviden
 import {
   deriveReviewRecordMetadataContext,
   isReviewPipelineIncomplete,
-  resolveReviewMetadataAbsentReasons,
-} from "@/lib/run-detail-workspace-derive";
+  resolveReviewMetadataAbsentReasons} from "@/lib/run-detail-workspace-derive";
 import { whyDisabledReviewHeaderActions } from "@/lib/why-disabled-cta";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import {
   parseRunDetailRecordMetadataOpenFromSearch,
-  runDetailRecordMetadataHrefFromSearch,
-} from "@/lib/runs/run-detail-record-metadata-url";
+  runDetailRecordMetadataHrefFromSearch} from "@/lib/runs/run-detail-record-metadata-url";
 import { replaceIfHrefChanged, commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 type ReviewMetadataField = {
   readonly key: string;
@@ -78,26 +75,22 @@ function buildReviewMetadataFields(
       key: "governance-decision-recorded-by",
       label: "Approval decision recorded by",
       value: reviewOwnerLabel.length > 0 ? formatActionActorName(reviewOwnerLabel) : null,
-      absentReason: absentReasons.governanceDecisionRecordedBy,
-    },
+      absentReason: absentReasons.governanceDecisionRecordedBy},
     {
       key: "review-template",
       label: "Review template",
       value: props.templateLabel,
-      absentReason: absentReasons.reviewTemplate,
-    },
+      absentReason: absentReasons.reviewTemplate},
     {
       key: "finalized-at",
       label: "Finalized at",
       value: props.finalizedAtLabel,
-      absentReason: absentReasons.finalizedAt,
-    },
+      absentReason: absentReasons.finalizedAt},
     {
       key: "package-version",
       label: "Package version",
       value: props.packageVersionLabel,
-      absentReason: absentReasons.packageVersion,
-    },
+      absentReason: absentReasons.packageVersion},
   ];
 }
 
@@ -110,15 +103,13 @@ function buildCollapseMetadataFields(
       key: "review-id",
       label: "Review ID",
       value: props.runId,
-      absentReason: "Not recorded — review ID missing",
-    },
+      absentReason: "Not recorded — review ID missing"},
     ...buildReviewMetadataFields(props, absentReasons),
     {
       key: "signed-review-record-id",
       label: "Finalized review record ID",
       value: props.signedReviewRecordIdLabel,
-      absentReason: absentReasons.signedReviewRecordId,
-    },
+      absentReason: absentReasons.signedReviewRecordId},
   ];
 }
 
@@ -202,8 +193,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     architectureId: parentArchitectureId,
     runId: props.runId,
     filter: "all",
-    isWorkingMode,
-  });
+    isWorkingMode});
   const [recordMetadataOpen, setRecordMetadataOpenState] = useState(() =>
     parseRunDetailRecordMetadataOpenFromSearch(
       typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
@@ -243,11 +233,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
 
     syncRecordMetadataOpenFromUrl();
     window.addEventListener("popstate", syncRecordMetadataOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncRecordMetadataOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncRecordMetadataOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncRecordMetadataOpenFromUrl);
     };
   }, []);
   const metadataContext = deriveReviewRecordMetadataContext(props.signedReviewRecordId);

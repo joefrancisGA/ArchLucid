@@ -68,10 +68,14 @@ export function useAppShellState() {
 
   const setHelpGuidesOpen = useCallback(
     (open: boolean) => {
+      if (helpGuidesOpen === open) {
+        return;
+      }
+
       setHelpGuidesOpenState(open);
       syncHelpPanelOpenToUrl(open);
     },
-    [syncHelpPanelOpenToUrl],
+    [helpGuidesOpen, syncHelpPanelOpenToUrl],
   );
 
   const setHelpDocSearchOpen = useCallback(

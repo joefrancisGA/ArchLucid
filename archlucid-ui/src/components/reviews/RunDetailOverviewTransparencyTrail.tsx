@@ -10,9 +10,7 @@ import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
   parseTransparencyTrailOpenFromSearch,
-  transparencyTrailHrefFromSearch,
-} from "@/lib/reviews/transparency-trail-open-url";
-import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
+  transparencyTrailHrefFromSearch} from "@/lib/reviews/transparency-trail-open-url";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export type RunDetailOverviewTransparencyTrailProps = {
@@ -65,11 +63,9 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
 
     syncDetailsOpenFromUrl();
     window.addEventListener("popstate", syncDetailsOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDetailsOpenFromUrl);
 
     return () => {
       window.removeEventListener("popstate", syncDetailsOpenFromUrl);
-      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDetailsOpenFromUrl);
     };
   }, []);
 
