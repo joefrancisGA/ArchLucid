@@ -124,27 +124,17 @@ export function PendingInvitationsPanel({
           return current;
         }
 
+        syncShowResolvedToUrl(next);
+
         return next;
       });
     },
-    [],
+    [syncShowResolvedToUrl],
   );
 
   useEffect(() => {
-    setShowResolvedState((current) => {
-      const next = parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam);
-
-      if (next === current) {
-        return current;
-      }
-
-      return next;
-    });
+    setShowResolvedState(parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam));
   }, [settingsInvitesShowResolvedParam]);
-
-  useEffect(() => {
-    syncShowResolvedToUrl(showResolved);
-  }, [showResolved, syncShowResolvedToUrl]);
 
   const syncRevokeInviteToUrl = useCallback(
     (invitationId: string | null) => {
@@ -165,15 +155,13 @@ export function PendingInvitationsPanel({
           return current;
         }
 
+        syncRevokeInviteToUrl(next?.id ?? null);
+
         return next;
       });
     },
-    [],
+    [syncRevokeInviteToUrl],
   );
-
-  useEffect(() => {
-    syncRevokeInviteToUrl(pendingRevoke?.id ?? null);
-  }, [pendingRevoke?.id, syncRevokeInviteToUrl]);
 
   useEffect(() => {
     const revokeInviteId = parseSettingsUsersRevokeInviteIdFromSearch(revokeInviteIdParam);

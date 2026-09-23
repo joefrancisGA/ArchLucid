@@ -119,10 +119,6 @@ export function useReviewDetailWorkspaceTabs(
   const { isTabNewSinceLastVisit, markTabSeen } = useReviewDetailLastVisited(props.runId, tabActivityAt);
 
   useEffect(() => {
-    setActiveTab(searchParamTab);
-  }, [searchParamTab]);
-
-  useEffect(() => {
     const syncActiveTabFromUrl = (): void => {
       setActiveTab(readReviewDetailTabFromWindowLocation());
     };
