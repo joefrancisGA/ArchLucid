@@ -88,7 +88,7 @@ export function liveE2eSimulatorFriendlyArchitectureCreateBody(options?: {
   readonly systemNamePrefix?: string;
   readonly intent?: string;
 }): Record<string, unknown> {
-  const suffix = Date.now();
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const requestIdPrefix = options?.requestIdPrefix ?? "E2E-LIVE";
   const systemNamePrefix = options?.systemNamePrefix ?? "EnterpriseRag";
   const intent =

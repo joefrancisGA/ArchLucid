@@ -197,7 +197,7 @@ if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
       "${API_URL}/v1/architecture/request" \
       "${CREATE_BODY}" \
       "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-20}" \
-      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-2}"
+      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-4}"
   else
     echo "::warning::Skipping create-run warm; ${API_URL}/health/ready is not reachable." >&2
   fi

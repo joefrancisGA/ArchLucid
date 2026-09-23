@@ -71,11 +71,11 @@ export async function postArchitectureRequestRaw(
   });
 }
 
-/** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — cap retries so a wedged create cannot burn 25+ minutes. */
+  /** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — cap retries so a wedged create cannot burn 25+ minutes. */
 function maxArchitectureMutationAttempts(): number {
   if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
-    // One attempt can persist the name and halt; the next needs a fresh system name.
-    return 3;
+    // Committed-run 400 and partial-create name collisions can need several fresh identities.
+    return 5;
   }
 
   return getMaxInfrastructureMutationAttempts();
