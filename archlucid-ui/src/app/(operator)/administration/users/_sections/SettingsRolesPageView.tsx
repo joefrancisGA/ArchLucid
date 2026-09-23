@@ -43,7 +43,7 @@ import {
   parseSettingsUsersInviteOpenFromSearch,
   settingsUsersInviteHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-url";
-import { commitHrefIfChanged, replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch, replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -129,15 +129,11 @@ export function SettingsRolesPageView(props: Props) {
   const syncInviteSectionToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        settingsUsersInviteHrefFromSearch(
-          typeof window === "undefined" ? currentSearch : window.location.search.slice(1),
-          open,
-          hubPathname,
-        ),
+        settingsUsersInviteHrefFromSearch(readWindowLocationSearch(), open, hubPathname),
         { notify: false },
       );
     },
-    [currentSearch, hubPathname],
+    [hubPathname],
   );
 
   const setInviteSectionOpen = useCallback(

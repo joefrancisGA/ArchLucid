@@ -3,8 +3,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -31,13 +32,16 @@ type RunDetailAuthorityChainSectionProps = {
 /** Full-operator review trail: manifest link + collapsible audit identifiers. */
 export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSectionProps): ReactElement {
   const { run, manifestId } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runAuditIdentifiersOpenParam = searchParams.get("runAuditIdentifiersOpen");
   const [auditIdentifiersOpen, setAuditIdentifiersOpenState] = useState(() =>
-    parseRunAuditIdentifiersOpenFromSearch(runAuditIdentifiersOpenParam),
+    parseRunAuditIdentifiersOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runAuditIdentifiersOpen"),
+    ),
   );
+  const auditIdentifiersOpenRef = useRef(auditIdentifiersOpen);
+  auditIdentifiersOpenRef.current = auditIdentifiersOpen;
   const { vocabulary } = useGovernanceMode();
   const manifestLabel = vocabulary.goldenManifestLabel;
   const rowLabelClass = cn("shrink-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body);
@@ -52,15 +56,21 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
 
   const syncAuditIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(runAuditIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runAuditIdentifiersDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setAuditIdentifiersOpen = useCallback(
     (open: boolean) => {
+      if (auditIdentifiersOpenRef.current === open) {
+        return;
+      }
+
+      auditIdentifiersOpenRef.current = open;
       setAuditIdentifiersOpenState(open);
       syncAuditIdentifiersOpenToUrl(open);
     },
@@ -68,8 +78,26 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
   );
 
   useEffect(() => {
-    setAuditIdentifiersOpenState(parseRunAuditIdentifiersOpenFromSearch(runAuditIdentifiersOpenParam));
-  }, [runAuditIdentifiersOpenParam]);
+    const syncAuditIdentifiersOpenFromUrl = (): void => {
+      const nextOpen = parseRunAuditIdentifiersOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runAuditIdentifiersOpen"),
+      );
+
+      if (auditIdentifiersOpenRef.current === nextOpen) {
+        return;
+      }
+
+      auditIdentifiersOpenRef.current = nextOpen;
+      setAuditIdentifiersOpenState(nextOpen);
+    };
+
+    syncAuditIdentifiersOpenFromUrl();
+    window.addEventListener("popstate", syncAuditIdentifiersOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAuditIdentifiersOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section id="authority-chain" className="scroll-mt-24">

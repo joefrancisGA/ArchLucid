@@ -1,8 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/ArchitectureNarrativeMarkdownView";
 import { ArchitectureStructuredContentPanel } from "@/components/architecture/ArchitectureStructuredContentPanel";
@@ -83,19 +84,27 @@ export type RunDetailSubmittedArchitectureSectionProps = {
 export function RunDetailSubmittedArchitectureSection(
   props: RunDetailSubmittedArchitectureSectionProps,
 ): React.ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const submittedArchitectureOpenParam = searchParams.get("submittedArchitectureOpen");
-  const submittedArchitectureFullDescriptionOpenParam = searchParams.get("submittedArchitectureFullDescriptionOpen");
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [sectionOpen, setSectionOpenState] = useState(() =>
-    parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam),
+    parseSubmittedArchitectureOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("submittedArchitectureOpen"),
+    ),
   );
+  const sectionOpenRef = useRef(sectionOpen);
+  sectionOpenRef.current = sectionOpen;
   const [fullDescriptionOpen, setFullDescriptionOpenState] = useState(() =>
-    parseSubmittedArchitectureFullDescriptionOpenFromSearch(submittedArchitectureFullDescriptionOpenParam),
+    parseSubmittedArchitectureFullDescriptionOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("submittedArchitectureFullDescriptionOpen"),
+    ),
   );
+  const fullDescriptionOpenRef = useRef(fullDescriptionOpen);
+  fullDescriptionOpenRef.current = fullDescriptionOpen;
   const text = props.architectureText?.trim() ?? "";
   const sectionTitle = props.sectionTitle ?? "Architecture submitted for review";
   const helperText =
@@ -108,15 +117,21 @@ export function RunDetailSubmittedArchitectureSection(
 
   const syncSectionOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(submittedArchitectureDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        submittedArchitectureDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setSectionOpen = useCallback(
     (open: boolean) => {
+      if (sectionOpenRef.current === open) {
+        return;
+      }
+
+      sectionOpenRef.current = open;
       setSectionOpenState(open);
       syncSectionOpenToUrl(open);
     },
@@ -124,21 +139,44 @@ export function RunDetailSubmittedArchitectureSection(
   );
 
   useEffect(() => {
-    setSectionOpenState(parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam));
-  }, [submittedArchitectureOpenParam]);
+    const syncSectionOpenFromUrl = (): void => {
+      const nextOpen = parseSubmittedArchitectureOpenFromSearch(
+        new URLSearchParams(window.location.search).get("submittedArchitectureOpen"),
+      );
+
+      if (sectionOpenRef.current === nextOpen) {
+        return;
+      }
+
+      sectionOpenRef.current = nextOpen;
+      setSectionOpenState(nextOpen);
+    };
+
+    syncSectionOpenFromUrl();
+    window.addEventListener("popstate", syncSectionOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSectionOpenFromUrl);
+    };
+  }, []);
 
   const syncFullDescriptionOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        submittedArchitectureFullDescriptionDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        submittedArchitectureFullDescriptionDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setFullDescriptionOpen = useCallback(
     (open: boolean) => {
+      if (fullDescriptionOpenRef.current === open) {
+        return;
+      }
+
+      fullDescriptionOpenRef.current = open;
       setFullDescriptionOpenState(open);
       syncFullDescriptionOpenToUrl(open);
     },
@@ -146,10 +184,26 @@ export function RunDetailSubmittedArchitectureSection(
   );
 
   useEffect(() => {
-    setFullDescriptionOpenState(
-      parseSubmittedArchitectureFullDescriptionOpenFromSearch(submittedArchitectureFullDescriptionOpenParam),
-    );
-  }, [submittedArchitectureFullDescriptionOpenParam]);
+    const syncFullDescriptionOpenFromUrl = (): void => {
+      const nextOpen = parseSubmittedArchitectureFullDescriptionOpenFromSearch(
+        new URLSearchParams(window.location.search).get("submittedArchitectureFullDescriptionOpen"),
+      );
+
+      if (fullDescriptionOpenRef.current === nextOpen) {
+        return;
+      }
+
+      fullDescriptionOpenRef.current = nextOpen;
+      setFullDescriptionOpenState(nextOpen);
+    };
+
+    syncFullDescriptionOpenFromUrl();
+    window.addEventListener("popstate", syncFullDescriptionOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFullDescriptionOpenFromUrl);
+    };
+  }, []);
 
   const copyText = useCallback(async () => {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -203,7 +257,8 @@ export function RunDetailSubmittedArchitectureSection(
           data-workspace-disclosure
           open={sectionOpen}
           onToggle={(event) => {
-            setSectionOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setSectionOpen(!sectionOpen);
           }}
         >
           <summary
@@ -245,7 +300,8 @@ export function RunDetailSubmittedArchitectureSection(
         data-workspace-disclosure
         open={sectionOpen}
         onToggle={(event) => {
-          setSectionOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setSectionOpen(!sectionOpen);
         }}
       >
         <summary
@@ -292,7 +348,8 @@ export function RunDetailSubmittedArchitectureSection(
             className="rounded-md border border-dashed border-neutral-200 p-3 dark:border-neutral-700"
             open={fullDescriptionOpen}
             onToggle={(event) => {
-              setFullDescriptionOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setFullDescriptionOpen(!fullDescriptionOpen);
             }}
           >
             <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
