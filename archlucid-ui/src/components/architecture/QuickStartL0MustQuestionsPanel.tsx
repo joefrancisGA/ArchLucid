@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EvidenceExtractionAwaitingSkeleton } from "@/components/evidence/EvidenceExtractionAwaitingSkeleton";
@@ -32,6 +32,7 @@ import {
   guidedIntakeViewAllClarificationsDisclosureHrefFromSearch,
   parseGuidedIntakeViewAllClarificationsOpenFromSearch,
 } from "@/lib/guided-intake/guided-intake-view-all-clarifications-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export type QuickStartL0MustQuestionsPanelProps = {
@@ -69,27 +70,46 @@ function isQuickStartClarificationHandled(
 
 /** Quick start L0 MUST interviewer — reuses Guided questions field chrome (TB-2283). */
 export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsPanelProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const l0MustQuestionsOpenParam = searchParams.get(FIRST_PILOT_L0_MUST_QUESTIONS_OPEN_PARAM);
-  const guidedIntakeViewAllClarificationsOpenParam = searchParams.get("guidedIntakeViewAllClarificationsOpen");
-  const [panelOpen, setPanelOpenState] = useState<boolean>(
-    () => parseFirstPilotL0MustQuestionsOpenFromSearch(l0MustQuestionsOpenParam) || true,
-  );
+  const readPanelOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      FIRST_PILOT_L0_MUST_QUESTIONS_OPEN_PARAM,
+    );
+
+    if (param === null) {
+      return null;
+    }
+
+    return parseFirstPilotL0MustQuestionsOpenFromSearch(param);
+  };
+  const readViewAllClarificationsFromUrl = (): boolean =>
+    parseGuidedIntakeViewAllClarificationsOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        "guidedIntakeViewAllClarificationsOpen",
+      ),
+    );
+  const [panelOpen, setPanelOpenState] = useState<boolean>(() => readPanelOpenFromUrl() ?? true);
+  const panelOpenRef = useRef(panelOpen);
+  panelOpenRef.current = panelOpen;
   const total = UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.length;
 
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(firstPilotL0MustQuestionsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        firstPilotL0MustQuestionsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPanelOpen = useCallback(
     (open: boolean) => {
+      if (panelOpenRef.current === open) {
+        return;
+      }
+
+      panelOpenRef.current = open;
       setPanelOpenState(open);
       syncPanelOpenToUrl(open);
     },
@@ -97,42 +117,53 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   );
 
   useEffect(() => {
-    if (parseFirstPilotL0MustQuestionsOpenFromSearch(l0MustQuestionsOpenParam)) {
-      setPanelOpenState(true);
+    const syncPanelOpenFromUrl = (): void => {
+      const fromUrl = readPanelOpenFromUrl();
+      const next = fromUrl ?? true;
 
-      return;
-    }
+      if (panelOpenRef.current === next) {
+        return;
+      }
 
-    if (l0MustQuestionsOpenParam !== null) {
-      setPanelOpenState(false);
+      panelOpenRef.current = next;
+      setPanelOpenState(next);
+    };
 
-      return;
-    }
+    syncPanelOpenFromUrl();
+    window.addEventListener("popstate", syncPanelOpenFromUrl);
 
-    setPanelOpenState(true);
-  }, [l0MustQuestionsOpenParam]);
+    return () => {
+      window.removeEventListener("popstate", syncPanelOpenFromUrl);
+    };
+  }, []);
 
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const [viewAllClarifications, setViewAllClarificationsState] = useState(() =>
-    parseGuidedIntakeViewAllClarificationsOpenFromSearch(guidedIntakeViewAllClarificationsOpenParam),
-  );
+  const [viewAllClarifications, setViewAllClarificationsState] = useState(() => readViewAllClarificationsFromUrl());
+  const viewAllClarificationsRef = useRef(viewAllClarifications);
+  viewAllClarificationsRef.current = viewAllClarifications;
 
   const syncViewAllClarificationsToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setViewAllClarifications = useCallback(
     (value: boolean | ((current: boolean) => boolean)) => {
       setViewAllClarificationsState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (viewAllClarificationsRef.current === next) {
+          return current;
+        }
+
+        viewAllClarificationsRef.current = next;
         syncViewAllClarificationsToUrl(next);
 
         return next;
@@ -142,10 +173,24 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   );
 
   useEffect(() => {
-    setViewAllClarificationsState(
-      parseGuidedIntakeViewAllClarificationsOpenFromSearch(guidedIntakeViewAllClarificationsOpenParam),
-    );
-  }, [guidedIntakeViewAllClarificationsOpenParam]);
+    const syncViewAllClarificationsFromUrl = (): void => {
+      const next = readViewAllClarificationsFromUrl();
+
+      if (viewAllClarificationsRef.current === next) {
+        return;
+      }
+
+      viewAllClarificationsRef.current = next;
+      setViewAllClarificationsState(next);
+    };
+
+    syncViewAllClarificationsFromUrl();
+    window.addEventListener("popstate", syncViewAllClarificationsFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncViewAllClarificationsFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if ((props.inferredQuestionKeys?.size ?? 0) > 0) {
