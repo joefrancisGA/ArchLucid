@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS } from "@/lib/design-tokens";
 
 import { ChevronsUpDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -57,6 +57,7 @@ import {
   shouldUseSampleWorkspaceFallback,
   WORKSPACES_PATH,
 } from "@/components/scope-switcher-workspace-list";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseScopeSwitcherOpenFromSearch,
   scopeSwitcherHrefFromSearch,
@@ -81,10 +82,14 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const density = props.density ?? "default";
   const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const scopeOpenParam = searchParams.get("scopeOpen");
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
-  const [open, setOpenState] = useState(() => parseScopeSwitcherOpenFromSearch(scopeOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseScopeSwitcherOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("scopeOpen"),
+    ),
+  );
   const openRef = useRef(open);
   openRef.current = open;
   const stored = useOperatorScopeRecord();
@@ -99,17 +104,19 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
 
   const syncScopeOpenToUrl = useCallback(
     (popoverOpen: boolean) => {
-      router.replace(scopeSwitcherHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
-        scroll: false,
-      });
+      replaceIfHrefChanged(
+        router,
+        scopeSwitcherHrefFromSearch(window.location.search.slice(1), popoverOpen, pathname),
+      );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       const next = typeof value === "function" ? value(openRef.current) : value;
 
+      openRef.current = next;
       setOpenState(next);
       syncScopeOpenToUrl(next);
     },
@@ -117,8 +124,26 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   );
 
   useEffect(() => {
-    setOpenState(parseScopeSwitcherOpenFromSearch(scopeOpenParam));
-  }, [scopeOpenParam]);
+    const syncScopeOpenFromUrl = (): void => {
+      const nextOpen = parseScopeSwitcherOpenFromSearch(
+        new URLSearchParams(window.location.search).get("scopeOpen"),
+      );
+
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncScopeOpenFromUrl();
+    window.addEventListener("popstate", syncScopeOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncScopeOpenFromUrl);
+    };
+  }, []);
 
   const effective = useMemo(() => getEffectiveBrowserProxyScopeHeaders(), [stored]);
   const tenantId = effective["x-tenant-id"] ?? "";

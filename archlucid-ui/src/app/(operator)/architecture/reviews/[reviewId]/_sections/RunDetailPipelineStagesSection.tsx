@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
@@ -15,6 +15,8 @@ import {
   mapPipelineStageOutcomeToStatusKind,
   pipelineStageOutcomeLabel,
 } from "@/lib/map-pipeline-stage-outcome-status";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunPipelineStagesOpenFromSearch,
   runPipelineStagesDisclosureHrefFromSearch,
@@ -35,58 +37,89 @@ export function RunDetailPipelineStagesSection({
   stageTimeline,
   otelTraceId,
 }: RunDetailPipelineStagesSectionProps): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runPipelineStagesOpenParam = searchParams.get("runPipelineStagesOpen");
-  const runPipelineStagesTechnicalOpenParam = searchParams.get("runPipelineStagesTechnicalOpen");
-  const [open, setOpenState] = useState(() => parseRunPipelineStagesOpenFromSearch(runPipelineStagesOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseRunPipelineStagesOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runPipelineStagesOpen"),
+    ),
+  );
   const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseRunPipelineStagesTechnicalOpenFromSearch(runPipelineStagesTechnicalOpenParam),
+    parseRunPipelineStagesTechnicalOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runPipelineStagesTechnicalOpen"),
+    ),
   );
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runPipelineStagesDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runPipelineStagesDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (open === detailsOpen) {
+        return;
+      }
+
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [syncOpenToUrl],
+    [open, syncOpenToUrl],
   );
-
-  useEffect(() => {
-    setOpenState(parseRunPipelineStagesOpenFromSearch(runPipelineStagesOpenParam));
-  }, [runPipelineStagesOpenParam]);
 
   const syncTechnicalOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        runPipelineStagesTechnicalDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runPipelineStagesTechnicalDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
+        { notify: true },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (technicalOpen === detailsOpen) {
+        return;
+      }
+
       setTechnicalOpenState(detailsOpen);
       syncTechnicalOpenToUrl(detailsOpen);
     },
-    [syncTechnicalOpenToUrl],
+    [syncTechnicalOpenToUrl, technicalOpen],
   );
 
   useEffect(() => {
-    setTechnicalOpenState(parseRunPipelineStagesTechnicalOpenFromSearch(runPipelineStagesTechnicalOpenParam));
-  }, [runPipelineStagesTechnicalOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      setOpenState(
+        parseRunPipelineStagesOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runPipelineStagesOpen"),
+        ),
+      );
+      setTechnicalOpenState(
+        parseRunPipelineStagesTechnicalOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runPipelineStagesTechnicalOpen"),
+        ),
+      );
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+    };
+  }, []);
 
   if (stageTimeline.length === 0) {
     return null;
