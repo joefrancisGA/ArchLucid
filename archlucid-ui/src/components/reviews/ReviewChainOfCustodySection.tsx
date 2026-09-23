@@ -2,12 +2,13 @@
 
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { RunDetail } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
@@ -67,33 +68,63 @@ export function ReviewChainOfCustodySection({
         ? `${ruleSetId} v${ruleSetVersion}`
         : ruleSetId
       : "Default policy pack";
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const reviewChainOfCustodySectionKeyParam = searchParams.get(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM);
   const [openSectionKey, setOpenSectionKeyState] = useState(() =>
-    parseReviewChainOfCustodySectionKeyFromSearch(reviewChainOfCustodySectionKeyParam),
+    parseReviewChainOfCustodySectionKeyFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM),
+    ),
   );
+  const openSectionKeyRef = useRef(openSectionKey);
+  openSectionKeyRef.current = openSectionKey;
+
   const syncOpenSectionKeyToUrl = useCallback(
     (sectionKey: string | null) => {
-      router.replace(
-        reviewChainOfCustodySectionDisclosureHrefFromSearch(searchParams.toString(), sectionKey, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        reviewChainOfCustodySectionDisclosureHrefFromSearch(readWindowLocationSearch(), sectionKey, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setOpenSectionKey = useCallback(
     (sectionKey: string | null) => {
-      setOpenSectionKeyState(sectionKey ?? "");
+      const next = sectionKey ?? "";
+
+      if (openSectionKeyRef.current === next) {
+        return;
+      }
+
+      openSectionKeyRef.current = next;
+      setOpenSectionKeyState(next);
       syncOpenSectionKeyToUrl(sectionKey);
     },
     [syncOpenSectionKeyToUrl],
   );
 
   useEffect(() => {
-    setOpenSectionKeyState(parseReviewChainOfCustodySectionKeyFromSearch(reviewChainOfCustodySectionKeyParam));
-  }, [reviewChainOfCustodySectionKeyParam]);
+    const syncOpenSectionKeyFromUrl = (): void => {
+      const next = parseReviewChainOfCustodySectionKeyFromSearch(
+        new URLSearchParams(window.location.search).get(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM),
+      );
+
+      if (openSectionKeyRef.current === next) {
+        return;
+      }
+
+      openSectionKeyRef.current = next;
+      setOpenSectionKeyState(next);
+    };
+
+    syncOpenSectionKeyFromUrl();
+    window.addEventListener("popstate", syncOpenSectionKeyFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenSectionKeyFromUrl);
+    };
+  }, []);
 
   const isSectionOpen = (sectionKey: string, defaultOpen: boolean): boolean => {
     if (openSectionKey.length > 0) {

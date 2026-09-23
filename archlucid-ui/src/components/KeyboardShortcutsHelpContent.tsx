@@ -2,9 +2,11 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -122,52 +124,75 @@ function partitionNavigationShortcuts(workingMode: boolean) {
  * Also used from tests to keep shortcut copy aligned.
  */
 export function KeyboardShortcutsTabContent(): React.ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const shortcutsSectionParam = searchParams.get("shortcutsSection");
   const { isWorkingMode } = useWorkspaceMode();
   const { common, rest, helpOnly } = useMemo(
     () => partitionNavigationShortcuts(isWorkingMode),
     [isWorkingMode],
   );
-  const urlSection = parseKeyboardShortcutsSectionFromSearch(shortcutsSectionParam);
-  const [moreOpen, setMoreOpenState] = useState(urlSection === "more");
-  const [alertsOpen, setAlertsOpenState] = useState(urlSection === "alerts");
-  const [findingsOpen, setFindingsOpenState] = useState(urlSection === "findings");
-  const [reviewDetailOpen, setReviewDetailOpenState] = useState(urlSection === "review");
-  const [helpOpen, setHelpOpenState] = useState(urlSection === "help");
+  const readUrlSection = (): KeyboardShortcutsSectionId | null =>
+    parseKeyboardShortcutsSectionFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("shortcutsSection"),
+    );
+  const [moreOpen, setMoreOpenState] = useState(() => readUrlSection() === "more");
+  const [alertsOpen, setAlertsOpenState] = useState(() => readUrlSection() === "alerts");
+  const [findingsOpen, setFindingsOpenState] = useState(() => readUrlSection() === "findings");
+  const [reviewDetailOpen, setReviewDetailOpenState] = useState(() => readUrlSection() === "review");
+  const [helpOpen, setHelpOpenState] = useState(() => readUrlSection() === "help");
+  const sectionRef = useRef<KeyboardShortcutsSectionId | null>(readUrlSection());
 
-  const syncSectionToUrl = useCallback(
-    (sectionId: KeyboardShortcutsSectionId | null) => {
-      router.replace(
-        keyboardShortcutsSectionHrefFromSearch(searchParams.toString(), sectionId, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setSectionOpen = useCallback(
-    (sectionId: KeyboardShortcutsSectionId, open: boolean) => {
-      setMoreOpenState(sectionId === "more" && open);
-      setAlertsOpenState(sectionId === "alerts" && open);
-      setFindingsOpenState(sectionId === "findings" && open);
-      setReviewDetailOpenState(sectionId === "review" && open);
-      setHelpOpenState(sectionId === "help" && open);
-      syncSectionToUrl(open ? sectionId : null);
-    },
-    [syncSectionToUrl],
-  );
-
-  useEffect(() => {
-    const section = parseKeyboardShortcutsSectionFromSearch(shortcutsSectionParam);
+  const applySectionState = useCallback((section: KeyboardShortcutsSectionId | null) => {
     setMoreOpenState(section === "more");
     setAlertsOpenState(section === "alerts");
     setFindingsOpenState(section === "findings");
     setReviewDetailOpenState(section === "review");
     setHelpOpenState(section === "help");
-  }, [shortcutsSectionParam]);
+  }, []);
+
+  const syncSectionToUrl = useCallback(
+    (sectionId: KeyboardShortcutsSectionId | null) => {
+      commitHrefIfChanged(
+        keyboardShortcutsSectionHrefFromSearch(readWindowLocationSearch(), sectionId, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  const setSectionOpen = useCallback(
+    (sectionId: KeyboardShortcutsSectionId, open: boolean) => {
+      const nextSection = open ? sectionId : null;
+
+      if (sectionRef.current === nextSection) {
+        return;
+      }
+
+      sectionRef.current = nextSection;
+      applySectionState(nextSection);
+      syncSectionToUrl(nextSection);
+    },
+    [applySectionState, syncSectionToUrl],
+  );
+
+  useEffect(() => {
+    const syncSectionFromUrl = (): void => {
+      const section = readUrlSection();
+
+      if (sectionRef.current === section) {
+        return;
+      }
+
+      sectionRef.current = section;
+      applySectionState(section);
+    };
+
+    syncSectionFromUrl();
+    window.addEventListener("popstate", syncSectionFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSectionFromUrl);
+    };
+  }, [applySectionState]);
 
   const workingDeskWorkShortcuts = useMemo(
     () => [...ARCHITECTURE_DESK_PAGE_SHORTCUTS, ...REVIEW_DETAIL_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS],

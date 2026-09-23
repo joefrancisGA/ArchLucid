@@ -1,8 +1,10 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { QuickDecisionAdditionalFindingsList } from "@/components/QuickDecisionAdditionalFindingsList";
@@ -60,14 +62,17 @@ export function QuickDecisionSummaryWorkspaceView({
   interaction,
   workspaceCardContext,
 }: QuickDecisionSummaryWorkspaceViewProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const quickDecisionPolicyPackImpactOpenParam = searchParams.get("quickDecisionPolicyPackImpactOpen");
   const [showAllFindings, setShowAllFindings] = useState(false);
   const [policyPackImpactOpen, setPolicyPackImpactOpenState] = useState(() =>
-    parseQuickDecisionPolicyPackImpactOpenFromSearch(quickDecisionPolicyPackImpactOpenParam),
+    parseQuickDecisionPolicyPackImpactOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("quickDecisionPolicyPackImpactOpen"),
+    ),
   );
+  const policyPackImpactOpenRef = useRef(policyPackImpactOpen);
+  policyPackImpactOpenRef.current = policyPackImpactOpen;
   const visibleFindings = buildWorkspaceVisibleFindings(props, derived, interaction);
   const priorityFindings = showAllFindings
     ? visibleFindings
@@ -78,16 +83,21 @@ export function QuickDecisionSummaryWorkspaceView({
 
   const syncPolicyPackImpactOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        quickDecisionPolicyPackImpactDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        quickDecisionPolicyPackImpactDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPolicyPackImpactOpen = useCallback(
     (open: boolean) => {
+      if (policyPackImpactOpenRef.current === open) {
+        return;
+      }
+
+      policyPackImpactOpenRef.current = open;
       setPolicyPackImpactOpenState(open);
       syncPolicyPackImpactOpenToUrl(open);
     },
@@ -95,10 +105,26 @@ export function QuickDecisionSummaryWorkspaceView({
   );
 
   useEffect(() => {
-    setPolicyPackImpactOpenState(
-      parseQuickDecisionPolicyPackImpactOpenFromSearch(quickDecisionPolicyPackImpactOpenParam),
-    );
-  }, [quickDecisionPolicyPackImpactOpenParam]);
+    const syncPolicyPackImpactOpenFromUrl = (): void => {
+      const next = parseQuickDecisionPolicyPackImpactOpenFromSearch(
+        new URLSearchParams(window.location.search).get("quickDecisionPolicyPackImpactOpen"),
+      );
+
+      if (policyPackImpactOpenRef.current === next) {
+        return;
+      }
+
+      policyPackImpactOpenRef.current = next;
+      setPolicyPackImpactOpenState(next);
+    };
+
+    syncPolicyPackImpactOpenFromUrl();
+    window.addEventListener("popstate", syncPolicyPackImpactOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPolicyPackImpactOpenFromUrl);
+    };
+  }, []);
 
   return (
     <div
@@ -253,7 +279,8 @@ export function QuickDecisionSummaryWorkspaceView({
           data-workspace-disclosure
           open={policyPackImpactOpen}
           onToggle={(event) => {
-            setPolicyPackImpactOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setPolicyPackImpactOpen(!policyPackImpactOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>Policy pack impact</summary>

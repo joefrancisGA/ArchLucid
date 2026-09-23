@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -52,12 +54,10 @@ function toFindingRef(finding: QuickDecisionFinding): ArchitectureFindingsDualPa
  * Provenance ("why is this here?") remains TB-2180 on the diagram panel.
  */
 export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPaneProps): React.JSX.Element {
-  const router = useRouter();
   const workingBackLocator = useWorkingBackLocator({
     reviewId: props.runId,
     architectureId: props.architectureId});
   const pathname = usePathname() ?? workingBackLocator.reviewJobHref;
-  const searchParams = useSearchParams();
   const workbenchSelection = useReviewWorkbenchSelection();
   const setSelectedFindingId = workbenchSelection?.setSelectedFindingId;
   const reconcileSelectedFindingId = workbenchSelection?.reconcileSelectedFindingId;
@@ -143,9 +143,9 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
     }
 
     setLocalSelectedFindingId(findingId);
-    router.replace(
+    commitHrefIfChanged(
       architectureDiagramFindingHrefFromSearch(window.location.search, findingId, pathname),
-      { scroll: false },
+      { notify: false },
     );
   };
 
