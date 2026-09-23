@@ -3,6 +3,7 @@
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -204,20 +205,22 @@ function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, co
   return `AI availability details — ${checkLabel}`;
 }
 
-function resolveProbeProvenanceCopy(aiSource: string): string {
+function resolveProbeProvenanceCopy(aiSource: string, productLine: "architecture" | "security"): string {
+  const productName = productLine === "security" ? "SecureNow" : "ArchLucid";
+
   if (aiSource === "managed-platform") {
-    return "ArchLucid ran a live completion probe against the Azure OpenAI deployment configured for this workspace on the managed platform.";
+    return `${productName} ran a live completion probe against the Azure OpenAI deployment configured for this workspace on the managed platform.`;
   }
 
   if (aiSource === "customer-connection") {
-    return "ArchLucid ran a live completion probe against the deployment configured in your workspace customer AI connection.";
+    return `${productName} ran a live completion probe against the deployment configured in your workspace customer AI connection.`;
   }
 
   if (aiSource === "simulator") {
     return "Simulator mode is active — a live deployment probe was not required.";
   }
 
-  return "ArchLucid ran a live completion probe against the deployment configured for this workspace.";
+  return `${productName} ran a live completion probe against the deployment configured for this workspace.`;
 }
 
 function statusTagKind(
@@ -248,11 +251,12 @@ function resolveWorkspaceAiDetail(
   state: ReturnType<typeof useWorkspaceAiAvailabilityCheck>["state"],
   workspaceAiSignal: WorkspaceAiConfigurationSignal,
   managedBySession: boolean,
+  productLine: "architecture" | "security",
 ): string {
   if (state.status === "loaded") {
     return state.result.isAvailable
       ? workspaceAiAvailableDetail(state.result)
-      : workspaceAiUnavailableDetail(state.result);
+      : workspaceAiUnavailableDetail(state.result, productLine);
   }
 
   if (state.status === "loading") {
@@ -274,9 +278,10 @@ function WorkspaceAiProbeModelSummary(props: {
   readonly deploymentName: string | null;
   readonly modelId: string | null;
   readonly aiSource: string;
+  readonly productLine: "architecture" | "security";
   readonly compact?: boolean;
 }): React.JSX.Element | null {
-  const { deploymentName, modelId, aiSource, compact = false } = props;
+  const { deploymentName, modelId, aiSource, productLine, compact = false } = props;
 
   if (deploymentName === null && modelId === null) {
     return null;
@@ -303,7 +308,7 @@ function WorkspaceAiProbeModelSummary(props: {
           className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="review-package-workspace-ai-model-provenance"
         >
-          {resolveProbeProvenanceCopy(aiSource)}
+          {resolveProbeProvenanceCopy(aiSource, productLine)}
         </p>
       ) : null}
     </div>
@@ -312,9 +317,10 @@ function WorkspaceAiProbeModelSummary(props: {
 
 function WorkspaceAiProbeDiagnostics(props: {
   readonly result: WorkspaceAiAvailabilityResult;
+  readonly productLine: "architecture" | "security";
   readonly compact?: boolean;
 }): React.JSX.Element {
-  const { result, compact = false } = props;
+  const { result, productLine, compact = false } = props;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -354,6 +360,7 @@ function WorkspaceAiProbeDiagnostics(props: {
         deploymentName={deploymentName}
         modelId={modelId}
         aiSource={result.aiSource}
+        productLine={productLine}
         compact={compact}
       />
 
@@ -398,6 +405,7 @@ function WorkspaceAiProbeDiagnostics(props: {
 /** API-validated workspace AI availability with full probe diagnostics for review failure recovery. */
 export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanelProps): React.JSX.Element {
   const { workspaceAiSignal, availabilityCheck, reviewTerminalFailure = false, scopingLabel } = props;
+  const { productLine } = useProductLine();
   const internalCheck = useWorkspaceAiAvailabilityCheck({
     enabled: availabilityCheck === undefined,
     autoCheck: false,
@@ -410,7 +418,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       ? workspaceAiAvailabilityStatusLabel(state.result)
       : workspaceAiSignal.label;
 
-  const detail = resolveWorkspaceAiDetail(state, workspaceAiSignal, managedBySession);
+  const detail = resolveWorkspaceAiDetail(state, workspaceAiSignal, managedBySession, productLine);
 
   const liveProbeFailure =
     state.status === "loaded"
@@ -572,6 +580,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
             deploymentName={resolveProbeDeploymentName(state.result.debug)}
             modelId={resolveProbeModelId(state.result.debug)}
             aiSource={state.result.aiSource}
+            productLine={productLine}
             compact
           />
           <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
@@ -592,7 +601,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
             open={probeDiagnosticsOpen}
             onOpenChange={setProbeDiagnosticsOpen}
           >
-            <WorkspaceAiProbeDiagnostics result={state.result} compact />
+          <WorkspaceAiProbeDiagnostics result={state.result} productLine={productLine} compact />
           </AdvancedOptionsAccordion>
         </div>
       ) : null}
@@ -606,6 +615,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
         >
           <WorkspaceAiProbeDiagnostics
             result={state.result}
+            productLine={productLine}
             compact={!neutralProbeOnTerminalFailure}
           />
         </AdvancedOptionsAccordion>

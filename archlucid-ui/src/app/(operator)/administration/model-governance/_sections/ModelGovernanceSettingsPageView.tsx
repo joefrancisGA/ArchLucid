@@ -17,6 +17,7 @@ import {
 } from "@/lib/model-governance-settings-evidence-copy";
 
 import { ModelGovernanceSettingsCard } from "./ModelGovernanceSettingsCard";
+import { ModelGovernanceAzureOpenAiConnectionCard } from "./ModelGovernanceAzureOpenAiConnectionCard";
 import { ModelGovernanceSettingsBuyerChrome } from "./ModelGovernanceSettingsBuyerChrome";
 import { ModelGovernanceSettingsHeaderActions } from "./ModelGovernanceSettingsHeaderActions";
 import {
@@ -69,6 +70,7 @@ export function ModelGovernanceSettingsPageView(): React.JSX.Element {
           )}
         >
           {buyerPolishedShell ? <ModelGovernanceSettingsBuyerChrome /> : null}
+          <ModelGovernanceAzureOpenAiConnectionCard />
           <ModelGovernanceSettingsCard />
         </div>
 

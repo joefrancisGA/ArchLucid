@@ -1,9 +1,12 @@
 import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
 import { operatorSafeWorkspaceAiUnavailableDetail } from "@/lib/workspace-ai-availability";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
-function managedPlatformShellSteps(): readonly string[] {
+function managedPlatformShellSteps(productLineId: ProductLineId): readonly string[] {
+  const productName = productLineId === "security" ? "SecureNow" : "ArchLucid";
+
   return [
-    "Confirm ArchLucid.Api is running and reachable from this UI host.",
+    `Confirm the ${productName} API is running and reachable from this UI host.`,
     "Configure Azure OpenAI on the API host (endpoint, deployment, API key or managed identity), or switch the top-bar chip back to rule-based analysis.",
     "Press Check AI availability to re-run the live probe after fixing configuration.",
   ];
@@ -34,6 +37,7 @@ function probeErrorShellSteps(): readonly string[] {
 /** Operator-shell recovery steps when Live AI mode is active but not ready. */
 export function resolveShellAiReadinessRecoverySteps(
   readiness: SessionAiReadinessState,
+  productLineId: ProductLineId = "architecture",
 ): readonly string[] {
   if (!readiness.isSessionReal || readiness.isReady) {
     return [];
@@ -53,11 +57,11 @@ export function resolveShellAiReadinessRecoverySteps(
     return [];
   }
 
-  const outageDetail = operatorSafeWorkspaceAiUnavailableDetail(probeState.result).trim();
+  const outageDetail = operatorSafeWorkspaceAiUnavailableDetail(probeState.result, productLineId).trim();
   const usesCustomerConnection = availability?.aiSource === "customer-connection";
   const baseSteps = usesCustomerConnection
     ? customerConnectionShellSteps()
-    : managedPlatformShellSteps();
+    : managedPlatformShellSteps(productLineId);
 
   if (outageDetail.length > 0) {
     return [outageDetail, ...baseSteps.slice(1)];

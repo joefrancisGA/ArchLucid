@@ -1,4 +1,5 @@
 import type { WorkspaceAiAvailabilityCheckState } from "@/hooks/useWorkspaceAiAvailabilityCheck";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { workspaceAiUnavailableDetail } from "@/lib/workspace-ai-availability";
 
 export type ProbeAwareRecoveryStepsInput = {
@@ -8,19 +9,25 @@ export type ProbeAwareRecoveryStepsInput = {
   readonly canConfigureWorkspaceAi: boolean;
   /** When true, the review failed for a reason other than live AI unavailability. */
   readonly reviewTerminalFailure?: boolean;
+  readonly productLineId?: ProductLineId;
 };
 
-function managedPlatformOutageSteps(canConfigureWorkspaceAi: boolean): readonly string[] {
+function managedPlatformOutageSteps(
+  canConfigureWorkspaceAi: boolean,
+  productLineId: ProductLineId,
+): readonly string[] {
+  const productName = productLineId === "security" ? "SecureNow" : "ArchLucid";
+
   if (canConfigureWorkspaceAi) {
     return [
-      "The live AI availability probe reports that ArchLucid-managed AI is unavailable right now — changing models on Administration → AI models will not fix a platform outage.",
+      `The live AI availability probe reports that ${productName}-managed AI is unavailable right now — changing models on Administration → AI models will not fix a platform outage.`,
       "Open Report a problem and include this review id so support can investigate.",
       "Return here and click Re-run review after the live probe succeeds.",
     ];
   }
 
   return [
-    "The live AI availability probe reports that ArchLucid-managed AI is unavailable right now.",
+    `The live AI availability probe reports that ${productName}-managed AI is unavailable right now.`,
     "Share the administrator handoff below with a workspace administrator so support can investigate.",
     "Return here and click Re-run review after the live probe succeeds.",
   ];
@@ -30,7 +37,7 @@ function customerConnectionOutageSteps(canConfigureWorkspaceAi: boolean): readon
   if (canConfigureWorkspaceAi) {
     return [
       "The live AI availability probe reports that your workspace customer-provided AI connection is unavailable.",
-      "Contact your ArchLucid support contact with this review id — connection credentials are managed outside this workspace UI.",
+      "Contact your support contact with this review id — connection credentials are managed outside this workspace UI.",
       "Return here and click Re-run review after the live probe succeeds.",
     ];
   }
@@ -68,7 +75,12 @@ function probeErrorSteps(): readonly string[] {
  * Outage claims appear only after the probe reports unavailability.
  */
 export function resolveProbeAwareRecoverySteps(input: ProbeAwareRecoveryStepsInput): readonly string[] {
-  const { probeState, usesCustomerAiConnection, canConfigureWorkspaceAi } = input;
+  const {
+    probeState,
+    usesCustomerAiConnection,
+    canConfigureWorkspaceAi,
+    productLineId = "architecture",
+  } = input;
 
   if (probeState.status === "idle" || probeState.status === "loading") {
     return probePendingSteps();
@@ -82,17 +94,17 @@ export function resolveProbeAwareRecoverySteps(input: ProbeAwareRecoveryStepsInp
     return probeSucceededSteps();
   }
 
-  const outageDetail = workspaceAiUnavailableDetail(probeState.result).trim();
+  const outageDetail = workspaceAiUnavailableDetail(probeState.result, productLineId).trim();
 
   if (outageDetail.length > 0) {
     const outageSteps = usesCustomerAiConnection
       ? customerConnectionOutageSteps(canConfigureWorkspaceAi)
-      : managedPlatformOutageSteps(canConfigureWorkspaceAi);
+      : managedPlatformOutageSteps(canConfigureWorkspaceAi, productLineId);
 
     return [outageDetail, ...outageSteps.slice(1)];
   }
 
   return usesCustomerAiConnection
     ? customerConnectionOutageSteps(canConfigureWorkspaceAi)
-    : managedPlatformOutageSteps(canConfigureWorkspaceAi);
+    : managedPlatformOutageSteps(canConfigureWorkspaceAi, productLineId);
 }

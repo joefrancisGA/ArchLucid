@@ -226,6 +226,7 @@ describe("settings-master-page-model", () => {
     expect(hrefs).toContain("/integrations/cloud-connections");
     expect(hrefs).toContain("/administration/users");
     expect(hrefs).toContain("/administration/auth-domains");
+    expect(hrefs).toContain("/administration/model-governance");
     expect(hrefs).toContain("/governance/infrastructure/extract-upload");
     expect(hrefs).not.toContain("/administration/extract-upload");
     expect(hrefs).not.toContain("/administration/billing");
@@ -235,7 +236,7 @@ describe("settings-master-page-model", () => {
     expect(hrefs).not.toContain("/administration/branding");
     expect(hrefs).not.toContain("/administration/scim-provisioning");
     expect(sectionIds).not.toContain("governance");
-    expect(sectionIds).not.toContain("ai-usage");
+    expect(sectionIds).toContain("ai-usage");
     expect(sectionIds).not.toContain("support");
     expect(sectionIds).toContain("integrations");
     expect(sectionIds).toContain("health-and-access");
