@@ -222,6 +222,36 @@ export function writeReviewDetailTabToUrl(
   window.dispatchEvent(new Event(REVIEW_DETAIL_URL_CHANGED_EVENT));
 }
 
+/** Mutates only `findingId` in the address bar (avoids stale tab/focus rewrites during selection sync). */
+export function writeReviewDetailFindingIdToUrl(findingId: string | null): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const url = new URL(window.location.href);
+
+  if (findingId === null) {
+    url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+  } else {
+    const trimmed = findingId.trim();
+
+    if (trimmed.length > 0) {
+      url.searchParams.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+    } else {
+      url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+    }
+  }
+
+  const nextHref = url.toString();
+
+  if (nextHref === window.location.href) {
+    return;
+  }
+
+  window.history.replaceState(null, "", nextHref);
+  window.dispatchEvent(new Event(REVIEW_DETAIL_URL_CHANGED_EVENT));
+}
+
 /** Reads the active review tab from the current browser location. */
 export function readReviewDetailTabFromWindowLocation(): ReviewDetailTabId {
   if (typeof window === "undefined") {

@@ -119,6 +119,7 @@ export function SettingsRolesPageView(props: Props) {
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
   const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
   const [inviteSectionOpen, setInviteSectionOpenState] = useState(urlInviteOpen);
+  const inviteSectionOpenRef = useRef(urlInviteOpen);
   const rolesTabBuyerPolished = buyerPolishedShell && activeTab === "roles";
   const usersTabBuyerPolished = buyerPolishedShell && activeTab === "users";
   const buyerPolishedMutationTab = rolesTabBuyerPolished || usersTabBuyerPolished;
@@ -135,15 +136,13 @@ export function SettingsRolesPageView(props: Props) {
 
   const setInviteSectionOpen = useCallback(
     (open: boolean) => {
-      setInviteSectionOpenState((current) => {
-        if (current === open) {
-          return current;
-        }
+      if (inviteSectionOpenRef.current === open) {
+        return;
+      }
 
-        syncInviteSectionToUrl(open);
-
-        return open;
-      });
+      inviteSectionOpenRef.current = open;
+      setInviteSectionOpenState(open);
+      syncInviteSectionToUrl(open);
     },
     [syncInviteSectionToUrl],
   );
@@ -196,7 +195,9 @@ export function SettingsRolesPageView(props: Props) {
   }, [urlTab]);
 
   useEffect(() => {
-    setInviteSectionOpenState(parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite")));
+    const nextInviteOpen = parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite"));
+    inviteSectionOpenRef.current = nextInviteOpen;
+    setInviteSectionOpenState(nextInviteOpen);
   }, [searchParams]);
 
   useEffect(() => {

@@ -8,6 +8,7 @@ import {
   resolveReviewDetailTab,
   resolveReviewDetailTabFromHash,
   resolveReviewDetailTabFromLocation,
+  writeReviewDetailFindingIdToUrl,
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 
@@ -57,6 +58,16 @@ describe("review-detail-workspace-tabs", () => {
     expect(replaceStateSpy).toHaveBeenCalled();
     expect(readReviewDetailTabFromWindowLocation()).toBe("findings");
     expect(window.location.search).toContain("reviewTab=findings");
+  });
+
+  it("writes only findingId without rewriting reviewTab", () => {
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview&findingId=stale");
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    writeReviewDetailFindingIdToUrl(null);
+
+    expect(replaceStateSpy).toHaveBeenCalled();
+    expect(window.location.search).toBe("?reviewTab=overview");
   });
 
   it("skips replaceState and URL-changed event when the href is already committed", () => {
