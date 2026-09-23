@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useRef } from "react";
 
 import { ReviewPresenterElicitationActions } from "@/components/reviews/ReviewPresenterElicitationActions";
 import {
@@ -25,9 +25,10 @@ import {
   readRoomElicitationFromSearchParams,
 } from "@/lib/reviews/review-room-elicitation-url";
 import {
-  parseReviewPresenterQuestionIdFromSearch,
+  readReviewPresenterQuestionIdFromWindowLocation,
   reviewPresenterElicitationHrefFromSearch,
 } from "@/lib/reviews/review-presenter-elicitation-url";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export type RunDetailPresenterElicitationBridgeProps = ReviewDetailWorkspaceProps & {
@@ -56,15 +57,16 @@ export function RunDetailPresenterElicitationBridge(
   const showInlineRoomPanel =
     showElicitation && !showPresenterSurface && resolvedParentArchitectureId.length === 0;
   const primaryQuestionKey = elicitation.primaryQuestion?.questionKey ?? "";
+  const syncedPresenterQuestionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isWorkingMode || !presenterMode || resolvedParentArchitectureId.length === 0) {
       return;
     }
 
-    router.replace(
+    replaceIfHrefChanged(
+      router,
       inhabitedFindingsRoomElicitationHref(resolvedParentArchitectureId, workspaceProps.runId),
-      { scroll: false },
     );
   }, [isWorkingMode, presenterMode, resolvedParentArchitectureId, router, workspaceProps.runId]);
 
@@ -73,36 +75,39 @@ export function RunDetailPresenterElicitationBridge(
       return;
     }
 
-    router.replace(
+    replaceIfHrefChanged(
+      router,
       inhabitedFindingsRoomElicitationHref(resolvedParentArchitectureId, workspaceProps.runId),
-      { scroll: false },
     );
   }, [isWorkingMode, roomElicitationMode, resolvedParentArchitectureId, router, workspaceProps.runId]);
 
   useEffect(() => {
     if (!showElicitation) {
+      syncedPresenterQuestionIdRef.current = null;
+
       return;
     }
 
-    const urlQuestionId = parseReviewPresenterQuestionIdFromSearch(presenterQuestionIdParam);
     const nextQuestionId = primaryQuestionKey.trim().length > 0 ? primaryQuestionKey : null;
 
-    if (urlQuestionId === (nextQuestionId ?? "")) {
+    if (syncedPresenterQuestionIdRef.current === nextQuestionId) {
       return;
     }
 
-    router.replace(
-      reviewPresenterElicitationHrefFromSearch(searchParams.toString(), nextQuestionId, pathname),
-      { scroll: false },
+    const urlQuestionId = readReviewPresenterQuestionIdFromWindowLocation();
+
+    if (urlQuestionId === (nextQuestionId ?? "")) {
+      syncedPresenterQuestionIdRef.current = nextQuestionId;
+
+      return;
+    }
+
+    syncedPresenterQuestionIdRef.current = nextQuestionId;
+    replaceIfHrefChanged(
+      router,
+      reviewPresenterElicitationHrefFromSearch(window.location.search.slice(1), nextQuestionId, pathname),
     );
-  }, [
-    pathname,
-    presenterQuestionIdParam,
-    primaryQuestionKey,
-    router,
-    searchParams,
-    showElicitation,
-  ]);
+  }, [pathname, presenterQuestionIdParam, primaryQuestionKey, router, showElicitation]);
 
   const presenterFindingTitle = showPresenterSurface ? elicitation.title : undefined;
 

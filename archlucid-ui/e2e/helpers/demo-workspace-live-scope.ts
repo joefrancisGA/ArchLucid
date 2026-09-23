@@ -14,7 +14,12 @@ import {
   expectBuyerPolishedReviewDetailShellReady,
   gotoLiveRunDetailPage,
 } from "./operator-journey";
-import { stubEmptyArchitectureDraftListRoute } from "./live-private-beta-access";
+import {
+  LIVE_E2E_DEFAULT_PROJECT_ID,
+  LIVE_E2E_DEFAULT_TENANT_ID,
+  LIVE_E2E_DEFAULT_WORKSPACE_ID,
+  stubEmptyArchitectureDraftListRoute,
+} from "./live-private-beta-access";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
 
@@ -110,6 +115,15 @@ export async function injectDemoWorkspaceOperatorScope(
   // Init script only runs on navigations after registration — reload once so localStorage and
   // document.cookie mirror the SSR cookie before isolated-tenant run-detail RSC hydration.
   await page.goto("/", { waitUntil: "domcontentloaded" });
+}
+
+/** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */
+export async function injectDefaultTenantOperatorScope(page: Page): Promise<void> {
+  await injectDemoWorkspaceOperatorScope(page, {
+    tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
+    workspaceId: LIVE_E2E_DEFAULT_WORKSPACE_ID,
+    projectId: LIVE_E2E_DEFAULT_PROJECT_ID,
+  });
 }
 
 /**

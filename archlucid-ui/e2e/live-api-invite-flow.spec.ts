@@ -11,12 +11,14 @@ import {
   stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
 import { submitAdminInviteFromUsersUi } from "./helpers/live-invite-form-submit";
+import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase } from "./helpers/live-api-client";
 
 async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
   await primePrivateBetaBrowserSessionIfJwtMode(page);
+  await injectDefaultTenantOperatorScope(page);
   await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
   await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
