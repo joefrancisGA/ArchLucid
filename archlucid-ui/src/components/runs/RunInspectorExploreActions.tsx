@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
@@ -79,59 +81,109 @@ export function RunInspectorExploreActions({
   moreOpen,
   onToggleMoreOpen,
 }: RunInspectorExploreActionsProps) {
-  const searchParams = useSearchParams();
   const pathname = usePathname() ?? "/";
-  const router = useRouter();
-  const runInspectorRelatedActionsParam = searchParams.get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM);
   const [runInspectorRelatedActionsOpen, setRunInspectorRelatedActionsOpenState] = useState(() =>
-    parseRunInspectorRelatedActionsOpenFromSearch(runInspectorRelatedActionsParam),
+    parseRunInspectorRelatedActionsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM),
+    ),
   );
+  const runInspectorRelatedActionsOpenRef = useRef(runInspectorRelatedActionsOpen);
+  runInspectorRelatedActionsOpenRef.current = runInspectorRelatedActionsOpen;
   const syncRunInspectorRelatedActionsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runInspectorRelatedActionsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runInspectorRelatedActionsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setRunInspectorRelatedActionsOpen = useCallback(
     (open: boolean) => {
+      if (runInspectorRelatedActionsOpenRef.current === open) {
+        return;
+      }
+
+      runInspectorRelatedActionsOpenRef.current = open;
       setRunInspectorRelatedActionsOpenState(open);
       syncRunInspectorRelatedActionsOpenToUrl(open);
     },
     [syncRunInspectorRelatedActionsOpenToUrl],
   );
   useEffect(() => {
-    setRunInspectorRelatedActionsOpenState(
-      parseRunInspectorRelatedActionsOpenFromSearch(runInspectorRelatedActionsParam),
-    );
-  }, [runInspectorRelatedActionsParam]);
-  const runInspectorOpenArtifactParam = searchParams.get(RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM);
+    const syncRunInspectorRelatedActionsOpenFromUrl = (): void => {
+      const next = parseRunInspectorRelatedActionsOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM),
+      );
+
+      if (runInspectorRelatedActionsOpenRef.current === next) {
+        return;
+      }
+
+      runInspectorRelatedActionsOpenRef.current = next;
+      setRunInspectorRelatedActionsOpenState(next);
+    };
+
+    syncRunInspectorRelatedActionsOpenFromUrl();
+    window.addEventListener("popstate", syncRunInspectorRelatedActionsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRunInspectorRelatedActionsOpenFromUrl);
+    };
+  }, []);
   const [runInspectorOpenArtifactOpen, setRunInspectorOpenArtifactOpenState] = useState(() =>
-    parseRunInspectorOpenArtifactOpenFromSearch(runInspectorOpenArtifactParam),
+    parseRunInspectorOpenArtifactOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM),
+    ),
   );
+  const runInspectorOpenArtifactOpenRef = useRef(runInspectorOpenArtifactOpen);
+  runInspectorOpenArtifactOpenRef.current = runInspectorOpenArtifactOpen;
   const syncRunInspectorOpenArtifactOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runInspectorOpenArtifactDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runInspectorOpenArtifactDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setRunInspectorOpenArtifactOpen = useCallback(
     (open: boolean) => {
+      if (runInspectorOpenArtifactOpenRef.current === open) {
+        return;
+      }
+
+      runInspectorOpenArtifactOpenRef.current = open;
       setRunInspectorOpenArtifactOpenState(open);
       syncRunInspectorOpenArtifactOpenToUrl(open);
     },
     [syncRunInspectorOpenArtifactOpenToUrl],
   );
   useEffect(() => {
-    setRunInspectorOpenArtifactOpenState(
-      parseRunInspectorOpenArtifactOpenFromSearch(runInspectorOpenArtifactParam),
-    );
-  }, [runInspectorOpenArtifactParam]);
+    const syncRunInspectorOpenArtifactOpenFromUrl = (): void => {
+      const next = parseRunInspectorOpenArtifactOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM),
+      );
+
+      if (runInspectorOpenArtifactOpenRef.current === next) {
+        return;
+      }
+
+      runInspectorOpenArtifactOpenRef.current = next;
+      setRunInspectorOpenArtifactOpenState(next);
+    };
+
+    syncRunInspectorOpenArtifactOpenFromUrl();
+    window.addEventListener("popstate", syncRunInspectorOpenArtifactOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRunInspectorOpenArtifactOpenFromUrl);
+    };
+  }, []);
 
   return (
     <>
@@ -147,7 +199,10 @@ export function RunInspectorExploreActions({
             <details
               className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20"
               open={runInspectorRelatedActionsOpen}
-              onToggle={(event) => setRunInspectorRelatedActionsOpen(event.currentTarget.open)}
+              onToggle={(event) => {
+                event.preventDefault();
+                setRunInspectorRelatedActionsOpen(!runInspectorRelatedActionsOpenRef.current);
+              }}
             >
               <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 Related actions
@@ -175,7 +230,10 @@ export function RunInspectorExploreActions({
             <details
               className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20"
               open={runInspectorOpenArtifactOpen}
-              onToggle={(event) => setRunInspectorOpenArtifactOpen(event.currentTarget.open)}
+              onToggle={(event) => {
+                event.preventDefault();
+                setRunInspectorOpenArtifactOpen(!runInspectorOpenArtifactOpenRef.current);
+              }}
             >
               <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 Open specific artifact
