@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { normalizeRunIdForRecurrenceApi } from "@/components/runs/RunDetailRecurrenceScheduleCard";
@@ -60,25 +62,33 @@ export function RecurrenceSchedulePostCommitCard({
   hasStickinessPrompt = false,
   pagePrimaryOwnedElsewhere = false,
 }: RecurrenceSchedulePostCommitCardProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const recurrenceSchedulePostCommitOpenParam = searchParams.get("recurrenceSchedulePostCommitOpen");
   const [open, setOpenState] = useState(
     () =>
-      parseRecurrenceSchedulePostCommitOpenFromSearch(recurrenceSchedulePostCommitOpenParam) || hasStickinessPrompt,
+      parseRecurrenceSchedulePostCommitOpenFromSearch(
+        typeof window === "undefined"
+          ? null
+          : new URLSearchParams(window.location.search).get("recurrenceSchedulePostCommitOpen"),
+      ) || hasStickinessPrompt,
   );
+  const openRef = useRef(open);
+  openRef.current = open;
   const syncOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(
-        recurrenceSchedulePostCommitDisclosureHrefFromSearch(searchParams.toString(), nextOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        recurrenceSchedulePostCommitDisclosureHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setOpen = useCallback(
     (nextOpen: boolean) => {
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
       setOpenState(nextOpen);
       syncOpenToUrl(nextOpen);
     },
@@ -86,10 +96,27 @@ export function RecurrenceSchedulePostCommitCard({
   );
 
   useEffect(() => {
-    setOpenState(
-      parseRecurrenceSchedulePostCommitOpenFromSearch(recurrenceSchedulePostCommitOpenParam) || hasStickinessPrompt,
-    );
-  }, [hasStickinessPrompt, recurrenceSchedulePostCommitOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next =
+        parseRecurrenceSchedulePostCommitOpenFromSearch(
+          new URLSearchParams(window.location.search).get("recurrenceSchedulePostCommitOpen"),
+        ) || hasStickinessPrompt;
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, [hasStickinessPrompt]);
 
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [name, setName] = useState(DEFAULT_NAME);

@@ -3,8 +3,10 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FileDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
@@ -81,11 +83,14 @@ export function GenerateAdrFromRunModal({
   const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
   const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
   const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
-  const searchParams = useSearchParams();
-  const adrOpenParam = searchParams.get("adrOpen");
-  const [open, setOpenState] = useState(() => parseReviewGenerateAdrOpenFromSearch(adrOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewGenerateAdrOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("adrOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const [markdown, setMarkdown] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
@@ -219,17 +224,24 @@ export function GenerateAdrFromRunModal({
 
   const syncAdrOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(reviewGenerateAdrPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        reviewGenerateAdrPanelsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (openRef.current === next) {
+          return current;
+        }
+
+        openRef.current = next;
         syncAdrOpenToUrl(next);
 
         return next;
@@ -237,6 +249,28 @@ export function GenerateAdrFromRunModal({
     },
     [syncAdrOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncAdrOpenFromUrl = (): void => {
+      const next = parseReviewGenerateAdrOpenFromSearch(
+        new URLSearchParams(window.location.search).get("adrOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncAdrOpenFromUrl();
+    window.addEventListener("popstate", syncAdrOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAdrOpenFromUrl);
+    };
+  }, []);
 
   const onOpenChange = useCallback(
     (next: boolean) => {

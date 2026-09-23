@@ -1,8 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
@@ -17,30 +18,65 @@ export function useOperatorHomeBooleanDisclosureUrlSync(
   defaultExpanded = false,
   legacyStorageKeys: readonly string[] = [],
 ): [boolean, (open: boolean) => void] {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const openParam = searchParams.get(paramName);
+  const readOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(paramName);
+
+    if (param === null) {
+      return null;
+    }
+
+    return parseOpenFromSearch(param);
+  };
   const [expanded, setExpandedState] = useState(() => {
-    if (parseOpenFromSearch(openParam)) {
-      return true;
+    const fromUrl = readOpenFromUrl();
+
+    if (fromUrl !== null) {
+      return fromUrl;
     }
 
     return readOperatorHomeDisclosureExpanded(storageKey, defaultExpanded, legacyStorageKeys);
   });
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
 
   const setExpanded = useCallback(
     (open: boolean) => {
+      if (expandedRef.current === open) {
+        return;
+      }
+
+      expandedRef.current = open;
       setExpandedState(open);
       writeOperatorHomeDisclosureExpanded(storageKey, open);
-      router.replace(disclosureHrefFromSearch(searchParams.toString(), open, pathname), { scroll: false });
+      commitHrefIfChanged(disclosureHrefFromSearch(readWindowLocationSearch(), open, pathname), { notify: false });
     },
-    [disclosureHrefFromSearch, pathname, router, searchParams, storageKey],
+    [disclosureHrefFromSearch, paramName, pathname, storageKey],
   );
 
   useEffect(() => {
-    setExpandedState(parseOpenFromSearch(openParam));
-  }, [openParam, parseOpenFromSearch]);
+    const syncExpandedFromUrl = (): void => {
+      const fromUrl = readOpenFromUrl();
+
+      if (fromUrl === null) {
+        return;
+      }
+
+      if (expandedRef.current === fromUrl) {
+        return;
+      }
+
+      expandedRef.current = fromUrl;
+      setExpandedState(fromUrl);
+    };
+
+    syncExpandedFromUrl();
+    window.addEventListener("popstate", syncExpandedFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncExpandedFromUrl);
+    };
+  }, [paramName, parseOpenFromSearch]);
 
   return [expanded, setExpanded];
 }
