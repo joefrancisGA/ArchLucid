@@ -200,15 +200,26 @@ export function SettingsRolesPageView(props: Props) {
   }, [urlTab]);
 
   useEffect(() => {
-    const nextInviteOpen = parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite"));
+    const syncInviteOpenFromUrl = (): void => {
+      const nextInviteOpen = parseSettingsUsersInviteOpenFromSearch(
+        new URLSearchParams(window.location.search).get("invite"),
+      );
 
-    if (inviteSectionOpenRef.current === nextInviteOpen) {
-      return;
-    }
+      if (inviteSectionOpenRef.current === nextInviteOpen) {
+        return;
+      }
 
-    inviteSectionOpenRef.current = nextInviteOpen;
-    setInviteSectionOpenState(nextInviteOpen);
-  }, [searchParams.get("invite")]);
+      inviteSectionOpenRef.current = nextInviteOpen;
+      setInviteSectionOpenState(nextInviteOpen);
+    };
+
+    syncInviteOpenFromUrl();
+    window.addEventListener("popstate", syncInviteOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncInviteOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const onPop = () => {
