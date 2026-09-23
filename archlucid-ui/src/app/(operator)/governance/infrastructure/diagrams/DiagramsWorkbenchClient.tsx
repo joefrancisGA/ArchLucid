@@ -202,8 +202,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY,
-  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -982,36 +980,6 @@ export function DiagramsWorkbenchClient() {
     setLoadGeneration((current) => current + 1);
   }, []);
 
-  const scopeStatusBadge = useMemo(() => {
-    if (urlCloudResourceId.length > 0) {
-      return (
-        <StatusTag
-          kind="ready"
-          label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL}
-          data-testid="infra-diagrams-scope-status"
-        />
-      );
-    }
-
-    if (selectedSnapshotId.length > 0) {
-      return (
-        <StatusTag
-          kind="ready"
-          label="Snapshot selected"
-          data-testid="infra-diagrams-scope-status"
-        />
-      );
-    }
-
-    return (
-      <StatusTag
-        kind="needs-attention"
-        label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL}
-        data-testid="infra-diagrams-scope-status"
-      />
-    );
-  }, [selectedSnapshotId, urlCloudResourceId]);
-
   const handleRenderFailure = useCallback(() => {
     // ArchitectureDiagramViewer surfaces retry; client render failures are not oversized-graph guards.
   }, []);
@@ -1485,7 +1453,7 @@ export function DiagramsWorkbenchClient() {
         actions={
           <InfraEvidenceWorkbenchHeaderActions
             shortcutsTestId="infra-diagrams-page-shortcuts"
-            scopeStatusBadge={scopeStatusBadge}
+            showShortcutHints={false}
           />
         }
       />
