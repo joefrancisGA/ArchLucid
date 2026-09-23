@@ -54,8 +54,9 @@ export function ReviewsNewRouteBody(): React.JSX.Element {
   if (shouldResolveWorkingArchitectureStart) {
     if (!architectureIdentitiesQuery.isLoading && !architectureIdentitiesQuery.isError) {
       const architectureItems = architectureIdentitiesQuery.data?.items ?? [];
+      const hasStarterPreset = (searchParams?.get("preset")?.trim() ?? "").length > 0;
 
-      if (architectureItems.length === 0) {
+      if (architectureItems.length === 0 || hasStarterPreset) {
         return <ReviewsNewSocraticIntakeWizardDeferred requiresSystemName />;
       }
     }
