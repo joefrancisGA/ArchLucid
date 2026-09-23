@@ -9,6 +9,8 @@ import {
 import { OperatorShellAccessGateLoading } from "@/components/operator/OperatorShellAccessGateLoading";
 import { useOperatorShellAccessRedirects } from "@/hooks/useOperatorShellAccessRedirects";
 import { OPERATOR_SHELL_MAIN_PADDING_CLASS } from "@/lib/design-tokens";
+import { operatorShellAccessGateLoadingTitle } from "@/lib/operator/operator-shell-access-gate";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 type OperatorShellDeferredChromeProps = {
@@ -17,6 +19,9 @@ type OperatorShellDeferredChromeProps = {
 
 /** Full-viewport neutral shell while access gates resolve — no sidebar or top bar (TB-730). */
 export function OperatorShellDeferredChrome({ shellRootRef }: OperatorShellDeferredChromeProps) {
+  const pathname = usePathname();
+  const loadingTitle = operatorShellAccessGateLoadingTitle(pathname);
+
   useOperatorShellAccessRedirects();
 
   return (
@@ -31,7 +36,7 @@ export function OperatorShellDeferredChrome({ shellRootRef }: OperatorShellDefer
           tabIndex={-1}
           className={cn(OPERATOR_SHELL_MAIN_PADDING_CLASS, "flex flex-1 flex-col outline-none focus:outline-none")}
         >
-          <OperatorShellAccessGateLoading />
+          <OperatorShellAccessGateLoading title={loadingTitle} />
         </main>
       </div>
       <AppToasterDeferred />

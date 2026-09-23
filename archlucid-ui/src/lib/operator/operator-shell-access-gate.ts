@@ -1,6 +1,18 @@
 import { AUTH_MODE } from "@/lib/auth-config";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
+import { EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE } from "@/lib/extract-upload-settings-page-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+
+const OPERATOR_SHELL_ACCESS_GATE_LOADING_TITLES: Readonly<Record<string, string>> = {
+  [EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH]: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+  [GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+  [SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+};
 
 /** Routes that render without operator nav chrome and skip access-gate deferral. */
 export function pathnameExemptFromOperatorAccessGate(pathname: string | null): boolean {
@@ -55,6 +67,17 @@ export function unsignedJwtSessionBlocksOperatorShell(pathname: string | null): 
   }
 
   return !isLikelySignedIn();
+}
+
+/** Optional page title while the access gate defers operator shell chrome. */
+export function operatorShellAccessGateLoadingTitle(pathname: string | null): string | undefined {
+  if (pathname === null) {
+    return undefined;
+  }
+
+  const bare = pathname.split("?", 1)[0] ?? pathname;
+
+  return OPERATOR_SHELL_ACCESS_GATE_LOADING_TITLES[bare];
 }
 
 export function shouldDeferOperatorShellChrome(

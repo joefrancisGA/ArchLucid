@@ -3,13 +3,23 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUploadConstraintsPanel";
 import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -19,6 +29,7 @@ import { buildGetArchLucidCloudPackageCommandLine } from "@/lib/get-archlucid-cl
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
 import {
+  DESIGN_TOKENS,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -33,9 +44,16 @@ import {
   EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY,
   EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_ASIDE_TITLE,
+  EXTRACT_UPLOAD_CANCEL_REPLACE_LABEL,
+  EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL,
+  EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION,
+  EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE,
   EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
+  EXTRACT_UPLOAD_REPLACE_CONTINUITY_DESCRIPTION,
+  EXTRACT_UPLOAD_REPLACE_CONTINUITY_TITLE,
+  extractUploadNonAzureScriptSourceHint,
   EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
   EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
@@ -111,6 +129,7 @@ function ExtractUploadSettingsPageClientInner() {
     pathname,
     searchParams,
   });
+  const [demoConfirmOpen, setDemoConfirmOpen] = useState(false);
 
   useExtractUploadShortcuts();
 
@@ -136,6 +155,8 @@ function ExtractUploadSettingsPageClientInner() {
     demo,
     showAcceptedDropZone,
     beginReplaceInventory,
+    cancelReplaceInventory,
+    replaceInventoryMode,
   } = viewModel;
 
   useEffect(() => {
@@ -212,11 +233,37 @@ function ExtractUploadSettingsPageClientInner() {
 
           <ExtractUploadSettingsEvidenceOrientationStrip />
 
-          {lastAcceptedPackage !== null ? (
+          {lastAcceptedPackage !== null && !replaceInventoryMode ? (
             <ExtractUploadAcceptedPackagePanel
               record={lastAcceptedPackage}
               onReplaceInventory={beginReplaceInventory}
             />
+          ) : null}
+
+          {replaceInventoryMode && lastAcceptedPackage !== null ? (
+            <div
+              className={cn(DESIGN_TOKENS.callout.warn, "space-y-3 px-4 py-3")}
+              data-testid="extract-upload-replace-continuity"
+            >
+              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                {EXTRACT_UPLOAD_REPLACE_CONTINUITY_TITLE}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {EXTRACT_UPLOAD_REPLACE_CONTINUITY_DESCRIPTION}
+              </p>
+              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                Current package: <span className="font-mono">{lastAcceptedPackage.packageId}</span>
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="extract-upload-cancel-replace"
+                onClick={cancelReplaceInventory}
+              >
+                {EXTRACT_UPLOAD_CANCEL_REPLACE_LABEL}
+              </Button>
+            </div>
           ) : null}
 
           <IntegrationConnectChecklist
@@ -228,10 +275,7 @@ function ExtractUploadSettingsPageClientInner() {
 
           {extractorUpdateBanner ? (
             <div
-              className={cn(
-                "rounded-md border border-amber-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary dark:border-amber-700/50",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3", OPERATOR_TYPOGRAPHY.body)}
               data-testid="extractor-version-banner"
             >
               {extractorUpdateBanner}
@@ -327,7 +371,7 @@ function ExtractUploadSettingsPageClientInner() {
                     </a>
                   ) : (
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      Download {platformLabel} packager scripts from your ArchLucid checkout under <code>scripts/</code>.
+                      {extractUploadNonAzureScriptSourceHint(selectedPlatform, productLine)}
                     </p>
                   )}
                     </div>
@@ -354,7 +398,7 @@ function ExtractUploadSettingsPageClientInner() {
                   {upload.uploadSuccessMessage !== null ? (
                     <div
                       role="status"
-                      className={cn("rounded-md border border-emerald-700/30 bg-emerald-50/50 px-3 py-2 text-emerald-900 dark:border-emerald-800/40 dark:bg-emerald-950/30 dark:text-emerald-200", OPERATOR_TYPOGRAPHY.body)}
+                      className={cn(DESIGN_TOKENS.callout.success, "px-3 py-2", OPERATOR_TYPOGRAPHY.body)}
                       data-testid="extract-upload-success-live"
                     >
                       {EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE}
@@ -456,6 +500,16 @@ function ExtractUploadSettingsPageClientInner() {
                 </div>
               </details>
 
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                <Link
+                  href={EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF}
+                  className={OPERATOR_LINK.inline}
+                  data-testid="extract-upload-evidence-trail-link"
+                >
+                  {EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL}
+                </Link>
+              </p>
+
               <section
                 className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
                 data-testid="extract-upload-demo-aside"
@@ -480,6 +534,12 @@ function ExtractUploadSettingsPageClientInner() {
                     disabled={upload.busy}
                     data-testid="extract-upload-try-demo-data"
                     onClick={() => {
+                      if (hasInventoryOnFile === true) {
+                        setDemoConfirmOpen(true);
+
+                        return;
+                      }
+
                       void demo.onTryDemoData();
                     }}
                   >
@@ -487,21 +547,31 @@ function ExtractUploadSettingsPageClientInner() {
                   </Button>
                 </div>
               </section>
-
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                <Link
-                  href={EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF}
-                  className={OPERATOR_LINK.inline}
-                  data-testid="extract-upload-evidence-trail-link"
-                >
-                  {EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL}
-                </Link>
-              </p>
             </aside>
           </div>
         </div>
       </div>
 
+      <AlertDialog open={demoConfirmOpen} onOpenChange={setDemoConfirmOpen}>
+        <AlertDialogContent data-testid="extract-upload-demo-confirm-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE}</AlertDialogTitle>
+            <AlertDialogDescription>{EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              data-testid="extract-upload-demo-confirm-action"
+              onClick={() => {
+                setDemoConfirmOpen(false);
+                void demo.onTryDemoData();
+              }}
+            >
+              {EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

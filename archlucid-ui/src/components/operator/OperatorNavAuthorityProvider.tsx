@@ -36,6 +36,8 @@ export type OperatorNavAuthorityContextValue = {
    * when this is true, which looked like a full-page "refresh" on every window focus.
    */
   isAuthorityLoading: boolean;
+  /** Re-run `/me` after a timeout or stalled access gate — same path as focus refresh. */
+  retryAuthorityLoad: () => void;
 };
 
 const OperatorNavAuthorityContext = createContext<OperatorNavAuthorityContextValue | undefined>(undefined);
@@ -117,9 +119,13 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
     };
   }, [refreshCallerAuthority]);
 
+  const retryAuthorityLoad = useCallback((): void => {
+    void refreshCallerAuthority();
+  }, [refreshCallerAuthority]);
+
   const value = useMemo<OperatorNavAuthorityContextValue>(
-    () => ({ currentPrincipal, callerAuthorityRank, isAuthorityLoading }),
-    [currentPrincipal, callerAuthorityRank, isAuthorityLoading],
+    () => ({ currentPrincipal, callerAuthorityRank, isAuthorityLoading, retryAuthorityLoad }),
+    [currentPrincipal, callerAuthorityRank, isAuthorityLoading, retryAuthorityLoad],
   );
 
   return <OperatorNavAuthorityContext.Provider value={value}>{children}</OperatorNavAuthorityContext.Provider>;
@@ -139,6 +145,7 @@ export function useOperatorNavAuthority(): OperatorNavAuthorityContextValue {
       currentPrincipal: operatorNavOutsideProviderPrincipal,
       callerAuthorityRank: DEFAULT_RANK_FULL_ACCESS,
       isAuthorityLoading: false,
+      retryAuthorityLoad: () => undefined,
     };
   }
 
