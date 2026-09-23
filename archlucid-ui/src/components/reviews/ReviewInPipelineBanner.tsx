@@ -36,14 +36,14 @@ export type ReviewInPipelineBannerProps = {
 export function ReviewInPipelineBanner(props: ReviewInPipelineBannerProps): ReactElement | null {
   const navigateTab = useReviewDetailTabNavigation();
   const { isWorkingMode } = useWorkspaceMode();
-
-  if (!shouldShowReviewInPipelineBanner(props.initialSummary, props.diagnosticContext)) {
-    return null;
-  }
-
+  const showBanner = shouldShowReviewInPipelineBanner(props.initialSummary, props.diagnosticContext);
   const buyerLabelsActive = isBuyerVocabularyPassActive();
   const stageLabel = resolveCurrentPipelineStageLabel([], props.initialSummary, buyerLabelsActive);
   const waitDetail = useReviewPipelineElapsedWaitCopy(stageLabel, !isWorkingMode);
+
+  if (!showBanner) {
+    return null;
+  }
   const executionMode = props.initialSummary?.structuralExecutionMode ?? null;
   const safetyMessage =
     !isWorkingMode && shouldShowReviewPipelineBackgroundSafety(executionMode)
