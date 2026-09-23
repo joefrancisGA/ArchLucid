@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GuidedModeSwitchToWorkingDialog } from "@/components/workspace-mode/GuidedModeSwitchToWorkingDialog";
@@ -20,6 +20,7 @@ import {
   parseWorkspaceModeSwitchConfirmOpenFromSearch,
   workspaceModeSwitchConfirmHrefFromSearch,
 } from "@/lib/operator/workspace-mode-switch-confirm-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type GuidedModeTopBarChipProps = {
   readonly className?: string;
@@ -28,13 +29,14 @@ export type GuidedModeTopBarChipProps = {
 /** Persistent Guided-mode indicator in the operator shell top bar. */
 export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactElement | null {
   const { mode, mounted, setAndPersist } = useWorkspaceMode();
-  const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const workspaceSwitchConfirmParam = searchParams.get("workspaceSwitchConfirm");
   const [dialogOpen, setDialogOpenState] = useState(() =>
     parseWorkspaceModeSwitchConfirmOpenFromSearch(workspaceSwitchConfirmParam),
   );
+  const dialogOpenRef = useRef(dialogOpen);
+  dialogOpenRef.current = dialogOpen;
 
   const syncWorkspaceSwitchConfirmToUrl = useCallback(
     (confirmOpen: boolean) => {
@@ -42,25 +44,32 @@ export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactEle
         return;
       }
 
-      router.replace(
-        workspaceModeSwitchConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        workspaceModeSwitchConfirmHrefFromSearch(readWindowLocationSearch(), confirmOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setDialogOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setDialogOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncWorkspaceSwitchConfirmToUrl(next);
+      const current = dialogOpenRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      setDialogOpenState(next);
+      syncWorkspaceSwitchConfirmToUrl(next);
     },
     [syncWorkspaceSwitchConfirmToUrl],
   );
+
+  useEffect(() => {
+    setDialogOpenState((current) => {
+      const next = parseWorkspaceModeSwitchConfirmOpenFromSearch(workspaceSwitchConfirmParam);
+
+      return current === next ? current : next;
+    });
+  }, [workspaceSwitchConfirmParam]);
 
   if (!mounted || !isGuidedWorkspaceMode(mode)) {
     return null;

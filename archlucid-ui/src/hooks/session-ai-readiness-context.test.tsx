@@ -61,4 +61,16 @@ describe("useSessionAiReadiness", () => {
       probeSuppressed: true,
     });
   });
+
+  it("suppresses isolated probe churn for bare useSessionAiReadiness under the provider", () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <SessionAiReadinessProvider>{children}</SessionAiReadinessProvider>
+    );
+
+    renderHook(() => useSessionAiReadiness(), { wrapper });
+
+    expect(useSessionAiReadinessCore).toHaveBeenLastCalledWith({
+      probeSuppressed: true,
+    });
+  });
 });

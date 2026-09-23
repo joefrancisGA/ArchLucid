@@ -28,29 +28,15 @@ export function SessionAiReadinessProvider(props: { readonly children: ReactNode
 export function useSessionAiReadiness(options?: SessionAiReadinessOptions): SessionAiReadinessState {
   const requireLiveProbe = options?.requireLiveProbe === true;
   const context = useContext(SessionAiReadinessContext);
-  const optsProvided = options !== undefined;
-  const useProviderState = optsProvided && !requireLiveProbe && context !== null;
-  // When callers pass options (review failure recovery), always run the isolated core so
-  // toggling requireLiveProbe cannot change hook order between renders. Suppress duplicate
-  // probe churn when the shell provider already owns live readiness state.
-  const isolated = useSessionAiReadinessCore(
-    optsProvided
-      ? {
-          ...options,
-          probeSuppressed: useProviderState,
-        }
-      : undefined,
-  );
+  const useProviderState = context !== null && !requireLiveProbe;
+  // Always run the isolated core so toggling requireLiveProbe cannot change hook order between
+  // renders. Suppress duplicate probe churn whenever the shell provider already owns readiness.
+  const isolated = useSessionAiReadinessCore({
+    ...options,
+    probeSuppressed: useProviderState,
+  });
 
-  if (optsProvided) {
-    if (useProviderState) {
-      return context;
-    }
-
-    return isolated;
-  }
-
-  if (context !== null) {
+  if (useProviderState) {
     return context;
   }
 

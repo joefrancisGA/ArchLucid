@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type SetStateAction } from "react";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import {
   AlertDialog,
@@ -40,6 +40,7 @@ import {
   parseSimulatorModeConfirmOpenFromSearch,
   simulatorModeConfirmHrefFromSearch,
 } from "@/lib/operator/simulator-mode-confirm-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export type SimulatorModeTopBarChipProps = {
@@ -50,7 +51,6 @@ export type SimulatorModeTopBarChipProps = {
  * Dev-only analysis mode control — explicit button + confirmation; never styled as passive status.
  */
 export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const simulatorModeConfirmOpenParam = searchParams.get("simulatorModeConfirmOpen");
@@ -61,26 +61,36 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
   const [confirmOpen, setConfirmOpenState] = useState(() =>
     parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam),
   );
+  const confirmOpenRef = useRef(confirmOpen);
+  confirmOpenRef.current = confirmOpen;
 
-  const setConfirmOpen = useCallback((open: boolean) => {
-    setConfirmOpenState(open);
-  }, []);
+  const syncConfirmOpenToUrl = useCallback(
+    (open: boolean) => {
+      commitHrefIfChanged(simulatorModeConfirmHrefFromSearch(readWindowLocationSearch(), open, pathname), {
+        notify: false,
+      });
+    },
+    [pathname],
+  );
+
+  const setConfirmOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      const current = confirmOpenRef.current;
+      const next = typeof value === "function" ? value(current) : value;
+
+      setConfirmOpenState(next);
+      syncConfirmOpenToUrl(next);
+    },
+    [syncConfirmOpenToUrl],
+  );
 
   useEffect(() => {
-    setConfirmOpenState(parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam));
-  }, [simulatorModeConfirmOpenParam]);
+    setConfirmOpenState((current) => {
+      const next = parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam);
 
-  useEffect(() => {
-    const urlOpen = parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam);
-
-    if (confirmOpen === urlOpen) {
-      return;
-    }
-
-    router.replace(simulatorModeConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname), {
-      scroll: false,
+      return current === next ? current : next;
     });
-  }, [confirmOpen, pathname, router, searchParams, simulatorModeConfirmOpenParam]);
+  }, [simulatorModeConfirmOpenParam]);
 
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {
