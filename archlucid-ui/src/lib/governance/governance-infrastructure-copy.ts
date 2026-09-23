@@ -165,6 +165,33 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
   "Downloaded a browser-rendered PNG because server-side rasterization is unavailable in this environment. Branded server PNG requires Mermaid CLI on the API host." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER =
+  "PNG export is an advisory inventory reconstruction — confirm snapshot and subscription scope before sealed-record citations." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_ADVISORY_STATUS = "Advisory export" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE =
+  "Change subscription filter?" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_BODY =
+  "Changing the subscription clears the selected snapshot and diagram type." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CANCEL =
+  "Keep current filter" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFIRM =
+  "Change subscription" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY =
+  "Connect a read-only cloud account and wait for the first inventory capture before rendering diagrams." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE = "Diagram render failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY =
+  "The selected diagram type could not be rendered for this snapshot. Retry or choose a different type." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL = "Subscription" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE = "Select a subscription" as const;

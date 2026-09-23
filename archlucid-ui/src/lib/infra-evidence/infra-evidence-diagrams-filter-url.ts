@@ -17,6 +17,8 @@ export const INFRA_DIAGRAMS_MERMAID_VIEW_PARAM = "mermaidView";
 export const INFRA_DIAGRAMS_SEED_NODE_ID_PARAM = "seedNodeId";
 export const INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM = "includeNeverShow";
 export const INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM = "hideTiers";
+export const INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM = "diagramSubscription";
+export const INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM = "includePrivateEndpoints";
 
 /** @deprecated Legacy URL param; parsed as alias for {@link INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM}. */
 export const INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM = "showTrivialComponents";
@@ -159,6 +161,18 @@ export function parseInfraDiagramsIncludeNeverShowFromSearch(
   return parseTruthyDiagramSearchParam(legacyShowTrivialRaw);
 }
 
+export function parseInfraDiagramsSubscriptionFilterFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw.trim();
+}
+
+export function parseInfraDiagramsIncludePrivateEndpointsFromSearch(raw: string | null | undefined): boolean {
+  return parseTruthyDiagramSearchParam(raw);
+}
+
 /** @deprecated Use {@link parseInfraDiagramsIncludeNeverShowFromSearch}. */
 export function parseInfraDiagramsShowTrivialComponentsFromSearch(raw: string | null | undefined): boolean {
   return parseInfraDiagramsIncludeNeverShowFromSearch(raw);
@@ -172,6 +186,8 @@ export type InfraDiagramsWorkbenchContext = {
   readonly seedNodeId?: string | null;
   readonly includeNeverShow?: boolean | null;
   readonly hiddenExecutiveTierKeys?: readonly string[] | null;
+  readonly subscriptionFilter?: string | null;
+  readonly includePrivateEndpoints?: boolean | null;
   readonly runId?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
@@ -187,6 +203,8 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     seedNodeId: context.seedNodeId ?? undefined,
     includeNeverShow: context.includeNeverShow ?? undefined,
     hiddenExecutiveTierKeys: context.hiddenExecutiveTierKeys ?? undefined,
+    subscriptionFilter: context.subscriptionFilter ?? undefined,
+    includePrivateEndpoints: context.includePrivateEndpoints ?? undefined,
     runId: context.runId ?? undefined,
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
@@ -204,6 +222,8 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly seedNodeId?: string;
     readonly includeNeverShow?: boolean;
     readonly hiddenExecutiveTierKeys?: readonly string[];
+    readonly subscriptionFilter?: string;
+    readonly includePrivateEndpoints?: boolean;
     readonly runId?: string;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
@@ -286,6 +306,24 @@ export function infraDiagramsFilterHrefFromSearch(
       params.delete(INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM);
     } else {
       params.set(INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM, formatted);
+    }
+  }
+
+  if (patch.subscriptionFilter !== undefined) {
+    const trimmed = patch.subscriptionFilter.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM);
+    } else {
+      params.set(INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM, trimmed);
+    }
+  }
+
+  if (patch.includePrivateEndpoints !== undefined) {
+    if (patch.includePrivateEndpoints) {
+      params.set(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM, "1");
+    } else {
+      params.delete(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM);
     }
   }
 
