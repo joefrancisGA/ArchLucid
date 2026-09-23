@@ -2,8 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
 
-const getArchitectureIdentity = vi.fn();
-const getDraftRequest = vi.fn();
+const { getArchitectureIdentity, getDraftRequest } = vi.hoisted(() => ({
+  getArchitectureIdentity: vi.fn(),
+  getDraftRequest: vi.fn(),
+}));
 
 vi.mock("@/lib/api/architecture-identity-api", () => ({
   getArchitectureIdentity,
