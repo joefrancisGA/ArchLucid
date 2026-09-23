@@ -75,15 +75,42 @@ public sealed class AzureArchitectureIconCatalog
             return null;
         }
 
-        List<AzureArchitectureIconCatalogEntry> matches = entries
+        string normalizedArmType = armType.Trim();
+        List<AzureArchitectureIconCatalogEntry> armTypeMatches = entries
             .Where(entry => entry.ArmTypes.Any(candidate =>
-                string.Equals(candidate, armType, StringComparison.OrdinalIgnoreCase)))
-            .Where(entry => string.IsNullOrWhiteSpace(entry.Kind)
-                ? string.IsNullOrWhiteSpace(resourceKind)
-                : string.Equals(entry.Kind, resourceKind, StringComparison.OrdinalIgnoreCase))
+                string.Equals(candidate, normalizedArmType, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
-        return matches.Count == 1 ? matches[0] : null;
+        string? normalizedResourceKind = string.IsNullOrWhiteSpace(resourceKind)
+            ? null
+            : resourceKind.Trim();
+
+        if (normalizedResourceKind is not null)
+        {
+            string resourceKindBase = normalizedResourceKind
+                .Split(',', 2, StringSplitOptions.TrimEntries)[0];
+            List<AzureArchitectureIconCatalogEntry> specializedMatches = armTypeMatches
+                .Where(entry => !string.IsNullOrWhiteSpace(entry.Kind)
+                    && (string.Equals(entry.Kind.Trim(), normalizedResourceKind, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(entry.Kind.Trim(), resourceKindBase, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            if (specializedMatches.Count == 1)
+            {
+                return specializedMatches[0];
+            }
+
+            if (specializedMatches.Count > 1)
+            {
+                return null;
+            }
+        }
+
+        List<AzureArchitectureIconCatalogEntry> defaultMatches = armTypeMatches
+            .Where(entry => string.IsNullOrWhiteSpace(entry.Kind))
+            .ToList();
+
+        return defaultMatches.Count == 1 ? defaultMatches[0] : null;
     }
 
     private sealed class AzureArchitectureIconManifest

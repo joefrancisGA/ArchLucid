@@ -29,7 +29,18 @@ public sealed class AzureArchitectureIconCatalogTests
         AzureArchitectureIconCatalog catalog = AzureArchitectureIconCatalog.Load();
 
         catalog.Resolve("Microsoft.Web/sites", "functionapp")!.Service.Should().Be("Function Apps");
+        catalog.Resolve("Microsoft.Web/sites", "functionapp,linux")!.Service.Should().Be("Function Apps");
         catalog.Resolve("Microsoft.Web/sites")!.Service.Should().Be("App Services");
+        catalog.Resolve("Microsoft.Web/sites", "app,linux")!.Service.Should().Be("App Services");
+    }
+
+    [Fact]
+    public void Catalog_uses_default_icon_when_resource_kind_is_present()
+    {
+        AzureArchitectureIconCatalog catalog = AzureArchitectureIconCatalog.Load();
+
+        catalog.Resolve("Microsoft.Storage/storageAccounts", "StorageV2")!.Service.Should().Be("Storage Accounts");
+        catalog.Resolve("Microsoft.DocumentDB/databaseAccounts", "GlobalDocumentDB")!.Service.Should().Be("Azure Cosmos DB");
     }
 
     [Fact]
