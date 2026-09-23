@@ -187,6 +187,25 @@ jobs:
       - name: Assert docs root .md count
         run: python scripts/ci/assert_docs_root_size.py
 
+  defect-prevention-coverage:
+    name: "Defect prevention: coverage matrix integrity"
+    needs:
+      - gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Validate defect-prevention coverage matrix
+        run: python scripts/ci/check_defect_prevention_coverage.py
+
+      - name: Test defect-prevention coverage validator
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_defect_prevention_coverage.py"
+
   # Full history: last-touch dates for docs/*.md (advisory; merge-never).
   docs-stale-code-refs-warn:
     name: "Docs: stale code-path references (advisory)"
