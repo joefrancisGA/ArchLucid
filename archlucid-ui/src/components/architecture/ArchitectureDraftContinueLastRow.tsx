@@ -36,7 +36,7 @@ export function ArchitectureDraftContinueLastRow(props: ArchitectureDraftContinu
             <span className="font-medium text-al-text-primary">{entry.displayName}</span>
             {" · "}
             Last saved{" "}
-            <time dateTime={entry.lastUpdatedUtc} title={updatedAt.absoluteTitle}>
+            <time dateTime={entry.lastUpdatedUtc} aria-label={`Last saved ${updatedAt.absoluteTitle}`}>
               {updatedAt.display}
             </time>
           </p>

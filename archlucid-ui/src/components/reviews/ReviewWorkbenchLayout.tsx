@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";
 
@@ -125,7 +124,7 @@ export function ReviewWorkbenchLayout(props: ReviewWorkbenchLayoutProps): React.
                     OPERATOR_TYPOGRAPHY.body,
                   )}
                   data-testid="review-workbench-selected-finding-title"
-                  title={props.selectedFindingTitle ?? undefined}
+                  aria-label={props.selectedFindingTitle ?? undefined}
                 >
                   {props.selectedFindingTitle}
                 </p>
@@ -137,7 +136,7 @@ export function ReviewWorkbenchLayout(props: ReviewWorkbenchLayoutProps): React.
                     OPERATOR_TYPOGRAPHY.helper,
                   )}
                   data-testid="review-workbench-highlighted-node-label"
-                  title={props.highlightedNodeLabel ?? undefined}
+                  aria-label={props.highlightedNodeLabel ?? undefined}
                 >
                   {props.highlightedNodeLabel}
                 </p>

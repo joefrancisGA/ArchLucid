@@ -90,6 +90,7 @@ export function RoiSummaryPageView(props: Props) {
   const layerHeader = buyerPolishedShell ? null : <LayerHeader pageKey="value-report-roi" />;
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const roiTileCareerHonesty = useRoiTileCareerHonesty({ scopedRunId });
 
   const syncMethodologyOpenToUrl = useCallback(
     (open: boolean) => {
@@ -189,10 +190,6 @@ export function RoiSummaryPageView(props: Props) {
     metricsReviewed: scopedRunFilterActive && !showZeroState,
     exportReady: scopedRunFilterActive && !showZeroState,
   });
-  const roiTileCareerHonesty = useRoiTileCareerHonesty({
-    scopedRunId: scopedRunId,
-  });
-
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4">
       {layerHeader}

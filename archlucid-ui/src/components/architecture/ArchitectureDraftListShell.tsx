@@ -28,7 +28,6 @@ import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
-import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
@@ -39,7 +38,6 @@ import {
   resolveArchitectureReviewHref,
   startReviewFromDraftContextHref,
 } from "@/lib/architecture/architecture-routes";
-import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   ARCHITECTURES_HUB_EMPTY_BODY,
   ARCHITECTURES_HUB_EMPTY_TITLE,
@@ -137,8 +135,6 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
     listBlockedReason,
     listFailure,
   } = props.controller;
-  const { mode } = useWorkspaceMode();
-  const workingMode = isWorkingWorkspaceMode(mode);
   const presentation = props.presentation ?? "default";
   const workingPortfolioPresentation = presentation === "working-portfolio";
 
@@ -372,7 +368,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>{entry.ownerLabel}</EnterpriseTableCell>
                   <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-                    <time dateTime={entry.lastUpdatedUtc} title={updatedAt.absoluteTitle}>
+                    <time dateTime={entry.lastUpdatedUtc} aria-label={`Updated ${updatedAt.absoluteTitle}`}>
                       {updatedAt.display}
                     </time>
                   </EnterpriseTableCell>

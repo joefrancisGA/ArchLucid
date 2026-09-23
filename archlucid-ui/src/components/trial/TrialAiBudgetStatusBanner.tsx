@@ -21,16 +21,16 @@ export function PublicDemoAiUsageBanner() {
   const { productLine } = useProductLine();
   const { mode, mounted: workspaceMounted } = useWorkspaceMode();
   const { door, mounted: doorMounted } = useWorkingCareerRehearsalDoor();
-
-  if (isSecureNowDemoChromeExcluded(productLine)) {
-    return null;
-  }
-
   const demoMode = isNextPublicDemoMode();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: concernFetchEnabled && !demoMode && isOperatorExperienceFullShellEnv(),
   });
+
+  if (isSecureNowDemoChromeExcluded(productLine)) {
+    return null;
+  }
+
   const isPublicDemo = demoMode || status?.workspaceKind === "PublicDemo";
 
   if (!isPublicDemo) {
