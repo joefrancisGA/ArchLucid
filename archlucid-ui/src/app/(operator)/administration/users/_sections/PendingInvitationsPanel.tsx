@@ -40,6 +40,7 @@ import {
 } from "@/lib/administration/settings-invites-show-resolved-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
 import {
@@ -106,51 +107,73 @@ export function PendingInvitationsPanel({
 
   const syncShowResolvedToUrl = useCallback(
     (resolvedVisible: boolean) => {
-      router.replace(
-        settingsInvitesShowResolvedHrefFromSearch(searchParams.toString(), resolvedVisible, pathname),
-        { scroll: false },
+      replaceIfHrefChanged(
+        router,
+        settingsInvitesShowResolvedHrefFromSearch(window.location.search.slice(1), resolvedVisible, pathname),
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setShowResolved = useCallback(
     (value: SetStateAction<boolean>) => {
       setShowResolvedState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncShowResolvedToUrl(next);
+
+        if (next === current) {
+          return current;
+        }
 
         return next;
       });
     },
-    [syncShowResolvedToUrl],
+    [],
   );
 
   useEffect(() => {
-    setShowResolvedState(parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam));
+    setShowResolvedState((current) => {
+      const next = parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam);
+
+      if (next === current) {
+        return current;
+      }
+
+      return next;
+    });
   }, [settingsInvitesShowResolvedParam]);
+
+  useEffect(() => {
+    syncShowResolvedToUrl(showResolved);
+  }, [showResolved, syncShowResolvedToUrl]);
 
   const syncRevokeInviteToUrl = useCallback(
     (invitationId: string | null) => {
-      router.replace(
-        settingsUsersInviteRevokeHrefFromSearch(searchParams.toString(), invitationId, pathname),
-        { scroll: false },
+      replaceIfHrefChanged(
+        router,
+        settingsUsersInviteRevokeHrefFromSearch(window.location.search.slice(1), invitationId, pathname),
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setPendingRevoke = useCallback(
     (value: SetStateAction<AdminUserInvitationRow | null>) => {
       setPendingRevokeState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncRevokeInviteToUrl(next?.id ?? null);
+
+        if ((next?.id ?? null) === (current?.id ?? null)) {
+          return current;
+        }
 
         return next;
       });
     },
-    [syncRevokeInviteToUrl],
+    [],
   );
+
+  useEffect(() => {
+    syncRevokeInviteToUrl(pendingRevoke?.id ?? null);
+  }, [pendingRevoke?.id, syncRevokeInviteToUrl]);
 
   useEffect(() => {
     const revokeInviteId = parseSettingsUsersRevokeInviteIdFromSearch(revokeInviteIdParam);

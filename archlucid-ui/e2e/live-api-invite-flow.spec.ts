@@ -10,10 +10,6 @@ import {
   provisionScimDirectoryUser,
   stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
-import {
-  DEMO_WORKSPACE_A_LIVE_IDS,
-  injectDemoWorkspaceOperatorScope,
-} from "./helpers/demo-workspace-live-scope";
 import { submitAdminInviteFromUsersUi } from "./helpers/live-invite-form-submit";
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
@@ -21,10 +17,10 @@ import { liveApiBase } from "./helpers/live-api-client";
 
 async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
   await primePrivateBetaBrowserSessionIfJwtMode(page);
-  await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
   await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
 }
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {

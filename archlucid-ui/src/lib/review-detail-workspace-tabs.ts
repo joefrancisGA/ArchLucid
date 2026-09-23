@@ -8,6 +8,9 @@ export const REVIEW_DETAIL_FINDING_PARAM = "findingId" as const;
 
 export const REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM = "workbenchFocus" as const;
 
+/** Legacy alias hydrated into {@link REVIEW_DETAIL_FINDING_PARAM} (LS-01). */
+const ARCHITECTURE_DIAGRAM_FINDING_PARAM = "diagramFindingId" as const;
+
 /** Fired after {@link writeReviewDetailTabToUrl} mutates the address bar via `history.replaceState`. */
 export const REVIEW_DETAIL_URL_CHANGED_EVENT = "archlucid:review-detail-url-changed" as const;
 
@@ -232,13 +235,16 @@ export function writeReviewDetailFindingIdToUrl(findingId: string | null): void 
 
   if (findingId === null) {
     url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+    url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
   } else {
     const trimmed = findingId.trim();
 
     if (trimmed.length > 0) {
       url.searchParams.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
     } else {
       url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
     }
   }
 

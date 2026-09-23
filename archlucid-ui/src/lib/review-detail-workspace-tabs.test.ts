@@ -70,6 +70,20 @@ describe("review-detail-workspace-tabs", () => {
     expect(window.location.search).toBe("?reviewTab=overview");
   });
 
+  it("clears legacy diagramFindingId when clearing finding selection", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=overview&diagramFindingId=stale",
+    );
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    writeReviewDetailFindingIdToUrl(null);
+
+    expect(replaceStateSpy).toHaveBeenCalled();
+    expect(window.location.search).toBe("?reviewTab=overview");
+  });
+
   it("skips replaceState and URL-changed event when the href is already committed", () => {
     window.history.replaceState(
       {},

@@ -104,6 +104,7 @@ export function SettingsRolesPageView(props: Props) {
   const searchParams = useSearchParams();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const inviteEmailInputRef = useRef<HTMLInputElement | null>(null);
+  const inviteAutoOpenAttemptedRef = useRef(false);
   const canManageApiKeys =
     isApiKeysSettingsSurfaceEnabled() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const tabs = visibleTabs(canManageApiKeys);
@@ -128,7 +129,11 @@ export function SettingsRolesPageView(props: Props) {
     (open: boolean) => {
       replaceIfHrefChanged(
         router,
-        settingsUsersInviteHrefFromSearch(currentSearch, open, hubPathname),
+        settingsUsersInviteHrefFromSearch(
+          typeof window === "undefined" ? currentSearch : window.location.search.slice(1),
+          open,
+          hubPathname,
+        ),
       );
     },
     [currentSearch, hubPathname, router],
@@ -196,9 +201,14 @@ export function SettingsRolesPageView(props: Props) {
 
   useEffect(() => {
     const nextInviteOpen = parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite"));
+
+    if (inviteSectionOpenRef.current === nextInviteOpen) {
+      return;
+    }
+
     inviteSectionOpenRef.current = nextInviteOpen;
     setInviteSectionOpenState(nextInviteOpen);
-  }, [searchParams]);
+  }, [searchParams.get("invite")]);
 
   useEffect(() => {
     const onPop = () => {
@@ -229,7 +239,9 @@ export function SettingsRolesPageView(props: Props) {
       && activeTab === "users"
       && !usersTabBuyerPolished
       && !inviteSectionOpen
+      && !inviteAutoOpenAttemptedRef.current
     ) {
+      inviteAutoOpenAttemptedRef.current = true;
       setInviteSectionOpen(true);
     }
   }, [activeTab, inviteSectionOpen, setInviteSectionOpen, usersTabBuyerPolished, usersTabInviteFirstLayout]);

@@ -20,14 +20,11 @@ import {
 import { buildFindingDiagramSpotlight } from "@/lib/architecture/build-finding-diagram-spotlight";
 import {
   architectureDiagramFindingHrefFromSearch,
-  parseArchitectureDiagramFindingIdFromSearch,
+  readArchitectureDiagramFindingIdFromWindowLocation,
 } from "@/lib/architecture/architecture-findings-dual-pane-url";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
-import {
-  readReviewDetailFindingIdFromWindowLocation,
-  REVIEW_DETAIL_URL_CHANGED_EVENT,
-} from "@/lib/review-detail-workspace-tabs";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,
@@ -69,8 +66,9 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   const searchParams = useSearchParams();
   const workbenchSelection = useReviewWorkbenchSelection();
   const setSelectedFindingId = workbenchSelection?.setSelectedFindingId;
+  const reconcileSelectedFindingId = workbenchSelection?.reconcileSelectedFindingId;
   const [urlFindingId, setUrlFindingId] = useState(
-    () => readReviewDetailFindingIdFromWindowLocation() ?? "",
+    () => readArchitectureDiagramFindingIdFromWindowLocation(),
   );
   const diagramNodes = props.diagramNodes ?? [];
   const [localSelectedFindingId, setLocalSelectedFindingId] = useState<string | null>(null);
@@ -108,7 +106,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
 
   useEffect(() => {
     const syncFindingIdFromUrl = (): void => {
-      setUrlFindingId(readReviewDetailFindingIdFromWindowLocation() ?? "");
+      setUrlFindingId(readArchitectureDiagramFindingIdFromWindowLocation());
     };
 
     syncFindingIdFromUrl();
@@ -122,10 +120,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   }, []);
 
   useEffect(() => {
-    const resolvedFindingId = parseArchitectureDiagramFindingIdFromSearch(
-      urlFindingId,
-      searchParams.get("diagramFindingId"),
-    );
+    const resolvedFindingId = urlFindingId.trim();
 
     if (resolvedFindingId.length === 0) {
       return;
@@ -137,22 +132,27 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
       return;
     }
 
-    if (workbenchSelection !== null) {
-      workbenchSelection.reconcileSelectedFindingId(resolvedFindingId);
+    if (selectedFindingId === resolvedFindingId) {
+      return;
+    }
+
+    if (reconcileSelectedFindingId !== undefined) {
+      reconcileSelectedFindingId(resolvedFindingId);
     } else {
       setLocalSelectedFindingId(resolvedFindingId);
     }
-  }, [searchParams, urlFindingId, visibleFindings, workbenchSelection]);
+  }, [reconcileSelectedFindingId, selectedFindingId, urlFindingId, visibleFindings]);
 
   const selectFindingWithUrl = (findingId: string | null): void => {
     if (workbenchSelection !== null) {
       workbenchSelection.setSelectedFindingId(findingId);
-    } else {
-      setLocalSelectedFindingId(findingId);
+
+      return;
     }
 
+    setLocalSelectedFindingId(findingId);
     router.replace(
-      architectureDiagramFindingHrefFromSearch(searchParams.toString(), findingId, pathname),
+      architectureDiagramFindingHrefFromSearch(window.location.search, findingId, pathname),
       { scroll: false },
     );
   };

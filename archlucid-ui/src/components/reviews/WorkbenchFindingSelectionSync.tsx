@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
 import { writeReviewDetailFindingIdToUrl } from "@/lib/review-detail-workspace-tabs";
@@ -10,6 +10,7 @@ export function WorkbenchFindingSelectionSync(): null {
   const selection = useReviewWorkbenchSelection();
   const selectedFindingId = selection?.selectedFindingId ?? null;
   const reconcileSelectedFindingId = selection?.reconcileSelectedFindingId;
+  const clearedStaleFindingIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const selectedId = selectedFindingId;
@@ -20,13 +21,22 @@ export function WorkbenchFindingSelectionSync(): null {
       const exists = Array.from(cards).some((card) => (card.getAttribute("data-finding-id") ?? "") === selectedId);
 
       if (!exists) {
-        // Stamp unselected before clearing: parent initialFindingId effects can
-        // overwrite the null write in the same flush, so fail-closed must not wait
-        // for a second selectedFindingId render (LI-13).
-        effectiveSelectedId = null;
-        writeReviewDetailFindingIdToUrl(null);
-        reconcileSelectedFindingId?.(null);
+        if (clearedStaleFindingIdRef.current !== selectedId) {
+          clearedStaleFindingIdRef.current = selectedId;
+          // Stamp unselected before clearing: parent initialFindingId effects can
+          // overwrite the null write in the same flush, so fail-closed must not wait
+          // for a second selectedFindingId render (LI-13).
+          effectiveSelectedId = null;
+          writeReviewDetailFindingIdToUrl(null);
+          reconcileSelectedFindingId?.(null);
+        } else {
+          effectiveSelectedId = null;
+        }
+      } else {
+        clearedStaleFindingIdRef.current = null;
       }
+    } else if (selectedId === null) {
+      clearedStaleFindingIdRef.current = null;
     }
 
     for (const card of cards) {

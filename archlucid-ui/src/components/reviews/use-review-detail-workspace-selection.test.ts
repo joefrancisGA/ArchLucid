@@ -11,7 +11,8 @@ describe("useReviewDetailWorkspaceSelection", () => {
   });
 
   it("onFindingIdChange only writes findingId (not stale workbenchFocus from searchParams)", () => {
-    const writeSpy = vi.spyOn(reviewDetailWorkspaceTabs, "writeReviewDetailTabToUrl");
+    const writeFindingSpy = vi.spyOn(reviewDetailWorkspaceTabs, "writeReviewDetailFindingIdToUrl");
+    const writeTabSpy = vi.spyOn(reviewDetailWorkspaceTabs, "writeReviewDetailTabToUrl");
 
     const { result } = renderHook(() =>
       useReviewDetailWorkspaceSelection({
@@ -23,7 +24,8 @@ describe("useReviewDetailWorkspaceSelection", () => {
 
     result.current.onFindingIdChange(null);
 
-    expect(writeSpy).toHaveBeenCalledTimes(1);
-    expect(writeSpy).toHaveBeenCalledWith("overview", { findingId: null });
+    expect(writeFindingSpy).toHaveBeenCalledTimes(1);
+    expect(writeFindingSpy).toHaveBeenCalledWith(null);
+    expect(writeTabSpy).not.toHaveBeenCalled();
   });
 });

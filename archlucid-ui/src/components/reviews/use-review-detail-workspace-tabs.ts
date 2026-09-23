@@ -9,6 +9,7 @@ import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity
 import {
   REVIEW_DETAIL_FINDING_PARAM,
   REVIEW_DETAIL_TAB_PARAM,
+  REVIEW_DETAIL_URL_CHANGED_EVENT,
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
   readPresenterModeFromSearchParams,
@@ -122,13 +123,18 @@ export function useReviewDetailWorkspaceTabs(
   }, [searchParamTab]);
 
   useEffect(() => {
-    const onPopState = () => {
+    const syncActiveTabFromUrl = (): void => {
       setActiveTab(readReviewDetailTabFromWindowLocation());
     };
 
-    window.addEventListener("popstate", onPopState);
+    syncActiveTabFromUrl();
+    window.addEventListener("popstate", syncActiveTabFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncActiveTabFromUrl);
 
-    return () => window.removeEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", syncActiveTabFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncActiveTabFromUrl);
+    };
   }, []);
 
   const navigateTab = useCallback(
