@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -37,19 +38,34 @@ export type ReviewWorkbenchSelectionProviderProps = {
 
 /** Shared finding + column selection for the Working-mode three-column workbench (PT-12). */
 export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelectionProviderProps): React.JSX.Element {
-  const [selectedFindingId, setSelectedFindingIdState] = useState<string | null>(
-    () => readReviewDetailFindingIdFromWindowLocation() ?? props.initialFindingId ?? null,
-  );
+  const initialSelectedFindingId =
+    readReviewDetailFindingIdFromWindowLocation() ?? props.initialFindingId ?? null;
+  const [selectedFindingId, setSelectedFindingIdState] = useState<string | null>(initialSelectedFindingId);
+  const selectedFindingIdRef = useRef(initialSelectedFindingId);
   const [highlightedNodeId, setHighlightedNodeIdState] = useState<string | null>(null);
+  const initialWorkbenchFocusColumn = props.initialFocusColumn ?? null;
   const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(
-    props.initialFocusColumn ?? null,
+    initialWorkbenchFocusColumn,
   );
+  const workbenchFocusColumnRef = useRef(initialWorkbenchFocusColumn);
+  const onFindingIdChangeRef = useRef(props.onFindingIdChange);
+  const onFocusColumnChangeRef = useRef(props.onFocusColumnChange);
+
+  selectedFindingIdRef.current = selectedFindingId;
+  workbenchFocusColumnRef.current = workbenchFocusColumn;
+  onFindingIdChangeRef.current = props.onFindingIdChange;
+  onFocusColumnChangeRef.current = props.onFocusColumnChange;
 
   useEffect(() => {
     const syncFindingIdFromUrl = (): void => {
       const urlFindingId = readReviewDetailFindingIdFromWindowLocation();
 
-      setSelectedFindingIdState((current) => (current === urlFindingId ? current : urlFindingId));
+      if (selectedFindingIdRef.current === urlFindingId) {
+        return;
+      }
+
+      selectedFindingIdRef.current = urlFindingId;
+      setSelectedFindingIdState(urlFindingId);
     };
 
     syncFindingIdFromUrl();
@@ -62,37 +78,29 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
     };
   }, []);
 
-  const setSelectedFindingId = useCallback(
-    (findingId: string | null) => {
-      setSelectedFindingIdState((current) => {
-        if (current === findingId) {
-          return current;
-        }
+  const setSelectedFindingId = useCallback((findingId: string | null) => {
+    if (selectedFindingIdRef.current === findingId) {
+      return;
+    }
 
-        props.onFindingIdChange?.(findingId);
-        return findingId;
-      });
-    },
-    [props.onFindingIdChange],
-  );
+    selectedFindingIdRef.current = findingId;
+    setSelectedFindingIdState(findingId);
+    onFindingIdChangeRef.current?.(findingId);
+  }, []);
 
   const setHighlightedNodeId = useCallback((nodeId: string | null) => {
     setHighlightedNodeIdState((current) => (current === nodeId ? current : nodeId));
   }, []);
 
-  const setWorkbenchFocusColumn = useCallback(
-    (column: ReviewWorkbenchColumnId) => {
-      setWorkbenchFocusColumnState((current) => {
-        if (current === column) {
-          return current;
-        }
+  const setWorkbenchFocusColumn = useCallback((column: ReviewWorkbenchColumnId) => {
+    if (workbenchFocusColumnRef.current === column) {
+      return;
+    }
 
-        props.onFocusColumnChange?.(column);
-        return column;
-      });
-    },
-    [props.onFocusColumnChange],
-  );
+    workbenchFocusColumnRef.current = column;
+    setWorkbenchFocusColumnState(column);
+    onFocusColumnChangeRef.current?.(column);
+  }, []);
 
   const value = useMemo<ReviewWorkbenchSelectionContextValue>(
     () => ({
