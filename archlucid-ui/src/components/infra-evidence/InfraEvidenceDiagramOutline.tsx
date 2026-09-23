@@ -50,6 +50,7 @@ import type { SecurityDeclaredConnectionRow } from "@/lib/security-declared-conn
 
 const OUTLINE_NODES_OPEN_STORAGE_KEY = "infra-diagrams-outline-nodes-open";
 const OUTLINE_EDGES_OPEN_STORAGE_KEY = "infra-diagrams-outline-edges-open";
+const OUTLINE_MAX_DATA_ROWS = 200;
 
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
@@ -225,11 +226,6 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     };
   }, [selectedDeclaredEdge]);
 
-  const nodeRows = useMemo(() => {
-    const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
-
-    return sortedNodes.slice(0, 200);
-  }, [nodeSortDir, nodeSortKey, outline.nodes]);
   const connectedNodeIds = useMemo(() => {
     const ids = new Set<string>();
 
@@ -240,14 +236,36 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
 
     return ids;
   }, [outline.edges]);
-  const connectedNodeRows = useMemo(
-    () => nodeRows.filter((node) => connectedNodeIds.has(node.id)),
-    [connectedNodeIds, nodeRows],
+  const allConnectedNodes = useMemo(
+    () => outline.nodes.filter((node) => connectedNodeIds.has(node.id)),
+    [connectedNodeIds, outline.nodes],
   );
-  const unconnectedNodeRows = useMemo(
-    () => nodeRows.filter((node) => !connectedNodeIds.has(node.id)),
-    [connectedNodeIds, nodeRows],
+  const allUnconnectedNodes = useMemo(
+    () => outline.nodes.filter((node) => !connectedNodeIds.has(node.id)),
+    [connectedNodeIds, outline.nodes],
   );
+  const { connectedNodeRows, unconnectedNodeRows, shownNodeCount } = useMemo(() => {
+    const sortedConnected = sortInfraEvidenceDiagramOutlineNodes(
+      allConnectedNodes,
+      nodeSortKey,
+      nodeSortDir,
+    );
+    const sortedUnconnected = sortInfraEvidenceDiagramOutlineNodes(
+      allUnconnectedNodes,
+      nodeSortKey,
+      nodeSortDir,
+    );
+    const connected = sortedConnected.slice(0, OUTLINE_MAX_DATA_ROWS);
+    const remaining = OUTLINE_MAX_DATA_ROWS - connected.length;
+    const unconnected = remaining > 0 ? sortedUnconnected.slice(0, remaining) : [];
+
+    return {
+      connectedNodeRows: connected,
+      unconnectedNodeRows: unconnected,
+      shownNodeCount: connected.length + unconnected.length,
+    };
+  }, [allConnectedNodes, allUnconnectedNodes, nodeSortDir, nodeSortKey]);
+  const showNodeTruncationLine = outline.nodes.length > shownNodeCount;
   const edgeRows = useMemo(() => {
     const sortedEdges = sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir);
 
@@ -355,7 +373,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                 <tbody>
                   <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
                     <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
-                      Connected nodes ({connectedNodeRows.length})
+                      Connected nodes ({allConnectedNodes.length})
                     </th>
                   </tr>
                   {connectedNodeRows.map((node) => (
@@ -383,11 +401,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       ) : null}
                     </tr>
                   ))}
-                  {unconnectedNodeRows.length > 0 ? (
+                  {allUnconnectedNodes.length > 0 ? (
                     <>
                       <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
                         <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
-                          Unconnected nodes ({unconnectedNodeRows.length})
+                          Unconnected nodes ({allUnconnectedNodes.length})
                         </th>
                       </tr>
                       {unconnectedNodeRows.map((node) => (
@@ -421,7 +439,15 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   ) : null}
                 </tbody>
               </table>
-              {nodeRows.length === 0 ? (
+              {showNodeTruncationLine ? (
+                <p
+                  className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-diagrams-outline-nodes-truncated"
+                >
+                  Showing {shownNodeCount} of {outline.nodes.length} nodes.
+                </p>
+              ) : null}
+              {shownNodeCount === 0 ? (
                 <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   No nodes parsed from the Mermaid source.
                 </p>

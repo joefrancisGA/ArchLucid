@@ -113,7 +113,7 @@ public sealed class DiagramForestCanvasLabelContext
             ResourceGroupLines: resourceGroupLines,
             Caption: caption,
             PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType),
-            AzureIcon: _iconCatalog.Resolve(node.ArmResourceType),
+            AzureIcon: _iconCatalog.Resolve(node.ArmResourceType, node.ArmResourceKind),
             HasPrivateEndpointAccess: node.HasPrivateEndpointAccess,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
     }
