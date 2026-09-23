@@ -184,7 +184,7 @@ export function useReviewDetailWorkspaceTabs(
     }
 
     scheduleScrollToReviewDetailSection(hash);
-  }, [activeTab, searchParams]);
+  }, [activeTab]);
 
   useEffect(() => {
     const onHashChange = () => {

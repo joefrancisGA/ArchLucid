@@ -174,6 +174,10 @@ export async function injectDefaultTenantOperatorScope(page: Page): Promise<void
   // Register after demo-workspace init scripts in the same browser context so default scope wins
   // on every subsequent navigation (admin settings requires default tenant Admin, not demo scope).
   await writeOperatorScopeToBrowser(page, defaultScope, { persistViaInitScript: true });
+
+  // Init script only runs on navigations after registration — reload once so scope is committed
+  // before the first /administration/users RSC flight.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 }
 
 /**

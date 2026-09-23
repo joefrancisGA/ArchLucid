@@ -2,6 +2,17 @@ export type PathReplaceRouter = {
   readonly replace: (href: string, options?: { readonly scroll?: boolean }) => void;
 };
 
+/** Reads the committed query string (without `?`) — not stale Next.js `useSearchParams`. */
+export function readWindowLocationSearch(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const search = window.location.search;
+
+  return search.startsWith("?") ? search.slice(1) : search;
+}
+
 /**
  * App Router `router.replace` always refetches the current RSC route (GET / on Overview).
  * Skip when the href is already committed so searchParams identity churn cannot loop.

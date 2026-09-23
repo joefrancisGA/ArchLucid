@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import type {
   RunDetailFindingsFilterKind,
@@ -13,6 +13,8 @@ import {
   buildReviewFindingsLastVisitHref,
   reviewFindingsLastVisitHasUrlParams,
 } from "@/lib/findings/review-findings-last-visit-url";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   patchReviewFindingsLastVisit,
   readReviewFindingsLastVisit,
@@ -29,29 +31,43 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
   const { runId, enabled } = options;
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
   const restoredRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled || restoredRef.current || pathname.length === 0) {
+    if (!enabled || pathname.length === 0) {
       return;
     }
 
-    if (reviewFindingsLastVisitHasUrlParams(searchParams)) {
+    const restoreFromLastVisitIfNeeded = (): void => {
+      if (restoredRef.current) {
+        return;
+      }
+
+      const windowSearchParams = new URLSearchParams(window.location.search);
+
+      if (reviewFindingsLastVisitHasUrlParams(windowSearchParams)) {
+        restoredRef.current = true;
+
+        return;
+      }
+
+      const lastVisit = readReviewFindingsLastVisit(runId);
+      const windowSearch = windowSearchParams.toString();
+      const nextHref = buildReviewFindingsLastVisitHref(pathname, windowSearch, lastVisit);
+
+      replaceIfHrefChanged(router, nextHref);
       restoredRef.current = true;
+    };
 
-      return;
-    }
+    restoreFromLastVisitIfNeeded();
+    window.addEventListener("popstate", restoreFromLastVisitIfNeeded);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, restoreFromLastVisitIfNeeded);
 
-    const lastVisit = readReviewFindingsLastVisit(runId);
-    const nextHref = buildReviewFindingsLastVisitHref(pathname, searchParams.toString(), lastVisit);
-
-    if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-      router.replace(nextHref, { scroll: false });
-    }
-
-    restoredRef.current = true;
-  }, [enabled, pathname, router, runId, searchParams]);
+    return () => {
+      window.removeEventListener("popstate", restoreFromLastVisitIfNeeded);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, restoreFromLastVisitIfNeeded);
+    };
+  }, [enabled, pathname, router, runId]);
 }
 
 export type UseReviewFindingsLastVisitPersistOptions = {

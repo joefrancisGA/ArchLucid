@@ -18,7 +18,7 @@ import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRo
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
@@ -42,6 +42,8 @@ import {
   parseRunDetailRecordMetadataOpenFromSearch,
   runDetailRecordMetadataHrefFromSearch,
 } from "@/lib/runs/run-detail-record-metadata-url";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 type ReviewMetadataField = {
   readonly key: string;
@@ -187,10 +189,8 @@ function shouldShowReviewRecordMetadata(
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const runRecordMetaOpenParam = searchParams.get("runRecordMetaOpen");
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);
@@ -205,30 +205,51 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     isWorkingMode,
   });
   const [recordMetadataOpen, setRecordMetadataOpenState] = useState(() =>
-    parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam),
+    parseRunDetailRecordMetadataOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
+    ),
   );
 
   const syncRecordMetadataOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailRecordMetadataHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      replaceIfHrefChanged(
+        router,
+        runDetailRecordMetadataHrefFromSearch(window.location.search.slice(1), open, pathname),
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setRecordMetadataOpen = useCallback(
     (open: boolean) => {
+      if (recordMetadataOpen === open) {
+        return;
+      }
+
       setRecordMetadataOpenState(open);
       syncRecordMetadataOpenToUrl(open);
     },
-    [syncRecordMetadataOpenToUrl],
+    [recordMetadataOpen, syncRecordMetadataOpenToUrl],
   );
 
   useEffect(() => {
-    setRecordMetadataOpenState(parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam));
-  }, [runRecordMetaOpenParam]);
+    const syncRecordMetadataOpenFromUrl = (): void => {
+      const nextOpen = parseRunDetailRecordMetadataOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
+      );
+
+      setRecordMetadataOpenState((current) => (current === nextOpen ? current : nextOpen));
+    };
+
+    syncRecordMetadataOpenFromUrl();
+    window.addEventListener("popstate", syncRecordMetadataOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncRecordMetadataOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRecordMetadataOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncRecordMetadataOpenFromUrl);
+    };
+  }, []);
   const metadataContext = deriveReviewRecordMetadataContext(props.signedReviewRecordId);
   const absentReasons = resolveReviewMetadataAbsentReasons(metadataContext);
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);

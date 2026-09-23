@@ -84,6 +84,8 @@ import {
 } from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -169,19 +171,32 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         return;
       }
 
-      router.replace(
-        reviewFindingsClassificationBandHrefFromSearch(searchParams.toString(), pathname, next),
-        { scroll: false },
+      replaceIfHrefChanged(
+        router,
+        reviewFindingsClassificationBandHrefFromSearch(window.location.search.slice(1), pathname, next),
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   useEffect(() => {
-    setClassificationBandState(
-      parseReviewFindingsClassificationBandFromSearch(searchParams?.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)),
-    );
-  }, [searchParams]);
+    const syncClassificationBandFromUrl = (): void => {
+      setClassificationBandState(
+        parseReviewFindingsClassificationBandFromSearch(
+          new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM),
+        ),
+      );
+    };
+
+    syncClassificationBandFromUrl();
+    window.addEventListener("popstate", syncClassificationBandFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncClassificationBandFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncClassificationBandFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncClassificationBandFromUrl);
+    };
+  }, []);
 
   const listView =
     parseReviewFindingsListViewFromSearch(searchParams?.get("findingsListView")) ??

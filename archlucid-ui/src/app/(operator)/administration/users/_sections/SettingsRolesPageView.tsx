@@ -196,10 +196,6 @@ export function SettingsRolesPageView(props: Props) {
   }, []);
 
   useEffect(() => {
-    setActiveTab(urlTab);
-  }, [urlTab]);
-
-  useEffect(() => {
     const syncInviteOpenFromUrl = (): void => {
       const nextInviteOpen = parseSettingsUsersInviteOpenFromSearch(
         new URLSearchParams(window.location.search).get("invite"),
@@ -222,15 +218,21 @@ export function SettingsRolesPageView(props: Props) {
   }, []);
 
   useEffect(() => {
-    const onPop = () => {
-      const sp = new URLSearchParams(window.location.search);
-      setActiveTab(settingsUsersTabFromLocation(window.location.pathname, sp.get("tab"), canManageApiKeys));
+    const syncActiveTabFromUrl = (): void => {
+      setActiveTab(
+        settingsUsersTabFromLocation(
+          window.location.pathname,
+          new URLSearchParams(window.location.search).get("tab"),
+          canManageApiKeys,
+        ),
+      );
     };
 
-    window.addEventListener("popstate", onPop);
+    syncActiveTabFromUrl();
+    window.addEventListener("popstate", syncActiveTabFromUrl);
 
     return () => {
-      window.removeEventListener("popstate", onPop);
+      window.removeEventListener("popstate", syncActiveTabFromUrl);
     };
   }, [canManageApiKeys]);
 
