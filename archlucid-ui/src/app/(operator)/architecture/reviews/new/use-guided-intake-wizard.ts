@@ -44,7 +44,7 @@ import { useGuidedIntakePriorRunPrefill } from "./use-guided-intake-prior-run-pr
  * The component is left as pure markup so a copy or layout change never has to be made inside a
  * request pipeline, and so the pipeline can be reasoned about without reading 400 lines of JSX.
  */
-export function useGuidedIntakeWizard() {
+export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: boolean }) {
   const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
@@ -66,6 +66,8 @@ export function useGuidedIntakeWizard() {
   const sourceArchitectureId =
     searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ??
     sourceArchitectureIdFromNestedRoute;
+  const requiresSystemName =
+    options?.requiresSystemName ?? false;
   const deeplinkPolicyPackId = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const priorRunId = readPriorRunIdFromSearch(searchParams);
 
@@ -106,7 +108,11 @@ export function useGuidedIntakeWizard() {
     goToStep(clampWizardStepIndex(nextStep, INTAKE_STEP_DEFINITIONS.length));
   }, [goToStep, searchParams]);
 
-  const form = useGuidedIntakeBriefForm({ exampleTemplate, isCreateArchitectureFlow });
+  const form = useGuidedIntakeBriefForm({
+    exampleTemplate,
+    isCreateArchitectureFlow,
+    requiresSystemName,
+  });
 
   // The session snapshot includes workflow state (draft id, answers), so the persistence hook has to
   // be created after the workflow — the workflow reaches it through this ref instead.
@@ -320,6 +326,7 @@ export function useGuidedIntakeWizard() {
     exampleTemplate,
     isCreateArchitectureFlow,
     sourceArchitectureId,
+    requiresSystemName,
     sourceArchitectureDisplayName,
     llmBudgetStatus,
     blocksLlmExecution,

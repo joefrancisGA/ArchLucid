@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { starterArchitectureTemplates } from "@/data/starter-templates";
 import {
   mergeScopeBulletsIntoBrief,
   scopeBriefLines,
@@ -29,6 +30,7 @@ import {
 type GuidedIntakeBriefFormOptions = {
   readonly exampleTemplate: ReviewIntakeExampleTemplate | null;
   readonly isCreateArchitectureFlow: boolean;
+  readonly requiresSystemName?: boolean;
 };
 
 /**
@@ -55,7 +57,17 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [priorAttachedFileNames, setPriorAttachedFileNames] = useState<readonly string[]>([]);
 
-  const { exampleTemplate, isCreateArchitectureFlow } = options;
+  const {
+    exampleTemplate,
+    isCreateArchitectureFlow,
+    requiresSystemName = false,
+  } = options;
+  const starterTemplate = useMemo(() => {
+    const presetId = searchParams.get("preset")?.trim() ?? "";
+
+    return starterArchitectureTemplates.find((template) => template.id === presetId) ?? null;
+  }, [searchParams]);
+  const starterTemplatePrefillApplied = useRef(false);
 
   const setScopeGateOpen = useCallback(
     (next: boolean | ((open: boolean) => boolean)) => {
@@ -85,6 +97,17 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     setSystemName(exampleTemplate.systemName);
   }, [exampleTemplate]);
 
+  useEffect(() => {
+    if (starterTemplate === null || starterTemplatePrefillApplied.current) {
+      return;
+    }
+
+    starterTemplatePrefillApplied.current = true;
+    setFreeTextIntent(starterTemplate.values.description ?? "");
+    setBusinessOutcome(`A review-ready architecture package for ${starterTemplate.label}.`);
+    setSystemName(starterTemplate.values.systemName ?? "");
+  }, [starterTemplate]);
+
   const intentTrimmedLength = freeTextIntent.trim().length;
   const intentMeetsMinimum = intentTrimmedLength >= MIN_INTENT_CHARS;
   const outcomeTrimmedLength = businessOutcome.trim().length;
@@ -98,7 +121,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const advanceBlockers = useMemo(() => {
     const blockers: string[] = [];
 
-    if (isCreateArchitectureFlow && !systemNameMeetsMinimum) {
+    if ((isCreateArchitectureFlow || requiresSystemName) && !systemNameMeetsMinimum) {
       blockers.push("system name");
     }
 
@@ -128,6 +151,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     intentFieldLabel,
     intentMeetsMinimum,
     isCreateArchitectureFlow,
+    requiresSystemName,
     outcomeMeetsMinimum,
     scopeBullets.length,
     scopeGateOpen,

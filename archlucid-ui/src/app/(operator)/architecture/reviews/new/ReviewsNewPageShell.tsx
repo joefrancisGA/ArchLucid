@@ -8,6 +8,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { ReviewsNewWizardResumeStrip } from "@/components/usability/ReviewsNewWizardResumeStrip";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
@@ -36,6 +37,7 @@ function reviewsNewBuyerChromeRendersInShell(pathQuery: string): boolean {
 /** Shared `/architecture/reviews/new` layout — skip link, header, and intake workspace (RNX / REN / REQ / ENE). */
 export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.Element {
   const evalChrome = useProductionEvalChrome();
+  const isWorkingDesk = useProductionDeskChrome();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const searchParams = useSearchParams();
   const pathQuery = searchParams?.get("path")?.trim() ?? "";
@@ -73,7 +75,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
           {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
         </div>
 
-        {buyerPolishedShell || onPathTab ? null : (
+        {isWorkingDesk || buyerPolishedShell || onPathTab ? null : (
           <PathChooserCreateObjectVocabularyRail currentSurfaceId="reviews-new" />
         )}
       </div>

@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -40,5 +40,15 @@ describe("ReviewsNewStarterTemplateGallery", () => {
     expect(screen.getByText("Internal operations portal")).toBeInTheDocument();
     expect(screen.getByText("Payments-adjacent (no card data)")).toBeInTheDocument();
     expect(screen.queryByText("IoT telemetry ingest")).toBeNull();
+  });
+
+  it("opens guided intake with the selected preset", () => {
+    render(<ReviewsNewStarterTemplateGallery />);
+
+    fireEvent.click(screen.getByTestId("reviews-new-template-starter-api-platform-b2b"));
+
+    expect(push).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=guided-intake&preset=starter-api-platform-b2b",
+    );
   });
 });
