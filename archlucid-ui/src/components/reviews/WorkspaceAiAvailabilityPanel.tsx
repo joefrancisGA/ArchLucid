@@ -29,8 +29,28 @@ import {
 } from "@/lib/workspace-ai-availability";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+function readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseWorkspaceAiProbeDebugMetadataOpenFromSearch(
+    new URLSearchParams(window.location.search).get("workspaceAiProbeDebugMetadataOpen"),
+  );
+}
+
+function readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseWorkspaceAiProbeDiagnosticsOpenFromSearch(
+    new URLSearchParams(window.location.search).get("workspaceAiProbeDiagnosticsOpen"),
+  );
+}
 
 export type WorkspaceAiAvailabilityPanelProps = {
   readonly workspaceAiSignal: WorkspaceAiConfigurationSignal;
@@ -317,11 +337,11 @@ function WorkspaceAiProbeDiagnostics(props: {
 }): React.JSX.Element {
   const { result, compact = false } = props;
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const workspaceAiProbeDebugMetadataOpenParam = searchParams.get("workspaceAiProbeDebugMetadataOpen");
   const [debugMetadataOpen, setDebugMetadataOpenState] = useState(() =>
-    parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam),
+    readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation(),
   );
+  const debugMetadataOpenRef = useRef(debugMetadataOpen);
+  debugMetadataOpenRef.current = debugMetadataOpen;
   const syncDebugMetadataOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
@@ -333,23 +353,36 @@ function WorkspaceAiProbeDiagnostics(props: {
   );
   const setDebugMetadataOpen = useCallback(
     (open: boolean) => {
-      if (debugMetadataOpen === open) {
+      if (debugMetadataOpenRef.current === open) {
         return;
       }
 
+      debugMetadataOpenRef.current = open;
       setDebugMetadataOpenState(open);
       syncDebugMetadataOpenToUrl(open);
     },
-    [debugMetadataOpen, syncDebugMetadataOpenToUrl],
+    [syncDebugMetadataOpenToUrl],
   );
 
   useEffect(() => {
-    setDebugMetadataOpenState((current) => {
-      const next = parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam);
+    const syncDebugMetadataOpenFromUrl = (): void => {
+      const nextOpen = readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation();
 
-      return current === next ? current : next;
-    });
-  }, [workspaceAiProbeDebugMetadataOpenParam]);
+      if (debugMetadataOpenRef.current === nextOpen) {
+        return;
+      }
+
+      debugMetadataOpenRef.current = nextOpen;
+      setDebugMetadataOpenState(nextOpen);
+    };
+
+    syncDebugMetadataOpenFromUrl();
+    window.addEventListener("popstate", syncDebugMetadataOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDebugMetadataOpenFromUrl);
+    };
+  }, []);
 
   const deploymentName = resolveProbeDeploymentName(result.debug);
   const modelId = resolveProbeModelId(result.debug);
@@ -441,11 +474,11 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
   const probeTriggerLabel =
     probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "AI availability details";
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const workspaceAiProbeDiagnosticsOpenParam = searchParams.get("workspaceAiProbeDiagnosticsOpen");
   const [probeDiagnosticsOpen, setProbeDiagnosticsOpenState] = useState(() =>
-    parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
+    readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation(),
   );
+  const probeDiagnosticsOpenRef = useRef(probeDiagnosticsOpen);
+  probeDiagnosticsOpenRef.current = probeDiagnosticsOpen;
 
   const syncProbeDiagnosticsOpenToUrl = useCallback(
     (open: boolean) => {
@@ -459,23 +492,36 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
 
   const setProbeDiagnosticsOpen = useCallback(
     (open: boolean) => {
-      if (probeDiagnosticsOpen === open) {
+      if (probeDiagnosticsOpenRef.current === open) {
         return;
       }
 
+      probeDiagnosticsOpenRef.current = open;
       setProbeDiagnosticsOpenState(open);
       syncProbeDiagnosticsOpenToUrl(open);
     },
-    [probeDiagnosticsOpen, syncProbeDiagnosticsOpenToUrl],
+    [syncProbeDiagnosticsOpenToUrl],
   );
 
   useEffect(() => {
-    setProbeDiagnosticsOpenState((current) => {
-      const next = parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam);
+    const syncProbeDiagnosticsOpenFromUrl = (): void => {
+      const nextOpen = readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation();
 
-      return current === next ? current : next;
-    });
-  }, [workspaceAiProbeDiagnosticsOpenParam]);
+      if (probeDiagnosticsOpenRef.current === nextOpen) {
+        return;
+      }
+
+      probeDiagnosticsOpenRef.current = nextOpen;
+      setProbeDiagnosticsOpenState(nextOpen);
+    };
+
+    syncProbeDiagnosticsOpenFromUrl();
+    window.addEventListener("popstate", syncProbeDiagnosticsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncProbeDiagnosticsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <div

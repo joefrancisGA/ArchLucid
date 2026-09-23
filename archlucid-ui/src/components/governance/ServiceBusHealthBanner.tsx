@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
@@ -20,6 +20,16 @@ import {
   serviceBusHealthTechnicalProbeDisclosureHrefFromSearch,
 } from "@/lib/governance/service-bus-health-technical-probe-disclosure-url";
 
+function readServiceBusHealthTechnicalProbeOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseServiceBusHealthTechnicalProbeOpenFromSearch(
+    new URLSearchParams(window.location.search).get("serviceBusHealthTechnicalProbeOpen"),
+  );
+}
+
 /**
  * Demo/static-demo shells may omit live health polling. Paying Working users must see real
  * degradation — buyer-polish is not a suppress flag (RS-06).
@@ -33,11 +43,11 @@ function isServiceBusBannerSuppressed(): boolean {
  */
 export function ServiceBusHealthBanner() {
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const serviceBusHealthTechnicalProbeOpenParam = searchParams.get("serviceBusHealthTechnicalProbeOpen");
   const [technicalProbeOpen, setTechnicalProbeOpenState] = useState(() =>
-    parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam),
+    readServiceBusHealthTechnicalProbeOpenFromWindowLocation(),
   );
+  const technicalProbeOpenRef = useRef(technicalProbeOpen);
+  technicalProbeOpenRef.current = technicalProbeOpen;
 
   const syncTechnicalProbeOpenToUrl = useCallback(
     (open: boolean) => {
@@ -51,23 +61,36 @@ export function ServiceBusHealthBanner() {
 
   const setTechnicalProbeOpen = useCallback(
     (open: boolean) => {
-      if (technicalProbeOpen === open) {
+      if (technicalProbeOpenRef.current === open) {
         return;
       }
 
+      technicalProbeOpenRef.current = open;
       setTechnicalProbeOpenState(open);
       syncTechnicalProbeOpenToUrl(open);
     },
-    [syncTechnicalProbeOpenToUrl, technicalProbeOpen],
+    [syncTechnicalProbeOpenToUrl],
   );
 
   useEffect(() => {
-    setTechnicalProbeOpenState((current) => {
-      const next = parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam);
+    const syncTechnicalProbeOpenFromUrl = (): void => {
+      const nextOpen = readServiceBusHealthTechnicalProbeOpenFromWindowLocation();
 
-      return current === next ? current : next;
-    });
-  }, [serviceBusHealthTechnicalProbeOpenParam]);
+      if (technicalProbeOpenRef.current === nextOpen) {
+        return;
+      }
+
+      technicalProbeOpenRef.current = nextOpen;
+      setTechnicalProbeOpenState(nextOpen);
+    };
+
+    syncTechnicalProbeOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalProbeOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalProbeOpenFromUrl);
+    };
+  }, []);
 
   const documentHidden = useDocumentHidden();
   const queryEnabled = !isServiceBusBannerSuppressed();
@@ -116,7 +139,8 @@ export function ServiceBusHealthBanner() {
             className="mt-2"
             open={technicalProbeOpen}
             onToggle={(event) => {
-              setTechnicalProbeOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setTechnicalProbeOpen(!technicalProbeOpenRef.current);
             }}
           >
             <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">
@@ -141,7 +165,8 @@ export function ServiceBusHealthBanner() {
             className="mt-1"
             open={technicalProbeOpen}
             onToggle={(event) => {
-              setTechnicalProbeOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setTechnicalProbeOpen(!technicalProbeOpenRef.current);
             }}
           >
             <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">
