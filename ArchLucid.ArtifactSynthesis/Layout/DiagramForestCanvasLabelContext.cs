@@ -5,6 +5,7 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 /// <summary>Diagram-wide peer labels used to keep truncated canvas text correlatable.</summary>
 public sealed class DiagramForestCanvasLabelContext
 {
+    private static readonly AzureArchitectureIconCatalog IconCatalog = AzureArchitectureIconCatalog.Load();
     private readonly IReadOnlyList<string> _peerResourceNames;
     private readonly IReadOnlyList<string> _peerResourceGroupNames;
     private readonly DiagramForestLayoutOptions _options;
@@ -108,7 +109,7 @@ public sealed class DiagramForestCanvasLabelContext
             ResourceGroupLines: resourceGroupLines,
             Caption: caption,
             PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType),
+            AzureIcon: IconCatalog.Resolve(node.ArmResourceType, node.ArmResourceKind),
             HasPrivateEndpointAccess: node.HasPrivateEndpointAccess,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
-    }
 }

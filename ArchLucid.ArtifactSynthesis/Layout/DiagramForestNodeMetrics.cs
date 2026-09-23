@@ -7,5 +7,6 @@ public sealed record DiagramForestNodeMetrics(
     IReadOnlyList<string> ResourceGroupLines,
     DiagramNodeHumanCaption Caption,
     DiagramInventoryPictogramKind PictogramKind,
+    AzureArchitectureIconCatalogEntry? AzureIcon,
     bool HasPrivateEndpointAccess,
     bool SuppressResourceGroupCaption = false);

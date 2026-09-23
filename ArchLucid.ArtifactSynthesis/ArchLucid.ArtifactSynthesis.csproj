@@ -33,6 +33,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Assets\AzureIcons\azure-icon-manifest.json"
+                      LogicalName="ArchLucid.ArtifactSynthesis.AzureIcons.azure-icon-manifest.json" />
+    <EmbeddedResource Include="Assets\AzureIcons\Svg\*.svg"
+                      LogicalName="ArchLucid.ArtifactSynthesis.AzureIcons.Svg.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="ArchLucid.Core" />
     <Using Include="ArchLucid.Core.Manifest" />
   </ItemGroup>

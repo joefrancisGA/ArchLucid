@@ -1,0 +1,14 @@
+{
+  "icons": [
+    { "category": "compute", "service": "Virtual Machine", "armTypes": ["Microsoft.Compute/virtualMachines"], "file": "Svg/virtual-machine.svg" },
+    { "category": "compute", "service": "Virtual Machine Scale Sets", "armTypes": ["Microsoft.Compute/virtualMachineScaleSets"], "file": "Svg/vm-scale-set.svg" },
+    { "category": "compute", "service": "Function Apps", "armTypes": ["Microsoft.Web/sites"], "kind": "functionapp", "file": "Svg/function-app.svg" },
+    { "category": "web", "service": "App Services", "armTypes": ["Microsoft.Web/sites"], "file": "Svg/app-service.svg" },
+    { "category": "storage", "service": "Storage Accounts", "armTypes": ["Microsoft.Storage/storageAccounts"], "file": "Svg/storage-account.svg" },
+    { "category": "networking", "service": "Virtual Networks", "armTypes": ["Microsoft.Network/virtualNetworks"], "file": "Svg/virtual-network.svg" },
+    { "category": "networking", "service": "Network Security Groups", "armTypes": ["Microsoft.Network/networkSecurityGroups"], "file": "Svg/network-security-group.svg" },
+    { "category": "security", "service": "Key Vaults", "armTypes": ["Microsoft.KeyVault/vaults"], "file": "Svg/key-vault.svg" },
+    { "category": "databases", "service": "SQL Database", "armTypes": ["Microsoft.Sql/servers/databases"], "file": "Svg/sql-database.svg" },
+    { "category": "databases", "service": "Azure Cosmos DB", "armTypes": ["Microsoft.DocumentDB/databaseAccounts"], "file": "Svg/cosmos-db.svg" }
+  ]
+}
