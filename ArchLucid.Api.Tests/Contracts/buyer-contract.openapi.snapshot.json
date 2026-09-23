@@ -11023,6 +11023,12 @@
               "string"
             ]
           },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "workflowIntent": {
             "type": [
               "null",

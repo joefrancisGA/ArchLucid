@@ -69,14 +69,17 @@ export async function createDraftRequest(
   freeTextIntent: string,
   workflowIntent?: "create-architecture" | "start-review",
   priorRunId?: string | null,
+  systemName?: string,
 ): Promise<DraftRequestResponse> {
   const trimmedPriorRunId = priorRunId?.trim() ?? "";
+  const trimmedSystemName = systemName?.trim() ?? "";
 
   try {
     return await apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
       freeTextIntent: freeTextIntent.trim(),
       ...(workflowIntent !== undefined ? { workflowIntent } : {}),
       ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
+      ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
     });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
