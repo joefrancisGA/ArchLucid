@@ -43,6 +43,7 @@ import {
   parseSettingsUsersInviteOpenFromSearch,
   settingsUsersInviteHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-url";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -124,15 +125,25 @@ export function SettingsRolesPageView(props: Props) {
 
   const syncInviteSectionToUrl = useCallback(
     (open: boolean) => {
-      router.replace(settingsUsersInviteHrefFromSearch(currentSearch, open, hubPathname), { scroll: false });
+      replaceIfHrefChanged(
+        router,
+        settingsUsersInviteHrefFromSearch(currentSearch, open, hubPathname),
+      );
     },
     [currentSearch, hubPathname, router],
   );
 
   const setInviteSectionOpen = useCallback(
     (open: boolean) => {
-      setInviteSectionOpenState(open);
-      syncInviteSectionToUrl(open);
+      setInviteSectionOpenState((current) => {
+        if (current === open) {
+          return current;
+        }
+
+        syncInviteSectionToUrl(open);
+
+        return open;
+      });
     },
     [syncInviteSectionToUrl],
   );
@@ -212,10 +223,15 @@ export function SettingsRolesPageView(props: Props) {
   }, [inviteSectionOpen]);
 
   useEffect(() => {
-    if (usersTabInviteFirstLayout && activeTab === "users" && !usersTabBuyerPolished) {
+    if (
+      usersTabInviteFirstLayout
+      && activeTab === "users"
+      && !usersTabBuyerPolished
+      && !inviteSectionOpen
+    ) {
       setInviteSectionOpen(true);
     }
-  }, [usersTabInviteFirstLayout, activeTab, usersTabBuyerPolished]);
+  }, [activeTab, inviteSectionOpen, setInviteSectionOpen, usersTabBuyerPolished, usersTabInviteFirstLayout]);
 
   const onSelectTab = useCallback(
     (id: string) => {

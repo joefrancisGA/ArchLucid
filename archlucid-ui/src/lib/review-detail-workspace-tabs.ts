@@ -212,7 +212,13 @@ export function writeReviewDetailTabToUrl(
     url.hash = normalized.length > 0 ? `#${normalized}` : "";
   }
 
-  window.history.replaceState(null, "", url.toString());
+  const nextHref = url.toString();
+
+  if (nextHref === window.location.href) {
+    return;
+  }
+
+  window.history.replaceState(null, "", nextHref);
   window.dispatchEvent(new Event(REVIEW_DETAIL_URL_CHANGED_EVENT));
 }
 

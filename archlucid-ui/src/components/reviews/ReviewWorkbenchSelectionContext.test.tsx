@@ -43,11 +43,7 @@ describe("ReviewWorkbenchSelectionProvider", () => {
         initialFindingId="stale-missing"
         onFindingIdChange={(findingId) => {
           onFindingIdChange(findingId);
-          writeReviewDetailTabToUrl("overview", {
-            findingId,
-            workbenchFocus: null,
-            presenter: null,
-          });
+          writeReviewDetailTabToUrl("overview", { findingId });
         }}
       >
         <SelectionProbe />

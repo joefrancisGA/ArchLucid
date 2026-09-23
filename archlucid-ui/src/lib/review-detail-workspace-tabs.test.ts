@@ -59,6 +59,21 @@ describe("review-detail-workspace-tabs", () => {
     expect(window.location.search).toContain("reviewTab=findings");
   });
 
+  it("skips replaceState and URL-changed event when the href is already committed", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=overview&findingId=stale-missing",
+    );
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+    const dispatchEventSpy = vi.spyOn(window, "dispatchEvent");
+
+    writeReviewDetailTabToUrl("overview", { findingId: "stale-missing" });
+
+    expect(replaceStateSpy).not.toHaveBeenCalled();
+    expect(dispatchEventSpy).not.toHaveBeenCalled();
+  });
+
   it("prefers hash-mapped tabs when reading from window location", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview#run-explanation");
 

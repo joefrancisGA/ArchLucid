@@ -23,7 +23,10 @@ export function WorkbenchFindingSelectionSync(): null {
         // overwrite the null write in the same flush, so fail-closed must not wait
         // for a second selectedFindingId render (LI-13).
         effectiveSelectedId = null;
-        setSelectedFindingId?.(null);
+
+        if (selectedId !== null) {
+          setSelectedFindingId?.(null);
+        }
       }
     }
 

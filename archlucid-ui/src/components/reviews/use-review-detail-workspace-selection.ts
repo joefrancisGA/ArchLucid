@@ -22,22 +22,16 @@ export function useReviewDetailWorkspaceSelection(
 ): UseReviewDetailWorkspaceSelectionResult {
   const onFindingIdChange = useCallback(
     (findingId: string | null) => {
-      writeReviewDetailTabToUrl(input.activeTab, {
-        findingId,
-        workbenchFocus: input.workbenchFocusColumn,
-        presenter: null,
-      });
+      // Only mutate findingId — workbenchFocus/presenter from stale `useSearchParams` caused
+      // replaceState ↔ listener loops (React error #185) on buyer-polished review detail.
+      writeReviewDetailTabToUrl(input.activeTab, { findingId });
     },
-    [input.activeTab, input.workbenchFocusColumn],
+    [input.activeTab],
   );
 
   const onFocusColumnChange = useCallback(
     (column: ReviewWorkbenchColumnId | null) => {
-      // Do not pass `initialFindingId` from stale `useSearchParams` — only update focus column.
-      writeReviewDetailTabToUrl(input.activeTab, {
-        workbenchFocus: column,
-        presenter: null,
-      });
+      writeReviewDetailTabToUrl(input.activeTab, { workbenchFocus: column });
     },
     [input.activeTab],
   );
