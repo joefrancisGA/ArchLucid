@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { useFormContext, useWatch } from "react-hook-form";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
@@ -59,14 +61,17 @@ export type SimplifiedPilotWizardProps = {
  */
 export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const { onRunCreated, llmBudgetStatus, blocksLlmExecution, onPendingZipFileChange } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
-  const searchParams = useSearchParams();
-  const simplifiedPilotAdvancedConfigOpenParam = searchParams.get("simplifiedPilotAdvancedConfigOpen");
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [advancedConfigOpen, setAdvancedConfigOpenState] = useState(() =>
-    parseSimplifiedPilotAdvancedConfigOpenFromSearch(simplifiedPilotAdvancedConfigOpenParam),
+    parseSimplifiedPilotAdvancedConfigOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("simplifiedPilotAdvancedConfigOpen"),
+    ),
   );
+  const advancedConfigOpenRef = useRef(advancedConfigOpen);
+  advancedConfigOpenRef.current = advancedConfigOpen;
   const {
     baselineReviewCycleHours,
     setBaselineReviewCycleHours,
@@ -106,16 +111,21 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
 
   const syncAdvancedConfigOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        simplifiedPilotAdvancedConfigDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        simplifiedPilotAdvancedConfigDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setAdvancedConfigOpen = useCallback(
     (open: boolean) => {
+      if (advancedConfigOpenRef.current === open) {
+        return;
+      }
+
+      advancedConfigOpenRef.current = open;
       setAdvancedConfigOpenState(open);
       syncAdvancedConfigOpenToUrl(open);
     },
@@ -123,8 +133,26 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   );
 
   useEffect(() => {
-    setAdvancedConfigOpenState(parseSimplifiedPilotAdvancedConfigOpenFromSearch(simplifiedPilotAdvancedConfigOpenParam));
-  }, [simplifiedPilotAdvancedConfigOpenParam]);
+    const syncAdvancedConfigOpenFromUrl = (): void => {
+      const next = parseSimplifiedPilotAdvancedConfigOpenFromSearch(
+        new URLSearchParams(window.location.search).get("simplifiedPilotAdvancedConfigOpen"),
+      );
+
+      if (advancedConfigOpenRef.current === next) {
+        return;
+      }
+
+      advancedConfigOpenRef.current = next;
+      setAdvancedConfigOpenState(next);
+    };
+
+    syncAdvancedConfigOpenFromUrl();
+    window.addEventListener("popstate", syncAdvancedConfigOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAdvancedConfigOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const greenfieldPreset = wizardPresets.find((preset) => preset.id === "greenfield-web-app");

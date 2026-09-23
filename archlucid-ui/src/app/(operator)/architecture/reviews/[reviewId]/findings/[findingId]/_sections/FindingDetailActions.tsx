@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState, type SetStateAction } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
 
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
 import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
@@ -19,6 +19,7 @@ import {
   parseFindingTechnicalAuditOpenFromSearch,
   parseFindingTechnicalIdsOpenFromSearch,
 } from "@/lib/findings/finding-detail-actions-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPanel";
 import { FindingDetailNextFindingFooter } from "./FindingDetailNextFindingFooter";
@@ -27,22 +28,29 @@ import type { FindingDetailPresentation } from "./finding-detail-presentation";
 
 type Props = { readonly presentation: FindingDetailPresentation };
 
+type ActionsDisclosureState = {
+  exportOpen: boolean;
+  technicalIdsOpen: boolean;
+  technicalAuditOpen: boolean;
+};
+
+function readActionsDisclosureStateFromWindow(): ActionsDisclosureState {
+  const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+  return {
+    exportOpen: parseFindingExportOpenFromSearch(params.get("findingExportOpen")),
+    technicalIdsOpen: parseFindingTechnicalIdsOpenFromSearch(params.get("findingTechnicalIdsOpen")),
+    technicalAuditOpen: parseFindingTechnicalAuditOpenFromSearch(params.get("findingTechnicalAuditOpen")),
+  };
+}
+
 /** Finding detail actions and footers. */
 export function FindingDetailActions({ presentation }: Props) {
   const { model, graphEvidenceHref, linkedManifestHref, transparencyTrail } = presentation;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingExportOpenParam = searchParams.get("findingExportOpen");
-  const findingTechnicalIdsOpenParam = searchParams.get("findingTechnicalIdsOpen");
-  const findingTechnicalAuditOpenParam = searchParams.get("findingTechnicalAuditOpen");
-  const [exportOpen, setExportOpenState] = useState(() => parseFindingExportOpenFromSearch(findingExportOpenParam));
-  const [technicalIdsOpen, setTechnicalIdsOpenState] = useState(() =>
-    parseFindingTechnicalIdsOpenFromSearch(findingTechnicalIdsOpenParam),
-  );
-  const [technicalAuditOpen, setTechnicalAuditOpenState] = useState(() =>
-    parseFindingTechnicalAuditOpenFromSearch(findingTechnicalAuditOpenParam),
-  );
+  const [actionsState, setActionsState] = useState<ActionsDisclosureState>(() => readActionsDisclosureStateFromWindow());
+  const actionsStateRef = useRef(actionsState);
+  actionsStateRef.current = actionsState;
   const {
     runId,
     findingIdRouteParam,
@@ -52,63 +60,85 @@ export function FindingDetailActions({ presentation }: Props) {
     runExecutionFootnote,
     nextFindingInReview,
   } = model;
+  const { exportOpen, technicalIdsOpen, technicalAuditOpen } = actionsState;
 
   const syncPanelsToUrl = useCallback(
-    (state: { exportOpen: boolean; technicalIdsOpen: boolean; technicalAuditOpen: boolean }) => {
-      router.replace(findingDetailActionsDisclosureHrefFromSearch(searchParams.toString(), state, pathname), {
-        scroll: false,
-      });
+    (state: ActionsDisclosureState) => {
+      commitHrefIfChanged(
+        findingDetailActionsDisclosureHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
+  );
+
+  const updateActionsState = useCallback(
+    (next: ActionsDisclosureState) => {
+      if (
+        actionsStateRef.current.exportOpen === next.exportOpen
+        && actionsStateRef.current.technicalIdsOpen === next.technicalIdsOpen
+        && actionsStateRef.current.technicalAuditOpen === next.technicalAuditOpen
+      ) {
+        return;
+      }
+
+      actionsStateRef.current = next;
+      setActionsState(next);
+      syncPanelsToUrl(next);
+    },
+    [syncPanelsToUrl],
   );
 
   const setExportOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setExportOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncPanelsToUrl({ exportOpen: next, technicalIdsOpen, technicalAuditOpen });
-
-        return next;
-      });
+      const current = actionsStateRef.current;
+      const next = typeof value === "function" ? value(current.exportOpen) : value;
+      updateActionsState({ ...current, exportOpen: next });
     },
-    [syncPanelsToUrl, technicalAuditOpen, technicalIdsOpen],
+    [updateActionsState],
   );
 
   const setTechnicalIdsOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setTechnicalIdsOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncPanelsToUrl({ exportOpen, technicalIdsOpen: next, technicalAuditOpen });
-
-        return next;
-      });
+      const current = actionsStateRef.current;
+      const next = typeof value === "function" ? value(current.technicalIdsOpen) : value;
+      updateActionsState({ ...current, technicalIdsOpen: next });
     },
-    [exportOpen, syncPanelsToUrl, technicalAuditOpen],
+    [updateActionsState],
   );
 
   const setTechnicalAuditOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setTechnicalAuditOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncPanelsToUrl({ exportOpen, technicalIdsOpen, technicalAuditOpen: next });
-
-        return next;
-      });
+      const current = actionsStateRef.current;
+      const next = typeof value === "function" ? value(current.technicalAuditOpen) : value;
+      updateActionsState({ ...current, technicalAuditOpen: next });
     },
-    [exportOpen, syncPanelsToUrl, technicalIdsOpen],
+    [updateActionsState],
   );
 
   useEffect(() => {
-    setExportOpenState(parseFindingExportOpenFromSearch(findingExportOpenParam));
-  }, [findingExportOpenParam]);
+    const syncFromUrl = (): void => {
+      const next = readActionsDisclosureStateFromWindow();
 
-  useEffect(() => {
-    setTechnicalIdsOpenState(parseFindingTechnicalIdsOpenFromSearch(findingTechnicalIdsOpenParam));
-  }, [findingTechnicalIdsOpenParam]);
+      if (
+        actionsStateRef.current.exportOpen === next.exportOpen
+        && actionsStateRef.current.technicalIdsOpen === next.technicalIdsOpen
+        && actionsStateRef.current.technicalAuditOpen === next.technicalAuditOpen
+      ) {
+        return;
+      }
 
-  useEffect(() => {
-    setTechnicalAuditOpenState(parseFindingTechnicalAuditOpenFromSearch(findingTechnicalAuditOpenParam));
-  }, [findingTechnicalAuditOpenParam]);
+      actionsStateRef.current = next;
+      setActionsState(next);
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, []);
 
   return (
     <>

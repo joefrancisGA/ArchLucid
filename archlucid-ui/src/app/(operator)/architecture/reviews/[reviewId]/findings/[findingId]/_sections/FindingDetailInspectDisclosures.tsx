@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -32,6 +32,7 @@ import {
   type FindingDetailInspectDisclosureUrlState,
 } from "@/lib/findings/finding-detail-inspect-disclosure-url";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
@@ -67,6 +68,18 @@ function readInspectDisclosureState(searchParams: URLSearchParams): FindingDetai
   };
 }
 
+function readInspectDisclosureStateFromWindow(): FindingDetailInspectDisclosureUrlState {
+  return readInspectDisclosureState(
+    new URLSearchParams(typeof window === "undefined" ? "" : window.location.search),
+  );
+}
+
+function readExportOpenFromWindow(): boolean {
+  return parseFindingExportOpenFromSearch(
+    new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("findingExportOpen"),
+  );
+}
+
 /** Buyer-polished finding detail progressive disclosures synced to URL params. */
 export function FindingDetailInspectDisclosures(props: FindingDetailInspectDisclosuresProps): ReactElement {
   const {
@@ -82,55 +95,58 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
     linkedManifestHref,
     citationModel,
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingEvidenceOpenParam = searchParams.get("findingEvidenceOpen");
-  const findingAuditOpenParam = searchParams.get("findingAuditOpen");
-  const findingRelatedAuditOpenParam = searchParams.get("findingRelatedAuditOpen");
-  const findingTechnicalMetadataOpenParam = searchParams.get("findingTechnicalMetadataOpen");
-  const findingEvidenceBasisOpenParam = searchParams.get("findingEvidenceBasisOpen");
-  const findingFullEvidenceTraceOpenParam = searchParams.get("findingFullEvidenceTraceOpen");
-  const findingWorkWithOpenParam = searchParams.get("findingWorkWithOpen");
-  const findingExportOpenParam = searchParams.get("findingExportOpen");
 
   const [inspectState, setInspectState] = useState<FindingDetailInspectDisclosureUrlState>(() =>
-    readInspectDisclosureState(searchParams),
+    readInspectDisclosureStateFromWindow(),
   );
-  const [exportOpen, setExportOpenState] = useState(() => parseFindingExportOpenFromSearch(findingExportOpenParam));
+  const inspectStateRef = useRef(inspectState);
+  inspectStateRef.current = inspectState;
+  const [exportOpen, setExportOpenState] = useState(() => readExportOpenFromWindow());
+  const exportOpenRef = useRef(exportOpen);
+  exportOpenRef.current = exportOpen;
 
   const syncInspectPanelsToUrl = useCallback(
     (state: FindingDetailInspectDisclosureUrlState) => {
-      router.replace(findingDetailInspectDisclosureHrefFromSearch(searchParams.toString(), state, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        findingDetailInspectDisclosureHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const syncExportToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
+      const params = new URLSearchParams(readWindowLocationSearch());
+
+      commitHrefIfChanged(
         findingDetailActionsDisclosureHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           {
             exportOpen: open,
-            technicalIdsOpen: parseFindingTechnicalIdsOpenFromSearch(searchParams.get("findingTechnicalIdsOpen")),
-            technicalAuditOpen: parseFindingTechnicalAuditOpenFromSearch(searchParams.get("findingTechnicalAuditOpen")),
+            technicalIdsOpen: parseFindingTechnicalIdsOpenFromSearch(params.get("findingTechnicalIdsOpen")),
+            technicalAuditOpen: parseFindingTechnicalAuditOpenFromSearch(params.get("findingTechnicalAuditOpen")),
           },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setInspectPanelOpen = useCallback(
     (key: keyof FindingDetailInspectDisclosureUrlState, value: SetStateAction<boolean>) => {
       setInspectState((current) => {
         const nextValue = typeof value === "function" ? value(current[key]) : value;
+
+        if (current[key] === nextValue) {
+          return current;
+        }
+
         const nextState = { ...current, [key]: nextValue };
+        inspectStateRef.current = nextState;
         syncInspectPanelsToUrl(nextState);
 
         return nextState;
@@ -143,6 +159,12 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
     (value: SetStateAction<boolean>) => {
       setExportOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (exportOpenRef.current === next) {
+          return current;
+        }
+
+        exportOpenRef.current = next;
         syncExportToUrl(next);
 
         return next;
@@ -152,28 +174,32 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
   );
 
   useEffect(() => {
-    setInspectState({
-      evidenceOpen: parseFindingEvidenceOpenFromSearch(findingEvidenceOpenParam),
-      auditOpen: parseFindingAuditOpenFromSearch(findingAuditOpenParam),
-      relatedAuditOpen: parseFindingRelatedAuditOpenFromSearch(findingRelatedAuditOpenParam),
-      technicalMetadataOpen: parseFindingTechnicalMetadataOpenFromSearch(findingTechnicalMetadataOpenParam),
-      evidenceBasisOpen: parseFindingEvidenceBasisOpenFromSearch(findingEvidenceBasisOpenParam),
-      fullEvidenceTraceOpen: parseFindingFullEvidenceTraceOpenFromSearch(findingFullEvidenceTraceOpenParam),
-      workWithOpen: parseFindingWorkWithOpenFromSearch(findingWorkWithOpenParam),
-    });
-  }, [
-    findingAuditOpenParam,
-    findingEvidenceBasisOpenParam,
-    findingEvidenceOpenParam,
-    findingFullEvidenceTraceOpenParam,
-    findingRelatedAuditOpenParam,
-    findingTechnicalMetadataOpenParam,
-    findingWorkWithOpenParam,
-  ]);
+    const syncFromUrl = (): void => {
+      const nextInspect = readInspectDisclosureStateFromWindow();
+      const inspectChanged = (Object.keys(nextInspect) as (keyof FindingDetailInspectDisclosureUrlState)[]).some(
+        (key) => inspectStateRef.current[key] !== nextInspect[key],
+      );
 
-  useEffect(() => {
-    setExportOpenState(parseFindingExportOpenFromSearch(findingExportOpenParam));
-  }, [findingExportOpenParam]);
+      if (inspectChanged) {
+        inspectStateRef.current = nextInspect;
+        setInspectState(nextInspect);
+      }
+
+      const nextExport = readExportOpenFromWindow();
+
+      if (exportOpenRef.current !== nextExport) {
+        exportOpenRef.current = nextExport;
+        setExportOpenState(nextExport);
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, []);
 
   return (
     <>

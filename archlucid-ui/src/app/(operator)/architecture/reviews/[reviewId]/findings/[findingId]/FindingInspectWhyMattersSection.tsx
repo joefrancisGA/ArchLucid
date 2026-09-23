@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -20,6 +20,7 @@ import {
   findingInspectTechnicalRuleDisclosureHrefFromSearch,
   parseFindingInspectTechnicalRuleOpenFromSearch,
 } from "@/lib/findings/finding-inspect-technical-rule-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingInspectWhyMattersSectionProps = {
@@ -41,27 +42,42 @@ export function FindingInspectWhyMattersSection({
   const findingTitle = findingDetailHeadingTitle(payload);
   const policyRuleId = resolvePolicyRuleIdFromInspect(payload);
   const policyRuleLabel = resolvePolicyRuleLabelFromInspect(payload, policyRuleId);
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingInspectTechnicalRuleOpenParam = searchParams.get(FINDING_INSPECT_TECHNICAL_RULE_OPEN_PARAM);
   const defaultTechnicalRuleOpen = variant === "inspect";
-  const [technicalRuleOpen, setTechnicalRuleOpenState] = useState(() =>
-    findingInspectTechnicalRuleOpenParam === null
-      ? defaultTechnicalRuleOpen
-      : parseFindingInspectTechnicalRuleOpenFromSearch(findingInspectTechnicalRuleOpenParam),
-  );
+  const readTechnicalRuleOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      FINDING_INSPECT_TECHNICAL_RULE_OPEN_PARAM,
+    );
+
+    if (param === null) {
+      return null;
+    }
+
+    return parseFindingInspectTechnicalRuleOpenFromSearch(param);
+  };
+  const [technicalRuleOpen, setTechnicalRuleOpenState] = useState(() => {
+    const fromUrl = readTechnicalRuleOpenFromUrl();
+
+    return fromUrl ?? defaultTechnicalRuleOpen;
+  });
+  const technicalRuleOpenRef = useRef(technicalRuleOpen);
+  technicalRuleOpenRef.current = technicalRuleOpen;
   const syncTechnicalRuleOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingInspectTechnicalRuleDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingInspectTechnicalRuleDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setTechnicalRuleOpen = useCallback(
     (open: boolean) => {
+      if (technicalRuleOpenRef.current === open) {
+        return;
+      }
+
+      technicalRuleOpenRef.current = open;
       setTechnicalRuleOpenState(open);
       syncTechnicalRuleOpenToUrl(open);
     },
@@ -69,12 +85,29 @@ export function FindingInspectWhyMattersSection({
   );
 
   useEffect(() => {
-    if (findingInspectTechnicalRuleOpenParam === null) {
-      return;
-    }
+    const syncTechnicalRuleOpenFromUrl = (): void => {
+      const fromUrl = readTechnicalRuleOpenFromUrl();
 
-    setTechnicalRuleOpenState(parseFindingInspectTechnicalRuleOpenFromSearch(findingInspectTechnicalRuleOpenParam));
-  }, [findingInspectTechnicalRuleOpenParam]);
+      if (fromUrl === null) {
+        return;
+      }
+
+      if (technicalRuleOpenRef.current === fromUrl) {
+        return;
+      }
+
+      technicalRuleOpenRef.current = fromUrl;
+      setTechnicalRuleOpenState(fromUrl);
+    };
+
+    syncTechnicalRuleOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalRuleOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalRuleOpenFromUrl);
+    };
+  }, []);
+
   const whyHeading =
     findingTitle.trim().length > 0 && findingTitle !== "Finding detail"
       ? `Why ${findingTitle} matters`
