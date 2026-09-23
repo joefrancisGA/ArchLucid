@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { PolicyPackComplianceRuleKeyDiffView } from "@/components/policy/PolicyPackComplianceRuleKeyDiffView";
@@ -34,6 +33,7 @@ import {
   type PolicyImpactPreviewGateSummary,
 } from "@/lib/policy/policy-pack-impact-preview";
 import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 export type PolicyPackImpactPreviewPanelProps = {
   readonly effectiveContent: PolicyPackContentDocument | null;
@@ -77,7 +77,6 @@ function resolveRunPreviewBlockedReason(input: {
 }
 
 export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanelProps): ReactElement {
-  const router = useRouter();
   const { productLine } = useProductLine();
   const hideDemoWalkthroughLink = isSecureNowDemoChromeExcluded(productLine);
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
@@ -173,16 +172,16 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
 
   const syncPackComparisonToUrl = useCallback(
     (nextPackAId: string, nextPackBId: string) => {
-      router.replace(
+      commitHrefIfChanged(
         buildPolicyPacksImpactPreviewHref({
           reviewId: scopedReviewId,
           packAId: nextPackAId,
           packBId: nextPackBId,
         }),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [router, scopedReviewId],
+    [scopedReviewId],
   );
 
   const baselineSummary = baselineResult !== null ? summarizePolicyImpactGateResult("allow", baselineResult) : null;
