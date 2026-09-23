@@ -162,13 +162,18 @@ export async function injectDemoWorkspaceOperatorScope(
 
 /** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */
 export async function injectDefaultTenantOperatorScope(page: Page): Promise<void> {
-  await stubEmptyArchitectureDraftListRoute(page);
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  await writeOperatorScopeToBrowser(page, {
+  const defaultScope = {
     tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
     workspaceId: LIVE_E2E_DEFAULT_WORKSPACE_ID,
     projectId: LIVE_E2E_DEFAULT_PROJECT_ID,
-  });
+  };
+
+  await stubEmptyArchitectureDraftListRoute(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  // Register after demo-workspace init scripts in the same browser context so default scope wins
+  // on every subsequent navigation (admin settings requires default tenant Admin, not demo scope).
+  await writeOperatorScopeToBrowser(page, defaultScope, { persistViaInitScript: true });
 }
 
 /**
