@@ -5,13 +5,20 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/product-line/resolve-product-line-id", () => ({
+  resolveProductLineIdFromEnv: () => "architecture",
+}));
+
 import { HelpSystemGravityGuideView } from "@/app/(operator)/help/_sections/HelpSystemGravityGuideView";
 import {
   SYSTEM_GRAVITY_HELP_CLAIM_DISCIPLINE,
   SYSTEM_GRAVITY_HELP_CONCEPT_TILES,
+  SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS,
+  SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK,
   SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS,
-  SYSTEM_GRAVITY_HELP_HELP_RETURN,
+  SYSTEM_GRAVITY_HELP_KEYBOARD_ROWS,
   SYSTEM_GRAVITY_HELP_RELATED_LINKS,
+  SYSTEM_GRAVITY_HELP_TECHNICAL_IDENTIFIERS,
   SYSTEM_GRAVITY_HELP_TITLE,
   SYSTEM_GRAVITY_HELP_TOPIC_LABEL,
 } from "@/lib/system-gravity-help-guide-content";
@@ -21,12 +28,13 @@ import {
   SYSTEM_GRAVITY_HELP_SKIP_TARGET_ID,
 } from "@/lib/system-gravity-help-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { WORKING_CAREER_DOOR_LABEL, WORKING_REHEARSAL_DOOR_LABEL } from "@/lib/governance/working-career-rehearsal-door-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpSystemGravityGuideView (SG-107 / HSY Phase 2)", () => {
   const entry = getProductDocumentationEntry("system-gravity");
 
-  it("renders breadcrumb, provenance, skip link, concept tiles, headings, and related links without honesty panel", () => {
+  it("renders breadcrumb, provenance, skip link, desk definitions, concept tiles, keyboard table, and technical disclosure", () => {
     if (entry === undefined) {
       throw new Error("Expected system-gravity documentation entry.");
     }
@@ -45,7 +53,15 @@ describe("HelpSystemGravityGuideView (SG-107 / HSY Phase 2)", () => {
       `#${SYSTEM_GRAVITY_HELP_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("help-system-gravity-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
-    expect(screen.getByTestId("help-system-gravity-claim-tag")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-system-gravity-claim-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-system-gravity-return-to-help")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-system-gravity-seat-securenow")).not.toBeInTheDocument();
+
+    const definitions = screen.getByTestId("help-system-gravity-desk-home-definitions");
+    for (const row of SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS) {
+      expect(within(definitions).getByText(row.term)).toBeInTheDocument();
+      expect(within(definitions).getByText(row.definition)).toBeInTheDocument();
+    }
 
     for (const heading of SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS) {
       const element = document.getElementById(heading.id);
@@ -57,14 +73,32 @@ describe("HelpSystemGravityGuideView (SG-107 / HSY Phase 2)", () => {
       expect(screen.getByTestId(`help-system-gravity-tile-${tile.id}`)).toHaveTextContent(tile.title);
     }
 
+    const keyboardTable = screen.getByTestId("help-system-gravity-keyboard-table");
+    for (const row of SYSTEM_GRAVITY_HELP_KEYBOARD_ROWS) {
+      expect(within(keyboardTable).getByText(row.keys)).toBeInTheDocument();
+      expect(within(keyboardTable).getByText(row.action)).toBeInTheDocument();
+    }
+
+    const technical = screen.getByTestId("help-system-gravity-technical-reference");
+    for (const identifier of SYSTEM_GRAVITY_HELP_TECHNICAL_IDENTIFIERS) {
+      expect(within(technical).getByText(identifier)).toBeInTheDocument();
+    }
+
     const related = screen.getByTestId("help-system-gravity-related-topics");
     for (const topic of SYSTEM_GRAVITY_HELP_RELATED_LINKS) {
       expect(within(related).getByRole("link", { name: topic.label })).toHaveAttribute("href", topic.href);
     }
 
-    expect(screen.getByTestId("help-system-gravity-return-to-help")).toHaveAttribute(
+    expect(screen.getByTestId("help-system-gravity-recover-architecture-list")).toHaveAttribute(
       "href",
-      SYSTEM_GRAVITY_HELP_HELP_RETURN.href,
+      SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK.href,
+    );
+
+    expect(screen.getByTestId("help-system-gravity-record-practice-body")).toHaveTextContent(
+      WORKING_CAREER_DOOR_LABEL,
+    );
+    expect(screen.getByTestId("help-system-gravity-record-practice-body")).toHaveTextContent(
+      WORKING_REHEARSAL_DOOR_LABEL,
     );
 
     expect(screen.queryByTestId("help-system-gravity-honesty-panel")).not.toBeInTheDocument();

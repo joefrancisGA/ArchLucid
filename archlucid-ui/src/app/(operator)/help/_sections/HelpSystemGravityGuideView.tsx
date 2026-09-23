@@ -1,9 +1,9 @@
 import Link from "next/link";
 
+import { HelpSystemGravityTechnicalReference } from "@/app/(operator)/help/_sections/HelpSystemGravityTechnicalReference";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { StatusTag } from "@/components/ui/status-tag";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
   OPERATOR_LAYOUT,
@@ -14,27 +14,29 @@ import {
 import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  isHelpTopicExcludedForProductLine,
+  isSecureNowProductLine,
+} from "@/lib/product-line/securenow-cloud-platform-policy";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   SYSTEM_GRAVITY_HELP_APPLICABILITY_GUIDED,
-  SYSTEM_GRAVITY_HELP_APPLICABILITY_SECURENOW,
   SYSTEM_GRAVITY_HELP_APPLICABILITY_WORKING,
   SYSTEM_GRAVITY_HELP_CLAIM_DISCIPLINE,
-  SYSTEM_GRAVITY_HELP_CLAIM_HEADING_ID,
   SYSTEM_GRAVITY_HELP_CONCEPT_TILES,
+  SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS,
   SYSTEM_GRAVITY_HELP_ERROR_RECOVERY,
+  SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK,
   SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_HEADING,
   SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS,
-  SYSTEM_GRAVITY_HELP_HELP_RETURN,
-  SYSTEM_GRAVITY_HELP_KEYBOARD_BODY,
+  SYSTEM_GRAVITY_HELP_KEYBOARD_INTRO,
+  SYSTEM_GRAVITY_HELP_KEYBOARD_ROWS,
   SYSTEM_GRAVITY_HELP_OVERVIEW,
   SYSTEM_GRAVITY_HELP_PAGE_SUBTITLE,
   SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_BODY,
   SYSTEM_GRAVITY_HELP_RELATED_LINKS,
   SYSTEM_GRAVITY_HELP_RELATED_TOPICS_HEADING,
   SYSTEM_GRAVITY_HELP_RELATED_TOPICS_HEADING_ID,
-  SYSTEM_GRAVITY_HELP_TECHNICAL_BODY,
   SYSTEM_GRAVITY_HELP_TITLE,
   SYSTEM_GRAVITY_HELP_TOPIC_LABEL,
 } from "@/lib/system-gravity-help-guide-content";
@@ -60,6 +62,19 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
     >
       {props.children}
     </h2>
+  );
+}
+
+function HelpKeyboardKey(props: { readonly children: string }): React.ReactElement {
+  return (
+    <kbd
+      className={cn(
+        "rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+        OPERATOR_TYPOGRAPHY.micro,
+      )}
+    >
+      {props.children}
+    </kbd>
   );
 }
 
@@ -98,6 +113,10 @@ function filterRelatedLinks(
   productLineId: ReturnType<typeof resolveProductLineIdFromEnv>,
 ): typeof SYSTEM_GRAVITY_HELP_RELATED_LINKS {
   return SYSTEM_GRAVITY_HELP_RELATED_LINKS.filter((link) => {
+    if (link.architectureProductLineOnly === true && isSecureNowProductLine(productLineId)) {
+      return false;
+    }
+
     const slug = helpTopicSlugFromInAppHref(link.href);
 
     if (slug === null) {
@@ -108,16 +127,13 @@ function filterRelatedLinks(
   });
 }
 
-/** SG-107 — system vs job vs inspector orientation for `/help/system-gravity`. */
+/** SG-107 — architecture desk vs nested review inspector orientation for `/help/system-gravity`. */
 export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProps): React.ReactElement {
   const { entry } = props;
   const productLineId = resolveProductLineIdFromEnv();
   const relatedLinks = filterRelatedLinks(productLineId);
   const contentGridClass = resolveHelpPageContentGridClass(SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
-  const claimHeadingTitle =
-    SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS.find((heading) => heading.id === SYSTEM_GRAVITY_HELP_CLAIM_HEADING_ID)?.title ??
-    "Desk gravity on Working";
 
   return (
     <article
@@ -173,28 +189,17 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
               {SYSTEM_GRAVITY_HELP_OVERVIEW}
             </p>
 
-            <section
-              aria-labelledby={SYSTEM_GRAVITY_HELP_CLAIM_HEADING_ID}
-              className="max-w-3xl space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-              data-testid="help-system-gravity-claim-discipline"
+            <dl
+              className={cn("m-0 grid max-w-3xl gap-3", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-system-gravity-desk-home-definitions"
             >
-              <div className="flex flex-wrap items-center gap-2">
-                <h2
-                  id={SYSTEM_GRAVITY_HELP_CLAIM_HEADING_ID}
-                  className={cn(
-                    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-                    "m-0 scroll-mt-24 text-al-text-primary",
-                    OPERATOR_TYPOGRAPHY.sectionTitle,
-                  )}
-                >
-                  {claimHeadingTitle}
-                </h2>
-                <StatusTag kind="neutral" label="Desk is Home" data-testid="help-system-gravity-claim-tag" />
-              </div>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {SYSTEM_GRAVITY_HELP_CLAIM_DISCIPLINE}
-              </p>
-            </section>
+              {SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS.map((row) => (
+                <div key={row.term}>
+                  <dt className="font-medium text-al-text-primary">{row.term}</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{row.definition}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
           <section
@@ -202,7 +207,9 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
             data-testid="help-system-gravity-concept-tiles"
           >
-            <HelpSectionHeading id="what-system-gravity-shows">System, job, and inspector</HelpSectionHeading>
+            <HelpSectionHeading id="what-system-gravity-shows">
+              Architecture desk, nested review, and inspector
+            </HelpSectionHeading>
             <div className="grid gap-4 md:grid-cols-3">
               {SYSTEM_GRAVITY_HELP_CONCEPT_TILES.map((tile) => (
                 <article
@@ -229,9 +236,6 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
             <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-system-gravity-seat-guided">
               {SYSTEM_GRAVITY_HELP_APPLICABILITY_GUIDED}
             </p>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-system-gravity-seat-securenow">
-              {SYSTEM_GRAVITY_HELP_APPLICABILITY_SECURENOW}
-            </p>
           </section>
 
           <section
@@ -240,7 +244,9 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
             data-testid="help-system-gravity-record-practice"
           >
             <HelpSectionHeading id="help-system-gravity-record-practice">Record vs Practice desk verbs</HelpSectionHeading>
-            <p className={readingBodyClass}>{SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_BODY}</p>
+            <p className={readingBodyClass} data-testid="help-system-gravity-record-practice-body">
+              {SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_BODY}
+            </p>
           </section>
 
           <section
@@ -253,16 +259,26 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
             </HelpSectionHeading>
             <dl className={cn("m-0 grid gap-2", HELP_PAGE_LAYOUT.readingBody)}>
               <div>
-                <dt className="font-medium text-al-text-primary">What failed</dt>
-                <dd className="m-0 mt-1 text-al-text-secondary">{SYSTEM_GRAVITY_HELP_ERROR_RECOVERY.whatFailed}</dd>
+                <dt className="font-medium text-al-text-primary">If it fails</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">{SYSTEM_GRAVITY_HELP_ERROR_RECOVERY.ifItFails}</dd>
               </div>
               <div>
-                <dt className="font-medium text-al-text-primary">What stayed intact</dt>
-                <dd className="m-0 mt-1 text-al-text-secondary">{SYSTEM_GRAVITY_HELP_ERROR_RECOVERY.whatIsIntact}</dd>
+                <dt className="font-medium text-al-text-primary">What stays intact</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">{SYSTEM_GRAVITY_HELP_ERROR_RECOVERY.whatStaysIntact}</dd>
               </div>
               <div>
-                <dt className="font-medium text-al-text-primary">Next step</dt>
-                <dd className="m-0 mt-1 text-al-text-secondary">{SYSTEM_GRAVITY_HELP_ERROR_RECOVERY.nextStep}</dd>
+                <dt className="font-medium text-al-text-primary">Recover</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">
+                  {SYSTEM_GRAVITY_HELP_ERROR_RECOVERY.recover}{" "}
+                  <Link
+                    className={OPERATOR_LINK.inline}
+                    href={SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK.href}
+                    data-testid="help-system-gravity-recover-architecture-list"
+                  >
+                    {SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK.label}
+                  </Link>
+                  .
+                </dd>
               </div>
             </dl>
           </section>
@@ -273,7 +289,34 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
             data-testid="help-system-gravity-keyboard"
           >
             <HelpSectionHeading id="help-system-gravity-keyboard">Keyboard shortcuts</HelpSectionHeading>
-            <p className={readingBodyClass}>{SYSTEM_GRAVITY_HELP_KEYBOARD_BODY}</p>
+            <p className={readingBodyClass}>{SYSTEM_GRAVITY_HELP_KEYBOARD_INTRO}</p>
+            <div className="max-w-3xl overflow-x-auto">
+              <table
+                className={cn("w-full border-collapse text-left", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-system-gravity-keyboard-table"
+              >
+                <caption className="sr-only">Working keyboard shortcuts for architecture desk gravity</caption>
+                <thead>
+                  <tr className="border-b border-neutral-200 dark:border-neutral-800">
+                    <th scope="col" className="py-2 pr-4 font-medium text-al-text-primary">Keys</th>
+                    <th scope="col" className="py-2 font-medium text-al-text-primary">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {SYSTEM_GRAVITY_HELP_KEYBOARD_ROWS.map((row) => (
+                    <tr
+                      key={row.keys}
+                      className="border-b border-neutral-100 dark:border-neutral-800/80"
+                    >
+                      <th scope="row" className="py-2 pr-4 font-medium text-al-text-primary">
+                        <HelpKeyboardKey>{row.keys}</HelpKeyboardKey>
+                      </th>
+                      <td className="py-2 text-al-text-secondary">{row.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section
@@ -281,8 +324,7 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
             data-testid="help-system-gravity-technical"
           >
-            <HelpSectionHeading id="help-system-gravity-technical">Technical reference</HelpSectionHeading>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")}>{SYSTEM_GRAVITY_HELP_TECHNICAL_BODY}</p>
+            <HelpSystemGravityTechnicalReference />
           </section>
 
           <section
@@ -302,15 +344,6 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
                 </li>
               ))}
             </ul>
-            <p className={readingBodyClass}>
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={SYSTEM_GRAVITY_HELP_HELP_RETURN.href}
-                data-testid="help-system-gravity-return-to-help"
-              >
-                {SYSTEM_GRAVITY_HELP_HELP_RETURN.label} →
-              </Link>
-            </p>
           </section>
         </div>
 
