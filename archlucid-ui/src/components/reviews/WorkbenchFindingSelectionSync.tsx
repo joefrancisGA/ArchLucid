@@ -3,12 +3,13 @@
 import { useEffect } from "react";
 
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
+import { writeReviewDetailFindingIdToUrl } from "@/lib/review-detail-workspace-tabs";
 
 /** Applies selected-finding visual state to finding cards in the workbench findings column (PT-12). */
 export function WorkbenchFindingSelectionSync(): null {
   const selection = useReviewWorkbenchSelection();
   const selectedFindingId = selection?.selectedFindingId ?? null;
-  const setSelectedFindingId = selection?.setSelectedFindingId;
+  const reconcileSelectedFindingId = selection?.reconcileSelectedFindingId;
 
   useEffect(() => {
     const selectedId = selectedFindingId;
@@ -23,10 +24,8 @@ export function WorkbenchFindingSelectionSync(): null {
         // overwrite the null write in the same flush, so fail-closed must not wait
         // for a second selectedFindingId render (LI-13).
         effectiveSelectedId = null;
-
-        if (selectedId !== null) {
-          setSelectedFindingId?.(null);
-        }
+        writeReviewDetailFindingIdToUrl(null);
+        reconcileSelectedFindingId?.(null);
       }
     }
 
@@ -41,7 +40,7 @@ export function WorkbenchFindingSelectionSync(): null {
         card.focus({ preventScroll: true });
       }
     }
-  }, [selectedFindingId, setSelectedFindingId]);
+  }, [reconcileSelectedFindingId, selectedFindingId]);
 
   return null;
 }

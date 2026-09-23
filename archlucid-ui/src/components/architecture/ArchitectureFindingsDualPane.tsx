@@ -137,12 +137,12 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
       return;
     }
 
-    if (setSelectedFindingId !== undefined) {
-      setSelectedFindingId(resolvedFindingId);
+    if (workbenchSelection !== null) {
+      workbenchSelection.reconcileSelectedFindingId(resolvedFindingId);
     } else {
       setLocalSelectedFindingId(resolvedFindingId);
     }
-  }, [searchParams, setSelectedFindingId, urlFindingId, visibleFindings]);
+  }, [searchParams, urlFindingId, visibleFindings, workbenchSelection]);
 
   const selectFindingWithUrl = (findingId: string | null): void => {
     if (workbenchSelection !== null) {

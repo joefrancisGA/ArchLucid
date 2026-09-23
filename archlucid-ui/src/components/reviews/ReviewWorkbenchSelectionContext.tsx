@@ -21,6 +21,8 @@ export type ReviewWorkbenchSelectionContextValue = {
   readonly selectedFindingId: string | null;
   readonly highlightedNodeId: string | null;
   readonly setSelectedFindingId: (findingId: string | null) => void;
+  /** Updates selection state without rewriting the address bar (DOM/URL listener reconciliation). */
+  readonly reconcileSelectedFindingId: (findingId: string | null) => void;
   readonly setHighlightedNodeId: (nodeId: string | null) => void;
   readonly workbenchFocusColumn: ReviewWorkbenchColumnId | null;
   readonly setWorkbenchFocusColumn: (column: ReviewWorkbenchColumnId) => void;
@@ -88,6 +90,15 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
     onFindingIdChangeRef.current?.(findingId);
   }, []);
 
+  const reconcileSelectedFindingId = useCallback((findingId: string | null) => {
+    if (selectedFindingIdRef.current === findingId) {
+      return;
+    }
+
+    selectedFindingIdRef.current = findingId;
+    setSelectedFindingIdState(findingId);
+  }, []);
+
   const setHighlightedNodeId = useCallback((nodeId: string | null) => {
     setHighlightedNodeIdState((current) => (current === nodeId ? current : nodeId));
   }, []);
@@ -107,12 +118,14 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
       selectedFindingId,
       highlightedNodeId,
       setSelectedFindingId,
+      reconcileSelectedFindingId,
       setHighlightedNodeId,
       workbenchFocusColumn,
       setWorkbenchFocusColumn,
     }),
     [
       highlightedNodeId,
+      reconcileSelectedFindingId,
       selectedFindingId,
       setHighlightedNodeId,
       setSelectedFindingId,
