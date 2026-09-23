@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
@@ -52,11 +52,17 @@ export function RealModeAiReadinessShellBanner(
   );
 
   // Sticky failure: hide the first background check, but keep the banner mounted while a retry is in flight.
-  if (readiness.isReady && hasAnnouncedFailure) {
-    setHasAnnouncedFailure(false);
-  } else if (!readiness.isReady && probeFailed && !hasAnnouncedFailure) {
-    setHasAnnouncedFailure(true);
-  }
+  useEffect(() => {
+    if (readiness.isReady && hasAnnouncedFailure) {
+      setHasAnnouncedFailure(false);
+
+      return;
+    }
+
+    if (!readiness.isReady && probeFailed && !hasAnnouncedFailure) {
+      setHasAnnouncedFailure(true);
+    }
+  }, [hasAnnouncedFailure, probeFailed, readiness.isReady]);
 
   if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
     return null;
