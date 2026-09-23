@@ -37,7 +37,11 @@ public static class DiagramForestLegendSvgEmitter
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(input);
 
-        List<string> rows = ["Legend"];
+        List<string> rows =
+        [
+            "Legend",
+            "Eyebrow color = category swatch",
+        ];
 
         foreach (DiagramInventoryPictogramKind kind in input.UsedKinds)
         {
@@ -90,6 +94,12 @@ public static class DiagramForestLegendSvgEmitter
             if (index == 0)
             {
                 group.Add(Text(svgNamespace, LeftPadding, y, row, bold: true));
+                continue;
+            }
+
+            if (string.Equals(row, "Eyebrow color = category swatch", StringComparison.Ordinal))
+            {
+                group.Add(Text(svgNamespace, LeftPadding, y, row, bold: false));
                 continue;
             }
 
