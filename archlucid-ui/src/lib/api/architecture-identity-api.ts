@@ -12,7 +12,7 @@ import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/ar
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiPatchJson } from "./http";
+import { apiGet, apiPatchJson } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -57,13 +57,20 @@ export async function getArchitectureIdentity(
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ArchitectureIdentityDetail> {
   try {
-    return await apiGetSealedManifestAware<ArchitectureIdentityDetail>(
+    // Keep ApiRequestError intact here: the route resolver uses a 404 to
+    // distinguish an identity URL from a legacy draft URL. The sealed-aware
+    // wrapper formats that error as a plain Error and loses its HTTP status.
+    return await apiGet<ArchitectureIdentityDetail>(
       `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
       options,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureIdentityBlockedReason(failure);
+
+    if (failure.httpStatus === 404) {
+      throw error;
+    }
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }

@@ -25,12 +25,6 @@ export async function resolveArchitectureRouteSegment(
     return { kind: "new-draft" };
   }
 
-  const registeredSampleScenario = resolveSampleScenarioBySlug(trimmed);
-
-  if (registeredSampleScenario !== null) {
-    return { kind: "identity", architectureId: registeredSampleScenario.slug };
-  }
-
   const scopeHeaders = await getServerResolvedScopeHeaders();
 
   try {
@@ -58,6 +52,12 @@ export async function resolveArchitectureRouteSegment(
     return { kind: "legacy-draft", draftId: trimmed };
   } catch (error: unknown) {
     if (isApiRequestError(error) && error.httpStatus === 404) {
+      const registeredSampleScenario = resolveSampleScenarioBySlug(trimmed);
+
+      if (registeredSampleScenario !== null) {
+        return { kind: "identity", architectureId: registeredSampleScenario.slug };
+      }
+
       notFound();
     }
 
