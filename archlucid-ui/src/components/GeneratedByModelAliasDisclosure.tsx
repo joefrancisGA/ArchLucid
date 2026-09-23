@@ -1,14 +1,12 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   generatedByModelAliasDisclosureHrefFromSearch,
   parseGeneratedByModelAliasOpenFromSearch,
 } from "@/lib/operator/generated-by-model-alias-disclosure-url";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
 type Props = {
   readonly modelAlias: string | null | undefined;
@@ -24,35 +22,11 @@ function trimmedAlias(value: string | null | undefined): string {
  */
 export function GeneratedByModelAliasDisclosure(props: Props) {
   const alias = trimmedAlias(props.modelAlias);
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const generatedByModelAliasOpenParam = searchParams.get("generatedByModelAliasOpen");
-  const [open, setOpenState] = useState(() =>
-    parseGeneratedByModelAliasOpenFromSearch(generatedByModelAliasOpenParam),
+  const [open, setOpen] = useBooleanSearchParamUrlSync(
+    "generatedByModelAliasOpen",
+    parseGeneratedByModelAliasOpenFromSearch,
+    generatedByModelAliasDisclosureHrefFromSearch,
   );
-
-  const syncOpenToUrl = useCallback(
-    (detailsOpen: boolean) => {
-      router.replace(
-        generatedByModelAliasDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setOpen = useCallback(
-    (detailsOpen: boolean) => {
-      setOpenState(detailsOpen);
-      syncOpenToUrl(detailsOpen);
-    },
-    [syncOpenToUrl],
-  );
-
-  useEffect(() => {
-    setOpenState(parseGeneratedByModelAliasOpenFromSearch(generatedByModelAliasOpenParam));
-  }, [generatedByModelAliasOpenParam]);
 
   if (alias.length === 0) {
     return null;
@@ -68,7 +42,8 @@ export function GeneratedByModelAliasDisclosure(props: Props) {
       data-testid="generated-by-model-alias-disclosure"
       open={open}
       onToggle={(event) => {
-        setOpen((event.currentTarget as HTMLDetailsElement).open);
+        event.preventDefault();
+        setOpen(!open);
       }}
     >
       <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">

@@ -1,8 +1,7 @@
 "use client";
 
 import { BookText } from "lucide-react";
-import { useCallback, useEffect, useState, type SetStateAction } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, type SetStateAction } from "react";
 
 import { ProductConceptsGlossary } from "@/components/ProductConceptsGlossary";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ import {
   parseProductConceptsGlossaryOpenFromSearch,
   productConceptsGlossaryHrefFromSearch,
 } from "@/lib/operator/product-concepts-glossary-url";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
 type ProductConceptsGlossaryDialogProps = {
   readonly open?: boolean;
@@ -28,56 +28,30 @@ type ProductConceptsGlossaryDialogProps = {
 
 /** Shell glossary entry — defines core product concepts on demand without surfacing them on every screen. */
 export function ProductConceptsGlossaryDialog(props: ProductConceptsGlossaryDialogProps): React.JSX.Element {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const productConceptsGlossaryOpenParam = searchParams.get("productConceptsGlossaryOpen");
   const isControlled = props.open !== undefined;
-  const [internalOpen, setInternalOpenState] = useState(() =>
-    parseProductConceptsGlossaryOpenFromSearch(productConceptsGlossaryOpenParam),
+  const [internalOpen, setInternalOpen] = useBooleanSearchParamUrlSync(
+    "productConceptsGlossaryOpen",
+    parseProductConceptsGlossaryOpenFromSearch,
+    productConceptsGlossaryHrefFromSearch,
   );
-  const open = isControlled ? props.open : internalOpen;
+  const open = isControlled ? props.open === true : internalOpen;
   const showTrigger = props.showTrigger !== false;
-
-  const syncOpenToUrl = useCallback(
-    (nextOpen: boolean) => {
-      if (isControlled) {
-        return;
-      }
-
-      router.replace(productConceptsGlossaryHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
-    },
-    [isControlled, pathname, router, searchParams],
-  );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
+      const current = isControlled ? props.open === true : internalOpen;
+      const next = typeof value === "function" ? value(current) : value;
+
       if (isControlled) {
-        const next = typeof value === "function" ? value(props.open === true) : value;
         props.onOpenChange?.(next);
 
         return;
       }
 
-      setInternalOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncOpenToUrl(next);
-
-        return next;
-      });
+      setInternalOpen(next);
     },
-    [isControlled, props, syncOpenToUrl],
+    [internalOpen, isControlled, props, setInternalOpen],
   );
-
-  useEffect(() => {
-    if (isControlled) {
-      return;
-    }
-
-    setInternalOpenState(parseProductConceptsGlossaryOpenFromSearch(productConceptsGlossaryOpenParam));
-  }, [isControlled, productConceptsGlossaryOpenParam]);
 
   return (
     <>

@@ -2,8 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
 
 import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNeededSummaryCard";
 import { GovernanceBypassAuditPanel } from "@/components/governance/GovernanceBypassAuditPanel";
@@ -22,6 +20,7 @@ import {
   parseSponsorWorkspaceHealthSessionScopeOpenFromSearch,
   sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch,
 } from "@/lib/governance/sponsor-workspace-health-session-scope-disclosure-url";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -50,34 +49,12 @@ export function SponsorWorkspaceHealthDashboard({
     decisionsNeeded,
     kpiViewModel,
   } = useSponsorWorkspaceHealthDashboard();
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const sponsorWorkspaceHealthSessionScopeParam = searchParams.get(SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM);
-  const [sponsorWorkspaceHealthSessionScopeOpen, setSponsorWorkspaceHealthSessionScopeOpenState] = useState(() =>
-    parseSponsorWorkspaceHealthSessionScopeOpenFromSearch(sponsorWorkspaceHealthSessionScopeParam),
-  );
-  const syncSponsorWorkspaceHealthSessionScopeOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-  const setSponsorWorkspaceHealthSessionScopeOpen = useCallback(
-    (open: boolean) => {
-      setSponsorWorkspaceHealthSessionScopeOpenState(open);
-      syncSponsorWorkspaceHealthSessionScopeOpenToUrl(open);
-    },
-    [syncSponsorWorkspaceHealthSessionScopeOpenToUrl],
-  );
-  useEffect(() => {
-    setSponsorWorkspaceHealthSessionScopeOpenState(
-      parseSponsorWorkspaceHealthSessionScopeOpenFromSearch(sponsorWorkspaceHealthSessionScopeParam),
+  const [sponsorWorkspaceHealthSessionScopeOpen, setSponsorWorkspaceHealthSessionScopeOpen] =
+    useBooleanSearchParamUrlSync(
+      SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM,
+      parseSponsorWorkspaceHealthSessionScopeOpenFromSearch,
+      sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch,
     );
-  }, [sponsorWorkspaceHealthSessionScopeParam]);
 
   const layerHeader = (
     <LayerHeader
@@ -157,7 +134,10 @@ export function SponsorWorkspaceHealthDashboard({
         )}
         data-testid="sponsor-workspace-health-session-scope"
         open={sponsorWorkspaceHealthSessionScopeOpen}
-        onToggle={(event) => setSponsorWorkspaceHealthSessionScopeOpen(event.currentTarget.open)}
+        onToggle={(event) => {
+          event.preventDefault();
+          setSponsorWorkspaceHealthSessionScopeOpen(!sponsorWorkspaceHealthSessionScopeOpen);
+        }}
       >
         <summary className="cursor-pointer font-semibold text-al-text-primary dark:text-neutral-100">
           {SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY}
