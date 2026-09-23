@@ -31,6 +31,7 @@ import {
 } from "./live-api-headers";
 import {
   isPrivateBetaCreateIdentityConflict,
+  parsePrivateBetaCommittedRunId,
   refreshPrivateBetaArchitectureCreateBody,
 } from "./private-beta-create-identity";
 import {
@@ -215,6 +216,12 @@ export async function createRun(
 
     if (!res.ok()) {
       const responseBody = await res.text();
+
+      const committedRunId = parsePrivateBetaCommittedRunId(status, responseBody);
+
+      if (committedRunId !== null) {
+        return { runId: committedRunId };
+      }
 
       if (
         isPrivateBetaCreateIdentityConflict(status, responseBody) &&

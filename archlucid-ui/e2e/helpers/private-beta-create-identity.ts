@@ -1,6 +1,7 @@
 /** Identity refresh for private-beta `POST /v1/architecture/request` retries. */
 
 const TRAILING_CREATE_SUFFIX = /-\d{10,}-[a-z0-9]+$/i;
+const COMMITTED_RUN_ID = /Run '([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})' is committed;/i;
 
 export function isPrivateBetaCreateIdentityConflict(status: number, body: string): boolean {
   if (status === 409 && /already exists in this workspace/i.test(body)) {
@@ -13,6 +14,19 @@ export function isPrivateBetaCreateIdentityConflict(status: number, body: string
   }
 
   return false;
+}
+
+/**
+ * The API can persist the run and then report the immutable-header guard from the
+ * same request. In that case, the run id in the problem detail is the successful
+ * create result and must be reconciled instead of creating another run.
+ */
+export function parsePrivateBetaCommittedRunId(status: number, body: string): string | null {
+  if (status !== 400 || !/evidence-anchor header columns are immutable/i.test(body)) {
+    return null;
+  }
+
+  return body.match(COMMITTED_RUN_ID)?.[1] ?? null;
 }
 
 function stripCreateSuffix(value: string, fallback: string): string {
