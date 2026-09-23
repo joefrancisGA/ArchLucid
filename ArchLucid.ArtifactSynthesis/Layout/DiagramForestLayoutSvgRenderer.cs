@@ -16,7 +16,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double Width,
         double Height,
         DiagramForestNodeMetrics Metrics,
-        string? FrameCellId = null);
+        string? FrameCellId = null,
+        int DataFlowColumnIndex = -1);
 
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
@@ -53,19 +54,51 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 DiagramResourceGroupPacker.PartitionCells(renderableNodes),
                 visibleEdges);
 
-        List<ComponentLayout> componentLayouts = BuildResourceGroupCellLayouts(
-            resourceGroupCells,
-            visibleEdges,
-            resolvedOptions,
-            labelContext);
+        List<NodePlacement> placements;
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo>? dataFlowColumns = null;
 
-        if (componentLayouts.Count == 0)
+        if (IsDataFlowTitle(ast.Title))
+        {
+            DiagramForestDataFlowColumnLayout.Result dataFlowLayout = DiagramForestDataFlowColumnLayout.Plan(
+                renderableNodes,
+                ast.Subgraphs,
+                resolvedOptions,
+                labelContext);
+            dataFlowColumns = dataFlowLayout.Columns;
+            placements = dataFlowLayout.Placements
+                .Select(placement => new NodePlacement(
+                    placement.Node,
+                    placement.X,
+                    placement.Y,
+                    placement.Width,
+                    placement.Height,
+                    placement.Metrics,
+                    FrameCellId: null,
+                    DataFlowColumnIndex: placement.ColumnIndex))
+                .ToList();
+        }
+        else
+        {
+            List<ComponentLayout> componentLayouts = BuildResourceGroupCellLayouts(
+                resourceGroupCells,
+                visibleEdges,
+                resolvedOptions,
+                labelContext);
+
+            if (componentLayouts.Count == 0)
+            {
+                return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
+            }
+
+            placements = PlaceNodes(componentLayouts, resolvedOptions);
+        }
+
+        if (placements.Count == 0)
         {
             return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
         }
 
-        List<NodePlacement> placements = PlaceNodes(componentLayouts, resolvedOptions);
-        string svg = EmitSvg(placements, visibleEdges, renderableNodes, ast.Title, resolvedOptions);
+        string svg = EmitSvg(placements, visibleEdges, renderableNodes, ast.Title, resolvedOptions, dataFlowColumns);
 
         if (string.IsNullOrWhiteSpace(svg))
         {
@@ -77,6 +110,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             Succeeded = true,
             Svg = svg,
         };
+    }
+
+    private static bool IsDataFlowTitle(string title)
+    {
+        return title.Contains("(DataFlow)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsPackingSubgraphMember(DiagramAst ast, DiagramNode node)
@@ -535,7 +573,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<DiagramEdge> visibleEdges,
         IReadOnlyList<DiagramNode> renderableNodes,
         string title,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo>? dataFlowColumns = null)
     {
         if (placements.Count == 0)
         {
@@ -560,8 +599,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             DiagramForestNestedFrameResolver.Resolve(renderableNodes, placementBounds, visibleEdges);
         DiagramForestNestedFrameBounds? subscriptionFrame =
             DiagramForestSubscriptionFrameResolver.Resolve(title, placementBounds);
+        bool isDataFlow = IsDataFlowTitle(title) && dataFlowColumns is not null;
         double minX = placements.Min(placement => placement.X) - options.Padding;
-        double minY = placements.Min(placement => placement.Y) - options.Padding;
+        double minY = isDataFlow
+            ? options.Padding
+            : placements.Min(placement => placement.Y) - options.Padding;
         double maxX = placements.Max(placement => placement.X + placement.Width) + options.Padding;
         double maxY = placements.Max(placement => placement.Y + placement.Height) + options.Padding;
 
@@ -627,6 +669,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             root.Add(DiagramForestNestedFrameSvgEmitter.EmitLayer(svgNamespace, containerFrames));
         }
 
+        if (isDataFlow && dataFlowColumns is not null && dataFlowColumns.Count > 0)
+        {
+            root.Add(DiagramForestDataFlowStageLabelSvgEmitter.EmitLayer(svgNamespace, dataFlowColumns, options));
+        }
+
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
         List<(double X, double Y)> placedLabelCenters = [];
 
@@ -651,14 +698,50 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 continue;
             }
 
-            (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
-            IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
-                DiagramForestOrthogonalEdgeRouter.BuildObstacles(
+            DiagramForestOrthogonalEdgeRouter.RouteResult? route;
+
+            if (isDataFlow && dataFlowColumns is not null)
+            {
+                DiagramForestDataFlowColumnLayout.NodePlacement fromDataFlow = new(
+                    fromPlacement.Node,
+                    fromPlacement.X,
+                    fromPlacement.Y,
+                    fromPlacement.Width,
+                    fromPlacement.Height,
+                    fromPlacement.Metrics,
+                    fromPlacement.DataFlowColumnIndex);
+                DiagramForestDataFlowColumnLayout.NodePlacement toDataFlow = new(
+                    toPlacement.Node,
+                    toPlacement.X,
+                    toPlacement.Y,
+                    toPlacement.Width,
+                    toPlacement.Height,
+                    toPlacement.Metrics,
+                    toPlacement.DataFlowColumnIndex);
+                route = DiagramForestDataFlowEdgeRouter.TryRoute(
+                    fromDataFlow,
+                    toDataFlow,
+                    dataFlowColumns,
                     placementBounds,
                     routeFromNodeId,
-                    routeToNodeId);
-            DiagramForestOrthogonalEdgeRouter.RouteResult route =
-                DiagramForestOrthogonalEdgeRouter.Route(fromX, fromY, toX, toY, obstacles);
+                    routeToNodeId,
+                    options);
+
+                if (route is null)
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
+                IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
+                    DiagramForestOrthogonalEdgeRouter.BuildObstacles(
+                        placementBounds,
+                        routeFromNodeId,
+                        routeToNodeId);
+                route = DiagramForestOrthogonalEdgeRouter.Route(fromX, fromY, toX, toY, obstacles);
+            }
             bool suppressOnPathLabel = DiagramForestEdgeLabelCollapse.ShouldSuppressOnPathLabel(
                 edge,
                 suppressedEdgeKeys);
