@@ -5,7 +5,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
@@ -21,6 +21,7 @@ import {
   shouldShowDrawerSupplementDetail,
   type PageHelpDrawerSupplement,
 } from "@/lib/help/page-help-drawer-supplement";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   pageContextualHelpPanelHrefFromSearch,
   parsePageContextualHelpOpenFromSearch,
@@ -144,34 +145,56 @@ export function PageScopedContextualHelpPanel({
   supplement,
   sectionId,
 }: PageScopedContextualHelpPanelProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const pageHelpOpenParam = searchParams.get("pageHelpOpen");
-  const pageHelpSectionParam = searchParams.get("pageHelpSection");
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpenState] = useState(() => parsePageContextualHelpOpenFromSearch(pageHelpOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parsePageContextualHelpOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("pageHelpOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const visibleTriggerText = triggerText ?? triggerLabel;
   const dialogLabel = `Help: ${triggerLabel}`;
-  const resolvedSectionId = (sectionId?.trim() ?? parsePageContextualHelpSectionFromSearch(pageHelpSectionParam)) || null;
+  const resolvedSectionId =
+    (sectionId?.trim()
+      ?? parsePageContextualHelpSectionFromSearch(
+        typeof window === "undefined"
+          ? null
+          : new URLSearchParams(window.location.search).get("pageHelpSection"),
+      ))
+    || null;
 
   const syncPageHelpToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(
+      commitHrefIfChanged(
         pageContextualHelpPanelHrefFromSearch(
-          searchParams.toString(),
+          window.location.search.slice(1),
           { open: nextOpen, sectionId: nextOpen ? resolvedSectionId : null },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, resolvedSectionId, router, searchParams],
+    [pathname, resolvedSectionId],
   );
 
-  const setOpen = useCallback((value: SetStateAction<boolean>) => {
-    setOpenState(value);
-  }, []);
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      const next = typeof value === "function" ? value(openRef.current) : value;
+
+      if (next === openRef.current) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+      syncPageHelpToUrl(next);
+    },
+    [syncPageHelpToUrl],
+  );
   const taskSteps = entry?.taskSteps;
   const supplementDetail =
     supplement?.detail != null &&
@@ -187,18 +210,26 @@ export function PageScopedContextualHelpPanel({
   const supplementRelatedLinks = dedupeDrawerRelatedLinks(supplement?.relatedLinks, existingActionHrefs);
 
   useEffect(() => {
-    setOpenState(parsePageContextualHelpOpenFromSearch(pageHelpOpenParam));
-  }, [pageHelpOpenParam]);
+    const syncPageHelpOpenFromUrl = (): void => {
+      const nextOpen = parsePageContextualHelpOpenFromSearch(
+        new URLSearchParams(window.location.search).get("pageHelpOpen"),
+      );
 
-  useEffect(() => {
-    const urlOpen = parsePageContextualHelpOpenFromSearch(pageHelpOpenParam);
+      if (openRef.current === nextOpen) {
+        return;
+      }
 
-    if (open === urlOpen) {
-      return;
-    }
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
 
-    syncPageHelpToUrl(open);
-  }, [open, pageHelpOpenParam, syncPageHelpToUrl]);
+    syncPageHelpOpenFromUrl();
+    window.addEventListener("popstate", syncPageHelpOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPageHelpOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) {

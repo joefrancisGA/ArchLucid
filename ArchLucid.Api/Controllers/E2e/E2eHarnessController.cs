@@ -63,6 +63,36 @@ public sealed class E2EHarnessController(
     private readonly ILocalTrialJwtIssuer _jwtIssuer =
         jwtIssuer ?? throw new ArgumentNullException(nameof(jwtIssuer));
 
+    /// <summary>
+    ///     Upserts Enterprise commercial tier and clears active trial status for live CI JwtBearer / release-gate scopes.
+    ///     Invalidates hot-path tenant cache (raw SQL in workflows does not).
+    /// </summary>
+    [HttpPost("tenant/grant-enterprise-commercial")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> GrantEnterpriseCommercialAsync(
+        [FromBody] E2eHarnessTenantCommercialPostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (!IsHarnessAuthorized())
+        {
+            return this.NotFoundProblem(
+                "E2E harness is not available or the request is not authorized.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (body is null || body.TenantId == Guid.Empty)
+        {
+            return this.NotFoundProblem(
+                "Invalid or missing request body for E2E harness endpoint.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        await _tenantRepository.E2eHarnessGrantEnterpriseCommercialAsync(body.TenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return NoContent();
+    }
+
     [HttpPost("trial/set-expires")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> SetTrialExpiresAsync(

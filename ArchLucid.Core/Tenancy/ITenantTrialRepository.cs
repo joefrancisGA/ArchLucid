@@ -94,6 +94,13 @@ public interface ITenantTrialRepository
     // ReSharper disable once InconsistentNaming
     Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct);
 
+    /// <summary>
+    ///     E2E harness only: upserts <see cref="TenantRecord.Tier" /> to <see cref="TenantTier.Enterprise" /> and clears
+    ///     <see cref="TenantRecord.TrialStatus" /> so <see cref="CommercialTenantEligibility" /> allows Enterprise gates.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    Task E2eHarnessGrantEnterpriseCommercialAsync(Guid tenantId, CancellationToken ct);
+
     /// <summary>Marks a self-service trial tenant for background simulator pre-seed (idempotent).</summary>
     Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct);
 

@@ -1,7 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
@@ -19,6 +18,7 @@ import type { RunSummaryStreamPhase } from "@/lib/runs/run-summary-stream-poll-p
 import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { cn } from "@/lib/utils";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
 export type ReviewPipelineDevTelemetrySnapshot = {
   readonly runId: string;
@@ -76,34 +76,11 @@ function JsonBlock(props: { readonly value: unknown }): React.JSX.Element {
 export function ReviewPipelineDevTelemetryPanel(props: {
   readonly snapshot: ReviewPipelineDevTelemetrySnapshot;
 }): React.JSX.Element {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const reviewPipelineDevTelemetryParam = searchParams.get(REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM);
-  const [reviewPipelineDevTelemetryOpen, setReviewPipelineDevTelemetryOpenState] = useState(() =>
-    parseReviewPipelineDevTelemetryOpenFromSearch(reviewPipelineDevTelemetryParam),
+  const [reviewPipelineDevTelemetryOpen, setReviewPipelineDevTelemetryOpen] = useBooleanSearchParamUrlSync(
+    REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM,
+    parseReviewPipelineDevTelemetryOpenFromSearch,
+    reviewPipelineDevTelemetryDisclosureHrefFromSearch,
   );
-  const syncReviewPipelineDevTelemetryOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        reviewPipelineDevTelemetryDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-  const setReviewPipelineDevTelemetryOpen = useCallback(
-    (open: boolean) => {
-      setReviewPipelineDevTelemetryOpenState(open);
-      syncReviewPipelineDevTelemetryOpenToUrl(open);
-    },
-    [syncReviewPipelineDevTelemetryOpenToUrl],
-  );
-  useEffect(() => {
-    setReviewPipelineDevTelemetryOpenState(
-      parseReviewPipelineDevTelemetryOpenFromSearch(reviewPipelineDevTelemetryParam),
-    );
-  }, [reviewPipelineDevTelemetryParam]);
   const nowMs = Date.now();
   const activeSummary = props.snapshot.summary ?? props.snapshot.initialSummary;
   const createdUtc = activeSummary?.createdUtc ?? props.snapshot.initialSummary?.createdUtc ?? null;
@@ -183,7 +160,10 @@ export function ReviewPipelineDevTelemetryPanel(props: {
       className="mt-4 rounded-md border border-dashed border-amber-600/60 bg-amber-50/40 p-3 dark:border-amber-500/50 dark:bg-amber-950/20"
       data-testid="review-pipeline-dev-telemetry"
       open={reviewPipelineDevTelemetryOpen}
-      onToggle={(event) => setReviewPipelineDevTelemetryOpen(event.currentTarget.open)}
+      onToggle={(event) => {
+        event.preventDefault();
+        setReviewPipelineDevTelemetryOpen(!reviewPipelineDevTelemetryOpen);
+      }}
     >
       <summary className={cn("cursor-pointer font-semibold text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
         Pipeline dev telemetry (NEXT_PUBLIC_REVIEW_PIPELINE_DEBUG)

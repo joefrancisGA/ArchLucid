@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { FindingInspectDiagramCitationPreviewDialog } from "@/components/findings/FindingInspectDiagramCitationPreviewDialog";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
@@ -20,6 +20,7 @@ import {
   parseDiagramCitationPreviewParam,
 } from "@/lib/findings/finding-inspect-diagram-citation-preview-url";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
 import { FindingInspectPolicyRuleCallout } from "./FindingInspectPolicyRuleCallout";
@@ -163,8 +164,8 @@ function EvidenceCitationList(props: {
                 className="mt-2"
                 open={citationOpen}
                 onToggle={(event) => {
-                  const nextOpen = event.currentTarget.open;
-                  props.onCitationOpenChange(nextOpen ? citationSlug : null);
+                  event.preventDefault();
+                  props.onCitationOpenChange(citationOpen ? null : citationSlug);
                 }}
               >
                 <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
@@ -214,31 +215,44 @@ export function FindingInspectEvidenceSection({
   evidence,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
-  const diagramCitationPreviewParam = searchParams.get(FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM);
-  const findingInspectEvidenceCitationArtifactIdParam = searchParams.get(
-    FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM,
-  );
-  const [openCitationArtifactId, setOpenCitationArtifactIdState] = useState(() =>
-    parseFindingInspectEvidenceCitationArtifactIdFromSearch(findingInspectEvidenceCitationArtifactIdParam),
-  );
+  const searchParamsString = readWindowLocationSearch();
+  const readOpenCitationArtifactIdFromUrl = (): string =>
+    parseFindingInspectEvidenceCitationArtifactIdFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM,
+      ),
+    );
+  const readDiagramPreviewCitationFromUrl = (): DiagramEvidenceCitation | null =>
+    parseDiagramCitationPreviewParam(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM,
+      ),
+    );
+  const [openCitationArtifactId, setOpenCitationArtifactIdState] = useState(() => readOpenCitationArtifactIdFromUrl());
+  const openCitationArtifactIdRef = useRef(openCitationArtifactId);
+  openCitationArtifactIdRef.current = openCitationArtifactId;
   const [diagramPreviewCitation, setDiagramPreviewCitationState] = useState<DiagramEvidenceCitation | null>(() =>
-    parseDiagramCitationPreviewParam(diagramCitationPreviewParam),
+    readDiagramPreviewCitationFromUrl(),
   );
+  const diagramPreviewCitationRef = useRef(diagramPreviewCitation);
+  diagramPreviewCitationRef.current = diagramPreviewCitation;
   const syncDiagramCitationPreviewToUrl = useCallback(
     (citation: DiagramEvidenceCitation | null) => {
-      router.replace(
-        findingInspectDiagramCitationPreviewHrefFromSearch(searchParamsString, citation, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingInspectDiagramCitationPreviewHrefFromSearch(readWindowLocationSearch(), citation, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParamsString],
+    [pathname],
   );
   const setDiagramPreviewCitation = useCallback(
     (citation: DiagramEvidenceCitation | null) => {
+      if (diagramPreviewCitationRef.current === citation) {
+        return;
+      }
+
+      diagramPreviewCitationRef.current = citation;
       setDiagramPreviewCitationState(citation);
       syncDiagramCitationPreviewToUrl(citation);
     },
@@ -246,28 +260,51 @@ export function FindingInspectEvidenceSection({
   );
   const syncOpenCitationArtifactIdToUrl = useCallback(
     (artifactId: string | null) => {
-      router.replace(
-        findingInspectEvidenceCitationDisclosureHrefFromSearch(searchParams.toString(), artifactId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingInspectEvidenceCitationDisclosureHrefFromSearch(readWindowLocationSearch(), artifactId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setOpenCitationArtifactId = useCallback(
     (artifactId: string | null) => {
-      setOpenCitationArtifactIdState(artifactId ?? "");
+      const next = artifactId ?? "";
+
+      if (openCitationArtifactIdRef.current === next) {
+        return;
+      }
+
+      openCitationArtifactIdRef.current = next;
+      setOpenCitationArtifactIdState(next);
       syncOpenCitationArtifactIdToUrl(artifactId);
     },
     [syncOpenCitationArtifactIdToUrl],
   );
   useEffect(() => {
-    setOpenCitationArtifactIdState(
-      parseFindingInspectEvidenceCitationArtifactIdFromSearch(findingInspectEvidenceCitationArtifactIdParam),
-    );
-  }, [findingInspectEvidenceCitationArtifactIdParam]);
-  useEffect(() => {
-    setDiagramPreviewCitationState(parseDiagramCitationPreviewParam(diagramCitationPreviewParam));
-  }, [diagramCitationPreviewParam]);
+    const syncFromUrl = (): void => {
+      const nextArtifactId = readOpenCitationArtifactIdFromUrl();
+
+      if (openCitationArtifactIdRef.current !== nextArtifactId) {
+        openCitationArtifactIdRef.current = nextArtifactId;
+        setOpenCitationArtifactIdState(nextArtifactId);
+      }
+
+      const nextDiagramPreview = readDiagramPreviewCitationFromUrl();
+
+      if (diagramPreviewCitationRef.current !== nextDiagramPreview) {
+        diagramPreviewCitationRef.current = nextDiagramPreview;
+        setDiagramPreviewCitationState(nextDiagramPreview);
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, []);
   const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const policy = citationModel?.policy ?? null;
   const pack = citationModel?.pack ?? null;

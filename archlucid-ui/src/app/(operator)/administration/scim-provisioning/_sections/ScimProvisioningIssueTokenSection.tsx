@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseScimVerifyTechnicalDetailsOpenFromSearch,
   scimVerifyTechnicalDetailsDisclosureHrefFromSearch,
@@ -132,26 +133,34 @@ export function ScimProvisioningIssueTokenSection(
     onManualVerifyTokenChange,
     onVerifyConnection,
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/administration/scim-provisioning";
-  const searchParams = useSearchParams();
-  const scimVerifyTechnicalDetailsOpenParam = searchParams.get("scimVerifyTechnicalDetailsOpen");
   const [verifyTechnicalDetailsOpen, setVerifyTechnicalDetailsOpenState] = useState(() =>
-    parseScimVerifyTechnicalDetailsOpenFromSearch(scimVerifyTechnicalDetailsOpenParam),
+    parseScimVerifyTechnicalDetailsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("scimVerifyTechnicalDetailsOpen"),
+    ),
   );
+  const verifyTechnicalDetailsOpenRef = useRef(verifyTechnicalDetailsOpen);
+  verifyTechnicalDetailsOpenRef.current = verifyTechnicalDetailsOpen;
 
   const syncVerifyTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        scimVerifyTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        scimVerifyTechnicalDetailsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setVerifyTechnicalDetailsOpen = useCallback(
     (open: boolean) => {
+      if (verifyTechnicalDetailsOpenRef.current === open) {
+        return;
+      }
+
+      verifyTechnicalDetailsOpenRef.current = open;
       setVerifyTechnicalDetailsOpenState(open);
       syncVerifyTechnicalDetailsOpenToUrl(open);
     },
@@ -159,10 +168,26 @@ export function ScimProvisioningIssueTokenSection(
   );
 
   useEffect(() => {
-    setVerifyTechnicalDetailsOpenState(
-      parseScimVerifyTechnicalDetailsOpenFromSearch(scimVerifyTechnicalDetailsOpenParam),
-    );
-  }, [scimVerifyTechnicalDetailsOpenParam]);
+    const syncVerifyTechnicalDetailsOpenFromUrl = (): void => {
+      const next = parseScimVerifyTechnicalDetailsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("scimVerifyTechnicalDetailsOpen"),
+      );
+
+      if (verifyTechnicalDetailsOpenRef.current === next) {
+        return;
+      }
+
+      verifyTechnicalDetailsOpenRef.current = next;
+      setVerifyTechnicalDetailsOpenState(next);
+    };
+
+    syncVerifyTechnicalDetailsOpenFromUrl();
+    window.addEventListener("popstate", syncVerifyTechnicalDetailsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncVerifyTechnicalDetailsOpenFromUrl);
+    };
+  }, []);
 
   const verifyTokenValue =
     setupSessionToken !== null && setupSessionToken.trim().length > 0

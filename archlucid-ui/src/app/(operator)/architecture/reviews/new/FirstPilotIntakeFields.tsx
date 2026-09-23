@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
 import { useExpertIntakePostureEnabled } from "@/components/reviews/ExpertIntakePostureToggle";
@@ -62,13 +63,16 @@ type FirstPilotIntakeFieldsProps = {
 
 export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): React.JSX.Element {
   const { wizard } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
-  const searchParams = useSearchParams();
-  const firstPilotStandardsSelectionOpenParam = searchParams.get("firstPilotStandardsSelectionOpen");
   const [standardsSelectionOpen, setStandardsSelectionOpenState] = useState(() =>
-    parseFirstPilotStandardsSelectionOpenFromSearch(firstPilotStandardsSelectionOpenParam),
+    parseFirstPilotStandardsSelectionOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("firstPilotStandardsSelectionOpen"),
+    ),
   );
+  const standardsSelectionOpenRef = useRef(standardsSelectionOpen);
+  standardsSelectionOpenRef.current = standardsSelectionOpen;
   const expertIntakePosture = useExpertIntakePostureEnabled();
   const extractionCardRef = useRef<HTMLDivElement>(null);
   const extractionProgress = wizard.evidenceExtractionProgress;
@@ -77,15 +81,21 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
 
   const syncStandardsSelectionOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(firstPilotStandardsSelectionDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        firstPilotStandardsSelectionDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setStandardsSelectionOpen = useCallback(
     (open: boolean) => {
+      if (standardsSelectionOpenRef.current === open) {
+        return;
+      }
+
+      standardsSelectionOpenRef.current = open;
       setStandardsSelectionOpenState(open);
       syncStandardsSelectionOpenToUrl(open);
     },
@@ -93,8 +103,26 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   );
 
   useEffect(() => {
-    setStandardsSelectionOpenState(parseFirstPilotStandardsSelectionOpenFromSearch(firstPilotStandardsSelectionOpenParam));
-  }, [firstPilotStandardsSelectionOpenParam]);
+    const syncStandardsSelectionOpenFromUrl = (): void => {
+      const next = parseFirstPilotStandardsSelectionOpenFromSearch(
+        new URLSearchParams(window.location.search).get("firstPilotStandardsSelectionOpen"),
+      );
+
+      if (standardsSelectionOpenRef.current === next) {
+        return;
+      }
+
+      standardsSelectionOpenRef.current = next;
+      setStandardsSelectionOpenState(next);
+    };
+
+    syncStandardsSelectionOpenFromUrl();
+    window.addEventListener("popstate", syncStandardsSelectionOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncStandardsSelectionOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section className="space-y-4" data-testid="first-pilot-intake-panel">

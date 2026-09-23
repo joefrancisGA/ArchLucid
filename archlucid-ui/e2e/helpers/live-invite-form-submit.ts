@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
+
 async function openInviteForm(page: Page): Promise<Locator> {
   const inviteForm = page.getByTestId("settings-roles-invite-form");
 
@@ -44,10 +46,13 @@ async function selectInviteRole(page: Page, inviteForm: Locator, roleLabel: stri
 
     if (await option.isVisible().catch(() => false)) {
       await option.click({ timeout: 15_000 });
+      await page.keyboard.press("Escape").catch(() => undefined);
+      await dismissBlockingModalOverlays(page);
       return;
     }
 
     await page.keyboard.press("Escape").catch(() => undefined);
+    await dismissBlockingModalOverlays(page);
   }
 
   throw new Error(`Invite role option "${roleLabel}" was not visible after two selection attempts.`);
@@ -78,6 +83,16 @@ export async function submitAdminInviteFromUsersUi(
       if (attempt === 3) {
         throw error;
       }
+
+      // React controlled inputs can ignore Playwright's fill when the settings
+      // surface remounts. Commit through the native setter so onChange runs.
+      await emailInput.evaluate((element, value) => {
+        const input = element as HTMLInputElement;
+        const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+        descriptor?.set?.call(input, value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }, email);
     }
   }
 
@@ -86,18 +101,13 @@ export async function submitAdminInviteFromUsersUi(
 
   if (!(await submitButton.isEnabled().catch(() => false))) {
     const emailValue = await emailInput.inputValue().catch(() => "");
-    const pageUrl = page.url();
-    const visibleHeadings = await page
-      .getByRole("heading")
-      .allTextContents()
-      .catch(() => []);
     throw new Error(
-      `Invite submit remained disabled for ${email}; emailValue=${JSON.stringify(emailValue)}, role=${roleLabel}, ` +
-        `url=${pageUrl}, headings=${JSON.stringify(visibleHeadings.slice(0, 8))}.`,
+      `Invite submit remained disabled for ${email}; emailValue=${JSON.stringify(emailValue)}, role=${roleLabel}.`,
     );
   }
 
   await expect(submitButton).toBeEnabled({ timeout: 15_000 });
+  await dismissBlockingModalOverlays(page);
   const inviteResponsePromise = page.waitForResponse(
     (response) =>
       response.url().includes("/api/proxy/v1/admin/users/invite") &&
@@ -105,7 +115,7 @@ export async function submitAdminInviteFromUsersUi(
     { timeout: 90_000 },
   );
 
-  await submitButton.click();
+  await clickThroughBlockingOverlays(page, submitButton, { force: true });
 
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";

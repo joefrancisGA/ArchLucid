@@ -82,6 +82,32 @@ export function enrichArchitectureRequestBody(body: Record<string, unknown>): Re
   };
 }
 
+/** Standard Simulator-friendly POST `/v1/architecture/request` fields used by green live-api journey smokes. */
+export function liveE2eSimulatorFriendlyArchitectureCreateBody(options?: {
+  readonly requestIdPrefix?: string;
+  readonly systemNamePrefix?: string;
+  readonly intent?: string;
+}): Record<string, unknown> {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const requestIdPrefix = options?.requestIdPrefix ?? "E2E-LIVE";
+  const systemNamePrefix = options?.systemNamePrefix ?? "EnterpriseRag";
+  const intent =
+    options?.intent ??
+    "Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.";
+
+  return enrichArchitectureRequestBody({
+    requestId: `${requestIdPrefix}-${suffix}`,
+    description: intent,
+    systemName: `${systemNamePrefix}-${suffix}`,
+    environment: "prod",
+    cloudProvider: 1,
+    constraints: ["Private endpoints required", "Use managed identity"],
+    requiredCapabilities: ["Azure AI Search", "SQL", "Managed Identity", "Private Networking"],
+    assumptions: [] as string[],
+    priorManifestVersion: null as string | null,
+  });
+}
+
 /** True when the API rejected self-service registration because the deployment is invite-only. */
 export function isInviteOnlyRegistrationResponse(status: number, bodyText: string): boolean {
 

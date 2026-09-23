@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ArchitectureStructuredNarrative } from "@/components/architecture/ArchitectureStructuredNarrative";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -20,6 +20,7 @@ import {
 } from "@/lib/architecture/architecture-structured-section-disclosure-url";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type ArchitectureStructuredSectionViewProps = {
   readonly section: ArchitectureStructuredSection;
@@ -46,25 +47,46 @@ function ProvenanceStatusTag(props: {
 export function ArchitectureStructuredSectionView(
   props: ArchitectureStructuredSectionViewProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureStructuredSectionKeyParam = searchParams.get(ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM);
+  const readOpenSectionKeyFromUrl = (): string | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM,
+    );
+
+    if (param === null) {
+      return null;
+    }
+
+    return parseArchitectureStructuredSectionKeyFromSearch(param);
+  };
   const [openSectionKey, setOpenSectionKeyState] = useState(() =>
-    parseArchitectureStructuredSectionKeyFromSearch(architectureStructuredSectionKeyParam),
+    parseArchitectureStructuredSectionKeyFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM,
+      ),
+    ),
   );
+  const openSectionKeyRef = useRef(openSectionKey);
+  openSectionKeyRef.current = openSectionKey;
   const syncOpenSectionKeyToUrl = useCallback(
     (sectionKey: string | null) => {
-      router.replace(
-        architectureStructuredSectionDisclosureHrefFromSearch(searchParams.toString(), sectionKey, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureStructuredSectionDisclosureHrefFromSearch(readWindowLocationSearch(), sectionKey, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setOpenSectionKey = useCallback(
     (sectionKey: string | null) => {
-      setOpenSectionKeyState(sectionKey ?? "");
+      const next = sectionKey ?? "";
+
+      if (openSectionKeyRef.current === next) {
+        return;
+      }
+
+      openSectionKeyRef.current = next;
+      setOpenSectionKeyState(next);
       syncOpenSectionKeyToUrl(sectionKey);
     },
     [syncOpenSectionKeyToUrl],
@@ -74,18 +96,38 @@ export function ArchitectureStructuredSectionView(
   const hasEntities = section.entities.length > 0;
   const isEmpty = !hasNarrative && !hasEntities;
   const sectionOpen =
-    openSectionKey === section.key || (architectureStructuredSectionKeyParam === null && props.defaultOpen === true);
+    openSectionKey === section.key || (openSectionKey === "" && props.defaultOpen === true);
 
   useEffect(() => {
-    setOpenSectionKeyState(parseArchitectureStructuredSectionKeyFromSearch(architectureStructuredSectionKeyParam));
-  }, [architectureStructuredSectionKeyParam]);
+    const syncOpenSectionKeyFromUrl = (): void => {
+      const fromUrl = readOpenSectionKeyFromUrl();
+      const next = fromUrl === null ? "" : fromUrl;
+
+      if (openSectionKeyRef.current === next) {
+        return;
+      }
+
+      openSectionKeyRef.current = next;
+      setOpenSectionKeyState(next);
+    };
+
+    syncOpenSectionKeyFromUrl();
+    window.addEventListener("popstate", syncOpenSectionKeyFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenSectionKeyFromUrl);
+    };
+  }, []);
 
   return (
     <details
       className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid={`architecture-structured-section-${section.key}`}
       open={sectionOpen}
-      onToggle={(event) => setOpenSectionKey(event.currentTarget.open ? section.key : null)}
+      onToggle={(event) => {
+        event.preventDefault();
+        setOpenSectionKey(sectionOpen ? null : section.key);
+      }}
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2">
         <span className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>

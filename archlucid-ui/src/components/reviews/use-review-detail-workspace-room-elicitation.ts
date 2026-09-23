@@ -1,9 +1,13 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { readRoomElicitationFromSearchParams, reviewRoomElicitationHrefFromSearch } from "@/lib/reviews/review-room-elicitation-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import {
+  readRoomElicitationFromSearchParams,
+  reviewRoomElicitationHrefFromSearch,
+} from "@/lib/reviews/review-room-elicitation-url";
 
 export type UseReviewDetailWorkspaceRoomElicitationResult = {
   readonly roomElicitationActive: boolean;
@@ -12,21 +16,63 @@ export type UseReviewDetailWorkspaceRoomElicitationResult = {
   readonly toggleRoomElicitation: () => void;
 };
 
+function readRoomElicitationFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return readRoomElicitationFromSearchParams(new URLSearchParams(window.location.search));
+}
+
 export function useReviewDetailWorkspaceRoomElicitation(): UseReviewDetailWorkspaceRoomElicitationResult {
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews";
-  const searchParams = useSearchParams();
-  const roomElicitationActive = readRoomElicitationFromSearchParams(searchParams);
+  const [roomElicitationActive, setRoomElicitationActiveState] = useState(() =>
+    readRoomElicitationFromWindowLocation(),
+  );
+  const roomElicitationActiveRef = useRef(roomElicitationActive);
+  roomElicitationActiveRef.current = roomElicitationActive;
+
+  const syncRoomElicitationToUrl = useCallback(
+    (active: boolean) => {
+      commitHrefIfChanged(reviewRoomElicitationHrefFromSearch(readWindowLocationSearch(), active, pathname), {
+        notify: false,
+      });
+    },
+    [pathname],
+  );
 
   const setRoomElicitation = useCallback(
     (active: boolean) => {
-      router.replace(
-        reviewRoomElicitationHrefFromSearch(searchParams.toString(), active, pathname),
-        { scroll: false },
-      );
+      if (roomElicitationActiveRef.current === active) {
+        return;
+      }
+
+      roomElicitationActiveRef.current = active;
+      setRoomElicitationActiveState(active);
+      syncRoomElicitationToUrl(active);
     },
-    [pathname, router, searchParams],
+    [syncRoomElicitationToUrl],
   );
+
+  useEffect(() => {
+    const syncRoomElicitationFromUrl = (): void => {
+      const nextActive = readRoomElicitationFromWindowLocation();
+
+      if (roomElicitationActiveRef.current === nextActive) {
+        return;
+      }
+
+      roomElicitationActiveRef.current = nextActive;
+      setRoomElicitationActiveState(nextActive);
+    };
+
+    syncRoomElicitationFromUrl();
+    window.addEventListener("popstate", syncRoomElicitationFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRoomElicitationFromUrl);
+    };
+  }, []);
 
   const enterRoomElicitation = useCallback(() => {
     setRoomElicitation(true);
@@ -37,8 +83,8 @@ export function useReviewDetailWorkspaceRoomElicitation(): UseReviewDetailWorksp
   }, [setRoomElicitation]);
 
   const toggleRoomElicitation = useCallback(() => {
-    setRoomElicitation(!roomElicitationActive);
-  }, [roomElicitationActive, setRoomElicitation]);
+    setRoomElicitation(!roomElicitationActiveRef.current);
+  }, [setRoomElicitation]);
 
   return {
     roomElicitationActive,

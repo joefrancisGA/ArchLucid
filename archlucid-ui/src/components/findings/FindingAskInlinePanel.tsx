@@ -2,8 +2,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -55,20 +57,34 @@ type AskTurn = {
  * Inline grounded Q&A for a single finding via POST /v1/architecture/finding/{findingId}/ask.
  */
 export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingAskInlineOpenParam = searchParams.get("findingAskInlineOpen");
-  const findingAskInlineFindingIdParam = searchParams.get("findingAskInlineFindingId");
-  const [panelOpen, setPanelOpenState] = useState(() => {
+  const resolvePanelOpenFromUrl = useCallback((): boolean => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+    const findingAskInlineFindingIdParam = params.get("findingAskInlineFindingId");
+    const findingAskInlineOpenParam = params.get("findingAskInlineOpen");
     const findingIdFromUrl = parseFindingAskInlineFindingIdFromSearch(findingAskInlineFindingIdParam);
 
     if (findingIdFromUrl === props.findingId) {
       return true;
     }
 
-    return parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam) || props.defaultOpen === true;
-  });
+    if (findingAskInlineFindingIdParam !== null) {
+      return false;
+    }
+
+    if (parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam)) {
+      return true;
+    }
+
+    if (findingAskInlineOpenParam !== null) {
+      return false;
+    }
+
+    return props.defaultOpen === true;
+  }, [props.defaultOpen, props.findingId]);
+  const [panelOpen, setPanelOpenState] = useState(() => resolvePanelOpenFromUrl());
+  const panelOpenRef = useRef(panelOpen);
+  panelOpenRef.current = panelOpen;
   const [question, setQuestion] = useState(DEFAULT_FINDING_QUESTION);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [turns, setTurns] = useState<AskTurn[]>([]);
@@ -81,18 +97,23 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
 
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
+      commitHrefIfChanged(
         open
-          ? findingAskInlineFindingIdDisclosureHrefFromSearch(searchParams.toString(), props.findingId, pathname)
-          : findingAskInlineFindingIdDisclosureHrefFromSearch(searchParams.toString(), null, pathname),
-        { scroll: false },
+          ? findingAskInlineFindingIdDisclosureHrefFromSearch(readWindowLocationSearch(), props.findingId, pathname)
+          : findingAskInlineFindingIdDisclosureHrefFromSearch(readWindowLocationSearch(), null, pathname),
+        { notify: false },
       );
     },
-    [pathname, props.findingId, router, searchParams],
+    [pathname, props.findingId],
   );
 
   const setPanelOpen = useCallback(
     (open: boolean) => {
+      if (panelOpenRef.current === open) {
+        return;
+      }
+
+      panelOpenRef.current = open;
       setPanelOpenState(open);
       syncPanelOpenToUrl(open);
     },
@@ -100,36 +121,24 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   );
 
   useEffect(() => {
-    const findingIdFromUrl = parseFindingAskInlineFindingIdFromSearch(findingAskInlineFindingIdParam);
+    const syncPanelOpenFromUrl = (): void => {
+      const next = resolvePanelOpenFromUrl();
 
-    if (findingIdFromUrl === props.findingId) {
-      setPanelOpenState(true);
+      if (panelOpenRef.current === next) {
+        return;
+      }
 
-      return;
-    }
+      panelOpenRef.current = next;
+      setPanelOpenState(next);
+    };
 
-    if (findingAskInlineFindingIdParam !== null) {
-      setPanelOpenState(false);
+    syncPanelOpenFromUrl();
+    window.addEventListener("popstate", syncPanelOpenFromUrl);
 
-      return;
-    }
-
-    if (parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam)) {
-      setPanelOpenState(true);
-
-      return;
-    }
-
-    if (findingAskInlineOpenParam !== null) {
-      setPanelOpenState(false);
-
-      return;
-    }
-
-    if (props.defaultOpen === true) {
-      setPanelOpenState(true);
-    }
-  }, [findingAskInlineFindingIdParam, findingAskInlineOpenParam, props.defaultOpen, props.findingId]);
+    return () => {
+      window.removeEventListener("popstate", syncPanelOpenFromUrl);
+    };
+  }, [resolvePanelOpenFromUrl]);
 
   async function submitQuestion(): Promise<void> {
     const trimmed = question.trim();

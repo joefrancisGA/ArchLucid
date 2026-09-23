@@ -66,12 +66,25 @@ vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
   useArchitectWorkspaceChrome: () => architectWorkspaceChromeMock.value,
 }));
 
+const commitHrefIfChanged = vi.hoisted(() => vi.fn(() => false));
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    commitHrefIfChanged,
+  };
+});
+
 describe("GlobalSearchBar", () => {
   beforeEach(() => {
     navigationTestState.pathname = "/";
     navigationTestState.search = "";
     navigationTestState.push.mockReset();
     navigationTestState.replace.mockReset();
+    commitHrefIfChanged.mockClear();
+    window.history.replaceState(null, "", "/");
     architectWorkspaceChromeMock.value = false;
     workspaceModeMock.mode = "guided";
     useArchitectureIdentitiesListQueryMock.mockReturnValue({ data: { items: [] }, isFetched: true });
@@ -104,16 +117,27 @@ describe("GlobalSearchBar", () => {
     render(<GlobalSearchBar />);
 
     expect(screen.queryByTestId("global-search-quick-actions")).not.toBeInTheDocument();
-    expect(navigationTestState.replace).not.toHaveBeenCalled();
+    expect(commitHrefIfChanged).not.toHaveBeenCalled();
+  });
+
+  it("does not commit href churn when popstate matches the closed search bar", async () => {
+    render(<GlobalSearchBar />);
+    commitHrefIfChanged.mockClear();
+
+    fireEvent.popState(window);
+
+    await waitFor(() => {
+      expect(commitHrefIfChanged).not.toHaveBeenCalled();
+    });
   });
 
   it("opens the quick-actions panel from the globalSearchOpen query param", () => {
-    navigationTestState.search = "globalSearchOpen=1";
+    window.history.replaceState(null, "", "/?globalSearchOpen=1");
 
     render(<GlobalSearchBar />);
 
     expect(screen.getByTestId("global-search-quick-actions")).toBeInTheDocument();
-    expect(navigationTestState.replace).not.toHaveBeenCalled();
+    expect(commitHrefIfChanged).not.toHaveBeenCalled();
   });
 
   it("exposes the quick-actions popup as a dialog rather than a listbox", async () => {
@@ -128,12 +152,12 @@ describe("GlobalSearchBar", () => {
     expect(input).toHaveAttribute("aria-expanded", "true");
     expect(input).toHaveAttribute("aria-controls", popup.id);
     await waitFor(() => {
-      expect(navigationTestState.replace).toHaveBeenCalledWith("/?globalSearchOpen=1", { scroll: false });
+      expect(commitHrefIfChanged).toHaveBeenCalledWith("/?globalSearchOpen=1", { notify: false });
     });
   });
 
   it("closes the panel and clears globalSearchOpen after an outside click", async () => {
-    navigationTestState.search = "globalSearchOpen=1";
+    window.history.replaceState(null, "", "/?globalSearchOpen=1");
 
     render(<GlobalSearchBar />);
 
@@ -143,21 +167,21 @@ describe("GlobalSearchBar", () => {
 
     expect(screen.queryByTestId("global-search-quick-actions")).not.toBeInTheDocument();
     await waitFor(() => {
-      expect(navigationTestState.replace).toHaveBeenCalledWith("/", { scroll: false });
+      expect(commitHrefIfChanged).toHaveBeenCalledWith("/", { notify: false });
     });
   });
 
   it("closes the panel when globalSearchOpen is removed from the URL", () => {
-    navigationTestState.search = "globalSearchOpen=1";
-    const view = render(<GlobalSearchBar />);
+    window.history.replaceState(null, "", "/?globalSearchOpen=1");
+    render(<GlobalSearchBar />);
 
     expect(screen.getByTestId("global-search-quick-actions")).toBeInTheDocument();
 
-    navigationTestState.search = "";
-    view.rerender(<GlobalSearchBar />);
+    window.history.replaceState(null, "", "/");
+    fireEvent.popState(window);
 
     expect(screen.queryByTestId("global-search-quick-actions")).not.toBeInTheDocument();
-    expect(navigationTestState.replace).not.toHaveBeenCalled();
+    expect(commitHrefIfChanged).not.toHaveBeenCalled();
   });
 
   it("opens the results panel when the query is long enough", async () => {

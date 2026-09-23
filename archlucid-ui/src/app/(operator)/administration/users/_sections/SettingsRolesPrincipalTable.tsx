@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -64,7 +65,6 @@ export function SettingsRolesPrincipalTable({
   readOnly = false,
   onRoleChange,
 }: Props) {
-  const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
   const searchParams = useSearchParams();
   const roleConfirmPrincipalIdParam = searchParams.get("roleConfirmPrincipalId");
@@ -76,24 +76,33 @@ export function SettingsRolesPrincipalTable({
 
   const syncRoleConfirmToUrl = useCallback(
     (change: PendingRoleChange | null) => {
-      router.replace(
+      commitHrefIfChanged(
         settingsUsersRoleConfirmHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           change === null
             ? { principalId: null, nextRole: null }
             : { principalId: change.row.id, nextRole: change.nextRole },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPendingChange = useCallback(
     (value: SetStateAction<PendingRoleChange | null>) => {
       setPendingChangeState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+        const currentPrincipalId = current?.row.id ?? null;
+        const nextPrincipalId = next?.row.id ?? null;
+        const currentNextRole = current?.nextRole ?? null;
+        const nextNextRole = next?.nextRole ?? null;
+
+        if (currentPrincipalId === nextPrincipalId && currentNextRole === nextNextRole) {
+          return current;
+        }
+
         syncRoleConfirmToUrl(next);
 
         return next;
@@ -107,7 +116,7 @@ export function SettingsRolesPrincipalTable({
     const nextRoleRaw = parseSettingsUsersRoleConfirmNextRoleFromSearch(roleConfirmNextRoleParam);
 
     if (principalId.length === 0 || nextRoleRaw.length === 0) {
-      setPendingChangeState(null);
+      setPendingChangeState((current) => (current === null ? current : null));
 
       return;
     }
@@ -128,12 +137,14 @@ export function SettingsRolesPrincipalTable({
       return;
     }
 
-    if (pendingChange?.row.id === principalId && pendingChange.nextRole === nextRole) {
-      return;
-    }
+    setPendingChangeState((current) => {
+      if (current?.row.id === principalId && current.nextRole === nextRole) {
+        return current;
+      }
 
-    setPendingChangeState({ row, previousRole: row.role, nextRole });
-  }, [pendingChange?.nextRole, pendingChange?.row.id, roleConfirmNextRoleParam, roleConfirmPrincipalIdParam, rows]);
+      return { row, previousRole: row.role, nextRole };
+    });
+  }, [roleConfirmNextRoleParam, roleConfirmPrincipalIdParam, rows]);
 
   const rowStateKey = useCallback((row: SettingsRolesAssignablePrincipalRow) => `${row.kind}:${row.id}`, []);
 

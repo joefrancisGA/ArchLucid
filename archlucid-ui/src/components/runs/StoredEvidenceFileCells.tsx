@@ -20,7 +20,8 @@ import {
   runStoredEvidencePreviewShapeHrefFromSearch,
 } from "@/lib/runs/run-stored-evidence-preview-shape-url";
 import { StoredEvidenceFileContentSafety } from "@/lib/runs/run-stored-evidence-preview-policy";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type RunStoredEvidencePreviewState = {
   readonly evidenceItemId: string;
@@ -228,10 +229,8 @@ export function useStoredEvidenceFileActions(runId: string): {
   readonly handlers: StoredEvidenceFileActionHandlers;
   readonly openButtonRef: RefObject<HTMLElement | null>;
 } {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
   const highlightShapeId = parseRunStoredEvidencePreviewShapeFromSearch(
     searchParams.get(RUN_STORED_EVIDENCE_PREVIEW_SHAPE_PARAM),
   );
@@ -247,14 +246,15 @@ export function useStoredEvidenceFileActions(runId: string): {
       return null;
     });
 
-    router.replace(runStoredEvidencePreviewShapeHrefFromSearch(searchParamsString, null, pathname), {
-      scroll: false,
-    });
+    commitHrefIfChanged(
+      runStoredEvidencePreviewShapeHrefFromSearch(readWindowLocationSearch(), null, pathname),
+      { notify: false },
+    );
 
     queueMicrotask(() => {
       openButtonRef.current?.focus();
     });
-  }, [pathname, router, searchParamsString]);
+  }, [pathname]);
 
   const handlers: StoredEvidenceFileActionHandlers = {
     onOpen: (input) => {

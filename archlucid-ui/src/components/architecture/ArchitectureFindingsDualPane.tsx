@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -15,21 +17,17 @@ import {
   formatLinkedComponentStatus,
   resolveFindingDiagramSelectionSync,
   type ArchitectureFindingsDualPaneDiagramNode,
-  type ArchitectureFindingsDualPaneFindingRef,
-} from "@/lib/architecture/architecture-findings-dual-pane";
+  type ArchitectureFindingsDualPaneFindingRef} from "@/lib/architecture/architecture-findings-dual-pane";
 import { buildFindingDiagramSpotlight } from "@/lib/architecture/build-finding-diagram-spotlight";
 import {
   architectureDiagramFindingHrefFromSearch,
-  parseArchitectureDiagramFindingIdFromSearch,
-} from "@/lib/architecture/architecture-findings-dual-pane-url";
+  readArchitectureDiagramFindingIdFromWindowLocation} from "@/lib/architecture/architecture-findings-dual-pane-url";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
-import { REVIEW_DETAIL_FINDING_PARAM } from "@/lib/review-detail-workspace-tabs";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,
-  type QuickDecisionFinding,
-} from "@/lib/quick-decision-summary-derive";
+  type QuickDecisionFinding} from "@/lib/quick-decision-summary-derive";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +46,7 @@ function toFindingRef(finding: QuickDecisionFinding): ArchitectureFindingsDualPa
   return {
     findingId: finding.findingId,
     title: finding.title,
-    wireJson: finding.aiReasoning?.wireJson ?? null,
-  };
+    wireJson: finding.aiReasoning?.wireJson ?? null};
 }
 
 /**
@@ -57,17 +54,15 @@ function toFindingRef(finding: QuickDecisionFinding): ArchitectureFindingsDualPa
  * Provenance ("why is this here?") remains TB-2180 on the diagram panel.
  */
 export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPaneProps): React.JSX.Element {
-  const router = useRouter();
   const workingBackLocator = useWorkingBackLocator({
     reviewId: props.runId,
-    architectureId: props.architectureId,
-  });
+    architectureId: props.architectureId});
   const pathname = usePathname() ?? workingBackLocator.reviewJobHref;
-  const searchParams = useSearchParams();
   const workbenchSelection = useReviewWorkbenchSelection();
-  const urlFindingId = parseArchitectureDiagramFindingIdFromSearch(
-    searchParams.get(REVIEW_DETAIL_FINDING_PARAM),
-    searchParams.get("diagramFindingId"),
+  const setSelectedFindingId = workbenchSelection?.setSelectedFindingId;
+  const reconcileSelectedFindingId = workbenchSelection?.reconcileSelectedFindingId;
+  const [urlFindingId, setUrlFindingId] = useState(
+    () => readArchitectureDiagramFindingIdFromWindowLocation(),
   );
   const diagramNodes = props.diagramNodes ?? [];
   const [localSelectedFindingId, setLocalSelectedFindingId] = useState<string | null>(null);
@@ -104,33 +99,53 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   const onHighlightedNodeIdChange = props.onHighlightedNodeIdChange;
 
   useEffect(() => {
-    if (urlFindingId.length === 0) {
+    const syncFindingIdFromUrl = (): void => {
+      setUrlFindingId(readArchitectureDiagramFindingIdFromWindowLocation());
+    };
+
+    syncFindingIdFromUrl();
+    window.addEventListener("popstate", syncFindingIdFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFindingIdFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    const resolvedFindingId = urlFindingId.trim();
+
+    if (resolvedFindingId.length === 0) {
       return;
     }
 
-    const exists = visibleFindings.some((finding) => finding.findingId === urlFindingId);
+    const exists = visibleFindings.some((finding) => finding.findingId === resolvedFindingId);
 
     if (!exists) {
       return;
     }
 
-    if (workbenchSelection !== null) {
-      workbenchSelection.setSelectedFindingId(urlFindingId.length > 0 ? urlFindingId : null);
-    } else {
-      setLocalSelectedFindingId(urlFindingId.length > 0 ? urlFindingId : null);
+    if (selectedFindingId === resolvedFindingId) {
+      return;
     }
-  }, [urlFindingId, visibleFindings, workbenchSelection]);
+
+    if (reconcileSelectedFindingId !== undefined) {
+      reconcileSelectedFindingId(resolvedFindingId);
+    } else {
+      setLocalSelectedFindingId(resolvedFindingId);
+    }
+  }, [reconcileSelectedFindingId, selectedFindingId, urlFindingId, visibleFindings]);
 
   const selectFindingWithUrl = (findingId: string | null): void => {
     if (workbenchSelection !== null) {
       workbenchSelection.setSelectedFindingId(findingId);
-    } else {
-      setLocalSelectedFindingId(findingId);
+
+      return;
     }
 
-    router.replace(
-      architectureDiagramFindingHrefFromSearch(searchParams.toString(), findingId, pathname),
-      { scroll: false },
+    setLocalSelectedFindingId(findingId);
+    commitHrefIfChanged(
+      architectureDiagramFindingHrefFromSearch(window.location.search, findingId, pathname),
+      { notify: false },
     );
   };
 

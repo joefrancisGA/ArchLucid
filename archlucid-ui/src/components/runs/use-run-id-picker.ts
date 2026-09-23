@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState, useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
@@ -15,6 +15,7 @@ import {
   parseRunIdPickerQueryFromSearch,
   runIdPickerOverlayHrefFromSearch,
 } from "@/lib/runs/run-id-picker-overlay-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
 const DEMO_RUN_PREF_ID = SHOWCASE_STATIC_DEMO_RUN_ID;
@@ -79,14 +80,13 @@ export function useRunIdPicker({
   onRunPicked,
   architectureId,
 }: UseRunIdPickerOptions) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
   const urlSyncFieldId = (inputId ?? "").trim();
-  const runPickerFieldParam = searchParams.get("runPickerField");
-  const runPickerQueryParam = searchParams.get("runPickerQ");
+  const readPickerSearch = () => new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+  const initialPickerSearch = readPickerSearch();
   const pickerOpenFromUrl =
-    urlSyncFieldId.length > 0 && parseRunIdPickerOpenFieldFromSearch(runPickerFieldParam) === urlSyncFieldId;
+    urlSyncFieldId.length > 0
+    && parseRunIdPickerOpenFieldFromSearch(initialPickerSearch.get("runPickerField")) === urlSyncFieldId;
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,7 +99,7 @@ export function useRunIdPicker({
   const previousValueRef = useRef(value);
   const [listFilter, setListFilterState] = useState(() => {
     if (pickerOpenFromUrl) {
-      const urlQuery = parseRunIdPickerQueryFromSearch(runPickerQueryParam);
+      const urlQuery = parseRunIdPickerQueryFromSearch(initialPickerSearch.get("runPickerQ"));
 
       if (urlQuery.length > 0) {
         return urlQuery;
@@ -108,6 +108,10 @@ export function useRunIdPicker({
 
     return "";
   });
+  const openRef = useRef(open);
+  openRef.current = open;
+  const listFilterRef = useRef(listFilter);
+  listFilterRef.current = listFilter;
 
   const syncPickerOverlayToUrl = useCallback(
     (state: { open: boolean; query: string }) => {
@@ -115,22 +119,28 @@ export function useRunIdPicker({
         return;
       }
 
-      router.replace(
+      commitHrefIfChanged(
         runIdPickerOverlayHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           { open: state.open, fieldId: urlSyncFieldId, query: state.query },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams, urlSyncFieldId],
+    [pathname, urlSyncFieldId],
   );
 
   const setOpen = useCallback(
     (next: boolean | ((current: boolean) => boolean)) => {
       setOpenState((current) => {
         const resolved = typeof next === "function" ? next(current) : next;
+
+        if (resolved === current) {
+          return current;
+        }
+
+        openRef.current = resolved;
         syncPickerOverlayToUrl({ open: resolved, query: listFilter });
 
         return resolved;
@@ -155,19 +165,33 @@ export function useRunIdPicker({
       return;
     }
 
-    const urlField = parseRunIdPickerOpenFieldFromSearch(runPickerFieldParam);
-    const urlOpen = urlField === urlSyncFieldId;
+    const syncPickerFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const urlField = parseRunIdPickerOpenFieldFromSearch(params.get("runPickerField"));
+      const urlOpen = urlField === urlSyncFieldId;
 
-    setOpenState(urlOpen);
-
-    if (urlOpen) {
-      const urlQuery = parseRunIdPickerQueryFromSearch(runPickerQueryParam);
-
-      if (urlQuery.length > 0) {
-        setListFilterState(urlQuery);
+      if (openRef.current !== urlOpen) {
+        openRef.current = urlOpen;
+        setOpenState(urlOpen);
       }
-    }
-  }, [runPickerFieldParam, runPickerQueryParam, urlSyncFieldId]);
+
+      if (urlOpen) {
+        const urlQuery = parseRunIdPickerQueryFromSearch(params.get("runPickerQ"));
+
+        if (urlQuery.length > 0 && listFilterRef.current !== urlQuery) {
+          listFilterRef.current = urlQuery;
+          setListFilterState(urlQuery);
+        }
+      }
+    };
+
+    syncPickerFromUrl();
+    window.addEventListener("popstate", syncPickerFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPickerFromUrl);
+    };
+  }, [urlSyncFieldId]);
 
   const runsQuery = useAskProjectRunsQuery(projectId, {
     forCompare,

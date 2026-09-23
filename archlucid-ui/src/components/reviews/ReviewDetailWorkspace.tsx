@@ -125,7 +125,6 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
   return (
     <ReviewWorkbenchSelectionProvider
-      initialFindingId={tabs.initialFindingId}
       initialFocusColumn={tabs.initialWorkbenchFocus}
       onFindingIdChange={selection.onFindingIdChange}
       onFocusColumnChange={selection.onFocusColumnChange}

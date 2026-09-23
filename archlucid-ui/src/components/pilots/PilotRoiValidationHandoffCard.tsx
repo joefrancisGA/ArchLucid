@@ -3,8 +3,10 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -80,26 +82,34 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
   const firstRunHelpHref = "/help/first-run";
 
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const pilotRoiValidationInterviewOpenParam = searchParams.get("pilotRoiValidationInterviewOpen");
   const [validationInterviewOpen, setValidationInterviewOpenState] = useState(() =>
-    parsePilotRoiValidationInterviewOpenFromSearch(pilotRoiValidationInterviewOpenParam),
+    parsePilotRoiValidationInterviewOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("pilotRoiValidationInterviewOpen"),
+    ),
   );
+  const validationInterviewOpenRef = useRef(validationInterviewOpen);
+  validationInterviewOpenRef.current = validationInterviewOpen;
 
   const syncValidationInterviewOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        pilotRoiValidationInterviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        pilotRoiValidationInterviewDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setValidationInterviewOpen = useCallback(
     (open: boolean) => {
+      if (validationInterviewOpenRef.current === open) {
+        return;
+      }
+
+      validationInterviewOpenRef.current = open;
       setValidationInterviewOpenState(open);
       syncValidationInterviewOpenToUrl(open);
     },
@@ -107,10 +117,26 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
   );
 
   useEffect(() => {
-    setValidationInterviewOpenState(
-      parsePilotRoiValidationInterviewOpenFromSearch(pilotRoiValidationInterviewOpenParam),
-    );
-  }, [pilotRoiValidationInterviewOpenParam]);
+    const syncValidationInterviewOpenFromUrl = (): void => {
+      const next = parsePilotRoiValidationInterviewOpenFromSearch(
+        new URLSearchParams(window.location.search).get("pilotRoiValidationInterviewOpen"),
+      );
+
+      if (validationInterviewOpenRef.current === next) {
+        return;
+      }
+
+      validationInterviewOpenRef.current = next;
+      setValidationInterviewOpenState(next);
+    };
+
+    syncValidationInterviewOpenFromUrl();
+    window.addEventListener("popstate", syncValidationInterviewOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncValidationInterviewOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (copyState !== "copied") {

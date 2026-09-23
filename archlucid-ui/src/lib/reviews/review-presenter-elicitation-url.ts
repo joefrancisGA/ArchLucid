@@ -8,6 +8,17 @@ export function parseReviewPresenterQuestionIdFromSearch(raw: string | null | un
   return raw.trim();
 }
 
+/** Reads presenter question id from the live address bar (not stale Next.js `useSearchParams`). */
+export function readReviewPresenterQuestionIdFromWindowLocation(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return parseReviewPresenterQuestionIdFromSearch(
+    new URLSearchParams(window.location.search).get(REVIEW_PRESENTER_QUESTION_ID_PARAM),
+  );
+}
+
 export function reviewPresenterElicitationHrefFromSearch(
   currentSearch: string,
   questionId: string | null,

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
@@ -99,26 +101,39 @@ function BuyerProofDetailsDisclosure(props: {
   readonly monitoredRiskClarifier: string | null;
   readonly showcaseApprovalAuthority: string;
 }) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const operatorHomeBuyerProofDetailsOpenParam = searchParams.get("operatorHomeBuyerProofDetailsOpen");
-  const [open, setOpenState] = useState(() =>
-    parseOperatorHomeBuyerProofDetailsOpenFromSearch(operatorHomeBuyerProofDetailsOpenParam),
-  );
+  const readOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      "operatorHomeBuyerProofDetailsOpen",
+    );
+
+    if (param === null) {
+      return null;
+    }
+
+    return parseOperatorHomeBuyerProofDetailsOpenFromSearch(param);
+  };
+  const [open, setOpenState] = useState(() => readOpenFromUrl() ?? false);
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        operatorHomeBuyerProofDetailsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        operatorHomeBuyerProofDetailsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -126,8 +141,24 @@ function BuyerProofDetailsDisclosure(props: {
   );
 
   useEffect(() => {
-    setOpenState(parseOperatorHomeBuyerProofDetailsOpenFromSearch(operatorHomeBuyerProofDetailsOpenParam));
-  }, [operatorHomeBuyerProofDetailsOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const fromUrl = readOpenFromUrl();
+
+      if (fromUrl === null || openRef.current === fromUrl) {
+        return;
+      }
+
+      openRef.current = fromUrl;
+      setOpenState(fromUrl);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details
@@ -135,7 +166,8 @@ function BuyerProofDetailsDisclosure(props: {
       data-testid="runs-dashboard-buyer-proof-details"
       open={open}
       onToggle={(event) => {
-        setOpen((event.currentTarget as HTMLDetailsElement).open);
+        event.preventDefault();
+        setOpen(!openRef.current);
       }}
     >
       <summary className={cn("cursor-pointer list-none", OPERATOR_LINK.nav)}>

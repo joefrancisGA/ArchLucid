@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -30,6 +30,7 @@ import {
 import { removeArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseArchitectureDraftDeleteConfirmOpenFromSearch,
   parseArchitectureDraftDeleteIdFromSearch,
@@ -52,38 +53,48 @@ export type ArchitectureDraftDeleteControlProps = {
 export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteControlProps): React.JSX.Element | null {
   const router = useRouter();
   const pathname = usePathname() ?? ARCHITECTURES_LIST_PATH;
-  const searchParams = useSearchParams();
-  const urlDraftDeleteId = parseArchitectureDraftDeleteIdFromSearch(searchParams.get("draftDeleteId"));
-  const urlDraftDeleteConfirm = parseArchitectureDraftDeleteConfirmOpenFromSearch(
-    searchParams.get("draftDeleteConfirm"),
-  );
   const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
-  const [confirmOpen, setConfirmOpenState] = useState(
-    urlDraftDeleteConfirm && urlDraftDeleteId === props.draftId,
-  );
+  const readConfirmOpenFromUrl = (): boolean => {
+    const search = typeof window === "undefined" ? "" : window.location.search;
+    const params = new URLSearchParams(search);
+    const urlDraftDeleteId = parseArchitectureDraftDeleteIdFromSearch(params.get("draftDeleteId"));
+    const urlDraftDeleteConfirm = parseArchitectureDraftDeleteConfirmOpenFromSearch(
+      params.get("draftDeleteConfirm"),
+    );
+
+    return urlDraftDeleteConfirm && urlDraftDeleteId === props.draftId;
+  };
+  const [confirmOpen, setConfirmOpenState] = useState(() => readConfirmOpenFromUrl());
+  const confirmOpenRef = useRef(confirmOpen);
+  confirmOpenRef.current = confirmOpen;
   const [busy, setBusy] = useState(false);
 
   const syncDeleteConfirmToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
+      commitHrefIfChanged(
         architectureDraftDeleteConfirmHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           {
             draftId: open ? props.draftId : null,
             confirmOpen: open,
           },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, props.draftId, router, searchParams],
+    [pathname, props.draftId],
   );
 
   const setConfirmOpen = useCallback(
     (open: boolean) => {
+      if (confirmOpenRef.current === open) {
+        return;
+      }
+
+      confirmOpenRef.current = open;
       setConfirmOpenState(open);
       syncDeleteConfirmToUrl(open);
     },
@@ -91,8 +102,24 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
   );
 
   useEffect(() => {
-    setConfirmOpenState(urlDraftDeleteConfirm && urlDraftDeleteId === props.draftId);
-  }, [props.draftId, urlDraftDeleteConfirm, urlDraftDeleteId]);
+    const syncConfirmOpenFromUrl = (): void => {
+      const next = readConfirmOpenFromUrl();
+
+      if (confirmOpenRef.current === next) {
+        return;
+      }
+
+      confirmOpenRef.current = next;
+      setConfirmOpenState(next);
+    };
+
+    syncConfirmOpenFromUrl();
+    window.addEventListener("popstate", syncConfirmOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncConfirmOpenFromUrl);
+    };
+  }, [props.draftId]);
 
   const eligible = canDeleteArchitectureDraft({
     linkedReviewId: props.linkedReviewId,

@@ -37,11 +37,11 @@ export function RunExplanationConfidenceBanner(props: {
   readonly summary: RunExplanationSummary | null;
 }): ReactElement | null {
   const confidence = buildExplanationConfidenceSummary(props.summary);
-
-  if (confidence === null)
-    return null;
-
   const buyerPolished = useProductionEvalChrome();
+
+  if (confidence === null) {
+    return null;
+  }
   const dispositionLabel = buyerPolished
     ? buyerExplanationConfidenceDispositionLabel(confidence.disposition)
     : confidence.disposition;

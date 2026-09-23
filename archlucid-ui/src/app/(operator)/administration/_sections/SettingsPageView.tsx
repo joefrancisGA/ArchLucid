@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdminPrerequisitesReadinessBoard } from "@/components/administration/AdminPrerequisitesReadinessBoard";
@@ -19,6 +18,8 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
 import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
 import { buildSettingsMasterVisibleSections, countSettingsMasterMatchingDestinations, type SettingsMasterVisibleSection } from "./settings-master-page-model";
@@ -53,70 +54,56 @@ function shouldHideDestinationCardTitle(
   );
 }
 
+function readSettingsMasterSearchQueryFromUrl(): string {
+  return parseSettingsMasterSearchQuery(new URLSearchParams(window.location.search).get("q"));
+}
+
 export function SettingsPageView() {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/administration";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
-  const urlSearchQuery = parseSettingsMasterSearchQuery(searchParams.get("q"));
-  const settingsMasterAdvancedOpenParam = searchParams.get("settingsMasterAdvancedOpen");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const { productLine, assignmentOverrides } = useProductLine();
-  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
-  const [showAdvanced, setShowAdvancedState] = useState(() =>
-    parseSettingsMasterAdvancedOpenFromSearch(settingsMasterAdvancedOpenParam),
+  const [searchQuery, setSearchQuery] = useState(() =>
+    typeof window === "undefined" ? "" : readSettingsMasterSearchQueryFromUrl(),
+  );
+  const [showAdvanced, setShowAdvanced] = useBooleanSearchParamUrlSync(
+    "settingsMasterAdvancedOpen",
+    parseSettingsMasterAdvancedOpenFromSearch,
+    settingsMasterAdvancedHrefFromSearch,
   );
   const scope = useMemo(() => readOperatorScopeFromStorage(), []);
   const environmentLabel = isSelfHostedDeploymentEnv() ? "Self-hosted deployment" : "Managed SaaS";
 
   useEffect(() => {
-    setSearchQuery(urlSearchQuery);
-  }, [urlSearchQuery]);
+    const syncSearchQueryFromUrl = (): void => {
+      const nextQuery = readSettingsMasterSearchQueryFromUrl();
+      setSearchQuery((current) => (current === nextQuery ? current : nextQuery));
+    };
 
-  const syncShowAdvancedToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(settingsMasterAdvancedHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
+    syncSearchQueryFromUrl();
+    window.addEventListener("popstate", syncSearchQueryFromUrl);
 
-  const setShowAdvanced = useCallback(
-    (value: boolean | ((current: boolean) => boolean)) => {
-      setShowAdvancedState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncShowAdvancedToUrl(next);
-
-        return next;
-      });
-    },
-    [syncShowAdvancedToUrl],
-  );
-
-  useEffect(() => {
-    setShowAdvancedState(parseSettingsMasterAdvancedOpenFromSearch(settingsMasterAdvancedOpenParam));
-  }, [settingsMasterAdvancedOpenParam]);
+    return () => {
+      window.removeEventListener("popstate", syncSearchQueryFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      const nextHref = settingsMasterSearchHrefFromSearch(searchParams.toString(), searchQuery);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
+      commitHrefIfChanged(
+        settingsMasterSearchHrefFromSearch(readWindowLocationSearch(), searchQuery),
+        { notify: false },
+      );
     }, 250);
 
     return () => {
       window.clearTimeout(handle);
     };
-  }, [router, searchParams, searchQuery]);
+  }, [searchQuery]);
 
   const clearSearch = useCallback(() => {
     setSearchQuery("");
-    router.replace(settingsMasterClearSearchHrefFromSearch(currentSearch), { scroll: false });
-  }, [currentSearch, router]);
+    commitHrefIfChanged(settingsMasterClearSearchHrefFromSearch(readWindowLocationSearch()), { notify: false });
+  }, []);
 
   const visibleSections = useMemo(
     () =>
@@ -195,7 +182,7 @@ export function SettingsPageView() {
                 aria-expanded={showAdvanced}
                 aria-controls={SETTINGS_MASTER_CATALOG_GRID_ID}
                 data-testid="settings-advanced-toggle"
-                onClick={() => setShowAdvanced((current) => !current)}
+                onClick={() => setShowAdvanced(!showAdvanced)}
               >
                 {showAdvanced ? "Hide advanced settings" : "Show advanced settings"}
               </Button>

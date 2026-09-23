@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunDetailActivityTechnicalOpenFromSearch,
   runDetailActivityTechnicalDisclosureHrefFromSearch,
@@ -23,30 +24,43 @@ type RunDetailCreateHomeActivityTechnicalDisclosuresProps = {
 export function RunDetailCreateHomeActivityTechnicalDisclosures(
   props: RunDetailCreateHomeActivityTechnicalDisclosuresProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailActivityTechnicalOpenParam = searchParams.get("runDetailActivityTechnicalOpen");
-  const runDetailActivityOutcomeMetricsOpenParam = searchParams.get("runDetailActivityOutcomeMetricsOpen");
   const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseRunDetailActivityTechnicalOpenFromSearch(runDetailActivityTechnicalOpenParam),
+    parseRunDetailActivityTechnicalOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailActivityTechnicalOpen"),
+    ),
   );
+  const technicalOpenRef = useRef(technicalOpen);
+  technicalOpenRef.current = technicalOpen;
   const [outcomeMetricsOpen, setOutcomeMetricsOpenState] = useState(() =>
-    parseRunDetailActivityOutcomeMetricsOpenFromSearch(runDetailActivityOutcomeMetricsOpenParam),
+    parseRunDetailActivityOutcomeMetricsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailActivityOutcomeMetricsOpen"),
+    ),
   );
+  const outcomeMetricsOpenRef = useRef(outcomeMetricsOpen);
+  outcomeMetricsOpenRef.current = outcomeMetricsOpen;
 
   const syncTechnicalOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailActivityTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailActivityTechnicalDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalOpen = useCallback(
     (open: boolean) => {
+      if (technicalOpenRef.current === open) {
+        return;
+      }
+
+      technicalOpenRef.current = open;
       setTechnicalOpenState(open);
       syncTechnicalOpenToUrl(open);
     },
@@ -55,16 +69,21 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
 
   const syncOutcomeMetricsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailActivityOutcomeMetricsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailActivityOutcomeMetricsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOutcomeMetricsOpen = useCallback(
     (open: boolean) => {
+      if (outcomeMetricsOpenRef.current === open) {
+        return;
+      }
+
+      outcomeMetricsOpenRef.current = open;
       setOutcomeMetricsOpenState(open);
       syncOutcomeMetricsOpenToUrl(open);
     },
@@ -72,14 +91,48 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
   );
 
   useEffect(() => {
-    setTechnicalOpenState(parseRunDetailActivityTechnicalOpenFromSearch(runDetailActivityTechnicalOpenParam));
-  }, [runDetailActivityTechnicalOpenParam]);
+    const syncTechnicalOpenFromUrl = (): void => {
+      const nextOpen = parseRunDetailActivityTechnicalOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailActivityTechnicalOpen"),
+      );
+
+      if (technicalOpenRef.current === nextOpen) {
+        return;
+      }
+
+      technicalOpenRef.current = nextOpen;
+      setTechnicalOpenState(nextOpen);
+    };
+
+    syncTechnicalOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
-    setOutcomeMetricsOpenState(
-      parseRunDetailActivityOutcomeMetricsOpenFromSearch(runDetailActivityOutcomeMetricsOpenParam),
-    );
-  }, [runDetailActivityOutcomeMetricsOpenParam]);
+    const syncOutcomeMetricsOpenFromUrl = (): void => {
+      const nextOpen = parseRunDetailActivityOutcomeMetricsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailActivityOutcomeMetricsOpen"),
+      );
+
+      if (outcomeMetricsOpenRef.current === nextOpen) {
+        return;
+      }
+
+      outcomeMetricsOpenRef.current = nextOpen;
+      setOutcomeMetricsOpenState(nextOpen);
+    };
+
+    syncOutcomeMetricsOpenFromUrl();
+    window.addEventListener("popstate", syncOutcomeMetricsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOutcomeMetricsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details
@@ -87,7 +140,8 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
       open={technicalOpen}
       data-testid="architecture-activity-technical-detail"
       onToggle={(event) => {
-        setTechnicalOpen(event.currentTarget.open);
+        event.preventDefault();
+        setTechnicalOpen(!technicalOpen);
       }}
     >
       <summary className="cursor-pointer font-semibold">{RUN_DETAIL_CREATE_HOME_ACTIVITY_TECHNICAL_DETAIL_SUMMARY}</summary>
@@ -97,7 +151,8 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
           open={outcomeMetricsOpen}
           data-testid="architecture-activity-outcome-metrics"
           onToggle={(event) => {
-            setOutcomeMetricsOpen(event.currentTarget.open);
+            event.preventDefault();
+            setOutcomeMetricsOpen(!outcomeMetricsOpen);
           }}
         >
           <summary className="cursor-pointer font-semibold">Outcome metrics and taxonomy</summary>

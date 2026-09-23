@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InventoryHiddenFilterHonestyBand } from "@/components/usability/InventoryHiddenFilterHonestyBand";
@@ -121,7 +122,6 @@ function ReviewFilterChip(props: {
 /** Filterable review inventory for `/architecture/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { isWorkingMode } = useWorkspaceMode();
   useRehydrateInFlightFromWorkingContinuity();
   const inFlightOperations = useShellInFlightOperations();
@@ -136,17 +136,44 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const searchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
   const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
+  const activeFilterRef = useRef(activeFilter);
+  activeFilterRef.current = activeFilter;
 
   useEffect(() => {
-    setActiveFilter(urlFilter);
-  }, [urlFilter]);
+    const syncActiveFilterFromUrl = (): void => {
+      const next = parseReviewsHubInventoryFilter(
+        new URLSearchParams(window.location.search).get("filter"),
+      );
+
+      if (activeFilterRef.current === next) {
+        return;
+      }
+
+      activeFilterRef.current = next;
+      setActiveFilter(next);
+    };
+
+    syncActiveFilterFromUrl();
+    window.addEventListener("popstate", syncActiveFilterFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncActiveFilterFromUrl);
+    };
+  }, []);
 
   const selectInventoryFilter = useCallback(
     (filter: ReviewFilterId) => {
+      if (activeFilterRef.current === filter) {
+        return;
+      }
+
+      activeFilterRef.current = filter;
       setActiveFilter(filter);
-      router.replace(reviewsHubInventoryHrefFromSearch(searchParams.toString(), filter), { scroll: false });
+      commitHrefIfChanged(reviewsHubInventoryHrefFromSearch(readWindowLocationSearch(), filter), {
+        notify: false,
+      });
     },
-    [router, searchParams],
+    [],
   );
 
   const { isFavorite } = useFavoriteReviews();
@@ -233,9 +260,12 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   );
 
   const clearInventoryFilters = useCallback(() => {
+    activeFilterRef.current = "all";
     setActiveFilter("all");
-    router.replace(reviewsHubInventoryClearFiltersHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
+    commitHrefIfChanged(reviewsHubInventoryClearFiltersHrefFromSearch(readWindowLocationSearch()), {
+      notify: false,
+    });
+  }, []);
 
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 

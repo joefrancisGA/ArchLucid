@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
@@ -11,6 +11,7 @@ import {
   type ReviewFailureTechnicalMetadataInput,
 } from "@/lib/format-review-failure-technical-metadata";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
@@ -32,26 +33,34 @@ export type ReviewFailureTechnicalMetadataDisclosureProps = {
 export function ReviewFailureTechnicalMetadataDisclosure(
   props: ReviewFailureTechnicalMetadataDisclosureProps,
 ): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const reviewFailureTechnicalMetadataOpenParam = searchParams.get("reviewFailureTechnicalMetadataOpen");
   const [open, setOpenState] = useState(() =>
-    parseReviewFailureTechnicalMetadataOpenFromSearch(reviewFailureTechnicalMetadataOpenParam),
+    parseReviewFailureTechnicalMetadataOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("reviewFailureTechnicalMetadataOpen"),
+    ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        reviewFailureTechnicalMetadataDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        reviewFailureTechnicalMetadataDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -59,8 +68,26 @@ export function ReviewFailureTechnicalMetadataDisclosure(
   );
 
   useEffect(() => {
-    setOpenState(parseReviewFailureTechnicalMetadataOpenFromSearch(reviewFailureTechnicalMetadataOpenParam));
-  }, [reviewFailureTechnicalMetadataOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseReviewFailureTechnicalMetadataOpenFromSearch(
+        new URLSearchParams(window.location.search).get("reviewFailureTechnicalMetadataOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   const input: ReviewFailureTechnicalMetadataInput = {
     runId: props.runId,
@@ -83,7 +110,8 @@ export function ReviewFailureTechnicalMetadataDisclosure(
       data-testid="review-package-failure-technical-metadata"
       open={open}
       onToggle={(event) => {
-        setOpen((event.currentTarget as HTMLDetailsElement).open);
+        event.preventDefault();
+        setOpen(!openRef.current);
       }}
     >
       <summary className={cn("cursor-pointer font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>

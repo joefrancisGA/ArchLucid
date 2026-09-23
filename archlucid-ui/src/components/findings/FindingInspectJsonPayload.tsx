@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS } from "@/lib/design-tokens";
@@ -18,28 +20,39 @@ import { cn } from "@/lib/utils";
  * Client island for the finding inspector typed JSON payload (avoids adding "use client" to the full view).
  */
 export function FindingInspectJsonPayload({ value }: { value: unknown }) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingInspectTypedPayloadOpenParam = searchParams.get("findingInspectTypedPayloadOpen");
-  const collapsibleJsonExpandPathParam = searchParams.get("collapsibleJsonExpandPath");
-  const expandPath = parseCollapsibleJsonExpandPathFromSearch(collapsibleJsonExpandPathParam);
+  const readExpandPathFromUrl = (): ReturnType<typeof parseCollapsibleJsonExpandPathFromSearch> =>
+    parseCollapsibleJsonExpandPathFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("collapsibleJsonExpandPath"),
+    );
+  const expandPath = readExpandPathFromUrl();
   const [open, setOpenState] = useState(() =>
-    parseFindingInspectTypedPayloadOpenFromSearch(findingInspectTypedPayloadOpenParam),
+    parseFindingInspectTypedPayloadOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingInspectTypedPayloadOpen"),
+    ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        findingInspectTypedPayloadDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingInspectTypedPayloadDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -47,15 +60,34 @@ export function FindingInspectJsonPayload({ value }: { value: unknown }) {
   );
 
   useEffect(() => {
-    setOpenState(parseFindingInspectTypedPayloadOpenFromSearch(findingInspectTypedPayloadOpenParam));
-  }, [findingInspectTypedPayloadOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseFindingInspectTypedPayloadOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingInspectTypedPayloadOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details
       className="rounded-md border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950/40"
       open={open}
       onToggle={(event) => {
-        setOpen((event.currentTarget as HTMLDetailsElement).open);
+        event.preventDefault();
+        setOpen(!openRef.current);
       }}
     >
       <summary className={cn("cursor-pointer px-3 py-2 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

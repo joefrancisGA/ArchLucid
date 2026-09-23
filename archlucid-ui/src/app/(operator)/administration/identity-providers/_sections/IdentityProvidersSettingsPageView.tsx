@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { cn } from "@/lib/utils";
 import { AuthDomainsIdentityProvidersVocabularyRail } from "@/components/AuthDomainsIdentityProvidersVocabularyRail";
@@ -47,15 +49,18 @@ const SIGN_IN_DOMAINS_DESCRIPTION =
   "Verify email domains and enforce organization SSO routing." as const;
 
 export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettingsPageViewProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/administration/identity-providers";
-  const searchParams = useSearchParams();
-  const identityProvidersRelatedSurfacesOpenParam = searchParams.get("identityProvidersRelatedSurfacesOpen");
   const { model } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [relatedSurfacesOpen, setRelatedSurfacesOpenState] = useState(() =>
-    parseIdentityProvidersRelatedSurfacesOpenFromSearch(identityProvidersRelatedSurfacesOpenParam),
+    parseIdentityProvidersRelatedSurfacesOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("identityProvidersRelatedSurfacesOpen"),
+    ),
   );
+  const relatedSurfacesOpenRef = useRef(relatedSurfacesOpen);
+  relatedSurfacesOpenRef.current = relatedSurfacesOpen;
   const showPrimaryNextStep =
     model.dataLoaded
     && model.overviewStatusFailure === null
@@ -64,16 +69,21 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
 
   const syncRelatedSurfacesOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        identityProvidersRelatedSurfacesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        identityProvidersRelatedSurfacesDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setRelatedSurfacesOpen = useCallback(
     (open: boolean) => {
+      if (relatedSurfacesOpenRef.current === open) {
+        return;
+      }
+
+      relatedSurfacesOpenRef.current = open;
       setRelatedSurfacesOpenState(open);
       syncRelatedSurfacesOpenToUrl(open);
     },
@@ -81,8 +91,26 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
   );
 
   useEffect(() => {
-    setRelatedSurfacesOpenState(parseIdentityProvidersRelatedSurfacesOpenFromSearch(identityProvidersRelatedSurfacesOpenParam));
-  }, [identityProvidersRelatedSurfacesOpenParam]);
+    const syncRelatedSurfacesOpenFromUrl = (): void => {
+      const next = parseIdentityProvidersRelatedSurfacesOpenFromSearch(
+        new URLSearchParams(window.location.search).get("identityProvidersRelatedSurfacesOpen"),
+      );
+
+      if (relatedSurfacesOpenRef.current === next) {
+        return;
+      }
+
+      relatedSurfacesOpenRef.current = next;
+      setRelatedSurfacesOpenState(next);
+    };
+
+    syncRelatedSurfacesOpenFromUrl();
+    window.addEventListener("popstate", syncRelatedSurfacesOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRelatedSurfacesOpenFromUrl);
+    };
+  }, []);
 
   const primaryNextStep = (
     <div className="space-y-2" data-testid="identity-providers-primary-next-step">
@@ -201,7 +229,8 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
           data-testid="identity-providers-related-surfaces-disclosure"
           open={relatedSurfacesOpen}
           onToggle={(event) => {
-            setRelatedSurfacesOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setRelatedSurfacesOpen(!relatedSurfacesOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>

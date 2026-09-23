@@ -1,9 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -90,13 +91,16 @@ function scoreText(row: RunRetrievalGroundingRow): string {
 /** Redaction-safe forensic panel: chunk ids and metadata only, never raw prompt or retrieved text. */
 export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProps) {
   const { payload, failure } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runRetrievalGroundingOpenParam = searchParams.get("runRetrievalGroundingOpen");
   const [open, setOpenState] = useState(() =>
-    parseRunRetrievalGroundingOpenFromSearch(runRetrievalGroundingOpenParam),
+    parseRunRetrievalGroundingOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runRetrievalGroundingOpen"),
+    ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
   const sectionId = props.sectionId ?? "retrieval-grounding";
   const sectionTitle = props.title ?? "Retrieval grounding (diagnostics)";
   const rows = payload?.rows ?? [];
@@ -104,15 +108,21 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runRetrievalGroundingDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runRetrievalGroundingDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -120,8 +130,26 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
   );
 
   useEffect(() => {
-    setOpenState(parseRunRetrievalGroundingOpenFromSearch(runRetrievalGroundingOpenParam));
-  }, [runRetrievalGroundingOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseRunRetrievalGroundingOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runRetrievalGroundingOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <div id={sectionId} className="scroll-mt-24">

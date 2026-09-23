@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
@@ -19,6 +19,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunAgentExecutionLogOpenFromSearch,
   runAgentExecutionLogDisclosureHrefFromSearch,
@@ -50,23 +51,34 @@ function confidenceLabel(confidence: number | string | null | undefined): string
 export function ReviewAgentExecutionLogSection({
   results,
 }: ReviewAgentExecutionLogSectionProps): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runAgentExecutionLogOpenParam = searchParams.get("runAgentExecutionLogOpen");
-  const [open, setOpenState] = useState(() => parseRunAgentExecutionLogOpenFromSearch(runAgentExecutionLogOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseRunAgentExecutionLogOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runAgentExecutionLogOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runAgentExecutionLogDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runAgentExecutionLogDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -74,8 +86,26 @@ export function ReviewAgentExecutionLogSection({
   );
 
   useEffect(() => {
-    setOpenState(parseRunAgentExecutionLogOpenFromSearch(runAgentExecutionLogOpenParam));
-  }, [runAgentExecutionLogOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseRunAgentExecutionLogOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runAgentExecutionLogOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   if (!results || results.length === 0) {
     return null;

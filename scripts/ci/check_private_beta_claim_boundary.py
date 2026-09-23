@@ -16,6 +16,16 @@ _DOCS: tuple[str, ...] = (
     "docs/runbooks/PRIVATE_BETA_FROZEN_BRANCH.md",
 )
 
+# Keep this list explicit: these are buyer-facing trust, welcome, and package-print
+# surfaces where an overclaim can escape the private-beta document guard.
+_BUYER_SURFACES: tuple[str, ...] = (
+    "archlucid-ui/src/lib/trust-center-marketing.ts",
+    "archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx",
+    "archlucid-ui/src/app/(marketing)/welcome/page.tsx",
+    "archlucid-ui/src/app/(marketing)/trust/page.tsx",
+    "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageView.tsx",
+)
+
 _PROHIBITED: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bsoc 2 certified\b", re.I), "SOC 2 certified"),
     (re.compile(r"\bcpa-issued soc 2\b", re.I), "CPA-issued SOC 2"),
@@ -75,6 +85,25 @@ def scan_docs(root: Path) -> list[str]:
     return violations
 
 
+def scan_buyer_surfaces(root: Path) -> list[str]:
+    violations: list[str] = []
+
+    for rel in _BUYER_SURFACES:
+        path = root / rel
+        if not path.is_file():
+            violations.append(f"missing {rel}")
+            continue
+
+        for index, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1):
+            if line_has_caveat(line):
+                continue
+            for pattern, label in _PROHIBITED:
+                if pattern.search(line):
+                    violations.append(f"{rel}:{index}: overclaim {label!r}")
+
+    return violations
+
+
 def require_founder_demo_recovery(root: Path) -> list[str]:
     path = root / _FOUNDER_DEMO_REL
     errors: list[str] = []
@@ -99,6 +128,7 @@ def main(argv: list[str] | None = None) -> int:
 
     root = repo_root()
     violations = scan_docs(root)
+    violations.extend(scan_buyer_surfaces(root))
     violations.extend(require_founder_demo_recovery(root))
 
     if violations:

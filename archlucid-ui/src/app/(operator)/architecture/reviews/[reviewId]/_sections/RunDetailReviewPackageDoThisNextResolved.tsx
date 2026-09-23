@@ -250,10 +250,6 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.realModeFellBackToSimulator,
   ]);
 
-  if (next === null) {
-    return doThisNextLoadingSkeleton();
-  }
-
   const suppressMeasurementDenominator = isReviewPipelineTerminalFailure(
     props.pipelineDiagnosticContext ?? {
       legacyRunStatus: props.legacyRunStatus,
@@ -264,6 +260,10 @@ export function RunDetailReviewPackageDoThisNextResolved(
     () => summarizePolicyPackFindingImpact(props.quickDecisionFindings),
     [props.quickDecisionFindings],
   );
+
+  if (next === null) {
+    return doThisNextLoadingSkeleton();
+  }
 
   return (
     <>

@@ -27,18 +27,9 @@ type RunDetailFirstScreenProofStatusClientProps = {
   readonly assertedTrailEmpty?: boolean;
 };
 
-export function RunDetailFirstScreenProofStatusClient(
+function RunDetailFirstScreenProofStatusLoaded(
   props: RunDetailFirstScreenProofStatusClientProps,
 ): React.JSX.Element | null {
-  if (
-    !shouldShowRunDetailFirstScreenProofStatus({
-      legacyRunStatus: props.legacyRunStatus,
-      isDeadLettered: props.isDeadLettered,
-    })
-  ) {
-    return null;
-  }
-
   const { data: payload, isPending, isError, refetch } = usePilotRunDeltasQuery(props.runId);
 
   const retryLoad = useCallback(() => {
@@ -102,4 +93,19 @@ export function RunDetailFirstScreenProofStatusClient(
   }
 
   return <RunDetailFirstScreenProofStatus summary={summary} />;
+}
+
+export function RunDetailFirstScreenProofStatusClient(
+  props: RunDetailFirstScreenProofStatusClientProps,
+): React.JSX.Element | null {
+  if (
+    !shouldShowRunDetailFirstScreenProofStatus({
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    })
+  ) {
+    return null;
+  }
+
+  return <RunDetailFirstScreenProofStatusLoaded {...props} />;
 }

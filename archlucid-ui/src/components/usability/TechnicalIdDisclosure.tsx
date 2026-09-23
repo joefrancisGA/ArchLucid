@@ -2,11 +2,12 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseTechnicalIdDisclosureKeyFromSearch,
   technicalIdDisclosureKeyDisclosureHrefFromSearch,
@@ -21,35 +22,43 @@ type TechnicalIdDisclosureProps = {
 
 /** Hides raw IDs behind a disclosure toggle in buyer/sponsor shells. */
 export function TechnicalIdDisclosure(props: TechnicalIdDisclosureProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const technicalIdDisclosureKeyParam = searchParams.get("technicalIdDisclosureKey");
   const disclosureKey = props.disclosureKey?.trim() ?? "";
-  const [open, setOpenState] = useState(
-    () =>
-      disclosureKey.length > 0
-      && parseTechnicalIdDisclosureKeyFromSearch(technicalIdDisclosureKeyParam) === disclosureKey,
-  );
+  const readOpenFromUrl = (): boolean => {
+    if (disclosureKey.length === 0 || typeof window === "undefined") {
+      return false;
+    }
+
+    return (
+      parseTechnicalIdDisclosureKeyFromSearch(
+        new URLSearchParams(window.location.search).get("technicalIdDisclosureKey"),
+      ) === disclosureKey
+    );
+  };
+  const [open, setOpenState] = useState(readOpenFromUrl);
+  const openRef = useRef(open);
+  openRef.current = open;
   const trimmed = (props.value ?? "").trim();
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
-  const syncOpenToUrl = useCallback(
+  const setOpen = useCallback(
     (detailsOpen: boolean) => {
-      if (disclosureKey.length === 0) {
+      if (disclosureKey.length === 0 || openRef.current === detailsOpen) {
         return;
       }
 
-      router.replace(
+      openRef.current = detailsOpen;
+      setOpenState(detailsOpen);
+      commitHrefIfChanged(
         technicalIdDisclosureKeyDisclosureHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           detailsOpen ? disclosureKey : null,
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [disclosureKey, pathname, router, searchParams],
+    [disclosureKey, pathname],
   );
 
   useEffect(() => {
@@ -57,8 +66,24 @@ export function TechnicalIdDisclosure(props: TechnicalIdDisclosureProps) {
       return;
     }
 
-    setOpenState(parseTechnicalIdDisclosureKeyFromSearch(technicalIdDisclosureKeyParam) === disclosureKey);
-  }, [disclosureKey, technicalIdDisclosureKeyParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = readOpenFromUrl();
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, [disclosureKey]);
 
   if (trimmed.length === 0) {
     return <span className="text-neutral-500">—</span>;
@@ -80,8 +105,7 @@ export function TechnicalIdDisclosure(props: TechnicalIdDisclosureProps) {
           variant="outline"
           className="h-7 px-2"
           onClick={() => {
-            setOpenState(true);
-            syncOpenToUrl(true);
+            setOpen(true);
           }}
         >
           Show details

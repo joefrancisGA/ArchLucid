@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   FINDING_CAUSAL_CHAIN_OPEN_PARAM,
@@ -13,6 +13,7 @@ import {
   FINDING_CAUSAL_STEP_MISSING,
   type FindingCausalMiniChainResult,
 } from "@/lib/findings/finding-causal-mini-chain";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingCausalMiniChainProps = {
@@ -23,41 +24,78 @@ export type FindingCausalMiniChainProps = {
 
 /** Expandable rule → evidence → recommendation disclosure beside finding derivation (TB-2217). */
 export function FindingCausalMiniChain(props: FindingCausalMiniChainProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingCausalChainParam = searchParams.get(FINDING_CAUSAL_CHAIN_OPEN_PARAM);
-  const [findingCausalChainOpen, setFindingCausalChainOpenState] = useState(() => {
-    const fromUrl = parseFindingCausalChainOpenFromSearch(findingCausalChainParam);
+  const readOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      FINDING_CAUSAL_CHAIN_OPEN_PARAM,
+    );
 
-    if (findingCausalChainParam !== null) {
+    if (param === null) {
+      return null;
+    }
+
+    return parseFindingCausalChainOpenFromSearch(param);
+  };
+  const [findingCausalChainOpen, setFindingCausalChainOpenState] = useState(() => {
+    const fromUrl = readOpenFromUrl();
+
+    if (fromUrl !== null) {
       return fromUrl;
     }
 
     return props.defaultOpen === true;
   });
+  const findingCausalChainOpenRef = useRef(findingCausalChainOpen);
+  findingCausalChainOpenRef.current = findingCausalChainOpen;
+
   const syncFindingCausalChainOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(findingCausalChainDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        findingCausalChainDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setFindingCausalChainOpen = useCallback(
     (open: boolean) => {
+      if (findingCausalChainOpenRef.current === open) {
+        return;
+      }
+
+      findingCausalChainOpenRef.current = open;
       setFindingCausalChainOpenState(open);
       syncFindingCausalChainOpenToUrl(open);
     },
     [syncFindingCausalChainOpenToUrl],
   );
+
   const { chain, className } = props;
 
   useEffect(() => {
-    if (findingCausalChainParam !== null) {
-      setFindingCausalChainOpenState(parseFindingCausalChainOpenFromSearch(findingCausalChainParam));
-    }
-  }, [findingCausalChainParam]);
+    const syncOpenFromUrl = (): void => {
+      const fromUrl = readOpenFromUrl();
+
+      if (fromUrl === null) {
+        return;
+      }
+
+      if (findingCausalChainOpenRef.current === fromUrl) {
+        return;
+      }
+
+      findingCausalChainOpenRef.current = fromUrl;
+      setFindingCausalChainOpenState(fromUrl);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details
@@ -67,7 +105,10 @@ export function FindingCausalMiniChain(props: FindingCausalMiniChainProps): Reac
       )}
       data-testid="finding-causal-mini-chain"
       open={findingCausalChainOpen}
-      onToggle={(event) => setFindingCausalChainOpen(event.currentTarget.open)}
+      onToggle={(event) => {
+        event.preventDefault();
+        setFindingCausalChainOpen(!findingCausalChainOpenRef.current);
+      }}
     >
       <summary className={cn("cursor-pointer select-none font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Causal chain

@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -68,43 +70,62 @@ export type HelpSearchPanelProps = {
 export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpSearchPanelProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const helpSearchQueryParam = searchParams.get("helpSearchQ");
-  const helpConceptsOpenParam = searchParams.get("helpConceptsOpen");
-  const helpFeedbackOpenParam = searchParams.get("helpFeedbackOpen");
+  const openRef = useRef(open);
+  openRef.current = open;
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const { isWorkingMode } = useWorkspaceMode();
   const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
-  const [query, setQueryState] = useState(() => parseHelpDocSearchQueryFromSearch(helpSearchQueryParam));
+  const [query, setQueryState] = useState(() =>
+    parseHelpDocSearchQueryFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("helpSearchQ"),
+    ),
+  );
   const [highlightedRowId, setHighlightedRowId] = useState("");
   const [article, setArticle] = useState<HelpSearchPanelArticleState>({ status: "idle" });
   const [conceptsDialogOpen, setConceptsDialogOpenState] = useState(() =>
-    parseHelpDocSearchConceptsOpenFromSearch(helpConceptsOpenParam),
+    parseHelpDocSearchConceptsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("helpConceptsOpen"),
+    ),
   );
   const [feedbackDialogOpen, setFeedbackDialogOpenState] = useState(() =>
-    parseHelpDocSearchFeedbackOpenFromSearch(helpFeedbackOpenParam),
+    parseHelpDocSearchFeedbackOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("helpFeedbackOpen"),
+    ),
   );
+  const queryRef = useRef(query);
+  queryRef.current = query;
+  const conceptsDialogOpenRef = useRef(conceptsDialogOpen);
+  conceptsDialogOpenRef.current = conceptsDialogOpen;
+  const feedbackDialogOpenRef = useRef(feedbackDialogOpen);
+  feedbackDialogOpenRef.current = feedbackDialogOpen;
   const searchInputRef = useRef<HTMLInputElement>(null);
   const topicListRef = useRef<HTMLDivElement>(null);
 
   const syncHelpSearchQueryToUrl = useCallback(
     (nextQuery: string) => {
-      router.replace(
-        helpDocSearchPanelHrefFromSearch(searchParams.toString(), { open: true, query: nextQuery }, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        helpDocSearchPanelHrefFromSearch(readWindowLocationSearch(), { open: true, query: nextQuery }, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const syncNestedHelpPanelsToUrl = useCallback(
     (state: { conceptsOpen: boolean; feedbackOpen: boolean }) => {
-      router.replace(helpDocSearchNestedPanelsHrefFromSearch(searchParams.toString(), state, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        helpDocSearchNestedPanelsHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setQuery = useCallback(
@@ -121,39 +142,93 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   useEffect(() => {
     if (!open) {
       setQueryState("");
+      setHighlightedRowId("");
+      setArticle({ status: "idle" });
+
+      if (conceptsDialogOpenRef.current || feedbackDialogOpenRef.current) {
+        conceptsDialogOpenRef.current = false;
+        feedbackDialogOpenRef.current = false;
+        setConceptsDialogOpenState(false);
+        setFeedbackDialogOpenState(false);
+        syncNestedHelpPanelsToUrl({ conceptsOpen: false, feedbackOpen: false });
+      }
 
       return;
     }
 
-    const urlQuery = parseHelpDocSearchQueryFromSearch(helpSearchQueryParam);
+    const frame = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
 
-    if (urlQuery.length > 0) {
-      setQueryState(urlQuery);
-    }
-  }, [helpSearchQueryParam, open]);
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [open, syncNestedHelpPanelsToUrl]);
 
+  useEffect(() => {
+    const syncHelpSearchFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const nextQuery = parseHelpDocSearchQueryFromSearch(params.get("helpSearchQ"));
+      const nextConceptsOpen = parseHelpDocSearchConceptsOpenFromSearch(params.get("helpConceptsOpen"));
+      const nextFeedbackOpen = parseHelpDocSearchFeedbackOpenFromSearch(params.get("helpFeedbackOpen"));
+
+      if (openRef.current && queryRef.current !== nextQuery) {
+        queryRef.current = nextQuery;
+        setQueryState(nextQuery);
+      }
+
+      if (conceptsDialogOpenRef.current !== nextConceptsOpen) {
+        conceptsDialogOpenRef.current = nextConceptsOpen;
+        setConceptsDialogOpenState(nextConceptsOpen);
+      }
+
+      if (feedbackDialogOpenRef.current !== nextFeedbackOpen) {
+        feedbackDialogOpenRef.current = nextFeedbackOpen;
+        setFeedbackDialogOpenState(nextFeedbackOpen);
+      }
+    };
+
+    syncHelpSearchFromUrl();
+    window.addEventListener("popstate", syncHelpSearchFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncHelpSearchFromUrl);
+    };
+  }, []);
   const setConceptsDialogOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setConceptsDialogOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncNestedHelpPanelsToUrl({ conceptsOpen: next, feedbackOpen: feedbackDialogOpen });
+
+        if (conceptsDialogOpenRef.current === next) {
+          return current;
+        }
+
+        conceptsDialogOpenRef.current = next;
+        syncNestedHelpPanelsToUrl({ conceptsOpen: next, feedbackOpen: feedbackDialogOpenRef.current });
 
         return next;
       });
     },
-    [feedbackDialogOpen, syncNestedHelpPanelsToUrl],
+    [syncNestedHelpPanelsToUrl],
   );
 
   const setFeedbackDialogOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setFeedbackDialogOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncNestedHelpPanelsToUrl({ conceptsOpen: conceptsDialogOpen, feedbackOpen: next });
+
+        if (feedbackDialogOpenRef.current === next) {
+          return current;
+        }
+
+        feedbackDialogOpenRef.current = next;
+        syncNestedHelpPanelsToUrl({ conceptsOpen: conceptsDialogOpenRef.current, feedbackOpen: next });
 
         return next;
       });
     },
-    [conceptsDialogOpen, syncNestedHelpPanelsToUrl],
+    [syncNestedHelpPanelsToUrl],
   );
 
   const isSearching = query.trim().length > 0;
@@ -236,26 +311,6 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
       visibleGroupsWithoutRecommended,
     ],
   );
-
-  useEffect(() => {
-    if (!open) {
-      setQuery("");
-      setHighlightedRowId("");
-      setArticle({ status: "idle" });
-      setConceptsDialogOpenState(false);
-      setFeedbackDialogOpenState(false);
-      syncNestedHelpPanelsToUrl({ conceptsOpen: false, feedbackOpen: false });
-      return;
-    }
-
-    const frame = window.requestAnimationFrame(() => {
-      searchInputRef.current?.focus();
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-    };
-  }, [open, syncNestedHelpPanelsToUrl]);
 
   useEffect(() => {
     setHighlightedRowId((current) => {
