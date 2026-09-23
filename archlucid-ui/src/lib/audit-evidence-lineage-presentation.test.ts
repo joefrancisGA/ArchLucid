@@ -1,28 +1,39 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  auditEvaluationOutcomeLabel,
+  auditEvaluationOutcomeStatusKind,
   collectBrokenEvidenceLinkKinds,
-  deriveAuditLineageCheckboxPresentation,
+  countAuditEvidenceLineageSummary,
+  humanizeAuditEvidenceLinkKind,
 } from "@/lib/audit-evidence-lineage-presentation";
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
 
 describe("audit-evidence-lineage-presentation", () => {
-  it("labels technically supported outcome", () => {
-    expect(auditEvaluationOutcomeLabel("TechnicallySupported")).toBe("Technically supported");
+  it("maps evaluation outcomes to status kinds", () => {
+    expect(auditEvaluationOutcomeStatusKind("TechnicallySupported")).toBe("ready");
+    expect(auditEvaluationOutcomeStatusKind("TechnicallyNotSupported")).toBe("blocked");
+    expect(auditEvaluationOutcomeStatusKind("InsufficientEvidence")).toBe("needs-attention");
   });
 
-  it("marks ready checkbox when chain is complete", () => {
+  it("humanizes missing link enum labels", () => {
+    expect(humanizeAuditEvidenceLinkKind("RawApiBlob")).toBe("Raw API blob");
+  });
+
+  it("counts requirements and evidence rows for collapsed summaries", () => {
     const lineage: AuditEvidenceLineageRecord = {
-      readyForPositiveCheckbox: true,
-      brokenLinkReasons: [],
-      requirementChains: [],
+      requirementChains: [
+        { requirementId: "req-1", evidence: [{ evidenceRowId: "ev-1" }, { evidenceRowId: "ev-2" }] },
+        { requirementId: "req-2", evidence: [] },
+      ],
     };
 
-    expect(deriveAuditLineageCheckboxPresentation(lineage).kind).toBe("ready");
+    expect(countAuditEvidenceLineageSummary(lineage)).toEqual({
+      requirementCount: 2,
+      evidenceCount: 2,
+    });
   });
 
-  it("collects missing link kinds from evidence nodes", () => {
+  it("collects broken evidence link kinds", () => {
     const lineage: AuditEvidenceLineageRecord = {
       requirementChains: [
         {

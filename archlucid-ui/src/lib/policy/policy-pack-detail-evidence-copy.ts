@@ -3,7 +3,14 @@ import {
   hubSecondaryFollowUpsIntro,
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { howProductWorksHelpSourceLink } from "@/lib/help/help-product-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
+import { localizeEvidenceSourceLinks } from "@/lib/product-line/securenow-evidence-navigation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const POLICY_PACK_DETAIL_CLAIM_DISCIPLINE =
@@ -31,3 +38,19 @@ export const POLICY_PACK_DETAIL_PATH_PREFIX = `${GOVERNANCE_POLICY_PACKS_PATH}/`
 export const POLICY_PACK_DETAIL_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = POLICY_PACK_DETAIL_SOURCES.filter(
   (source) => !source.href.startsWith(POLICY_PACK_DETAIL_PATH_PREFIX),
 );
+
+export function policyPackDetailSourcesForProductLine(
+  productLineId: ProductLineId,
+): readonly EvidenceSourceLink[] {
+  const baseSources: EvidenceSourceLink[] = [
+    { label: "Policy pack library", href: policyPacksPathForProductLine(productLineId) },
+    ...(productLineId === "security"
+      ? []
+      : [{ label: "Architecture reviews", href: "/architecture/reviews" }]),
+    { label: "Findings", href: findingsPathForProductLine(productLineId) },
+    { label: "Approval help", href: inAppHelpHref("governance-approval") },
+    howProductWorksHelpSourceLink(productLineId),
+  ];
+
+  return localizeEvidenceSourceLinks(productLineId, baseSources);
+}

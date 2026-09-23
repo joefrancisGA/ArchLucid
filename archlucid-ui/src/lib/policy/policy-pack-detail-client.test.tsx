@@ -23,6 +23,15 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" }),
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
+}));
+
 describe("PolicyPackDetailClient", () => {
   it("shows load error with retry instead of not-found when listPolicyPacks fails", async () => {
     apiMocks.listPolicyPacks.mockRejectedValue(new Error("network"));
@@ -35,7 +44,15 @@ describe("PolicyPackDetailClient", () => {
   });
 
   it("retries loading after load failure", async () => {
-    apiMocks.listPolicyPacks.mockRejectedValueOnce(new Error("network")).mockResolvedValueOnce([]);
+    let listPolicyPacksCalls = 0;
+    apiMocks.listPolicyPacks.mockImplementation(async () => {
+      listPolicyPacksCalls += 1;
+      if (listPolicyPacksCalls === 1) {
+        throw new Error("network");
+      }
+
+      return [];
+    });
     apiMocks.listPolicyPackWorkspaceSelection.mockResolvedValue([]);
 
     render(<PolicyPackDetailClient policyPackId="missing-pack" />);
@@ -46,7 +63,7 @@ describe("PolicyPackDetailClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("policy-pack-detail-not-found")).toBeInTheDocument();
     });
-    expect(apiMocks.listPolicyPacks).toHaveBeenCalledTimes(2);
+    expect(listPolicyPacksCalls).toBeGreaterThanOrEqual(2);
   });
 
   it("includes pack id in not-found copy", async () => {

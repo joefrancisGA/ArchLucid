@@ -23,22 +23,21 @@ export function policyPacksGeneratorHref(): string {
 
 }
 
-export function policyPacksEditHref(policyPackId: string): string {
-
+export function policyPacksEditHref(
+  policyPackId: string,
+  hubPath: string = GOVERNANCE_POLICY_PACKS_PATH,
+): string {
   const id = policyPackId.trim();
+  const packsHubPath = hubPath.trim().length > 0 ? hubPath.trim() : GOVERNANCE_POLICY_PACKS_PATH;
 
   if (id.length === 0) {
-
-    return GOVERNANCE_POLICY_PACKS_PATH;
-
+    return packsHubPath;
   }
 
   const params = new URLSearchParams();
-
   params.set(POLICY_PACK_ID_QUERY_PARAM, id);
 
-  return `${GOVERNANCE_POLICY_PACKS_PATH}?${params.toString()}`;
-
+  return `${packsHubPath}?${params.toString()}`;
 }
 
 /** First-class policy pack detail route with optional review scope. */

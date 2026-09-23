@@ -7,6 +7,36 @@ export type AuditLineageCheckboxPresentation = {
   detail: string;
 };
 
+export function auditEvaluationOutcomeStatusKind(
+  outcome: AuditEvaluationOutcome | undefined,
+): EnterpriseStatusKind {
+  switch (outcome) {
+    case "TechnicallySupported":
+      return "ready";
+    case "TechnicallyNotSupported":
+      return "blocked";
+    case "InsufficientEvidence":
+      return "needs-attention";
+    default:
+      return "neutral";
+  }
+}
+
+export function humanizeAuditEvidenceLinkKind(kind: string): string {
+  const trimmed = kind.trim();
+
+  if (trimmed.length === 0) {
+    return "Unknown link kind";
+  }
+
+  return trimmed
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ")
+    .replace(/\bApi\b/g, "API")
+    .replace(/\bBlob\b/g, "blob")
+    .trim();
+}
+
 export function auditEvaluationOutcomeLabel(outcome: AuditEvaluationOutcome | undefined): string {
   switch (outcome) {
     case "TechnicallySupported":
@@ -51,6 +81,22 @@ export function deriveAuditLineageCheckboxPresentation(
     kind: "neutral",
     label: "Not ready",
     detail: "Evidence chain is incomplete or snapshot hash is unverified.",
+  };
+}
+
+export function countAuditEvidenceLineageSummary(lineage: AuditEvidenceLineageRecord): {
+  requirementCount: number;
+  evidenceCount: number;
+} {
+  const requirementChains = lineage.requirementChains ?? [];
+  const evidenceCount = requirementChains.reduce(
+    (total, chain) => total + (chain.evidence?.length ?? 0),
+    0,
+  );
+
+  return {
+    requirementCount: requirementChains.length,
+    evidenceCount,
   };
 }
 

@@ -11,8 +11,12 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   auditEvaluationOutcomeLabel,
+  auditEvaluationOutcomeStatusKind,
+  countAuditEvidenceLineageSummary,
   deriveAuditLineageCheckboxPresentation,
+  humanizeAuditEvidenceLinkKind,
 } from "@/lib/audit-evidence-lineage-presentation";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
 import { buildResourceHubAuditLineageHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
@@ -43,14 +47,6 @@ const cnCard =
 
 const cnBrokenLinksPanel =
   "mt-4 rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/40";
-
-function formatUtc(value: string | undefined): string {
-  if (!value) {
-    return "—";
-  }
-
-  return new Date(value).toLocaleString();
-}
 
 function TechnicalIdentifierRow(props: { readonly label: string; readonly value: string | null | undefined }): React.JSX.Element {
   return (
@@ -122,6 +118,8 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
     );
   }, [spineEvidenceTechnicalRowIdParam]);
 
+  const summaryCounts = countAuditEvidenceLineageSummary(props.lineage);
+
   if (!props.expanded) {
     return (
       <section
@@ -133,6 +131,9 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
           <StatusTag kind={checkbox.kind} label={checkbox.label} />
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{checkbox.detail}</p>
         </div>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {summaryCounts.requirementCount} requirements · {summaryCounts.evidenceCount} evidence rows
+        </p>
       </section>
     );
   }
@@ -153,10 +154,6 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
           label={props.lineage.snapshotHashVerified ? "Snapshot hash verified" : "Snapshot hash unverified"}
         />
       </div>
-      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Deterministic linkage only — not an AI determination. Missing links block a positive checkbox.
-      </p>
-
       {(props.lineage.brokenLinkReasons?.length ?? 0) > 0 ? (
         <div className={cnBrokenLinksPanel} data-testid="audit-evidence-broken-link-reasons">
           <div className="flex flex-wrap items-center gap-2">
@@ -185,7 +182,10 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
           <li data-testid="audit-evidence-spine-evaluation">
             <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Automated evaluation</p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <StatusTag kind="neutral" label={auditEvaluationOutcomeLabel(evaluation.outcome)} />
+              <StatusTag
+                kind={auditEvaluationOutcomeStatusKind(evaluation.outcome)}
+                label={auditEvaluationOutcomeLabel(evaluation.outcome)}
+              />
               {evaluation.formula ? (
                 <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Formula: {evaluation.formula}
@@ -249,15 +249,15 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
                     </Link>
                   ) : null}
                   <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    Collected {formatUtc(evidence.collectedUtc)} · collector {evidence.collectorVersion ?? "—"} · selector{" "}
-                    {evidence.selectorVersion ?? "—"}
+                    Collected {evidence.collectedUtc ? formatIsoUtcForDisplay(evidence.collectedUtc) : "—"} · collector{" "}
+                    {evidence.collectorVersion ?? "—"} · selector {evidence.selectorVersion ?? "—"}
                   </p>
                   {(evidence.missingLinkKinds?.length ?? 0) > 0 ? (
                     <p
                       className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`audit-evidence-missing-links-${evidence.evidenceRowId}`}
                     >
-                      Missing: {evidence.missingLinkKinds!.join(", ")}
+                      Missing: {evidence.missingLinkKinds!.map(humanizeAuditEvidenceLinkKind).join(", ")}
                     </p>
                   ) : null}
                   {buyerPolishedShell ? (

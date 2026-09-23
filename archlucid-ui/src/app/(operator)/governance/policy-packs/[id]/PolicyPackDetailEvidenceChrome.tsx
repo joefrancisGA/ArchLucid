@@ -3,8 +3,6 @@
 import type { ReactNode } from "react";
 
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -42,11 +40,6 @@ export function PolicyPackDetailEvidenceChrome(
         <LayerHeader pageKey="policy-packs" density="compact" className="mb-3 px-4" />
       ) : null}
 
-      <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className="pt-4">
-        <div className="flex justify-end px-4">
-          <PageContextualHelpButton />
-        </div>
-      </OperatorPageContainer>
       <div
         id={POLICY_PACK_DETAIL_PRIMARY_CONTENT_ID}
         className="scroll-mt-24"

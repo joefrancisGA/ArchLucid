@@ -60,10 +60,20 @@ export function PolicyPackGenericTechnicalDetailsDisclosure(
         {RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS}
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">
-        <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-          Pack reference: {props.policyPackId}
-        </p>
-        <CopyIdButton value={props.policyPackId} aria-label="Copy policy pack ID" />
+        <dl className="m-0 grid gap-2">
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <dt className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Pack ID</dt>
+              <dd
+                className={cn("m-0 mt-1 break-all font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="policy-pack-generic-pack-id"
+              >
+                {props.policyPackId}
+              </dd>
+            </div>
+            <CopyIdButton value={props.policyPackId} aria-label="Copy policy pack ID" />
+          </div>
+        </dl>
       </CollapsibleContent>
     </Collapsible>
   );

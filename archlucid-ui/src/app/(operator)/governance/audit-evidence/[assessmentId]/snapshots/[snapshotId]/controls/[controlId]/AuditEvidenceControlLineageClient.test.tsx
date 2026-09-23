@@ -133,7 +133,7 @@ describe("AuditEvidenceControlLineageClient", () => {
     render(<AuditEvidenceControlLineageClient {...ids} />);
 
     expect(screen.getByTestId("audit-evidence-broken-link-reasons")).toHaveTextContent("Snapshot hash unverified");
-    expect(screen.getByTestId("audit-evidence-missing-links-ev-2")).toHaveTextContent("RawApiBlob");
+    expect(screen.getByTestId("audit-evidence-missing-links-ev-2")).toHaveTextContent("Raw API blob");
   });
 
   it("shows an inline error instead of a toast when evidence package download fails", async () => {
@@ -151,7 +151,7 @@ describe("AuditEvidenceControlLineageClient", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("audit-evidence-package-download-error")).toHaveTextContent(
-        "Audit evidence package download failed",
+        "Audit evidence bundle download failed",
       );
     });
     expect(screen.getByTestId("audit-evidence-package-download-error")).toHaveTextContent(

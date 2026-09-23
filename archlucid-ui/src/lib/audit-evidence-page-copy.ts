@@ -164,3 +164,39 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL = "Loading chain of cu
 
 export const AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE =
   "Audit evidence bundle download failed" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE =
+  "Downloads include only artifacts captured in this assessment snapshot — not a full workspace audit export or sealed review record." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_ACTION =
+  "Download snapshot evidence bundle (ZIP)" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_BUSY =
+  "Preparing snapshot bundle…" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_ACTION = "Copy lineage link" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE =
+  "F1 opens page help; Ctrl+K opens search; use Back to audit evidence lookup to return to identifier entry." as const;
+
+export function formatAuditEvidenceControlLineagePageTitle(
+  controlNumber: string | null | undefined,
+  controlTitle: string | null | undefined,
+): string {
+  const number = controlNumber?.trim() ?? "";
+  const title = controlTitle?.trim() ?? "";
+
+  if (number.length > 0 && title.length > 0) {
+    return `${number}: ${title}`;
+  }
+
+  if (number.length > 0) {
+    return number;
+  }
+
+  if (title.length > 0) {
+    return title;
+  }
+
+  return AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE;
+}

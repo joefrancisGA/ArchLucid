@@ -4,13 +4,16 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ShortcutHint } from "@/components/ShortcutHint";
+import {
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+  PageContextualHelpButton,
+} from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
@@ -27,16 +30,21 @@ import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_BODY,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_TITLE,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_EXPAND_ACTION,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_ACTION,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_BUSY,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD,
-  AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE,
   AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE,
+  formatAuditEvidenceControlLineagePageTitle,
 } from "@/lib/audit-evidence-page-copy";
 
 import {
@@ -69,6 +77,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
   const [packageDownloadBusy, setPackageDownloadBusy] = useState(false);
   const [packageDownloadError, setPackageDownloadError] = useState<string | null>(null);
+  const [lineageLinkCopied, setLineageLinkCopied] = useState(false);
   const [chainExpanded, setChainExpandedState] = useState(() =>
     parseAuditEvidenceLineageChainOpenFromSearch(lineageChainOpenParam),
   );
@@ -108,6 +117,9 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const chainToggleLabel = chainExpanded
     ? AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION
     : AUDIT_EVIDENCE_CONTROL_LINEAGE_EXPAND_ACTION;
+  const pageTitle = lineage
+    ? formatAuditEvidenceControlLineagePageTitle(lineage.controlNumber, lineage.controlTitle)
+    : formatAuditEvidenceControlLineagePageTitle(undefined, undefined);
 
   const onDownloadEvidencePackage = useCallback(async () => {
     setPackageDownloadBusy(true);
@@ -130,6 +142,22 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
     }
   }, [props.assessmentId, props.snapshotId]);
 
+  const onCopyLineageLink = useCallback(async () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLineageLinkCopied(true);
+      window.setTimeout(() => {
+        setLineageLinkCopied(false);
+      }, 2_000);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }, []);
+
   return (
     <OperatorPageContainer
       variant="workflow"
@@ -148,38 +176,67 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
       <OperatorPageHeader
         navHref={lookupPath}
         headingLevel="h1"
-        title={AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE}
+        title={pageTitle}
         subtitle={AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD}
         claimDiscipline={AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE}
         claimDisciplineTestId="audit-evidence-control-lineage-claim-discipline"
-        actions={<PageContextualHelpButton />}
+        actions={
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={packageDownloadBusy}
+                data-testid="audit-evidence-package-download"
+                aria-describedby={packageDownloadError != null ? "audit-evidence-package-download-error" : undefined}
+                onClick={() => {
+                  void onDownloadEvidencePackage();
+                }}
+              >
+                {packageDownloadBusy
+                  ? AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_BUSY
+                  : AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_ACTION}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="audit-evidence-lineage-copy-link"
+                onClick={() => {
+                  void onCopyLineageLink();
+                }}
+              >
+                {lineageLinkCopied ? "Copied" : AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_ACTION}
+              </Button>
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            </div>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+              data-testid="audit-evidence-control-lineage-keyboard-affordance"
+            >
+              <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search.
+              <span className="sr-only">{AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE}</span>
+            </p>
+          </div>
+        }
       />
 
-      <div className="flex max-w-xl flex-col gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="self-start"
-          disabled={packageDownloadBusy}
-          data-testid="audit-evidence-package-download"
-          aria-describedby={packageDownloadError != null ? "audit-evidence-package-download-error" : undefined}
-          onClick={() => {
-            void onDownloadEvidencePackage();
-          }}
-        >
-          {packageDownloadBusy ? "Preparing bundle…" : "Download evidence bundle (ZIP)"}
-        </Button>
-        {packageDownloadError != null ? (
-          <OperatorMutationInlineError
-            message={packageDownloadError}
-            testId="audit-evidence-package-download-error"
-          />
-        ) : null}
-        <SponsorExportSendHonestyStrip testIdPrefix="audit-evidence-package" />
-      </div>
+      {packageDownloadError != null ? (
+        <OperatorMutationInlineError
+          message={packageDownloadError}
+          testId="audit-evidence-package-download-error"
+        />
+      ) : null}
 
-      <main
+      <p
+        className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="audit-evidence-control-lineage-snapshot-scope-note"
+      >
+        {AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE}
+      </p>
+
+      <div
         id={AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID}
         className={cn("min-w-0 space-y-4 scroll-mt-24")}
         data-testid="audit-evidence-control-lineage-primary-content"
@@ -229,38 +286,31 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
           </div>
         ) : null}
 
-        {lineage ? (
-          <>
-            <section className="flex flex-wrap items-center gap-3" aria-label="Control support status">
+        {lineage && checkboxPresentation ? (
+          <section className="space-y-3" aria-label="Control support status">
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusTag
+                kind={checkboxPresentation.kind}
+                label={checkboxPresentation.label}
+                data-testid="audit-evidence-lineage-status-tag"
+              />
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {checkboxPresentation.detail}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="inline-flex items-center gap-2"
                 data-testid="audit-evidence-positive-checkbox"
                 aria-expanded={chainExpanded}
                 aria-label={chainToggleLabel}
                 onClick={() => setChainExpanded((value) => !value)}
               >
-                <span
-                  aria-hidden="true"
-                  className={
-                    lineage.readyForPositiveCheckbox
-                      ? "text-emerald-600"
-                      : "text-al-text-secondary line-through"
-                  }
-                >
-                  ✓
-                </span>
-                <StatusTag kind={checkboxPresentation!.kind} label={checkboxPresentation!.label} />
+                {chainToggleLabel}
               </Button>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {checkboxPresentation!.detail}
-              </p>
-              <Link href={lookupPath} className={OPERATOR_LINK.inline}>
-                {AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION}
-              </Link>
-            </section>
+            </div>
 
             <AuditEvidenceLineageSpine
               lineage={lineage}
@@ -272,11 +322,11 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
                 controlId: props.controlId,
               }}
             />
-          </>
+          </section>
         ) : null}
 
         <AuditEvidenceControlLineageClaimOrientationStrip />
-      </main>
+      </div>
     </OperatorPageContainer>
   );
 }

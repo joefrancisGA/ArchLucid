@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import type { ResponsibleAiRulesResolution } from "@/lib/policy/responsible-ai-policy-pack-rules";
 
 type PolicyPackRulesTableSectionProps = {
@@ -25,12 +26,14 @@ type PolicyPackRulesTableSectionProps = {
 /** Shared rules table for policy pack detail variants (GPI). */
 export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionProps): React.JSX.Element {
   const { headingId, heading, intro, rulesResolution, ariaLabel, emptyMessage } = props;
+  const ruleCountLabel = finiteIntegerCountDisplay(rulesResolution.rows.length);
 
   return (
     <section className="space-y-3" aria-labelledby={headingId}>
       <div className="space-y-1">
         <h3 id={headingId} className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {heading}
+          <span className="ms-2 font-normal text-al-text-secondary">({ruleCountLabel})</span>
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-intro">
           {intro}
@@ -49,6 +52,7 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
         <EnterpriseTable ariaLabel={ariaLabel} data-testid="policy-pack-rules-table">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Rule key</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Rule name</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Requirement</EnterpriseTableHeaderCell>
@@ -58,6 +62,7 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
           <EnterpriseTableBody>
             {rulesResolution.rows.map((row) => (
               <EnterpriseTableRow key={row.ruleKey}>
+                <EnterpriseTableCell className="font-mono text-xs">{row.ruleKey}</EnterpriseTableCell>
                 <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <SeverityTag severity={row.severity} />
