@@ -36,6 +36,45 @@ public sealed class AzureArchitectureIconForestSvgTests
         node.ToString().Should().Contain("class=\"node-accent\"");
     }
 
+    [Fact]
+    public void Render_function_app_uses_function_app_icon_when_kind_is_present()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "fn-app",
+                    Label = "fn-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/sites",
+                    ArmResourceKind = "functionapp",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 0,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        XElement node = GetNode(result.Svg!);
+        node.ToString().Should().Contain("data-file=\"function-app.png\"");
+        node.ToString().Should().NotContain("data-file=\"app-service.png\"");
+    }
+
+    [Fact]
+    public void Render_app_service_keeps_app_service_icon_without_kind()
+    {
+        DiagramForestLayoutResult result = renderer.Render(CreateAst("Microsoft.Web/sites"));
+
+        result.Succeeded.Should().BeTrue();
+        XElement node = GetNode(result.Svg!);
+        node.ToString().Should().Contain("data-file=\"app-service.png\"");
+    }
+
     private static DiagramAst CreateAst(string armResourceType)
     {
         return new DiagramAst

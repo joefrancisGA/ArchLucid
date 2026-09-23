@@ -50,6 +50,39 @@ function getEdgesTable(): HTMLTableElement {
   return within(panel).getByRole("table");
 }
 
+function getFirstConnectedDataRow(table: HTMLTableElement): HTMLTableRowElement {
+  const rows = within(table).getAllByRole("row");
+  let passedConnectedHeader = false;
+
+  for (const row of rows) {
+    if (row.textContent?.startsWith("Connected nodes")) {
+      passedConnectedHeader = true;
+      continue;
+    }
+
+    if (row.textContent?.startsWith("Unconnected nodes")) {
+      break;
+    }
+
+    if (passedConnectedHeader) {
+      return row;
+    }
+  }
+
+  throw new Error("No connected data row found");
+}
+
+function countNodeDataRows(table: HTMLTableElement): number {
+  return within(table)
+    .getAllByRole("row")
+    .filter(
+      (row) =>
+        !row.textContent?.startsWith("Connected nodes")
+        && !row.textContent?.startsWith("Unconnected nodes")
+        && row.querySelector("th") === null,
+    ).length;
+}
+
 describe("InfraEvidenceDiagramOutline", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
@@ -233,7 +266,36 @@ describe("InfraEvidenceDiagramOutline", () => {
   });
 
   it("sorts node rows when a column heading is clicked", () => {
-    render(<InfraEvidenceDiagramOutline outline={outline} defaultNodesOpen={true} />);
+    const sortableNodeOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_src",
+          label: "core-vnet",
+          resourceType: "Microsoft.Network/virtualNetworks",
+          resourceGroup: "rg-network",
+        },
+        {
+          id: "n_dst",
+          label: "app-storage",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-apps",
+        },
+      ],
+      edges: [
+        {
+          from: "n_src",
+          to: "n_dst",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={sortableNodeOutline} defaultNodesOpen={true} />);
 
     const nodesTable = getNodesTable();
 
@@ -247,33 +309,112 @@ describe("InfraEvidenceDiagramOutline", () => {
       name: "Sort by Resource group",
     });
 
-    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
+    expect(getFirstConnectedDataRow(nodesTable).textContent).toContain("app-storage");
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, ascending");
 
     fireEvent.click(nodeNameHeader);
 
-    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("core-vnet"))).toBe(true);
+    expect(getFirstConnectedDataRow(nodesTable).textContent).toContain("core-vnet");
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, descending");
 
     fireEvent.click(nodeNameHeader);
 
-    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
+    expect(getFirstConnectedDataRow(nodesTable).textContent).toContain("app-storage");
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, ascending");
 
     fireEvent.click(resourceTypeHeader);
 
-    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
+    expect(getFirstConnectedDataRow(nodesTable).textContent).toContain("app-storage");
     expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, ascending");
 
     fireEvent.click(resourceTypeHeader);
 
-    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("core-vnet"))).toBe(true);
+    expect(getFirstConnectedDataRow(nodesTable).textContent).toContain("core-vnet");
     expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, descending");
 
     fireEvent.click(resourceGroupHeader);
 
-    expect(within(nodesTable).getAllByRole("row").some((row) => row.textContent?.includes("app-storage"))).toBe(true);
+    expect(getFirstConnectedDataRow(nodesTable).textContent).toContain("app-storage");
     expect(resourceGroupHeader).toHaveAttribute("aria-label", "Sort by Resource group, ascending");
+  });
+
+  it("uses full-outline counts before truncating node rows", () => {
+    const threeNodeOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_a",
+          label: "alpha-node",
+          resourceType: "Microsoft.Network/virtualNetworks",
+          resourceGroup: "rg-a",
+        },
+        {
+          id: "n_b",
+          label: "beta-node",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-b",
+        },
+        {
+          id: "n_c",
+          label: "gamma-node",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-c",
+        },
+      ],
+      edges: [
+        {
+          from: "n_a",
+          to: "n_b",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={threeNodeOutline} defaultNodesOpen={true} />);
+
+    const nodesTable = getNodesTable();
+
+    expect(within(nodesTable).getByText("Connected nodes (2)")).toBeTruthy();
+    expect(within(nodesTable).getByText("Unconnected nodes (1)")).toBeTruthy();
+    expect(screen.queryByTestId("infra-diagrams-outline-nodes-truncated")).toBeNull();
+  });
+
+  it("shows truncation metadata and caps visible node rows at 200", () => {
+    const manyNodeOutline: InfraEvidenceMermaidOutline = {
+      nodes: Array.from({ length: 201 }, (_, index) => ({
+        id: `n_${index}`,
+        label: `node-${String(index).padStart(3, "0")}`,
+        resourceType: "Microsoft.Storage/storageAccounts",
+        resourceGroup: `rg-${index}`,
+      })),
+      edges: [
+        {
+          from: "n_0",
+          to: "n_1",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={manyNodeOutline} defaultNodesOpen={true} />);
+
+    const nodesTable = getNodesTable();
+
+    expect(within(nodesTable).getByText("Connected nodes (2)")).toBeTruthy();
+    expect(within(nodesTable).getByText("Unconnected nodes (199)")).toBeTruthy();
+    expect(countNodeDataRows(nodesTable)).toBeLessThanOrEqual(200);
+    expect(screen.getByTestId("infra-diagrams-outline-nodes-truncated")).toHaveTextContent(
+      "Showing 200 of 201 nodes.",
+    );
   });
 
   it("shows authorization evidence for probable May access edges", () => {

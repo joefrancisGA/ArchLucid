@@ -194,7 +194,6 @@
       "category": "Networking",
       "service": "Front Door",
       "armTypes": [
-        "Microsoft.Cdn/profiles",
         "Microsoft.Network/frontDoors",
         "Microsoft.Cdn/profiles/afdEndpoints"
       ],
@@ -210,12 +209,11 @@
     },
     {
       "category": "Networking",
-      "service": "VPN Gateway",
+      "service": "Virtual network gateway",
       "armTypes": [
         "Microsoft.Network/virtualNetworkGateways"
       ],
-      "file": "vpn-gateway.png",
-      "notes": "Matches gateways where gatewayType is VPN; ExpressRoute uses a separate icon when added."
+      "file": "vpn-gateway.png"
     },
     {
       "category": "Networking",
@@ -261,15 +259,7 @@
     },
     {
       "category": "Compute",
-      "service": "Container Instances",
-      "armTypes": [
-        "Microsoft.ContainerInstance/containerGroups"
-      ],
-      "file": "container-instances.png"
-    },
-    {
-      "category": "Integration",
-      "service": "Logic Apps",
+      "service": "VM Scale Set",
       "armTypes": [
         "Microsoft.Logic/workflows"
       ],
@@ -291,15 +281,6 @@
         "Microsoft.EventGrid/domains"
       ],
       "file": "event-grid-domains.png"
-    },
-    {
-      "category": "Integration",
-      "service": "Event Grid Subscriptions",
-      "armTypes": [
-        "Microsoft.EventGrid/eventSubscriptions"
-      ],
-      "file": "event-grid-subscriptions.png",
-      "notes": "Child subscription resource; often rendered as an edge or metadata rather than a standalone inventory node."
     },
     {
       "category": "Security",

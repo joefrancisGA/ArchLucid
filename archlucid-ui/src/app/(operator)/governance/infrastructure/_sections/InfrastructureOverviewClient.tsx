@@ -42,7 +42,6 @@ import { SecureNowInfrastructureHomeSection } from "@/components/product-line/Se
 import { SecureNowSecurityHomeSection } from "@/components/product-line/SecureNowSecurityHomeSection";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
-import { InfrastructureOverviewBreadcrumb } from "./InfrastructureOverviewBreadcrumb";
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
 export type InfrastructureOverviewClientProps = {
@@ -71,8 +70,6 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
       >
         {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL}
       </a>
-
-      <InfrastructureOverviewBreadcrumb />
 
       <OperatorPageHeader
         navHref={pageNavHref}

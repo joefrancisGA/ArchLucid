@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE,
   ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
 import {
@@ -43,6 +44,15 @@ const AZURE_ICON_FIXTURE = [
   "</svg>",
 ].join("");
 
+const FOREST_EDGE_INK_FIXTURE = [
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
+  '  <defs><marker id="al-edge-arrow"><path d="M0,0 L10,5 L0,10" fill="#94a3b8"/></marker></defs>',
+  '  <g class="edge"><path class="edge-path" stroke="#94a3b8" d="M10 10 L90 10"/></g>',
+  '  <g class="edge-label"><rect fill="#ffffff"/><text fill="#111827">label</text></g>',
+  '  <image class="azure-icon" href="data:image/png;base64,iVBORw0KGgo="/>',
+  "</svg>",
+].join("");
+
 describe("architecture-diagram-svg", () => {
   it("converts Mermaid foreignObject labels into visible SVG text", () => {
     const converted = replaceMermaidForeignObjectLabelsWithSvgText(LABELED_FOREIGN_OBJECT_SVG);
@@ -74,6 +84,24 @@ describe("architecture-diagram-svg", () => {
 
     expect(converted).toContain("vnet-westus");
     expect(converted).toContain('fill="currentColor"');
+  });
+
+  it("paints forest edge paths and arrowheads with the light edge token", () => {
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(FOREST_EDGE_INK_FIXTURE, { dark: false });
+
+    expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.edge}"`);
+    expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.edge}"`);
+    expect(converted).toContain('fill="#111827"');
+    expect(converted).toContain("data:image/png;base64,iVBORw0KGgo=");
+  });
+
+  it("paints forest edge paths and arrowheads with the dark edge token", () => {
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(FOREST_EDGE_INK_FIXTURE, { dark: true });
+
+    expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE.edge}"`);
+    expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE.edge}"`);
+    expect(converted).toContain('fill="#111827"');
+    expect(converted).toContain("data:image/png;base64,iVBORw0KGgo=");
   });
 
   it("paints node boxes and edge paths with the neutral export palette", () => {

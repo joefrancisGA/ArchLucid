@@ -118,6 +118,36 @@ try {
     if ($normalized -match '(golden|snapshot|baseline|approval|fixture)') {
         Write-Advisory 'Golden artifact change: require an approval note explaining why each snapshot, fixture, or baseline changed and what behavior was intentionally accepted.'
     }
+    if ($normalized -match '(Architecture\.Tests|Architecture|\.slnf?$|\.csproj$|ProjectReference|dependency graph)') {
+        Write-Advisory 'Architecture change: add or update a fitness test for layer boundaries and forbidden project dependencies.'
+    }
+    if ($normalized -match '(Refactor|refactor|Rewrite|rewrite|Replacement|replacement|Legacy|legacy|V2|v2)') {
+        Write-Advisory 'Refactor change: use differential tests against the prior implementation for representative and adversarial inputs before deleting the old path.'
+    }
+    if ($normalized -match '(Transform|Normalize|Normalizer|Mapper|Compiler|Parser|Converter|Resolver|Projection)') {
+        Write-Advisory 'Transformation change: add metamorphic cases that verify relations preserved across equivalent inputs, reorderings, and harmless formatting changes.'
+    }
+    if ($normalized -match '(release|Release|Playwright|E2E|e2e|smoke|journey|buyer|pilot)') {
+        Write-Advisory 'Release or journey change: run a synthetic buyer workflow against the release candidate, including its critical success and recovery steps.'
+    }
+    if ($normalized -match '(appsettings|\.env|environment|docker-compose|Dockerfile|helm|kustomize|Configuration|Options)') {
+        Write-Advisory 'Environment change: compare production-like and test configuration keys, defaults, and secret wiring; fail on unexplained parity drift.'
+    }
+    if ($normalized -match '(FeatureFlag|FeatureFlags|FeatureManagement|feature.?flag|KillSwitch|kill.?switch)') {
+        Write-Advisory 'Feature-flag change: assign an owner and expiry date, and add a check that reports stale, unused, or conflicting flags.'
+    }
+    if ($normalized -match '(continue-on-error|allow_failure|skip|Skip|xfail|quarantine|\.github/workflows/)') {
+        Write-Advisory 'CI exception change: record an owner, reason, expiry date, and replacement plan for every skipped, quarantined, or warning-only check.'
+    }
+    if ($normalized -match '(package\.json|package-lock|npm-shrinkwrap|\.csproj$|Directory\.Packages\.props|requirements|go\.sum|Cargo\.lock|dependency)') {
+        Write-Advisory 'Dependency change: verify package provenance, integrity/signature metadata, and the approved source before updating the build cache.'
+    }
+    if ($normalized -match '(Export|export|Analytics|analytics|Telemetry|DTO|Dto|Tenant|Personal|PII|Sensitive|Classification|Lineage|Redact)') {
+        Write-Advisory 'Data-boundary change: assert field lineage and classification so personal or sensitive data cannot cross an unauthorized API, export, audit, or analytics boundary.'
+    }
+    if ($normalized -match '(release|Release|assessment|Assessment|risk|Risk|gate|Gate|\.github/workflows/)') {
+        Write-Advisory 'Release-risk change: update prevention coverage for the affected risk area and record any remaining authorization, tenancy, migration, async, or integration gap.'
+    }
     Write-Advisory 'For recurring escapes, tag the subsystem and failure class in the defect log; use the highest-repeat category to choose the next prevention investment.'
 
     Write-Advisory 'For a bug fix, retain a reproducible failing scenario, add a focused regression test whenever feasible, and check the nearest boundary case.'
