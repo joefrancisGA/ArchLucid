@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type SetStateAction } from "react";
 
 import { palettePressUsesPaletteModifier } from "@/components/CommandPalette";
@@ -25,17 +25,26 @@ export const FOCUS_GLOBAL_SEARCH_EVENT = "archlucid-focus-global-search";
 
 export type GlobalSearchBarController = ReturnType<typeof useGlobalSearchBar>;
 
+function readGlobalSearchOpenFromWindow(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseGlobalSearchBarOpenFromSearch(
+    new URLSearchParams(window.location.search).get("globalSearchOpen"),
+  );
+}
+
 export function useGlobalSearchBar() {
   const inputId = useId();
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const globalSearchOpenParam = searchParams?.get("globalSearchOpen") ?? null;
-  const urlOpen = parseGlobalSearchBarOpenFromSearch(globalSearchOpenParam);
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
-  const [open, setOpenState] = useState(urlOpen);
+  const [open, setOpenState] = useState(() => readGlobalSearchOpenFromWindow());
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncGlobalSearchOpenToUrl = useCallback(
     (panelOpen: boolean) => {
@@ -54,26 +63,30 @@ export function useGlobalSearchBar() {
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        if (next !== current) {
-          syncGlobalSearchOpenToUrl(next);
-        }
+      if (openRef.current === next) {
+        return;
+      }
 
-        return next;
-      });
+      openRef.current = next;
+      setOpenState(next);
+      syncGlobalSearchOpenToUrl(next);
     },
     [syncGlobalSearchOpenToUrl],
   );
 
   useEffect(() => {
     const syncGlobalSearchOpenFromUrl = (): void => {
-      const nextOpen = parseGlobalSearchBarOpenFromSearch(
-        new URLSearchParams(window.location.search).get("globalSearchOpen"),
-      );
+      const nextOpen = readGlobalSearchOpenFromWindow();
 
-      setOpenState((current) => (current === nextOpen ? current : nextOpen));
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
     };
 
     syncGlobalSearchOpenFromUrl();

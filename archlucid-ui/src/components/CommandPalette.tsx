@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
@@ -125,14 +125,29 @@ export type CommandPaletteProps = {
   readonly showTrigger?: boolean;
 };
 
+function readCommandPaletteOpenFromWindow(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseCommandPaletteOpenFromSearch(
+    new URLSearchParams(window.location.search).get("paletteOpen"),
+  );
+}
+
+function readCommandPaletteQueryFromWindow(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return parseCommandPaletteQueryFromSearch(new URLSearchParams(window.location.search).get("paletteQ"));
+}
+
 export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const paletteOpenParam = searchParams.get("paletteOpen");
-  const paletteQueryParam = searchParams.get("paletteQ");
-  const [open, setOpenState] = useState(() => parseCommandPaletteOpenFromSearch(paletteOpenParam));
-  const [paletteQuery, setPaletteQueryState] = useState(() => parseCommandPaletteQueryFromSearch(paletteQueryParam));
+  const [open, setOpenState] = useState(() => readCommandPaletteOpenFromWindow());
+  const [paletteQuery, setPaletteQueryState] = useState(() => readCommandPaletteQueryFromWindow());
   const openRef = useRef(open);
   openRef.current = open;
   const paletteQueryRef = useRef(paletteQuery);
@@ -307,10 +322,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   }, [setOpen, setPaletteQuery]);
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
-
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key?.toLowerCase() !== "k") {
         return;
@@ -329,7 +340,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, setOpen]);
+  }, [setOpen]);
 
   useEffect(() => {
     const onOpenRequest = (event: Event): void => {

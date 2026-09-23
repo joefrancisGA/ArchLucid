@@ -108,6 +108,17 @@ describe("CommandPalette", () => {
     });
   });
 
+  it("does not commit href churn when popstate matches the closed palette", async () => {
+    render(<CommandPalette />);
+    commitHrefIfChanged.mockClear();
+
+    fireEvent.popState(window);
+
+    await waitFor(() => {
+      expect(commitHrefIfChanged).not.toHaveBeenCalled();
+    });
+  });
+
   it("toggles the dialog on Ctrl+K", () => {
     render(<CommandPalette />);
 
