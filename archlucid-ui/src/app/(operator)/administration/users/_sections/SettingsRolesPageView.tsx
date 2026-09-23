@@ -269,14 +269,14 @@ export function SettingsRolesPageView(props: Props) {
       setActiveTab(tabId);
 
       if (tabId === "users") {
-        replaceIfHrefChanged(router, SETTINGS_USERS_USERS_TAB_PATH);
+        commitHrefIfChanged(SETTINGS_USERS_USERS_TAB_PATH, { notify: false });
 
         return;
       }
 
-      replaceIfHrefChanged(router, `${hubPathname}?tab=${encodeURIComponent(tabId)}`);
+      commitHrefIfChanged(`${hubPathname}?tab=${encodeURIComponent(tabId)}`, { notify: false });
     },
-    [canManageApiKeys, hubPathname, router],
+    [canManageApiKeys, hubPathname],
   );
 
   const openInviteSection = useCallback(() => {
@@ -543,19 +543,22 @@ export function SettingsRolesPageView(props: Props) {
         />
 
         <TabsContent value="roles" data-testid="settings-roles-tabpanel-roles">
-          <Card>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SettingsRolesMatrixSection readOnly={rolesTabBuyerPolished} />
-            </CardContent>
-          </Card>
+          {activeTab === "roles" ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SettingsRolesMatrixSection readOnly={rolesTabBuyerPolished} />
+              </CardContent>
+            </Card>
+          ) : null}
         </TabsContent>
 
         {canManageApiKeys ? (
           <TabsContent value="keys" data-testid="settings-roles-tabpanel-keys">
-            <Card>
+            {activeTab === "keys" ? (
+              <Card>
               <CardHeader>
                 <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SETTINGS_ROLES_KEYS_TAB_CARD_TITLE}</CardTitle>
               </CardHeader>
@@ -600,6 +603,7 @@ export function SettingsRolesPageView(props: Props) {
                 ) : null}
               </CardContent>
             </Card>
+            ) : null}
           </TabsContent>
         ) : null}
           </Tabs>

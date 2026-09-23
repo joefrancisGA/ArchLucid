@@ -54,6 +54,32 @@ function panelHidden(activeTab: ReviewDetailTabId, tabId: ReviewDetailTabId): bo
   return activeTab !== tabId;
 }
 
+/** Keep panel wrappers for e2e test ids; mount heavy client panels only when visible. */
+function renderTabPanel(
+  activeTab: ReviewDetailTabId,
+  tabId: ReviewDetailTabId,
+  panel: ReactNode,
+  inPipelineBanner: ReactNode | null | undefined,
+  options?: { readonly alsoHidden?: boolean },
+): React.JSX.Element {
+  const hidden = options?.alsoHidden === true || panelHidden(activeTab, tabId);
+  const content = panelWithInPipelineBanner(tabId, panel, inPipelineBanner);
+
+  return (
+    <div
+      className="min-w-0 overflow-visible"
+      hidden={hidden}
+      data-testid={`review-detail-workspace-panel-${tabId}`}
+    >
+      {!hidden ? (
+        content
+      ) : inPipelineBanner !== null && inPipelineBanner !== undefined && tabId !== "activity" ? (
+        <div className="space-y-4">{inPipelineBanner}</div>
+      ) : null}
+    </div>
+  );
+}
+
 export function ReviewDetailWorkspaceTabShell({
   props,
   tabs,
@@ -116,89 +142,57 @@ export function ReviewDetailWorkspaceTabShell({
         />
       ) : null}
       <WorkbenchSelectionCoordinator enabled={workbenchVisible} />
-      <WorkbenchFindingSelectionSync enabled={workbenchVisible} />
+      <WorkbenchFindingSelectionSync enabled={workbenchVisible || activeTab === "findings"} />
 
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={panelHidden(activeTab, "overview")}
-        data-testid="review-detail-workspace-panel-overview"
-      >
-        {panelWithInPipelineBanner("overview", props.panels.overview, inPipelineBanner)}
-      </div>
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={workbenchVisible || panelHidden(activeTab, "findings")}
-        data-testid="review-detail-workspace-panel-findings"
-      >
-        {panelWithInPipelineBanner("findings", props.panels.findings, inPipelineBanner)}
-      </div>
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={workbenchVisible || panelHidden(activeTab, "evidence")}
-        data-testid="review-detail-workspace-panel-evidence"
-      >
-        {panelWithVocabularyRail(
+      {renderTabPanel(activeTab, "overview", props.panels.overview, inPipelineBanner)}
+      {renderTabPanel(activeTab, "findings", props.panels.findings, inPipelineBanner, {
+        alsoHidden: workbenchVisible,
+      })}
+      {renderTabPanel(
+        activeTab,
+        "evidence",
+        panelWithVocabularyRail(
           "evidence",
           <PackageEvidenceEvidenceGraphVocabularyRail
             runId={props.runId}
             currentSurfaceId="package-evidence"
           />,
-          panelWithInPipelineBanner("evidence", props.panels.evidence, inPipelineBanner),
-        )}
-      </div>
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={panelHidden(activeTab, "policies")}
-        data-testid="review-detail-workspace-panel-policies"
-      >
-        {panelWithVocabularyRail(
+          props.panels.evidence,
+        ),
+        inPipelineBanner,
+        { alsoHidden: workbenchVisible },
+      )}
+      {renderTabPanel(
+        activeTab,
+        "policies",
+        panelWithVocabularyRail(
           "policies",
           <PackageGovernanceApprovalQueueVocabularyRail
             runId={props.runId}
             currentSurfaceId="package-governance"
           />,
-          panelWithInPipelineBanner("policies", props.panels.policies, inPipelineBanner),
-        )}
-      </div>
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={panelHidden(activeTab, "decisions-remediation")}
-        data-testid="review-detail-workspace-panel-decisions-remediation"
-      >
-        {panelWithInPipelineBanner(
-          "decisions-remediation",
-          props.panels.decisionsRemediation,
-          inPipelineBanner,
-        )}
-      </div>
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={panelHidden(activeTab, "review-package")}
-        data-testid="review-detail-workspace-panel-review-package"
-      >
-        {panelWithInPipelineBanner("review-package", props.panels.reviewPackage, inPipelineBanner)}
-      </div>
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={workbenchVisible || panelHidden(activeTab, "architecture")}
-        data-testid="review-detail-workspace-panel-architecture"
-      >
-        {panelWithInPipelineBanner("architecture", props.panels.architecture, inPipelineBanner)}
-      </div>
-      <div
-        className="min-w-0 overflow-visible"
-        hidden={panelHidden(activeTab, "activity")}
-        data-testid="review-detail-workspace-panel-activity"
-      >
-        {panelWithVocabularyRail(
+          props.panels.policies,
+        ),
+        inPipelineBanner,
+      )}
+      {renderTabPanel(activeTab, "decisions-remediation", props.panels.decisionsRemediation, inPipelineBanner)}
+      {renderTabPanel(activeTab, "review-package", props.panels.reviewPackage, inPipelineBanner)}
+      {renderTabPanel(activeTab, "architecture", props.panels.architecture, inPipelineBanner, {
+        alsoHidden: workbenchVisible,
+      })}
+      {renderTabPanel(
+        activeTab,
+        "activity",
+        panelWithVocabularyRail(
           "activity",
           <PackageActivityAuditTrailVocabularyRail
             runId={props.runId}
             currentSurfaceId="package-activity"
           />,
           props.panels.activity,
-        )}
-      </div>
+        ),
+        inPipelineBanner,
+      )}
     </div>
   );
 }

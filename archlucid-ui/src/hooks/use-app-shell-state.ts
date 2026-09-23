@@ -81,6 +81,11 @@ export function useAppShellState() {
   const setHelpDocSearchOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       const next = typeof value === "function" ? value(helpDocSearchOpenRef.current) : value;
+
+      if (helpDocSearchOpenRef.current === next) {
+        return;
+      }
+
       setHelpDocSearchOpenState(next);
       syncHelpDocSearchOpenToUrl(next, next ? "" : "");
     },
