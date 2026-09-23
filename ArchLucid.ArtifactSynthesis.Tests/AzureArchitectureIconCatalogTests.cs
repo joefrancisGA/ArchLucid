@@ -44,6 +44,41 @@ public sealed class AzureArchitectureIconCatalogTests
     }
 
     [Fact]
+    public void Catalog_resolves_named_services_from_official_svg_pack()
+    {
+        AzureArchitectureIconCatalog catalog = AzureArchitectureIconCatalog.Load();
+        (string ArmType, string Service)[] expected =
+        [
+            ("Microsoft.Compute/disks", "Disks"),
+            ("Microsoft.ContainerService/managedClusters", "Kubernetes Services"),
+            ("Microsoft.Web/serverFarms", "App Service Plans"),
+            ("Microsoft.Sql/servers", "SQL Server"),
+            ("Microsoft.Sql/managedInstances", "SQL Managed Instance"),
+            ("Microsoft.DBforPostgreSQL/flexibleServers", "Azure Database for PostgreSQL"),
+            ("Microsoft.DBforPostgreSQL/servers", "Azure Database for PostgreSQL"),
+            ("Microsoft.DBforMySQL/flexibleServers", "Azure Database for MySQL"),
+            ("Microsoft.DBforMySQL/servers", "Azure Database for MySQL"),
+            ("Microsoft.Cache/Redis", "Azure Cache for Redis"),
+            ("Microsoft.DataFactory/factories", "Data Factory"),
+            ("Microsoft.Synapse/workspaces", "Azure Synapse Analytics"),
+            ("Microsoft.Databricks/workspaces", "Azure Databricks"),
+        ];
+
+        foreach ((string armType, string service) in expected)
+        {
+            AzureArchitectureIconCatalogEntry entry = catalog.Resolve(armType)
+                ?? throw new InvalidOperationException($"No official icon resolved for {armType}.");
+
+            entry.Service.Should().Be(service);
+            entry.SvgMarkup.Should().Contain("<svg");
+            entry.SvgMarkup.Should().NotContain("data:image/png");
+        }
+
+        catalog.Resolve("Microsoft.PowerBIDedicated/capacities").Should().BeNull();
+        catalog.Resolve("Microsoft.Fabric/capacities").Should().BeNull();
+    }
+
+    [Fact]
     public void Renderer_emits_official_svg_group_and_preserves_category_pictogram_fallback()
     {
         DiagramAst ast = new()
@@ -61,11 +96,19 @@ public sealed class AzureArchitectureIconCatalogTests
                 },
                 new DiagramNode
                 {
+                    NodeId = "disk",
+                    Label = "disk-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/disks",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
                     NodeId = "unknown",
                     Label = "unknown-resource",
                     NodeType = "TopologyResource",
                     ArmResourceType = "Microsoft.Example/unknown",
-                    OrderKey = 1,
+                    OrderKey = 2,
                 },
             ],
         };
@@ -75,6 +118,7 @@ public sealed class AzureArchitectureIconCatalogTests
         result.Succeeded.Should().BeTrue();
         result.Svg.Should().Contain("class=\"azure-icon\"");
         result.Svg.Should().Contain("data-file=\"Svg/virtual-machine.svg\"");
+        result.Svg.Should().Contain("data-file=\"Svg/disk.svg\"");
         result.Svg.Should().Contain("class=\"pictogram\"");
         result.Svg.Should().NotContain("data:image/png");
         result.Svg.Should().NotContain("https://");

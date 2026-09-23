@@ -9,6 +9,17 @@
     { "category": "networking", "service": "Network Security Groups", "armTypes": ["Microsoft.Network/networkSecurityGroups"], "file": "Svg/network-security-group.svg" },
     { "category": "security", "service": "Key Vaults", "armTypes": ["Microsoft.KeyVault/vaults"], "file": "Svg/key-vault.svg" },
     { "category": "databases", "service": "SQL Database", "armTypes": ["Microsoft.Sql/servers/databases"], "file": "Svg/sql-database.svg" },
-    { "category": "databases", "service": "Azure Cosmos DB", "armTypes": ["Microsoft.DocumentDB/databaseAccounts"], "file": "Svg/cosmos-db.svg" }
+    { "category": "databases", "service": "Azure Cosmos DB", "armTypes": ["Microsoft.DocumentDB/databaseAccounts"], "file": "Svg/cosmos-db.svg" },
+    { "category": "compute", "service": "Disks", "armTypes": ["Microsoft.Compute/disks"], "file": "Svg/disk.svg" },
+    { "category": "compute", "service": "Kubernetes Services", "armTypes": ["Microsoft.ContainerService/managedClusters"], "file": "Svg/kubernetes-service.svg" },
+    { "category": "web", "service": "App Service Plans", "armTypes": ["Microsoft.Web/serverFarms"], "file": "Svg/app-service-plan.svg" },
+    { "category": "databases", "service": "SQL Server", "armTypes": ["Microsoft.Sql/servers"], "file": "Svg/sql-server.svg" },
+    { "category": "databases", "service": "SQL Managed Instance", "armTypes": ["Microsoft.Sql/managedInstances"], "file": "Svg/sql-managed-instance.svg" },
+    { "category": "databases", "service": "Azure Database for PostgreSQL", "armTypes": ["Microsoft.DBforPostgreSQL/flexibleServers", "Microsoft.DBforPostgreSQL/servers"], "file": "Svg/postgresql.svg" },
+    { "category": "databases", "service": "Azure Database for MySQL", "armTypes": ["Microsoft.DBforMySQL/flexibleServers", "Microsoft.DBforMySQL/servers"], "file": "Svg/mysql.svg" },
+    { "category": "databases", "service": "Azure Cache for Redis", "armTypes": ["Microsoft.Cache/Redis"], "file": "Svg/redis.svg" },
+    { "category": "databases", "service": "Data Factory", "armTypes": ["Microsoft.DataFactory/factories"], "file": "Svg/data-factory.svg" },
+    { "category": "databases", "service": "Azure Synapse Analytics", "armTypes": ["Microsoft.Synapse/workspaces"], "file": "Svg/synapse.svg" },
+    { "category": "compute", "service": "Azure Databricks", "armTypes": ["Microsoft.Databricks/workspaces"], "file": "Svg/databricks.svg" }
   ]
 }
