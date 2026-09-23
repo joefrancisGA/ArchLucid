@@ -49,6 +49,18 @@ export function readPresenterModeFromWindowLocation(): boolean {
   return readPresenterModeFromSearchParams(new URLSearchParams(window.location.search));
 }
 
+/** Reads `findingId` from the live address bar (not stale Next.js `useSearchParams`). */
+export function readReviewDetailFindingIdFromWindowLocation(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const trimmed =
+    new URL(window.location.href).searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export const REVIEW_DETAIL_TAB_IDS = [
   "overview",
   "findings",

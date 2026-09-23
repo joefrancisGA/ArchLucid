@@ -24,7 +24,10 @@ import {
 } from "@/lib/architecture/architecture-findings-dual-pane-url";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
-import { REVIEW_DETAIL_FINDING_PARAM } from "@/lib/review-detail-workspace-tabs";
+import {
+  readReviewDetailFindingIdFromWindowLocation,
+  REVIEW_DETAIL_URL_CHANGED_EVENT,
+} from "@/lib/review-detail-workspace-tabs";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,
@@ -65,9 +68,9 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   const pathname = usePathname() ?? workingBackLocator.reviewJobHref;
   const searchParams = useSearchParams();
   const workbenchSelection = useReviewWorkbenchSelection();
-  const urlFindingId = parseArchitectureDiagramFindingIdFromSearch(
-    searchParams.get(REVIEW_DETAIL_FINDING_PARAM),
-    searchParams.get("diagramFindingId"),
+  const setSelectedFindingId = workbenchSelection?.setSelectedFindingId;
+  const [urlFindingId, setUrlFindingId] = useState(
+    () => readReviewDetailFindingIdFromWindowLocation() ?? "",
   );
   const diagramNodes = props.diagramNodes ?? [];
   const [localSelectedFindingId, setLocalSelectedFindingId] = useState<string | null>(null);
@@ -104,22 +107,42 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   const onHighlightedNodeIdChange = props.onHighlightedNodeIdChange;
 
   useEffect(() => {
-    if (urlFindingId.length === 0) {
+    const syncFindingIdFromUrl = (): void => {
+      setUrlFindingId(readReviewDetailFindingIdFromWindowLocation() ?? "");
+    };
+
+    syncFindingIdFromUrl();
+    window.addEventListener("popstate", syncFindingIdFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFindingIdFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncFindingIdFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    const resolvedFindingId = parseArchitectureDiagramFindingIdFromSearch(
+      urlFindingId,
+      searchParams.get("diagramFindingId"),
+    );
+
+    if (resolvedFindingId.length === 0) {
       return;
     }
 
-    const exists = visibleFindings.some((finding) => finding.findingId === urlFindingId);
+    const exists = visibleFindings.some((finding) => finding.findingId === resolvedFindingId);
 
     if (!exists) {
       return;
     }
 
-    if (workbenchSelection !== null) {
-      workbenchSelection.setSelectedFindingId(urlFindingId.length > 0 ? urlFindingId : null);
+    if (setSelectedFindingId !== undefined) {
+      setSelectedFindingId(resolvedFindingId);
     } else {
-      setLocalSelectedFindingId(urlFindingId.length > 0 ? urlFindingId : null);
+      setLocalSelectedFindingId(resolvedFindingId);
     }
-  }, [urlFindingId, visibleFindings, workbenchSelection]);
+  }, [searchParams, setSelectedFindingId, urlFindingId, visibleFindings]);
 
   const selectFindingWithUrl = (findingId: string | null): void => {
     if (workbenchSelection !== null) {

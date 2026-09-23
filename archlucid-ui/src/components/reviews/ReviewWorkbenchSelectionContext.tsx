@@ -12,7 +12,7 @@ import {
 
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import {
-  REVIEW_DETAIL_FINDING_PARAM,
+  readReviewDetailFindingIdFromWindowLocation,
   REVIEW_DETAIL_URL_CHANGED_EVENT,
 } from "@/lib/review-detail-workspace-tabs";
 
@@ -35,21 +35,10 @@ export type ReviewWorkbenchSelectionProviderProps = {
   readonly onFocusColumnChange?: (column: ReviewWorkbenchColumnId) => void;
 };
 
-function readFindingIdFromWindowLocation(): string | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const trimmed =
-    new URL(window.location.href).searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
-
-  return trimmed.length > 0 ? trimmed : null;
-}
-
 /** Shared finding + column selection for the Working-mode three-column workbench (PT-12). */
 export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelectionProviderProps): React.JSX.Element {
   const [selectedFindingId, setSelectedFindingIdState] = useState<string | null>(
-    () => readFindingIdFromWindowLocation() ?? props.initialFindingId ?? null,
+    () => readReviewDetailFindingIdFromWindowLocation() ?? props.initialFindingId ?? null,
   );
   const [highlightedNodeId, setHighlightedNodeIdState] = useState<string | null>(null);
   const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(
@@ -58,7 +47,7 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
 
   useEffect(() => {
     const syncFindingIdFromUrl = (): void => {
-      const urlFindingId = readFindingIdFromWindowLocation();
+      const urlFindingId = readReviewDetailFindingIdFromWindowLocation();
 
       setSelectedFindingIdState((current) => (current === urlFindingId ? current : urlFindingId));
     };

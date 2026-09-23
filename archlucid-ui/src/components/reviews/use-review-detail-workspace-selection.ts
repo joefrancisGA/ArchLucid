@@ -33,13 +33,13 @@ export function useReviewDetailWorkspaceSelection(
 
   const onFocusColumnChange = useCallback(
     (column: ReviewWorkbenchColumnId | null) => {
+      // Do not pass `initialFindingId` from stale `useSearchParams` — only update focus column.
       writeReviewDetailTabToUrl(input.activeTab, {
-        findingId: input.initialFindingId,
         workbenchFocus: column,
         presenter: null,
       });
     },
-    [input.activeTab, input.initialFindingId],
+    [input.activeTab],
   );
 
   return { onFindingIdChange, onFocusColumnChange };

@@ -115,7 +115,7 @@ export async function submitAdminInviteFromUsersUi(
     { timeout: 90_000 },
   );
 
-  await clickThroughBlockingOverlays(page, submitButton);
+  await clickThroughBlockingOverlays(page, submitButton, { force: true });
 
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";
