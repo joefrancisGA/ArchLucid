@@ -161,7 +161,7 @@ export function GovernanceFindingsQueueAssignedToMeShell(
         </div>
       ) : null}
 
-      {props.buyerPolishedShell && !props.isAssignedToMe ? (
+      {!props.isAssignedToMe && (props.buyerPolishedShell || props.isWorkingMode) ? (
         <GovernanceFindingsQueueContextStrip
           freshnessLabel={operatorFreshnessMetadataWithClockLabel({
             prefix: "Last refreshed",

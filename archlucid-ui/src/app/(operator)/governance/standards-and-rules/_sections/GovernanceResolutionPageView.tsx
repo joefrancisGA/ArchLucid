@@ -56,6 +56,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { GovernanceResolutionOperatorDiagnostics } from "./GovernanceResolutionOperatorDiagnostics";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
@@ -332,51 +333,125 @@ export function GovernanceResolutionPageView(props: Props) {
     );
   }
 
+  const workingScopeStatusBadge = rows.scopedRunFilterActive ? (
+    <StatusTag kind="ready" label="Review scoped" data-testid="standards-rules-scope-status" />
+  ) : (
+    <StatusTag
+      kind="needs-attention"
+      label="Not scoped"
+      data-testid="standards-rules-scope-status"
+    />
+  );
+  const workingResultsLabel = m.loading
+    ? "Loading resolution…"
+    : `${m.data?.decisions.length ?? 0} decisions · ${m.data?.conflicts.length ?? 0} conflicts`;
+
   return (
-    <OperatorPageContainer variant="workflow">
-      <LayerHeader pageKey="governance-resolution" density="compact"
-/>
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>
+      <a
+        href={`#${GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_STANDARDS_RULES_SKIP_LINK_LABEL}
+      </a>
+
+      <LayerHeader pageKey="governance-resolution" density="compact" />
+
       <OperatorPageHeader
         navHref={standardsPath}
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
-        subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
+        subtitle={
+          m.canMutateEnterprisePolicySurfaces
+            ? governanceResolutionPageLeadOperator
+            : governanceResolutionPageLeadReader
+        }
+        claimDiscipline={STANDARDS_RULES_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="standards-rules-claim-discipline"
         breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
-        actions={<PageContextualHelpButton />}
-      />
-      <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
-      <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
-      <GovernanceResolutionRankCue className="mb-3" />
-      {!rows.scopedRunFilterActive ? (
-        <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickRun} />
-      ) : (
-        <>
-          {scopedRunBanner}
-          <IntegrationConnectChecklist
-            title="Resolve checklist"
-            steps={rows.standardsRulesResolveChecklistSteps}
-            emphasizedStepId={rows.standardsRulesResolveChecklistEmphasizedStepId}
-            testIdPrefix="standards-rules-resolve"
-          />
-        </>
-      )}
-      {m.failure !== null ? (
-        <div role="alert" data-testid="standards-rules-load-failure">
-          {m.blockedReason !== null ? (
-            <p className="m-0 mb-2 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
-              {m.blockedReason}
+        actions={
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {workingScopeStatusBadge}
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              <RefreshButton
+                busy={m.loading}
+                data-testid="standards-rules-refresh-button"
+                onClick={() => {
+                  void m.load();
+                }}
+              />
+            </div>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="standards-rules-keyboard-affordance"
+            >
+              <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search; pick a review
+              before exporting diagnostics.
             </p>
-          ) : null}
-          <OperatorApiProblem
-            problem={m.failure.problem}
-            fallbackMessage={m.failure.message}
-            correlationId={m.failure.correlationId}
-          />
-        </div>
-      ) : null}
-      <GovernanceResolutionOperatorDiagnostics model={m} />
-      {rows.scopedRunFilterActive ? (
-        <GovernanceStandardsRulesNextReviewFooterClient runId={rows.scopedRunId} />
-      ) : null}
+          </div>
+        }
+      />
+
+      <div
+        id={GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="governance-standards-rules-primary-content"
+      >
+        <StandardsRulesContextStrip
+          freshnessLabel={rows.freshnessLabel}
+          lastRefreshedAt={m.loading ? null : m.lastRefreshedAt}
+          scopeLabel={standardsScopeLabel}
+          resultsLabel={workingResultsLabel}
+        />
+
+        <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
+        <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
+        <GovernanceResolutionRankCue className="mb-3" />
+        {!rows.scopedRunFilterActive ? (
+          <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickRun} />
+        ) : (
+          <>
+            {scopedRunBanner}
+            <IntegrationConnectChecklist
+              title="Resolve checklist"
+              steps={rows.standardsRulesResolveChecklistSteps}
+              emphasizedStepId={rows.standardsRulesResolveChecklistEmphasizedStepId}
+              testIdPrefix="standards-rules-resolve"
+            />
+          </>
+        )}
+        {m.failure !== null ? (
+          <div className="space-y-3" role="alert" data-testid="standards-rules-load-failure">
+            {m.blockedReason !== null ? (
+              <p className="m-0 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
+                {m.blockedReason}
+              </p>
+            ) : null}
+            <OperatorApiProblem
+              problem={m.failure.problem}
+              fallbackMessage={m.failure.message}
+              correlationId={m.failure.correlationId}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="standards-rules-load-retry"
+              disabled={m.loading}
+              onClick={() => {
+                void m.load();
+              }}
+            >
+              {STANDARDS_RULES_LOAD_RETRY_LABEL}
+            </Button>
+            <OperatorErrorRecoveryContract presentation={loadRecovery} />
+          </div>
+        ) : null}
+        {m.failure === null ? <GovernanceResolutionOperatorDiagnostics model={m} /> : null}
+        {rows.scopedRunFilterActive ? (
+          <GovernanceStandardsRulesNextReviewFooterClient runId={rows.scopedRunId} />
+        ) : null}
+      </div>
     </OperatorPageContainer>
   );
 }

@@ -5,8 +5,12 @@ let searchParams = new URLSearchParams("");
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
-  usePathname: () => "/governance/infrastructure/remediation",
+  usePathname: () => "/security/remediation-instances",
   useSearchParams: () => searchParams,
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "security" }),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
@@ -16,6 +20,10 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
 
 vi.mock("@/hooks/use-infra-evidence-resource-hub-audit-lineage", () => ({
   useInfraEvidenceResourceHubAuditLineage: () => ({ hub: null, loading: false, loadError: null }),
+}));
+
+vi.mock("@/hooks/use-operator-relative-freshness-now-ms", () => ({
+  useOperatorRelativeFreshnessNowMs: () => Date.now(),
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
@@ -43,7 +51,23 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
   })),
   fetchRemediationPrioritizedFindings: vi.fn(async () => []),
   fetchRemediationWaves: vi.fn(async () => []),
+  fetchRemediationInstanceDetail: vi.fn(),
+  matchOperationalFinding: vi.fn(),
+  createRemediationInstance: vi.fn(),
+  runRemediationPreflight: vi.fn(),
+  approveRemediationInstance: vi.fn(),
+  assignRemediationWave: vi.fn(),
+  executeRemediationInstance: vi.fn(),
+  verifyRemediationInstance: vi.fn(),
+  closeRemediationInstance: vi.fn(),
   formatInfraEvidenceRemediationApiError: (error: unknown) => String(error),
+}));
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    layerGuidance: null,
+    contextHints: { layerHeaderEnterpriseRankCue: null },
+  }),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
@@ -67,7 +91,7 @@ describe("RemediationWorkbenchClient working mode", () => {
     searchParams = new URLSearchParams("");
   });
 
-  it("renders skip link, claim discipline, breadcrumb, and context strip", async () => {
+  it("renders skip link, claim discipline, scope status, shortcuts, and context strip", async () => {
     render(<RemediationWorkbenchClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -77,13 +101,13 @@ describe("RemediationWorkbenchClient working mode", () => {
     expect(screen.getByTestId("infra-remediation-claim-discipline")).toHaveTextContent(
       GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE,
     );
-    expect(screen.getByTestId("infra-remediation-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-scope-status")).toHaveTextContent("Not scoped");
+    expect(screen.getByTestId("infra-remediation-page-shortcuts")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-workbench-context-strip")).toBeInTheDocument();
-    expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("governance-infrastructure-remediation-sources")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-refresh-button")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByTestId("infra-remediation-board")).toBeInTheDocument();
+      expect(screen.getByTestId("remediation-workbench-context-freshness")).toBeInTheDocument();
     });
   });
 });

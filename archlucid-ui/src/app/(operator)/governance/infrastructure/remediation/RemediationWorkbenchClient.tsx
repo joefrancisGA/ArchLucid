@@ -7,10 +7,10 @@ import { Loader2 } from "lucide-react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ import { Label } from "@/components/ui/label";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
-import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
@@ -66,7 +65,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SNAPSHOT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-remediation-page-shortcuts";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
@@ -699,6 +701,26 @@ export function RemediationWorkbenchClient() {
     productLineId: productLine,
   });
 
+  const scopeStatusBadge = useMemo(() => {
+    if (urlCloudResourceId.length > 0 || urlFindingId.length > 0) {
+      return (
+        <StatusTag
+          kind="ready"
+          label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL}
+          data-testid="infra-remediation-scope-status"
+        />
+      );
+    }
+
+    return (
+      <StatusTag
+        kind="needs-attention"
+        label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL}
+        data-testid="infra-remediation-scope-status"
+      />
+    );
+  }, [urlCloudResourceId, urlFindingId]);
+
   const workbenchScopeLabel = useMemo(() => {
     if (urlCloudResourceId.length > 0 && urlFindingId.length > 0) {
       return "Resource + finding scoped remediation instances";
@@ -787,12 +809,6 @@ export function RemediationWorkbenchClient() {
         metadata={
           <div className="flex flex-wrap items-center gap-3">
             <RemediationBreadcrumb />
-            <OperatorPageFreshnessMetadata
-              testId="infra-remediation-last-refreshed"
-              lastRefreshedAt={lastRefreshedAt}
-            >
-              {freshnessLabel}
-            </OperatorPageFreshnessMetadata>
             {staleCue !== null ? (
               <span data-testid="infra-remediation-stale-cue">
                 <StatusTag kind="needs-attention" label={staleCue} />
@@ -803,17 +819,23 @@ export function RemediationWorkbenchClient() {
         actions={
           <div className="flex flex-col items-end gap-2">
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              <InfraEvidenceWorkbenchHeaderActions
+                shortcutsTestId="infra-remediation-page-shortcuts"
+                shortcuts={REMEDIATION_WORKBENCH_PAGE_SHORTCUTS}
+                scopeStatusBadge={scopeStatusBadge}
+                extraShortcutHints={
+                  <>
+                    {" "}
+                    <ShortcutHint shortcut="j" />/<ShortcutHint shortcut="k" /> move lifecycle cards.
+                  </>
+                }
+              />
               <RefreshButton
                 busy={loading}
                 data-testid="infra-remediation-refresh-button"
                 onClick={() => void loadWorkbench()}
               />
             </div>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;{" "}
-              <ShortcutHint shortcut="j" />/<ShortcutHint shortcut="k" /> move lifecycle cards.
-            </p>
           </div>
         }
       />

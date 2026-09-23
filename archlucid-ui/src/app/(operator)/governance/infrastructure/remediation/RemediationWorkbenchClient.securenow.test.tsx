@@ -134,7 +134,9 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
 
     expect(await screen.findByTestId("remediation-workbench-context-strip")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-remediation-last-refreshed")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-scope-status")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-page-shortcuts")).toBeInTheDocument();
+    expect(screen.getByTestId("remediation-workbench-context-freshness")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-board")).toBeInTheDocument();

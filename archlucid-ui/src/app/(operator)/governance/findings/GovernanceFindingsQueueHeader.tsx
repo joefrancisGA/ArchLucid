@@ -13,8 +13,11 @@ import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundary
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import {
@@ -214,14 +217,25 @@ export function GovernanceFindingsQueueHeader({
           isAssignedToMe ? (
             assignedToMeHeaderActions
           ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <PageContextualHelpButton />
-              {buyerPolishedShell && onRefresh !== undefined ? (
-                <RefreshButton
-                  busy={queueRefreshing}
-                  data-testid="governance-findings-queue-refresh-button"
-                  onClick={onRefresh}
-                />
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <PageContextualHelpButton />
+                {(buyerPolishedShell || workingMode) && onRefresh !== undefined ? (
+                  <RefreshButton
+                    busy={queueRefreshing}
+                    data-testid="governance-findings-queue-refresh-button"
+                    onClick={onRefresh}
+                  />
+                ) : null}
+              </div>
+              {workingMode && !buyerPolishedShell ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="governance-findings-queue-keyboard-affordance"
+                >
+                  <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search; use job router
+                  chips to resume triage context.
+                </p>
               ) : null}
             </div>
           )
