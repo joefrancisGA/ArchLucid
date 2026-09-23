@@ -15,12 +15,19 @@ export type InfraEvidenceWorkbenchHeaderActionsProps = {
   readonly shortcuts?: readonly PageShortcutEntry[];
   readonly scopeStatusBadge?: React.ReactNode;
   readonly extraShortcutHints?: React.ReactNode;
+  readonly showShortcutHints?: boolean;
 };
 
 export function InfraEvidenceWorkbenchHeaderActions(
   props: InfraEvidenceWorkbenchHeaderActionsProps,
 ): React.JSX.Element {
-  const { shortcuts, shortcutsTestId, scopeStatusBadge, extraShortcutHints } = props;
+  const {
+    shortcuts,
+    shortcutsTestId,
+    scopeStatusBadge,
+    extraShortcutHints,
+    showShortcutHints = true,
+  } = props;
 
   return (
     <div className="flex flex-col items-end gap-2">
@@ -38,10 +45,12 @@ export function InfraEvidenceWorkbenchHeaderActions(
           }))}
         />
       ) : null}
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;
-        {extraShortcutHints}
-      </p>
+      {showShortcutHints ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;
+          {extraShortcutHints}
+        </p>
+      ) : null}
     </div>
   );
 }
