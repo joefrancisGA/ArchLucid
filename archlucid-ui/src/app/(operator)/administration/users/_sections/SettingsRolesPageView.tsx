@@ -43,7 +43,7 @@ import {
   parseSettingsUsersInviteOpenFromSearch,
   settingsUsersInviteHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-url";
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -266,12 +266,12 @@ export function SettingsRolesPageView(props: Props) {
       setActiveTab(tabId);
 
       if (tabId === "users") {
-        router.replace(SETTINGS_USERS_USERS_TAB_PATH);
+        replaceIfHrefChanged(router, SETTINGS_USERS_USERS_TAB_PATH);
 
         return;
       }
 
-      router.replace(`${hubPathname}?tab=${encodeURIComponent(tabId)}`);
+      replaceIfHrefChanged(router, `${hubPathname}?tab=${encodeURIComponent(tabId)}`);
     },
     [canManageApiKeys, hubPathname, router],
   );
@@ -296,7 +296,7 @@ export function SettingsRolesPageView(props: Props) {
   function openPrincipal(principalId: string): void {
     writeSettingsPrincipalLastViewedId("user", principalId);
     setActiveTab("users");
-    router.replace(SETTINGS_USERS_USERS_TAB_PATH);
+    replaceIfHrefChanged(router, SETTINGS_USERS_USERS_TAB_PATH);
     window.setTimeout(() => {
       document
         .querySelector(`[data-principal-id="${CSS.escape(principalId)}"]`)

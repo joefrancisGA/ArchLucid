@@ -2,13 +2,15 @@
 
 import type { JSX, ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRelatedSurfacesOpenFromSearch,
   relatedSurfacesDisclosureHrefFromSearch,
 } from "@/lib/operator/related-surfaces-disclosure-url";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";
 
 export const OPERATOR_RELATED_SURFACES_DISCLOSURE_TITLE = "Related surfaces";
@@ -24,33 +26,56 @@ export type OperatorRelatedSurfacesDisclosureProps = {
 export function OperatorRelatedSurfacesDisclosure(
   props: OperatorRelatedSurfacesDisclosureProps,
 ): JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const relatedSurfacesOpenParam = searchParams.get("relatedSurfacesOpen");
   const title = props.title ?? OPERATOR_RELATED_SURFACES_DISCLOSURE_TITLE;
-  const [open, setOpenState] = useState(() => parseRelatedSurfacesOpenFromSearch(relatedSurfacesOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseRelatedSurfacesOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("relatedSurfacesOpen"),
+    ),
+  );
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(relatedSurfacesDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        relatedSurfacesDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (open === detailsOpen) {
+        return;
+      }
+
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [syncOpenToUrl],
+    [open, syncOpenToUrl],
   );
 
   useEffect(() => {
-    setOpenState(parseRelatedSurfacesOpenFromSearch(relatedSurfacesOpenParam));
-  }, [relatedSurfacesOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      setOpenState(
+        parseRelatedSurfacesOpenFromSearch(
+          new URLSearchParams(window.location.search).get("relatedSurfacesOpen"),
+        ),
+      );
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details

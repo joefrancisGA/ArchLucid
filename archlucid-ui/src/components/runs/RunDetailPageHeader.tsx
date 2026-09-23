@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
@@ -59,37 +61,55 @@ function BuyerSponsorBriefExports({
   usedStaticDemoRun: boolean;
   manifestVersionForGuard?: string | null;
 }) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailBuyerSponsorBriefExportsOpenParam = searchParams.get("runDetailBuyerSponsorBriefExportsOpen");
   const [sponsorBriefExportsOpen, setSponsorBriefExportsOpenState] = useState(() =>
-    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
+    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailBuyerSponsorBriefExportsOpen"),
+    ),
   );
 
   const syncSponsorBriefExportsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setSponsorBriefExportsOpen = useCallback(
     (open: boolean) => {
+      if (sponsorBriefExportsOpen === open) {
+        return;
+      }
+
       setSponsorBriefExportsOpenState(open);
       syncSponsorBriefExportsOpenToUrl(open);
     },
-    [syncSponsorBriefExportsOpenToUrl],
+    [sponsorBriefExportsOpen, syncSponsorBriefExportsOpenToUrl],
   );
 
   useEffect(() => {
-    setSponsorBriefExportsOpenState(
-      parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
-    );
-  }, [runDetailBuyerSponsorBriefExportsOpenParam]);
+    const syncSponsorBriefExportsOpenFromUrl = (): void => {
+      setSponsorBriefExportsOpenState(
+        parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runDetailBuyerSponsorBriefExportsOpen"),
+        ),
+      );
+    };
+
+    syncSponsorBriefExportsOpenFromUrl();
+    window.addEventListener("popstate", syncSponsorBriefExportsOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncSponsorBriefExportsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSponsorBriefExportsOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncSponsorBriefExportsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details

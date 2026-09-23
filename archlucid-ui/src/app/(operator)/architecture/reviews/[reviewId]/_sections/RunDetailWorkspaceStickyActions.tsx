@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useResolvedReviewDetailActiveTab } from "@/hooks/use-resolved-review-detail-active-tab";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
   runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch,
@@ -46,37 +48,55 @@ export type RunDetailWorkspaceStickyActionsProps = {
 export function RunDetailWorkspaceStickyActions(
   props: RunDetailWorkspaceStickyActionsProps,
 ): React.JSX.Element | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailStickyActionsTechnicalDetailOpenParam = searchParams.get("runDetailStickyActionsTechnicalDetailOpen");
   const [technicalDetailOpen, setTechnicalDetailOpenState] = useState(() =>
-    parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(runDetailStickyActionsTechnicalDetailOpenParam),
+    parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
+    ),
   );
 
   const syncTechnicalDetailOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalDetailOpen = useCallback(
     (open: boolean) => {
+      if (technicalDetailOpen === open) {
+        return;
+      }
+
       setTechnicalDetailOpenState(open);
       syncTechnicalDetailOpenToUrl(open);
     },
-    [syncTechnicalDetailOpenToUrl],
+    [syncTechnicalDetailOpenToUrl, technicalDetailOpen],
   );
 
   useEffect(() => {
-    setTechnicalDetailOpenState(
-      parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(runDetailStickyActionsTechnicalDetailOpenParam),
-    );
-  }, [runDetailStickyActionsTechnicalDetailOpenParam]);
+    const syncTechnicalDetailOpenFromUrl = (): void => {
+      setTechnicalDetailOpenState(
+        parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
+        ),
+      );
+    };
+
+    syncTechnicalDetailOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalDetailOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncTechnicalDetailOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalDetailOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncTechnicalDetailOpenFromUrl);
+    };
+  }, []);
 
   const activeTab = useResolvedReviewDetailActiveTab({
     tabLifecycle: {
