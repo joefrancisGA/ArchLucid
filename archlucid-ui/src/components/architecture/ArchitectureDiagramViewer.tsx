@@ -1061,7 +1061,7 @@ function ArchitectureDiagramStaticCanvas(props: ArchitectureDiagramStaticViewerP
           role="region"
           aria-label={`${alt} diagram viewport`}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- diagram export fallback needs a direct img element. */}
           <img
             src={source}
             alt={alt}

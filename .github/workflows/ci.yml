@@ -4330,9 +4330,12 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npm ci
+          python3 ../scripts/ci/check_ui_lint_toolchain.py --prefix .
+          python3 ../scripts/ci/check_eslint_disable_reasons.py --prefix .
           npm run lint
           npm run lint:terminology
           npm run typecheck
+          npm run typecheck:e2e
           npm run build
           npm run check:first-load-js
 

@@ -75,7 +75,7 @@ export function tryShowcaseSpineRunSummariesPaged(
  */
 export function tryStaticDemoRunSummariesPaged(
   projectId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- fixture keeps the unused field to mirror the API payload.
   _options?: StaticDemoRunsListFallbackOptions,
 ): { items: RunSummary[]; totalCount: number } | null {
   if (!isRunsListCuratedShowcaseAllowed()) {
@@ -110,7 +110,7 @@ export function tryStaticDemoRunSummariesPaged(
  */
 export function tryStaticDemoCompareRunSummaries(
   projectId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- fixture keeps the unused field to mirror the API payload.
   _options?: StaticDemoRunsListFallbackOptions,
 ): { items: RunSummary[]; totalCount: number } | null {
   if (!isRunsListCuratedShowcaseAllowed()) {
