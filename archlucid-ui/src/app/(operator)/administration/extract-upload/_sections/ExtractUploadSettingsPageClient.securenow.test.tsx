@@ -71,7 +71,7 @@ describe("ExtractUploadSettingsPageClient (SecureNow)", () => {
     const pageText = screen.getByTestId("extract-upload-settings-page").textContent ?? "";
 
     expect(screen.getByText(EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW)).toBeInTheDocument();
-    expect(screen.getByTestId("extract-upload-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-page-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-page-shortcuts")).toBeInTheDocument();
     expect(pageText).toContain("SecureNow checkout");
     expect(pageText).not.toMatch(/\bArchLucid\b/);
