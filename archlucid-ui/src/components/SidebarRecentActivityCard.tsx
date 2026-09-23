@@ -3,14 +3,15 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ChevronDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { hasMeaningfulSidebarDeltaMedians } from "@/components/BeforeAfterDelta/formatDelta";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseSidebarRecentActivityOpenFromSearch,
   sidebarRecentActivityHrefFromSearch,
@@ -29,25 +30,30 @@ const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
  * sidebar delta panel) so first-run tenants do not see an empty collapsible.
  */
 export function SidebarRecentActivityCard() {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const sidebarRecentOpenParam = searchParams.get("sidebarRecentOpen");
   const { isWorkingMode } = useWorkspaceMode();
   const { status, data } = useDeltaQuery({ count: 5 });
   const [open, setOpenState] = useState<boolean>(false);
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (next: boolean) => {
-      router.replace(sidebarRecentActivityHrefFromSearch(searchParams.toString(), next, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        sidebarRecentActivityHrefFromSearch(readWindowLocationSearch(), next, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
-  const persist = useCallback(
+  const persistOpen = useCallback(
     (next: boolean): void => {
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
       setOpenState(next);
       syncOpenToUrl(next);
 
@@ -61,26 +67,43 @@ export function SidebarRecentActivityCard() {
   );
 
   useEffect(() => {
-    const fromUrl = parseSidebarRecentActivityOpenFromSearch(sidebarRecentOpenParam);
+    const syncOpenFromUrl = (): void => {
+      const fromUrl = parseSidebarRecentActivityOpenFromSearch(
+        new URLSearchParams(window.location.search).get("sidebarRecentOpen"),
+      );
 
-    if (fromUrl) {
-      setOpenState(true);
+      if (fromUrl) {
+        if (openRef.current !== true) {
+          openRef.current = true;
+          setOpenState(true);
+        }
 
-      return;
-    }
-
-    try {
-      if (typeof window === "undefined") {
         return;
       }
 
-      const raw = window.localStorage.getItem(RECENT_ACTIVITY_OPEN_KEY);
+      try {
+        const raw = window.localStorage.getItem(RECENT_ACTIVITY_OPEN_KEY);
+        const fromStorage = raw === "1";
 
-      setOpenState(raw === "1");
-    } catch {
-      setOpenState(false);
-    }
-  }, [sidebarRecentOpenParam]);
+        if (openRef.current !== fromStorage) {
+          openRef.current = fromStorage;
+          setOpenState(fromStorage);
+        }
+      } catch {
+        if (openRef.current !== false) {
+          openRef.current = false;
+          setOpenState(false);
+        }
+      }
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   if (isWorkingMode) {
     return null;
@@ -97,7 +120,7 @@ export function SidebarRecentActivityCard() {
   }
 
   return (
-    <Collapsible open={open} onOpenChange={persist}>
+    <Collapsible open={open} onOpenChange={persistOpen}>
       <CollapsibleTrigger
         className={cn("sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
         type="button"
