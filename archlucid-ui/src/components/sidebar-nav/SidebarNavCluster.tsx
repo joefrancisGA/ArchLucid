@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, type ReactElement } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
 import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
@@ -39,7 +39,7 @@ import {
   sidebarNavMoreDisclosureHrefFromSearch,
   sidebarNavMoreDisclosureHrefMatchesLocation,
 } from "@/lib/sidebar-nav/sidebar-nav-more-disclosure-url";
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
@@ -74,13 +74,22 @@ type SidebarNavClusterProps = {
   readonly onNavLinkNavigate?: () => void;
 };
 
+function readSidebarMoreGroupFromWindowLocation(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return parseSidebarNavMoreGroupFromSearch(
+    new URLSearchParams(window.location.search).get("sidebarMoreGroup"),
+  );
+}
+
 export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
+  const [openMoreGroupId, setOpenMoreGroupId] = useState<string | null>(() => readSidebarMoreGroupFromWindowLocation());
   const { mode } = useWorkspaceMode();
   const { productLine } = useProductLine();
   const workingMode = isWorkingWorkspaceMode(mode);
-  const sidebarMoreGroupParam = searchParams.get("sidebarMoreGroup");
   const { group, visibleLinks } = props.row;
   const linksForRender = filterSidebarNavClusterLinks({
     visibleLinks,
@@ -98,31 +107,53 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     props.pathname ?? "/",
     workingMode,
   );
-  const urlMoreGroupOpen = parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id;
-  const moreOpen = more.length > 0 && urlMoreGroupOpen;
+  const moreOpen = more.length > 0 && openMoreGroupId === group.id;
 
   useEffect(() => {
-    if (more.length > 0 || !urlMoreGroupOpen) {
+    const syncOpenMoreGroupFromUrl = (): void => {
+      const nextOpenGroupId = readSidebarMoreGroupFromWindowLocation();
+
+      setOpenMoreGroupId((current) => (current === nextOpenGroupId ? current : nextOpenGroupId));
+    };
+
+    syncOpenMoreGroupFromUrl();
+    window.addEventListener("popstate", syncOpenMoreGroupFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenMoreGroupFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (more.length > 0) {
       return;
     }
 
-    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(window.location.search.slice(1), null, pathname);
+    const openGroupId = readSidebarMoreGroupFromWindowLocation();
+
+    if (openGroupId === null) {
+      return;
+    }
+
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(readWindowLocationSearch(), null, pathname);
 
     if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
       return;
     }
 
     commitHrefIfChanged(nextHref, { notify: false });
-  }, [more.length, pathname, urlMoreGroupOpen]);
+    setOpenMoreGroupId(null);
+  }, [more.length, pathname]);
 
   function replaceSidebarMoreGroupInUrl(groupId: string | null): void {
-    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(window.location.search.slice(1), groupId, pathname);
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(readWindowLocationSearch(), groupId, pathname);
 
     if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
       return;
     }
 
     commitHrefIfChanged(nextHref, { notify: false });
+    setOpenMoreGroupId(groupId);
   }
 
   if (linksForRender.length === 0) {
@@ -247,7 +278,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 aria-expanded={moreOpen}
                 aria-label={sidebarMoreLinksAccessibleLabel(group.id, more.length, moreOpen)}
                 onClick={() => {
-                  replaceSidebarMoreGroupInUrl(urlMoreGroupOpen ? null : group.id);
+                  replaceSidebarMoreGroupInUrl(moreOpen ? null : group.id);
                 }}
               >
                 {moreOpen ? (
