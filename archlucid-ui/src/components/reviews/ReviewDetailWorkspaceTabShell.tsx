@@ -116,7 +116,7 @@ export function ReviewDetailWorkspaceTabShell({
         />
       ) : null}
       <WorkbenchSelectionCoordinator enabled={workbenchVisible} />
-      <WorkbenchFindingSelectionSync />
+      <WorkbenchFindingSelectionSync enabled={workbenchVisible} />
 
       <div
         className="min-w-0 overflow-visible"

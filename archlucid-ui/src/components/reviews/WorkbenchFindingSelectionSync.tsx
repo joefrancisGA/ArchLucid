@@ -6,13 +6,17 @@ import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenc
 import { writeReviewDetailFindingIdToUrl } from "@/lib/review-detail-workspace-tabs";
 
 /** Applies selected-finding visual state to finding cards in the workbench findings column (PT-12). */
-export function WorkbenchFindingSelectionSync(): null {
+export function WorkbenchFindingSelectionSync(props: { readonly enabled?: boolean }): null {
   const selection = useReviewWorkbenchSelection();
   const selectedFindingId = selection?.selectedFindingId ?? null;
   const reconcileSelectedFindingId = selection?.reconcileSelectedFindingId;
   const clearedStaleFindingIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (props.enabled === false) {
+      return;
+    }
+
     const selectedId = selectedFindingId;
     const cards = document.querySelectorAll<HTMLElement>("[data-finding-id]");
     let effectiveSelectedId = selectedId;
@@ -50,7 +54,7 @@ export function WorkbenchFindingSelectionSync(): null {
         card.focus({ preventScroll: true });
       }
     }
-  }, [reconcileSelectedFindingId, selectedFindingId]);
+  }, [props.enabled, reconcileSelectedFindingId, selectedFindingId]);
 
   return null;
 }

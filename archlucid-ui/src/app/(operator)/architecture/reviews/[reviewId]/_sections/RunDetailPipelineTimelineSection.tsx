@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -21,6 +21,8 @@ import {
   parseRunPipelineTimelineOpenFromSearch,
   runPipelineTimelineDisclosureHrefFromSearch,
 } from "@/lib/runs/run-pipeline-timeline-disclosure-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 const OPERATOR_INLINE_AUDIT_EVENT_LIMIT = 5;
@@ -145,11 +147,12 @@ export function RunDetailPipelineTimelineSection(
   props: RunDetailPipelineTimelineSectionProps,
 ): ReactElement {
   const { runId, pipelineTimelineFailure, pipelineTimelineForUi } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runPipelineTimelineOpenParam = searchParams.get("runPipelineTimelineOpen");
-  const [open, setOpenState] = useState(() => parseRunPipelineTimelineOpenFromSearch(runPipelineTimelineOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseRunPipelineTimelineOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("runPipelineTimelineOpen"),
+    ),
+  );
   const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
   const summaryLine = buildAuditTrailSummaryLine(
     pipelineTimelineFailure ? null : pipelineTimelineForUi,
@@ -157,24 +160,42 @@ export function RunDetailPipelineTimelineSection(
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runPipelineTimelineDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runPipelineTimelineDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (open === detailsOpen) {
+        return;
+      }
+
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [syncOpenToUrl],
+    [open, syncOpenToUrl],
   );
 
   useEffect(() => {
-    setOpenState(parseRunPipelineTimelineOpenFromSearch(runPipelineTimelineOpenParam));
-  }, [runPipelineTimelineOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      setOpenState(parseRunPipelineTimelineOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runPipelineTimelineOpen"),
+      ));
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section
