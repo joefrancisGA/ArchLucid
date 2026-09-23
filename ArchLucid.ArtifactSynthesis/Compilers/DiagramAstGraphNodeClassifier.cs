@@ -53,16 +53,6 @@ internal static class DiagramAstGraphNodeClassifier
         return node.NodeType;
     }
 
-    public static string? ReadKind(GraphNode node)
-    {
-        if (node.Properties.TryGetValue("kind", out string? kind) && !string.IsNullOrWhiteSpace(kind))
-        {
-            return kind.Trim();
-        }
-
-        return null;
-    }
-
     public static string? ReadResourceGroup(GraphNode node)
     {
         if (node.Properties.TryGetValue("arm.resourceGroup", out string? resourceGroup) && !string.IsNullOrWhiteSpace(resourceGroup))

@@ -50,7 +50,6 @@ import type { SecurityDeclaredConnectionRow } from "@/lib/security-declared-conn
 
 const OUTLINE_NODES_OPEN_STORAGE_KEY = "infra-diagrams-outline-nodes-open";
 const OUTLINE_EDGES_OPEN_STORAGE_KEY = "infra-diagrams-outline-edges-open";
-const OUTLINE_MAX_DATA_ROWS = 200;
 
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
@@ -226,46 +225,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     };
   }, [selectedDeclaredEdge]);
 
-  const connectedNodeIds = useMemo(() => {
-    const ids = new Set<string>();
+  const nodeRows = useMemo(() => {
+    const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
 
-    for (const edge of outline.edges) {
-      ids.add(edge.from);
-      ids.add(edge.to);
-    }
-
-    return ids;
-  }, [outline.edges]);
-  const allConnectedNodes = useMemo(
-    () => outline.nodes.filter((node) => connectedNodeIds.has(node.id)),
-    [connectedNodeIds, outline.nodes],
-  );
-  const allUnconnectedNodes = useMemo(
-    () => outline.nodes.filter((node) => !connectedNodeIds.has(node.id)),
-    [connectedNodeIds, outline.nodes],
-  );
-  const { connectedNodeRows, unconnectedNodeRows, shownNodeCount } = useMemo(() => {
-    const sortedConnected = sortInfraEvidenceDiagramOutlineNodes(
-      allConnectedNodes,
-      nodeSortKey,
-      nodeSortDir,
-    );
-    const sortedUnconnected = sortInfraEvidenceDiagramOutlineNodes(
-      allUnconnectedNodes,
-      nodeSortKey,
-      nodeSortDir,
-    );
-    const connected = sortedConnected.slice(0, OUTLINE_MAX_DATA_ROWS);
-    const remaining = OUTLINE_MAX_DATA_ROWS - connected.length;
-    const unconnected = remaining > 0 ? sortedUnconnected.slice(0, remaining) : [];
-
-    return {
-      connectedNodeRows: connected,
-      unconnectedNodeRows: unconnected,
-      shownNodeCount: connected.length + unconnected.length,
-    };
-  }, [allConnectedNodes, allUnconnectedNodes, nodeSortDir, nodeSortKey]);
-  const showNodeTruncationLine = outline.nodes.length > shownNodeCount;
+    return sortedNodes.slice(0, 200);
+  }, [nodeSortDir, nodeSortKey, outline.nodes]);
   const edgeRows = useMemo(() => {
     const sortedEdges = sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir);
 
@@ -371,12 +335,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
-                    <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
-                      Connected nodes ({allConnectedNodes.length})
-                    </th>
-                  </tr>
-                  {connectedNodeRows.map((node) => (
+                  {nodeRows.map((node) => (
                     <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
                       <td className="px-3 py-2">
                         <InfraEvidenceDiagramOutlineNodeLabel node={node} />
@@ -401,53 +360,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       ) : null}
                     </tr>
                   ))}
-                  {allUnconnectedNodes.length > 0 ? (
-                    <>
-                      <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
-                        <th className="px-3 py-2 text-left font-medium" colSpan={showNeighborhoodActions ? 4 : 3}>
-                          Unconnected nodes ({allUnconnectedNodes.length})
-                        </th>
-                      </tr>
-                      {unconnectedNodeRows.map((node) => (
-                        <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-                          <td className="px-3 py-2">
-                            <InfraEvidenceDiagramOutlineNodeLabel node={node} />
-                          </td>
-                          <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
-                          <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
-                            {formatOutlineCell(node.resourceGroup)}
-                          </td>
-                          {showNeighborhoodActions ? (
-                            <td className="px-3 py-2">
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
-                                aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
-                                onClick={() => {
-                                  onFocusNeighborhood(node);
-                                }}
-                              >
-                                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
-                              </Button>
-                            </td>
-                          ) : null}
-                        </tr>
-                      ))}
-                    </>
-                  ) : null}
                 </tbody>
               </table>
-              {showNodeTruncationLine ? (
-                <p
-                  className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="infra-diagrams-outline-nodes-truncated"
-                >
-                  Showing {shownNodeCount} of {outline.nodes.length} nodes.
-                </p>
-              ) : null}
-              {shownNodeCount === 0 ? (
+              {nodeRows.length === 0 ? (
                 <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   No nodes parsed from the Mermaid source.
                 </p>

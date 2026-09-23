@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE,
   ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
 import {
@@ -29,27 +28,6 @@ const FOREST_PAINT_FIXTURE = [
   '    <rect class="node-accent" width="4" height="48" fill="#0f766e"/>',
   '    <g class="pictogram"><circle cx="8" cy="8" r="6" fill="#0f766e"/></g>',
   "  </g>",
-  "</svg>",
-].join("");
-
-const AZURE_ICON_FIXTURE = [
-  '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',
-  '  <g class="node">',
-  '    <rect class="node-card" width="200" height="48"/>',
-  '    <rect class="node-accent" width="4" height="48" fill="#2563eb"/>',
-  '    <image class="azure-icon" data-file="virtual-machine.png"',
-  '      href="data:image/png;base64,iVBORw0KGgo="',
-  '      xlink:href="data:image/png;base64,iVBORw0KGgo="/>',
-  "  </g>",
-  "</svg>",
-].join("");
-
-const FOREST_EDGE_INK_FIXTURE = [
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
-  '  <defs><marker id="al-edge-arrow"><path d="M0,0 L10,5 L0,10" fill="#94a3b8"/></marker></defs>',
-  '  <g class="edge"><path class="edge-path" stroke="#94a3b8" d="M10 10 L90 10"/></g>',
-  '  <g class="edge-label"><rect fill="#ffffff"/><text fill="#111827">label</text></g>',
-  '  <image class="azure-icon" href="data:image/png;base64,iVBORw0KGgo="/>',
   "</svg>",
 ].join("");
 
@@ -84,24 +62,6 @@ describe("architecture-diagram-svg", () => {
 
     expect(converted).toContain("vnet-westus");
     expect(converted).toContain('fill="currentColor"');
-  });
-
-  it("paints forest edge paths and arrowheads with the light edge token", () => {
-    const converted = replaceMermaidForeignObjectLabelsWithSvgText(FOREST_EDGE_INK_FIXTURE, { dark: false });
-
-    expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.edge}"`);
-    expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.edge}"`);
-    expect(converted).toContain('fill="#111827"');
-    expect(converted).toContain("data:image/png;base64,iVBORw0KGgo=");
-  });
-
-  it("paints forest edge paths and arrowheads with the dark edge token", () => {
-    const converted = replaceMermaidForeignObjectLabelsWithSvgText(FOREST_EDGE_INK_FIXTURE, { dark: true });
-
-    expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE.edge}"`);
-    expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE.edge}"`);
-    expect(converted).toContain('fill="#111827"');
-    expect(converted).toContain("data:image/png;base64,iVBORw0KGgo=");
   });
 
   it("paints node boxes and edge paths with the neutral export palette", () => {
@@ -145,22 +105,6 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain('class="node-accent"');
     expect(converted).toContain('fill="#0f766e"');
     expect(converted).toMatch(/<circle[^>]*fill="#0f766e"/);
-  });
-
-  it("preserves embedded Azure PNG icons but rejects remote image URLs", () => {
-    const converted = sanitizeArchitectureDiagramSvg(AZURE_ICON_FIXTURE);
-    const remote = sanitizeArchitectureDiagramSvg(
-      AZURE_ICON_FIXTURE.replace(
-        "data:image/png;base64,iVBORw0KGgo=",
-        "https://example.invalid/icon.png",
-      ),
-    );
-
-    expect(converted).toContain('class="azure-icon"');
-    expect(converted).toContain("data-file=\"virtual-machine.png\"");
-    expect(converted).toContain("data:image/png;base64,iVBORw0KGgo=");
-    expect(converted).toContain('fill="#2563eb"');
-    expect(remote).not.toContain("https://example.invalid/icon.png");
   });
 
   it("wraps long foreignObject names into tspans that fit the node rect", () => {

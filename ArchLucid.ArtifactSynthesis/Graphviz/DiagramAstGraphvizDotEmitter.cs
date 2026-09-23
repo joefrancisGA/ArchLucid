@@ -34,11 +34,28 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             + $"color=\"{ArchitectureDiagramMermaidPalette.LightNodeBorder}\", "
             + $"fontcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeText}\"];");
         builder.AppendLine(
-            $"    edge [color=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\", fontcolor=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\"];");
+            $"    edge [color=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\"];");
+
+        bool emitSubscriptionCluster = DiagramForestSubscriptionFrameResolver.ShouldDraw(ast.Title)
+            && resourceGroupClusters.Count > 0;
+
+        if (emitSubscriptionCluster)
+        {
+            builder.AppendLine("    subgraph cluster_subscription {");
+            builder.AppendLine("        label=\"Subscription\";");
+            builder.AppendLine("        style=\"rounded\";");
+            builder.AppendLine("        color=\"#475569\";");
+            builder.AppendLine("        penwidth=2.5;");
+        }
 
         foreach (DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster in resourceGroupClusters)
         {
-            EmitResourceGroupCluster(builder, cluster, 1, ast);
+            EmitResourceGroupCluster(builder, cluster, emitSubscriptionCluster ? 2 : 1, ast);
+        }
+
+        if (emitSubscriptionCluster)
+        {
+            builder.AppendLine("    }");
         }
 
         if (renderableSubgraphs.Count == 0)

@@ -328,19 +328,15 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_.node_polygon]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_polygon]:fill-slate-700',
   '[&_svg_.node_polygon]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_polygon]:stroke-slate-200',
   '[&_svg_.node_polygon]:stroke-[1.5px]',
-  '[&_svg_.edgePath_path]:stroke-[#111827] dark:[&_svg_.edgePath_path]:stroke-[#e2e8f0]',
+  '[&_svg_.edgePath_path]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.edgePath_path]:stroke-slate-200',
   '[&_svg_.edgePath_path]:fill-none',
-  '[&_svg_.edgePaths_path]:stroke-[#111827] dark:[&_svg_.edgePaths_path]:stroke-[#e2e8f0]',
+  '[&_svg_.edgePaths_path]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.edgePaths_path]:stroke-slate-200',
   '[&_svg_.edgePaths_path]:fill-none',
-  '[&_svg_path.edge-path]:stroke-[#111827] dark:[&_svg_path.edge-path]:stroke-[#e2e8f0]',
-  '[&_svg_path.edge-path]:fill-none',
-  '[&_svg_marker#al-edge-arrow_path]:fill-[#111827] dark:[&_svg_marker#al-edge-arrow_path]:fill-[#e2e8f0]',
 );
 
 const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
   '--arch-diagram-node-fill': ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
   '--arch-diagram-node-border': ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,
-  '--arch-diagram-edge-stroke': ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.edge,
 } as React.CSSProperties;
 
 /** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */

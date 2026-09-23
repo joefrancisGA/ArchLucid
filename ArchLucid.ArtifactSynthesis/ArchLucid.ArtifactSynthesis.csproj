@@ -38,13 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Assets\AzureIcons\azure-icon-manifest.json"
-                      LogicalName="ArchLucid.ArtifactSynthesis.AzureIcons.azure-icon-manifest.json" />
-    <EmbeddedResource Include="Assets\AzureIcons\*.png"
-                      LogicalName="ArchLucid.ArtifactSynthesis.AzureIcons.%(Filename)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
