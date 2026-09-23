@@ -76,12 +76,12 @@ function GuidanceBody(props: {
 export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
   const { isInviteeReviewer } = useInviteeReviewerContext();
   const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
+  const evalChromeShell = useProductionEvalChrome();
 
   if (isInviteeReviewer) {
     return null;
   }
 
-  const evalChromeShell = useProductionEvalChrome();
   const config = resolveFirstWeekRouteGuidanceForShell(props.variant, { evalChrome: evalChromeShell });
 
   if (props.variant === "onboarding") {

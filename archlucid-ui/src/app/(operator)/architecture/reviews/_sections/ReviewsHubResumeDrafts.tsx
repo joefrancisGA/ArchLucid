@@ -91,7 +91,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                   />
                   <time
                     dateTime={entry.lastUpdatedUtc}
-                    title={absoluteUpdated}
+                    aria-label={`Updated ${absoluteUpdated}`}
                     className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
                   >
                     Updated {formatRelativeTime(entry.lastUpdatedUtc)}

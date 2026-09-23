@@ -188,7 +188,8 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
           )}
           onClick={(event) => {
             if (props.openButtonRef !== undefined) {
-              props.openButtonRef.current = event.currentTarget;
+              const openButtonRef = props.openButtonRef;
+              openButtonRef.current = event.currentTarget;
             }
 
             props.handlers.onOpen({

@@ -48,24 +48,24 @@ import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 const ArchitectureDraftAiRefinePanel = dynamic(
   async () => {
-    const module = await import("@/components/architecture/ArchitectureDraftAiRefinePanel");
-    return module.ArchitectureDraftAiRefinePanel;
+    const loaded = await import("@/components/architecture/ArchitectureDraftAiRefinePanel");
+    return loaded.ArchitectureDraftAiRefinePanel;
   },
   { loading: () => null },
 );
 
 const DraftIntakeAdvancedSection = dynamic(
   async () => {
-    const module = await import("@/components/draft-intake/DraftIntakeAdvancedSection");
-    return module.DraftIntakeAdvancedSection;
+    const loaded = await import("@/components/draft-intake/DraftIntakeAdvancedSection");
+    return loaded.DraftIntakeAdvancedSection;
   },
   { loading: () => null },
 );
 
 const DraftIntakeReasoningPanel = dynamic(
   async () => {
-    const module = await import("@/components/draft-intake/DraftIntakeReasoningPanel");
-    return module.DraftIntakeReasoningPanel;
+    const loaded = await import("@/components/draft-intake/DraftIntakeReasoningPanel");
+    return loaded.DraftIntakeReasoningPanel;
   },
   { loading: () => null },
 );

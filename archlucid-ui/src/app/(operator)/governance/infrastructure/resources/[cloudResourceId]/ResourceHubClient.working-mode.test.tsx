@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-let searchParams = new URLSearchParams("tab=overview");
+const searchParams = new URLSearchParams("tab=overview");
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),

@@ -56,6 +56,22 @@ function readyStructuredBrief() {
 }
 
 describe("architecture-draft-readiness", () => {
+  it("includes confirmed scope in the draft PATCH sent before review handoff", () => {
+    const payload = buildArchitectureDraftPatchPayload(
+      {
+        freeTextIntent: readyOverview,
+        businessOutcome: "Reduce cycle time for architecture reviews.",
+        systemName: "Claims intake",
+        structuredBrief: readyStructuredBrief(),
+        openQuestions: "",
+      },
+      { actors: [assertedActor] },
+      [{ id: "scope-1", kind: "custom", label: "", value: "Claims records remain in the private network", source: "user" }],
+    );
+
+    expect(payload.freeTextIntent).toContain("Claims records remain in the private network");
+  });
+
   it("permits incomplete draft saves while blocking review start", () => {
     const incomplete = {
       freeTextIntent: "",

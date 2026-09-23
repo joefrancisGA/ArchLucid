@@ -57,13 +57,13 @@ function AuditEventTypeChip(props: {
 /** URL-bound event-type chips for the audit trail filter bar (wave 16). */
 export function AuditSearchEventTypeChips(props: AuditSearchEventTypeChipsProps): ReactElement | null {
   const { eventTypes, eventType, setEventType, buyerPolishedShell, disabled } = props;
+  const pathname = usePathname() ?? GOVERNANCE_AUDIT_PATH;
+  const searchParams = useSearchParams();
 
   if (eventTypes.length === 0) {
     return null;
   }
 
-  const pathname = usePathname() ?? GOVERNANCE_AUDIT_PATH;
-  const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const visibleTypes = eventTypes.slice(0, 6);
 

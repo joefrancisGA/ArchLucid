@@ -5,10 +5,6 @@ import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetState
 
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
 import {
-  buildArchitectureDraftRegistryEntry,
-  upsertArchitectureDraftRegistryEntry,
-} from "@/lib/architecture/architecture-draft-registry";
-import {
   validateArchitectureReviewReadiness,
   type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
@@ -216,34 +212,8 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       }
 
       reviewStartProgress.markPreparingQuestions();
-
-      // Confirmed scope belongs on the server copy of the brief only. Mirroring it into local
-      // fields would put the block in the operator's own text and feed it back to the panel.
-      if (!options.isNewDraft) {
-        const mergedIntent = mergeScopeBulletsIntoBrief(
-          options.scopeBullets,
-          options.fields.freeTextIntent,
-        ).trim();
-
-        if (mergedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-          const patched = await patchDraftRequest(options.effectiveDraftId, {
-            freeTextIntent: mergedIntent,
-            expectedUpdatedUtc:
-              options.lastSavedUtc?.trim()
-              || options.draft?.updatedUtc?.trim()
-              || (await getDraftRequest(options.effectiveDraftId)).updatedUtc,
-          });
-          options.syncServerUpdatedUtc(patched.updatedUtc);
-        }
-      }
-
-      if (options.draft !== null) {
-        upsertArchitectureDraftRegistryEntry(
-          buildArchitectureDraftRegistryEntry(options.draft, {
-            linkedReviewId: options.linkedReviewId,
-          }),
-        );
-      }
+      // saveDraft persists the confirmed scope with the rest of the draft. A second PATCH here
+      // uses the pre-save timestamp from this render and can conflict with the successful save.
 
       reviewStartProgress.openReview(
         startReviewFromDraftContextHref({
@@ -260,12 +230,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
     options.draft,
     options.effectiveDraftId,
     options.parentArchitectureId,
-    options.fields.freeTextIntent,
-    options.isNewDraft,
-    options.linkedReviewId,
     options.saveDraft,
-    options.scopeBullets,
-    options.syncServerUpdatedUtc,
     reviewStartProgress,
   ]);
 

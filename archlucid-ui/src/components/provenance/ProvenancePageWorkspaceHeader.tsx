@@ -113,7 +113,7 @@ export function ProvenancePageWorkspaceHeader({
           {"Inspecting provenance for review "}
           <span
             className="font-mono text-neutral-900 dark:text-neutral-100"
-            title={scopedRunId}
+            aria-label={scopedRunId}
           >
             {scopedReviewIdLabel}
           </span>

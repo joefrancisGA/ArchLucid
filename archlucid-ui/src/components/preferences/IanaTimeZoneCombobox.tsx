@@ -252,8 +252,6 @@ export function IanaTimeZoneCombobox({
     }
   };
 
-  let renderedOptionIndex = -1;
-
   return (
     <div ref={containerRef} className="relative w-full max-w-xl" data-testid="iana-time-zone-combobox">
       <button
@@ -352,10 +350,8 @@ export function IanaTimeZoneCombobox({
             {showRecentSection ? (
               <div>
                 <TimeZoneSectionLabel>Recent</TimeZoneSectionLabel>
-                {recentEntries.map((entry) => {
-                  renderedOptionIndex += 1;
-                  const optionIndex = renderedOptionIndex;
-
+                {recentEntries.map((entry, index) => {
+                  const optionIndex = index;
                   return (
                     <TimeZoneOptionRow
                       key={`recent-${entry.ianaTimeZoneId}`}
@@ -373,7 +369,7 @@ export function IanaTimeZoneCombobox({
             {showAllSection ? (
               <div>
                 {searchQuery.trim().length === 0 ? <TimeZoneSectionLabel>All time zones</TimeZoneSectionLabel> : null}
-                {filteredEntries.map((entry) => {
+                {filteredEntries.map((entry, index) => {
                   if (
                     searchQuery.trim().length === 0 &&
                     (entry.ianaTimeZoneId === deviceTimeZoneId ||
@@ -382,8 +378,7 @@ export function IanaTimeZoneCombobox({
                     return null;
                   }
 
-                  renderedOptionIndex += 1;
-                  const optionIndex = renderedOptionIndex;
+                  const optionIndex = (showRecentSection ? recentEntries.length : 0) + index;
 
                   return (
                     <TimeZoneOptionRow

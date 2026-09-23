@@ -52,7 +52,7 @@ describe("architecture-draft-document-undo", () => {
   it("undoDraftDocumentSnapshot restores prior snapshot and pushes current to redo", () => {
     const a = snapshot({ systemName: "A" });
     const b = snapshot({ systemName: "B" });
-    let stacks = pushDraftDocumentUndoSnapshot({ undo: [], redo: [] }, a);
+    const stacks = pushDraftDocumentUndoSnapshot({ undo: [], redo: [] }, a);
 
     const undoResult = undoDraftDocumentSnapshot(stacks, b);
 
@@ -65,7 +65,7 @@ describe("architecture-draft-document-undo", () => {
   it("redoDraftDocumentSnapshot inverts undo", () => {
     const a = snapshot({ systemName: "A" });
     const b = snapshot({ systemName: "B" });
-    let stacks = pushDraftDocumentUndoSnapshot({ undo: [], redo: [] }, a);
+    const stacks = pushDraftDocumentUndoSnapshot({ undo: [], redo: [] }, a);
     const undone = undoDraftDocumentSnapshot(stacks, b);
     const redone = redoDraftDocumentSnapshot(undone.stacks, undone.restored!);
 
@@ -73,7 +73,7 @@ describe("architecture-draft-document-undo", () => {
   });
 
   it("respects max depth", () => {
-    let stacks = { undo: [] as ArchitectureDraftDocumentSnapshot[], redo: [] as ArchitectureDraftDocumentSnapshot[] };
+    const stacks = { undo: [] as ArchitectureDraftDocumentSnapshot[], redo: [] as ArchitectureDraftDocumentSnapshot[] };
 
     for (let index = 0; index < ARCHITECTURE_DRAFT_DOCUMENT_UNDO_STACK_DEPTH + 5; index += 1) {
       stacks = pushDraftDocumentUndoSnapshot(stacks, snapshot({ systemName: `S${index}` }));

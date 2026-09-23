@@ -72,7 +72,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
                 {entry.displayName}
               </p>
               <p className={cn("m-0 mt-1.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                <time dateTime={entry.lastUpdatedUtc} title={absoluteUpdated}>
+                <time dateTime={entry.lastUpdatedUtc} aria-label={`Updated ${absoluteUpdated}`}>
                   Updated {formatRelativeTime(entry.lastUpdatedUtc)}
                 </time>
               </p>

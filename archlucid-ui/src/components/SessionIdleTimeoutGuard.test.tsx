@@ -126,7 +126,7 @@ describe("SessionIdleTimeoutGuard", () => {
   });
 
   it("routes sibling auth-cleared broadcast to session-expired (LW-084)", () => {
-    let channels: Array<{
+    const channels: Array<{
       addEventListener: ReturnType<typeof vi.fn>;
       close: ReturnType<typeof vi.fn>;
     }> = [];

@@ -30,21 +30,10 @@ type RunDetailFirstScreenProofStatusClientProps = {
 export function RunDetailFirstScreenProofStatusClient(
   props: RunDetailFirstScreenProofStatusClientProps,
 ): React.JSX.Element | null {
-  if (
-    !shouldShowRunDetailFirstScreenProofStatus({
-      legacyRunStatus: props.legacyRunStatus,
-      isDeadLettered: props.isDeadLettered,
-    })
-  ) {
-    return null;
-  }
-
   const { data: payload, isPending, isError, refetch } = usePilotRunDeltasQuery(props.runId);
-
   const retryLoad = useCallback(() => {
     void refetch();
   }, [refetch]);
-
   const summary = useMemo(
     () =>
       payload === undefined
@@ -54,6 +43,15 @@ export function RunDetailFirstScreenProofStatusClient(
           }),
     [payload, props.assertedTrailEmpty],
   );
+
+  if (
+    !shouldShowRunDetailFirstScreenProofStatus({
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    })
+  ) {
+    return null;
+  }
 
   if (isPending) {
     return null;

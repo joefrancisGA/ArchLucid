@@ -501,7 +501,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
               <span
                 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-package-workspace-ai-checked-at"
-                title={probeValidatedAt.absolute}
+                aria-label={`Checked ${probeValidatedAt.absolute}`}
               >
                 {probeValidatedAt.relative}
               </span>
@@ -527,7 +527,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
                 <span
                   className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="review-package-workspace-ai-checked-at"
-                  title={probeValidatedAt.absolute}
+                  aria-label={`Checked ${probeValidatedAt.absolute}`}
                 >
                   {probeValidatedAt.relative}
                 </span>

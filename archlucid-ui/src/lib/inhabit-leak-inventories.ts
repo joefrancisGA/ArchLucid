@@ -77,6 +77,7 @@ export const INHABIT_RECORD_CTA_SIMULATOR_LEAK_ROWS: readonly InhabitRecordCtaSi
     ownerPrompt: "IH-025",
   },
   {
+    // eslint-disable-next-line buyer-review-terminology/no-run-primary-copy -- inventory label mirrors the audited surface name.
     surface: "New run wizard final submit",
     relativePath: "app/(operator)/architecture/reviews/new/NewRunWizardClient.tsx",
     hasSimulatorIncompletenessCopy: true,
