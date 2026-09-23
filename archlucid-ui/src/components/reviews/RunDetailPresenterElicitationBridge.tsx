@@ -28,7 +28,7 @@ import {
   readReviewPresenterQuestionIdFromWindowLocation,
   reviewPresenterElicitationHrefFromSearch,
 } from "@/lib/reviews/review-presenter-elicitation-url";
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export type RunDetailPresenterElicitationBridgeProps = ReviewDetailWorkspaceProps & {
