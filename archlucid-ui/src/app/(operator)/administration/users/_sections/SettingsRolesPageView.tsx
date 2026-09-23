@@ -248,8 +248,9 @@ export function SettingsRolesPageView(props: Props) {
   }, [inviteSectionOpen]);
 
   useEffect(() => {
+    // Invite-first layout already renders the form inline; only auto-open the collapsible section.
     if (
-      usersTabInviteFirstLayout
+      !usersTabInviteFirstLayout
       && activeTab === "users"
       && !usersTabBuyerPolished
       && !inviteSectionOpen
