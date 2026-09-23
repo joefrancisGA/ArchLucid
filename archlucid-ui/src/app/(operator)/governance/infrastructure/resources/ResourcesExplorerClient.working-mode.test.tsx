@@ -60,7 +60,7 @@ describe("ResourcesExplorerClient working mode", () => {
     expect(screen.getByTestId("infra-resource-explorer-claim-discipline")).toHaveTextContent(
       GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE,
     );
-    expect(screen.getByTestId("infra-resource-explorer-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-explorer-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-explorer-scope-status")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-resource-explorer-empty-state")).toBeInTheDocument();
   });

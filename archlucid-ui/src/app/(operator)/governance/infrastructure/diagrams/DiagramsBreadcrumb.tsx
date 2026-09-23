@@ -11,6 +11,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_PATH,
   SECURENOW_INFRASTRUCTURE_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -31,9 +32,14 @@ function resolveDiagramsBreadcrumbParent(pathname: string): { readonly href: str
 }
 
 /** Diagrams breadcrumb (NDI). */
-export function DiagramsBreadcrumb(): React.JSX.Element {
+export function DiagramsBreadcrumb(): React.JSX.Element | null {
+  const { productLine } = useProductLine();
   const pathname = usePathname() ?? "";
   const { href: parentHref, label: parentLabel } = resolveDiagramsBreadcrumbParent(pathname);
+
+  if (productLine === "security") {
+    return null;
+  }
 
   return (
     <nav aria-label="Breadcrumb" data-testid="infra-diagrams-breadcrumb">

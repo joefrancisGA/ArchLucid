@@ -124,7 +124,7 @@ describe("TerraformWorkbenchClient working mode", () => {
     expect(screen.getByTestId("infra-terraform-selection-announcer")).toHaveTextContent(
       GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT,
     );
-    expect(screen.getByTestId("infra-terraform-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE })).toHaveAttribute(
       "href",
       GOVERNANCE_INFRASTRUCTURE_PATH,
