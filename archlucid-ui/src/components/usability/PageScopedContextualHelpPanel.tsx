@@ -175,7 +175,7 @@ export function PageScopedContextualHelpPanel({
           { open: nextOpen, sectionId: nextOpen ? resolvedSectionId : null },
           pathname,
         ),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname, resolvedSectionId],

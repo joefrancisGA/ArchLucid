@@ -181,11 +181,13 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
   useEffect(() => {
     const syncClassificationBandFromUrl = (): void => {
-      setClassificationBandState(
-        parseReviewFindingsClassificationBandFromSearch(
+      setClassificationBandState((current) => {
+        const next = parseReviewFindingsClassificationBandFromSearch(
           new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncClassificationBandFromUrl();

@@ -17,14 +17,14 @@ export function useReviewDetailWorkspacePresenter(): UseReviewDetailWorkspacePre
   const exitPresenter = useCallback(() => {
     commitHrefIfChanged(
       reviewPresenterModeHrefFromSearch(window.location.search.slice(1), false, pathname),
-      { notify: true },
+      { notify: false },
     );
   }, [pathname]);
 
   const enterPresenter = useCallback(() => {
     commitHrefIfChanged(
       reviewPresenterModeHrefFromSearch(window.location.search.slice(1), true, pathname),
-      { notify: true },
+      { notify: false },
     );
   }, [pathname]);
 

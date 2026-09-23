@@ -51,7 +51,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
   const syncInternalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(transparencyTrailHrefFromSearch(window.location.search.slice(1), open, pathname), {
-        notify: true,
+        notify: false,
       });
     },
     [pathname],
@@ -71,22 +71,24 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
 
   useEffect(() => {
     const syncInternalDetailsOpenFromUrl = (): void => {
-      setInternalDetailsOpenState(
-        parseTransparencyTrailOpenFromSearch(
-          new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
-        ),
+      const nextOpen = parseTransparencyTrailOpenFromSearch(
+        new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
       );
+
+      setInternalDetailsOpenState((current) => (current === nextOpen ? current : nextOpen));
     };
 
-    syncInternalDetailsOpenFromUrl();
-    window.addEventListener("popstate", syncInternalDetailsOpenFromUrl);
-    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncInternalDetailsOpenFromUrl);
+    if (props.detailsOpen === undefined) {
+      syncInternalDetailsOpenFromUrl();
+      window.addEventListener("popstate", syncInternalDetailsOpenFromUrl);
+      window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncInternalDetailsOpenFromUrl);
+    }
 
     return () => {
       window.removeEventListener("popstate", syncInternalDetailsOpenFromUrl);
       window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncInternalDetailsOpenFromUrl);
     };
-  }, []);
+  }, [props.detailsOpen]);
 
   if (props.missingTrailDefect === true && (trail === null || trail === undefined)) {
     return (

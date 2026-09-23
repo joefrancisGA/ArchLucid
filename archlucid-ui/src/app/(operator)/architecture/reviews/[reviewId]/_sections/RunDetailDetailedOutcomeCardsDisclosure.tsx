@@ -31,7 +31,7 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
         runDetailOutcomeCardsDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -51,11 +51,13 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState(
-        parseRunDetailOutcomeCardsOpenFromSearch(
+      setOpenState((current) => {
+        const next = parseRunDetailOutcomeCardsOpenFromSearch(
           new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncOpenFromUrl();

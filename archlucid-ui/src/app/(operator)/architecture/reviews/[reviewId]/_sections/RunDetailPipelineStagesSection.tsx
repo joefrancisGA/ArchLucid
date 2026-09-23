@@ -57,7 +57,7 @@ export function RunDetailPipelineStagesSection({
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
         runPipelineStagesDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -79,7 +79,7 @@ export function RunDetailPipelineStagesSection({
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
         runPipelineStagesTechnicalDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -99,16 +99,20 @@ export function RunDetailPipelineStagesSection({
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState(
-        parseRunPipelineStagesOpenFromSearch(
+      setOpenState((current) => {
+        const next = parseRunPipelineStagesOpenFromSearch(
           new URLSearchParams(window.location.search).get("runPipelineStagesOpen"),
-        ),
-      );
-      setTechnicalOpenState(
-        parseRunPipelineStagesTechnicalOpenFromSearch(
+        );
+
+        return current === next ? current : next;
+      });
+      setTechnicalOpenState((current) => {
+        const next = parseRunPipelineStagesTechnicalOpenFromSearch(
           new URLSearchParams(window.location.search).get("runPipelineStagesTechnicalOpen"),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncOpenFromUrl();

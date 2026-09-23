@@ -150,7 +150,7 @@ export function RunDetailArtifactsExportsSection(
     (open: boolean) => {
       commitHrefIfChanged(
         runDetailDeliverablesDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],

@@ -50,7 +50,7 @@ export function usePinnedReviewContext(primaryRunId: string): UsePinnedReviewCon
   const closePin = useCallback(() => {
     writePinRunIdToUrl(null);
     commitHrefIfChanged(reviewPinRunHrefFromSearch(window.location.search.slice(1), null, pathname), {
-      notify: true,
+      notify: false,
     });
   }, [pathname]);
 

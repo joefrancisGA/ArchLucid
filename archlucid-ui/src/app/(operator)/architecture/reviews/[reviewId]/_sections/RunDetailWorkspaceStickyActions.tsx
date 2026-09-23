@@ -61,7 +61,7 @@ export function RunDetailWorkspaceStickyActions(
     (open: boolean) => {
       commitHrefIfChanged(
         runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -81,11 +81,13 @@ export function RunDetailWorkspaceStickyActions(
 
   useEffect(() => {
     const syncTechnicalDetailOpenFromUrl = (): void => {
-      setTechnicalDetailOpenState(
-        parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
+      setTechnicalDetailOpenState((current) => {
+        const next = parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
           new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncTechnicalDetailOpenFromUrl();

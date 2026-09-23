@@ -74,7 +74,7 @@ function BuyerSponsorBriefExports({
     (open: boolean) => {
       commitHrefIfChanged(
         runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -94,11 +94,13 @@ function BuyerSponsorBriefExports({
 
   useEffect(() => {
     const syncSponsorBriefExportsOpenFromUrl = (): void => {
-      setSponsorBriefExportsOpenState(
-        parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+      setSponsorBriefExportsOpenState((current) => {
+        const next = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
           new URLSearchParams(window.location.search).get("runDetailBuyerSponsorBriefExportsOpen"),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncSponsorBriefExportsOpenFromUrl();

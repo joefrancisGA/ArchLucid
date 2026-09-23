@@ -247,12 +247,26 @@ export function RunDetailRunExplanationCollapsible(
     const syncDisclosuresFromUrl = (): void => {
       const params = new URLSearchParams(window.location.search);
 
-      setAssessmentNarrativeOpenState(parseRunAssessmentNarrativeOpenFromSearch(params.get("runAssessmentNarrativeOpen")));
-      setCoverageCurationOpenState(parseRunCoverageCurationOpenFromSearch(params.get("runCoverageCurationOpen")));
-      setImpactAnalysisOpenState(parseRunImpactAnalysisOpenFromSearch(params.get("runImpactAnalysisOpen")));
-      setFindingExplainabilityOpenState(
-        parseRunFindingExplainabilityOpenFromSearch(params.get("runFindingExplainabilityOpen")),
-      );
+      setAssessmentNarrativeOpenState((current) => {
+        const next = parseRunAssessmentNarrativeOpenFromSearch(params.get("runAssessmentNarrativeOpen"));
+
+        return current === next ? current : next;
+      });
+      setCoverageCurationOpenState((current) => {
+        const next = parseRunCoverageCurationOpenFromSearch(params.get("runCoverageCurationOpen"));
+
+        return current === next ? current : next;
+      });
+      setImpactAnalysisOpenState((current) => {
+        const next = parseRunImpactAnalysisOpenFromSearch(params.get("runImpactAnalysisOpen"));
+
+        return current === next ? current : next;
+      });
+      setFindingExplainabilityOpenState((current) => {
+        const next = parseRunFindingExplainabilityOpenFromSearch(params.get("runFindingExplainabilityOpen"));
+
+        return current === next ? current : next;
+      });
     };
 
     syncDisclosuresFromUrl();

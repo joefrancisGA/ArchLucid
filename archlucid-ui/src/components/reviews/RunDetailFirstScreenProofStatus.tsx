@@ -38,7 +38,7 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
     (open: boolean) => {
       commitHrefIfChanged(
         runDetailFirstScreenProofDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -58,11 +58,13 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
 
   useEffect(() => {
     const syncProofDetailsOpenFromUrl = (): void => {
-      setProofDetailsOpenState(
-        parseRunDetailFirstScreenProofOpenFromSearch(
+      setProofDetailsOpenState((current) => {
+        const next = parseRunDetailFirstScreenProofOpenFromSearch(
           new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncProofDetailsOpenFromUrl();

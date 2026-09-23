@@ -37,7 +37,7 @@ export function RunDetailAdvancedAnalysisSection(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
         runAdvancedAnalysisDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -57,11 +57,13 @@ export function RunDetailAdvancedAnalysisSection(
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState(
-        parseRunAdvancedAnalysisOpenFromSearch(
+      setOpenState((current) => {
+        const next = parseRunAdvancedAnalysisOpenFromSearch(
           new URLSearchParams(window.location.search).get("runAdvancedAnalysisOpen"),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncOpenFromUrl();

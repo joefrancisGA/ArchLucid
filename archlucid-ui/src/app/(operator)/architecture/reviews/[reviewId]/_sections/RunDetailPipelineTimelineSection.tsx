@@ -162,7 +162,7 @@ export function RunDetailPipelineTimelineSection(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
         runPipelineTimelineDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -182,9 +182,13 @@ export function RunDetailPipelineTimelineSection(
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState(parseRunPipelineTimelineOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runPipelineTimelineOpen"),
-      ));
+      setOpenState((current) => {
+        const next = parseRunPipelineTimelineOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runPipelineTimelineOpen"),
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncOpenFromUrl();

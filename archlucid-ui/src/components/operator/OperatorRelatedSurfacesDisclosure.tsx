@@ -40,7 +40,7 @@ export function OperatorRelatedSurfacesDisclosure(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
         relatedSurfacesDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
-        { notify: true },
+        { notify: false },
       );
     },
     [pathname],
@@ -60,11 +60,13 @@ export function OperatorRelatedSurfacesDisclosure(
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState(
-        parseRelatedSurfacesOpenFromSearch(
+      setOpenState((current) => {
+        const next = parseRelatedSurfacesOpenFromSearch(
           new URLSearchParams(window.location.search).get("relatedSurfacesOpen"),
-        ),
-      );
+        );
+
+        return current === next ? current : next;
+      });
     };
 
     syncOpenFromUrl();
