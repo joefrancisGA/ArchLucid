@@ -21,9 +21,15 @@ import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { WorkingArchitectureNestedKeyboardHint } from "@/components/architecture/WorkingArchitectureNestedKeyboardHint";
+import { WorkingArchitectureNestedToolContextStrip } from "@/components/architecture/WorkingArchitectureNestedToolContextStrip";
 import { WorkingArchitectureNestedWayfinding } from "@/components/architecture/WorkingArchitectureNestedWayfinding";
 import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { WorkingUnlinkedReviewHonestyBanner } from "@/components/reviews/WorkingUnlinkedReviewHonestyBanner";
+import {
+  workingArchitectureNestedClaimDiscipline,
+  workingArchitectureNestedClaimDisciplineTestId,
+} from "@/lib/architecture/working-architecture-nested-tool-copy";
 import {
   RunDetailBuyerModeFallbackBannerDeferred,
   RunDetailBuyerPilotConversionSectionDeferred,
@@ -281,7 +287,12 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
       {parentArchitectureId.length > 0 ? (
         <>
           <WorkingArchitectureNestedWayfinding architectureId={parentArchitectureId} toolLabel="Review" />
-          <WorkingArchitectureNestedKeyboardHint />
+          <WorkingArchitectureNestedToolContextStrip toolLabel="Review" />
+          <PageHeaderClaimDiscipline
+            text={workingArchitectureNestedClaimDiscipline("Review")}
+            testId={workingArchitectureNestedClaimDisciplineTestId("Review")}
+          />
+          <WorkingArchitectureNestedKeyboardHint toolLabel="Review" />
         </>
       ) : null}
 
@@ -358,9 +369,29 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     </>
   ) : (
     <>
-      {runDetailWorkspaceHeader}
-      {runDetailIdentityChrome}
-      {chrome.tabbedWorkspaceEl}
+      {parentArchitectureId.length > 0 ? (
+        <a href={`#${REVIEW_DETAIL_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {REVIEW_DETAIL_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+      <div
+        id={parentArchitectureId.length > 0 ? REVIEW_DETAIL_PRIMARY_CONTENT_ID : undefined}
+        data-testid={parentArchitectureId.length > 0 ? REVIEW_DETAIL_PRIMARY_CONTENT_ID : undefined}
+        className={cn(
+          parentArchitectureId.length > 0 && "scroll-mt-24",
+          parentArchitectureId.length > 0 && OPERATOR_LAYOUT.sectionStack,
+        )}
+      >
+        {runDetailWorkspaceHeader}
+        {runDetailIdentityChrome}
+        <div
+          id={parentArchitectureId.length > 0 ? REVIEW_DETAIL_SKIP_TARGET_ID : undefined}
+          data-testid={parentArchitectureId.length > 0 ? REVIEW_DETAIL_FIRST_VIEWPORT_ID : undefined}
+          className={cn(parentArchitectureId.length > 0 && "scroll-mt-24")}
+        >
+          {chrome.tabbedWorkspaceEl}
+        </div>
+      </div>
     </>
   );
 

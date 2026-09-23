@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 
-import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureIdentityPath,
 } from "@/lib/architecture/architecture-routes";
 import {
-  WORKING_ARCHITECTURE_NESTED_ARCHITECTURE_SLUG_LABEL,
   WORKING_ARCHITECTURE_NESTED_BREADCRUMB_ARCHITECTURES_LABEL,
   WORKING_ARCHITECTURE_NESTED_BREADCRUMB_DESK_LABEL,
 } from "@/lib/architecture/working-architecture-nested-tool-copy";
@@ -21,7 +19,7 @@ export type WorkingArchitectureNestedWayfindingProps = {
   readonly toolLabel: string;
 };
 
-/** Working nested tool breadcrumb trail with architecture slug disclosure (TB-2090 exception). */
+/** Working nested tool breadcrumb trail — slug disclosure lives in identity chrome only. */
 export function WorkingArchitectureNestedWayfinding(
   props: WorkingArchitectureNestedWayfindingProps,
 ): React.JSX.Element {
@@ -43,16 +41,10 @@ export function WorkingArchitectureNestedWayfinding(
           </Link>
         </li>
         <li aria-hidden="true" className="text-al-text-secondary">/</li>
-        <li className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5">
+        <li className="min-w-0">
           <Link className={cn(OPERATOR_LINK.inline, "max-w-[14rem] truncate")} href={deskHref} title={displayName}>
             {displayName}
           </Link>
-          <span className="text-al-text-secondary" aria-hidden="true">·</span>
-          <TechnicalIdDisclosure
-            label={WORKING_ARCHITECTURE_NESTED_ARCHITECTURE_SLUG_LABEL}
-            value={architectureId}
-            disclosureKey={`architecture-slug-${architectureId}`}
-          />
         </li>
         <li aria-hidden="true" className="text-al-text-secondary">/</li>
         <li aria-current="page" className="text-al-text-primary">

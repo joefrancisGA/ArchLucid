@@ -10,6 +10,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import {
   WORKING_ARCHITECTURE_NESTED_RESUME_DRAFT_HEADING,
+  WORKING_ARCHITECTURE_NESTED_RESUME_LOADING_LABEL,
   WORKING_ARCHITECTURE_NESTED_RESUME_REVIEW_HEADING,
 } from "@/lib/architecture/working-architecture-nested-tool-copy";
 import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
@@ -28,7 +29,28 @@ export function WorkingArchitectureNestedResumeStrip(
   const query = useArchitectureIdentityQuery(architectureId);
   const identity = query.data;
 
-  if (identity === undefined || query.isLoading) {
+  if (query.isLoading) {
+    return (
+      <section
+        aria-busy="true"
+        aria-labelledby="working-architecture-nested-resume-loading-heading"
+        className={OPERATOR_RESUME.stripSpaced}
+        data-testid="working-architecture-nested-resume-strip-loading"
+      >
+        <h2
+          id="working-architecture-nested-resume-loading-heading"
+          className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+        >
+          {WORKING_ARCHITECTURE_NESTED_RESUME_LOADING_LABEL}
+        </h2>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Resolving open draft or in-progress review for this architecture.
+        </p>
+      </section>
+    );
+  }
+
+  if (identity === undefined) {
     return null;
   }
 
