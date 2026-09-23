@@ -42,7 +42,7 @@ import {
   parseRunDetailRecordMetadataOpenFromSearch,
   runDetailRecordMetadataHrefFromSearch,
 } from "@/lib/runs/run-detail-record-metadata-url";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { replaceIfHrefChanged, commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 type ReviewMetadataField = {
@@ -212,9 +212,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
 
   const syncRecordMetadataOpenToUrl = useCallback(
     (open: boolean) => {
-      replaceIfHrefChanged(
-        router,
+      commitHrefIfChanged(
         runDetailRecordMetadataHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
       );
     },
     [pathname, router],

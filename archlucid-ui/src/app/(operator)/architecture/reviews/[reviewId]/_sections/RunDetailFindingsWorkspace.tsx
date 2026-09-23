@@ -84,7 +84,7 @@ import {
 } from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 export type RunDetailFindingsWorkspaceProps = {
@@ -171,9 +171,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         return;
       }
 
-      replaceIfHrefChanged(
-        router,
+      commitHrefIfChanged(
         reviewFindingsClassificationBandHrefFromSearch(window.location.search.slice(1), pathname, next),
+        { notify: true },
       );
     },
     [pathname, router],

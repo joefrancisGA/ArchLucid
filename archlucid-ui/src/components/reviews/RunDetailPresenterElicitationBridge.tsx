@@ -28,7 +28,7 @@ import {
   readReviewPresenterQuestionIdFromWindowLocation,
   reviewPresenterElicitationHrefFromSearch,
 } from "@/lib/reviews/review-presenter-elicitation-url";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export type RunDetailPresenterElicitationBridgeProps = ReviewDetailWorkspaceProps & {
@@ -103,9 +103,9 @@ export function RunDetailPresenterElicitationBridge(
     }
 
     syncedPresenterQuestionIdRef.current = nextQuestionId;
-    replaceIfHrefChanged(
-      router,
+    commitHrefIfChanged(
       reviewPresenterElicitationHrefFromSearch(window.location.search.slice(1), nextQuestionId, pathname),
+      { notify: true },
     );
   }, [pathname, presenterQuestionIdParam, primaryQuestionKey, router, showElicitation]);
 

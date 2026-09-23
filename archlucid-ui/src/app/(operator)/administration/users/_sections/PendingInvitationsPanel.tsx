@@ -40,7 +40,7 @@ import {
 } from "@/lib/administration/settings-invites-show-resolved-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
 import {
@@ -112,9 +112,9 @@ export function PendingInvitationsPanel({
 
   const syncShowResolvedToUrl = useCallback(
     (resolvedVisible: boolean) => {
-      replaceIfHrefChanged(
-        router,
+      commitHrefIfChanged(
         settingsInvitesShowResolvedHrefFromSearch(window.location.search.slice(1), resolvedVisible, pathname),
+        { notify: true },
       );
     },
     [pathname, router],
@@ -163,9 +163,9 @@ export function PendingInvitationsPanel({
 
   const syncRevokeInviteToUrl = useCallback(
     (invitationId: string | null) => {
-      replaceIfHrefChanged(
-        router,
+      commitHrefIfChanged(
         settingsUsersInviteRevokeHrefFromSearch(window.location.search.slice(1), invitationId, pathname),
+        { notify: true },
       );
     },
     [pathname, router],

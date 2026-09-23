@@ -1,10 +1,10 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 
 import { reviewPresenterModeHrefFromSearch } from "@/lib/reviews/review-presenter-mode-url";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 export type UseReviewDetailWorkspacePresenterResult = {
   readonly exitPresenter: () => void;
@@ -12,22 +12,21 @@ export type UseReviewDetailWorkspacePresenterResult = {
 };
 
 export function useReviewDetailWorkspacePresenter(): UseReviewDetailWorkspacePresenterResult {
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews";
 
   const exitPresenter = useCallback(() => {
-    replaceIfHrefChanged(
-      router,
+    commitHrefIfChanged(
       reviewPresenterModeHrefFromSearch(window.location.search.slice(1), false, pathname),
+      { notify: true },
     );
-  }, [pathname, router]);
+  }, [pathname]);
 
   const enterPresenter = useCallback(() => {
-    replaceIfHrefChanged(
-      router,
+    commitHrefIfChanged(
       reviewPresenterModeHrefFromSearch(window.location.search.slice(1), true, pathname),
+      { notify: true },
     );
-  }, [pathname, router]);
+  }, [pathname]);
 
   return { exitPresenter, enterPresenter };
 }

@@ -15,7 +15,7 @@ import {
 } from "@/lib/reviews/review-pin-run-url";
 import { resolveReviewPinStampStatus } from "@/lib/reviews/review-pin-stamp-status";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -49,8 +49,10 @@ export function usePinnedReviewContext(primaryRunId: string): UsePinnedReviewCon
 
   const closePin = useCallback(() => {
     writePinRunIdToUrl(null);
-    replaceIfHrefChanged(router, reviewPinRunHrefFromSearch(window.location.search.slice(1), null, pathname));
-  }, [pathname, router]);
+    commitHrefIfChanged(reviewPinRunHrefFromSearch(window.location.search.slice(1), null, pathname), {
+      notify: true,
+    });
+  }, [pathname]);
 
   const summaryFailure = summaryQuery.error !== null && summaryQuery.error !== undefined
     ? toApiLoadFailure(summaryQuery.error)

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 import type {
   RunDetailFindingsFilterKind,
@@ -13,7 +13,7 @@ import {
   buildReviewFindingsLastVisitHref,
   reviewFindingsLastVisitHasUrlParams,
 } from "@/lib/findings/review-findings-last-visit-url";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   patchReviewFindingsLastVisit,
@@ -26,27 +26,32 @@ export type UseReviewFindingsLastVisitRestoreOptions = {
   readonly enabled: boolean;
 };
 
+const reviewFindingsLastVisitRestoredRunIds = new Set<string>();
+
+/** Test-only reset for module-level restore guard. */
+export function resetReviewFindingsLastVisitRestoreStateForTests(): void {
+  reviewFindingsLastVisitRestoredRunIds.clear();
+}
+
 /** Restores last-visit review findings filters when the URL omits them (DR-13). */
 export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLastVisitRestoreOptions): void {
   const { runId, enabled } = options;
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const restoredRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled || pathname.length === 0) {
+    if (!enabled || pathname.length === 0 || reviewFindingsLastVisitRestoredRunIds.has(runId)) {
       return;
     }
 
     const restoreFromLastVisitIfNeeded = (): void => {
-      if (restoredRef.current) {
+      if (reviewFindingsLastVisitRestoredRunIds.has(runId)) {
         return;
       }
 
       const windowSearchParams = new URLSearchParams(window.location.search);
 
       if (reviewFindingsLastVisitHasUrlParams(windowSearchParams)) {
-        restoredRef.current = true;
+        reviewFindingsLastVisitRestoredRunIds.add(runId);
 
         return;
       }
@@ -55,8 +60,8 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
       const windowSearch = windowSearchParams.toString();
       const nextHref = buildReviewFindingsLastVisitHref(pathname, windowSearch, lastVisit);
 
-      replaceIfHrefChanged(router, nextHref);
-      restoredRef.current = true;
+      commitHrefIfChanged(nextHref, { notify: true });
+      reviewFindingsLastVisitRestoredRunIds.add(runId);
     };
 
     restoreFromLastVisitIfNeeded();
@@ -67,7 +72,7 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
       window.removeEventListener("popstate", restoreFromLastVisitIfNeeded);
       window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, restoreFromLastVisitIfNeeded);
     };
-  }, [enabled, pathname, router, runId]);
+  }, [enabled, pathname, runId]);
 }
 
 export type UseReviewFindingsLastVisitPersistOptions = {

@@ -43,7 +43,7 @@ import {
   parseSettingsUsersInviteOpenFromSearch,
   settingsUsersInviteHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-url";
-import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -92,6 +92,8 @@ import {
 } from "./settings-roles-settings-page-copy";
 import { SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/settings-roles-settings-evidence-copy";
 
+const settingsUsersInviteAutoOpenAttempted = new Set<string>();
+
 type Props = {
   readonly model: SettingsRolesPageViewModel;
 };
@@ -104,7 +106,6 @@ export function SettingsRolesPageView(props: Props) {
   const searchParams = useSearchParams();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const inviteEmailInputRef = useRef<HTMLInputElement | null>(null);
-  const inviteAutoOpenAttemptedRef = useRef(false);
   const canManageApiKeys =
     isApiKeysSettingsSurfaceEnabled() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const tabs = visibleTabs(canManageApiKeys);
@@ -127,16 +128,16 @@ export function SettingsRolesPageView(props: Props) {
 
   const syncInviteSectionToUrl = useCallback(
     (open: boolean) => {
-      replaceIfHrefChanged(
-        router,
+      commitHrefIfChanged(
         settingsUsersInviteHrefFromSearch(
           typeof window === "undefined" ? currentSearch : window.location.search.slice(1),
           open,
           hubPathname,
         ),
+        { notify: true },
       );
     },
-    [currentSearch, hubPathname, router],
+    [currentSearch, hubPathname],
   );
 
   const setInviteSectionOpen = useCallback(
@@ -252,12 +253,12 @@ export function SettingsRolesPageView(props: Props) {
       && activeTab === "users"
       && !usersTabBuyerPolished
       && !inviteSectionOpen
-      && !inviteAutoOpenAttemptedRef.current
+      && !settingsUsersInviteAutoOpenAttempted.has(hubPathname)
     ) {
-      inviteAutoOpenAttemptedRef.current = true;
+      settingsUsersInviteAutoOpenAttempted.add(hubPathname);
       setInviteSectionOpen(true);
     }
-  }, [activeTab, inviteSectionOpen, setInviteSectionOpen, usersTabBuyerPolished, usersTabInviteFirstLayout]);
+  }, [activeTab, hubPathname, inviteSectionOpen, setInviteSectionOpen, usersTabBuyerPolished, usersTabInviteFirstLayout]);
 
   const onSelectTab = useCallback(
     (id: string) => {
