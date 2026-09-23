@@ -1,16 +1,14 @@
 namespace ArchLucid.Application.Tests.InfraEvidence.ReferenceAssurance;
 
 /// <summary>
-/// Deliberately small brute-force reachability oracle. It has no dependency on SecureNow traversal implementation.
+/// Deliberately small brute-force privilege-path oracle. It has no dependency on SecureNow traversal code.
 /// </summary>
-internal static class ReferenceReachabilityOracle
+internal static class ReferencePrivilegePathOracle
 {
     internal static IReadOnlySet<string> EnumeratePathSignatures(
         string startNode,
         IReadOnlyDictionary<string, IReadOnlyList<(string ToNodeId, string EdgeType)>> outgoing,
-        IReadOnlySet<string> terminalNodes,
-        int maxDepth,
-        Func<IReadOnlyList<(string FromNodeId, string EdgeType, string ToNodeId)>, bool>? terminalPathPredicate = null)
+        int maxDepth)
     {
         HashSet<string> results = new(StringComparer.Ordinal);
         Walk(startNode, [], new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode });
@@ -22,15 +20,15 @@ internal static class ReferenceReachabilityOracle
             List<(string FromNodeId, string EdgeType, string ToNodeId)> path,
             HashSet<string> visited)
         {
-            if (path.Count > 0 && terminalNodes.Contains(current))
+            if (path.Count > 0
+                && path[^1].EdgeType is "CAN_READ" or "CAN_WRITE"
+                && path.Any(static hop => hop.EdgeType == "HAS_ROLE"))
             {
-                if (terminalPathPredicate is null || terminalPathPredicate(path))
-                {
-                    results.Add(Signature(path));
-                }
+                results.Add(Signature(path));
             }
 
-            if (path.Count >= maxDepth || !outgoing.TryGetValue(current, out IReadOnlyList<(string ToNodeId, string EdgeType)>? edges))
+            if (path.Count >= maxDepth
+                || !outgoing.TryGetValue(current, out IReadOnlyList<(string ToNodeId, string EdgeType)>? edges))
             {
                 return;
             }

@@ -49,3 +49,24 @@ Add metamorphic transformations only when the semantic invariant is obvious:
 - deterministic replay across persisted snapshot round trips.
 
 Do **not** reorder hops inside a path: hop order is semantic. Do **not** mutate confidence/provenance or privilege edge types and call the change irrelevant.
+
+## Directional mutations
+
+Directional mutations are semantically relevant, test-only transformations. Unlike the invariance suite, they are expected to move one named security dimension in a known direction:
+
+- adding public ingress must not improve technical-exposure scoring;
+- adding a private-endpoint route must not cancel an existing public-exposure signal;
+- removing public exposure must not worsen technical exposure;
+- write privilege must not score below equivalent read privilege;
+- removing a shared identity from paths must reduce that identity's collapsed-path count.
+
+These tests compare the affected dimension rather than asserting that one composite security score captures every architecture tradeoff. They use synthetic worlds only, with no Azure mutation, LLM, or buyer-facing assurance claim.
+
+## Independent bounded path oracles
+
+The SecureNow test suite also contains small brute-force oracles under `ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/`:
+
+- `ReferenceReachabilityOracle` compares reachability path signatures on bounded graphs;
+- `ReferencePrivilegePathOracle` compares simple privilege-path signatures for the narrow role/action slice.
+
+Each oracle uses only plain node and edge tuples and hand-listed terminal resources. It must not call production graph builders, path enumerators, rankers, or cut-point analyzers. The graphs are intentionally tiny and bounded so a reviewer can count their expected paths by hand. Matching path signatures—not only counts—guards against swapped or duplicated results. These oracles are contributor-only regression checks, not customer or buyer proof.
