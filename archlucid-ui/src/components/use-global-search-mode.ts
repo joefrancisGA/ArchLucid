@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -30,8 +32,6 @@ import type { RouteLocalSearchMode } from "@/components/use-global-search-result
 
 export function useGlobalSearchMode() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { productLine } = useProductLine();
 
@@ -53,17 +53,34 @@ export function useGlobalSearchMode() {
     return null;
   }, [pathname]);
 
-  const routeLocalSearchQuery = useMemo(() => {
+  const readRouteLocalSearchQuery = useCallback((): string => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
     if (routeLocalSearchMode === "reviews-hub") {
-      return parseReviewsHubInventorySearchQuery(searchParams.get("q"));
+      return parseReviewsHubInventorySearchQuery(params.get("q"));
     }
 
     if (routeLocalSearchMode === "findings-queue") {
-      return parseGovernanceFindingsSearchQuery(searchParams.get("q"));
+      return parseGovernanceFindingsSearchQuery(params.get("q"));
     }
 
     return "";
-  }, [routeLocalSearchMode, searchParams]);
+  }, [routeLocalSearchMode]);
+
+  const [routeLocalSearchQuery, setRouteLocalSearchQuery] = useState(() => readRouteLocalSearchQuery());
+
+  useEffect(() => {
+    const syncRouteLocalSearchQueryFromUrl = (): void => {
+      setRouteLocalSearchQuery(readRouteLocalSearchQuery());
+    };
+
+    syncRouteLocalSearchQueryFromUrl();
+    window.addEventListener("popstate", syncRouteLocalSearchQueryFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRouteLocalSearchQueryFromUrl);
+    };
+  }, [readRouteLocalSearchQuery]);
 
   const searchPlaceholder = useMemo(
     () => {
@@ -89,22 +106,24 @@ export function useGlobalSearchMode() {
   const replaceRouteLocalSearchQuery = useCallback(
     (nextQuery: string) => {
       const path = pathname ?? "";
+      setRouteLocalSearchQuery(nextQuery);
 
       if (routeLocalSearchMode === "reviews-hub") {
-        router.replace(reviewsHubInventorySearchHrefFromSearch(searchParams.toString(), nextQuery), {
-          scroll: false,
-        });
+        commitHrefIfChanged(
+          reviewsHubInventorySearchHrefFromSearch(readWindowLocationSearch(), nextQuery),
+          { notify: false },
+        );
         return;
       }
 
       if (routeLocalSearchMode === "findings-queue") {
-        router.replace(
-          governanceFindingsSearchHrefFromSearch(searchParams.toString(), nextQuery, path),
-          { scroll: false },
+        commitHrefIfChanged(
+          governanceFindingsSearchHrefFromSearch(readWindowLocationSearch(), nextQuery, path),
+          { notify: false },
         );
       }
     },
-    [pathname, routeLocalSearchMode, router, searchParams],
+    [pathname, routeLocalSearchMode],
   );
 
   return {

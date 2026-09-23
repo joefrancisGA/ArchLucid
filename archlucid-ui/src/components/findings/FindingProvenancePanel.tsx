@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useFindingProvenanceQuery } from "@/hooks/use-finding-provenance-query";
 import type { FindingProvenanceStep, FindingProvenanceStepKind } from "@/lib/api/finding-provenance";
@@ -64,28 +66,38 @@ function ProvenanceStepRow(props: { readonly step: FindingProvenanceStep }): Rea
 }
 
 export function FindingProvenancePanel(props: FindingProvenancePanelProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingProvenanceOpenParam = searchParams.get("findingProvenanceOpen");
   const { runId, findingId } = props;
   const [expanded, setExpandedState] = useState(() =>
-    parseFindingProvenanceOpenFromSearch(findingProvenanceOpenParam),
+    parseFindingProvenanceOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingProvenanceOpen"),
+    ),
   );
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
 
   const syncExpandedToUrl = useCallback(
     (open: boolean) => {
-      router.replace(findingProvenancePanelHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        findingProvenancePanelHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setExpanded = useCallback(
     (value: boolean | ((current: boolean) => boolean)) => {
       setExpandedState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (expandedRef.current === next) {
+          return current;
+        }
+
+        expandedRef.current = next;
         syncExpandedToUrl(next);
 
         return next;
@@ -95,8 +107,26 @@ export function FindingProvenancePanel(props: FindingProvenancePanelProps): Reac
   );
 
   useEffect(() => {
-    setExpandedState(parseFindingProvenanceOpenFromSearch(findingProvenanceOpenParam));
-  }, [findingProvenanceOpenParam]);
+    const syncExpandedFromUrl = (): void => {
+      const next = parseFindingProvenanceOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingProvenanceOpen"),
+      );
+
+      if (expandedRef.current === next) {
+        return;
+      }
+
+      expandedRef.current = next;
+      setExpandedState(next);
+    };
+
+    syncExpandedFromUrl();
+    window.addEventListener("popstate", syncExpandedFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncExpandedFromUrl);
+    };
+  }, []);
   const provenanceQuery = useFindingProvenanceQuery(runId, findingId, { enabled: expanded });
   const loading = expanded && provenanceQuery.isPending;
   const steps = useMemo(() => {
