@@ -1,13 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { InlineGuidance } from "@/components/InlineGuidance";
 import type { RunDetailFirstScreenProofSummary } from "@/lib/runs/run-detail-first-screen-proof-status";
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/runs/run-detail-first-screen-proof-status";
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunDetailFirstScreenProofOpenFromSearch,
   runDetailFirstScreenProofDisclosureHrefFromSearch} from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
@@ -29,13 +29,15 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
         : new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
     ),
   );
+  const proofDetailsOpenRef = useRef(proofDetailsOpen);
+  proofDetailsOpenRef.current = proofDetailsOpen;
   const primaryBullet = summary.whySafeToSendBullets[0] ?? null;
   const detailBullets = summary.whySafeToSendBullets.slice(1);
 
   const syncProofDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailFirstScreenProofDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        runDetailFirstScreenProofDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
         { notify: false },
       );
     },
@@ -44,25 +46,29 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
 
   const setProofDetailsOpen = useCallback(
     (open: boolean) => {
-      if (proofDetailsOpen === open) {
+      if (proofDetailsOpenRef.current === open) {
         return;
       }
 
+      proofDetailsOpenRef.current = open;
       setProofDetailsOpenState(open);
       syncProofDetailsOpenToUrl(open);
     },
-    [proofDetailsOpen, syncProofDetailsOpenToUrl],
+    [syncProofDetailsOpenToUrl],
   );
 
   useEffect(() => {
     const syncProofDetailsOpenFromUrl = (): void => {
-      setProofDetailsOpenState((current) => {
-        const next = parseRunDetailFirstScreenProofOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
-        );
+      const next = parseRunDetailFirstScreenProofOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
+      );
 
-        return current === next ? current : next;
-      });
+      if (proofDetailsOpenRef.current === next) {
+        return;
+      }
+
+      proofDetailsOpenRef.current = next;
+      setProofDetailsOpenState(next);
     };
 
     syncProofDetailsOpenFromUrl();
@@ -100,7 +106,8 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
         className="mt-3"
         open={proofDetailsOpen}
         onToggle={(event) => {
-          setProofDetailsOpen(event.currentTarget.open);
+          event.preventDefault();
+          setProofDetailsOpen(!proofDetailsOpenRef.current);
         }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>

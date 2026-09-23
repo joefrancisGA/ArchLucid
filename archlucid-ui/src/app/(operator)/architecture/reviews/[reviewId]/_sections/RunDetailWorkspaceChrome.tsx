@@ -18,8 +18,8 @@ import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRo
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/architecture-routes";
@@ -40,7 +40,7 @@ import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive
 import {
   parseRunDetailRecordMetadataOpenFromSearch,
   runDetailRecordMetadataHrefFromSearch} from "@/lib/runs/run-detail-record-metadata-url";
-import { replaceIfHrefChanged, commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 type ReviewMetadataField = {
   readonly key: string;
@@ -178,7 +178,6 @@ function shouldShowReviewRecordMetadata(
 
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const { isWorkingMode } = useWorkspaceMode();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -199,27 +198,30 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
       typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
     ),
   );
+  const recordMetadataOpenRef = useRef(recordMetadataOpen);
+  recordMetadataOpenRef.current = recordMetadataOpen;
 
   const syncRecordMetadataOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailRecordMetadataHrefFromSearch(window.location.search.slice(1), open, pathname),
+        runDetailRecordMetadataHrefFromSearch(readWindowLocationSearch(), open, pathname),
         { notify: false },
       );
     },
-    [pathname, router],
+    [pathname],
   );
 
   const setRecordMetadataOpen = useCallback(
     (open: boolean) => {
-      if (recordMetadataOpen === open) {
+      if (recordMetadataOpenRef.current === open) {
         return;
       }
 
+      recordMetadataOpenRef.current = open;
       setRecordMetadataOpenState(open);
       syncRecordMetadataOpenToUrl(open);
     },
-    [recordMetadataOpen, syncRecordMetadataOpenToUrl],
+    [syncRecordMetadataOpenToUrl],
   );
 
   useEffect(() => {
@@ -228,7 +230,12 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
       );
 
-      setRecordMetadataOpenState((current) => (current === nextOpen ? current : nextOpen));
+      if (recordMetadataOpenRef.current === nextOpen) {
+        return;
+      }
+
+      recordMetadataOpenRef.current = nextOpen;
+      setRecordMetadataOpenState(nextOpen);
     };
 
     syncRecordMetadataOpenFromUrl();
@@ -353,7 +360,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 data-testid="run-detail-record-metadata-disclosure"
                 open={recordMetadataOpen}
                 onToggle={(event) => {
-                  setRecordMetadataOpen((event.currentTarget as HTMLDetailsElement).open);
+                  event.preventDefault();
+                  setRecordMetadataOpen(!recordMetadataOpenRef.current);
                 }}
               >
                 <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>

@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useResolvedReviewDetailActiveTab } from "@/hooks/use-resolved-review-detail-active-tab";
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
   runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch} from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
@@ -53,11 +53,13 @@ export function RunDetailWorkspaceStickyActions(
         : new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
     ),
   );
+  const technicalDetailOpenRef = useRef(technicalDetailOpen);
+  technicalDetailOpenRef.current = technicalDetailOpen;
 
   const syncTechnicalDetailOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
         { notify: false },
       );
     },
@@ -66,25 +68,29 @@ export function RunDetailWorkspaceStickyActions(
 
   const setTechnicalDetailOpen = useCallback(
     (open: boolean) => {
-      if (technicalDetailOpen === open) {
+      if (technicalDetailOpenRef.current === open) {
         return;
       }
 
+      technicalDetailOpenRef.current = open;
       setTechnicalDetailOpenState(open);
       syncTechnicalDetailOpenToUrl(open);
     },
-    [syncTechnicalDetailOpenToUrl, technicalDetailOpen],
+    [syncTechnicalDetailOpenToUrl],
   );
 
   useEffect(() => {
     const syncTechnicalDetailOpenFromUrl = (): void => {
-      setTechnicalDetailOpenState((current) => {
-        const next = parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
-        );
+      const next = parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
+      );
 
-        return current === next ? current : next;
-      });
+      if (technicalDetailOpenRef.current === next) {
+        return;
+      }
+
+      technicalDetailOpenRef.current = next;
+      setTechnicalDetailOpenState(next);
     };
 
     syncTechnicalDetailOpenFromUrl();
@@ -146,7 +152,8 @@ export function RunDetailWorkspaceStickyActions(
                 className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
                 open={technicalDetailOpen}
                 onToggle={(event) => {
-                  setTechnicalDetailOpen((event.currentTarget as HTMLDetailsElement).open);
+                  event.preventDefault();
+                  setTechnicalDetailOpen(!technicalDetailOpenRef.current);
                 }}
               >
                 <summary className="cursor-pointer font-medium">Technical detail</summary>

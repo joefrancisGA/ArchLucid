@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -107,6 +107,8 @@ export function RunDetailOutcomeCards({
         : new URLSearchParams(window.location.search).get("runDetailOutcomeMonitoredRiskOpen"),
     ),
   );
+  const monitoredRiskOpenRef = useRef(monitoredRiskOpen);
+  monitoredRiskOpenRef.current = monitoredRiskOpen;
   const [decisionKeyOpen, setDecisionKeyOpenState] = useState(() =>
     parseRunDetailOutcomeDecisionKeyOpenFromSearch(
       typeof window === "undefined"
@@ -114,6 +116,8 @@ export function RunDetailOutcomeCards({
         : new URLSearchParams(window.location.search).get("runDetailOutcomeDecisionKeyOpen"),
     ),
   );
+  const decisionKeyOpenRef = useRef(decisionKeyOpen);
+  decisionKeyOpenRef.current = decisionKeyOpen;
 
   const syncMonitoredRiskOpenToUrl = useCallback(
     (open: boolean) => {
@@ -127,14 +131,15 @@ export function RunDetailOutcomeCards({
 
   const setMonitoredRiskOpen = useCallback(
     (open: boolean) => {
-      if (monitoredRiskOpen === open) {
+      if (monitoredRiskOpenRef.current === open) {
         return;
       }
 
+      monitoredRiskOpenRef.current = open;
       setMonitoredRiskOpenState(open);
       syncMonitoredRiskOpenToUrl(open);
     },
-    [monitoredRiskOpen, syncMonitoredRiskOpenToUrl],
+    [syncMonitoredRiskOpenToUrl],
   );
 
   const syncDecisionKeyOpenToUrl = useCallback(
@@ -149,32 +154,36 @@ export function RunDetailOutcomeCards({
 
   const setDecisionKeyOpen = useCallback(
     (open: boolean) => {
-      if (decisionKeyOpen === open) {
+      if (decisionKeyOpenRef.current === open) {
         return;
       }
 
+      decisionKeyOpenRef.current = open;
       setDecisionKeyOpenState(open);
       syncDecisionKeyOpenToUrl(open);
     },
-    [decisionKeyOpen, syncDecisionKeyOpenToUrl],
+    [syncDecisionKeyOpenToUrl],
   );
 
   useEffect(() => {
     const syncDisclosureOpenFromUrl = (): void => {
-      setMonitoredRiskOpenState((current) => {
-        const next = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runDetailOutcomeMonitoredRiskOpen"),
-        );
+      const nextMonitoredRiskOpen = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailOutcomeMonitoredRiskOpen"),
+      );
 
-        return current === next ? current : next;
-      });
-      setDecisionKeyOpenState((current) => {
-        const next = parseRunDetailOutcomeDecisionKeyOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runDetailOutcomeDecisionKeyOpen"),
-        );
+      if (monitoredRiskOpenRef.current !== nextMonitoredRiskOpen) {
+        monitoredRiskOpenRef.current = nextMonitoredRiskOpen;
+        setMonitoredRiskOpenState(nextMonitoredRiskOpen);
+      }
 
-        return current === next ? current : next;
-      });
+      const nextDecisionKeyOpen = parseRunDetailOutcomeDecisionKeyOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailOutcomeDecisionKeyOpen"),
+      );
+
+      if (decisionKeyOpenRef.current !== nextDecisionKeyOpen) {
+        decisionKeyOpenRef.current = nextDecisionKeyOpen;
+        setDecisionKeyOpenState(nextDecisionKeyOpen);
+      }
     };
 
     syncDisclosureOpenFromUrl();
@@ -284,7 +293,8 @@ export function RunDetailOutcomeCards({
           className={cn("mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           open={monitoredRiskOpen}
           onToggle={(event) => {
-            setMonitoredRiskOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setMonitoredRiskOpen(!monitoredRiskOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -311,7 +321,8 @@ export function RunDetailOutcomeCards({
         className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30"
         open={decisionKeyOpen}
         onToggle={(event) => {
-          setDecisionKeyOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setDecisionKeyOpen(!decisionKeyOpenRef.current);
         }}
       >
         <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_CARD.nested, OPERATOR_TYPOGRAPHY.body)}>

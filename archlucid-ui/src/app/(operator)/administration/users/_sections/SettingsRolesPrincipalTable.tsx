@@ -94,6 +94,15 @@ export function SettingsRolesPrincipalTable({
     (value: SetStateAction<PendingRoleChange | null>) => {
       setPendingChangeState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+        const currentPrincipalId = current?.row.id ?? null;
+        const nextPrincipalId = next?.row.id ?? null;
+        const currentNextRole = current?.nextRole ?? null;
+        const nextNextRole = next?.nextRole ?? null;
+
+        if (currentPrincipalId === nextPrincipalId && currentNextRole === nextNextRole) {
+          return current;
+        }
+
         syncRoleConfirmToUrl(next);
 
         return next;

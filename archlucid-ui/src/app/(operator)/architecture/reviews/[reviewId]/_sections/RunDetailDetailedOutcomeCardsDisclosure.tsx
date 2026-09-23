@@ -1,10 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunDetailOutcomeCardsOpenFromSearch,
   runDetailOutcomeCardsDisclosureHrefFromSearch} from "@/lib/runs/run-detail-outcome-cards-disclosure-url";
@@ -24,11 +24,13 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
         : new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
     ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        runDetailOutcomeCardsDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
+        runDetailOutcomeCardsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
         { notify: false },
       );
     },
@@ -37,25 +39,29 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
-      if (open === detailsOpen) {
+      if (openRef.current === detailsOpen) {
         return;
       }
 
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [open, syncOpenToUrl],
+    [syncOpenToUrl],
   );
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState((current) => {
-        const next = parseRunDetailOutcomeCardsOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
-        );
+      const next = parseRunDetailOutcomeCardsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
+      );
 
-        return current === next ? current : next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
     };
 
     syncOpenFromUrl();
@@ -72,7 +78,8 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
       open={open}
       data-testid="run-detail-detailed-outcome-cards"
       onToggle={(event) => {
-        setOpen(event.currentTarget.open);
+        event.preventDefault();
+        setOpen(!openRef.current);
       }}
     >
       <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
