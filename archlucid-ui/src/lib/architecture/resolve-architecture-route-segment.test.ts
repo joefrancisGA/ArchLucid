@@ -54,6 +54,17 @@ describe("resolveArchitectureRouteSegment", () => {
         httpStatus: 404,
       }),
     );
+    getDraftRequest.mockRejectedValue(
+      new ApiRequestError("Not Found: The requested resource was not found.", {
+        problem: {
+          title: "Not Found",
+          detail: "The requested resource was not found.",
+          status: 404,
+        },
+        correlationId: null,
+        httpStatus: 404,
+      }),
+    );
 
     const resolved = await resolveArchitectureRouteSegment(CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug);
 
@@ -61,7 +72,9 @@ describe("resolveArchitectureRouteSegment", () => {
       kind: "identity",
       architectureId: CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug,
     });
-    expect(getDraftRequest).not.toHaveBeenCalled();
+    expect(getDraftRequest).toHaveBeenCalledWith(CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug, {
+      scopeHeaders: {},
+    });
   });
 
   it("falls back to a legacy draft when identity probing returns a 404", async () => {
