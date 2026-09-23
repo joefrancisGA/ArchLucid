@@ -754,4 +754,135 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Which.Should()
             .Be("4 3");
     }
+
+    [Fact]
+    public void Render_data_flow_stage_columns_paint_labels_gutters_and_omit_frames()
+    {
+        DiagramAst ast = BuildDataFlowStageColumnAst(includeUnstagedNode: true);
+        DiagramForestLayoutOptions options = new();
+        DiagramForestLayoutResult result = renderer.Render(ast, options);
+
+        result.Succeeded.Should().BeTrue();
+        XDocument document = XDocument.Parse(result.Svg!);
+        XElement root = document.Root!;
+
+        List<string> stageLabels = root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "data-flow-stage-label", StringComparison.Ordinal))
+            .Select(element => element.Value)
+            .ToList();
+
+        stageLabels.Should().Equal("Source", "Application", "Storage", DiagramForestDataFlowColumnLayout.NotStagedColumnLabel);
+        result.Svg.Should().NotContain("class=\"subscription-frame\"");
+        result.Svg.Should().NotContain("class=\"rg-frame\"");
+
+        List<(double X, double Width)> nodeBounds = root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal))
+            .Select(element => (
+                X: ParseTranslateX(element.Attribute("transform")?.Value),
+                Width: double.Parse(
+                    element.Descendants()
+                        .First(descendant =>
+                            string.Equals(descendant.Name.LocalName, "rect", StringComparison.Ordinal)
+                            && string.Equals((string?)descendant.Attribute("class"), "node-card", StringComparison.Ordinal))
+                        .Attribute("width")?.Value ?? "0",
+                    CultureInfo.InvariantCulture)))
+            .OrderBy(bounds => bounds.X)
+            .ToList();
+
+        nodeBounds.Should().HaveCount(4);
+        nodeBounds[0].X.Should().BeLessThan(nodeBounds[1].X);
+        nodeBounds[1].X.Should().BeGreaterThanOrEqualTo(nodeBounds[0].X + nodeBounds[0].Width + options.DataFlowColumnGutter);
+        nodeBounds[2].X.Should().BeGreaterThanOrEqualTo(nodeBounds[1].X + nodeBounds[1].Width + options.DataFlowColumnGutter);
+        nodeBounds[3].X.Should().BeGreaterThanOrEqualTo(nodeBounds[2].X + nodeBounds[2].Width + options.DataFlowColumnGutter);
+    }
+
+    [Fact]
+    public void Render_executive_inventory_does_not_paint_data_flow_stage_labels()
+    {
+        GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().NotContain("data-flow-stage-label");
+    }
+
+    private static DiagramAst BuildDataFlowStageColumnAst(bool includeUnstagedNode)
+    {
+        List<DiagramNode> nodes =
+        [
+            new DiagramNode
+            {
+                NodeId = "source-node",
+                Label = "source-blob",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                SubgraphId = "data-flow-stage-source",
+                OrderKey = 0,
+            },
+            new DiagramNode
+            {
+                NodeId = "app-node",
+                Label = "app-fn",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Web/sites",
+                SubgraphId = "data-flow-stage-application",
+                OrderKey = 1,
+            },
+            new DiagramNode
+            {
+                NodeId = "storage-node",
+                Label = "storage-acct",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                SubgraphId = "data-flow-stage-storage",
+                OrderKey = 2,
+            },
+        ];
+
+        if (includeUnstagedNode)
+        {
+            nodes.Add(new DiagramNode
+            {
+                NodeId = "orphan-node",
+                Label = "orphan-vm",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Compute/virtualMachines",
+                SubgraphId = null,
+                OrderKey = 3,
+            });
+        }
+
+        return new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph
+                {
+                    SubgraphId = "data-flow-stage-source",
+                    Label = "Source",
+                    OrderKey = 0,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "data-flow-stage-application",
+                    Label = "Application",
+                    OrderKey = 1,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "data-flow-stage-storage",
+                    Label = "Storage",
+                    OrderKey = 2,
+                },
+            ],
+            Nodes = nodes,
+        };
+    }
 }

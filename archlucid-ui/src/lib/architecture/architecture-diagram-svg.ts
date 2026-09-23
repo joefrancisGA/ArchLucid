@@ -138,6 +138,12 @@ function paintArchitectureDiagramNodePalette(svg: Element, dark: boolean): void 
     path.setAttribute("stroke", palette.edge);
     path.setAttribute("fill", "none");
   }
+
+  const arrowMarkers = svg.querySelectorAll("marker#al-edge-arrow path");
+
+  for (const markerPath of arrowMarkers) {
+    markerPath.setAttribute("fill", palette.edge);
+  }
 }
 
 function closestNodeGroup(element: Element): Element | null {

@@ -4,7 +4,7 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
   border: "#cbd5e1",
   text: "#0f172a",
   caption: "#475569",
-  edge: "#94a3b8",
+  edge: "#111827",
 } as const;
 
 /** Dark-mode inventory/architecture node fill — slate on a dark canvas. */
@@ -13,7 +13,7 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE = {
   border: "#cbd5e1",
   text: "#f8fafc",
   caption: "#cbd5e1",
-  edge: "#94a3b8",
+  edge: "#e2e8f0",
 } as const;
 
 /** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
