@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
+
 ## Zone: topology-proposal-merge
 
 2026-09-21 ABQ-51: synthetic Terraform source-id tokens are closed by catalog membership at azurerm v5.6.0 (commit daf16e27e2d45d2fb6b7d83644dc201363b05e62). New three-letter tokens are not hunt-ready.
