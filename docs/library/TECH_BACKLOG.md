@@ -2472,6 +2472,12 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-922 | **Done** (2026-08-14) â€” CI smoke coverage for the dormant DTF orchestrator seam; see `## TB-922` below | Reliability P2 ? **V1**; TB-302/DTF follow-up 2026-07-20 | S |
 | TB-923 | Governance approval SLA breach ? notify-only vs auto-act decision (assessment-only) ? **Done** 2026-08-14 ? owner **(a) keep notify-only** recorded **PENDING_QUESTIONS #41**; see `## TB-923` below | Reliability P3 ? **V1**; TB-302/DTF follow-up 2026-07-20 | XS |
 | TB-924 | DTF cutover for authority-pipeline orchestration (gated epic) ? move `AuthorityRunOrchestrator` to the Durable Task Framework via the existing `DtfAuthorityRunOrchestrator` seam; **blocked until TB-921's gate fires**; see `## TB-924` below | Architectural integrity P1-when-gated ? **V1.1 contingent**; not required for V1 GA per `V1_DEFERRED.md` ?6f | L |
+| TB-2402 | V2 ? verifier kind on decision-grade findings; model self-check, independent model, deterministic rule/policy, inventory/IaC match, or human approval | Trustworthiness P1 ? **V2**; follows the V1 claim/disproof discipline; size M |
+| TB-2403 | V2 ? package-level verification-independence summary in review UI and DOCX/Markdown export | Trustworthiness P1 ? **V2**; depends on **TB-2402**; size S |
+| TB-2404 | V2 ? execute falsification tests for adversarial challenges and record refuted/survived/not-testable/human-input outcomes | AI/Agent readiness P1 ? **V2**; extends **TB-1983**; size L |
+| TB-2405 | V2 ? per-finding evidence scope statement showing examined and unexamined coverage | Explainability P1 ? **V2**; pairs **TB-2402** and main-package provenance surfacing; size M |
+| TB-2406 | V2 ? surface origin, support, verifier, and evidence scope on the main review package and exports | Trustworthiness P1 ? **V2**; depends on **TB-2402**/**TB-2405**; size M |
+| TB-2407 | V2 ? independent critic/escalation engine identity and model-independence configuration | AI/Agent readiness P2 ? **V2**; depends on **TB-2402** and **TB-2106**; size M |
 | | **Done V2 (kept for grep; not shippable)** | | |
 | TB-397 | `IExternalTicketConnector` plugin boundary ??? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite | M |
 | TB-689 | ~~Multi-vendor LLM routing decision gate~~ **Done** (2026-07-18) ? ADR 0060 Accepted: Azure-native managed path; BYO via **TB-872**/**TB-873**; no third-party vendor SDK adapters under this ADR; see `## TB-689` below | Cutting-edge AI P3 ? **V2**; decision gate closed | XS |
@@ -47131,9 +47137,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-2034 ? Finding verification loop ? re-ingest + scoring pass (P2)
+## TB-2034 ? Finding verification loop ? re-ingest + scoring pass (P2) ? **V2**
 
-**Window:** V1.1 ? Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+**Window:** V2 ? Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)); intentionally deferred from the V1/V1.1 claim-honesty slice.
 
 **Status:** Open.
 
@@ -52276,3 +52282,75 @@ If the brief is short, `buildEvidenceBackedIntakeBrief` writes boilerplate from 
 ## TB-2401 — Product-line catalog / DDL split (OP-08) (P2) — **Open**
 
 **Ship:** V2 (last). Details: [`TECH_BACKLOG_TB2400_INDEX.md`](TECH_BACKLOG_TB2400_INDEX.md). Not implied by **TB-2400**; requires named integration contract before any second DDL file.
+
+## TB-2402 — Verifier kind on decision-grade findings (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** The V1 claim/disproof reporting discipline protects agent work, but buyer-facing findings still need a structured answer to “what verified this?” Support status alone does not distinguish model self-check from deterministic or human verification.
+
+**Approach:** Add one or more verifier records to each decision-grade finding: model self-check, independent model, deterministic rule/policy pack, inventory/IaC match, or human approval. Store a reference to the check or approval where available. A missing verifier is not silently treated as independent verification.
+
+**Acceptance:** Every decision-grade finding has an explicit verifier state. Model-self-check-only findings are labeled as such; “independent” requires a distinct verifier record.
+
+**Depends on:** **TB-1981**, **TB-1984**. Follow-on to V1 honesty guard.
+
+## TB-2403 — Package verification-independence summary (P1) — **Open**
+
+**Window:** V2. **Size:** S.
+
+**Why:** Buyers need a package-level answer to whether findings were independently checked.
+
+**Approach:** Add a review-package summary and DOCX/Markdown export section that counts deterministic, independently reviewed, human-approved, and model-only findings. Use evidence-basis labeling and an empty state when no verification pass exists.
+
+**Acceptance:** Counts reconcile to the findings list; model-only findings never count as verified; no summary is shown as a quality percentage without its denominator and evidence basis.
+
+**Depends on:** **TB-2402**.
+
+## TB-2404 — Execute falsification tests for adversarial challenges (P1) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** **TB-1983** requires every adversarial challenge to state what would confirm or refute it, but a falsification statement is currently only a proposed check.
+
+**Approach:** Run deterministic probes against the knowledge model, extracted inventory, or policy packs where possible. Record `Refuted`, `Survived`, `NotTestable`, or `NeedsHumanInput` with the probe inputs and trace. Preserve refuted challenges as evidence that the counterexample path ran.
+
+**Acceptance:** Every challenge has a run result or an explicit not-testable reason. Survived challenges can enter the substantiated-finding lane only through existing evidence validation.
+
+**Depends on:** **TB-1983**, **TB-1977**, **TB-1981**.
+
+## TB-2405 — Per-finding evidence scope statement (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** A finding can be correct for the examined API path, resource set, or evidence snapshot without establishing a system-wide conclusion.
+
+**Approach:** Add structured `EvidenceScope` information describing the examined set, omitted set, snapshot/version, and resulting coverage limitation. Generate a concise scope statement beside high-severity findings and in exports.
+
+**Acceptance:** High-severity findings cannot be exported without a scope statement or an explicit “scope unavailable” limitation. Scope is derived from evidence references and does not imply unexamined coverage.
+
+**Depends on:** **TB-1981**, **TB-1985**.
+
+## TB-2406 — Main review-package provenance and verification presentation (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** Provenance foundations are not useful to buyers if origin, support, verifier, and scope are available only on a specialist route.
+
+**Approach:** Reuse the compact presentation from **TB-1984** and render origin, support, verifier, and evidence scope in the main review package and DOCX/Markdown exports. Keep detailed traces available without making the primary finding unreadable.
+
+**Acceptance:** A buyer can inspect these four attributes from the main package and its export. The UI uses the existing small presentation taxonomy rather than exposing every internal combination.
+
+**Depends on:** **TB-2402**, **TB-2405**, **TB-1984**.
+
+## TB-2407 — Independent critic and escalation engine identity (P2) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** A critic or escalation pass using the same model and prompt lineage as generation can share the same blind spot.
+
+**Approach:** Permit separate generator, critic, and escalation engine configuration where supported. Persist engine identity on each judgment, reusing **TB-2106**. Label same-engine review as model self-check; only a distinct engine may be presented as independent model review. Record budget and correlated-failure trade-offs.
+
+**Acceptance:** Every critic/escalation judgment has engine identity and configuration lineage. The independent label is structurally unavailable when identities match.
+
+**Depends on:** **TB-2402**, **TB-2106**, **TB-1981**.
