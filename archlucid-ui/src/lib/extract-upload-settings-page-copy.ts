@@ -1,5 +1,7 @@
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
+import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
@@ -118,6 +120,38 @@ export const EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX = "Upload binds to review" as 
 export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted architecture package" as const;
 
 export const EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL = "Replace inventory" as const;
+
+export const EXTRACT_UPLOAD_CANCEL_REPLACE_LABEL = "Cancel replace" as const;
+
+export const EXTRACT_UPLOAD_REPLACE_CONTINUITY_TITLE = "Replacing inventory on file" as const;
+
+export const EXTRACT_UPLOAD_REPLACE_CONTINUITY_DESCRIPTION =
+  "Upload a new package to replace the current inventory baseline. Cancel to keep the accepted package." as const;
+
+export const EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE = "Replace inventory with demo data?" as const;
+
+export const EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION =
+  "Demo data replaces the inventory package on file. Continue only for evaluation — production baselines should use read-only packager output." as const;
+
+export const EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL = "Use demo data" as const;
+
+export const EXTRACT_UPLOAD_NON_AZURE_SCRIPT_SOURCE_ARCHITECTURE =
+  "Download packager scripts from your ArchLucid checkout under scripts/." as const;
+
+export const EXTRACT_UPLOAD_NON_AZURE_SCRIPT_SOURCE_SECURENOW =
+  "Download packager scripts from your SecureNow checkout under scripts/." as const;
+
+export function extractUploadNonAzureScriptSourceHint(
+  platform: CloudInventoryPlatform,
+  productLineId: ProductLineId = "architecture",
+): string {
+  const platformLabel = cloudInventoryPlatformLabel(platform);
+  const checkoutLead = isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_NON_AZURE_SCRIPT_SOURCE_SECURENOW
+    : EXTRACT_UPLOAD_NON_AZURE_SCRIPT_SOURCE_ARCHITECTURE;
+
+  return checkoutLead.replace(/^Download /, `Download ${platformLabel} `);
+}
 
 export const EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE = "Package id" as const;
 

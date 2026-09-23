@@ -3,29 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF,
-  EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL,
-  EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE,
-} from "@/lib/extract-upload-settings-page-copy";
-import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
-import { GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE } from "@/lib/extract-upload-settings-page-copy";
+import { extractUploadSettingsBreadcrumbParent } from "@/lib/extract-upload-settings-route";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Administration or Infrastructure trail for the Extract & Upload workspace (INX). */
 export function ExtractUploadSettingsBreadcrumb(): React.JSX.Element {
   const pathname = usePathname();
-  const isInfrastructureRoute =
-    isExtractUploadSettingsRoutePath(pathname) && pathname?.startsWith(GOVERNANCE_INFRASTRUCTURE_PATH);
-
-  const parentHref = isInfrastructureRoute
-    ? GOVERNANCE_INFRASTRUCTURE_PATH
-    : EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF;
-  const parentLabel = isInfrastructureRoute
-    ? GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE
-    : EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL;
+  const { href: parentHref, label: parentLabel } = extractUploadSettingsBreadcrumbParent(pathname);
 
   return (
     <nav aria-label="Breadcrumb" data-testid="extract-upload-page-breadcrumb">

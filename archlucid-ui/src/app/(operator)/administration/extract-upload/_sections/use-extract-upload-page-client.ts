@@ -197,6 +197,12 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     setReplaceInventoryMode(true);
   }, [folderZip, upload]);
 
+  const cancelReplaceInventory = useCallback(() => {
+    upload.clearUploadState();
+    folderZip.clearSelectionState();
+    setReplaceInventoryMode(false);
+  }, [folderZip, upload]);
+
   return {
     productLine,
     extractorScriptDownloadUrl,
@@ -221,6 +227,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     demo,
     showAcceptedDropZone,
     beginReplaceInventory,
+    cancelReplaceInventory,
     replaceInventoryMode,
   };
 }
