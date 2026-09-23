@@ -44,7 +44,6 @@ export function RunDetailPresenterElicitationBridge(
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const presenterQuestionIdParam = searchParams.get("presenterQuestionId");
   const { isWorkingMode } = useWorkspaceMode();
   const presenterMode = readPresenterModeFromSearchParams(searchParams);
   const roomElicitationMode = readRoomElicitationFromSearchParams(searchParams);
@@ -58,12 +57,21 @@ export function RunDetailPresenterElicitationBridge(
     showElicitation && !showPresenterSurface && resolvedParentArchitectureId.length === 0;
   const primaryQuestionKey = elicitation.primaryQuestion?.questionKey ?? "";
   const syncedPresenterQuestionIdRef = useRef<string | null>(null);
+  const presenterRedirectAttemptedRef = useRef<string | null>(null);
+  const roomElicitationRedirectAttemptedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isWorkingMode || !presenterMode || resolvedParentArchitectureId.length === 0) {
       return;
     }
 
+    const redirectKey = `${workspaceProps.runId}:${resolvedParentArchitectureId}:presenter`;
+
+    if (presenterRedirectAttemptedRef.current === redirectKey) {
+      return;
+    }
+
+    presenterRedirectAttemptedRef.current = redirectKey;
     replaceIfHrefChanged(
       router,
       inhabitedFindingsRoomElicitationHref(resolvedParentArchitectureId, workspaceProps.runId),
@@ -75,6 +83,13 @@ export function RunDetailPresenterElicitationBridge(
       return;
     }
 
+    const redirectKey = `${workspaceProps.runId}:${resolvedParentArchitectureId}:room`;
+
+    if (roomElicitationRedirectAttemptedRef.current === redirectKey) {
+      return;
+    }
+
+    roomElicitationRedirectAttemptedRef.current = redirectKey;
     replaceIfHrefChanged(
       router,
       inhabitedFindingsRoomElicitationHref(resolvedParentArchitectureId, workspaceProps.runId),
@@ -107,7 +122,7 @@ export function RunDetailPresenterElicitationBridge(
       reviewPresenterElicitationHrefFromSearch(window.location.search.slice(1), nextQuestionId, pathname),
       { notify: true },
     );
-  }, [pathname, presenterQuestionIdParam, primaryQuestionKey, router, showElicitation]);
+  }, [pathname, primaryQuestionKey, showElicitation]);
 
   const presenterFindingTitle = showPresenterSurface ? elicitation.title : undefined;
 

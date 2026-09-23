@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
@@ -39,6 +39,7 @@ import {
   sidebarNavMoreDisclosureHrefFromSearch,
   sidebarNavMoreDisclosureHrefMatchesLocation,
 } from "@/lib/sidebar-nav/sidebar-nav-more-disclosure-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
@@ -74,7 +75,6 @@ type SidebarNavClusterProps = {
 };
 
 export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const { mode } = useWorkspaceMode();
@@ -106,23 +106,23 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       return;
     }
 
-    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), null, pathname);
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(window.location.search.slice(1), null, pathname);
 
     if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
       return;
     }
 
-    router.replace(nextHref, { scroll: false });
-  }, [more.length, pathname, router, searchParams, urlMoreGroupOpen]);
+    commitHrefIfChanged(nextHref, { notify: true });
+  }, [more.length, pathname, urlMoreGroupOpen]);
 
   function replaceSidebarMoreGroupInUrl(groupId: string | null): void {
-    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), groupId, pathname);
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(window.location.search.slice(1), groupId, pathname);
 
     if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
       return;
     }
 
-    router.replace(nextHref, { scroll: false });
+    commitHrefIfChanged(nextHref, { notify: true });
   }
 
   if (linksForRender.length === 0) {

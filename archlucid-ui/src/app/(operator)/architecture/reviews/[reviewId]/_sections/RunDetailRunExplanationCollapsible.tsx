@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -40,6 +40,8 @@ import {
   parseRunImpactAnalysisOpenFromSearch,
   runImpactAnalysisDisclosureHrefFromSearch,
 } from "@/lib/reviews/run-impact-analysis-disclosure-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
 import {
@@ -116,24 +118,34 @@ export function RunDetailRunExplanationCollapsible(
     structuralExecutionMode,
     parentArchitectureId,
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runAssessmentNarrativeOpenParam = searchParams.get("runAssessmentNarrativeOpen");
-  const runCoverageCurationOpenParam = searchParams.get("runCoverageCurationOpen");
-  const runImpactAnalysisOpenParam = searchParams.get("runImpactAnalysisOpen");
-  const runFindingExplainabilityOpenParam = searchParams.get("runFindingExplainabilityOpen");
   const [assessmentNarrativeOpen, setAssessmentNarrativeOpenState] = useState(() =>
-    parseRunAssessmentNarrativeOpenFromSearch(runAssessmentNarrativeOpenParam),
+    parseRunAssessmentNarrativeOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runAssessmentNarrativeOpen"),
+    ),
   );
   const [coverageCurationOpen, setCoverageCurationOpenState] = useState(() =>
-    parseRunCoverageCurationOpenFromSearch(runCoverageCurationOpenParam),
+    parseRunCoverageCurationOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runCoverageCurationOpen"),
+    ),
   );
   const [impactAnalysisOpen, setImpactAnalysisOpenState] = useState(() =>
-    parseRunImpactAnalysisOpenFromSearch(runImpactAnalysisOpenParam),
+    parseRunImpactAnalysisOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runImpactAnalysisOpen"),
+    ),
   );
   const [findingExplainabilityOpen, setFindingExplainabilityOpenState] = useState(() =>
-    parseRunFindingExplainabilityOpenFromSearch(runFindingExplainabilityOpenParam),
+    parseRunFindingExplainabilityOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runFindingExplainabilityOpen"),
+    ),
   );
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
   const explanationBlockedReason = explainRunBlockedReason(explanationFailure);
@@ -145,87 +157,113 @@ export function RunDetailRunExplanationCollapsible(
 
   const syncAssessmentNarrativeOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(runAssessmentNarrativeHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runAssessmentNarrativeHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setAssessmentNarrativeOpen = useCallback(
     (open: boolean) => {
+      if (assessmentNarrativeOpen === open) {
+        return;
+      }
+
       setAssessmentNarrativeOpenState(open);
       syncAssessmentNarrativeOpenToUrl(open);
     },
-    [syncAssessmentNarrativeOpenToUrl],
+    [assessmentNarrativeOpen, syncAssessmentNarrativeOpenToUrl],
   );
 
   const syncCoverageCurationOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(runCoverageCurationDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runCoverageCurationDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setCoverageCurationOpen = useCallback(
     (open: boolean) => {
+      if (coverageCurationOpen === open) {
+        return;
+      }
+
       setCoverageCurationOpenState(open);
       syncCoverageCurationOpenToUrl(open);
     },
-    [syncCoverageCurationOpenToUrl],
+    [coverageCurationOpen, syncCoverageCurationOpenToUrl],
   );
 
   const syncImpactAnalysisOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(runImpactAnalysisDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runImpactAnalysisDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setImpactAnalysisOpen = useCallback(
     (open: boolean) => {
+      if (impactAnalysisOpen === open) {
+        return;
+      }
+
       setImpactAnalysisOpenState(open);
       syncImpactAnalysisOpenToUrl(open);
     },
-    [syncImpactAnalysisOpenToUrl],
+    [impactAnalysisOpen, syncImpactAnalysisOpenToUrl],
   );
 
   const syncFindingExplainabilityOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(runFindingExplainabilityDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runFindingExplainabilityDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setFindingExplainabilityOpen = useCallback(
     (open: boolean) => {
+      if (findingExplainabilityOpen === open) {
+        return;
+      }
+
       setFindingExplainabilityOpenState(open);
       syncFindingExplainabilityOpenToUrl(open);
     },
-    [syncFindingExplainabilityOpenToUrl],
+    [findingExplainabilityOpen, syncFindingExplainabilityOpenToUrl],
   );
 
   useEffect(() => {
-    setAssessmentNarrativeOpenState(parseRunAssessmentNarrativeOpenFromSearch(runAssessmentNarrativeOpenParam));
-  }, [runAssessmentNarrativeOpenParam]);
+    const syncDisclosuresFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
 
-  useEffect(() => {
-    setCoverageCurationOpenState(parseRunCoverageCurationOpenFromSearch(runCoverageCurationOpenParam));
-  }, [runCoverageCurationOpenParam]);
+      setAssessmentNarrativeOpenState(parseRunAssessmentNarrativeOpenFromSearch(params.get("runAssessmentNarrativeOpen")));
+      setCoverageCurationOpenState(parseRunCoverageCurationOpenFromSearch(params.get("runCoverageCurationOpen")));
+      setImpactAnalysisOpenState(parseRunImpactAnalysisOpenFromSearch(params.get("runImpactAnalysisOpen")));
+      setFindingExplainabilityOpenState(
+        parseRunFindingExplainabilityOpenFromSearch(params.get("runFindingExplainabilityOpen")),
+      );
+    };
 
-  useEffect(() => {
-    setImpactAnalysisOpenState(parseRunImpactAnalysisOpenFromSearch(runImpactAnalysisOpenParam));
-  }, [runImpactAnalysisOpenParam]);
+    syncDisclosuresFromUrl();
+    window.addEventListener("popstate", syncDisclosuresFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDisclosuresFromUrl);
 
-  useEffect(() => {
-    setFindingExplainabilityOpenState(parseRunFindingExplainabilityOpenFromSearch(runFindingExplainabilityOpenParam));
-  }, [runFindingExplainabilityOpenParam]);
+    return () => {
+      window.removeEventListener("popstate", syncDisclosuresFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncDisclosuresFromUrl);
+    };
+  }, []);
 
   return (
     <section id="run-explanation" className="scroll-mt-24 space-y-4">

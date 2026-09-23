@@ -1,12 +1,14 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { InlineGuidance } from "@/components/InlineGuidance";
 import type { RunDetailFirstScreenProofSummary } from "@/lib/runs/run-detail-first-screen-proof-status";
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/runs/run-detail-first-screen-proof-status";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunDetailFirstScreenProofOpenFromSearch,
   runDetailFirstScreenProofDisclosureHrefFromSearch,
@@ -21,37 +23,57 @@ type RunDetailFirstScreenProofStatusProps = {
 /** First-screen READY/WARN/HOLD proof summary for run detail (Improvement #24). */
 export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProofStatusProps): React.JSX.Element {
   const { summary } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailFirstScreenProofOpenParam = searchParams.get("runDetailFirstScreenProofOpen");
   const [proofDetailsOpen, setProofDetailsOpenState] = useState(() =>
-    parseRunDetailFirstScreenProofOpenFromSearch(runDetailFirstScreenProofOpenParam),
+    parseRunDetailFirstScreenProofOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
+    ),
   );
   const primaryBullet = summary.whySafeToSendBullets[0] ?? null;
   const detailBullets = summary.whySafeToSendBullets.slice(1);
 
   const syncProofDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailFirstScreenProofDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailFirstScreenProofDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: true },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setProofDetailsOpen = useCallback(
     (open: boolean) => {
+      if (proofDetailsOpen === open) {
+        return;
+      }
+
       setProofDetailsOpenState(open);
       syncProofDetailsOpenToUrl(open);
     },
-    [syncProofDetailsOpenToUrl],
+    [proofDetailsOpen, syncProofDetailsOpenToUrl],
   );
 
   useEffect(() => {
-    setProofDetailsOpenState(parseRunDetailFirstScreenProofOpenFromSearch(runDetailFirstScreenProofOpenParam));
-  }, [runDetailFirstScreenProofOpenParam]);
+    const syncProofDetailsOpenFromUrl = (): void => {
+      setProofDetailsOpenState(
+        parseRunDetailFirstScreenProofOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
+        ),
+      );
+    };
+
+    syncProofDetailsOpenFromUrl();
+    window.addEventListener("popstate", syncProofDetailsOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncProofDetailsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncProofDetailsOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncProofDetailsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section

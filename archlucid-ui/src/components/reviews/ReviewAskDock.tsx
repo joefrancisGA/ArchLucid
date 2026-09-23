@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { MessageCircleQuestion } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
@@ -21,6 +21,8 @@ import { askBlockedReason } from "@/lib/ask/ask-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseReviewAskDockOpenFromSearch,
   parseReviewAskDockThreadIdFromSearch,
@@ -47,15 +49,12 @@ type AskTurn = {
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
-  const searchParams = useSearchParams();
-  const urlAskDockOpen = parseReviewAskDockOpenFromSearch(searchParams.get("askDock"));
-  const urlAskThreadId = parseReviewAskDockThreadIdFromSearch(searchParams.get("askThread"));
-  const [open, setOpenState] = useState(urlAskDockOpen);
+  const [open, setOpenState] = useState(false);
   const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
   const [turns, setTurns] = useState<AskTurn[]>([]);
-  const [threadId, setThreadIdState] = useState<string | null>(urlAskThreadId.length > 0 ? urlAskThreadId : null);
+  const [threadId, setThreadIdState] = useState<string | null>(null);
+  const disabledCleanupAttemptedRef = useRef(false);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -68,16 +67,16 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
   const syncAskDockToUrl = useCallback(
     (nextOpen: boolean, nextThreadId: string | null) => {
-      router.replace(
+      commitHrefIfChanged(
         reviewAskDockHrefFromSearch(
-          searchParams.toString(),
+          window.location.search.slice(1),
           { open: nextOpen, threadId: nextThreadId },
           pathname,
         ),
-        { scroll: false },
+        { notify: true },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
@@ -97,21 +96,38 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   );
 
   useEffect(() => {
-    if (askDockDisabled) {
-      if (urlAskDockOpen) {
-        setOpenState(false);
-        syncAskDockToUrl(false, threadId);
+    const syncAskDockFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const urlAskDockOpen = parseReviewAskDockOpenFromSearch(params.get("askDock"));
+      const urlAskThreadId = parseReviewAskDockThreadIdFromSearch(params.get("askThread"));
+
+      if (askDockDisabled) {
+        if (urlAskDockOpen && !disabledCleanupAttemptedRef.current) {
+          disabledCleanupAttemptedRef.current = true;
+          setOpenState(false);
+          syncAskDockToUrl(false, null);
+        }
+
+        return;
       }
 
-      return;
-    }
+      disabledCleanupAttemptedRef.current = false;
+      setOpenState(urlAskDockOpen);
 
-    setOpenState(urlAskDockOpen);
+      if (urlAskThreadId.length > 0) {
+        setThreadIdState(urlAskThreadId);
+      }
+    };
 
-    if (urlAskThreadId.length > 0) {
-      setThreadIdState(urlAskThreadId);
-    }
-  }, [askDockDisabled, syncAskDockToUrl, threadId, urlAskDockOpen, urlAskThreadId]);
+    syncAskDockFromUrl();
+    window.addEventListener("popstate", syncAskDockFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncAskDockFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAskDockFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncAskDockFromUrl);
+    };
+  }, [askDockDisabled, syncAskDockToUrl]);
 
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();

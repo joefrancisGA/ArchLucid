@@ -2,8 +2,10 @@
 
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseRunDetailOutcomeCardsOpenFromSearch,
   runDetailOutcomeCardsDisclosureHrefFromSearch,
@@ -16,34 +18,55 @@ type RunDetailDetailedOutcomeCardsDisclosureProps = {
 export function RunDetailDetailedOutcomeCardsDisclosure(
   props: RunDetailDetailedOutcomeCardsDisclosureProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailOutcomeCardsOpenParam = searchParams.get("runDetailOutcomeCardsOpen");
   const [open, setOpenState] = useState(() =>
-    parseRunDetailOutcomeCardsOpenFromSearch(runDetailOutcomeCardsOpenParam),
+    parseRunDetailOutcomeCardsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
+    ),
   );
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runDetailOutcomeCardsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runDetailOutcomeCardsDisclosureHrefFromSearch(window.location.search.slice(1), detailsOpen, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (open === detailsOpen) {
+        return;
+      }
+
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [syncOpenToUrl],
+    [open, syncOpenToUrl],
   );
 
   useEffect(() => {
-    setOpenState(parseRunDetailOutcomeCardsOpenFromSearch(runDetailOutcomeCardsOpenParam));
-  }, [runDetailOutcomeCardsOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      setOpenState(
+        parseRunDetailOutcomeCardsOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
+        ),
+      );
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details

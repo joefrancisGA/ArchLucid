@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Share2, Users } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
 
 import { buildReviewMeetingPacketSteps, type ReviewMeetingPacketStep } from "@/components/reviews/ReviewMeetingPacketButton";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
@@ -18,6 +18,8 @@ import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-ex
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { REVIEW_DETAIL_URL_CHANGED_EVENT } from "@/lib/review-detail-workspace-tabs";
 import {
   parseReviewHeaderShareMenuOpenFromSearch,
   reviewHeaderShareMenuHrefFromSearch,
@@ -40,33 +42,61 @@ export type ReviewHeaderShareMenuProps = {
 
 /** Consolidated share and export affordances on the review detail header. */
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const searchParams = useSearchParams();
-  const shareMenuOpenParam = searchParams.get("shareMenuOpen");
-  const [open, setOpenState] = useState(() => parseReviewHeaderShareMenuOpenFromSearch(shareMenuOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewHeaderShareMenuOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("shareMenuOpen"),
+    ),
+  );
   const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
 
   const syncShareMenuOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(reviewHeaderShareMenuHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        reviewHeaderShareMenuHrefFromSearch(window.location.search.slice(1), nextOpen, pathname),
+        { notify: true },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncShareMenuOpenToUrl(next);
+
+        if (next !== current) {
+          syncShareMenuOpenToUrl(next);
+        }
 
         return next;
       });
     },
     [syncShareMenuOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncShareMenuOpenFromUrl = (): void => {
+      setOpenState((current) => {
+        const next = parseReviewHeaderShareMenuOpenFromSearch(
+          new URLSearchParams(window.location.search).get("shareMenuOpen"),
+        );
+
+        return current === next ? current : next;
+      });
+    };
+
+    syncShareMenuOpenFromUrl();
+    window.addEventListener("popstate", syncShareMenuOpenFromUrl);
+    window.addEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncShareMenuOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShareMenuOpenFromUrl);
+      window.removeEventListener(REVIEW_DETAIL_URL_CHANGED_EVENT, syncShareMenuOpenFromUrl);
+    };
+  }, []);
   const inviteHref = buildInviteReviewerHref(props.runId, props.parentArchitectureId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,
