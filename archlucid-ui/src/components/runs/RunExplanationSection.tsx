@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CitationChips } from "@/components/explanation/CitationChips";
 import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayout";
@@ -151,26 +153,34 @@ export function RunExplanationSection({
   findingTitlesById,
 }: RunExplanationSectionProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runExplanationProvenanceOpenParam = searchParams.get("runExplanationProvenanceOpen");
   const [provenanceOpen, setProvenanceOpenState] = useState(() =>
-    parseRunExplanationProvenanceOpenFromSearch(runExplanationProvenanceOpenParam),
+    parseRunExplanationProvenanceOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runExplanationProvenanceOpen"),
+    ),
   );
+  const provenanceOpenRef = useRef(provenanceOpen);
+  provenanceOpenRef.current = provenanceOpen;
 
   const syncProvenanceOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runExplanationProvenanceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runExplanationProvenanceDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setProvenanceOpen = useCallback(
     (open: boolean) => {
+      if (provenanceOpenRef.current === open) {
+        return;
+      }
+
+      provenanceOpenRef.current = open;
       setProvenanceOpenState(open);
       syncProvenanceOpenToUrl(open);
     },
@@ -178,8 +188,26 @@ export function RunExplanationSection({
   );
 
   useEffect(() => {
-    setProvenanceOpenState(parseRunExplanationProvenanceOpenFromSearch(runExplanationProvenanceOpenParam));
-  }, [runExplanationProvenanceOpenParam]);
+    const syncProvenanceOpenFromUrl = (): void => {
+      const next = parseRunExplanationProvenanceOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runExplanationProvenanceOpen"),
+      );
+
+      if (provenanceOpenRef.current === next) {
+        return;
+      }
+
+      provenanceOpenRef.current = next;
+      setProvenanceOpenState(next);
+    };
+
+    syncProvenanceOpenFromUrl();
+    window.addEventListener("popstate", syncProvenanceOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncProvenanceOpenFromUrl);
+    };
+  }, []);
 
   const tocItems = useMemo((): DocumentTocItem[] => {
     if (summary === null) {
@@ -446,7 +474,8 @@ export function RunExplanationSection({
           className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
           open={provenanceOpen}
           onToggle={(event) => {
-            setProvenanceOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setProvenanceOpen(!provenanceOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>

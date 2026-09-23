@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -30,6 +30,7 @@ import {
   architectureSealDeltaDisclosureHrefFromSearch,
   parseArchitectureSealDeltaOpenFromSearch,
 } from "@/lib/architecture/architecture-seal-delta-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DiffItem } from "@/types/authority-manifest";
 import { cn } from "@/lib/utils";
@@ -55,27 +56,43 @@ function groupDiffsBySection(diffs: readonly DiffItem[]): Map<string, DiffItem[]
 
 export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProps): ReactElement {
   const { isWorkingMode } = useWorkspaceMode();
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureSealDeltaOpenParam = searchParams.get("architectureSealDeltaOpen");
+  const readPanelOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      "architectureSealDeltaOpen",
+    );
+
+    if (param === null) {
+      return null;
+    }
+
+    return parseArchitectureSealDeltaOpenFromSearch(param);
+  };
   const query = useArchitectureSealDeltaQuery(props.architectureId);
   const delta = query.data;
   const diffCount = delta?.diffs.length ?? 0;
-  const [panelOpen, setPanelOpenState] = useState(() => parseArchitectureSealDeltaOpenFromSearch(architectureSealDeltaOpenParam));
+  const [panelOpen, setPanelOpenState] = useState(() => readPanelOpenFromUrl() ?? false);
+  const panelOpenRef = useRef(panelOpen);
+  panelOpenRef.current = panelOpen;
   const [appliedContentDefault, setAppliedContentDefault] = useState(false);
 
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(architectureSealDeltaDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        architectureSealDeltaDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPanelOpen = useCallback(
     (open: boolean) => {
+      if (panelOpenRef.current === open) {
+        return;
+      }
+
+      panelOpenRef.current = open;
       setPanelOpenState(open);
       syncPanelOpenToUrl(open);
     },
@@ -83,23 +100,37 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
   );
 
   useEffect(() => {
-    if (parseArchitectureSealDeltaOpenFromSearch(architectureSealDeltaOpenParam)) {
-      setPanelOpenState(true);
+    const syncPanelOpenFromUrl = (): void => {
+      const fromUrl = readPanelOpenFromUrl();
 
-      return;
-    }
+      if (fromUrl !== null) {
+        if (panelOpenRef.current !== fromUrl) {
+          panelOpenRef.current = fromUrl;
+          setPanelOpenState(fromUrl);
+        }
 
-    if (architectureSealDeltaOpenParam !== null) {
-      setPanelOpenState(false);
+        return;
+      }
 
-      return;
-    }
+      if (!appliedContentDefault && delta !== undefined) {
+        const next = diffCount > 0;
 
-    if (!appliedContentDefault && delta !== undefined) {
-      setPanelOpenState(diffCount > 0);
-      setAppliedContentDefault(true);
-    }
-  }, [appliedContentDefault, architectureSealDeltaOpenParam, delta, diffCount]);
+        if (panelOpenRef.current !== next) {
+          panelOpenRef.current = next;
+          setPanelOpenState(next);
+        }
+
+        setAppliedContentDefault(true);
+      }
+    };
+
+    syncPanelOpenFromUrl();
+    window.addEventListener("popstate", syncPanelOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPanelOpenFromUrl);
+    };
+  }, [appliedContentDefault, delta, diffCount]);
 
   if (query.isLoading) {
     return (

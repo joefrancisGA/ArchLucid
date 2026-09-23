@@ -2,8 +2,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { formatUsd } from "@/lib/roi-assumptions";
@@ -29,29 +31,85 @@ export type FindingsWhatIfAnalysisPanelProps = {
 
 /** What-if ROI toggle: subtract selected finding savings from baseline annual cost. */
 export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const urlWhatIfEnabled = parseFindingsWhatIfEnabledFromSearch(searchParams.get("whatIf"));
-  const urlWhatIfIds = parseFindingsWhatIfIdsFromSearch(searchParams.get("whatIfIds"));
-  const [enabled, setEnabled] = useState(urlWhatIfEnabled);
-  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set(urlWhatIfIds));
+  const readWhatIfFromUrl = (): { enabled: boolean; ids: readonly string[] } => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
 
-  const syncWhatIfToUrl = (nextEnabled: boolean, nextSelectedIds: ReadonlySet<string>): void => {
-    router.replace(
-      findingsWhatIfAnalysisHrefFromSearch(
-        searchParams.toString(),
-        { enabled: nextEnabled, findingIds: [...nextSelectedIds] },
-        pathname,
-      ),
-      { scroll: false },
-    );
+    return {
+      enabled: parseFindingsWhatIfEnabledFromSearch(params.get("whatIf")),
+      ids: parseFindingsWhatIfIdsFromSearch(params.get("whatIfIds")),
+    };
   };
+  const initialWhatIf = readWhatIfFromUrl();
+  const [enabled, setEnabledState] = useState(initialWhatIf.enabled);
+  const [selectedIds, setSelectedIdsState] = useState<ReadonlySet<string>>(() => new Set(initialWhatIf.ids));
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
+  const selectedIdsRef = useRef(selectedIds);
+  selectedIdsRef.current = selectedIds;
+
+  const syncWhatIfToUrl = useCallback(
+    (nextEnabled: boolean, nextSelectedIds: ReadonlySet<string>) => {
+      commitHrefIfChanged(
+        findingsWhatIfAnalysisHrefFromSearch(
+          readWindowLocationSearch(),
+          { enabled: nextEnabled, findingIds: [...nextSelectedIds] },
+          pathname,
+        ),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  const setEnabled = useCallback(
+    (nextEnabled: boolean) => {
+      if (enabledRef.current === nextEnabled) {
+        return;
+      }
+
+      enabledRef.current = nextEnabled;
+      setEnabledState(nextEnabled);
+      syncWhatIfToUrl(nextEnabled, selectedIdsRef.current);
+    },
+    [syncWhatIfToUrl],
+  );
+
+  const setSelectedIds = useCallback(
+    (nextSelectedIds: ReadonlySet<string>) => {
+      selectedIdsRef.current = nextSelectedIds;
+      setSelectedIdsState(nextSelectedIds);
+      syncWhatIfToUrl(enabledRef.current, nextSelectedIds);
+    },
+    [syncWhatIfToUrl],
+  );
 
   useEffect(() => {
-    setEnabled(urlWhatIfEnabled);
-    setSelectedIds(new Set(urlWhatIfIds));
-  }, [urlWhatIfEnabled, urlWhatIfIds]);
+    const syncWhatIfFromUrl = (): void => {
+      const { enabled: nextEnabled, ids } = readWhatIfFromUrl();
+      const nextSelectedIds = new Set(ids);
+
+      if (enabledRef.current !== nextEnabled) {
+        enabledRef.current = nextEnabled;
+        setEnabledState(nextEnabled);
+      }
+
+      const currentIds = [...selectedIdsRef.current].sort().join(",");
+      const incomingIds = [...nextSelectedIds].sort().join(",");
+
+      if (currentIds !== incomingIds) {
+        selectedIdsRef.current = nextSelectedIds;
+        setSelectedIdsState(nextSelectedIds);
+      }
+    };
+
+    syncWhatIfFromUrl();
+    window.addEventListener("popstate", syncWhatIfFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncWhatIfFromUrl);
+    };
+  }, []);
 
   const enriched = useMemo(
     () =>
@@ -76,18 +134,15 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
   const projected = baseline !== null && enabled ? Math.max(0, baseline - selectedSavings) : baseline;
 
   function toggleFinding(findingId: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
+    const next = new Set(selectedIdsRef.current);
 
-      if (next.has(findingId))
-        next.delete(findingId);
-      else
-        next.add(findingId);
+    if (next.has(findingId)) {
+      next.delete(findingId);
+    } else {
+      next.add(findingId);
+    }
 
-      syncWhatIfToUrl(enabled, next);
-
-      return next;
-    });
+    setSelectedIds(next);
   }
 
   if (!hasFindingsWhatIfAnalysisContent(props.findings, baseline))
@@ -122,9 +177,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
             type="checkbox"
             checked={enabled}
             onChange={(event) => {
-              const nextEnabled = event.target.checked;
-              setEnabled(nextEnabled);
-              syncWhatIfToUrl(nextEnabled, selectedIds);
+              setEnabled(event.target.checked);
             }}
             aria-label="Enable what-if analysis"
           />

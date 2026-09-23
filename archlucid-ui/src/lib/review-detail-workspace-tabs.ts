@@ -8,6 +8,12 @@ export const REVIEW_DETAIL_FINDING_PARAM = "findingId" as const;
 
 export const REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM = "workbenchFocus" as const;
 
+/** Legacy alias hydrated into {@link REVIEW_DETAIL_FINDING_PARAM} (LS-01). */
+const ARCHITECTURE_DIAGRAM_FINDING_PARAM = "diagramFindingId" as const;
+
+/** Legacy custom event name; URL sync now uses popstate only (no dispatch). */
+export const REVIEW_DETAIL_URL_CHANGED_EVENT = "archlucid:review-detail-url-changed" as const;
+
 export const REVIEW_WORKBENCH_FOCUS_COLUMN_IDS = ["architecture", "findings", "evidence"] as const;
 
 export type ReviewWorkbenchFocusColumnId = (typeof REVIEW_WORKBENCH_FOCUS_COLUMN_IDS)[number];
@@ -44,6 +50,18 @@ export function readPresenterModeFromWindowLocation(): boolean {
   }
 
   return readPresenterModeFromSearchParams(new URLSearchParams(window.location.search));
+}
+
+/** Reads `findingId` from the live address bar (not stale Next.js `useSearchParams`). */
+export function readReviewDetailFindingIdFromWindowLocation(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const trimmed =
+    new URL(window.location.href).searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 export const REVIEW_DETAIL_TAB_IDS = [
@@ -197,7 +215,45 @@ export function writeReviewDetailTabToUrl(
     url.hash = normalized.length > 0 ? `#${normalized}` : "";
   }
 
-  window.history.replaceState(null, "", url.toString());
+  const nextHref = url.toString();
+
+  if (nextHref === window.location.href) {
+    return;
+  }
+
+  window.history.replaceState(null, "", nextHref);
+}
+
+/** Mutates only `findingId` in the address bar (avoids stale tab/focus rewrites during selection sync). */
+export function writeReviewDetailFindingIdToUrl(findingId: string | null): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const url = new URL(window.location.href);
+
+  if (findingId === null) {
+    url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+    url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
+  } else {
+    const trimmed = findingId.trim();
+
+    if (trimmed.length > 0) {
+      url.searchParams.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
+    } else {
+      url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
+    }
+  }
+
+  const nextHref = url.toString();
+
+  if (nextHref === window.location.href) {
+    return;
+  }
+
+  window.history.replaceState(null, "", nextHref);
 }
 
 /** Reads the active review tab from the current browser location. */

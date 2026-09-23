@@ -1,9 +1,10 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNewRunWizardCommittedProbeQuery } from "@/hooks/use-new-run-wizard-committed-probe-query";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { resolveFirstRunWizardMode } from "@/lib/core-pilot-step-presentation";
 import {
   newRunWizardModeHrefFromSearch,
@@ -45,13 +46,14 @@ function writeStoredWizardMode(mode: NewRunWizardMode): void {
  * the pilot script.
  */
 export function useNewRunWizardMode(baselineFirst: boolean) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
   const urlMode = parseNewRunWizardModeFromSearch(searchParams.get("mode"));
   const [wizardMode, setWizardMode] = useState<NewRunWizardMode>(
     () => urlMode ?? readStoredWizardMode() ?? "quick",
   );
+  const wizardModeRef = useRef(wizardMode);
+  wizardModeRef.current = wizardMode;
   // A deep link (accelerator, preset) or a click has already decided the mode, so the first-run probe
   // below must not overwrite it when its request resolves.
   const modeChosenRef = useRef(false);
@@ -63,21 +65,39 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   const persistWizardMode = useCallback(
     (mode: NewRunWizardMode) => {
       modeChosenRef.current = true;
+      wizardModeRef.current = mode;
       setWizardMode(mode);
       writeStoredWizardMode(mode);
-      router.replace(newRunWizardModeHrefFromSearch(searchParams.toString(), mode, pathname), { scroll: false });
+      commitHrefIfChanged(newRunWizardModeHrefFromSearch(readWindowLocationSearch(), mode, pathname), {
+        notify: false,
+      });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   useEffect(() => {
-    const nextMode = parseNewRunWizardModeFromSearch(searchParams.get("mode"));
+    const syncModeFromUrl = (): void => {
+      const nextMode = parseNewRunWizardModeFromSearch(
+        new URLSearchParams(window.location.search).get("mode"),
+      );
 
-    if (nextMode !== null) {
-      setWizardMode(nextMode);
-      modeChosenRef.current = true;
-    }
-  }, [searchParams]);
+      if (nextMode !== null) {
+        if (wizardModeRef.current !== nextMode) {
+          wizardModeRef.current = nextMode;
+          setWizardMode(nextMode);
+        }
+
+        modeChosenRef.current = true;
+      }
+    };
+
+    syncModeFromUrl();
+    window.addEventListener("popstate", syncModeFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncModeFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (!baselineFirst) {

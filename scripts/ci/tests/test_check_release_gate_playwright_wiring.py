@@ -29,6 +29,19 @@ class TestCheckReleaseGatePlaywrightWiring(unittest.TestCase):
             msg=result.stdout + result.stderr,
         )
 
+    def test_release_workflow_restarts_api_after_enterprise_grant(self) -> None:
+        text = (REPO_ROOT / ".github/workflows/rc-release-gate.yml").read_text(encoding="utf-8")
+        grant = text.find("grant_ci_live_e2e_enterprise_tenant.sh")
+        restart = text.find("Restart API after Enterprise grant")
+        ready = text.find("wait-for-api-ready.sh", restart)
+
+        self.assertGreaterEqual(grant, 0)
+        self.assertGreater(restart, grant)
+        self.assertGreater(ready, restart)
+        restart_text = text[restart:ready]
+        for marker in ('cat "${RUNNER_TEMP}/', "pkill -TERM -P", 'kill "${API_PID}"', "nohup dotnet run --no-build"):
+            self.assertIn(marker, restart_text)
+
 
 if __name__ == "__main__":
     unittest.main()

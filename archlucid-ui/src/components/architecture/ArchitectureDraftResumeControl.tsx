@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/ArchitectureDraftIntakeModeDialog";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -28,6 +28,7 @@ import {
   type ArchitectureDraftResumeSource,
 } from "@/lib/architecture/architecture-draft-resume-telemetry";
 import { architectureDraftPath, startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
 type ArchitectureDraftResumeControlProps = {
@@ -47,11 +48,18 @@ export function ArchitectureDraftResumeControl(
 ): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
-  const intakeModeConfirmParam = searchParams.get("intakeModeConfirm");
-  const intakeModeDraftIdParam = searchParams.get("intakeModeDraftId");
+  const readIntakeModeConfirmFromUrl = (): { confirmOpen: boolean; draftId: string } => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return {
+      confirmOpen: parseArchitectureDraftIntakeModeConfirmOpenFromSearch(params.get("intakeModeConfirm")),
+      draftId: parseArchitectureDraftIntakeModeDraftIdFromSearch(params.get("intakeModeDraftId")),
+    };
+  };
   const [dialogOpen, setDialogOpenState] = useState(false);
+  const dialogOpenRef = useRef(dialogOpen);
+  dialogOpenRef.current = dialogOpen;
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<DraftRequestStatus | null>(null);
   const [inlineError, setInlineError] = useState<string | null>(null);
@@ -62,24 +70,30 @@ export function ArchitectureDraftResumeControl(
         return;
       }
 
-      router.replace(
+      commitHrefIfChanged(
         architectureDraftIntakeModeConfirmHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           open
             ? { confirmOpen: true, draftId: props.draftId }
             : { confirmOpen: false, draftId: null },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, props.draftId, router, searchParams],
+    [pathname, props.draftId],
   );
 
   const setDialogOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setDialogOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (dialogOpenRef.current === next) {
+          return current;
+        }
+
+        dialogOpenRef.current = next;
         syncIntakeModeConfirmToUrl(next);
 
         return next;
@@ -89,40 +103,53 @@ export function ArchitectureDraftResumeControl(
   );
 
   useEffect(() => {
-    const confirmOpen = parseArchitectureDraftIntakeModeConfirmOpenFromSearch(intakeModeConfirmParam);
-    const draftId = parseArchitectureDraftIntakeModeDraftIdFromSearch(intakeModeDraftIdParam);
-
-    if (!confirmOpen || draftId.length === 0 || draftId !== props.draftId) {
-      setDialogOpenState(false);
-
-      return;
-    }
-
     let cancelled = false;
 
-    void getDraftRequest(props.draftId)
-      .then((draft) => {
-        if (cancelled) {
-          return;
-        }
+    const syncDialogOpenFromUrl = (): void => {
+      const { confirmOpen, draftId } = readIntakeModeConfirmFromUrl();
 
-        if (!isArchitectureDraftInReviewIntake(draft.status)) {
-          return;
-        }
-
-        setStatus(draft.status);
-        setDialogOpenState(true);
-      })
-      .catch(() => {
-        if (!cancelled) {
+      if (!confirmOpen || draftId.length === 0 || draftId !== props.draftId) {
+        if (dialogOpenRef.current) {
+          dialogOpenRef.current = false;
           setDialogOpenState(false);
         }
-      });
+
+        return;
+      }
+
+      void getDraftRequest(props.draftId)
+        .then((draft) => {
+          if (cancelled) {
+            return;
+          }
+
+          if (!isArchitectureDraftInReviewIntake(draft.status)) {
+            return;
+          }
+
+          setStatus(draft.status);
+
+          if (!dialogOpenRef.current) {
+            dialogOpenRef.current = true;
+            setDialogOpenState(true);
+          }
+        })
+        .catch(() => {
+          if (!cancelled && dialogOpenRef.current) {
+            dialogOpenRef.current = false;
+            setDialogOpenState(false);
+          }
+        });
+    };
+
+    syncDialogOpenFromUrl();
+    window.addEventListener("popstate", syncDialogOpenFromUrl);
 
     return () => {
       cancelled = true;
+      window.removeEventListener("popstate", syncDialogOpenFromUrl);
     };
-  }, [intakeModeConfirmParam, intakeModeDraftIdParam, props.draftId]);
+  }, [props.draftId]);
 
   const openDraft = useCallback(() => {
     router.push(architectureDraftPath(props.draftId));

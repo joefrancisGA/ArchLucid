@@ -2,16 +2,16 @@
 
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
 import type { FindingTrustPresentationInput } from "@/lib/findings/finding-trust-presentation";
 import {
   parseTransparencyTrailOpenFromSearch,
-  transparencyTrailHrefFromSearch,
-} from "@/lib/reviews/transparency-trail-open-url";
+  transparencyTrailHrefFromSearch} from "@/lib/reviews/transparency-trail-open-url";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type TransparencyTrailPanelProps = {
@@ -38,33 +38,52 @@ function ShouldSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skip
 
 /** ADR 0050 asserted / inferred / skipped transparency record for review surfaces. */
 export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const transparencyTrailOpenParam = searchParams.get("transparencyTrailOpen");
   const [internalDetailsOpen, setInternalDetailsOpenState] = useState(() =>
-    parseTransparencyTrailOpenFromSearch(transparencyTrailOpenParam),
+    parseTransparencyTrailOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
+    ),
   );
   const syncInternalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(transparencyTrailHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(transparencyTrailHrefFromSearch(window.location.search.slice(1), open, pathname), {
+        notify: false});
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setInternalDetailsOpen = useCallback(
     (open: boolean) => {
+      if (internalDetailsOpen === open) {
+        return;
+      }
+
       setInternalDetailsOpenState(open);
       syncInternalDetailsOpenToUrl(open);
     },
-    [syncInternalDetailsOpenToUrl],
+    [internalDetailsOpen, syncInternalDetailsOpenToUrl],
   );
   const trail = props.trail;
 
   useEffect(() => {
-    setInternalDetailsOpenState(parseTransparencyTrailOpenFromSearch(transparencyTrailOpenParam));
-  }, [transparencyTrailOpenParam]);
+    const syncInternalDetailsOpenFromUrl = (): void => {
+      const nextOpen = parseTransparencyTrailOpenFromSearch(
+        new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
+      );
+
+      setInternalDetailsOpenState((current) => (current === nextOpen ? current : nextOpen));
+    };
+
+    if (props.detailsOpen === undefined) {
+      syncInternalDetailsOpenFromUrl();
+      window.addEventListener("popstate", syncInternalDetailsOpenFromUrl);
+    }
+
+    return () => {
+      window.removeEventListener("popstate", syncInternalDetailsOpenFromUrl);
+    };
+  }, [props.detailsOpen]);
 
   if (props.missingTrailDefect === true && (trail === null || trail === undefined)) {
     return (

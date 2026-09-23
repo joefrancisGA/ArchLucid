@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
@@ -30,25 +32,46 @@ import {
 
 export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: boolean } = {}) {
   const exploreCompletedOutput = props.exploreCompletedOutput === true;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const operatorFirstRunWorkflowMinimizedOpenParam = searchParams.get("operatorFirstRunWorkflowMinimizedOpen");
   const autoGraduateBlockedRef = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [graduated, setGraduated] = useState(false);
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => operatorFirstRunCorePilotSteps.map(() => false));
   const [hasAnyRun, setHasAnyRun] = useState(false);
+  const minimizedRef = useRef(minimized);
+  minimizedRef.current = minimized;
+
+  const readMinimizedOpenParam = (): string | null => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    return new URLSearchParams(window.location.search).get("operatorFirstRunWorkflowMinimizedOpen");
+  };
+
+  const resolveMinimizedFromLocation = (): boolean => {
+    const param = readMinimizedOpenParam();
+
+    if (param !== null) {
+      return parseOperatorFirstRunWorkflowMinimizedOpenFromSearch(param);
+    }
+
+    return readOperatorFirstRunMinimizedFromStorage();
+  };
 
   const syncMinimizedToUrl = useCallback(
     (minimizedState: boolean) => {
-      router.replace(
-        operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch(searchParams.toString(), minimizedState, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch(
+          readWindowLocationSearch(),
+          minimizedState,
+          pathname,
+        ),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const commitContextQuery = useCorePilotCommitContextQuery({ enabled: !exploreCompletedOutput });
@@ -62,25 +85,40 @@ export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput
   useEffect(() => {
     const nextDone = readOperatorFirstRunDoneByIndexFromStorage();
     const allDoneFromStorage = nextDone.length === operatorFirstRunCorePilotSteps.length && nextDone.every(Boolean);
-    const minimizedFromUrl = parseOperatorFirstRunWorkflowMinimizedOpenFromSearch(operatorFirstRunWorkflowMinimizedOpenParam);
+    const nextMinimized = resolveMinimizedFromLocation();
 
     setDoneByIndex(nextDone);
-    setMinimized(
-      operatorFirstRunWorkflowMinimizedOpenParam !== null
-        ? minimizedFromUrl
-        : readOperatorFirstRunMinimizedFromStorage(),
-    );
+    minimizedRef.current = nextMinimized;
+    setMinimized(nextMinimized);
     setGraduated(readOperatorFirstRunGraduatedFromStorage(allDoneFromStorage));
     setHydrated(true);
-  }, [operatorFirstRunWorkflowMinimizedOpenParam]);
+  }, []);
 
   useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
+    const syncMinimizedFromUrl = (): void => {
+      const param = readMinimizedOpenParam();
 
-    setMinimized(parseOperatorFirstRunWorkflowMinimizedOpenFromSearch(operatorFirstRunWorkflowMinimizedOpenParam));
-  }, [hydrated, operatorFirstRunWorkflowMinimizedOpenParam]);
+      if (param === null) {
+        return;
+      }
+
+      const next = parseOperatorFirstRunWorkflowMinimizedOpenFromSearch(param);
+
+      if (minimizedRef.current === next) {
+        return;
+      }
+
+      minimizedRef.current = next;
+      setMinimized(next);
+    };
+
+    syncMinimizedFromUrl();
+    window.addEventListener("popstate", syncMinimizedFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncMinimizedFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (!hydrated || exploreCompletedOutput || checklistQuery.isPending) {
@@ -151,12 +189,22 @@ export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput
   }, [hydrated, allDone]);
 
   function minimize() {
+    if (minimizedRef.current) {
+      return;
+    }
+
+    minimizedRef.current = true;
     setMinimized(true);
     persistOperatorFirstRunMinimized();
     syncMinimizedToUrl(true);
   }
 
   function expand() {
+    if (!minimizedRef.current) {
+      return;
+    }
+
+    minimizedRef.current = false;
     setMinimized(false);
     clearOperatorFirstRunMinimized();
     syncMinimizedToUrl(false);
@@ -166,6 +214,7 @@ export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput
     autoGraduateBlockedRef.current = true;
     clearOperatorFirstRunGraduated();
     setGraduated(false);
+    minimizedRef.current = false;
     setMinimized(false);
     clearOperatorFirstRunMinimized();
     syncMinimizedToUrl(false);

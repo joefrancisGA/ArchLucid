@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY } from "@/lib/role-shaped-nav-density";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRoleNavDensityShowFullNavOpenFromSearch,
   roleNavDensityShowFullNavDisclosureHrefFromSearch,
@@ -39,33 +40,45 @@ export function useRoleNavDensityExpanded(): {
   readonly setShowFullNav: (value: boolean) => void;
   readonly toggleShowFullNav: () => void;
 } {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
-  const roleNavDensityShowFullNavOpenParam = searchParams.get("roleNavDensityShowFullNavOpen");
   const [showFullNav, setShowFullNavState] = useState(false);
 
   const syncShowFullNavToUrl = useCallback(
     (open: boolean) => {
-      router.replace(roleNavDensityShowFullNavDisclosureHrefFromSearch(currentSearch, open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        roleNavDensityShowFullNavDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [currentSearch, pathname, router],
+    [pathname],
   );
 
   useEffect(() => {
-    const fromUrl = parseRoleNavDensityShowFullNavOpenFromSearch(roleNavDensityShowFullNavOpenParam);
+    const syncShowFullNavFromUrl = (): void => {
+      const roleNavDensityShowFullNavOpenParam = new URLSearchParams(window.location.search).get(
+        "roleNavDensityShowFullNavOpen",
+      );
 
-    if (roleNavDensityShowFullNavOpenParam !== null) {
-      setShowFullNavState(fromUrl);
+      setShowFullNavState((current) => {
+        const fromUrl = parseRoleNavDensityShowFullNavOpenFromSearch(roleNavDensityShowFullNavOpenParam);
 
-      return;
-    }
+        if (roleNavDensityShowFullNavOpenParam !== null) {
+          return current === fromUrl ? current : fromUrl;
+        }
 
-    setShowFullNavState(readShowFullNavFromStorage());
-  }, [roleNavDensityShowFullNavOpenParam]);
+        const fromStorage = readShowFullNavFromStorage();
+
+        return current === fromStorage ? current : fromStorage;
+      });
+    };
+
+    syncShowFullNavFromUrl();
+    window.addEventListener("popstate", syncShowFullNavFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShowFullNavFromUrl);
+    };
+  }, []);
 
   const setShowFullNav = useCallback(
     (value: boolean) => {

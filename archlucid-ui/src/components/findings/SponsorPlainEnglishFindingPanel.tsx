@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildSponsorPlainEnglishFinding,
@@ -36,27 +37,35 @@ export function SponsorPlainEnglishFindingPanel(
     className,
     testId = "sponsor-plain-english-finding",
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingSponsorPlainEnglishOpenParam = searchParams.get("findingSponsorPlainEnglishOpen");
   const [panelOpen, setPanelOpenState] = useState(() =>
-    parseFindingSponsorPlainEnglishOpenFromSearch(findingSponsorPlainEnglishOpenParam),
+    parseFindingSponsorPlainEnglishOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingSponsorPlainEnglishOpen"),
+    ),
   );
+  const panelOpenRef = useRef(panelOpen);
+  panelOpenRef.current = panelOpen;
   const rewrite = buildSponsorPlainEnglishFinding(input);
 
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingSponsorPlainEnglishDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingSponsorPlainEnglishDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPanelOpen = useCallback(
     (open: boolean) => {
+      if (panelOpenRef.current === open) {
+        return;
+      }
+
+      panelOpenRef.current = open;
       setPanelOpenState(open);
       syncPanelOpenToUrl(open);
     },
@@ -64,8 +73,26 @@ export function SponsorPlainEnglishFindingPanel(
   );
 
   useEffect(() => {
-    setPanelOpenState(parseFindingSponsorPlainEnglishOpenFromSearch(findingSponsorPlainEnglishOpenParam));
-  }, [findingSponsorPlainEnglishOpenParam]);
+    const syncPanelOpenFromUrl = (): void => {
+      const next = parseFindingSponsorPlainEnglishOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingSponsorPlainEnglishOpen"),
+      );
+
+      if (panelOpenRef.current === next) {
+        return;
+      }
+
+      panelOpenRef.current = next;
+      setPanelOpenState(next);
+    };
+
+    syncPanelOpenFromUrl();
+    window.addEventListener("popstate", syncPanelOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPanelOpenFromUrl);
+    };
+  }, []);
 
   const body = (
     <div className="space-y-2" data-testid={`${testId}-body`}>
@@ -108,7 +135,8 @@ export function SponsorPlainEnglishFindingPanel(
       data-testid={testId}
       open={panelOpen}
       onToggle={(event) => {
-        setPanelOpen(event.currentTarget.open);
+        event.preventDefault();
+        setPanelOpen(!panelOpenRef.current);
       }}
     >
       <summary className={cn("cursor-pointer select-none font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

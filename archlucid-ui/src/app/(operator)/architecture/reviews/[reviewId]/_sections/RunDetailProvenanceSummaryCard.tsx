@@ -3,8 +3,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -41,24 +42,34 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
       : null;
   const metadataContext = deriveReviewRecordMetadataContext(manifestId);
   const absentReasons = resolveProvenanceMetadataAbsentReasons(metadataContext);
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailProvenanceIdentifiersOpenParam = searchParams.get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM);
   const [identifiersOpen, setIdentifiersOpenState] = useState(() =>
-    parseRunDetailProvenanceIdentifiersOpenFromSearch(runDetailProvenanceIdentifiersOpenParam),
+    parseRunDetailProvenanceIdentifiersOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
+    ),
   );
+  const identifiersOpenRef = useRef(identifiersOpen);
+  identifiersOpenRef.current = identifiersOpen;
+
   const syncIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setIdentifiersOpen = useCallback(
     (open: boolean) => {
+      if (identifiersOpenRef.current === open) {
+        return;
+      }
+
+      identifiersOpenRef.current = open;
       setIdentifiersOpenState(open);
       syncIdentifiersOpenToUrl(open);
     },
@@ -66,8 +77,26 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   );
 
   useEffect(() => {
-    setIdentifiersOpenState(parseRunDetailProvenanceIdentifiersOpenFromSearch(runDetailProvenanceIdentifiersOpenParam));
-  }, [runDetailProvenanceIdentifiersOpenParam]);
+    const syncIdentifiersOpenFromUrl = (): void => {
+      const nextOpen = parseRunDetailProvenanceIdentifiersOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
+      );
+
+      if (identifiersOpenRef.current === nextOpen) {
+        return;
+      }
+
+      identifiersOpenRef.current = nextOpen;
+      setIdentifiersOpenState(nextOpen);
+    };
+
+    syncIdentifiersOpenFromUrl();
+    window.addEventListener("popstate", syncIdentifiersOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncIdentifiersOpenFromUrl);
+    };
+  }, []);
 
   const definitionLabelClass = cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
   const monoValueClass = cn("mt-1 flex items-center gap-2 font-mono", OPERATOR_TYPOGRAPHY.micro);

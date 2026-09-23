@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { MessageCircleQuestion } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
@@ -21,11 +21,11 @@ import { askBlockedReason } from "@/lib/ask/ask-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseReviewAskDockOpenFromSearch,
   parseReviewAskDockThreadIdFromSearch,
-  reviewAskDockHrefFromSearch,
-} from "@/lib/reviews/review-ask-dock-url";
+  reviewAskDockHrefFromSearch} from "@/lib/reviews/review-ask-dock-url";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 const DEFAULT_REVIEW_QUESTION =
@@ -47,15 +47,12 @@ type AskTurn = {
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
-  const searchParams = useSearchParams();
-  const urlAskDockOpen = parseReviewAskDockOpenFromSearch(searchParams.get("askDock"));
-  const urlAskThreadId = parseReviewAskDockThreadIdFromSearch(searchParams.get("askThread"));
-  const [open, setOpenState] = useState(urlAskDockOpen);
+  const [open, setOpenState] = useState(false);
   const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
   const [turns, setTurns] = useState<AskTurn[]>([]);
-  const [threadId, setThreadIdState] = useState<string | null>(urlAskThreadId.length > 0 ? urlAskThreadId : null);
+  const [threadId, setThreadIdState] = useState<string | null>(null);
+  const disabledCleanupAttemptedRef = useRef(false);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -68,50 +65,73 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
   const syncAskDockToUrl = useCallback(
     (nextOpen: boolean, nextThreadId: string | null) => {
-      router.replace(
+      commitHrefIfChanged(
         reviewAskDockHrefFromSearch(
-          searchParams.toString(),
+          window.location.search.slice(1),
           { open: nextOpen, threadId: nextThreadId },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (nextOpen: boolean) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       setOpenState(nextOpen);
       syncAskDockToUrl(nextOpen, threadId);
     },
-    [syncAskDockToUrl, threadId],
+    [open, syncAskDockToUrl, threadId],
   );
 
   const setThreadId = useCallback(
     (nextThreadId: string | null) => {
+      if (threadId === nextThreadId) {
+        return;
+      }
+
       setThreadIdState(nextThreadId);
       syncAskDockToUrl(open, nextThreadId);
     },
-    [open, syncAskDockToUrl],
+    [open, syncAskDockToUrl, threadId],
   );
 
   useEffect(() => {
-    if (askDockDisabled) {
-      if (urlAskDockOpen) {
-        setOpenState(false);
-        syncAskDockToUrl(false, threadId);
+    const syncAskDockFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const urlAskDockOpen = parseReviewAskDockOpenFromSearch(params.get("askDock"));
+      const urlAskThreadId = parseReviewAskDockThreadIdFromSearch(params.get("askThread"));
+
+      if (askDockDisabled) {
+        if (urlAskDockOpen && !disabledCleanupAttemptedRef.current) {
+          disabledCleanupAttemptedRef.current = true;
+          setOpenState(false);
+          syncAskDockToUrl(false, null);
+        }
+
+        return;
       }
 
-      return;
-    }
+      disabledCleanupAttemptedRef.current = false;
+      setOpenState((current) => (current === urlAskDockOpen ? current : urlAskDockOpen));
 
-    setOpenState(urlAskDockOpen);
+      if (urlAskThreadId.length > 0) {
+        setThreadIdState((current) => (current === urlAskThreadId ? current : urlAskThreadId));
+      }
+    };
 
-    if (urlAskThreadId.length > 0) {
-      setThreadIdState(urlAskThreadId);
-    }
-  }, [askDockDisabled, syncAskDockToUrl, threadId, urlAskDockOpen, urlAskThreadId]);
+    syncAskDockFromUrl();
+    window.addEventListener("popstate", syncAskDockFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAskDockFromUrl);
+    };
+  }, [askDockDisabled, syncAskDockToUrl]);
 
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();
@@ -127,15 +147,13 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
       const { response, error: streamError } = await askStream({
         question: trimmed,
         runId,
-        threadId: threadId ?? undefined,
-      });
+        threadId: threadId ?? undefined});
 
       if (streamError !== null) {
         setError({
           message: streamError,
           problem: null,
-          correlationId: null,
-        });
+          correlationId: null});
 
         return;
       }
@@ -144,8 +162,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setError({
           message: "Ask request returned no answer.",
           problem: null,
-          correlationId: null,
-        });
+          correlationId: null});
         return;
       }
 
@@ -162,14 +179,12 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setError({
           message: askBlockedReason(failure) ?? e.message,
           problem: e.problem,
-          correlationId: e.correlationId,
-        });
+          correlationId: e.correlationId});
       } else {
         setError({
           message: askBlockedReason(failure) ?? (e instanceof Error ? e.message : "Ask request failed."),
           problem: failure.problem,
-          correlationId: failure.correlationId,
-        });
+          correlationId: failure.correlationId});
       }
     }
   }, [askStream, isStreaming, question, resetStream, runId, threadId]);

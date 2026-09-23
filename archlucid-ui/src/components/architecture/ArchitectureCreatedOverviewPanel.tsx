@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ArchitectureCreatedOverviewEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedOverviewEvidenceOrientationStrip";
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
@@ -31,6 +31,7 @@ import {
   parseSubmittedBriefOpenFromSearch,
   submittedBriefDisclosureHrefFromSearch,
 } from "@/lib/architecture/submitted-brief-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 const OVERVIEW_SECTION_KEYS: readonly ArchitectureStructuredSectionKey[] = [
   "sponsor-report",
@@ -66,26 +67,33 @@ export function ArchitectureCreatedOverviewPanel(
   props: ArchitectureCreatedOverviewPanelProps,
 ): React.JSX.Element {
   const buyerPolishedShell = useProductionEvalChrome();
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const submittedBriefOpenParam = searchParams.get("submittedBriefOpen");
+  const readSubmittedBriefOpenFromUrl = (): boolean =>
+    parseSubmittedBriefOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("submittedBriefOpen"),
+    );
   const [parseAttempt, setParseAttempt] = useState(0);
-  const [submittedBriefOpen, setSubmittedBriefOpenState] = useState(() =>
-    parseSubmittedBriefOpenFromSearch(submittedBriefOpenParam),
-  );
+  const [submittedBriefOpen, setSubmittedBriefOpenState] = useState(() => readSubmittedBriefOpenFromUrl());
+  const submittedBriefOpenRef = useRef(submittedBriefOpen);
+  submittedBriefOpenRef.current = submittedBriefOpen;
 
   const syncSubmittedBriefOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(submittedBriefDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        submittedBriefDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setSubmittedBriefOpen = useCallback(
     (open: boolean) => {
+      if (submittedBriefOpenRef.current === open) {
+        return;
+      }
+
+      submittedBriefOpenRef.current = open;
       setSubmittedBriefOpenState(open);
       syncSubmittedBriefOpenToUrl(open);
     },
@@ -93,8 +101,24 @@ export function ArchitectureCreatedOverviewPanel(
   );
 
   useEffect(() => {
-    setSubmittedBriefOpenState(parseSubmittedBriefOpenFromSearch(submittedBriefOpenParam));
-  }, [submittedBriefOpenParam]);
+    const syncSubmittedBriefOpenFromUrl = (): void => {
+      const next = readSubmittedBriefOpenFromUrl();
+
+      if (submittedBriefOpenRef.current === next) {
+        return;
+      }
+
+      submittedBriefOpenRef.current = next;
+      setSubmittedBriefOpenState(next);
+    };
+
+    syncSubmittedBriefOpenFromUrl();
+    window.addEventListener("popstate", syncSubmittedBriefOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSubmittedBriefOpenFromUrl);
+    };
+  }, []);
 
   const parseResult = useMemo(
     () => {
@@ -221,7 +245,8 @@ export function ArchitectureCreatedOverviewPanel(
         data-testid="architecture-overview-submitted-brief"
         open={submittedBriefOpen}
         onToggle={(event) => {
-          setSubmittedBriefOpen(event.currentTarget.open);
+          event.preventDefault();
+          setSubmittedBriefOpen(!submittedBriefOpenRef.current);
         }}
       >
         <summary className="cursor-pointer font-semibold">{submittedBriefSummary}</summary>

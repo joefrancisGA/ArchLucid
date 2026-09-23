@@ -1,23 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useResolvedReviewDetailActiveTab } from "@/hooks/use-resolved-review-detail-active-tab";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
-  runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch,
-} from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
+  runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch} from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
 import { cn } from "@/lib/utils";
 
 import { contextualizeReviewPackagePrimaryActionForActiveTab } from "./contextualize-review-package-primary-action";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
 import {
   resolveReviewPackageApprovalBlockerKind,
-  resolveReviewPackageBlockerHelperText,
-} from "./resolve-review-package-approval-blocker";
+  resolveReviewPackageBlockerHelperText} from "./resolve-review-package-approval-blocker";
 import type { ResolveReviewPackagePrimaryActionInput } from "./resolve-review-package-primary-action";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
 import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
@@ -46,26 +45,34 @@ export type RunDetailWorkspaceStickyActionsProps = {
 export function RunDetailWorkspaceStickyActions(
   props: RunDetailWorkspaceStickyActionsProps,
 ): React.JSX.Element | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailStickyActionsTechnicalDetailOpenParam = searchParams.get("runDetailStickyActionsTechnicalDetailOpen");
   const [technicalDetailOpen, setTechnicalDetailOpenState] = useState(() =>
-    parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(runDetailStickyActionsTechnicalDetailOpenParam),
+    parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
+    ),
   );
+  const technicalDetailOpenRef = useRef(technicalDetailOpen);
+  technicalDetailOpenRef.current = technicalDetailOpen;
 
   const syncTechnicalDetailOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalDetailOpen = useCallback(
     (open: boolean) => {
+      if (technicalDetailOpenRef.current === open) {
+        return;
+      }
+
+      technicalDetailOpenRef.current = open;
       setTechnicalDetailOpenState(open);
       syncTechnicalDetailOpenToUrl(open);
     },
@@ -73,34 +80,45 @@ export function RunDetailWorkspaceStickyActions(
   );
 
   useEffect(() => {
-    setTechnicalDetailOpenState(
-      parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(runDetailStickyActionsTechnicalDetailOpenParam),
-    );
-  }, [runDetailStickyActionsTechnicalDetailOpenParam]);
+    const syncTechnicalDetailOpenFromUrl = (): void => {
+      const next = parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
+      );
+
+      if (technicalDetailOpenRef.current === next) {
+        return;
+      }
+
+      technicalDetailOpenRef.current = next;
+      setTechnicalDetailOpenState(next);
+    };
+
+    syncTechnicalDetailOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalDetailOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalDetailOpenFromUrl);
+    };
+  }, []);
 
   const activeTab = useResolvedReviewDetailActiveTab({
     tabLifecycle: {
       manifestId: props.manifestId,
       showProgressTracker: props.showProgressTracker,
-      runCompleted: props.primaryActionContext.runCompleted,
-    },
-  });
+      runCompleted: props.primaryActionContext.runCompleted}});
   const blockerKind = resolveReviewPackageApprovalBlockerKind({
     ...props.primaryActionContext,
-    commitBlockedReason: props.commitBlockedReason,
-  });
+    commitBlockedReason: props.commitBlockedReason});
   const contextualPrimaryAction = contextualizeReviewPackagePrimaryActionForActiveTab(
     props.primaryAction,
     activeTab,
     {
       ...props.primaryActionContext,
-      commitBlockedReason: props.commitBlockedReason,
-    },
+      commitBlockedReason: props.commitBlockedReason},
   );
   const blockingHelperText = resolveReviewPackageBlockerHelperText(blockerKind, {
     blockingFindingCount: props.primaryActionContext.blockingFindingCount,
-    commitBlockedSummary: props.commitBlockedReason,
-  });
+    commitBlockedSummary: props.commitBlockedReason});
   const technicalDetail = props.commitBlockedTechnicalDetail?.trim() ?? "";
   const stickyCommitBlockedReason =
     contextualPrimaryAction.kind === "finalize-package"
@@ -134,7 +152,8 @@ export function RunDetailWorkspaceStickyActions(
                 className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
                 open={technicalDetailOpen}
                 onToggle={(event) => {
-                  setTechnicalDetailOpen((event.currentTarget as HTMLDetailsElement).open);
+                  event.preventDefault();
+                  setTechnicalDetailOpen(!technicalDetailOpenRef.current);
                 }}
               >
                 <summary className="cursor-pointer font-medium">Technical detail</summary>

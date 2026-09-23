@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -17,6 +17,7 @@ import {
   parseFindingInspectWaiverRevokeConfirmOpenFromSearch,
   type FindingInspectGovernancePanelId,
 } from "@/lib/findings/finding-inspect-governance-panel-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { FindingInspectDispositionControls } from "./FindingInspectDispositionControls";
 import { FindingInspectDispositionBlockedCallout } from "./FindingInspectDispositionBlockedCallout";
@@ -32,38 +33,72 @@ export type { FindingInspectGovernanceStickinessPanelProps };
 export function FindingInspectGovernanceStickinessPanel(
   props: FindingInspectGovernanceStickinessPanelProps,
 ) {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}/findings/${props.findingId}/inspect`;
-  const searchParams = useSearchParams();
-  const urlGovPanel = parseFindingInspectGovernancePanelFromSearch(searchParams.get("govPanel"));
-  const urlWaiverConfirm = parseFindingInspectWaiverConfirmOpenFromSearch(searchParams.get("waiverConfirm"));
-  const urlWaiverRevokeConfirm = parseFindingInspectWaiverRevokeConfirmOpenFromSearch(
-    searchParams.get("waiverRevokeConfirm"),
-  );
-  const urlDispConfirm = parseFindingInspectDispositionConfirmFromSearch(searchParams.get("dispConfirm"));
+  const readUrlState = useCallback(() => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return {
+      govPanel: parseFindingInspectGovernancePanelFromSearch(params.get("govPanel")),
+      waiverConfirm: parseFindingInspectWaiverConfirmOpenFromSearch(params.get("waiverConfirm")),
+      waiverRevokeConfirm: parseFindingInspectWaiverRevokeConfirmOpenFromSearch(params.get("waiverRevokeConfirm")),
+      dispConfirm: parseFindingInspectDispositionConfirmFromSearch(params.get("dispConfirm")),
+    };
+  }, []);
+  const [urlState, setUrlState] = useState(readUrlState);
+  const urlStateRef = useRef(urlState);
+  urlStateRef.current = urlState;
+  const { govPanel: urlGovPanel, waiverConfirm: urlWaiverConfirm, waiverRevokeConfirm: urlWaiverRevokeConfirm, dispConfirm: urlDispConfirm } = urlState;
   const stickiness = useFindingInspectGovernanceStickiness(props);
   const scrolledPanelRef = useRef<FindingInspectGovernancePanelId | null>(null);
 
-  const syncGovernancePanelToUrl = (
-    panel: FindingInspectGovernancePanelId | null,
-    waiverConfirmOpen: boolean,
-    dispConfirm: FindingInspectDispositionConfirmUrlValue | null = urlDispConfirm,
-    waiverRevokeConfirmOpen: boolean = urlWaiverRevokeConfirm,
-  ): void => {
-    const panelHref = findingInspectGovernancePanelHrefFromSearch(
-      searchParams.toString(),
-      { panel, waiverConfirmOpen, waiverRevokeConfirmOpen },
-      pathname,
-    );
-    const questionIndex = panelHref.indexOf("?");
-    const panelPath = questionIndex >= 0 ? panelHref.slice(0, questionIndex) : panelHref;
-    const panelSearch = questionIndex >= 0 ? panelHref.slice(questionIndex + 1) : "";
+  const syncGovernancePanelToUrl = useCallback(
+    (
+      panel: FindingInspectGovernancePanelId | null,
+      waiverConfirmOpen: boolean,
+      dispConfirm: FindingInspectDispositionConfirmUrlValue | null = urlStateRef.current.dispConfirm,
+      waiverRevokeConfirmOpen: boolean = urlStateRef.current.waiverRevokeConfirm,
+    ): void => {
+      const panelHref = findingInspectGovernancePanelHrefFromSearch(
+        readWindowLocationSearch(),
+        { panel, waiverConfirmOpen, waiverRevokeConfirmOpen },
+        pathname,
+      );
+      const questionIndex = panelHref.indexOf("?");
+      const panelPath = questionIndex >= 0 ? panelHref.slice(0, questionIndex) : panelHref;
+      const panelSearch = questionIndex >= 0 ? panelHref.slice(questionIndex + 1) : "";
 
-    router.replace(
-      findingInspectDispositionConfirmHrefFromSearch(panelSearch, dispConfirm, panelPath),
-      { scroll: false },
-    );
-  };
+      commitHrefIfChanged(
+        findingInspectDispositionConfirmHrefFromSearch(panelSearch, dispConfirm, panelPath),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  useEffect(() => {
+    const syncFromUrl = (): void => {
+      const next = readUrlState();
+
+      if (
+        urlStateRef.current.govPanel === next.govPanel
+        && urlStateRef.current.waiverConfirm === next.waiverConfirm
+        && urlStateRef.current.waiverRevokeConfirm === next.waiverRevokeConfirm
+        && urlStateRef.current.dispConfirm === next.dispConfirm
+      ) {
+        return;
+      }
+
+      urlStateRef.current = next;
+      setUrlState(next);
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, [readUrlState]);
 
   useEffect(() => {
     if (urlWaiverRevokeConfirm) {

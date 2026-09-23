@@ -1,10 +1,11 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   persistFindingsVisibilityPreferences,
   readFindingsVisibilityFromStorage,
@@ -32,7 +33,6 @@ export type ReviewFindingsVisibilityState = {
 };
 
 export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityState {
-  const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const { mode: workspaceMode } = useWorkspaceMode();
@@ -103,10 +103,14 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
         return;
       }
 
-      const nextHref = reviewFindingsVisibilityHrefFromSearch(searchParams.toString(), next, pathname);
-      router.replace(nextHref, { scroll: false });
+      const nextHref = reviewFindingsVisibilityHrefFromSearch(
+        window.location.search.slice(1),
+        next,
+        pathname,
+      );
+      commitHrefIfChanged(nextHref);
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const persistVisibility = useCallback(

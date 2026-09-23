@@ -13,6 +13,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -21,6 +22,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/users")]
+[EnableRateLimiting("fixed")]
 public sealed class UsersAdminController(
     IUserInvitationAdminService invitationAdminService,
     IScopeContextProvider scopeContextProvider,

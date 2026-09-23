@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
@@ -97,30 +99,43 @@ export function RunDetailOutcomeCards({
   hidePromotedStatus = false,
   pagePrimaryOwnedElsewhere = false,
 }: RunDetailOutcomeCardsProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailOutcomeMonitoredRiskOpenParam = searchParams.get("runDetailOutcomeMonitoredRiskOpen");
-  const runDetailOutcomeDecisionKeyOpenParam = searchParams.get("runDetailOutcomeDecisionKeyOpen");
   const [monitoredRiskOpen, setMonitoredRiskOpenState] = useState(() =>
-    parseRunDetailOutcomeMonitoredRiskOpenFromSearch(runDetailOutcomeMonitoredRiskOpenParam),
+    parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailOutcomeMonitoredRiskOpen"),
+    ),
   );
+  const monitoredRiskOpenRef = useRef(monitoredRiskOpen);
+  monitoredRiskOpenRef.current = monitoredRiskOpen;
   const [decisionKeyOpen, setDecisionKeyOpenState] = useState(() =>
-    parseRunDetailOutcomeDecisionKeyOpenFromSearch(runDetailOutcomeDecisionKeyOpenParam),
+    parseRunDetailOutcomeDecisionKeyOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailOutcomeDecisionKeyOpen"),
+    ),
   );
+  const decisionKeyOpenRef = useRef(decisionKeyOpen);
+  decisionKeyOpenRef.current = decisionKeyOpen;
 
   const syncMonitoredRiskOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailOutcomeMonitoredRiskDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailOutcomeMonitoredRiskDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setMonitoredRiskOpen = useCallback(
     (open: boolean) => {
+      if (monitoredRiskOpenRef.current === open) {
+        return;
+      }
+
+      monitoredRiskOpenRef.current = open;
       setMonitoredRiskOpenState(open);
       syncMonitoredRiskOpenToUrl(open);
     },
@@ -129,16 +144,21 @@ export function RunDetailOutcomeCards({
 
   const syncDecisionKeyOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailOutcomeDecisionKeyDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailOutcomeDecisionKeyDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setDecisionKeyOpen = useCallback(
     (open: boolean) => {
+      if (decisionKeyOpenRef.current === open) {
+        return;
+      }
+
+      decisionKeyOpenRef.current = open;
       setDecisionKeyOpenState(open);
       syncDecisionKeyOpenToUrl(open);
     },
@@ -146,12 +166,33 @@ export function RunDetailOutcomeCards({
   );
 
   useEffect(() => {
-    setMonitoredRiskOpenState(parseRunDetailOutcomeMonitoredRiskOpenFromSearch(runDetailOutcomeMonitoredRiskOpenParam));
-  }, [runDetailOutcomeMonitoredRiskOpenParam]);
+    const syncDisclosureOpenFromUrl = (): void => {
+      const nextMonitoredRiskOpen = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailOutcomeMonitoredRiskOpen"),
+      );
 
-  useEffect(() => {
-    setDecisionKeyOpenState(parseRunDetailOutcomeDecisionKeyOpenFromSearch(runDetailOutcomeDecisionKeyOpenParam));
-  }, [runDetailOutcomeDecisionKeyOpenParam]);
+      if (monitoredRiskOpenRef.current !== nextMonitoredRiskOpen) {
+        monitoredRiskOpenRef.current = nextMonitoredRiskOpen;
+        setMonitoredRiskOpenState(nextMonitoredRiskOpen);
+      }
+
+      const nextDecisionKeyOpen = parseRunDetailOutcomeDecisionKeyOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailOutcomeDecisionKeyOpen"),
+      );
+
+      if (decisionKeyOpenRef.current !== nextDecisionKeyOpen) {
+        decisionKeyOpenRef.current = nextDecisionKeyOpen;
+        setDecisionKeyOpenState(nextDecisionKeyOpen);
+      }
+    };
+
+    syncDisclosureOpenFromUrl();
+    window.addEventListener("popstate", syncDisclosureOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDisclosureOpenFromUrl);
+    };
+  }, []);
 
   const supplementaryNavLinkClass =
     pagePrimaryOwnedElsewhere === true ? OPERATOR_LINK.optional : OPERATOR_LINK.nav;
@@ -252,7 +293,8 @@ export function RunDetailOutcomeCards({
           className={cn("mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           open={monitoredRiskOpen}
           onToggle={(event) => {
-            setMonitoredRiskOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setMonitoredRiskOpen(!monitoredRiskOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -279,7 +321,8 @@ export function RunDetailOutcomeCards({
         className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30"
         open={decisionKeyOpen}
         onToggle={(event) => {
-          setDecisionKeyOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setDecisionKeyOpen(!decisionKeyOpenRef.current);
         }}
       >
         <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_CARD.nested, OPERATOR_TYPOGRAPHY.body)}>

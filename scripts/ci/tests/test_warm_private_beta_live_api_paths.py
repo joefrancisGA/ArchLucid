@@ -18,6 +18,8 @@ class TestWarmPrivateBetaLiveApiPaths(unittest.TestCase):
         self.assertIn("Skipping draft inventory shell warm", script_text)
         self.assertIn("health/ready", script_text)
         self.assertIn("warm_path_post_optional \\", script_text)
+        self.assertIn("warm_suffix=", script_text)
+        self.assertIn("PrivateBetaPipelineWarm-${warm_suffix}", script_text)
         self.assertIn("HTTP 000", script_text)
         self.assertIn("Skipping remaining warms", script_text)
         self.assertIn("warm_status", script_text)

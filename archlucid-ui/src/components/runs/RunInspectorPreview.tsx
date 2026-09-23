@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
@@ -60,48 +62,91 @@ export type RunInspectorPreviewProps = {
  * Read-only run preview for list inspectors — uses only {@link RunSummary} fields from the list payload.
  */
 export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const runInspectorMoreOpenParam = searchParams.get("runInspectorMoreOpen");
-  const runInspectorTechOpenParam = searchParams.get("runInspectorTechOpen");
-  const [moreOpen, setMoreOpenState] = useState(() => parseRunInspectorMoreOpenFromSearch(runInspectorMoreOpenParam));
-  const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseRunInspectorTechOpenFromSearch(runInspectorTechOpenParam),
-  );
+  const readInspectorPanelsFromUrl = (): { moreOpen: boolean; technicalOpen: boolean } => ({
+    moreOpen: parseRunInspectorMoreOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("runInspectorMoreOpen"),
+    ),
+    technicalOpen: parseRunInspectorTechOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("runInspectorTechOpen"),
+    ),
+  });
+  const initialPanels = readInspectorPanelsFromUrl();
+  const [moreOpen, setMoreOpenState] = useState(() => initialPanels.moreOpen);
+  const [technicalOpen, setTechnicalOpenState] = useState(() => initialPanels.technicalOpen);
+  const moreOpenRef = useRef(moreOpen);
+  moreOpenRef.current = moreOpen;
+  const technicalOpenRef = useRef(technicalOpen);
+  technicalOpenRef.current = technicalOpen;
 
   const syncInspectorPanelsToUrl = useCallback(
     (state: { moreOpen: boolean; technicalOpen: boolean }) => {
-      router.replace(runInspectorPreviewPanelsHrefFromSearch(searchParams.toString(), state, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runInspectorPreviewPanelsHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setMoreOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setMoreOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncInspectorPanelsToUrl({ moreOpen: next, technicalOpen });
+
+        if (moreOpenRef.current === next) {
+          return current;
+        }
+
+        moreOpenRef.current = next;
+        syncInspectorPanelsToUrl({ moreOpen: next, technicalOpen: technicalOpenRef.current });
 
         return next;
       });
     },
-    [syncInspectorPanelsToUrl, technicalOpen],
+    [syncInspectorPanelsToUrl],
   );
 
   const setTechnicalOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setTechnicalOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncInspectorPanelsToUrl({ moreOpen, technicalOpen: next });
+
+        if (technicalOpenRef.current === next) {
+          return current;
+        }
+
+        technicalOpenRef.current = next;
+        syncInspectorPanelsToUrl({ moreOpen: moreOpenRef.current, technicalOpen: next });
 
         return next;
       });
     },
-    [moreOpen, syncInspectorPanelsToUrl],
+    [syncInspectorPanelsToUrl],
   );
+
+  useEffect(() => {
+    const syncInspectorPanelsFromUrl = (): void => {
+      const next = readInspectorPanelsFromUrl();
+
+      if (moreOpenRef.current !== next.moreOpen) {
+        moreOpenRef.current = next.moreOpen;
+        setMoreOpenState(next.moreOpen);
+      }
+
+      if (technicalOpenRef.current !== next.technicalOpen) {
+        technicalOpenRef.current = next.technicalOpen;
+        setTechnicalOpenState(next.technicalOpen);
+      }
+    };
+
+    syncInspectorPanelsFromUrl();
+    window.addEventListener("popstate", syncInspectorPanelsFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncInspectorPanelsFromUrl);
+    };
+  }, []);
   const demoChrome = isNextPublicDemoMode() || isBuyerSafeDemoMarketingChromeEnv();
   const showcaseStory = canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
   const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);

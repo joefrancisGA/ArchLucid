@@ -2,9 +2,11 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -13,7 +15,6 @@ import {
   ARCHITECTURE_DESK_PAGE_SHORTCUTS,
   FINDINGS_PAGE_SHORTCUTS,
   REVIEW_DETAIL_PAGE_SHORTCUTS,
-  REMEDIATION_FACTORY_PAGE_SHORTCUTS,
   SHELL_COMMAND_SHORTCUTS,
   SHORTCUTS,
   resolveShortcutDescription,
@@ -123,53 +124,75 @@ function partitionNavigationShortcuts(workingMode: boolean) {
  * Also used from tests to keep shortcut copy aligned.
  */
 export function KeyboardShortcutsTabContent(): React.ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const shortcutsSectionParam = searchParams.get("shortcutsSection");
   const { isWorkingMode } = useWorkspaceMode();
   const { common, rest, helpOnly } = useMemo(
     () => partitionNavigationShortcuts(isWorkingMode),
     [isWorkingMode],
   );
-  const urlSection = parseKeyboardShortcutsSectionFromSearch(shortcutsSectionParam);
-  const [moreOpen, setMoreOpenState] = useState(urlSection === "more");
-  const [alertsOpen, setAlertsOpenState] = useState(urlSection === "alerts");
-  const [findingsOpen, setFindingsOpenState] = useState(urlSection === "findings");
-  const [reviewDetailOpen, setReviewDetailOpenState] = useState(urlSection === "review");
-  const [remediationFactoryOpen, setRemediationFactoryOpenState] = useState(false);
-  const [helpOpen, setHelpOpenState] = useState(urlSection === "help");
+  const readUrlSection = (): KeyboardShortcutsSectionId | null =>
+    parseKeyboardShortcutsSectionFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("shortcutsSection"),
+    );
+  const [moreOpen, setMoreOpenState] = useState(() => readUrlSection() === "more");
+  const [alertsOpen, setAlertsOpenState] = useState(() => readUrlSection() === "alerts");
+  const [findingsOpen, setFindingsOpenState] = useState(() => readUrlSection() === "findings");
+  const [reviewDetailOpen, setReviewDetailOpenState] = useState(() => readUrlSection() === "review");
+  const [helpOpen, setHelpOpenState] = useState(() => readUrlSection() === "help");
+  const sectionRef = useRef<KeyboardShortcutsSectionId | null>(readUrlSection());
 
-  const syncSectionToUrl = useCallback(
-    (sectionId: KeyboardShortcutsSectionId | null) => {
-      router.replace(
-        keyboardShortcutsSectionHrefFromSearch(searchParams.toString(), sectionId, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setSectionOpen = useCallback(
-    (sectionId: KeyboardShortcutsSectionId, open: boolean) => {
-      setMoreOpenState(sectionId === "more" && open);
-      setAlertsOpenState(sectionId === "alerts" && open);
-      setFindingsOpenState(sectionId === "findings" && open);
-      setReviewDetailOpenState(sectionId === "review" && open);
-      setHelpOpenState(sectionId === "help" && open);
-      syncSectionToUrl(open ? sectionId : null);
-    },
-    [syncSectionToUrl],
-  );
-
-  useEffect(() => {
-    const section = parseKeyboardShortcutsSectionFromSearch(shortcutsSectionParam);
+  const applySectionState = useCallback((section: KeyboardShortcutsSectionId | null) => {
     setMoreOpenState(section === "more");
     setAlertsOpenState(section === "alerts");
     setFindingsOpenState(section === "findings");
     setReviewDetailOpenState(section === "review");
     setHelpOpenState(section === "help");
-  }, [shortcutsSectionParam]);
+  }, []);
+
+  const syncSectionToUrl = useCallback(
+    (sectionId: KeyboardShortcutsSectionId | null) => {
+      commitHrefIfChanged(
+        keyboardShortcutsSectionHrefFromSearch(readWindowLocationSearch(), sectionId, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  const setSectionOpen = useCallback(
+    (sectionId: KeyboardShortcutsSectionId, open: boolean) => {
+      const nextSection = open ? sectionId : null;
+
+      if (sectionRef.current === nextSection) {
+        return;
+      }
+
+      sectionRef.current = nextSection;
+      applySectionState(nextSection);
+      syncSectionToUrl(nextSection);
+    },
+    [applySectionState, syncSectionToUrl],
+  );
+
+  useEffect(() => {
+    const syncSectionFromUrl = (): void => {
+      const section = readUrlSection();
+
+      if (sectionRef.current === section) {
+        return;
+      }
+
+      sectionRef.current = section;
+      applySectionState(section);
+    };
+
+    syncSectionFromUrl();
+    window.addEventListener("popstate", syncSectionFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSectionFromUrl);
+    };
+  }, [applySectionState]);
 
   const workingDeskWorkShortcuts = useMemo(
     () => [...ARCHITECTURE_DESK_PAGE_SHORTCUTS, ...REVIEW_DETAIL_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS],
@@ -226,20 +249,6 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
             <ShortcutTable entries={FINDINGS_PAGE_SHORTCUTS} caption="Findings page" />
-          </CollapsibleContent>
-        </Collapsible>
-      ) : null}
-      {REMEDIATION_FACTORY_PAGE_SHORTCUTS.length > 0 ? (
-        <Collapsible open={remediationFactoryOpen} onOpenChange={setRemediationFactoryOpenState}>
-          <CollapsibleTrigger
-            type="button"
-            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
-            aria-expanded={remediationFactoryOpen}
-          >
-            {remediationFactoryOpen ? "Hide" : "Show"} remediation factory shortcuts
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-2">
-            <ShortcutTable entries={REMEDIATION_FACTORY_PAGE_SHORTCUTS} caption="Remediation factory" />
           </CollapsibleContent>
         </Collapsible>
       ) : null}

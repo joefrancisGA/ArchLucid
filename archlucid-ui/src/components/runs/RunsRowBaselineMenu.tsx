@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { persistCompareBaselineRunId } from "@/lib/compare-baseline-run";
@@ -15,35 +15,66 @@ import {
   runsRowBaselineMenuDisclosureHrefFromSearch,
 } from "@/lib/runs/runs-row-baseline-menu-disclosure-url";
 import { showSuccess } from "@/lib/toast";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 /**
  * Compact per-row menu on the reviews list: set the browser-local compare baseline (committed runs only).
  */
 export function RunsRowBaselineMenu(props: { runId: string }) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runsRowBaselineMenuRunIdParam = searchParams.get(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM);
-  const [openRunId, setOpenRunIdState] = useState(() => parseRunsRowBaselineMenuRunIdFromSearch(runsRowBaselineMenuRunIdParam));
+  const [openRunId, setOpenRunIdState] = useState(() =>
+    parseRunsRowBaselineMenuRunIdFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM),
+    ),
+  );
+  const openRunIdRef = useRef(openRunId);
+  openRunIdRef.current = openRunId;
   const syncOpenRunIdToUrl = useCallback(
     (runId: string | null) => {
-      router.replace(
-        runsRowBaselineMenuDisclosureHrefFromSearch(searchParams.toString(), runId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runsRowBaselineMenuDisclosureHrefFromSearch(readWindowLocationSearch(), runId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setOpenRunId = useCallback(
     (runId: string | null) => {
-      setOpenRunIdState(runId ?? "");
+      const next = runId ?? "";
+
+      if (openRunIdRef.current === next) {
+        return;
+      }
+
+      openRunIdRef.current = next;
+      setOpenRunIdState(next);
       syncOpenRunIdToUrl(runId);
     },
     [syncOpenRunIdToUrl],
   );
   useEffect(() => {
-    setOpenRunIdState(parseRunsRowBaselineMenuRunIdFromSearch(runsRowBaselineMenuRunIdParam));
-  }, [runsRowBaselineMenuRunIdParam]);
+    const syncOpenRunIdFromUrl = (): void => {
+      const next = parseRunsRowBaselineMenuRunIdFromSearch(
+        new URLSearchParams(window.location.search).get(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM),
+      );
+
+      if (openRunIdRef.current === next) {
+        return;
+      }
+
+      openRunIdRef.current = next;
+      setOpenRunIdState(next);
+    };
+
+    syncOpenRunIdFromUrl();
+    window.addEventListener("popstate", syncOpenRunIdFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenRunIdFromUrl);
+    };
+  }, []);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const runEnc = encodeURIComponent(props.runId);
   const menuOpen = openRunId === props.runId;
@@ -85,7 +116,8 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
       data-testid={`runs-row-baseline-menu-${props.runId}`}
       open={menuOpen}
       onToggle={(event) => {
-        const nextOpen = event.currentTarget.open;
+        event.preventDefault();
+        const nextOpen = !menuOpen;
         setOpenRunId(nextOpen ? props.runId : null);
       }}
       onClick={(e) => {

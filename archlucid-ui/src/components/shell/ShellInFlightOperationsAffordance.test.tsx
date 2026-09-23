@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
@@ -32,11 +32,24 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+const commitHrefIfChanged = vi.hoisted(() => vi.fn(() => false));
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    commitHrefIfChanged,
+  };
+});
+
 describe("ShellInFlightOperationsAffordance", () => {
   beforeEach(() => {
     resetInFlightOperationsForTests();
     vi.mocked(cancelOperation).mockReset();
     vi.mocked(cancelOperation).mockResolvedValue(undefined);
+    commitHrefIfChanged.mockClear();
+    window.history.replaceState(null, "", "/");
   });
 
   afterEach(() => {
@@ -193,6 +206,43 @@ describe("ShellInFlightOperationsAffordance", () => {
 
     const row = getInFlightOperations().find((item) => item.operationId === "run:demo");
     expect(row?.state).toBe("Running");
+  });
+
+  it("does not commit href churn when the popover mounts closed", async () => {
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Queued",
+      state: "Pending",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+
+    await waitFor(() => {
+      expect(commitHrefIfChanged).not.toHaveBeenCalled();
+    });
+  });
+
+  it("does not commit href churn when popstate matches the closed popover", async () => {
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Queued",
+      state: "Pending",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+    commitHrefIfChanged.mockClear();
+
+    fireEvent.popState(window);
+
+    await waitFor(() => {
+      expect(commitHrefIfChanged).not.toHaveBeenCalled();
+    });
   });
 
   it("opens the list when another surface asks to show in-progress work", async () => {

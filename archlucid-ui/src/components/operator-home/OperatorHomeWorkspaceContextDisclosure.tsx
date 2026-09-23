@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useCallback, useId, useLayoutEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useId, useLayoutEffect, useState } from "react";
+
+import { useOperatorHomeBooleanDisclosureUrlSync } from "@/hooks/use-operator-home-boolean-disclosure-url-sync";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
@@ -16,8 +17,6 @@ import {
   collapseAriaLabel,
   expandAriaLabel,
   OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS,
-  readOperatorHomeDisclosureExpanded,
-  writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator/operator-home-disclosure-storage";
 import {
   homeWorkspaceDetailsHrefFromSearch,
@@ -44,50 +43,22 @@ const WORKSPACE_METRICS_SECTION_TITLE = "Workspace metrics and status";
 export function OperatorHomeWorkspaceContextDisclosure(
   props: OperatorHomeWorkspaceContextDisclosureProps,
 ): ReactElement | null {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const homeWorkspaceDetailsOpenParam = searchParams.get("homeWorkspaceDetailsOpen");
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const detailsPanelId = useId();
   const setupReadiness = useFinishSetupReadinessContext();
   const runsDashboard = useLiveOperatorHomeRunsDashboard(props.runsDashboard);
   const [hydrated, setHydrated] = useState(false);
-  const [detailsExpanded, setDetailsExpandedState] = useState(false);
-
-  const syncDetailsExpandedToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(homeWorkspaceDetailsHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const persistDetailsExpanded = useCallback(
-    (nextExpanded: boolean) => {
-      setDetailsExpandedState(nextExpanded);
-      writeOperatorHomeDisclosureExpanded(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails, nextExpanded);
-      syncDetailsExpandedToUrl(nextExpanded);
-    },
-    [syncDetailsExpandedToUrl],
+  const [detailsExpanded, persistDetailsExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails,
+    "homeWorkspaceDetailsOpen",
+    parseHomeWorkspaceDetailsOpenFromSearch,
+    homeWorkspaceDetailsHrefFromSearch,
+    false,
   );
 
   useLayoutEffect(() => {
-    const fromUrl = parseHomeWorkspaceDetailsOpenFromSearch(homeWorkspaceDetailsOpenParam);
-
-    if (fromUrl) {
-      setDetailsExpandedState(true);
-      setHydrated(true);
-
-      return;
-    }
-
-    setDetailsExpandedState(
-      readOperatorHomeDisclosureExpanded(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails, false),
-    );
     setHydrated(true);
-  }, [homeWorkspaceDetailsOpenParam]);
+  }, []);
 
   if (!hasCommittedArchitectureReview) {
     return null;

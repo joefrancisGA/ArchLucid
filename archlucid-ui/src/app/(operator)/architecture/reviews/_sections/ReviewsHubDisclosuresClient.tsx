@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
 
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { OperatorAttentionKindId } from "@/lib/operator/operator-attention-taxonomy";
@@ -61,31 +62,36 @@ function readReviewsHubDisclosureState(searchParams: URLSearchParams): ReviewsHu
 /** Reviews hub guidance and analytics collapsibles synced to URL params. */
 export function ReviewsHubDisclosuresClient(props: ReviewsHubDisclosuresClientProps): ReactElement {
   const { attentionSuppressKinds, firstCommittedRunId } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const reviewsHubMoreWaysOpenParam = searchParams.get("reviewsHubMoreWaysOpen");
-  const reviewsHubMedianDeltaOpenParam = searchParams.get("reviewsHubMedianDeltaOpen");
-  const reviewsHubReviewCycleDeltaOpenParam = searchParams.get("reviewsHubReviewCycleDeltaOpen");
 
   const [disclosureState, setDisclosureState] = useState<ReviewsHubDisclosureUrlState>(() =>
-    readReviewsHubDisclosureState(searchParams),
+    readReviewsHubDisclosureState(
+      typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search),
+    ),
   );
+  const disclosureStateRef = useRef(disclosureState);
+  disclosureStateRef.current = disclosureState;
 
   const syncDisclosuresToUrl = useCallback(
     (state: ReviewsHubDisclosureUrlState) => {
-      router.replace(reviewsHubDisclosureHrefFromSearch(searchParams.toString(), state, pathname), {
-        scroll: false,
+      commitHrefIfChanged(reviewsHubDisclosureHrefFromSearch(readWindowLocationSearch(), state, pathname), {
+        notify: false,
       });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setDisclosurePanelOpen = useCallback(
     (key: keyof ReviewsHubDisclosureUrlState, value: SetStateAction<boolean>) => {
       setDisclosureState((current) => {
         const nextValue = typeof value === "function" ? value(current[key]) : value;
+
+        if (current[key] === nextValue) {
+          return current;
+        }
+
         const nextState = { ...current, [key]: nextValue };
+        disclosureStateRef.current = nextState;
         syncDisclosuresToUrl(nextState);
 
         return nextState;
@@ -95,12 +101,29 @@ export function ReviewsHubDisclosuresClient(props: ReviewsHubDisclosuresClientPr
   );
 
   useEffect(() => {
-    setDisclosureState({
-      moreWaysOpen: parseReviewsHubMoreWaysOpenFromSearch(reviewsHubMoreWaysOpenParam),
-      medianDeltaOpen: parseReviewsHubMedianDeltaOpenFromSearch(reviewsHubMedianDeltaOpenParam),
-      reviewCycleDeltaOpen: parseReviewsHubReviewCycleDeltaOpenFromSearch(reviewsHubReviewCycleDeltaOpenParam),
-    });
-  }, [reviewsHubMedianDeltaOpenParam, reviewsHubMoreWaysOpenParam, reviewsHubReviewCycleDeltaOpenParam]);
+    const syncDisclosuresFromUrl = (): void => {
+      const nextState = readReviewsHubDisclosureState(new URLSearchParams(window.location.search));
+      const current = disclosureStateRef.current;
+
+      if (
+        current.moreWaysOpen === nextState.moreWaysOpen
+        && current.medianDeltaOpen === nextState.medianDeltaOpen
+        && current.reviewCycleDeltaOpen === nextState.reviewCycleDeltaOpen
+      ) {
+        return;
+      }
+
+      disclosureStateRef.current = nextState;
+      setDisclosureState(nextState);
+    };
+
+    syncDisclosuresFromUrl();
+    window.addEventListener("popstate", syncDisclosuresFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDisclosuresFromUrl);
+    };
+  }, []);
 
   return (
     <>

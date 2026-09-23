@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { SettingsRolesPageClient } from "./_sections/SettingsRolesPageClient";
 import { loadSettingsRolesPageData } from "./_sections/load-settings-roles-page-data";
 
@@ -8,5 +10,15 @@ import { loadSettingsRolesPageData } from "./_sections/load-settings-roles-page-
 export default async function SettingsRolesPage() {
   const loaded = await loadSettingsRolesPageData();
 
-  return <SettingsRolesPageClient loaded={loaded} />;
+  return (
+    <Suspense
+      fallback={
+        <div data-testid="settings-roles-page" data-settings-roles-state="loading">
+          Loading users and roles…
+        </div>
+      }
+    >
+      <SettingsRolesPageClient loaded={loaded} />
+    </Suspense>
+  );
 }

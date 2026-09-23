@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
@@ -61,32 +63,40 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
     architectureId: props.context.architectureId,
     isWorkingMode,
   };
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const quickDecisionSecondaryFindingFindingIdParam = searchParams.get("quickDecisionSecondaryFindingFindingId");
-  const [cardOpen, setCardOpenState] = useState(
-    () =>
-      parseQuickDecisionSecondaryFindingFindingIdFromSearch(quickDecisionSecondaryFindingFindingIdParam) ===
-      finding.findingId,
-  );
+  const [cardOpen, setCardOpenState] = useState(() => {
+    const fromUrl = parseQuickDecisionSecondaryFindingFindingIdFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("quickDecisionSecondaryFindingFindingId"),
+    );
+
+    return fromUrl === finding.findingId;
+  });
+  const cardOpenRef = useRef(cardOpen);
+  cardOpenRef.current = cardOpen;
 
   const syncCardOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
+      commitHrefIfChanged(
         quickDecisionSecondaryFindingDisclosureHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           open ? finding.findingId : null,
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [finding.findingId, pathname, router, searchParams],
+    [finding.findingId, pathname],
   );
 
   const setCardOpen = useCallback(
     (open: boolean) => {
+      if (cardOpenRef.current === open) {
+        return;
+      }
+
+      cardOpenRef.current = open;
       setCardOpenState(open);
       syncCardOpenToUrl(open);
     },
@@ -94,11 +104,27 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
   );
 
   useEffect(() => {
-    setCardOpenState(
-      parseQuickDecisionSecondaryFindingFindingIdFromSearch(quickDecisionSecondaryFindingFindingIdParam) ===
-        finding.findingId,
-    );
-  }, [finding.findingId, quickDecisionSecondaryFindingFindingIdParam]);
+    const syncCardOpenFromUrl = (): void => {
+      const fromUrl = parseQuickDecisionSecondaryFindingFindingIdFromSearch(
+        new URLSearchParams(window.location.search).get("quickDecisionSecondaryFindingFindingId"),
+      );
+      const next = fromUrl === finding.findingId;
+
+      if (cardOpenRef.current === next) {
+        return;
+      }
+
+      cardOpenRef.current = next;
+      setCardOpenState(next);
+    };
+
+    syncCardOpenFromUrl();
+    window.addEventListener("popstate", syncCardOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncCardOpenFromUrl);
+    };
+  }, [finding.findingId]);
 
   return (
     <li
@@ -112,7 +138,8 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
         tabIndex={0}
         open={cardOpen}
         onToggle={(event) => {
-          setCardOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setCardOpen(!cardOpenRef.current);
         }}
       >
         <summary

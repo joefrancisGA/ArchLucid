@@ -1,10 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunAgentForensicsOpenFromSearch,
   runAgentForensicsDisclosureHrefFromSearch,
@@ -18,23 +19,34 @@ type RunAgentForensicsCollapsibleShellProps = {
 export function RunAgentForensicsCollapsibleShell(
   props: RunAgentForensicsCollapsibleShellProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runAgentForensicsOpenParam = searchParams.get("runAgentForensicsOpen");
-  const [open, setOpenState] = useState(() => parseRunAgentForensicsOpenFromSearch(runAgentForensicsOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseRunAgentForensicsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runAgentForensicsOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runAgentForensicsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runAgentForensicsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -42,8 +54,26 @@ export function RunAgentForensicsCollapsibleShell(
   );
 
   useEffect(() => {
-    setOpenState(parseRunAgentForensicsOpenFromSearch(runAgentForensicsOpenParam));
-  }, [runAgentForensicsOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseRunAgentForensicsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runAgentForensicsOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <CollapsibleSection

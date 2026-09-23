@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingDerivationResult } from "@/lib/findings/finding-derivation-sentence";
@@ -11,6 +11,7 @@ import {
   findingDerivationEvidenceDisclosureHrefFromSearch,
   parseFindingDerivationEvidenceOpenFromSearch,
 } from "@/lib/findings/finding-derivation-evidence-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export type FindingDerivationLineProps = {
@@ -22,36 +23,65 @@ export type FindingDerivationLineProps = {
 
 /** One-sentence finding derivation with optional evidence-trail expand (TB-2154). */
 export function FindingDerivationLine(props: FindingDerivationLineProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingDerivationEvidenceParam = searchParams.get(FINDING_DERIVATION_EVIDENCE_OPEN_PARAM);
   const [findingDerivationEvidenceOpen, setFindingDerivationEvidenceOpenState] = useState(() =>
-    parseFindingDerivationEvidenceOpenFromSearch(findingDerivationEvidenceParam),
+    parseFindingDerivationEvidenceOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(FINDING_DERIVATION_EVIDENCE_OPEN_PARAM),
+    ),
   );
+  const findingDerivationEvidenceOpenRef = useRef(findingDerivationEvidenceOpen);
+  findingDerivationEvidenceOpenRef.current = findingDerivationEvidenceOpen;
+
   const syncFindingDerivationEvidenceOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingDerivationEvidenceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingDerivationEvidenceDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setFindingDerivationEvidenceOpen = useCallback(
     (open: boolean) => {
+      if (findingDerivationEvidenceOpenRef.current === open) {
+        return;
+      }
+
+      findingDerivationEvidenceOpenRef.current = open;
       setFindingDerivationEvidenceOpenState(open);
       syncFindingDerivationEvidenceOpenToUrl(open);
     },
     [syncFindingDerivationEvidenceOpenToUrl],
   );
+
   const { derivation, evidenceHref, testId = "finding-derivation-line", compact = false } = props;
   const evidenceLink =
     evidenceHref !== null && evidenceHref !== undefined && evidenceHref.trim().length > 0 ? evidenceHref : null;
 
   useEffect(() => {
-    setFindingDerivationEvidenceOpenState(parseFindingDerivationEvidenceOpenFromSearch(findingDerivationEvidenceParam));
-  }, [findingDerivationEvidenceParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseFindingDerivationEvidenceOpenFromSearch(
+        new URLSearchParams(window.location.search).get(FINDING_DERIVATION_EVIDENCE_OPEN_PARAM),
+      );
+
+      if (findingDerivationEvidenceOpenRef.current === next) {
+        return;
+      }
+
+      findingDerivationEvidenceOpenRef.current = next;
+      setFindingDerivationEvidenceOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   if (compact) {
     return (
@@ -83,7 +113,10 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
         <details
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           open={findingDerivationEvidenceOpen}
-          onToggle={(event) => setFindingDerivationEvidenceOpen(event.currentTarget.open)}
+          onToggle={(event) => {
+            event.preventDefault();
+            setFindingDerivationEvidenceOpen(!findingDerivationEvidenceOpenRef.current);
+          }}
         >
           <summary className="cursor-pointer select-none font-medium text-al-text-primary">Show evidence</summary>
           <p className="m-0 mt-1">

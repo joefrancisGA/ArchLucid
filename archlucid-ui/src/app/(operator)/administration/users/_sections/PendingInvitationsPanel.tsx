@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -40,6 +40,7 @@ import {
 } from "@/lib/administration/settings-invites-show-resolved-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
 import {
@@ -98,85 +99,137 @@ export function PendingInvitationsPanel({
   const [showResolved, setShowResolvedState] = useState(() =>
     parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam),
   );
+  const showResolvedRef = useRef(showResolved);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [copiedReferenceId, setCopiedReferenceId] = useState<string | null>(null);
   const [copiedAcceptLinkId, setCopiedAcceptLinkId] = useState<string | null>(null);
   const [pendingRevoke, setPendingRevokeState] = useState<AdminUserInvitationRow | null>(null);
+  const pendingRevokeIdRef = useRef<string | null>(null);
   const [revokeBusy, setRevokeBusy] = useState(false);
+
+  showResolvedRef.current = showResolved;
+  pendingRevokeIdRef.current = pendingRevoke?.id ?? null;
 
   const syncShowResolvedToUrl = useCallback(
     (resolvedVisible: boolean) => {
-      router.replace(
-        settingsInvitesShowResolvedHrefFromSearch(searchParams.toString(), resolvedVisible, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        settingsInvitesShowResolvedHrefFromSearch(window.location.search.slice(1), resolvedVisible, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setShowResolved = useCallback(
     (value: SetStateAction<boolean>) => {
       setShowResolvedState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncShowResolvedToUrl(next);
 
-        return next;
+        return next === current ? current : next;
       });
     },
-    [syncShowResolvedToUrl],
+    [],
   );
 
   useEffect(() => {
-    setShowResolvedState(parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam));
-  }, [settingsInvitesShowResolvedParam]);
+    if (showResolvedRef.current === showResolved) {
+      return;
+    }
+
+    syncShowResolvedToUrl(showResolved);
+  }, [showResolved, syncShowResolvedToUrl]);
+
+  useEffect(() => {
+    const syncShowResolvedFromUrl = (): void => {
+      const next = parseSettingsInvitesShowResolvedFromSearch(
+        new URLSearchParams(window.location.search).get("settingsInvitesShowResolved"),
+      );
+
+      if (showResolvedRef.current === next) {
+        return;
+      }
+
+      showResolvedRef.current = next;
+      setShowResolvedState(next);
+    };
+
+    syncShowResolvedFromUrl();
+    window.addEventListener("popstate", syncShowResolvedFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShowResolvedFromUrl);
+    };
+  }, []);
 
   const syncRevokeInviteToUrl = useCallback(
     (invitationId: string | null) => {
-      router.replace(
-        settingsUsersInviteRevokeHrefFromSearch(searchParams.toString(), invitationId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        settingsUsersInviteRevokeHrefFromSearch(window.location.search.slice(1), invitationId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setPendingRevoke = useCallback(
     (value: SetStateAction<AdminUserInvitationRow | null>) => {
       setPendingRevokeState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncRevokeInviteToUrl(next?.id ?? null);
 
-        return next;
+        return (next?.id ?? null) === (current?.id ?? null) ? current : next;
       });
     },
-    [syncRevokeInviteToUrl],
+    [],
   );
 
   useEffect(() => {
-    const revokeInviteId = parseSettingsUsersRevokeInviteIdFromSearch(revokeInviteIdParam);
+    const nextId = pendingRevoke?.id ?? null;
 
-    if (revokeInviteId.length === 0) {
-      setPendingRevokeState(null);
-
+    if (pendingRevokeIdRef.current === nextId) {
       return;
     }
 
-    if (rows.length === 0) {
-      return;
-    }
+    syncRevokeInviteToUrl(nextId);
+  }, [pendingRevoke?.id, syncRevokeInviteToUrl]);
 
-    const invitation = rows.find((row) => row.id === revokeInviteId);
+  useEffect(() => {
+    const syncPendingRevokeFromUrl = (): void => {
+      const revokeInviteId = parseSettingsUsersRevokeInviteIdFromSearch(
+        new URLSearchParams(window.location.search).get("revokeInviteId"),
+      );
 
-    if (invitation === undefined) {
-      return;
-    }
+      if (revokeInviteId.length === 0) {
+        if (pendingRevokeIdRef.current === null) {
+          return;
+        }
 
-    if (pendingRevoke?.id === revokeInviteId) {
-      return;
-    }
+        pendingRevokeIdRef.current = null;
+        setPendingRevokeState(null);
 
-    setPendingRevokeState(invitation);
-  }, [pendingRevoke?.id, revokeInviteIdParam, rows]);
+        return;
+      }
+
+      if (rows.length === 0) {
+        return;
+      }
+
+      const invitation = rows.find((row) => row.id === revokeInviteId);
+
+      if (invitation === undefined || pendingRevokeIdRef.current === revokeInviteId) {
+        return;
+      }
+
+      pendingRevokeIdRef.current = revokeInviteId;
+      setPendingRevokeState(invitation);
+    };
+
+    syncPendingRevokeFromUrl();
+    window.addEventListener("popstate", syncPendingRevokeFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPendingRevokeFromUrl);
+    };
+  }, [rows]);
 
   const load = useCallback(async () => {
     setLoading(true);

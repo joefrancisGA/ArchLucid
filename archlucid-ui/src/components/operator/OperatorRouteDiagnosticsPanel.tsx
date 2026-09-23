@@ -2,8 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useMemo, useState, useCallback, useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   operatorRouteDiagnosticsDisclosureHrefFromSearch,
   parseOperatorRouteDiagnosticsOpenFromSearch,
 } from "@/lib/operator/operator-route-diagnostics-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type OperatorRouteDiagnosticsPayload = {
   readonly attemptedRoute: string;
@@ -104,43 +105,66 @@ export type OperatorRouteDiagnosticsPanelProps = {
 
 export function OperatorRouteDiagnosticsPanel(props: OperatorRouteDiagnosticsPanelProps): React.JSX.Element {
   const { payload, defaultOpen = false } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const operatorRouteDiagnosticsOpenParam = searchParams.get("operatorRouteDiagnosticsOpen");
   const [open, setOpenState] = useState(() => {
-    if (operatorRouteDiagnosticsOpenParam !== null) {
-      return parseOperatorRouteDiagnosticsOpenFromSearch(operatorRouteDiagnosticsOpenParam);
+    if (typeof window === "undefined") {
+      return defaultOpen;
+    }
+
+    const param = new URLSearchParams(window.location.search).get("operatorRouteDiagnosticsOpen");
+
+    if (param !== null) {
+      return parseOperatorRouteDiagnosticsOpenFromSearch(param);
     }
 
     return defaultOpen;
   });
+  const openRef = useRef(open);
+  openRef.current = open;
   const [copied, setCopied] = useState(false);
   const diagnosticsText = useMemo(() => formatDiagnosticsText(payload), [payload]);
 
-  const syncOpenToUrl = useCallback(
-    (detailsOpen: boolean) => {
-      router.replace(
-        operatorRouteDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
-      syncOpenToUrl(detailsOpen);
+      commitHrefIfChanged(
+        operatorRouteDiagnosticsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [syncOpenToUrl],
+    [pathname],
   );
 
   useEffect(() => {
-    if (operatorRouteDiagnosticsOpenParam !== null) {
-      setOpenState(parseOperatorRouteDiagnosticsOpenFromSearch(operatorRouteDiagnosticsOpenParam));
-    }
-  }, [operatorRouteDiagnosticsOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const param = new URLSearchParams(window.location.search).get("operatorRouteDiagnosticsOpen");
+
+      if (param === null) {
+        return;
+      }
+
+      const next = parseOperatorRouteDiagnosticsOpenFromSearch(param);
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   const copyDiagnostics = async () => {
     try {

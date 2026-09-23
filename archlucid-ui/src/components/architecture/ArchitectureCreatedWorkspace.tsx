@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -57,6 +57,7 @@ import {
 } from "@/lib/review-detail-workspace-tabs";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { resolveReviewWorkspaceVisibleTabs } from "@/lib/resolve-review-workspace-visible-tabs";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -135,39 +136,64 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const urlLinkedView = parseArchitectureFindingsLinkedViewFromSearch(searchParams.get("linkedView"));
+  const readLinkedViewFromUrl = (): boolean =>
+    parseArchitectureFindingsLinkedViewFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("linkedView"),
+    );
   const [hashResolved, setHashResolved] = useState(false);
   const [dismissedClarificationGapIds, setDismissedClarificationGapIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
   const [diagramInferredCount, setDiagramInferredCount] = useState(0);
   const { isWorkingMode } = useWorkspaceMode();
-  const [showFindingsLinkedView, setShowFindingsLinkedViewState] = useState(urlLinkedView);
+  const [showFindingsLinkedView, setShowFindingsLinkedViewState] = useState(readLinkedViewFromUrl);
+  const showFindingsLinkedViewRef = useRef(showFindingsLinkedView);
+  showFindingsLinkedViewRef.current = showFindingsLinkedView;
   const [diagramNodes, setDiagramNodes] = useState<readonly { id: string; label: string }[]>([]);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   const linkedLayoutMode = resolveArchitectureFindingsDualPaneLayoutMode(showFindingsLinkedView);
 
   const setShowFindingsLinkedView = useCallback(
     (value: boolean | ((current: boolean) => boolean)) => {
-      setShowFindingsLinkedViewState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+      const current = showFindingsLinkedViewRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        if (pathname !== null) {
-          router.replace(
-            architectureFindingsLinkedViewHrefFromSearch(searchParams.toString(), next, pathname),
-            { scroll: false },
-          );
-        }
+      if (showFindingsLinkedViewRef.current === next) {
+        return;
+      }
 
-        return next;
-      });
+      showFindingsLinkedViewRef.current = next;
+      setShowFindingsLinkedViewState(next);
+
+      if (pathname.length > 0) {
+        commitHrefIfChanged(
+          architectureFindingsLinkedViewHrefFromSearch(readWindowLocationSearch(), next, pathname),
+          { notify: false },
+        );
+      }
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   useEffect(() => {
-    setShowFindingsLinkedViewState(urlLinkedView);
-  }, [urlLinkedView]);
+    const syncLinkedViewFromUrl = (): void => {
+      const next = readLinkedViewFromUrl();
+
+      if (showFindingsLinkedViewRef.current === next) {
+        return;
+      }
+
+      showFindingsLinkedViewRef.current = next;
+      setShowFindingsLinkedViewState(next);
+    };
+
+    syncLinkedViewFromUrl();
+    window.addEventListener("popstate", syncLinkedViewFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncLinkedViewFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (isWorkingMode) {
@@ -261,12 +287,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(readWindowLocationSearch());
     params.set(REVIEW_DETAIL_TAB_PARAM, mapArchitectureTabToReviewTab(tabFromHash));
     params.delete(ARCHITECTURE_WORKSPACE_TAB_PARAM);
-    router.replace(`${pathname}?${params.toString()}#${hash}`, { scroll: false });
+    commitHrefIfChanged(`${pathname}?${params.toString()}#${hash}`, { notify: false });
     setHashResolved(true);
-  }, [hashResolved, pathname, router, searchParams]);
+  }, [hashResolved, pathname]);
 
   const findingsCount = props.findingsTriageVisibleCount ?? props.findings.length;
   const visibleClarificationGaps = model.clarificationGaps.filter(

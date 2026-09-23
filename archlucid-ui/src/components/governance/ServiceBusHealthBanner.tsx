@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
@@ -13,11 +13,22 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { shouldPollServiceBusHealthDegradedBanner } from "@/lib/shell-banner-poll-policy";
 import {
   parseServiceBusHealthTechnicalProbeOpenFromSearch,
   serviceBusHealthTechnicalProbeDisclosureHrefFromSearch,
 } from "@/lib/governance/service-bus-health-technical-probe-disclosure-url";
+
+function readServiceBusHealthTechnicalProbeOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseServiceBusHealthTechnicalProbeOpenFromSearch(
+    new URLSearchParams(window.location.search).get("serviceBusHealthTechnicalProbeOpen"),
+  );
+}
 
 /**
  * Demo/static-demo shells may omit live health polling. Paying Working users must see real
@@ -31,26 +42,30 @@ function isServiceBusBannerSuppressed(): boolean {
  * Global warning when Azure Service Bus readiness is Unhealthy or Degraded (`azure_service_bus` on `GET /health/ready`).
  */
 export function ServiceBusHealthBanner() {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const serviceBusHealthTechnicalProbeOpenParam = searchParams.get("serviceBusHealthTechnicalProbeOpen");
   const [technicalProbeOpen, setTechnicalProbeOpenState] = useState(() =>
-    parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam),
+    readServiceBusHealthTechnicalProbeOpenFromWindowLocation(),
   );
+  const technicalProbeOpenRef = useRef(technicalProbeOpen);
+  technicalProbeOpenRef.current = technicalProbeOpen;
 
   const syncTechnicalProbeOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        serviceBusHealthTechnicalProbeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        serviceBusHealthTechnicalProbeDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalProbeOpen = useCallback(
     (open: boolean) => {
+      if (technicalProbeOpenRef.current === open) {
+        return;
+      }
+
+      technicalProbeOpenRef.current = open;
       setTechnicalProbeOpenState(open);
       syncTechnicalProbeOpenToUrl(open);
     },
@@ -58,10 +73,24 @@ export function ServiceBusHealthBanner() {
   );
 
   useEffect(() => {
-    setTechnicalProbeOpenState(
-      parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam),
-    );
-  }, [serviceBusHealthTechnicalProbeOpenParam]);
+    const syncTechnicalProbeOpenFromUrl = (): void => {
+      const nextOpen = readServiceBusHealthTechnicalProbeOpenFromWindowLocation();
+
+      if (technicalProbeOpenRef.current === nextOpen) {
+        return;
+      }
+
+      technicalProbeOpenRef.current = nextOpen;
+      setTechnicalProbeOpenState(nextOpen);
+    };
+
+    syncTechnicalProbeOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalProbeOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalProbeOpenFromUrl);
+    };
+  }, []);
 
   const documentHidden = useDocumentHidden();
   const queryEnabled = !isServiceBusBannerSuppressed();
@@ -110,7 +139,8 @@ export function ServiceBusHealthBanner() {
             className="mt-2"
             open={technicalProbeOpen}
             onToggle={(event) => {
-              setTechnicalProbeOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setTechnicalProbeOpen(!technicalProbeOpenRef.current);
             }}
           >
             <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">
@@ -135,7 +165,8 @@ export function ServiceBusHealthBanner() {
             className="mt-1"
             open={technicalProbeOpen}
             onToggle={(event) => {
-              setTechnicalProbeOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setTechnicalProbeOpen(!technicalProbeOpenRef.current);
             }}
           >
             <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">

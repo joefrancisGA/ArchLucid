@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { ARCHITECTURE_CREATED_CONFIRMATION, ARCHITECTURE_CREATED_OVERFLOW_LABEL } from "@/lib/architecture/architecture-created-home-copy";
@@ -13,6 +13,7 @@ import {
   architectureCreatedOverflowDisclosureHrefFromSearch,
   parseArchitectureCreatedOverflowOpenFromSearch,
 } from "@/lib/architecture/architecture-created-overflow-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import {
   ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE,
@@ -39,34 +40,58 @@ export type ArchitectureCreatedWorkspaceHeaderProps = {
 export function ArchitectureCreatedWorkspaceHeader(
   props: ArchitectureCreatedWorkspaceHeaderProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureCreatedOverflowParam = searchParams.get(ARCHITECTURE_CREATED_OVERFLOW_OPEN_PARAM);
+  const readOverflowOpenFromUrl = (): boolean =>
+    parseArchitectureCreatedOverflowOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        ARCHITECTURE_CREATED_OVERFLOW_OPEN_PARAM,
+      ),
+    );
   const [architectureCreatedOverflowOpen, setArchitectureCreatedOverflowOpenState] = useState(() =>
-    parseArchitectureCreatedOverflowOpenFromSearch(architectureCreatedOverflowParam),
+    readOverflowOpenFromUrl(),
   );
+  const architectureCreatedOverflowOpenRef = useRef(architectureCreatedOverflowOpen);
+  architectureCreatedOverflowOpenRef.current = architectureCreatedOverflowOpen;
   const syncArchitectureCreatedOverflowOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        architectureCreatedOverflowDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureCreatedOverflowDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setArchitectureCreatedOverflowOpen = useCallback(
     (open: boolean) => {
+      if (architectureCreatedOverflowOpenRef.current === open) {
+        return;
+      }
+
+      architectureCreatedOverflowOpenRef.current = open;
       setArchitectureCreatedOverflowOpenState(open);
       syncArchitectureCreatedOverflowOpenToUrl(open);
     },
     [syncArchitectureCreatedOverflowOpenToUrl],
   );
   useEffect(() => {
-    setArchitectureCreatedOverflowOpenState(
-      parseArchitectureCreatedOverflowOpenFromSearch(architectureCreatedOverflowParam),
-    );
-  }, [architectureCreatedOverflowParam]);
+    const syncOverflowOpenFromUrl = (): void => {
+      const next = readOverflowOpenFromUrl();
+
+      if (architectureCreatedOverflowOpenRef.current === next) {
+        return;
+      }
+
+      architectureCreatedOverflowOpenRef.current = next;
+      setArchitectureCreatedOverflowOpenState(next);
+    };
+
+    syncOverflowOpenFromUrl();
+    window.addEventListener("popstate", syncOverflowOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOverflowOpenFromUrl);
+    };
+  }, []);
   const { model, activeTab, onNavigateTab, buyerPolishedShell = false } = props;
   const showEvidenceClaimDiscipline = buyerPolishedShell && activeTab === "evidence";
   const showFindingsClaimDiscipline = buyerPolishedShell && activeTab === "findings";
@@ -134,7 +159,10 @@ export function ArchitectureCreatedWorkspaceHeader(
         <details
           className="relative"
           open={architectureCreatedOverflowOpen}
-          onToggle={(event) => setArchitectureCreatedOverflowOpen(event.currentTarget.open)}
+          onToggle={(event) => {
+            event.preventDefault();
+            setArchitectureCreatedOverflowOpen(!architectureCreatedOverflowOpenRef.current);
+          }}
         >
         <summary
           className={cn(

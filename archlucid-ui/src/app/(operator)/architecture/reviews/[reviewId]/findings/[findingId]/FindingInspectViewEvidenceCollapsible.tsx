@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactElement, type ReactNode } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   findingViewEvidenceDisclosureHrefFromSearch,
   parseFindingViewEvidenceOpenFromSearch,
 } from "@/lib/findings/finding-view-evidence-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 type FindingInspectViewEvidenceCollapsibleProps = {
   readonly children: ReactNode;
@@ -17,23 +18,32 @@ type FindingInspectViewEvidenceCollapsibleProps = {
 export function FindingInspectViewEvidenceCollapsible({
   children,
 }: FindingInspectViewEvidenceCollapsibleProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingViewEvidenceOpenParam = searchParams.get("findingViewEvidenceOpen");
-  const [open, setOpenState] = useState(() => parseFindingViewEvidenceOpenFromSearch(findingViewEvidenceOpenParam));
+  const readOpenFromUrl = (): boolean =>
+    parseFindingViewEvidenceOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("findingViewEvidenceOpen"),
+    );
+  const [open, setOpenState] = useState(() => readOpenFromUrl());
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(findingViewEvidenceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        findingViewEvidenceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -41,8 +51,24 @@ export function FindingInspectViewEvidenceCollapsible({
   );
 
   useEffect(() => {
-    setOpenState(parseFindingViewEvidenceOpenFromSearch(findingViewEvidenceOpenParam));
-  }, [findingViewEvidenceOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = readOpenFromUrl();
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <CollapsibleSection

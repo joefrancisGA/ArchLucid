@@ -97,6 +97,31 @@ public sealed class InMemoryTenantRepositoryCoverageTests
         transitioned.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task E2eHarnessGrantEnterpriseCommercialAsync_upserts_enterprise_and_clears_trial_status()
+    {
+        InMemoryTenantRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await sut.InsertTenantAsync(
+            tenantId,
+            "Standard tenant",
+            "std-" + tenantId.ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        await sut.E2eHarnessGrantEnterpriseCommercialAsync(tenantId, CancellationToken.None);
+
+        TenantRecord? tenant = await sut.GetByIdAsync(tenantId, CancellationToken.None);
+
+        tenant.Should().NotBeNull();
+        tenant!.Tier.Should().Be(TenantTier.Enterprise);
+        tenant.TrialStatus.Should().BeNull();
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, TenantTier.Enterprise).Should().BeTrue();
+    }
+
     [SkippableFact]
     public async Task InsertTenant_throws_on_duplicate_id_slug_or_entra()
     {

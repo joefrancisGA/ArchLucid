@@ -1,7 +1,7 @@
 "use client";
 
 import { MoreHorizontal } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -21,6 +21,7 @@ import {
   parseShellTopBarMoreOpenFromSearch,
   shellTopBarMoreMenuHrefFromSearch,
 } from "@/lib/operator/shell-top-bar-more-menu-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 const PANEL_GAP_PX = 4;
@@ -53,36 +54,69 @@ type OperatorShellTopBarMoreMenuProps = {
  * pill (warn/critical only) also stays freestanding — do not park them here.
  */
 export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const shellMoreOpenParam = searchParams.get("shellMoreOpen");
-  const [open, setOpenState] = useState(() => parseShellTopBarMoreOpenFromSearch(shellMoreOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseShellTopBarMoreOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("shellMoreOpen"),
+    ),
+  );
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
+  const openRef = useRef(open);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
+  openRef.current = open;
+
   const syncShellMoreOpenToUrl = useCallback(
     (menuOpen: boolean) => {
-      router.replace(shellTopBarMoreMenuHrefFromSearch(searchParams.toString(), menuOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        shellTopBarMoreMenuHrefFromSearch(readWindowLocationSearch(), menuOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncShellMoreOpenToUrl(next);
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      if (current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+      syncShellMoreOpenToUrl(next);
     },
     [syncShellMoreOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncShellMoreOpenFromUrl = (): void => {
+      const next = parseShellTopBarMoreOpenFromSearch(
+        new URLSearchParams(window.location.search).get("shellMoreOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncShellMoreOpenFromUrl();
+    window.addEventListener("popstate", syncShellMoreOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShellMoreOpenFromUrl);
+    };
+  }, []);
 
   const close = useCallback(() => {
     setOpen(false);

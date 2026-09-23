@@ -6,16 +6,20 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
-  type ReactNode,
-} from "react";
+  type ReactNode} from "react";
 
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
+import {
+  readReviewDetailFindingIdFromWindowLocation} from "@/lib/review-detail-workspace-tabs";
 
 export type ReviewWorkbenchSelectionContextValue = {
   readonly selectedFindingId: string | null;
   readonly highlightedNodeId: string | null;
   readonly setSelectedFindingId: (findingId: string | null) => void;
+  /** Updates selection state without rewriting the address bar (DOM/URL listener reconciliation). */
+  readonly reconcileSelectedFindingId: (findingId: string | null) => void;
   readonly setHighlightedNodeId: (nodeId: string | null) => void;
   readonly workbenchFocusColumn: ReviewWorkbenchColumnId | null;
   readonly setWorkbenchFocusColumn: (column: ReviewWorkbenchColumnId) => void;
@@ -33,48 +37,91 @@ export type ReviewWorkbenchSelectionProviderProps = {
 
 /** Shared finding + column selection for the Working-mode three-column workbench (PT-12). */
 export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelectionProviderProps): React.JSX.Element {
-  const [selectedFindingId, setSelectedFindingIdState] = useState<string | null>(
-    props.initialFindingId ?? null,
-  );
-  const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
+  const initialSelectedFindingId =
+    readReviewDetailFindingIdFromWindowLocation() ?? props.initialFindingId ?? null;
+  const [selectedFindingId, setSelectedFindingIdState] = useState<string | null>(initialSelectedFindingId);
+  const selectedFindingIdRef = useRef(initialSelectedFindingId);
+  const [highlightedNodeId, setHighlightedNodeIdState] = useState<string | null>(null);
+  const initialWorkbenchFocusColumn = props.initialFocusColumn ?? null;
   const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(
-    props.initialFocusColumn ?? null,
+    initialWorkbenchFocusColumn,
   );
+  const workbenchFocusColumnRef = useRef(initialWorkbenchFocusColumn);
+  const onFindingIdChangeRef = useRef(props.onFindingIdChange);
+  const onFocusColumnChangeRef = useRef(props.onFocusColumnChange);
+
+  selectedFindingIdRef.current = selectedFindingId;
+  workbenchFocusColumnRef.current = workbenchFocusColumn;
+  onFindingIdChangeRef.current = props.onFindingIdChange;
+  onFocusColumnChangeRef.current = props.onFocusColumnChange;
 
   useEffect(() => {
-    if (props.initialFindingId !== undefined) {
-      setSelectedFindingIdState(props.initialFindingId);
+    const syncFindingIdFromUrl = (): void => {
+      const urlFindingId = readReviewDetailFindingIdFromWindowLocation();
+
+      if (selectedFindingIdRef.current === urlFindingId) {
+        return;
+      }
+
+      selectedFindingIdRef.current = urlFindingId;
+      setSelectedFindingIdState(urlFindingId);
+    };
+
+    syncFindingIdFromUrl();
+    window.addEventListener("popstate", syncFindingIdFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFindingIdFromUrl);
+    };
+  }, []);
+
+  const setSelectedFindingId = useCallback((findingId: string | null) => {
+    if (selectedFindingIdRef.current === findingId) {
+      return;
     }
-  }, [props.initialFindingId]);
 
-  const setSelectedFindingId = useCallback(
-    (findingId: string | null) => {
-      setSelectedFindingIdState(findingId);
-      props.onFindingIdChange?.(findingId);
-    },
-    [props.onFindingIdChange],
-  );
+    selectedFindingIdRef.current = findingId;
+    setSelectedFindingIdState(findingId);
+    onFindingIdChangeRef.current?.(findingId);
+  }, []);
 
-  const setWorkbenchFocusColumn = useCallback(
-    (column: ReviewWorkbenchColumnId) => {
-      setWorkbenchFocusColumnState(column);
-      props.onFocusColumnChange?.(column);
-    },
-    [props.onFocusColumnChange],
-  );
+  const reconcileSelectedFindingId = useCallback((findingId: string | null) => {
+    if (selectedFindingIdRef.current === findingId) {
+      return;
+    }
+
+    selectedFindingIdRef.current = findingId;
+    setSelectedFindingIdState(findingId);
+  }, []);
+
+  const setHighlightedNodeId = useCallback((nodeId: string | null) => {
+    setHighlightedNodeIdState((current) => (current === nodeId ? current : nodeId));
+  }, []);
+
+  const setWorkbenchFocusColumn = useCallback((column: ReviewWorkbenchColumnId) => {
+    if (workbenchFocusColumnRef.current === column) {
+      return;
+    }
+
+    workbenchFocusColumnRef.current = column;
+    setWorkbenchFocusColumnState(column);
+    onFocusColumnChangeRef.current?.(column);
+  }, []);
 
   const value = useMemo<ReviewWorkbenchSelectionContextValue>(
     () => ({
       selectedFindingId,
       highlightedNodeId,
       setSelectedFindingId,
+      reconcileSelectedFindingId,
       setHighlightedNodeId,
       workbenchFocusColumn,
-      setWorkbenchFocusColumn,
-    }),
+      setWorkbenchFocusColumn}),
     [
       highlightedNodeId,
+      reconcileSelectedFindingId,
       selectedFindingId,
+      setHighlightedNodeId,
       setSelectedFindingId,
       setWorkbenchFocusColumn,
       workbenchFocusColumn,

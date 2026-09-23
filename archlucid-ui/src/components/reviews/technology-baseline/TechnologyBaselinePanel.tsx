@@ -2,8 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { Lock, LockOpen } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice, OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
@@ -58,35 +59,48 @@ export function TechnologyBaselinePanel({
   usedStaticDemoRun,
   warningCountDisplay,
 }: TechnologyBaselinePanelProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
-  const searchParams = useSearchParams();
-  const urlTechEntryId = parseTechnologyBaselineEntryIdFromSearch(searchParams.get("techEntryId"));
-  const technologyBaselineEvidenceRefEntryIdParam = searchParams.get("technologyBaselineEvidenceRefEntryId");
-  const [openEvidenceRefEntryId, setOpenEvidenceRefEntryIdState] = useState(() =>
-    parseTechnologyBaselineEvidenceRefEntryIdFromSearch(technologyBaselineEvidenceRefEntryIdParam),
+  const [urlTechEntryId, setUrlTechEntryId] = useState(() =>
+    parseTechnologyBaselineEntryIdFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("techEntryId"),
+    ),
   );
+  const [openEvidenceRefEntryId, setOpenEvidenceRefEntryIdState] = useState(() =>
+    parseTechnologyBaselineEvidenceRefEntryIdFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("technologyBaselineEvidenceRefEntryId"),
+    ),
+  );
+  const openEvidenceRefEntryIdRef = useRef(openEvidenceRefEntryId);
+  openEvidenceRefEntryIdRef.current = openEvidenceRefEntryId;
+
   const syncOpenEvidenceRefEntryIdToUrl = useCallback(
     (entryId: string | null) => {
-      router.replace(
-        technologyBaselineEvidenceRefDisclosureHrefFromSearch(searchParams.toString(), entryId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        technologyBaselineEvidenceRefDisclosureHrefFromSearch(readWindowLocationSearch(), entryId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setOpenEvidenceRefEntryId = useCallback(
     (entryId: string | null) => {
-      setOpenEvidenceRefEntryIdState(entryId ?? "");
+      const normalized = entryId ?? "";
+
+      if (openEvidenceRefEntryIdRef.current === normalized) {
+        return;
+      }
+
+      openEvidenceRefEntryIdRef.current = normalized;
+      setOpenEvidenceRefEntryIdState(normalized);
       syncOpenEvidenceRefEntryIdToUrl(entryId);
     },
     [syncOpenEvidenceRefEntryIdToUrl],
   );
-  useEffect(() => {
-    setOpenEvidenceRefEntryIdState(
-      parseTechnologyBaselineEvidenceRefEntryIdFromSearch(technologyBaselineEvidenceRefEntryIdParam),
-    );
-  }, [technologyBaselineEvidenceRefEntryIdParam]);
   const [entries, setEntries] = useState<TechnologyLedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailure, setLoadFailure] = useState<ApiLoadFailureState | null>(null);
@@ -100,12 +114,12 @@ export function TechnologyBaselinePanel({
 
   const syncTechEntryToUrl = useCallback(
     (entryId: string | null) => {
-      router.replace(
-        technologyBaselineRationaleHrefFromSearch(searchParams.toString(), entryId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        technologyBaselineRationaleHrefFromSearch(readWindowLocationSearch(), entryId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setRationaleDialogEntry = useCallback(
@@ -115,6 +129,31 @@ export function TechnologyBaselinePanel({
     },
     [syncTechEntryToUrl],
   );
+
+  useEffect(() => {
+    const syncTechnologyBaselinePanelsFromUrl = (): void => {
+      const nextTechEntryId = parseTechnologyBaselineEntryIdFromSearch(
+        new URLSearchParams(window.location.search).get("techEntryId"),
+      );
+      const nextEvidenceRefEntryId = parseTechnologyBaselineEvidenceRefEntryIdFromSearch(
+        new URLSearchParams(window.location.search).get("technologyBaselineEvidenceRefEntryId"),
+      );
+
+      setUrlTechEntryId((current) => (current === nextTechEntryId ? current : nextTechEntryId));
+
+      if (openEvidenceRefEntryIdRef.current !== nextEvidenceRefEntryId) {
+        openEvidenceRefEntryIdRef.current = nextEvidenceRefEntryId;
+        setOpenEvidenceRefEntryIdState(nextEvidenceRefEntryId);
+      }
+    };
+
+    syncTechnologyBaselinePanelsFromUrl();
+    window.addEventListener("popstate", syncTechnologyBaselinePanelsFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnologyBaselinePanelsFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (urlTechEntryId.length === 0 || entries.length === 0) {
@@ -345,8 +384,10 @@ export function TechnologyBaselinePanel({
                           className="text-xs text-al-text-secondary"
                           open={openEvidenceRefEntryId === entry.entryId}
                           onToggle={(event) => {
-                            const nextOpen = event.currentTarget.open;
-                            setOpenEvidenceRefEntryId(nextOpen ? entry.entryId : null);
+                            event.preventDefault();
+                            setOpenEvidenceRefEntryId(
+                              openEvidenceRefEntryId === entry.entryId ? null : entry.entryId,
+                            );
                           }}
                         >
                           <summary className="cursor-pointer">Evidence ref</summary>

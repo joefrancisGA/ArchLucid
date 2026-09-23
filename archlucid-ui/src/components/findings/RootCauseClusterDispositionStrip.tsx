@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -56,9 +58,14 @@ export function RootCauseClusterDispositionStrip(
   const clusters = listOpenRootCauseClusters(props.findings);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const urlClusterKey = parseRootCauseClusterKeyFromSearch(searchParams.get("clusterKey"));
-  const urlClusterDisp = parseRootCauseClusterDispFromSearch(searchParams.get("clusterDisp"));
+  const readClusterUrlState = (): { clusterKey: string; disposition: ReturnType<typeof parseRootCauseClusterDispFromSearch> } => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return {
+      clusterKey: parseRootCauseClusterKeyFromSearch(params.get("clusterKey")),
+      disposition: parseRootCauseClusterDispFromSearch(params.get("clusterDisp")),
+    };
+  };
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
@@ -68,23 +75,33 @@ export function RootCauseClusterDispositionStrip(
   );
   const [pendingClusterKey, setPendingClusterKeyState] = useState<string | null>(null);
   const [pendingDisposition, setPendingDispositionState] = useState<ClusterDisposition | null>(null);
+  const pendingClusterKeyRef = useRef<string | null>(null);
+  pendingClusterKeyRef.current = pendingClusterKey;
+  const pendingDispositionRef = useRef<ClusterDisposition | null>(null);
+  pendingDispositionRef.current = pendingDisposition;
 
   const syncClusterDispositionToUrl = useCallback(
     (clusterKey: string | null, disposition: ClusterDisposition | null) => {
-      router.replace(
+      commitHrefIfChanged(
         rootCauseClusterDispositionHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           { clusterKey, disposition },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPendingClusterDisposition = useCallback(
     (clusterKey: string | null, disposition: ClusterDisposition | null) => {
+      if (pendingClusterKeyRef.current === clusterKey && pendingDispositionRef.current === disposition) {
+        return;
+      }
+
+      pendingClusterKeyRef.current = clusterKey;
+      pendingDispositionRef.current = disposition;
       setPendingClusterKeyState(clusterKey);
       setPendingDispositionState(disposition);
       syncClusterDispositionToUrl(clusterKey, disposition);
@@ -93,40 +110,49 @@ export function RootCauseClusterDispositionStrip(
   );
 
   useEffect(() => {
-    if (urlClusterKey.length === 0 || urlClusterDisp === null) {
-      if (pendingClusterKey !== null || pendingDisposition !== null) {
-        setPendingClusterKeyState(null);
-        setPendingDispositionState(null);
+    const syncPendingClusterFromUrl = (): void => {
+      const { clusterKey: urlClusterKey, disposition: urlClusterDisp } = readClusterUrlState();
+
+      if (urlClusterKey.length === 0 || urlClusterDisp === null) {
+        if (pendingClusterKeyRef.current !== null || pendingDispositionRef.current !== null) {
+          pendingClusterKeyRef.current = null;
+          pendingDispositionRef.current = null;
+          setPendingClusterKeyState(null);
+          setPendingDispositionState(null);
+        }
+
+        return;
       }
 
-      return;
-    }
+      if (clusters.length === 0) {
+        return;
+      }
 
-    if (clusters.length === 0) {
-      return;
-    }
+      const cluster = clusters.find((row) => row.key === urlClusterKey);
 
-    const cluster = clusters.find((row) => row.key === urlClusterKey);
+      if (cluster === undefined) {
+        return;
+      }
 
-    if (cluster === undefined) {
-      return;
-    }
+      const disposition = rootCauseClusterDispositionFromUrlValue(urlClusterDisp);
 
-    const disposition = rootCauseClusterDispositionFromUrlValue(urlClusterDisp);
+      if (pendingClusterKeyRef.current === urlClusterKey && pendingDispositionRef.current === disposition) {
+        return;
+      }
 
-    if (pendingClusterKey === urlClusterKey && pendingDisposition === disposition) {
-      return;
-    }
+      pendingClusterKeyRef.current = urlClusterKey;
+      pendingDispositionRef.current = disposition;
+      setPendingClusterKeyState(urlClusterKey);
+      setPendingDispositionState(disposition);
+    };
 
-    setPendingClusterKeyState(urlClusterKey);
-    setPendingDispositionState(disposition);
-  }, [
-    clusters,
-    pendingClusterKey,
-    pendingDisposition,
-    urlClusterDisp,
-    urlClusterKey,
-  ]);
+    syncPendingClusterFromUrl();
+    window.addEventListener("popstate", syncPendingClusterFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPendingClusterFromUrl);
+    };
+  }, [clusters]);
 
   if (clusters.length === 0) {
     return null;

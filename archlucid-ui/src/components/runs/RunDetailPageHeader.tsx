@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
@@ -31,8 +32,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import {
-  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
-} from "@/lib/api/downloads-api";
+  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT} from "@/lib/api/downloads-api";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { showError } from "@/lib/toast";
 import {
@@ -40,12 +40,10 @@ import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
+  OPERATOR_TYPOGRAPHY} from "@/lib/design-tokens";
 import {
   parseRunDetailBuyerSponsorBriefExportsOpenFromSearch,
-  runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch,
-} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
+  runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
@@ -53,43 +51,60 @@ import type { TransparencyTrail } from "@/types/feasibility-verdict";
 function BuyerSponsorBriefExports({
   runId,
   usedStaticDemoRun,
-  manifestVersionForGuard,
-}: {
+  manifestVersionForGuard}: {
   runId: string;
   usedStaticDemoRun: boolean;
   manifestVersionForGuard?: string | null;
 }) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailBuyerSponsorBriefExportsOpenParam = searchParams.get("runDetailBuyerSponsorBriefExportsOpen");
   const [sponsorBriefExportsOpen, setSponsorBriefExportsOpenState] = useState(() =>
-    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
+    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailBuyerSponsorBriefExportsOpen"),
+    ),
   );
 
   const syncSponsorBriefExportsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setSponsorBriefExportsOpen = useCallback(
     (open: boolean) => {
+      if (sponsorBriefExportsOpen === open) {
+        return;
+      }
+
       setSponsorBriefExportsOpenState(open);
       syncSponsorBriefExportsOpenToUrl(open);
     },
-    [syncSponsorBriefExportsOpenToUrl],
+    [sponsorBriefExportsOpen, syncSponsorBriefExportsOpenToUrl],
   );
 
   useEffect(() => {
-    setSponsorBriefExportsOpenState(
-      parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
-    );
-  }, [runDetailBuyerSponsorBriefExportsOpenParam]);
+    const syncSponsorBriefExportsOpenFromUrl = (): void => {
+      setSponsorBriefExportsOpenState((current) => {
+        const next = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+          new URLSearchParams(window.location.search).get("runDetailBuyerSponsorBriefExportsOpen"),
+        );
+
+        return current === next ? current : next;
+      });
+    };
+
+    syncSponsorBriefExportsOpenFromUrl();
+    window.addEventListener("popstate", syncSponsorBriefExportsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSponsorBriefExportsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details
@@ -125,16 +140,14 @@ function DisabledExportButton({ label }: { label: string }) {
 function RunPackageExportButtons({
   runId,
   usedStaticDemoRun,
-  manifestVersionForGuard,
-}: {
+  manifestVersionForGuard}: {
   runId: string;
   usedStaticDemoRun: boolean;
   manifestVersionForGuard?: string | null;
 }) {
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
-    manifestVersion: manifestVersionForGuard,
-  });
+    manifestVersion: manifestVersionForGuard});
 
   if (usedStaticDemoRun) {
     return (
@@ -313,8 +326,7 @@ export function RunDetailPageHeader({
   hasGovernanceWarnings,
   usedStaticDemoRun = false,
   demoteFinalizeButton = false,
-  transparencyTrail = null,
-}: RunDetailPageHeaderProps) {
+  transparencyTrail = null}: RunDetailPageHeaderProps) {
   const buyerPolishedShell = useProductionEvalChrome();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
