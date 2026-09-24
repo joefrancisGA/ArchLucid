@@ -11,12 +11,13 @@ _LINK_RE = re.compile(r"\[[^\]]*\]\([^)\s]+\)")
 
 
 def count_links_before_first_details(text: str) -> tuple[int, str | None]:
-    lower = text.lower()
-    idx = lower.find("<details")
-    if idx == -1:
+    # Comments can contain documentation examples of <details>; they are not collapsible blocks.
+    visible = re.sub(r"<!--[\s\S]*?-->", "", text)
+    match = re.search(r"<details(?:\s|>)", visible, re.IGNORECASE)
+    if match is None:
         return -1, "No <details> block found in README.md — opener must stay collapsible."
 
-    prefix = text[:idx]
+    prefix = visible[:match.start()]
     return len(_LINK_RE.findall(prefix)), None
 
 
