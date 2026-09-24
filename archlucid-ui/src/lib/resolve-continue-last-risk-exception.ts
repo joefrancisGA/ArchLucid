@@ -29,8 +29,12 @@ function findingIdFromRecentHref(href: string): string | null {
     const findingId = decodeURIComponent(match[2] ?? "").trim();
 
     return findingId.length > 0 ? findingId : null;
-  } catch {
-    return null;
+  } catch (err) {
+    if (err instanceof URIError) {
+      return null;
+    }
+
+    throw err;
   }
 }
 
