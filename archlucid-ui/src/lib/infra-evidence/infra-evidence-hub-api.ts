@@ -349,14 +349,14 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       : [],
     auditLineageLink: {
       available: auditRaw?.available === true,
-      degradedReason: auditRaw?.degradedReason != null ? String(auditRaw.degradedReason) : null,
-      relativePath: auditRaw?.relativePath != null ? String(auditRaw.relativePath) : null,
-      assessmentId: auditRaw?.assessmentId != null ? String(auditRaw.assessmentId) : null,
+      degradedReason: typeof auditRaw?.degradedReason === "string" ? auditRaw.degradedReason : null,
+      relativePath: typeof auditRaw?.relativePath === "string" ? auditRaw.relativePath : null,
+      assessmentId: typeof auditRaw?.assessmentId === "string" ? auditRaw.assessmentId : null,
       auditEvidenceSnapshotId:
-        auditRaw?.auditEvidenceSnapshotId != null ? String(auditRaw.auditEvidenceSnapshotId) : null,
-      controlId: auditRaw?.controlId != null ? String(auditRaw.controlId) : null,
-      controlNumber: auditRaw?.controlNumber != null ? String(auditRaw.controlNumber) : null,
-      controlTitle: auditRaw?.controlTitle != null ? String(auditRaw.controlTitle) : null,
+        typeof auditRaw?.auditEvidenceSnapshotId === "string" ? auditRaw.auditEvidenceSnapshotId : null,
+      controlId: typeof auditRaw?.controlId === "string" ? auditRaw.controlId : null,
+      controlNumber: typeof auditRaw?.controlNumber === "string" ? auditRaw.controlNumber : null,
+      controlTitle: typeof auditRaw?.controlTitle === "string" ? auditRaw.controlTitle : null,
       matches: Array.isArray(auditRaw?.matches)
         ? auditRaw.matches.map((item) => {
             const row = item as Record<string, unknown>;
