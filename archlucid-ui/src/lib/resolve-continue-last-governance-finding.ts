@@ -38,8 +38,12 @@ function findingKeyFromRecentHref(href: string): { readonly runId: string; reado
     }
 
     return { runId, findingId };
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof URIError) {
+      return null;
+    }
+
+    throw error;
   }
 }
 
