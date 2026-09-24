@@ -31,6 +31,13 @@ class CheckPlaywrightSkipReasonsTests(unittest.TestCase):
             hits = sut.find_missing_reasons(root)
             self.assertEqual([hit[1] for hit in hits], [1, 2])
 
+    def test_rejects_bare_skip_split_across_lines(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "sample.spec.ts").write_text("test.skip(\n  );\n", encoding="utf-8")
+            hits = sut.find_missing_reasons(root)
+            self.assertEqual([hit[1] for hit in hits], [1])
+
 
 if __name__ == "__main__":
     unittest.main()
