@@ -58,8 +58,12 @@ export function writeWorkspaceModeToStorage(mode: WorkspaceModeId): void {
     return;
   }
 
-  window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, mode);
-  dispatchWorkspaceModeChanged();
+  try {
+    window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, mode);
+    dispatchWorkspaceModeChanged();
+  } catch {
+    // Local storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export async function syncWorkspaceModeFromServer(): Promise<WorkspaceModeId | null> {
