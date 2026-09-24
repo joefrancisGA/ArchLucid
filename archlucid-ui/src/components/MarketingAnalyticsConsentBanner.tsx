@@ -17,7 +17,13 @@ function readStoredConsent(): ConsentUiState {
   if (typeof window === "undefined")
     return "unknown";
 
-  const raw = window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY)?.trim();
+  let raw: string | undefined;
+
+  try {
+    raw = window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY)?.trim();
+  } catch {
+    return "unknown";
+  }
 
   if (raw === "granted" || raw === "denied")
     return raw;
