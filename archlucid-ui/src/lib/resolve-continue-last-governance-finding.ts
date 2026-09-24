@@ -29,14 +29,18 @@ function findingKeyFromRecentHref(href: string): { readonly runId: string; reado
     return null;
   }
 
-  const runId = decodeURIComponent(match[1] ?? "").trim();
-  const findingId = decodeURIComponent(match[2] ?? "").trim();
+  try {
+    const runId = decodeURIComponent(match[1] ?? "").trim();
+    const findingId = decodeURIComponent(match[2] ?? "").trim();
 
-  if (runId.length === 0 || findingId.length === 0) {
+    if (runId.length === 0 || findingId.length === 0) {
+      return null;
+    }
+
+    return { runId, findingId };
+  } catch {
     return null;
   }
-
-  return { runId, findingId };
 }
 
 function readRecentFindingKey(): { readonly runId: string; readonly findingId: string } | null {
