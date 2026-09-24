@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { getRouteTitle } from "@/lib/route-titles";
 
 /**
@@ -10,6 +11,7 @@ import { getRouteTitle } from "@/lib/route-titles";
  */
 export function RouteAnnouncer() {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
   const previousPathname = useRef<string | null>(null);
   const [message, setMessage] = useState("");
 
@@ -25,9 +27,9 @@ export function RouteAnnouncer() {
     }
 
     previousPathname.current = pathname;
-    const title = getRouteTitle(pathname);
+    const title = getRouteTitle(pathname, productLine);
     setMessage(`Navigated to ${title}`);
-  }, [pathname]);
+  }, [pathname, productLine]);
 
   return (
     <div
