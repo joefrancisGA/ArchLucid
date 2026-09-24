@@ -32,4 +32,15 @@ public sealed class PagingParametersTests
         take.Should().Be(PagingParameters.MaxPageSize);
         paging.PageSize.Should().Be(PagingParameters.MaxPageSize);
     }
+
+    [SkippableFact]
+    public void Normalize_extreme_page_does_not_return_negative_skip()
+    {
+        PagingParameters paging = new() { PageNumber = int.MaxValue, PageSize = 200 };
+
+        (int skip, int take) = paging.Normalize();
+
+        skip.Should().Be(int.MaxValue);
+        take.Should().Be(200);
+    }
 }
