@@ -389,13 +389,18 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
         : [],
     },
     evidencePointers: Array.isArray(raw.evidencePointers)
-      ? raw.evidencePointers.map((item) => {
+      ? raw.evidencePointers.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            kind: String(row.kind ?? ""),
-            relativePath: String(row.relativePath ?? ""),
-          };
+          if (typeof row.kind !== "string" || typeof row.relativePath !== "string") {
+            return [];
+          }
+
+          return [{ kind: row.kind, relativePath: row.relativePath }];
         })
       : [],
   };
