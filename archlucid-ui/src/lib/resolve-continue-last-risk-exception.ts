@@ -25,9 +25,17 @@ function findingIdFromRecentHref(href: string): string | null {
     return null;
   }
 
-  const findingId = decodeURIComponent(match[2] ?? "").trim();
+  try {
+    const findingId = decodeURIComponent(match[2] ?? "").trim();
 
-  return findingId.length > 0 ? findingId : null;
+    return findingId.length > 0 ? findingId : null;
+  } catch (err) {
+    if (err instanceof URIError) {
+      return null;
+    }
+
+    throw err;
+  }
 }
 
 function readStoredExceptionId(): string | null {
