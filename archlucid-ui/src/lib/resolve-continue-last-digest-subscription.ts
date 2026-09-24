@@ -72,17 +72,29 @@ export function resolveContinueLastDigestSubscription(
     return null;
   }
 
+  const validSubscriptions = normalizedSubscriptions.filter(
+    (subscription) =>
+      typeof subscription?.subscriptionId === "string"
+      && typeof subscription?.name === "string"
+      && typeof subscription?.createdUtc === "string"
+      && (subscription?.lastDeliveredUtc == null || typeof subscription.lastDeliveredUtc === "string"),
+  );
+
+  if (validSubscriptions.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredSubscriptionId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedSubscriptions.find((subscription) => subscription.subscriptionId === storedId);
+    const storedMatch = validSubscriptions.find((subscription) => subscription.subscriptionId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const mostRecent = normalizedSubscriptions.slice().sort(compareMostRecentDelivery)[0];
+  const mostRecent = validSubscriptions.slice().sort(compareMostRecentDelivery)[0];
 
   return mostRecent === undefined ? null : toTarget(mostRecent);
 }
