@@ -8,7 +8,11 @@ export function markOperatorHomeRunsSnapshotStale(): void {
     return;
   }
 
-  window.sessionStorage.setItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY, "1");
+  try {
+    window.sessionStorage.setItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY, "1");
+  } catch {
+    // Session storage may be unavailable.
+  }
 }
 
 /** Clears lifecycle stale marker on tenant/workspace scope change (parity with other session clears). */
@@ -17,7 +21,11 @@ export function clearOperatorHomeRunsSnapshotStale(): void {
     return;
   }
 
-  window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+  try {
+    window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+  } catch {
+    // Session storage may be unavailable.
+  }
 }
 
 /** True once after lifecycle writes; cleared when the runs dashboard reloads. */
@@ -26,13 +34,17 @@ export function consumeOperatorHomeRunsSnapshotStale(): boolean {
     return false;
   }
 
-  const stale = window.sessionStorage.getItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY) === "1";
+  try {
+    const stale = window.sessionStorage.getItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY) === "1";
 
-  if (stale) {
-    window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+    if (stale) {
+      window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+    }
+
+    return stale;
+  } catch {
+    return false;
   }
-
-  return stale;
 }
 
 export function subscribeOperatorHomeLifecycleRefresh(listener: () => void): () => void {

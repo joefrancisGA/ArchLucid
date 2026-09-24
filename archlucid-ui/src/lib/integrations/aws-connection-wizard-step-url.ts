@@ -15,6 +15,10 @@ export function parseAwsConnectionWizardStepFromSearch(raw: string | null | unde
     return null;
   }
 
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
   const parsed = Number.parseInt(trimmed, 10);
 
   if (!Number.isFinite(parsed) || parsed < 0 || parsed > AWS_CONNECTION_WIZARD_MAX_STEP_INDEX) {

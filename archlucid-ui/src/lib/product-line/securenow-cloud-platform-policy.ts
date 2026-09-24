@@ -50,6 +50,7 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "career-rehearsal-doors",
   "career-vs-rehearsal",
   "system-gravity",
+  "inhabit-the-architecture",
   "sketch-a-change",
 ];
 

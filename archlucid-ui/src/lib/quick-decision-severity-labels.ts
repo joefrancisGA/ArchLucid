@@ -142,7 +142,7 @@ export function coerceArchitectureFindingSeverity(raw: unknown): number {
       return 0;
     }
 
-    const parsed = Number.parseInt(trimmed, 10);
+    const parsed = /^-?\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : Number.NaN;
 
     if (!Number.isNaN(parsed)) {
       return normalizedSeverity(parsed);

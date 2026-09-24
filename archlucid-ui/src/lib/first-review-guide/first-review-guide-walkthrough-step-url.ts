@@ -13,6 +13,10 @@ export function parseFirstReviewGuideWalkthroughStepFromSearch(raw: string | nul
     return null;
   }
 
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
   const parsed = Number.parseInt(trimmed, 10);
 
   if (!Number.isFinite(parsed) || parsed < 1) {
