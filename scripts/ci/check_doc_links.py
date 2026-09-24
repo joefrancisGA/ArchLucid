@@ -68,6 +68,9 @@ def resolve_target(md_file: Path, target: str) -> Path | None:
     if pos >= 0:
         t = t[:pos].strip()
 
+    # A query is part of the link URL, not of the file's on-disk name.
+    t = t.split("?", 1)[0].strip()
+
     if not t:
         return None
 
