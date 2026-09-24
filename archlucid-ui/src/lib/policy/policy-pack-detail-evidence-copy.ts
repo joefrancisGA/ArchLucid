@@ -39,14 +39,17 @@ export const POLICY_PACK_DETAIL_ORIENTATION_SOURCES: readonly EvidenceSourceLink
   (source) => !source.href.startsWith(POLICY_PACK_DETAIL_PATH_PREFIX),
 );
 
+/** Product-line-aware orientation Sources for policy pack detail (COD / GPI). */
 export function policyPackDetailSourcesForProductLine(
   productLineId: ProductLineId,
 ): readonly EvidenceSourceLink[] {
+  const architectureReviewsSource: EvidenceSourceLink = {
+    label: "Architecture reviews",
+    href: "/architecture/reviews",
+  };
   const baseSources: EvidenceSourceLink[] = [
     { label: "Policy pack library", href: policyPacksPathForProductLine(productLineId) },
-    ...(productLineId === "security"
-      ? []
-      : [{ label: "Architecture reviews", href: "/architecture/reviews" }]),
+    ...(productLineId === "security" ? [] : [architectureReviewsSource]),
     { label: "Findings", href: findingsPathForProductLine(productLineId) },
     { label: "Approval help", href: inAppHelpHref("governance-approval") },
     howProductWorksHelpSourceLink(productLineId),

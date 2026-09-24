@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File 'c:\\ArchLucid\\.codex\\hooks\\capture-dirty-baseline.ps1'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|StrReplace|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File 'c:\\ArchLucid\\.codex\\hooks\\block-baseline-dirty-edit.ps1'"
+          }
+        ]
+      }
+    ]
+  }
+}

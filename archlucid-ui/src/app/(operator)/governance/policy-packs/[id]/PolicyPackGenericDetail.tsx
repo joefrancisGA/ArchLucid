@@ -118,6 +118,8 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
     ? RESPONSIBLE_AI_ACTION_MANAGE_WORKSPACE_ASSIGNMENT
     : RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE;
   const showCrossProductActions = productLine !== "security";
+  const activatedLabel = formatPackDate(packRecord.activatedUtc);
+  const createdLabel = formatPackDate(packRecord.createdUtc);
 
   return (
     <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="policy-pack-generic-detail">
@@ -156,8 +158,8 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
 
       <Card>
         <CardContent className={cn("space-y-2 p-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <InlineMetadataLine label="Activated" value={formatPackDate(packRecord.activatedUtc)} />
-          <InlineMetadataLine label="Created" value={formatPackDate(packRecord.createdUtc)} />
+          <InlineMetadataLine label="Activated" value={activatedLabel} />
+          <InlineMetadataLine label="Created" value={createdLabel} />
           <InlineMetadataLine label="Pack type" value={packRecord.packType || "Custom"} />
           <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || " — "} />
         </CardContent>

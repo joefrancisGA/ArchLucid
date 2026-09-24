@@ -2478,6 +2478,15 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2405 | V2 ? per-finding evidence scope statement showing examined and unexamined coverage | Explainability P1 ? **V2**; pairs **TB-2402** and main-package provenance surfacing; size M |
 | TB-2406 | V2 ? surface origin, support, verifier, and evidence scope on the main review package and exports | Trustworthiness P1 ? **V2**; depends on **TB-2402**/**TB-2405**; size M |
 | TB-2407 | V2 ? independent critic/escalation engine identity and model-independence configuration | AI/Agent readiness P2 ? **V2**; depends on **TB-2402** and **TB-2106**; size M |
+| TB-2408 | V2 ? paired engine-strength evaluation for candidate versus baseline analysis across deterministic cohorts; report win/draw/loss and per-agent-family regressions without buyer-facing Elo claims | AI/Agent readiness P2 ? **V2**; extends the synthetic/golden evaluation corpus; size L |
+| TB-2409 | V2 ? stable-conclusion gate for decision-grade findings; keep high-severity dependency, mitigation, contradiction, or evidence gaps unresolved until falsification and scope checks complete | Trustworthiness P1 ? **V2**; depends on **TB-2404**/**TB-2405**; size M |
+| TB-2410 | V2 ? ordered SecureNow remediation paths; apply the highest-leverage cut point, recompute, and show the sequence of path-collapse effects | Security P1 ? **V2**; extends **SA-10**/**SA-13**; size L |
+| TB-2411 | V2 ? adaptive analysis depth and compute budget; extend only branches triggered by internet exposure, privileged identity, regulated data, cross-region dependency, or cascading failure | AI/Agent readiness P2 ? **V2**; depends on **TB-2409** and verifier/coverage semantics; size L |
+| TB-2412 | V2 ? proposed-state what-if planning; compare a proposed architecture snapshot with the observed state, including improvements, newly introduced risks, and evidence limits | Security P2 ? **V2**; depends on **TB-2410**, **SA-12**, and **SA-13**; size XL |
+| TB-2413 | V2 ? N-1 and selective N-2 contingency propagation over the SecureNow evidence graph; simulate loss of a critical identity, region, hub, DNS zone, Key Vault, or broker and record downstream consequences | Security P1 ? **V2**; depends on **TB-2410** and common-mode hypotheses; size L |
+| TB-2414 | V2 ? information-gain investigation order; choose the next evidence question that can change an open hypothesis, without multiplying severity and confidence into one priority | AI/Agent readiness P2 ? **V2**; depends on **TB-2411** and diagnostic hypotheses; size M |
+| TB-2415 | V2 ? Pareto alternatives for architecture mutations; retain nondominated options across named dimensions and refuse a single fitness score | Security P2 ? **V2**; depends on **TB-2412**; size XL |
+| TB-2416 | V2 ? requirements-constrained architecture synthesis; search candidates against budget, RTO, RPO, and exposure constraints, then explain why each survivor remains | Security P3 ? **V2**; depends on **TB-2415**; size XL |
 | | **Done V2 (kept for grep; not shippable)** | | |
 | TB-397 | `IExternalTicketConnector` plugin boundary ??? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite | M |
 | TB-689 | ~~Multi-vendor LLM routing decision gate~~ **Done** (2026-07-18) ? ADR 0060 Accepted: Azure-native managed path; BYO via **TB-872**/**TB-873**; no third-party vendor SDK adapters under this ADR; see `## TB-689` below | Cutting-edge AI P3 ? **V2**; decision gate closed | XS |
@@ -52354,3 +52363,63 @@ If the brief is short, `buildEvidenceBackedIntakeBrief` writes boilerplate from 
 **Acceptance:** Every critic/escalation judgment has engine identity and configuration lineage. The independent label is structurally unavailable when identities match.
 
 **Depends on:** **TB-2402**, **TB-2106**, **TB-1981**.
+
+## TB-2408 — Paired engine-strength evaluation (P2) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** Threshold tests show whether a single version clears a floor, but they do not reliably show whether a prompt, evaluator, or model change made architecture reasoning stronger.
+
+**Approach:** Run candidate and baseline analysis against the same deterministic scenario cohort. Score each pair with independent deterministic or human-labelled criteria as win, draw, loss, or inconclusive. Report separate results for topology, cost, compliance, critic, and SecureNow path reasoning. Use sequential testing when the cohort is large enough; never expose an unsupported buyer-facing Elo number.
+
+**Acceptance:** A candidate cannot be called stronger from fewer than the configured minimum cases. Reports include cohort version, engine/prompt identity, scoring basis, confidence or inconclusive status, and regressions by analysis family. No same-model judge is treated as independent evidence without an explicit verifier label.
+
+**Depends on:** **TB-683**, **TB-2225**, **TB-2407**.
+
+## TB-2409 — Stable-conclusion gate for decision-grade findings (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** A finding should not be sealed as decision-grade while a high-severity dependency, mitigation, contradiction, or evidence gap remains unresolved.
+
+**Approach:** Add a deterministic seal gate that inspects unresolved challenge outcomes, evidence coverage, contradictions, and severity-triggered dependencies. Findings that are not quiescent remain explicitly unresolved and list the required next checks. The gate must preserve uncertainty rather than lowering priority to make the finding disappear.
+
+**Acceptance:** A decision-grade finding with an unresolved high-severity dependency cannot enter the sealed lane. The package records the unresolved condition, attempted checks, coverage boundary, and next action. The gate is fail-closed and does not claim system-wide proof from a configuration-only observation.
+
+**Depends on:** **TB-2404**, **TB-2405**, **TB-1981**.
+
+## TB-2410 — Ordered SecureNow remediation paths (P1) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** A single top cut point does not show the sequence of changes needed to reduce a complex attack-path set.
+
+**Approach:** Starting from ranked SecureNow paths, select the highest-leverage advisory cut point, model its removal as an unapplied mutation, recompute path collapse, and repeat until the configured stopping condition. Return the ordered steps, paths affected at each step, remaining paths, evidence references, and operational-cost class. Never apply changes to Azure.
+
+**Acceptance:** Every step cites the paths it is expected to collapse and the evidence supporting the cut point. The sequence is deterministic for the same snapshot and configuration. The output distinguishes simulated reduction from observed remediation and does not claim that a proposed fix was applied or validated.
+
+**Depends on:** **SA-10**, **SA-13**, **TB-2409**.
+
+## TB-2411 — Adaptive analysis depth and compute budget (P2) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** Uniform deep analysis wastes inference budget on low-leverage architecture details while high-risk branches need more investigation.
+
+**Approach:** Add explicit analysis-extension triggers for internet exposure, privileged identity, regulated or crown-jewel data, cross-region write dependencies, cascading dependencies, contradictions, and low evidence completeness. Assign bounded budgets and record extension and stop reasons. Deterministic facts may prune a branch only when the conclusion cannot change; model confidence alone cannot prune a security branch.
+
+**Acceptance:** The same input under the same budget produces a reproducible extension trace. High-severity uncertainty increases analysis depth rather than suppressing priority. Every stopped branch has a coverage statement, and cost/latency limits fail honestly when the budget is exhausted.
+
+**Depends on:** **TB-2402**, **TB-2404**, **TB-2405**, **TB-2409**.
+
+## TB-2412 — Proposed-state what-if planning (P2) — **Open**
+
+**Window:** V2. **Size:** XL.
+
+**Why:** Architecture planning requires understanding both the benefits and the new risks introduced by a proposed change, not only reviewing the current snapshot.
+
+**Approach:** Represent a proposed architecture state as an isolated, non-applied snapshot or mutation set. Compare it with the observed state using SecureNow path, control, dependency, resilience, cost, and evidence evaluators. Return improvements, regressions, newly introduced risks, migration dependencies, and unresolved assumptions. Keep tenant scope and evidence lineage explicit.
+
+**Acceptance:** A what-if run cannot mutate Azure or the observed snapshot. Each delta identifies the changed premise and affected evaluation dimension. Proposed-state conclusions are never presented as observed facts, and stale or missing evidence produces an explicit limitation.
+
+**Depends on:** **TB-2410**, **SA-12**, **SA-13**, **TB-2409**.
