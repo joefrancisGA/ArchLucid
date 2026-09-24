@@ -318,10 +318,14 @@ export function dismissReviewsNewWizardResumeStrip(session: ReviewsNewResumableW
     savedAtUtc: session.savedAtUtc,
   };
 
-  window.localStorage.setItem(
-    REVIEWS_NEW_WIZARD_RESUME_STRIP_DISMISSED_STORAGE_KEY,
-    JSON.stringify(payload),
-  );
+  try {
+    window.localStorage.setItem(
+      REVIEWS_NEW_WIZARD_RESUME_STRIP_DISMISSED_STORAGE_KEY,
+      JSON.stringify(payload),
+    );
+  } catch {
+    // Local storage may be unavailable.
+  }
 }
 
 export function clearResumableReviewsNewWizardSession(wizardId: WizardSessionId): void {
