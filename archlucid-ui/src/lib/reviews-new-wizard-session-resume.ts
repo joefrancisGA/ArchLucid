@@ -239,15 +239,19 @@ export function consumeReviewsNewWizardAutoRestore(wizardId: WizardSessionId): b
     return false;
   }
 
-  const stored = window.sessionStorage.getItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY)?.trim() ?? "";
+  try {
+    const stored = window.sessionStorage.getItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY)?.trim() ?? "";
 
-  if (stored !== wizardId) {
+    if (stored !== wizardId) {
+      return false;
+    }
+
+    window.sessionStorage.removeItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY);
+
+    return true;
+  } catch {
     return false;
   }
-
-  window.sessionStorage.removeItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY);
-
-  return true;
 }
 
 type DismissedResumeStrip = {
