@@ -597,7 +597,11 @@ export function DiagramsWorkbenchClient() {
   }, [selectedMode, selectedResourceGroupName, showResourceGroupDropdown]);
 
   const diagramTypePickerValue =
-    diagramTypeSelected && !isInfraDiagramsResourceGroupMode(selectedMode) ? selectedMode : "";
+    diagramTypeSelected
+    && !isInfraDiagramsResourceGroupMode(selectedMode)
+    && selectedMode !== "selectedResources"
+      ? selectedMode
+      : "";
 
   const resourceGroupPickerAwaitingSelection =
     isInfraDiagramsResourceGroupMode(selectedMode)
@@ -1981,14 +1985,14 @@ export function DiagramsWorkbenchClient() {
         />
       ) : null}
 
-      <section className={cn("flex items-center justify-between gap-3", cnCard)} aria-label="Diagram display options">
+      <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
           <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Private endpoints and backup/recovery resources are hidden from the canvas by default.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
             <Checkbox
               checked={showPrivateEndpoints}
