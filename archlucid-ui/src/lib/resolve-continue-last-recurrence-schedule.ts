@@ -78,10 +78,21 @@ export function resolveContinueLastRecurrenceSchedule(
     return null;
   }
 
+  const validSchedules = normalizedSchedules.filter(
+    (schedule) =>
+      typeof schedule?.recurrenceScheduleId === "string"
+      && typeof schedule?.name === "string"
+      && typeof schedule?.createdUtc === "string",
+  );
+
+  if (validSchedules.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredScheduleId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedSchedules.find((schedule) => schedule.scheduleId === storedId);
+    const storedMatch = validSchedules.find((schedule) => schedule.scheduleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
