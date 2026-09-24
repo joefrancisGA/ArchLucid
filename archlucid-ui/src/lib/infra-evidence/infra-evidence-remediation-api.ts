@@ -38,7 +38,7 @@ function mapOperationResult(raw: Record<string, unknown>): RemediationInstanceOp
     succeeded: Boolean(raw.succeeded),
     instanceId: raw.instanceId != null ? String(raw.instanceId) : null,
     status: raw.status != null ? String(raw.status) as RemediationInstanceOperationResult["status"] : null,
-    blockers: Array.isArray(raw.blockers) ? raw.blockers.map((item) => String(item)) : [],
+    blockers: Array.isArray(raw.blockers) ? raw.blockers.filter((item): item is string => typeof item === "string") : [],
     errorMessage: raw.errorMessage != null ? String(raw.errorMessage) : null,
   };
 }
