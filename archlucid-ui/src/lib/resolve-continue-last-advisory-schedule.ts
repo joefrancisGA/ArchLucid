@@ -77,7 +77,7 @@ export function resolveContinueLastAdvisorySchedule(
       typeof schedule?.scheduleId === "string"
       && typeof schedule?.name === "string"
       && typeof schedule?.createdUtc === "string"
-      && (schedule?.nextRunUtc == null || typeof schedule.nextRunUtc === "string"),
+      && (schedule?.nextRunUtc == null || typeof schedule?.nextRunUtc === "string"),
   );
 
   if (validSchedules.length === 0) {
