@@ -27,7 +27,7 @@ public static class GraphSnapshotPagination
             Page = safePage,
             PageSize = safeSize,
             TotalNodes = total,
-            HasMore = safePage * safeSize < total,
+            HasMore = (long)safePage * safeSize < total,
             Nodes = slice,
             Edges = edges
         };
