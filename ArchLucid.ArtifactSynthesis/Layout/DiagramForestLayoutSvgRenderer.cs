@@ -17,7 +17,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double Height,
         DiagramForestNodeMetrics Metrics,
         string? FrameCellId = null,
-        int DataFlowColumnIndex = -1);
+        int DataFlowColumnIndex = -1,
+        string? VnetFrameId = null);
 
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
@@ -332,9 +333,12 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             cell.Nodes,
             visibleEdges);
         List<IReadOnlyList<DiagramNode>> orderedIslands = DiagramComponentRowPlanner.OrderComponents(islands);
-        List<NodePlacement> interiorPlacements = orderedIslands.Count <= 1
-            ? LayoutCellInterior(cell.Nodes, visibleEdges, options, labelContext)
-            : PackIslandPlacements(orderedIslands, visibleEdges, options, labelContext);
+        List<NodePlacement> interiorPlacements = LayoutVnetAwareCell(
+            cell.Nodes,
+            orderedIslands,
+            visibleEdges,
+            options,
+            labelContext);
 
         if (!DiagramResourceGroupPacker.ShouldDrawFrame(cell))
         {
@@ -359,6 +363,95 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 FrameCellId = frameCellId,
             })
             .ToList();
+    }
+
+    private static List<NodePlacement> LayoutVnetAwareCell(
+        IReadOnlyList<DiagramNode> cellNodes,
+        IReadOnlyList<IReadOnlyList<DiagramNode>> orderedIslands,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        IReadOnlyDictionary<string, IReadOnlySet<string>> memberships =
+            DiagramForestVnetMembership.Resolve(cellNodes, visibleEdges, sameResourceGroupOnly: true);
+        Dictionary<string, DiagramNode> nodesById = cellNodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+        HashSet<string> assigned = [];
+        List<(string? FrameId, IReadOnlyList<DiagramNode> Nodes)> groups = [];
+
+        foreach ((string vnetNodeId, IReadOnlySet<string> memberIds) in memberships)
+        {
+            List<DiagramNode> members = memberIds
+                .Where(nodesById.ContainsKey)
+                .Select(nodeId => nodesById[nodeId])
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .ToList();
+            if (members.Count < 2)
+            {
+                continue;
+            }
+
+            groups.Add(($"vnet-{vnetNodeId}", members));
+            assigned.UnionWith(members.Select(node => node.NodeId));
+        }
+
+        if (groups.Count == 0)
+        {
+            return orderedIslands.Count <= 1
+                ? LayoutCellInterior(cellNodes, visibleEdges, options, labelContext)
+                : PackIslandPlacements(orderedIslands, visibleEdges, options, labelContext);
+        }
+
+        List<DiagramNode> remainder = cellNodes
+            .Where(node => !assigned.Contains(node.NodeId))
+            .ToList();
+        if (remainder.Count > 0)
+        {
+            groups.Add((null, remainder));
+        }
+
+        List<NodePlacement> placements = [];
+        double groupX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach ((string? frameId, IReadOnlyList<DiagramNode> groupNodes) in groups)
+        {
+            List<NodePlacement> groupPlacements = LayoutCellInterior(
+                groupNodes,
+                visibleEdges,
+                options,
+                labelContext);
+            bool framed = frameId is not null;
+            double offsetX = framed ? 12.0d : 0.0d;
+            double offsetY = framed ? 18.0d : 0.0d;
+            double groupWidth = groupPlacements.Count == 0
+                ? options.UniformNodeWidth
+                : groupPlacements.Max(placement => placement.X + placement.Width) + offsetX;
+            double groupHeight = groupPlacements.Count == 0
+                ? options.NodeHeight
+                : groupPlacements.Max(placement => placement.Y + placement.Height) + offsetY;
+
+            if (groupX > 0.0d && groupX + groupWidth > options.MaxNodeWidth * 3)
+            {
+                groupX = 0.0d;
+                rowY += rowHeight + options.ComponentVerticalGap;
+                rowHeight = 0.0d;
+            }
+
+            placements.AddRange(groupPlacements.Select(placement => placement with
+            {
+                X = placement.X + groupX + offsetX,
+                Y = placement.Y + rowY + offsetY,
+                VnetFrameId = frameId,
+            }));
+            groupX += groupWidth + options.ComponentHorizontalGap;
+            rowHeight = Math.Max(rowHeight, groupHeight);
+        }
+
+        return placements;
     }
 
     private static List<NodePlacement> LayoutCellInterior(
@@ -592,7 +685,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 placement.Y,
                 placement.Width,
                 placement.Height,
-                placement.FrameCellId))
+                placement.FrameCellId,
+                placement.VnetFrameId))
             .ToList();
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frameBounds =
             DiagramResourceGroupPacker.ResolveFrameBounds(placementBounds);

@@ -22,17 +22,28 @@ public static class DiagramForestNestedFrameResolver
 
         foreach (DiagramNode vnet in nodes.Where(IsVnet))
         {
-            IReadOnlySet<string> memberIds = DiagramForestVnetMembership.ResolveMembers(
-                vnet,
-                nodes,
-                edges,
-                sameResourceGroupOnly: true);
-            List<DiagramNode> members = memberIds
-                .Where(placementByNodeId.ContainsKey)
-                .Select(nodesById.GetValueOrDefault)
-                .Where(node => node is not null)
-                .Cast<DiagramNode>()
+            List<DiagramNode> members = placements
+                .Where(placement => string.Equals(
+                    placement.VnetFrameId,
+                    $"vnet-{vnet.NodeId}",
+                    StringComparison.Ordinal))
+                .Select(placement => placement.Node)
                 .ToList();
+
+            if (members.Count < 2)
+            {
+                IReadOnlySet<string> memberIds = DiagramForestVnetMembership.ResolveMembers(
+                    vnet,
+                    nodes,
+                    edges,
+                    sameResourceGroupOnly: true);
+                members = memberIds
+                    .Where(placementByNodeId.ContainsKey)
+                    .Select(nodesById.GetValueOrDefault)
+                    .Where(node => node is not null)
+                    .Cast<DiagramNode>()
+                    .ToList();
+            }
 
             if (members.Count < 2 || !placementByNodeId.ContainsKey(vnet.NodeId))
             {
