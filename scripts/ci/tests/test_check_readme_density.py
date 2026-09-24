@@ -23,6 +23,10 @@ class ReadmeDensityTests(unittest.TestCase):
         text = "[route](archlucid-ui/(operator)/runs)\n<details>\n"
         self.assertEqual(count_links_before_first_details(text), (1, None))
 
+    def test_image_is_not_counted_as_navigation_link(self):
+        text = "![logo](logo.png)\n[docs](docs/START_HERE.md)\n<details>\n"
+        self.assertEqual(count_links_before_first_details(text), (1, None))
+
 
 if __name__ == "__main__":
     unittest.main()
