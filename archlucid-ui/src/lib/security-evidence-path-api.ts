@@ -242,7 +242,7 @@ export async function buildSecurityEvidencePathExplanation(
   const explanationRaw = raw.explanation as Record<string, unknown> | null | undefined;
 
   return {
-    succeeded: Boolean(raw.succeeded),
+    succeeded: raw.succeeded === true,
     errorMessage: raw.errorMessage != null ? String(raw.errorMessage) : null,
     explanation: explanationRaw == null ? null : mapExplanation(explanationRaw),
   };
