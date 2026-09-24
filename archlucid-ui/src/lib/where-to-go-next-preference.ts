@@ -47,8 +47,12 @@ export function writeWhereToGoNextEnabledToStorage(enabled: boolean): void {
     return;
   }
 
-  window.localStorage.setItem(WHERE_TO_GO_NEXT_STORAGE_KEY, enabled ? "true" : "false");
-  dispatchWhereToGoNextChanged();
+  try {
+    window.localStorage.setItem(WHERE_TO_GO_NEXT_STORAGE_KEY, enabled ? "true" : "false");
+    dispatchWhereToGoNextChanged();
+  } catch {
+    // Local storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export function persistWhereToGoNextEnabledLocally(enabled: boolean): void {
