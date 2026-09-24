@@ -30,4 +30,11 @@ public sealed class PaginationDefaultsTests
 
         skip.Should().Be(expectedSkip);
     }
+
+    [Fact]
+    public void ToSkip_ExtremePage_DoesNotOverflowToNegativeOffset()
+    {
+        PaginationDefaults.ToSkip(int.MaxValue, PaginationDefaults.MaxPageSize)
+            .Should().Be(int.MaxValue);
+    }
 }
