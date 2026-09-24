@@ -47,6 +47,9 @@ public static class BulkEvidenceUploadBatchSelector
             if (file.Length <= 0)
                 continue;
 
+            if (file.Length > long.MaxValue - total)
+                return long.MaxValue;
+
             total += file.Length;
         }
 

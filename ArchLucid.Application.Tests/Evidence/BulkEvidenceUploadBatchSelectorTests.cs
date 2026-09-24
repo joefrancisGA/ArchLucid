@@ -56,6 +56,15 @@ public sealed class BulkEvidenceUploadBatchSelectorTests
         total.Should().Be(150);
     }
 
+    [Fact]
+    public void SumDeclaredBytes_saturates_instead_of_wrapping_negative()
+    {
+        List<Mock<IFormFile>> mocks = [CreateFileMock(long.MaxValue), CreateFileMock(1)];
+
+        BulkEvidenceUploadBatchSelector.SumDeclaredBytes(mocks.Select(static mock => mock.Object))
+            .Should().Be(long.MaxValue);
+    }
+
     private static IFormFileCollection BuildFiles(int count)
     {
         List<IFormFile> files = [];
