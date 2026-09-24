@@ -76,7 +76,13 @@ export function resolveContinueLastDigestBrowse(digests: unknown): DigestsBrowse
     }
   }
 
-  const newest = validDigests.slice().sort(compareNewestGenerated)[0];
+  let newest: ArchitectureDigest | null = null;
 
-  return newest === undefined ? null : toTarget(newest);
+  for (const digest of validDigests) {
+    if (newest === null || compareNewestGenerated(digest, newest) < 0) {
+      newest = digest;
+    }
+  }
+
+  return newest === null ? null : toTarget(newest);
 }
