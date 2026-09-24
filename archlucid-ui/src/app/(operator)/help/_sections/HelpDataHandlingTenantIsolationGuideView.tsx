@@ -1,6 +1,9 @@
+"use client";
+
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpDataHandlingTenantIsolationClaimDiscipline } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationClaimDiscipline";
 import { HelpDataHandlingTenantIsolationHeaderActions } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationHeaderActions";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpDataHandlingTenantIsolationJobMatrix } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationJobMatrix";
 import { HelpDataHandlingTenantIsolationLeavesStaysChrome } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationLeavesStaysChrome";
 import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationOverview";
@@ -26,7 +29,6 @@ import {
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -47,6 +49,7 @@ export function HelpDataHandlingTenantIsolationGuideView(
 ): React.ReactElement {
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
@@ -89,7 +92,7 @@ export function HelpDataHandlingTenantIsolationGuideView(
         eyebrow={buyerPolishedShell ? undefined : DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_EYEBROW}
         title={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE}
         titleTestId="help-data-handling-tenant-isolation-page-title"
-        subtitle={dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell, resolveProductLineIdFromEnv())}
+        subtitle={dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell, productLine)}
         navHref={DATA_HANDLING_TENANT_ISOLATION_HELP_PATH}
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_TOPIC_TITLE} />}
