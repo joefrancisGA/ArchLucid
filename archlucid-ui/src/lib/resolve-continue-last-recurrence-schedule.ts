@@ -100,7 +100,7 @@ export function resolveContinueLastRecurrenceSchedule(
     }
   }
 
-  const soonest = normalizedSchedules.slice().sort(compareSoonestNextRun)[0];
+  const soonest = validSchedules.slice().sort(compareSoonestNextRun)[0];
 
   return soonest === undefined ? null : toTarget(soonest);
 }
