@@ -156,6 +156,14 @@ def evaluate_bundle(
                 )
             )
         else:
+            if parity.get("schema") != "archlucid.release-smoke-result.v1":
+                blockers.append(
+                    _blocking_reason(
+                        artifact="release-smoke-live-ui-sql-result.json",
+                        field="schema",
+                        detail=f"expected archlucid.release-smoke-result.v1, got {parity.get('schema')!r}",
+                    )
+                )
             evidence_kind = str(parity.get("evidenceKind") or "").lower()
             verdict = str(parity.get("verdict") or parity.get("status") or "").strip().upper()
 
