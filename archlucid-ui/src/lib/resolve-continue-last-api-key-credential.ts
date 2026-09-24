@@ -115,7 +115,10 @@ export function resolveContinueLastApiKeyCredential(
   }
 
   const normalizedAuditEvents = asReadonlyArray<ApiKeyAuditEvent>(auditEvents);
-  const newestAudit = (normalizedAuditEvents ?? [])
+  const validAuditEvents = (normalizedAuditEvents ?? []).filter(
+    (event) => typeof event?.occurredAtUtc === "string" && typeof event?.keyName === "string",
+  );
+  const newestAudit = validAuditEvents
     .slice()
     .sort((left, right) => right.occurredAtUtc.localeCompare(left.occurredAtUtc))[0];
 
