@@ -55,4 +55,10 @@ public sealed class ArtifactCursorCodecTests
     {
         ArtifactCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("null")).Should().BeNull();
     }
+
+    [Fact]
+    public void ArtifactCursorCodec_TryDecode_MalformedJson_ReturnsNull()
+    {
+        ArtifactCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("{")).Should().BeNull();
+    }
 }
