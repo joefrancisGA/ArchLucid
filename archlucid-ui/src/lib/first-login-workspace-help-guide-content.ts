@@ -55,9 +55,26 @@ export const FIRST_LOGIN_WORKSPACE_HELP_ERROR_RECOVERY_HEADING = "When sign-in s
 
 export const FIRST_LOGIN_WORKSPACE_HELP_ERROR_RECOVERY = {
   whatFailed: "Post-auth workspace setup could not finish — membership, invite acceptance, or tenant provisioning did not complete.",
-  whatIsIntact: "Your identity sign-in succeeded; no architecture packages were created or mutated by the failed setup step.",
+  whatIsIntact:
+    "Your identity sign-in succeeded; no architecture packages were created or mutated by the failed setup step. Sealed review records and the audit trail for existing work stayed intact.",
   nextStep: "Read the visible inline reason on the setup form, retry after an admin confirms membership, or open workspace settings to verify scope.",
 } as const;
+
+export const FIRST_LOGIN_WORKSPACE_HELP_SECURENOW_OVERVIEW =
+  "SecureNow opens your live tenant workspace after sign-in. Training, Customer Intake Demo, and NOT LIVE DATA banners are ArchLucid Architecture evaluation chrome — they do not apply on SecureNow production seats." as const;
+
+export const FIRST_LOGIN_WORKSPACE_HELP_SECURENOW_APPLICABILITY_HEADING =
+  "SecureNow workspace applicability" as const;
+
+export const FIRST_LOGIN_WORKSPACE_HELP_INDICATOR_LOOKUP_HEADING = "Indicator → workspace → action" as const;
+
+export const FIRST_LOGIN_WORKSPACE_HELP_INDICATOR_LOOKUP_BODY =
+  "Indicator: header workspace label and scope switcher show your live tenant. Workspace: governance, compliance, and infrastructure routes open under that tenant. Action: continue policy review, declared connections, or audit evidence work from the left navigation." as const;
+
+export const FIRST_LOGIN_WORKSPACE_HELP_KEYBOARD_PATHS_BODY =
+  "Use the scope switcher in the header to change workspace context, or follow Back to workspace links on help pages. In-app shortcut reference: open Help and search for keyboard shortcuts." as const;
+
+export const FIRST_LOGIN_WORKSPACE_HELP_NOT_LIVE_HEADING = "Seeing NOT LIVE DATA unexpectedly" as const;
 
 export type FirstLoginWorkspaceHelpRelatedLink = {
   readonly label: string;
@@ -83,11 +100,12 @@ export const FIRST_LOGIN_WORKSPACE_HELP_HELP_RETURN = {
 
 export const FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: FIRST_LOGIN_WORKSPACE_HELP_CLAIM_HEADING_ID, title: "Training is not live tenant proof" },
+  { level: 2, id: "help-first-login-indicator-heading", title: FIRST_LOGIN_WORKSPACE_HELP_INDICATOR_LOOKUP_HEADING },
   { level: 2, id: "help-first-login-invite-heading", title: "Invited users" },
   { level: 2, id: "help-first-login-create-heading", title: "Create or request access" },
   { level: 2, id: "help-first-login-choice-heading", title: "First-time Training question" },
   { level: 2, id: "help-first-login-record-heading", title: "Record, Practice, and Training" },
-  { level: 2, id: "help-first-login-not-live-heading", title: "NOT LIVE DATA unexpected" },
+  { level: 2, id: "help-first-login-not-live-heading", title: FIRST_LOGIN_WORKSPACE_HELP_NOT_LIVE_HEADING },
   { level: 2, id: "help-first-login-applicability", title: "Scope and seat applicability" },
   { level: 2, id: "help-first-login-error-recovery", title: FIRST_LOGIN_WORKSPACE_HELP_ERROR_RECOVERY_HEADING },
   { level: 2, id: FIRST_LOGIN_WORKSPACE_HELP_RELATED_TOPICS_HEADING_ID, title: FIRST_LOGIN_WORKSPACE_HELP_RELATED_TOPICS_HEADING },

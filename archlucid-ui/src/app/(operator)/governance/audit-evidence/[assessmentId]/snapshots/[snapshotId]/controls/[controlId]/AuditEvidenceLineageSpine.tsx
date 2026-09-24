@@ -15,6 +15,7 @@ import {
   countAuditEvidenceLineageSummary,
   formatEvidenceHashVerificationSummary,
   humanizeAuditEvidenceLinkKind,
+  resolveLatestCollectedUtc,
 } from "@/lib/audit-evidence-lineage-presentation";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
@@ -120,6 +121,9 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
   const summaryCounts = countAuditEvidenceLineageSummary(props.lineage);
 
   if (!props.expanded) {
+    const latestUtc = resolveLatestCollectedUtc(props.lineage);
+    const latestLabel = latestUtc != null ? formatIsoUtcForDisplay(latestUtc) : "Unavailable";
+
     return (
       <section
         aria-label="Audit evidence lineage summary"
@@ -131,12 +135,21 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
             kind={props.lineage.snapshotHashVerified ? "ready" : "needs-attention"}
             label={props.lineage.snapshotHashVerified ? "Snapshot hash verified" : "Snapshot hash unverified"}
           />
+          {evaluation ? (
+            <StatusTag
+              kind={auditEvaluationOutcomeStatusKind(evaluation.outcome)}
+              label={auditEvaluationOutcomeLabel(evaluation.outcome)}
+            />
+          ) : null}
         </div>
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="audit-evidence-lineage-hash-summary"
         >
           {formatEvidenceHashVerificationSummary(props.lineage)}
+        </p>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Latest evidence collected {latestLabel}
         </p>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {summaryCounts.requirementCount} requirements · {summaryCounts.evidenceCount} evidence rows

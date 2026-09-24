@@ -21,6 +21,8 @@ type PolicyPackRulesTableSectionProps = {
   readonly rulesResolution: ResponsibleAiRulesResolution;
   readonly ariaLabel: string;
   readonly emptyMessage?: string;
+  readonly ruleAnchorPrefix?: string;
+  readonly tableTestId?: string;
 };
 
 /** Shared rules table for policy pack detail variants (GPI). */
@@ -49,7 +51,7 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
           {emptyMessage ?? "No published rules are available for this pack yet."}
         </p>
       ) : (
-        <EnterpriseTable ariaLabel={ariaLabel} data-testid="policy-pack-rules-table">
+        <EnterpriseTable ariaLabel={ariaLabel} data-testid={props.tableTestId ?? "policy-pack-rules-table"}>
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
               <EnterpriseTableHeaderCell>Rule key</EnterpriseTableHeaderCell>
@@ -61,8 +63,22 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
           </EnterpriseTableHead>
           <EnterpriseTableBody>
             {rulesResolution.rows.map((row) => (
-              <EnterpriseTableRow key={row.ruleKey}>
-                <EnterpriseTableCell className="font-mono text-xs">{row.ruleKey}</EnterpriseTableCell>
+              <EnterpriseTableRow
+                key={row.ruleKey}
+                id={props.ruleAnchorPrefix != null ? `${props.ruleAnchorPrefix}-${row.ruleKey}` : undefined}
+              >
+                <EnterpriseTableCell className="font-mono text-xs">
+                  {props.ruleAnchorPrefix != null ? (
+                    <a
+                      href={`#${props.ruleAnchorPrefix}-${row.ruleKey}`}
+                      className="text-al-link underline-offset-2 hover:underline"
+                    >
+                      {row.ruleKey}
+                    </a>
+                  ) : (
+                    row.ruleKey
+                  )}
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <SeverityTag severity={row.severity} />

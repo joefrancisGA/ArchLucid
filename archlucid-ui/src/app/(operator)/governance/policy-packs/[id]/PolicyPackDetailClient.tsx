@@ -140,6 +140,10 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
     return wrapDetail(
       <HealthcareClaimsPolicyPackDetail
         policyPackId={policyPackId}
+        packRecord={packRecord}
+        packContent={packContent}
+        isEnabled={isEnabled}
+        isGloballyActive={isGloballyActive}
         packsHubHref={packsHubHref}
         findingsHref={findingsHref}
       />,
