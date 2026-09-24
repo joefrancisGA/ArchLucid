@@ -22,6 +22,12 @@ function finiteNumberOrDefault(value: unknown, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function finiteNumberOrNull(value: unknown): number | null {
+  if (value == null) return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
   return {
     hopOrdinal: finiteNumberOrDefault(raw.hopOrdinal, 0),
@@ -83,14 +89,14 @@ function mapRankSummary(raw: Record<string, unknown>): SecurityEvidencePathRankS
   return {
     pathId: String(raw.pathId ?? ""),
     snapshotId: String(raw.snapshotId ?? ""),
-    rankOrder: Number(raw.rankOrder ?? 0),
+    rankOrder: finiteNumberOrDefault(raw.rankOrder, 0),
     ruleVersion: String(raw.ruleVersion ?? ""),
-    technicalExposureScore: Number(raw.technicalExposureScore ?? 0),
-    privilegeDepthScore: Number(raw.privilegeDepthScore ?? 0),
-    blastRadiusScore: Number(raw.blastRadiusScore ?? 0),
-    businessConsequenceScore: raw.businessConsequenceScore != null ? Number(raw.businessConsequenceScore) : null,
-    confidenceBandScore: Number(raw.confidenceBandScore ?? 0),
-    compositeSortScore: Number(raw.compositeSortScore ?? 0),
+    technicalExposureScore: finiteNumberOrDefault(raw.technicalExposureScore, 0),
+    privilegeDepthScore: finiteNumberOrDefault(raw.privilegeDepthScore, 0),
+    blastRadiusScore: finiteNumberOrDefault(raw.blastRadiusScore, 0),
+    businessConsequenceScore: finiteNumberOrNull(raw.businessConsequenceScore),
+    confidenceBandScore: finiteNumberOrDefault(raw.confidenceBandScore, 0),
+    compositeSortScore: finiteNumberOrDefault(raw.compositeSortScore, 0),
     explanationSummary: String(raw.explanationSummary ?? ""),
     pathKind: String(raw.pathKind ?? ""),
     pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
@@ -107,14 +113,14 @@ function mapRankDetail(raw: Record<string, unknown>): SecurityEvidencePathRankDe
   return {
     pathId: String(raw.pathId ?? ""),
     snapshotId: String(raw.snapshotId ?? ""),
-    rankOrder: Number(raw.rankOrder ?? 0),
+    rankOrder: finiteNumberOrDefault(raw.rankOrder, 0),
     ruleVersion: String(raw.ruleVersion ?? ""),
-    technicalExposureScore: Number(raw.technicalExposureScore ?? 0),
-    privilegeDepthScore: Number(raw.privilegeDepthScore ?? 0),
-    blastRadiusScore: Number(raw.blastRadiusScore ?? 0),
-    businessConsequenceScore: raw.businessConsequenceScore != null ? Number(raw.businessConsequenceScore) : null,
-    confidenceBandScore: Number(raw.confidenceBandScore ?? 0),
-    compositeSortScore: Number(raw.compositeSortScore ?? 0),
+    technicalExposureScore: finiteNumberOrDefault(raw.technicalExposureScore, 0),
+    privilegeDepthScore: finiteNumberOrDefault(raw.privilegeDepthScore, 0),
+    blastRadiusScore: finiteNumberOrDefault(raw.blastRadiusScore, 0),
+    businessConsequenceScore: finiteNumberOrNull(raw.businessConsequenceScore),
+    confidenceBandScore: finiteNumberOrDefault(raw.confidenceBandScore, 0),
+    compositeSortScore: finiteNumberOrDefault(raw.compositeSortScore, 0),
     explanationSummary: String(raw.explanationSummary ?? ""),
     breakdownJson: String(raw.breakdownJson ?? ""),
     pathKind: String(raw.pathKind ?? ""),
