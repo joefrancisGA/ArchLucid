@@ -30,7 +30,7 @@ function finiteNumberOrNull(value: unknown): number | null {
 
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
   return {
-    hopOrdinal: Number(raw.hopOrdinal ?? 0),
+    hopOrdinal: finiteNumberOrDefault(raw.hopOrdinal, 0),
     fromNodeLabel: String(raw.fromNodeLabel ?? "—"),
     toNodeLabel: String(raw.toNodeLabel ?? "—"),
     edgeType: String(raw.edgeType ?? "—"),
@@ -185,7 +185,7 @@ export async function fetchOperationalSecurityFindingDetail(
 ): Promise<OperationalSecurityFindingDetail | null> {
   const raw = await proxyJsonGet<Record<string, unknown>>(`${FINDINGS_PATH}/${findingId.trim()}`);
 
-  if (!Boolean(raw.succeeded)) {
+  if (raw.succeeded !== true) {
     return null;
   }
 
@@ -253,7 +253,7 @@ export async function buildSecurityEvidencePathExplanation(
   const explanationRaw = raw.explanation as Record<string, unknown> | null | undefined;
 
   return {
-    succeeded: Boolean(raw.succeeded),
+    succeeded: raw.succeeded === true,
     errorMessage: raw.errorMessage != null ? String(raw.errorMessage) : null,
     explanation: explanationRaw == null ? null : mapExplanation(explanationRaw),
   };
