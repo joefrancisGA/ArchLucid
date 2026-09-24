@@ -55,17 +55,28 @@ export function resolveContinueLastDigestBrowse(digests: unknown): DigestsBrowse
     return null;
   }
 
+  const validDigests = normalizedDigests.filter(
+    (digest) =>
+      typeof digest?.digestId === "string"
+      && typeof digest?.title === "string"
+      && typeof digest?.generatedUtc === "string",
+  );
+
+  if (validDigests.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredDigestId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedDigests.find((digest) => digest.digestId === storedId);
+    const storedMatch = validDigests.find((digest) => digest.digestId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = normalizedDigests.slice().sort(compareNewestGenerated)[0];
+  const newest = validDigests.slice().sort(compareNewestGenerated)[0];
 
   return newest === undefined ? null : toTarget(newest);
 }
