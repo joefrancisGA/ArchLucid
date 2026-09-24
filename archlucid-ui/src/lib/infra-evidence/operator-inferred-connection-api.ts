@@ -29,6 +29,11 @@ function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
   };
 }
 
+function finiteNumberOrDefault(value: unknown, fallback: number): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function snapshotBasePath(snapshotId: string): string {
   return `/api/proxy/v1/infra-evidence/snapshots/${snapshotId}/operator-inferred-connections`;
 }
@@ -50,8 +55,8 @@ export async function listInferenceQuestionnaireItems(
 
   return {
     items,
-    totalCount: Number(raw.totalCount ?? items.length),
-    cap: Number(raw.cap ?? 50),
+    totalCount: finiteNumberOrDefault(raw.totalCount, items.length),
+    cap: finiteNumberOrDefault(raw.cap, 50),
     capReached: raw.capReached === true,
   };
 }
