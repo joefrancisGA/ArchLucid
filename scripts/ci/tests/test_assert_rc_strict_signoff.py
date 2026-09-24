@@ -137,6 +137,18 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
         self.assertIn("strictDisposition", result.stderr)
 
+    def test_live_parity_conflicting_status_blocks_signoff(self) -> None:
+        bundle = self.temp_dir / "conflicting-parity"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "release-smoke-live-ui-sql-result.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["status"] = "FAIL"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass", "--require-live-parity-artifact")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("(status)", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
