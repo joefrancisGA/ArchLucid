@@ -38,6 +38,22 @@
     { "category": "networking", "service": "Application Security Groups", "armTypes": ["Microsoft.Network/applicationSecurityGroups"], "file": "Svg/application-security-group.svg" },
     { "category": "networking", "service": "Public IP Prefixes", "armTypes": ["Microsoft.Network/publicIPPrefixes"], "file": "Svg/public-ip-prefix.svg" },
     { "category": "networking", "service": "Network Watcher", "armTypes": ["Microsoft.Network/networkWatchers"], "file": "Svg/network-watcher.svg" },
-    { "category": "networking", "service": "DDoS Protection Plans", "armTypes": ["Microsoft.Network/ddosProtectionPlans"], "file": "Svg/ddos-protection-plan.svg" }
+    { "category": "networking", "service": "DDoS Protection Plans", "armTypes": ["Microsoft.Network/ddosProtectionPlans"], "file": "Svg/ddos-protection-plan.svg" },
+    { "category": "compute", "service": "Log Analytics Workspaces", "armTypes": ["Microsoft.OperationalInsights/workspaces"], "file": "Svg/log-analytics.svg" },
+    { "category": "compute", "service": "Application Insights", "armTypes": ["Microsoft.Insights/components"], "file": "Svg/application-insights.svg" },
+    { "category": "security", "service": "Managed Identities", "armTypes": ["Microsoft.ManagedIdentity/userAssignedIdentities"], "file": "Svg/managed-identity.svg" },
+    { "category": "compute", "service": "Recovery Services Vaults", "armTypes": ["Microsoft.RecoveryServices/vaults"], "file": "Svg/recovery-services-vault.svg" },
+    { "category": "compute", "service": "Automation Accounts", "armTypes": ["Microsoft.Automation/automationAccounts"], "file": "Svg/automation-account.svg" },
+    { "category": "compute", "service": "Logic Apps", "armTypes": ["Microsoft.Logic/workflows"], "file": "Svg/logic-app.svg" },
+    { "category": "compute", "service": "Azure Service Bus", "armTypes": ["Microsoft.ServiceBus/namespaces"], "file": "Svg/service-bus.svg" },
+    { "category": "compute", "service": "Event Hubs", "armTypes": ["Microsoft.EventHub/namespaces"], "file": "Svg/event-hub.svg" },
+    { "category": "web", "service": "API Management Services", "armTypes": ["Microsoft.ApiManagement/service"], "file": "Svg/api-management.svg" },
+    { "category": "networking", "service": "Front Door and CDN Profiles", "armTypes": ["Microsoft.Cdn/profiles", "Microsoft.Network/frontDoors"], "file": "Svg/front-door.svg" },
+    { "category": "compute", "service": "App Configuration", "armTypes": ["Microsoft.AppConfiguration/configurationStores"], "file": "Svg/app-configuration.svg" },
+    { "category": "compute", "service": "Cognitive Search", "armTypes": ["Microsoft.Search/searchServices"], "file": "Svg/cognitive-search.svg" },
+    { "category": "compute", "service": "Availability Sets", "armTypes": ["Microsoft.Compute/availabilitySets"], "file": "Svg/availability-set.svg" },
+    { "category": "compute", "service": "Container Instances", "armTypes": ["Microsoft.ContainerInstance/containerGroups"], "file": "Svg/container-instance.svg" },
+    { "category": "web", "service": "App Service Certificates", "armTypes": ["Microsoft.Web/certificates"], "file": "Svg/app-service-certificate.svg" },
+    { "category": "web", "service": "SignalR", "armTypes": ["Microsoft.SignalRService/SignalR"], "file": "Svg/signalr.svg" }
   ]
 }

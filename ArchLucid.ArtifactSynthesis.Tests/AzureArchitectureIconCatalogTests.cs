@@ -120,6 +120,47 @@ public sealed class AzureArchitectureIconCatalogTests
     }
 
     [Fact]
+    public void Catalog_resolves_platform_services_from_official_svg_pack()
+    {
+        AzureArchitectureIconCatalog catalog = AzureArchitectureIconCatalog.Load();
+        (string ArmType, string Service)[] expected =
+        [
+            ("Microsoft.OperationalInsights/workspaces", "Log Analytics Workspaces"),
+            ("Microsoft.Insights/components", "Application Insights"),
+            ("Microsoft.ManagedIdentity/userAssignedIdentities", "Managed Identities"),
+            ("Microsoft.RecoveryServices/vaults", "Recovery Services Vaults"),
+            ("Microsoft.Automation/automationAccounts", "Automation Accounts"),
+            ("Microsoft.Logic/workflows", "Logic Apps"),
+            ("Microsoft.ServiceBus/namespaces", "Azure Service Bus"),
+            ("Microsoft.EventHub/namespaces", "Event Hubs"),
+            ("Microsoft.ApiManagement/service", "API Management Services"),
+            ("Microsoft.Cdn/profiles", "Front Door and CDN Profiles"),
+            ("Microsoft.Network/frontDoors", "Front Door and CDN Profiles"),
+            ("Microsoft.AppConfiguration/configurationStores", "App Configuration"),
+            ("Microsoft.Search/searchServices", "Cognitive Search"),
+            ("Microsoft.Compute/availabilitySets", "Availability Sets"),
+            ("Microsoft.ContainerInstance/containerGroups", "Container Instances"),
+            ("Microsoft.Web/certificates", "App Service Certificates"),
+            ("Microsoft.SignalRService/SignalR", "SignalR"),
+        ];
+
+        foreach ((string armType, string service) in expected)
+        {
+            AzureArchitectureIconCatalogEntry entry = catalog.Resolve(armType)
+                ?? throw new InvalidOperationException($"No official icon resolved for {armType}.");
+
+            entry.Service.Should().Be(service);
+            entry.SvgMarkup.Should().Contain("<svg");
+            entry.SvgMarkup.Should().NotContain("data:image/png");
+        }
+
+        catalog.Resolve("Microsoft.App/containerApps").Should().BeNull();
+        catalog.Resolve("Microsoft.App/managedEnvironments").Should().BeNull();
+        catalog.Resolve("Microsoft.Fabric/capacities").Should().BeNull();
+        catalog.Resolve("Microsoft.Network/privateDnsZones").Should().BeNull();
+    }
+
+    [Fact]
     public void Renderer_emits_official_svg_group_and_preserves_category_pictogram_fallback()
     {
         DiagramAst ast = new()
@@ -153,11 +194,19 @@ public sealed class AzureArchitectureIconCatalogTests
                 },
                 new DiagramNode
                 {
+                    NodeId = "log-analytics",
+                    Label = "log-analytics-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.OperationalInsights/workspaces",
+                    OrderKey = 3,
+                },
+                new DiagramNode
+                {
                     NodeId = "unknown",
                     Label = "unknown-resource",
                     NodeType = "TopologyResource",
                     ArmResourceType = "Microsoft.Example/unknown",
-                    OrderKey = 3,
+                    OrderKey = 4,
                 },
                 new DiagramNode
                 {
@@ -165,7 +214,7 @@ public sealed class AzureArchitectureIconCatalogTests
                     Label = "private-dns",
                     NodeType = "TopologyResource",
                     ArmResourceType = "Microsoft.Network/privateDnsZones",
-                    OrderKey = 4,
+                    OrderKey = 5,
                 },
             ],
         };
@@ -177,6 +226,7 @@ public sealed class AzureArchitectureIconCatalogTests
         result.Svg.Should().Contain("data-file=\"Svg/virtual-machine.svg\"");
         result.Svg.Should().Contain("data-file=\"Svg/disk.svg\"");
         result.Svg.Should().Contain("data-file=\"Svg/load-balancer.svg\"");
+        result.Svg.Should().Contain("data-file=\"Svg/log-analytics.svg\"");
         result.Svg.Should().Contain("class=\"pictogram\"");
         result.Svg.Should().NotContain("data:image/png");
         result.Svg.Should().NotContain("https://");
