@@ -16,7 +16,7 @@ export function demoRunAliasRedirectDestinationPath(pathname: string): string | 
     const runIdSegment = safeDecodePathSegment(runs[1]);
     const tail = runs[2] ?? "";
 
-    if (demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
+    if (runIdSegment !== null && demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
       const canon = canonicalizeDemoRunId(runIdSegment);
 
       return `/architecture/reviews/${encodeURIComponent(canon)}${tail}`;
@@ -39,10 +39,10 @@ export function demoRunAliasRedirectDestinationPath(pathname: string): string | 
   return null;
 }
 
-function safeDecodePathSegment(segment: string): string {
+function safeDecodePathSegment(segment: string): string | null {
   try {
     return decodeURIComponent(segment);
   } catch {
-    return segment;
+    return null;
   }
 }
