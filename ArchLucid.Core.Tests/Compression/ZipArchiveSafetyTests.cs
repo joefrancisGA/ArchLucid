@@ -95,4 +95,26 @@ public sealed class ZipArchiveSafetyTests
         result.Allowed.Should().BeFalse();
         result.ErrorDetail.Should().Contain("compression ratio");
     }
+
+    [Fact]
+    public void ValidateArchive_rejects_high_ratio_entry_even_when_archive_average_is_low()
+    {
+        using MemoryStream stream = new();
+        using (ZipArchive archive = new(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            byte[] randomBytes = new byte[100_000];
+            new Random(42).NextBytes(randomBytes);
+            using (Stream randomEntry = archive.CreateEntry("random.bin").Open())
+                randomEntry.Write(randomBytes);
+            using StreamWriter writer = new(archive.CreateEntry("high-ratio.txt").Open());
+            writer.Write(new string('a', 5_000));
+        }
+        stream.Position = 0;
+        using ZipArchive readArchive = new(stream, ZipArchiveMode.Read, leaveOpen: true);
+
+        ZipArchiveSafetyResult result = ZipArchiveSafety.ValidateArchive(readArchive, maxCompressionRatio: 10);
+
+        result.Allowed.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("entry compression ratio");
+    }
 }
