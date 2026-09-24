@@ -17,6 +17,11 @@ _STRICT_ARTIFACTS: tuple[tuple[str, str], ...] = (
     ("rc-evidence-signoff-bundle.json", "overallDisposition"),
     ("rc-go-no-go-verdict.json", "verdict"),
 )
+_ARTIFACT_SCHEMAS = {
+    "release-confidence-rollup.json": "archlucid.release-confidence-rollup.v1",
+    "rc-evidence-signoff-bundle.json": "archlucid.rc-evidence-signoff-bundle.v1",
+    "rc-go-no-go-verdict.json": "archlucid.rc-go-no-go-verdict.v1",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any] | None:
@@ -70,6 +75,16 @@ def evaluate_bundle(
                 )
             )
             continue
+
+        expected_schema = _ARTIFACT_SCHEMAS[artifact_name]
+        if payload.get("schema") != expected_schema:
+            blockers.append(
+                _blocking_reason(
+                    artifact=artifact_name,
+                    field="schema",
+                    detail=f"expected {expected_schema}, got {payload.get('schema')!r}",
+                )
+            )
 
         disposition = payload.get(disposition_field)
 
