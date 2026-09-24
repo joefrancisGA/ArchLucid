@@ -153,12 +153,12 @@ def evaluate_bundle(
         ("releaseConfidenceRollup", "release-confidence-rollup.json"),
         ("rcGoNoGoVerdict", "rc-go-no-go-verdict.json"),
     ):
-        if ref_key not in references:
+        if references.get(ref_key) != ref_name:
             blockers.append(
                 _blocking_reason(
                     artifact="rc-evidence-signoff-bundle.json",
                     field=f"references.{ref_key}",
-                    detail=f"signoff bundle must reference {ref_name} for machine-readable RC handoff",
+                    detail=f"signoff bundle must reference {ref_name} for machine-readable RC handoff (got {references.get(ref_key)!r})",
                 )
             )
 
