@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -36,6 +37,7 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
             json.dumps(
                 {
                     "schema": "archlucid.release-confidence-rollup.v1",
+                    "generatedUtc": datetime.now(timezone.utc).isoformat(),
                     "strictDisposition": "PASS",
                     "strictBlockingReasons": [],
                 }
@@ -47,6 +49,7 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
             json.dumps(
                 {
                     "schema": "archlucid.rc-evidence-signoff-bundle.v1",
+                    "generatedUtc": datetime.now(timezone.utc).isoformat(),
                     "overallDisposition": "PASS",
                     "references": {
                         "releaseConfidenceRollup": "release-confidence-rollup.json",
@@ -58,7 +61,7 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
             encoding="utf-8",
         )
         (bundle / "rc-go-no-go-verdict.json").write_text(
-            json.dumps({"schema": "archlucid.rc-go-no-go-verdict.v1", "verdict": "PASS"})
+            json.dumps({"schema": "archlucid.rc-go-no-go-verdict.v1", "generatedUtc": datetime.now(timezone.utc).isoformat(), "verdict": "PASS"})
             + "\n",
             encoding="utf-8",
         )
@@ -160,6 +163,18 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
         result = run_assert("--bundle-dir", str(bundle), "--require-pass")
         self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
         self.assertIn("(schema)", result.stderr)
+
+    def test_stale_artifact_blocks_strict_signoff(self) -> None:
+        bundle = self.temp_dir / "stale"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "rc-go-no-go-verdict.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["generatedUtc"] = (datetime.now(timezone.utc) - timedelta(days=8)).isoformat()
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("(generatedUtc)", result.stderr)
 
 
 if __name__ == "__main__":
