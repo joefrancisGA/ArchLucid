@@ -51,9 +51,10 @@ export function readArchitectureNewDraftRecovery(): ArchitectureNewDraftRecovery
       return null;
     }
 
+    const trimmedQueuedAtUtc = typeof parsed.queuedAtUtc === "string" ? parsed.queuedAtUtc.trim() : "";
     const queuedAtUtc =
-      typeof parsed.queuedAtUtc === "string" && parsed.queuedAtUtc.trim().length > 0
-        ? parsed.queuedAtUtc.trim()
+      trimmedQueuedAtUtc.length > 0 && !Number.isNaN(Date.parse(trimmedQueuedAtUtc))
+        ? trimmedQueuedAtUtc
         : new Date().toISOString();
 
     return {
