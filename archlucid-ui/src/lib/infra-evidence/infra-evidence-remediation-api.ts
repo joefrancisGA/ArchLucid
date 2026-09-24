@@ -16,6 +16,11 @@ const PRIORITIZATION_RANKED_PATH = "/api/proxy/v1/operational-security/remediati
 const WAVES_PATH = "/api/proxy/v1/operational-security/remediation-waves";
 const FINDING_MATCH_PATH = "/api/proxy/v1/infra-evidence/operational-findings";
 
+function finiteNumberOrDefault(value: unknown, fallback: number): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
   return {
     instanceId: typeof raw.instanceId === "string" ? raw.instanceId : "",
@@ -130,10 +135,10 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
 
   return {
     factoryMetrics: {
-      openFindings: Number(metricsRaw.openFindings ?? 0),
-      remediatedThisWeek: Number(metricsRaw.remediatedThisWeek ?? 0),
-      verificationFailureCount: Number(metricsRaw.verificationFailureCount ?? 0),
-      businessBlockedCount: Number(metricsRaw.businessBlockedCount ?? 0),
+      openFindings: finiteNumberOrDefault(metricsRaw.openFindings, 0),
+      remediatedThisWeek: finiteNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
+      verificationFailureCount: finiteNumberOrDefault(metricsRaw.verificationFailureCount, 0),
+      businessBlockedCount: finiteNumberOrDefault(metricsRaw.businessBlockedCount, 0),
     },
     openInstancesByStatus: (raw.openInstancesByStatus as Record<string, number>) ?? {},
     waves: Array.isArray(raw.waves)
