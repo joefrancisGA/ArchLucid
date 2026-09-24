@@ -51,6 +51,8 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string SqlDatabasePrincipals = "sql-database-principals.json";
 
+    public const string RecoveryServicesProtectedItems = "recovery-services-protected-items.json";
+
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
     [
         RoleAssignments,
@@ -75,5 +77,6 @@ public static class AzureExtractorPackageZipEntryNames
         AppSettingsHosts,
         DependencyObservations,
         SqlDatabasePrincipals,
+        RecoveryServicesProtectedItems,
     ];
 }

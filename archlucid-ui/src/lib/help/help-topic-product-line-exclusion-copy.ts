@@ -12,6 +12,13 @@ export type HelpTopicProductLineExclusionContent = {
   readonly redirects: readonly HelpTopicProductLineExclusionRedirect[];
 };
 
+/** ArchLucid-only help topics — SecureNow must not confirm existence via exclusion chrome. */
+export const SECURENOW_SILENT_HELP_TOPIC_EXCLUSION_SLUGS = [
+  "system-gravity",
+  "inhabit-the-architecture",
+  "sketch-a-change",
+] as const;
+
 const INSPECT_STORED_EVIDENCE_SECURENOW_EXCLUSION: HelpTopicProductLineExclusionContent = {
   title: "Architecture review help only",
   body:
@@ -50,6 +57,10 @@ export function resolveHelpTopicProductLineExclusionContent(
   productLineId: ProductLineId,
 ): HelpTopicProductLineExclusionContent | null {
   if (productLineId !== "security") {
+    return null;
+  }
+
+  if ((SECURENOW_SILENT_HELP_TOPIC_EXCLUSION_SLUGS as readonly string[]).includes(slug)) {
     return null;
   }
 

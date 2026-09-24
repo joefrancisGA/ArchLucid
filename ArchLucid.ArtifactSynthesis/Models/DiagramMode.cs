@@ -7,6 +7,7 @@ public enum DiagramMode
     Architecture,
     Network,
     Security,
+    BusinessContinuity,
     Identity,
     Data,
     DataFlow,

@@ -153,4 +153,16 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string factoryResourceId,
         CancellationToken cancellationToken);
+
+    /// <summary>GET backup protected items for one Recovery Services vault (RSV-03).</summary>
+    Task<HostedAzureVaultProtectedItemListResult> ListVaultBackupProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>GET Site Recovery replication protected items for one Recovery Services vault (RSV-03).</summary>
+    Task<HostedAzureVaultProtectedItemListResult> ListVaultReplicationProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        CancellationToken cancellationToken);
 }
