@@ -79,7 +79,8 @@ export function FindingInspectFindingBody({
     if (typeof scoreRaw === "number" && Number.isFinite(scoreRaw)) {
       insightDensityScore = Math.trunc(scoreRaw);
     } else if (typeof scoreRaw === "string") {
-      const parsed = Number.parseInt(scoreRaw, 10);
+      const trimmedScore = scoreRaw.trim();
+      const parsed = /^-?\d+$/.test(trimmedScore) ? Number.parseInt(trimmedScore, 10) : Number.NaN;
 
       if (!Number.isNaN(parsed)) {
         insightDensityScore = parsed;
