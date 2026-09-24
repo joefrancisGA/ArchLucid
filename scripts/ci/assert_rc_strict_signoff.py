@@ -136,6 +136,16 @@ def evaluate_bundle(
                     )
                 )
 
+            status = parity.get("status")
+            if status is not None and str(status).strip().upper() != "PASS":
+                blockers.append(
+                    _blocking_reason(
+                        artifact="release-smoke-live-ui-sql-result.json",
+                        field="status",
+                        detail=f"expected PASS status, got {status!r}",
+                    )
+                )
+
             profile = str(parity.get("profile") or "")
             if profile not in {"LiveUiSql", "ReleaseCandidate"}:
                 blockers.append(
