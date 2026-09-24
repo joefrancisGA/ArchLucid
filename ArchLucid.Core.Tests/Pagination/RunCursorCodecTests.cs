@@ -74,6 +74,12 @@ public sealed class RunCursorCodecTests
     }
 
     [Fact]
+    public void RunCursorCodec_TryDecode_MalformedJson_ReturnsNull()
+    {
+        RunCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("{")).Should().BeNull();
+    }
+
+    [Fact]
     public void RunCursorCodec_TryDecode_MissingTimestamp_ReturnsNull()
     {
         RunCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor($"{{\"cu\":\"\",\"ri\":\"{Guid.NewGuid()}\"}}"))
