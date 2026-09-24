@@ -219,7 +219,11 @@ export function requestReviewsNewWizardAutoRestore(wizardId: WizardSessionId): v
     return;
   }
 
-  window.sessionStorage.setItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY, wizardId);
+  try {
+    window.sessionStorage.setItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY, wizardId);
+  } catch {
+    // Session storage may be unavailable.
+  }
 }
 
 export function dispatchReviewsNewWizardContinueRequested(wizardId: WizardSessionId): void {
