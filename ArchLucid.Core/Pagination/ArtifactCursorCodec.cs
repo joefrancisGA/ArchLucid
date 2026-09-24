@@ -38,15 +38,15 @@ public static class ArtifactCursorCodec
             return null;
         }
 
-        if (dto is null || dto.Ai == Guid.Empty)
+        if (dto is null || dto.So is null || dto.Ai == Guid.Empty)
             return null;
 
-        return (dto.So, dto.Ai);
+        return (dto.So.Value, dto.Ai);
     }
 
     private sealed class ArtifactListCursorDto
     {
-        public int So
+        public int? So
         {
             get;
             init;
