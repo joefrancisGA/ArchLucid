@@ -86,7 +86,11 @@ export function writeWizardSessionSnapshot<TState>(
   };
 
   if (typeof window !== "undefined") {
-    window.sessionStorage.setItem(buildWizardSessionStorageKey(wizardId), JSON.stringify(snapshot));
+    try {
+      window.sessionStorage.setItem(buildWizardSessionStorageKey(wizardId), JSON.stringify(snapshot));
+    } catch {
+      /* private/restricted storage */
+    }
   }
 
   return savedAtUtc;
