@@ -132,12 +132,15 @@ def _check_per_tag(
 ) -> bool:
     """Check per-tag p95 caps. Returns True if at least one tagged metric was found."""
     found_any = False
+    metrics = payload.get("metrics") if isinstance(payload.get("metrics"), dict) else {}
 
     for metric_name, cap_ms in caps.items():
         values = _metric_values(payload, metric_name)
         p95 = _float(values, "p(95)")
 
         if p95 is None:
+            if metric_name in metrics:
+                errors.append(f"{metric_name} p(95) missing from present tagged metric")
             continue
 
         found_any = True
