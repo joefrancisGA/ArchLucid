@@ -1,13 +1,17 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { resolveDataHandlingTenantIsolationHelpSources } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
 /** Artifact index table for data-handling diligence cites (HED). */
 export function HelpDataHandlingTenantIsolationSourceLinks(): React.ReactElement {
-  const sources = resolveDataHandlingTenantIsolationHelpSources(resolveProductLineIdFromEnv());
+  const { productLine } = useProductLine();
+  const sources = resolveDataHandlingTenantIsolationHelpSources(productLine);
 
   return (
     <div className="overflow-x-auto" data-testid="help-data-handling-tenant-isolation-source-links">
