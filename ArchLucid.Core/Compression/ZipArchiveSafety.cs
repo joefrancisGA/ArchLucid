@@ -69,6 +69,13 @@ public static class ZipArchiveSafety
             if (uncompressed < 0)
                 uncompressed = 0;
 
+            double entryRatio = (double)uncompressed / Math.Max(1, entry.CompressedLength);
+            if (entryRatio > maxCompressionRatio)
+            {
+                return ZipArchiveSafetyResult.Reject(
+                    $"ZIP entry compression ratio {entryRatio} exceeds maximum {maxCompressionRatio}.");
+            }
+
             try
             {
                 checked
