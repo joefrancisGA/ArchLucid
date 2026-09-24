@@ -37,6 +37,8 @@ public static class DiagramPeelCatalogDefaultSeed
                 "Always dispose — smart detector alert rule"),
             AlwaysDispose("Microsoft.Insights/metricAlerts", "Always dispose — metric alert"),
             AlwaysDispose("Microsoft.Insights/workbooks", "Always dispose — monitoring workbook"),
+            AlwaysDispose("Microsoft.Insights/dataCollectionRules", "Always dispose — data collection rule"),
+            AlwaysDispose("Microsoft.Network/enterprisePolicies", "Always dispose — enterprise policy"),
             AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
             AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
             AlwaysDispose(
@@ -77,13 +79,13 @@ public static class DiagramPeelCatalogDefaultSeed
             Backbone("Microsoft.Fabric/capacities"),
             Backbone("Microsoft.Compute/virtualMachineScaleSets"),
             Backbone("Microsoft.ContainerService/managedClusters"),
-            Backbone("Microsoft.Web/serverFarms"),
             Backbone("Microsoft.KeyVault/vaults"),
             Backbone("Microsoft.ManagedIdentity/userAssignedIdentities"),
             Backbone("Microsoft.Network/azureFirewalls"),
             Backbone("Microsoft.Network/applicationGateways"),
             Backbone("Microsoft.Network/loadBalancers"),
             Backbone("Microsoft.Network/privateEndpoints"),
+            AlwaysDispose("Microsoft.Web/serverFarms", "Always dispose — App Service Plan"),
         ];
     }
 

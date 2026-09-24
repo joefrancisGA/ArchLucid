@@ -52,6 +52,7 @@ import {
   INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM,
   INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM,
   INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
+  INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM,
   INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM,
@@ -61,6 +62,7 @@ import {
   parseInfraDiagramsIncludeNeverShowFromSearch,
   parseInfraDiagramsIncludePrivateEndpointsFromSearch,
   parseInfraDiagramsIncludeRecoveryServicesFromSearch,
+  parseInfraDiagramsIncludeCrossGroupFanOutFromSearch,
   parseInfraDiagramsSubscriptionFilterFromSearch,
   isInfraDiagramsMermaidModeSelected,
   parseInfraDiagramsMermaidModeFromSearch,
@@ -325,6 +327,9 @@ export function DiagramsWorkbenchClient() {
   const urlIncludeRecoveryServices = parseInfraDiagramsIncludeRecoveryServicesFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM),
   );
+  const urlIncludeCrossGroupFanOut = parseInfraDiagramsIncludeCrossGroupFanOutFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM),
+  );
   const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
     searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
@@ -373,6 +378,7 @@ export function DiagramsWorkbenchClient() {
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
   const [includeRecoveryServices, setIncludeRecoveryServices] = useState(urlIncludeRecoveryServices);
+  const [includeCrossGroupFanOut, setIncludeCrossGroupFanOut] = useState(urlIncludeCrossGroupFanOut);
   const [pendingSubscriptionFilter, setPendingSubscriptionFilter] = useState<string | null>(null);
   const [subscriptionChangeConfirmOpen, setSubscriptionChangeConfirmOpen] = useState(false);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
@@ -427,6 +433,10 @@ export function DiagramsWorkbenchClient() {
   }, [urlIncludeRecoveryServices]);
 
   useEffect(() => {
+    setIncludeCrossGroupFanOut(urlIncludeCrossGroupFanOut);
+  }, [urlIncludeCrossGroupFanOut]);
+
+  useEffect(() => {
     if (urlSubscriptionFilter.length === 0) {
       return;
     }
@@ -443,6 +453,7 @@ export function DiagramsWorkbenchClient() {
       subscriptionFilter?: string;
       includePrivateEndpoints?: boolean;
       includeRecoveryServices?: boolean;
+      includeCrossGroupFanOut?: boolean;
     }) => {
       router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
         scroll: false,
@@ -975,6 +986,7 @@ export function DiagramsWorkbenchClient() {
           includeNeverShow,
           includePrivateEndpointNodes: showPrivateEndpoints,
           includeRecoveryServices,
+          includeCrossGroupFanOut,
           ...executiveTierQuery,
         };
       }
@@ -984,6 +996,7 @@ export function DiagramsWorkbenchClient() {
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
         includeRecoveryServices,
+        includeCrossGroupFanOut,
         ...executiveTierQuery,
       };
     }
@@ -994,6 +1007,7 @@ export function DiagramsWorkbenchClient() {
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
         includeRecoveryServices,
+        includeCrossGroupFanOut,
         ...executiveTierQuery,
       };
     }
@@ -1011,6 +1025,7 @@ export function DiagramsWorkbenchClient() {
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
         includeRecoveryServices,
+        includeCrossGroupFanOut,
         ...executiveTierQuery,
       };
     }
@@ -1028,6 +1043,7 @@ export function DiagramsWorkbenchClient() {
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
         includeRecoveryServices,
+        includeCrossGroupFanOut,
         ...executiveTierQuery,
       };
     }
@@ -1038,6 +1054,7 @@ export function DiagramsWorkbenchClient() {
       includeNeverShow,
       includePrivateEndpointNodes: showPrivateEndpoints,
       includeRecoveryServices,
+      includeCrossGroupFanOut,
       ...executiveTierQuery,
     };
   }, [
@@ -1045,6 +1062,7 @@ export function DiagramsWorkbenchClient() {
     effectiveFallbackKey,
     hiddenExecutiveTierKeys,
     includeNeverShow,
+    includeCrossGroupFanOut,
     includeRecoveryServices,
     diagramsSubscriptionChosen,
     diagramTypeSelected,
@@ -1229,6 +1247,13 @@ export function DiagramsWorkbenchClient() {
     setIncludeRecoveryServices(nextIncludeRecoveryServices);
     syncUrl({ includeRecoveryServices: nextIncludeRecoveryServices });
   }, [includeRecoveryServices, syncUrl]);
+
+  const handleIncludeCrossGroupFanOutToggle = useCallback(() => {
+    const nextIncludeCrossGroupFanOut = !includeCrossGroupFanOut;
+
+    setIncludeCrossGroupFanOut(nextIncludeCrossGroupFanOut);
+    syncUrl({ includeCrossGroupFanOut: nextIncludeCrossGroupFanOut });
+  }, [includeCrossGroupFanOut, syncUrl]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
@@ -1985,7 +2010,7 @@ export function DiagramsWorkbenchClient() {
         <div>
           <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Private endpoints remain available for relationship analysis but are hidden from the canvas by default.
+            Private endpoints, backup/recovery resources, and cross-group applies/likely links are hidden from the canvas by default.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -2009,6 +2034,15 @@ export function DiagramsWorkbenchClient() {
               Include backup and recovery
             </Button>
           ) : null}
+          <label className="flex items-center gap-2">
+            <Checkbox
+              checked={includeCrossGroupFanOut}
+              data-testid="infra-diagrams-show-cross-group-links"
+              aria-label="Show cross-group links"
+              onCheckedChange={handleIncludeCrossGroupFanOutToggle}
+            />
+            <span className={OPERATOR_TYPOGRAPHY.body}>Show cross-group links</span>
+          </label>
         </div>
       </section>
 

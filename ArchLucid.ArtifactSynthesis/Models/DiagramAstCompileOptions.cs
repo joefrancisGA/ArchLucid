@@ -71,6 +71,15 @@ public sealed class DiagramAstCompileOptions
         init;
     }
 
+    /// <summary>
+    /// When true, cross-group <c>applies</c> and <c>likely ·</c> fan-out edges are painted on forest and Graphviz exports.
+    /// </summary>
+    public bool IncludeCrossGroupFanOut
+    {
+        get;
+        init;
+    }
+
     /// <summary>When true, at least one vault protected-item list failed during collection (RSV-03).</summary>
     public bool RecoveryServicesCollectionIncomplete
     {

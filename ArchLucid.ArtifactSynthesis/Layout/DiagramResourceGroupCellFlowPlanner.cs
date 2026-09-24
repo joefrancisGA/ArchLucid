@@ -20,9 +20,33 @@ public static class DiagramResourceGroupCellFlowPlanner
             return cells;
         }
 
-        return GroupByLayers(cells, visibleEdges)
-            .SelectMany(layer => layer)
-            .ToList();
+        HashSet<int> participatingCellIndexes = ResolveParticipatingCellIndexes(cells, visibleEdges);
+        CellRank rank = RankCells(cells, visibleEdges, participatingCellIndexes);
+        IReadOnlyList<IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>> layers =
+            BuildLayers(cells, rank, participatingCellIndexes);
+        List<DiagramResourceGroupPacker.ResourceGroupCell> ordered = [];
+
+        for (int layerIndex = 0; layerIndex < layers.Count; layerIndex++)
+        {
+            IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> layer = layers[layerIndex];
+
+            if (layer is null || layer.Count == 0)
+            {
+                continue;
+            }
+
+            ordered.AddRange(layer);
+        }
+
+        if (ordered.Count == 0 && participatingCellIndexes.Count > 0)
+        {
+            ordered.AddRange(ResolveParticipatingCellsInSourceOrder(cells, participatingCellIndexes));
+        }
+
+        SeatAdjacentCrossGroupCells(ordered, cells, visibleEdges, participatingCellIndexes);
+        ordered.AddRange(ResolveUnrankedTail(cells, participatingCellIndexes));
+
+        return ordered;
     }
 
     /// <summary>
@@ -46,7 +70,17 @@ public static class DiagramResourceGroupCellFlowPlanner
             return [[cells[0]]];
         }
 
-        CellRank rank = RankCells(cells, visibleEdges);
+        HashSet<int> participatingCellIndexes = ResolveParticipatingCellIndexes(cells, visibleEdges);
+        CellRank rank = RankCells(cells, visibleEdges, participatingCellIndexes);
+
+        return BuildLayers(cells, rank, participatingCellIndexes);
+    }
+
+    private static List<IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>> BuildLayers(
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
+        CellRank rank,
+        IReadOnlySet<int> participatingCellIndexes)
+    {
         List<List<DiagramResourceGroupPacker.ResourceGroupCell>> layers = [];
 
         for (int layer = 0; layer <= rank.MaxLayer; layer++)
@@ -55,7 +89,9 @@ public static class DiagramResourceGroupCellFlowPlanner
 
             for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
             {
-                if (rank.Visited[cellIndex] && rank.LayerByCell[cellIndex] == layer)
+                if (participatingCellIndexes.Contains(cellIndex)
+                    && rank.Visited[cellIndex]
+                    && rank.LayerByCell[cellIndex] == layer)
                 {
                     members.Add(cells[cellIndex]);
                 }
@@ -67,27 +103,155 @@ public static class DiagramResourceGroupCellFlowPlanner
             }
         }
 
-        List<DiagramResourceGroupPacker.ResourceGroupCell> unranked = [];
+        return layers.ConvertAll(static layer => (IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>)layer);
+    }
+
+    private static List<DiagramResourceGroupPacker.ResourceGroupCell> ResolveParticipatingCellsInSourceOrder(
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
+        IReadOnlySet<int> participatingCellIndexes)
+    {
+        List<DiagramResourceGroupPacker.ResourceGroupCell> participatingCells = [];
 
         for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
         {
-            if (!rank.Visited[cellIndex])
+            if (participatingCellIndexes.Contains(cellIndex))
             {
-                unranked.Add(cells[cellIndex]);
+                participatingCells.Add(cells[cellIndex]);
             }
         }
 
-        if (unranked.Count > 0)
+        return participatingCells;
+    }
+
+    private static List<DiagramResourceGroupPacker.ResourceGroupCell> ResolveUnrankedTail(
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
+        IReadOnlySet<int> participatingCellIndexes)
+    {
+        List<DiagramResourceGroupPacker.ResourceGroupCell> unrankedTail = [];
+
+        for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
         {
-            layers.Add(unranked);
+            if (!participatingCellIndexes.Contains(cellIndex))
+            {
+                unrankedTail.Add(cells[cellIndex]);
+            }
         }
 
-        return layers;
+        return unrankedTail;
+    }
+
+    private static HashSet<int> ResolveParticipatingCellIndexes(
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
+        IReadOnlyList<DiagramEdge> visibleEdges)
+    {
+        Dictionary<string, int> cellIndexByNodeId = BuildNodeCellIndex(cells);
+        HashSet<int> participatingCellIndexes = [];
+
+        foreach (DiagramEdge edge in visibleEdges)
+        {
+            if (edge is null || edge.IsLayoutOnly)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(edge.FromNodeId) || string.IsNullOrWhiteSpace(edge.ToNodeId))
+            {
+                continue;
+            }
+
+            if (!cellIndexByNodeId.TryGetValue(edge.FromNodeId, out int fromCell)
+                || !cellIndexByNodeId.TryGetValue(edge.ToNodeId, out int toCell))
+            {
+                continue;
+            }
+
+            if (fromCell == toCell)
+            {
+                continue;
+            }
+
+            participatingCellIndexes.Add(fromCell);
+            participatingCellIndexes.Add(toCell);
+        }
+
+        return participatingCellIndexes;
+    }
+
+    private static void SeatAdjacentCrossGroupCells(
+        List<DiagramResourceGroupPacker.ResourceGroupCell> ordered,
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> sourceCells,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        IReadOnlySet<int> participatingCellIndexes)
+    {
+        if (ordered.Count <= 1)
+        {
+            return;
+        }
+
+        Dictionary<string, int> cellIndexByNodeId = BuildNodeCellIndex(sourceCells);
+        Dictionary<int, DiagramResourceGroupPacker.ResourceGroupCell> cellBySourceIndex = [];
+
+        for (int cellIndex = 0; cellIndex < sourceCells.Count; cellIndex++)
+        {
+            cellBySourceIndex[cellIndex] = sourceCells[cellIndex];
+        }
+
+        List<(int FromCell, int ToCell)> crossGroupPairs = [];
+        HashSet<(int FromCell, int ToCell)> seenCellEdges = [];
+
+        foreach (DiagramEdge edge in visibleEdges)
+        {
+            if (edge is null || edge.IsLayoutOnly)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(edge.FromNodeId) || string.IsNullOrWhiteSpace(edge.ToNodeId))
+            {
+                continue;
+            }
+
+            if (!cellIndexByNodeId.TryGetValue(edge.FromNodeId, out int fromCell)
+                || !cellIndexByNodeId.TryGetValue(edge.ToNodeId, out int toCell))
+            {
+                continue;
+            }
+
+            if (fromCell == toCell
+                || !participatingCellIndexes.Contains(fromCell)
+                || !participatingCellIndexes.Contains(toCell)
+                || !seenCellEdges.Add((fromCell, toCell)))
+            {
+                continue;
+            }
+
+            crossGroupPairs.Add((fromCell, toCell));
+        }
+
+        foreach ((int fromCell, int toCell) in crossGroupPairs
+                     .OrderBy(pair => ordered.IndexOf(cellBySourceIndex[pair.FromCell]))
+                     .ThenBy(pair => ordered.IndexOf(cellBySourceIndex[pair.ToCell])))
+        {
+            DiagramResourceGroupPacker.ResourceGroupCell from = cellBySourceIndex[fromCell];
+            DiagramResourceGroupPacker.ResourceGroupCell to = cellBySourceIndex[toCell];
+            int fromPosition = ordered.IndexOf(from);
+            int toPosition = ordered.IndexOf(to);
+
+            if (fromPosition < 0 || toPosition < 0 || Math.Abs(fromPosition - toPosition) == 1)
+            {
+                continue;
+            }
+
+            ordered.RemoveAt(toPosition);
+            int insertPosition = fromPosition < toPosition ? fromPosition + 1 : fromPosition;
+            ordered.Insert(insertPosition, to);
+        }
     }
 
     private static CellRank RankCells(
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
-        IReadOnlyList<DiagramEdge> visibleEdges)
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        IReadOnlySet<int> participatingCellIndexes)
     {
         Dictionary<string, int> cellIndexByNodeId = BuildNodeCellIndex(cells);
         int[] inDegree = new int[cells.Count];
@@ -115,7 +279,9 @@ public static class DiagramResourceGroupCellFlowPlanner
             }
 
             // Intra-cell edges do not change how sibling cells pack horizontally.
-            if (fromCell == toCell)
+            if (fromCell == toCell
+                || !participatingCellIndexes.Contains(fromCell)
+                || !participatingCellIndexes.Contains(toCell))
             {
                 continue;
             }
@@ -135,7 +301,7 @@ public static class DiagramResourceGroupCellFlowPlanner
 
         for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
         {
-            if (inDegree[cellIndex] == 0)
+            if (participatingCellIndexes.Contains(cellIndex) && inDegree[cellIndex] == 0)
             {
                 queue.Enqueue(cellIndex);
             }

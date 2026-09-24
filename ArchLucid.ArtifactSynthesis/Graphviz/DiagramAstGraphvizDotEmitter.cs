@@ -67,7 +67,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             EmitNestedGraph(ast, builder, renderableSubgraphs, resourceGroupClusteredNodeIds);
         }
 
-        EmitVisibleEdges(ast, builder);
+        EmitVisibleEdges(ast, builder, resolvedOptions.IncludeCrossGroupFanOut);
 
         builder.Append('}');
 
@@ -275,9 +275,16 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}{graphvizId} [label={label}];");
     }
 
-    private static void EmitVisibleEdges(DiagramAst ast, StringBuilder builder)
+    private static void EmitVisibleEdges(DiagramAst ast, StringBuilder builder, bool includeCrossGroupFanOut)
     {
-        foreach (DiagramEdge edge in DiagramExecutiveOverflowCanvasExclusion.CanvasVisibleEdges(ast.Nodes, ast.Edges))
+        IReadOnlyList<DiagramNode> renderableNodes = ast.Nodes
+            .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
+            .ToList();
+
+        foreach (DiagramEdge edge in DiagramCrossGroupFanOutCanvasExclusion.FilterCanvasEdges(
+                     renderableNodes,
+                     DiagramExecutiveOverflowCanvasExclusion.CanvasVisibleEdges(ast.Nodes, ast.Edges),
+                     includeCrossGroupFanOut))
         {
             string fromId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.FromNodeId));
             string toId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.ToNodeId));
