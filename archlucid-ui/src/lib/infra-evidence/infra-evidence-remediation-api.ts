@@ -79,12 +79,12 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
       findingRaw == null
         ? null
         : {
-            findingId: String(findingRaw.findingId ?? ""),
-            title: String(findingRaw.title ?? ""),
-            severity: findingRaw.severity != null ? String(findingRaw.severity) : null,
-            status: findingRaw.status != null ? String(findingRaw.status) : null,
-            cloudResourceId: findingRaw.cloudResourceId != null ? String(findingRaw.cloudResourceId) : null,
-            controlId: findingRaw.controlId != null ? String(findingRaw.controlId) : null,
+            findingId: typeof findingRaw.findingId === "string" ? findingRaw.findingId : "",
+            title: typeof findingRaw.title === "string" ? findingRaw.title : "",
+            severity: typeof findingRaw.severity === "string" ? findingRaw.severity : null,
+            status: typeof findingRaw.status === "string" ? findingRaw.status : null,
+            cloudResourceId: typeof findingRaw.cloudResourceId === "string" ? findingRaw.cloudResourceId : null,
+            controlId: typeof findingRaw.controlId === "string" ? findingRaw.controlId : null,
           },
     activeMatch:
       matchRaw == null
