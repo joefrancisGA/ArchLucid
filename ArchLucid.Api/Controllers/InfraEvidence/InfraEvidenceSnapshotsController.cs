@@ -179,6 +179,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         Guid snapshotId,
         [FromQuery] bool includeNeverShow = false,
         [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -191,7 +192,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     snapshotId,
                     includeNeverShow,
                     cancellationToken,
-                    includePrivateEndpointNodes);
+                    includePrivateEndpointNodes,
+                    includeRecoveryServices);
 
             if (result.IsNotFound)
             {
@@ -228,6 +230,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] bool includeNeverShow = false,
         [FromQuery] string? hideTiers = null,
         [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -244,7 +247,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     includeNeverShow,
                     hideTiers,
                     cancellationToken,
-                    includePrivateEndpointNodes);
+                    includePrivateEndpointNodes,
+                    includeRecoveryServices);
 
             if (result.IsNotFound)
             {
@@ -289,6 +293,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] bool includeNeverShow = false,
         [FromQuery] string? hideTiers = null,
         [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -304,7 +309,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                 includeNeverShow,
                 hideTiers,
                 cancellationToken,
-                includePrivateEndpointNodes);
+                includePrivateEndpointNodes,
+                includeRecoveryServices);
 
             if (result.IsNotFound)
             {

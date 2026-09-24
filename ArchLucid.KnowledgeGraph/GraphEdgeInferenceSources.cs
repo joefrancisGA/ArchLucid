@@ -92,6 +92,10 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAvdSessionHostToVm = "inventory-avd-session-host-to-vm";
 
+    public const string InventoryRecoveryServicesProtects = "inventory-recovery-services-protects";
+
+    public const string InventoryRecoveryServicesReplicates = "inventory-recovery-services-replicates";
+
     public const string InventoryNicNsg = "inventory-nic-nsg";
 
     public const string InventorySubnetNsg = "inventory-subnet-nsg";

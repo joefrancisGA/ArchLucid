@@ -21,6 +21,8 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
     private const string PolicyAssignmentsApiVersion = "2022-06-01";
     private const string DiagnosticSettingsApiVersion = "2021-05-01-preview";
     private const string SecureScoresApiVersion = "2020-01-01";
+    private const string BackupProtectedItemsApiVersion = "2023-04-01";
+    private const string ReplicationProtectedItemsApiVersion = "2021-11-01";
     private const int MaxPaginationRequests = 64;
 
     private readonly HttpClient _httpClient =
@@ -1602,5 +1604,138 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         string? parsed = element.GetString();
 
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed;
+    }
+
+    public Task<HostedAzureVaultProtectedItemListResult> ListVaultBackupProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        CancellationToken cancellationToken)
+    {
+        return ListVaultProtectedItemsAsync(
+            accessToken,
+            vaultResourceId,
+            "backupProtectedItems",
+            BackupProtectedItemsApiVersion,
+            cancellationToken);
+    }
+
+    public Task<HostedAzureVaultProtectedItemListResult> ListVaultReplicationProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        CancellationToken cancellationToken)
+    {
+        return ListVaultProtectedItemsAsync(
+            accessToken,
+            vaultResourceId,
+            "replicationProtectedItems",
+            ReplicationProtectedItemsApiVersion,
+            cancellationToken);
+    }
+
+    private async Task<HostedAzureVaultProtectedItemListResult> ListVaultProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        string childCollectionName,
+        string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(vaultResourceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(childCollectionName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(apiVersion);
+
+        List<JsonElement> items = [];
+        string trimmedVaultId = vaultResourceId.Trim();
+        string? nextLink =
+            $"https://management.azure.com/{trimmedVaultId}/{childCollectionName}?api-version={apiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor stopped {ChildCollection} listing for vault {VaultId} after {MaxPages} pages.",
+                        childCollectionName,
+                        trimmedVaultId,
+                        MaxPaginationRequests);
+                }
+
+                return new HostedAzureVaultProtectedItemListResult
+                {
+                    Items = items,
+                    Succeeded = false,
+                    HttpStatusCode = 429,
+                };
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped {ChildCollection} for vault {VaultId}; HTTP {StatusCode}.",
+                        childCollectionName,
+                        trimmedVaultId,
+                        (int)response.StatusCode);
+                }
+
+                return new HostedAzureVaultProtectedItemListResult
+                {
+                    Items = items,
+                    Succeeded = false,
+                    HttpStatusCode = (int)response.StatusCode,
+                };
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    items.Add(item.Clone());
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return new HostedAzureVaultProtectedItemListResult
+        {
+            Items = items,
+            Succeeded = true,
+        };
     }
 }

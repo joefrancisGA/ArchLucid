@@ -251,6 +251,11 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotRecoveryServicesEdgeHydrator.AddMissingProtectionEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotParentChildEdgeHydrator.AddMissingContainsEdges(
             nodeIdByArmId,
             edges,

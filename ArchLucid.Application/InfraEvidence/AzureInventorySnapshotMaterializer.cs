@@ -242,7 +242,14 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.DependencyObservations,
                     inventory.DependencyObservationsFilePresent,
                     inventory.SqlDatabasePrincipals,
-                    inventory.SqlDatabasePrincipalsFilePresent);
+                    inventory.SqlDatabasePrincipalsFilePresent,
+                    inventory.RecoveryServicesProtectedItems,
+                    inventory.RecoveryServicesProtectedItemsFilePresent);
+
+            AppendRecoveryServicesVaultProtectedItemProperties(
+                resources,
+                properties,
+                inventory.RecoveryServicesProtectedItems);
 
             HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(resources);
             List<AzureInventoryResourceRelationshipWrite> visibleRelationships =
@@ -360,6 +367,53 @@ public sealed class AzureInventorySnapshotMaterializer(
         }
 
         return SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
+    }
+
+    private static void AppendRecoveryServicesVaultProtectedItemProperties(
+        IReadOnlyList<AzureInventoryResourceRecord> resources,
+        List<AzureInventoryResourcePropertyWrite> properties,
+        IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> protectedItems)
+    {
+        if (protectedItems.Count == 0)
+        {
+            return;
+        }
+
+        Dictionary<string, Guid> vaultRowIdsByArmId = resources
+            .Where(resource => string.Equals(
+                resource.ResourceType,
+                AzureInventoryRecoveryServices.VaultResourceType,
+                StringComparison.OrdinalIgnoreCase))
+            .GroupBy(resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First().ResourceRowId, StringComparer.OrdinalIgnoreCase);
+
+        foreach (IGrouping<string, AzureInventoryRecoveryServicesProtectedItemRow> vaultGroup in protectedItems
+                     .GroupBy(item => ArmResourceIdNormalizer.Normalize(item.VaultResourceId), StringComparer.OrdinalIgnoreCase))
+        {
+            if (!vaultRowIdsByArmId.TryGetValue(vaultGroup.Key, out Guid vaultRowId))
+            {
+                continue;
+            }
+
+            List<AzureInventoryRecoveryServicesProtectedItemRow> succeededItems = vaultGroup
+                .Where(item => item.CollectionStatus.Equals(
+                    AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+                    StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (succeededItems.Count == 0)
+            {
+                continue;
+            }
+
+            properties.Add(new AzureInventoryResourcePropertyWrite
+            {
+                ResourceRowId = vaultRowId,
+                PropertyKey = AzureInventoryRecoveryServices.ProtectedItemsPropertyKey,
+                PropertyValue = JsonSerializer.Serialize(succeededItems),
+                IsRedacted = false,
+            });
+        }
     }
 
     private static string? TryGetParentArmId(string normalizedArmId)

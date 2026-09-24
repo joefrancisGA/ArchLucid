@@ -14,6 +14,11 @@ public static class DiagramInventoryPictogramKindResolver
 
         string category = AzureInventoryTopologyCategory.Resolve(armType);
 
+        if (armType.Equals("Microsoft.RecoveryServices/vaults", StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagramInventoryPictogramKind.Compute;
+        }
+
         if (string.Equals(category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)
             || AzureInventoryTopologyCategory.IsMicrosoftNetworkProviderType(armType))
         {

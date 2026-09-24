@@ -47,4 +47,7 @@ public enum AzureInventoryRelationshipArmKind
 
     /// <summary>AVD host pool session host child resource.</summary>
     VirtualDesktopSessionHost = 32,
+
+    /// <summary>Recovery Services vault (RSV-03).</summary>
+    RecoveryServicesVault = 33,
 }
