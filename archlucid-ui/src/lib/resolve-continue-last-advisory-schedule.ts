@@ -72,17 +72,29 @@ export function resolveContinueLastAdvisorySchedule(
     return null;
   }
 
+  const validSchedules = normalizedSchedules.filter(
+    (schedule) =>
+      typeof schedule?.scheduleId === "string"
+      && typeof schedule?.name === "string"
+      && typeof schedule?.createdUtc === "string"
+      && (schedule?.nextRunUtc == null || typeof schedule.nextRunUtc === "string"),
+  );
+
+  if (validSchedules.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredScheduleId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedSchedules.find((schedule) => schedule.scheduleId === storedId);
+    const storedMatch = validSchedules.find((schedule) => schedule.scheduleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const soonest = normalizedSchedules.slice().sort(compareSoonestNextRun)[0];
+  const soonest = validSchedules.slice().sort(compareSoonestNextRun)[0];
 
   return soonest === undefined ? null : toTarget(soonest);
 }
