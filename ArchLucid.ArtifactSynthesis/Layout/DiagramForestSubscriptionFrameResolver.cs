@@ -2,17 +2,16 @@ using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
-/// <summary>Resolves the subscription-level page frame for subscription-scoped inventory views.</summary>
+/// <summary>
+/// Subscription bounding boxes are omitted for every inventory diagram type.
+/// Resource-group and virtual-network frames are unchanged.
+/// </summary>
 public static class DiagramForestSubscriptionFrameResolver
 {
     public static bool ShouldDraw(string title)
     {
         ArgumentNullException.ThrowIfNull(title);
-
-        return title.Contains("Azure inventory", StringComparison.OrdinalIgnoreCase)
-            && !title.Contains("(ResourceGroup)", StringComparison.OrdinalIgnoreCase)
-            && !title.Contains("(SelectedResources)", StringComparison.OrdinalIgnoreCase)
-            && !title.Contains("(DependencyNeighborhood)", StringComparison.OrdinalIgnoreCase);
+        return false;
     }
 
     public static DiagramForestNestedFrameBounds? Resolve(
