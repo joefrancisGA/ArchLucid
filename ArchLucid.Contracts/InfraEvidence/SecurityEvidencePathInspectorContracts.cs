@@ -130,6 +130,81 @@ public sealed class SecurityEvidencePathDetailResponse
         get;
         init;
     } = [];
+
+    public IReadOnlyList<SecureNowHypothesisResponse> Hypotheses
+    {
+        get;
+        init;
+    } = [];
+}
+
+public sealed class SecureNowHypothesisResponse
+{
+    public Guid HypothesisId
+    {
+        get;
+        init;
+    }
+
+    public string Kind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Status
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Reason
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string PathConfidenceBand
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public IReadOnlyList<Guid> CitedPathIds
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<Guid> CitedFindingIds
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<string> EvidenceReferences
+    {
+        get;
+        init;
+    } = [];
+
+    public string? SharedDependencyNodeId
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<string> DependentResourceIds
+    {
+        get;
+        init;
+    } = [];
+
+    public string? SeparationDimension
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class SecurityEvidencePathRoutingResponse
