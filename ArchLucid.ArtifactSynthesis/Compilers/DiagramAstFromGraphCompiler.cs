@@ -295,6 +295,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             SubgraphId = subgraphId,
             OrderKey = orderKey,
             CloudResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadCloudResourceId(node),
+            ArmResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmId(node),
             SeedNodeId = isOverflow ? null : node.NodeId,
             ArmResourceType = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmType(node),
             ArmResourceKind = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadKind(node),

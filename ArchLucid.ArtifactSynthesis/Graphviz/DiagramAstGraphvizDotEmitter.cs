@@ -229,20 +229,24 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}    fillcolor=\"{DiagramForestResourceGroupFrameStyle.Fill}\";");
         builder.AppendLine($"{indentText}    fontcolor=\"{DiagramForestResourceGroupFrameStyle.LabelFill}\";");
 
-        List<DiagramNode> nestedNodes = cluster.Nodes
-            .Where(candidate => candidate is not null)
-            .Where(candidate => IsNestedVnetOrSubnet(candidate, ast))
-            .ToList();
+        IReadOnlyList<DiagramResourceGroupGraphvizClusterPlanner.VnetClusterPlan> vnetClusters =
+            DiagramResourceGroupGraphvizClusterPlanner.PlanVnetClusters(ast, cluster);
+        HashSet<string> nestedNodeIds = vnetClusters
+            .SelectMany(vnetCluster => vnetCluster.Nodes)
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
 
-        if (nestedNodes.Count > 0)
+        foreach (DiagramResourceGroupGraphvizClusterPlanner.VnetClusterPlan vnetCluster in vnetClusters)
         {
-            string nestedClusterId = "cluster_vnet_" + GraphvizIdEscaper.SanitizeClusterId(cluster.ClusterId);
+            string nestedClusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(vnetCluster.ClusterId);
             builder.AppendLine($"{indentText}    subgraph {nestedClusterId} {{");
-            builder.AppendLine($"{indentText}        label=\"VNet / subnet\";");
-            builder.AppendLine($"{indentText}        style=\"rounded,dashed\";");
+            builder.AppendLine($"{indentText}        label={GraphvizIdEscaper.QuoteLabel(vnetCluster.Label)};");
+            builder.AppendLine($"{indentText}        style=\"rounded\";");
             builder.AppendLine($"{indentText}        color=\"#94a3b8\";");
+            builder.AppendLine($"{indentText}        penwidth=1.5;");
+            builder.AppendLine($"{indentText}        fillcolor=\"white\";");
 
-            foreach (DiagramNode node in nestedNodes.OrderBy(candidate => candidate.OrderKey))
+            foreach (DiagramNode node in vnetCluster.Nodes.Where(node => node.NodeId != vnetCluster.VnetNodeId))
             {
                 AppendNodeStatement(builder, indentText + "        ", node);
             }
@@ -252,7 +256,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         foreach (DiagramNode node in cluster.Nodes
                      .Where(candidate => candidate is not null)
-                     .Where(candidate => !nestedNodes.Any(nested => nested.NodeId == candidate.NodeId))
+                     .Where(candidate => !nestedNodeIds.Contains(candidate.NodeId))
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {
@@ -260,17 +264,6 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         }
 
         builder.AppendLine($"{indentText}}}");
-    }
-
-    private static bool IsNestedVnetOrSubnet(DiagramNode node, DiagramAst ast)
-    {
-        string type = node.ArmResourceType ?? string.Empty;
-
-        return type.Equals("Microsoft.Network/virtualNetworks", StringComparison.OrdinalIgnoreCase)
-            || type.Contains("Microsoft.Network/virtualNetworks/subnets", StringComparison.OrdinalIgnoreCase)
-            || ast.Edges.Any(edge =>
-                string.Equals(edge.ToNodeId, node.NodeId, StringComparison.Ordinal)
-                && string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
     }
 
     private static void AppendNodeStatement(StringBuilder builder, string indentText, DiagramNode node)
