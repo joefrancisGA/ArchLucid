@@ -51,7 +51,8 @@ public static class InfraEvidenceMermaidModeParser
             seedNodeId,
             hiddenExecutiveTierKeys: null,
             out result,
-            includePrivateEndpointNodes: false);
+            includePrivateEndpointNodes: false,
+            includeRecoveryServices: false);
     }
 
     /// <param name="hiddenExecutiveTierKeys">
@@ -63,7 +64,8 @@ public static class InfraEvidenceMermaidModeParser
         string? seedNodeId,
         string? hiddenExecutiveTierKeys,
         out InfraEvidenceMermaidModeParseResult result,
-        bool includePrivateEndpointNodes = false)
+        bool includePrivateEndpointNodes = false,
+        bool includeRecoveryServices = false)
     {
         if (string.IsNullOrWhiteSpace(mode))
         {
@@ -80,61 +82,67 @@ public static class InfraEvidenceMermaidModeParser
 
         if (string.Equals(normalized, "executive", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.Executive, "executive", BuildExecutiveCompileOptions(hiddenExecutiveTierKeys), includePrivateEndpointNodes);
+            result = Success(DiagramMode.Executive, "executive", BuildExecutiveCompileOptions(hiddenExecutiveTierKeys), includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, "architecture", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.Architecture, "architecture", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.Architecture, "architecture", null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, "network", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.Network, "network", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.Network, "network", null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, "security", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.Security, "security", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.Security, "security", null, includePrivateEndpointNodes, includeRecoveryServices);
+            return true;
+        }
+
+        if (string.Equals(normalized, "businessContinuity", StringComparison.OrdinalIgnoreCase))
+        {
+            result = Success(DiagramMode.BusinessContinuity, "businessContinuity", null, includePrivateEndpointNodes, includeRecoveryServices: false);
             return true;
         }
 
         if (string.Equals(normalized, "identity", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.Identity, "identity", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.Identity, "identity", null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, "data", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.Data, "data", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.Data, "data", null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, "dataFlow", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.DataFlow, "dataFlow", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.DataFlow, "dataFlow", null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, "dataArchitecture", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.DataArchitecture, "dataArchitecture", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.DataArchitecture, "dataArchitecture", null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, "full", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.FullSubscription, "full", null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.FullSubscription, "full", null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
         if (string.Equals(normalized, InventoryDiagramFallbackArtifactKeys.ResourceGroupModeKey, StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.ResourceGroup, InventoryDiagramFallbackArtifactKeys.ResourceGroupModeKey, null, includePrivateEndpointNodes);
+            result = Success(DiagramMode.ResourceGroup, InventoryDiagramFallbackArtifactKeys.ResourceGroupModeKey, null, includePrivateEndpointNodes, includeRecoveryServices);
             return true;
         }
 
@@ -157,7 +165,8 @@ public static class InfraEvidenceMermaidModeParser
                 DiagramMode.ResourceGroup,
                 $"resourceGroup:{resourceGroupName}",
                 new DiagramAstCompileOptions { ResourceGroupName = resourceGroupName },
-                includePrivateEndpointNodes);
+                includePrivateEndpointNodes,
+                includeRecoveryServices);
 
             return true;
         }
@@ -179,7 +188,8 @@ public static class InfraEvidenceMermaidModeParser
                 DiagramMode.DependencyNeighborhood,
                 "dependencyNeighborhood",
                 new DiagramAstCompileOptions { NeighborhoodSeedNodeId = seedNodeId.Trim() },
-                includePrivateEndpointNodes);
+                includePrivateEndpointNodes,
+                includeRecoveryServices);
 
             return true;
         }
@@ -206,7 +216,8 @@ public static class InfraEvidenceMermaidModeParser
                         ',',
                         StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                 },
-                includePrivateEndpointNodes);
+                includePrivateEndpointNodes,
+                includeRecoveryServices);
             return true;
         }
 
@@ -214,7 +225,7 @@ public static class InfraEvidenceMermaidModeParser
         {
             Succeeded = false,
             ErrorMessage =
-                "Unsupported mode. Use executive, architecture, network, security, identity, data, dataFlow, dataArchitecture, full, resourceGroup, resourceGroup:{name}, selectedResources, or dependencyNeighborhood.",
+                "Unsupported mode. Use executive, architecture, network, security, businessContinuity, identity, data, dataFlow, dataArchitecture, full, resourceGroup, resourceGroup:{name}, selectedResources, or dependencyNeighborhood.",
         };
 
         return false;
@@ -236,15 +247,17 @@ public static class InfraEvidenceMermaidModeParser
         DiagramMode diagramMode,
         string modeKey,
         DiagramAstCompileOptions? compileOptions,
-        bool includePrivateEndpointNodes)
+        bool includePrivateEndpointNodes,
+        bool includeRecoveryServices)
     {
         DiagramAstCompileOptions? resolvedOptions = compileOptions;
 
-        if (includePrivateEndpointNodes)
+        if (includePrivateEndpointNodes || includeRecoveryServices)
         {
             resolvedOptions = CopyOptions(
                 compileOptions,
-                includePrivateEndpointNodes: true);
+                includePrivateEndpointNodes,
+                includeRecoveryServices);
         }
 
         return new InfraEvidenceMermaidModeParseResult
@@ -258,7 +271,8 @@ public static class InfraEvidenceMermaidModeParser
 
     private static DiagramAstCompileOptions CopyOptions(
         DiagramAstCompileOptions? options,
-        bool includePrivateEndpointNodes)
+        bool includePrivateEndpointNodes,
+        bool includeRecoveryServices)
     {
         return new DiagramAstCompileOptions
         {
@@ -270,6 +284,8 @@ public static class InfraEvidenceMermaidModeParser
             CollapseToBackboneKeep = options?.CollapseToBackboneKeep ?? false,
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
             IncludePrivateEndpointNodes = includePrivateEndpointNodes,
+            IncludeRecoveryServices = includeRecoveryServices,
+            RecoveryServicesCollectionIncomplete = options?.RecoveryServicesCollectionIncomplete ?? false,
         };
     }
 }

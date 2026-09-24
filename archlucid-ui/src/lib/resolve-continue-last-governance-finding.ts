@@ -29,14 +29,22 @@ function findingKeyFromRecentHref(href: string): { readonly runId: string; reado
     return null;
   }
 
-  const runId = decodeURIComponent(match[1] ?? "").trim();
-  const findingId = decodeURIComponent(match[2] ?? "").trim();
+  try {
+    const runId = decodeURIComponent(match[1] ?? "").trim();
+    const findingId = decodeURIComponent(match[2] ?? "").trim();
 
-  if (runId.length === 0 || findingId.length === 0) {
-    return null;
+    if (runId.length === 0 || findingId.length === 0) {
+      return null;
+    }
+
+    return { runId, findingId };
+  } catch (error) {
+    if (error instanceof URIError) {
+      return null;
+    }
+
+    throw error;
   }
-
-  return { runId, findingId };
 }
 
 function readRecentFindingKey(): { readonly runId: string; readonly findingId: string } | null {
@@ -109,7 +117,14 @@ export function resolveContinueLastGovernanceFinding(
     return null;
   }
 
-  const findingRows = normalizedRows.filter((row) => row.recordKind === "finding");
+  const findingRows = normalizedRows.filter(
+    (row) =>
+      row?.recordKind === "finding"
+      && typeof row?.runId === "string"
+      && typeof row?.findingId === "string"
+      && typeof row?.title === "string"
+      && (row?.agingDays == null || typeof row.agingDays === "number"),
+  );
 
   if (findingRows.length === 0) {
     if (options?.allowRecentWithoutLoadedRow === true) {

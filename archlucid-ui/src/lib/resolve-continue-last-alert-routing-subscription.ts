@@ -77,10 +77,22 @@ export function resolveContinueLastAlertRoutingSubscription(
     return null;
   }
 
+  const validSubscriptions = normalizedSubscriptions.filter(
+    (subscription) =>
+      typeof subscription?.routingSubscriptionId === "string"
+      && typeof subscription?.name === "string"
+      && typeof subscription?.createdUtc === "string"
+      && (subscription?.lastDeliveredUtc == null || typeof subscription.lastDeliveredUtc === "string"),
+  );
+
+  if (validSubscriptions.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredSubscriptionId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedSubscriptions.find(
+    const storedMatch = validSubscriptions.find(
       (subscription) => subscription.routingSubscriptionId === storedId,
     );
 
@@ -89,7 +101,7 @@ export function resolveContinueLastAlertRoutingSubscription(
     }
   }
 
-  const mostRecent = normalizedSubscriptions.slice().sort(compareMostRecentDelivery)[0];
+  const mostRecent = validSubscriptions.slice().sort(compareMostRecentDelivery)[0];
 
   return mostRecent === undefined ? null : toTarget(mostRecent);
 }

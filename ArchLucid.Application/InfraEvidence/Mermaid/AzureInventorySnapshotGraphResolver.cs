@@ -235,12 +235,23 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotDatabricksAccessConnectorEdgeHydrator.AddMissingAccessConnectorEdges(
+            snapshot,
+            nodeIdByArmId,
+            nodes,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotSameResourceGroupEdgeHydrator.AddMissingCollocationEdges(
             snapshot,
             nodeIdByArmId,
             edges,
             edgeKeys);
         AzureInventorySnapshotDiagnosticEdgeHydrator.AddMissingDiagnosticEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
+        AzureInventorySnapshotRecoveryServicesEdgeHydrator.AddMissingProtectionEdges(
             snapshot,
             nodeIdByArmId,
             edges,

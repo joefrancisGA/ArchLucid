@@ -76,8 +76,9 @@ export function resolveContinueLastCompositeAlertRule(
   }
 
   const newest = validRules
+    .filter((rule) => typeof rule.createdUtc === "string" && !Number.isNaN(Date.parse(rule.createdUtc)))
     .slice()
-    .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
+    .sort((left, right) => Date.parse(right.createdUtc) - Date.parse(left.createdUtc))[0];
 
   return newest === undefined ? null : toTarget(newest);
 }

@@ -42,8 +42,12 @@ export function SponsorDashboardBaselineWarningBanner({
       return;
     }
 
-    if (window.sessionStorage.getItem(SPONSOR_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY) === "1") {
-      setSessionDismissed(true);
+    try {
+      if (window.sessionStorage.getItem(SPONSOR_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY) === "1") {
+        setSessionDismissed(true);
+      }
+    } catch {
+      setSessionDismissed(false);
     }
   }, []);
 
@@ -107,7 +111,11 @@ export function SponsorDashboardBaselineWarningBanner({
         className="self-end border-neutral-400 text-al-text-primary sm:self-start dark:border-neutral-600"
         onDismiss={() => {
           if (typeof window !== "undefined") {
-            window.sessionStorage.setItem(SPONSOR_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY, "1");
+            try {
+              window.sessionStorage.setItem(SPONSOR_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY, "1");
+            } catch {
+              // Session storage may be unavailable.
+            }
           }
 
           setSessionDismissed(true);

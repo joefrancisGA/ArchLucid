@@ -101,7 +101,8 @@ function coerceArchitectureFindingSeverityValue(raw: unknown): number {
   }
 
   if (typeof raw === "string") {
-    const parsed = Number.parseInt(raw, 10);
+    const trimmed = raw.trim();
+    const parsed = /^-?\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : Number.NaN;
 
     if (!Number.isNaN(parsed)) {
       return Math.max(0, Math.min(3, parsed));
