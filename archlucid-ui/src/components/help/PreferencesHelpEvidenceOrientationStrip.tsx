@@ -1,9 +1,11 @@
+"use client";
+
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
   PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -21,7 +23,8 @@ export type PreferencesHelpEvidenceOrientationStripProps = {
 export function PreferencesHelpEvidenceOrientationStrip(
   props: PreferencesHelpEvidenceOrientationStripProps = {},
 ): React.JSX.Element {
-  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+  const { productLine } = useProductLine();
+  const productLineId = props.productLineId ?? productLine;
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
