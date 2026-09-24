@@ -31,7 +31,13 @@ export function TrialWelcomeRunDeepLink() {
       return;
     }
 
-    const alreadyRedirected = window.sessionStorage.getItem(SESSION_KEY);
+    let alreadyRedirected: string | null = null;
+
+    try {
+      alreadyRedirected = window.sessionStorage.getItem(SESSION_KEY);
+    } catch {
+      alreadyRedirected = null;
+    }
 
     // Same welcome id (returning home) or explicit e2e suppress — never start a competing navigation.
     if (
