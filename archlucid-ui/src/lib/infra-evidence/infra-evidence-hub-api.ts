@@ -179,14 +179,26 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
 
   const mapRemediationStream = (stream: Record<string, unknown> | undefined) => ({
     items: Array.isArray(stream?.items)
-      ? stream.items.map((item) => {
+      ? stream.items.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            instanceId: String(row.instanceId ?? ""),
-            patternKey: String(row.patternKey ?? ""),
-            status: String(row.status ?? ""),
-          };
+          if (
+            typeof row.instanceId !== "string"
+            || typeof row.patternKey !== "string"
+            || typeof row.status !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            instanceId: row.instanceId,
+            patternKey: row.patternKey,
+            status: row.status,
+          }];
         })
       : [],
     totalCount: Number(stream?.totalCount ?? 0),
