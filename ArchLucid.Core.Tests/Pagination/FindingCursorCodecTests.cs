@@ -54,4 +54,10 @@ public sealed class FindingCursorCodecTests
     {
         FindingCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("null")).Should().BeNull();
     }
+
+    [Fact]
+    public void FindingCursorCodec_TryDecode_MalformedJson_ReturnsNull()
+    {
+        FindingCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("{")).Should().BeNull();
+    }
 }
