@@ -35,7 +35,7 @@ function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSu
 
 function mapOperationResult(raw: Record<string, unknown>): RemediationInstanceOperationResult {
   return {
-    succeeded: Boolean(raw.succeeded),
+    succeeded: raw.succeeded === true,
     instanceId: raw.instanceId != null ? String(raw.instanceId) : null,
     status: raw.status != null ? String(raw.status) as RemediationInstanceOperationResult["status"] : null,
     blockers: Array.isArray(raw.blockers) ? raw.blockers.map((item) => String(item)) : [],
