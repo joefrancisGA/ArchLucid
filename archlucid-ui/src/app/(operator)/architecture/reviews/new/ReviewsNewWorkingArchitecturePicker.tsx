@@ -12,7 +12,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { startReviewFromArchitectureNestedHref } from "@/lib/architecture/architecture-routes";
+import { startReviewFromArchitectureNestedGuidedHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const REVIEWS_NEW_WORKING_ARCHITECTURE_PICKER_TITLE = "Pick an architecture to start a review";
@@ -62,7 +62,7 @@ export function ReviewsNewWorkingArchitecturePicker(): React.JSX.Element {
                 <EnterpriseTableCell>{item.displayName}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <Link
-                    href={startReviewFromArchitectureNestedHref(item.architectureId)}
+                    href={startReviewFromArchitectureNestedGuidedHref(item.architectureId)}
                     className={OPERATOR_LINK.nav}
                     data-testid={`reviews-new-pick-architecture-${item.architectureId}`}
                   >

@@ -48,6 +48,7 @@ const GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS =
 
 export type SocraticIntakeWizardStepScopeProps = {
   readonly isCreateArchitectureFlow: boolean;
+  readonly requiresSystemName: boolean;
   readonly busy: boolean;
   readonly systemName: string;
   readonly setSystemName: (value: string) => void;
@@ -79,6 +80,7 @@ export type SocraticIntakeWizardStepScopeProps = {
 
 export function SocraticIntakeWizardStepScope({
   isCreateArchitectureFlow,
+  requiresSystemName,
   busy,
   systemName,
   setSystemName,
@@ -212,7 +214,11 @@ export function SocraticIntakeWizardStepScope({
         ) : (
           <>
             <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-              <IntakeFieldLabel htmlFor="socratic-system-name" label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL} required={false} />
+              <IntakeFieldLabel
+                htmlFor="socratic-system-name"
+                label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
+                required={requiresSystemName}
+              />
               <Input
                 id="socratic-system-name"
                 value={systemName}

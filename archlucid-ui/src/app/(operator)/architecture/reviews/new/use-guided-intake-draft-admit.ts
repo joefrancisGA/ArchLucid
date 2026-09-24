@@ -80,10 +80,14 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
       let expectedUpdatedUtc: string | null = null;
 
       if (id === null) {
+        // Pass the system name at creation so the identity is named after it: the server names a
+        // new identity from the draft document at create time, and the later patch only upgrades
+        // identities that are still "Untitled".
         const created = await createDraftRequest(
           freeTextIntent.trim(),
           isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
           priorRunId,
+          systemName,
         );
         id = created.draftId;
         expectedUpdatedUtc = created.updatedUtc;
