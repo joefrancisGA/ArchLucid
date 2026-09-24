@@ -40,20 +40,21 @@ def repo_root() -> Path:
 
 def should_skip_target(raw: str) -> bool:
     t = raw.strip()
+    lower = t.lower()
 
     if not t or t.startswith("#"):
         return True
 
-    if t.startswith("http://") or t.startswith("https://"):
+    if lower.startswith("http://") or lower.startswith("https://"):
         return True
 
-    if t.startswith("mailto:") or t.startswith("tel:"):
+    if lower.startswith("mailto:") or lower.startswith("tel:"):
         return True
 
     if "{" in t or "*" in t:
         return True
 
-    if t.startswith("vscode:") or t.startswith("javascript:"):
+    if lower.startswith("vscode:") or lower.startswith("javascript:"):
         return True
 
     return False
