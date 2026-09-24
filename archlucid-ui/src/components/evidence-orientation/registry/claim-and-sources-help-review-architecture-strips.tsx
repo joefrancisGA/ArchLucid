@@ -34,6 +34,7 @@ import {
   resolveDataHandlingTenantIsolationHelpOrientationSources,
   resolveDataHandlingTenantIsolationHelpSourcesIntro,
 } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID } from "@/lib/architecture-drafts-help-guide-content";
 import {
@@ -146,9 +147,9 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
 }
 
 export function DataHandlingTenantIsolationHelpEvidenceOrientationStrip(
-  props: { readonly readingBodyClassName?: string } = {},
+  props: { readonly readingBodyClassName?: string; readonly productLineId?: ProductLineId } = {},
 ): React.JSX.Element {
-  const productLineId = resolveProductLineIdFromEnv();
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
