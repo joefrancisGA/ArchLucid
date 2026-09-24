@@ -63,7 +63,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 renderableNodes,
                 ast.Subgraphs,
                 resolvedOptions,
-                labelContext);
+                labelContext,
+                visibleEdges);
             dataFlowColumns = dataFlowLayout.Columns;
             placements = dataFlowLayout.Placements
                 .Select(placement => new NodePlacement(
@@ -676,6 +677,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
         List<(double X, double Y)> placedLabelCenters = [];
+        List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted = [];
 
         foreach (DiagramEdge edge in visibleEdges)
         {
@@ -740,8 +742,20 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                         placementBounds,
                         routeFromNodeId,
                         routeToNodeId);
-                route = DiagramForestOrthogonalEdgeRouter.Route(fromX, fromY, toX, toY, obstacles);
+                double? extraVerticalChannelX = fromX <= toX
+                    ? fromX + options.NodeHorizontalGap
+                    : fromX - options.NodeHorizontalGap;
+                route = DiagramForestOrthogonalEdgeRouter.Route(
+                    fromX,
+                    fromY,
+                    toX,
+                    toY,
+                    obstacles,
+                    alreadyRouted,
+                    extraVerticalChannelX);
             }
+
+            alreadyRouted.Add(route.Segments);
             bool suppressOnPathLabel = DiagramForestEdgeLabelCollapse.ShouldSuppressOnPathLabel(
                 edge,
                 suppressedEdgeKeys);
