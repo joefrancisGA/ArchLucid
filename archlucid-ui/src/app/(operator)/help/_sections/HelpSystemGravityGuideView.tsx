@@ -1,5 +1,11 @@
 import Link from "next/link";
 
+import { HelpSystemGravityRecoverLinks } from "@/app/(operator)/help/_sections/HelpSystemGravityRecoverLinks";
+import {
+  HelpSystemGravityPracticeTag,
+  HelpSystemGravityRecordPracticeTags,
+  HelpSystemGravityRecordTag,
+} from "@/app/(operator)/help/_sections/HelpSystemGravityRecordPracticeTags";
 import { HelpSystemGravityTechnicalReference } from "@/app/(operator)/help/_sections/HelpSystemGravityTechnicalReference";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -23,17 +29,20 @@ import {
   SYSTEM_GRAVITY_HELP_APPLICABILITY_GUIDED,
   SYSTEM_GRAVITY_HELP_APPLICABILITY_WORKING,
   SYSTEM_GRAVITY_HELP_CLAIM_DISCIPLINE,
-  SYSTEM_GRAVITY_HELP_CONCEPT_TILES,
   SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS,
   SYSTEM_GRAVITY_HELP_ERROR_RECOVERY,
-  SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK,
   SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_HEADING,
   SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS,
   SYSTEM_GRAVITY_HELP_KEYBOARD_INTRO,
   SYSTEM_GRAVITY_HELP_KEYBOARD_ROWS,
   SYSTEM_GRAVITY_HELP_OVERVIEW,
   SYSTEM_GRAVITY_HELP_PAGE_SUBTITLE,
-  SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_BODY,
+  SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_HEADING,
+  SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_INTRO,
+  SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_PRACTICE_EFFECTS,
+  SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_RECORD_EFFECTS,
+  SYSTEM_GRAVITY_HELP_RECORD_WHAT_IF_CAP_BODY,
+  SYSTEM_GRAVITY_HELP_RECORD_WHAT_IF_CAP_LINK,
   SYSTEM_GRAVITY_HELP_RELATED_LINKS,
   SYSTEM_GRAVITY_HELP_RELATED_TOPICS_HEADING,
   SYSTEM_GRAVITY_HELP_RELATED_TOPICS_HEADING_ID,
@@ -188,11 +197,15 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
             <p className={readingBodyClass} data-testid="help-system-gravity-overview">
               {SYSTEM_GRAVITY_HELP_OVERVIEW}
             </p>
+          </div>
 
-            <dl
-              className={cn("m-0 grid max-w-3xl gap-3", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-system-gravity-desk-home-definitions"
-            >
+          <section
+            aria-labelledby="help-system-gravity-key-terms"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-system-gravity-desk-home-definitions"
+          >
+            <HelpSectionHeading id="help-system-gravity-key-terms">Key terms</HelpSectionHeading>
+            <dl className={cn("m-0 grid max-w-3xl gap-3", HELP_PAGE_LAYOUT.readingBody)}>
               {SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS.map((row) => (
                 <div key={row.term}>
                   <dt className="font-medium text-al-text-primary">{row.term}</dt>
@@ -200,53 +213,6 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
                 </div>
               ))}
             </dl>
-          </div>
-
-          <section
-            aria-labelledby="what-system-gravity-shows"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-            data-testid="help-system-gravity-concept-tiles"
-          >
-            <HelpSectionHeading id="what-system-gravity-shows">
-              Architecture desk, nested review, and inspector
-            </HelpSectionHeading>
-            <div className="grid gap-4 md:grid-cols-3">
-              {SYSTEM_GRAVITY_HELP_CONCEPT_TILES.map((tile) => (
-                <article
-                  key={tile.id}
-                  className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-                  data-testid={`help-system-gravity-tile-${tile.id}`}
-                >
-                  <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{tile.title}</h3>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{tile.body}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section
-            aria-labelledby="help-system-gravity-applicability"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-            data-testid="help-system-gravity-applicability"
-          >
-            <HelpSectionHeading id="help-system-gravity-applicability">Scope and seat applicability</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-system-gravity-seat-working">
-              {SYSTEM_GRAVITY_HELP_APPLICABILITY_WORKING}
-            </p>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-system-gravity-seat-guided">
-              {SYSTEM_GRAVITY_HELP_APPLICABILITY_GUIDED}
-            </p>
-          </section>
-
-          <section
-            aria-labelledby="help-system-gravity-record-practice"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-            data-testid="help-system-gravity-record-practice"
-          >
-            <HelpSectionHeading id="help-system-gravity-record-practice">Record vs Practice desk verbs</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-system-gravity-record-practice-body">
-              {SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_BODY}
-            </p>
           </section>
 
           <section
@@ -270,17 +236,54 @@ export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProp
                 <dt className="font-medium text-al-text-primary">Recover</dt>
                 <dd className="m-0 mt-1 text-al-text-secondary">
                   {SYSTEM_GRAVITY_HELP_ERROR_RECOVERY.recover}{" "}
-                  <Link
-                    className={OPERATOR_LINK.inline}
-                    href={SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK.href}
-                    data-testid="help-system-gravity-recover-architecture-list"
-                  >
-                    {SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK.label}
-                  </Link>
-                  .
+                  <HelpSystemGravityRecoverLinks />.
                 </dd>
               </div>
             </dl>
+          </section>
+
+          <section
+            aria-labelledby="help-system-gravity-applicability"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-system-gravity-applicability"
+          >
+            <HelpSectionHeading id="help-system-gravity-applicability">Scope and seat applicability</HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-system-gravity-seat-working">
+              {SYSTEM_GRAVITY_HELP_APPLICABILITY_WORKING}
+            </p>
+            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-system-gravity-seat-guided">
+              {SYSTEM_GRAVITY_HELP_APPLICABILITY_GUIDED}
+            </p>
+          </section>
+
+          <section
+            aria-labelledby="help-system-gravity-record-practice"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-system-gravity-record-practice"
+          >
+            <HelpSectionHeading id="help-system-gravity-record-practice">
+              {SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_HEADING}
+            </HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-system-gravity-record-practice-intro">
+              <HelpSystemGravityRecordPracticeTags /> — {SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_INTRO}
+            </p>
+            <p className={readingBodyClass} data-testid="help-system-gravity-record-practice-record-effects">
+              <HelpSystemGravityRecordTag /> — {SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_RECORD_EFFECTS}
+            </p>
+            <p className={readingBodyClass} data-testid="help-system-gravity-record-practice-practice-effects">
+              <HelpSystemGravityPracticeTag /> — {SYSTEM_GRAVITY_HELP_RECORD_PRACTICE_PRACTICE_EFFECTS}
+            </p>
+            <p className={readingBodyClass} data-testid="help-system-gravity-record-what-if-cap">
+              {SYSTEM_GRAVITY_HELP_RECORD_WHAT_IF_CAP_BODY}{" "}
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={SYSTEM_GRAVITY_HELP_RECORD_WHAT_IF_CAP_LINK.href}
+                data-testid="help-system-gravity-record-what-if-cap-link"
+              >
+                {SYSTEM_GRAVITY_HELP_RECORD_WHAT_IF_CAP_LINK.label}
+              </Link>
+              .
+            </p>
           </section>
 
           <section

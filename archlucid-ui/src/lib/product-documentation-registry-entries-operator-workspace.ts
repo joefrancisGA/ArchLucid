@@ -362,11 +362,11 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
   {
     "slug": "system-gravity",
     "title": "System gravity",
-    "summary": "Working orientation — architecture desk is the instrument after spawn; nested review-detail is a job inspector, not Monday Home. Record and Practice terms per ADR 0097.",
+    "summary": "Working orientation — architecture desk is the instrument after desk lock; nested architecture package review is an inspector, not Working Home. Record and Practice desk verbs per ADR 0097.",
     "audience": "operator",
     "sourcePaths": [],
     "lastReviewed": "2026-09-12",
-    "releaseApplicability": "System-gravity help (SG-107 / ADR 0098)",
+    "releaseApplicability": "System-gravity help (SG-107)",
   },
   {
     "slug": "sketch-a-change",
