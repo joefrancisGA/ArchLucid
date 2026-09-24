@@ -29,7 +29,7 @@ export function demoRunAliasRedirectDestinationPath(pathname: string): string | 
     const runIdSegment = safeDecodePathSegment(reviews[1]);
     const tail = reviews[2] ?? "";
 
-    if (demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
+    if (runIdSegment !== null && demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
       const canon = canonicalizeDemoRunId(runIdSegment);
 
       return `/architecture/reviews/${encodeURIComponent(canon)}${tail}`;
