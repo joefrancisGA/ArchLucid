@@ -18,6 +18,21 @@ def _payload(**tag_p95: float) -> dict:
 
 
 class AssertK6CiSmokeSummaryTests(unittest.TestCase):
+    def test_nonfinite_environment_cap_is_rejected(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(_payload(**{"http_req_duration{k6api:version}": 999999}), tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run(
+                [PYTHON, str(SCRIPT), str(tmp_path), "--per-tag-k6-api-smoke"],
+                capture_output=True, text=True,
+                env={**os.environ, "ARCHLUCID_K6_P95_TIER2_MS": "nan"},
+            )
+            self.assertEqual(proc.returncode, 1, proc.stderr)
+            self.assertIn("invalid k6 p95 cap", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
     def test_nonfinite_latency_cap_is_rejected(self):
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
             json.dump(_payload(**{"http_req_duration": 999999}), tmp)

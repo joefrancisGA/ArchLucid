@@ -66,6 +66,10 @@ def _k6_api_smoke_tag_caps() -> dict[str, float]:
         caps["http_req_duration{k6api:pilot_commit}"] = commit
         caps["http_req_duration{k6api:artifacts_list}"] = tier2
 
+    for metric_name, cap in caps.items():
+        if not math.isfinite(cap) or cap <= 0:
+            raise ValueError(f"invalid k6 p95 cap for {metric_name}: {cap!r}")
+
     return caps
 
 
