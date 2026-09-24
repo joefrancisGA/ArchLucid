@@ -37,7 +37,7 @@ internal sealed class ReturnTriggerTelemetryRunner
         {
             RepositoryRoot = repositoryRoot,
             LedgerDirectory = ledgerDirectory,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             OverallVerdict = overallVerdict,
             Checks = checks,
             CohortMetrics = metrics,

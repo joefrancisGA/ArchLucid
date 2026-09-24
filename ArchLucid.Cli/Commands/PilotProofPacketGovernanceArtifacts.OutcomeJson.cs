@@ -18,7 +18,7 @@ internal static partial class PilotProofPacketGovernanceArtifacts
         Dictionary<string, object?> payload = new(StringComparer.Ordinal)
         {
             ["schema"] = "archlucid.proof-packet.governance-outcome.v1",
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["runId"] = runId,
             ["governanceBlockingDecision"] = disposition == "PASS" ? "none" : "review_required",
             ["proofDisposition"] = disposition,
@@ -60,7 +60,7 @@ internal static partial class PilotProofPacketGovernanceArtifacts
         Dictionary<string, object?> payload = new(StringComparer.Ordinal)
         {
             ["schema"] = "archlucid.proof-packet.audit-evidence-summary.v1",
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["runId"] = runId,
             ["disposition"] = disposition,
             ["auditRowCount"] = auditRowCount,
@@ -154,7 +154,7 @@ internal static partial class PilotProofPacketGovernanceArtifacts
         Dictionary<string, object?> payload = new(StringComparer.Ordinal)
         {
             ["schema"] = "archlucid.proof-packet.scale-envelope.v1",
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["runId"] = runId,
             ["apiBaseUrlRedacted"] = apiBaseRedacted,
             ["timeToCommittedManifestSeconds"] = commitSeconds,
