@@ -29,10 +29,11 @@ function normalizeCloudPlatformScope(
   parsed: Partial<Record<CloudPlatformId, boolean>> | null | undefined,
 ): CloudPlatformScope {
   return {
-    "evidence-only": parsed?.["evidence-only"] ?? true,
-    azure: parsed?.azure ?? true,
-    aws: parsed?.aws ?? true,
-    gcp: parsed?.gcp ?? true,
+    "evidence-only":
+      typeof parsed?.["evidence-only"] === "boolean" ? parsed["evidence-only"] : true,
+    azure: typeof parsed?.azure === "boolean" ? parsed.azure : true,
+    aws: typeof parsed?.aws === "boolean" ? parsed.aws : true,
+    gcp: typeof parsed?.gcp === "boolean" ? parsed.gcp : true,
   };
 }
 
