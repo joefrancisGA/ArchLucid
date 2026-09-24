@@ -23,7 +23,7 @@ export function InfraEvidenceWorkbenchBuildProvenanceStrip(
       data-testid={props.testId}
       role="note"
     >
-      <strong>Provenance limitation:</strong>
+      {GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION}
     </p>
   );
 }
