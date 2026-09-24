@@ -59,7 +59,11 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
 
   const dismiss = useCallback(() => {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(DISMISS_KEY, "1");
+      try {
+        window.localStorage.setItem(DISMISS_KEY, "1");
+      } catch {
+        // Storage may be unavailable.
+      }
     }
 
     setVisible(false);
