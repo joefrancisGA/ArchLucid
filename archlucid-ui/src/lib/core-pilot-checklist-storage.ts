@@ -179,8 +179,12 @@ export function readPilotChecklistPanelState(): PilotChecklistPanelPersisted {
 
   const steps: boolean[] = [];
 
-  for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
-    steps.push(window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1");
+  try {
+    for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
+      steps.push(window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1");
+    }
+  } catch {
+    return defaultPilotChecklistPanelState();
   }
 
   return { steps, hidden: true };
