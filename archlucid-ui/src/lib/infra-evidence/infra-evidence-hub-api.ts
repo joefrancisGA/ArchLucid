@@ -150,17 +150,25 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
     streamKind: String(stream?.streamKind ?? ""),
     streamLabel: String(stream?.streamLabel ?? ""),
     items: Array.isArray(stream?.items)
-      ? stream.items.map((item) => {
+      ? stream.items.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            id: String(row.id ?? ""),
-            title: String(row.title ?? ""),
-            severity: row.severity != null ? String(row.severity) : null,
-            status: row.status != null ? String(row.status) : null,
-            streamKind: String(row.streamKind ?? ""),
-            streamLabel: String(row.streamLabel ?? ""),
-          };
+          if (typeof row.id !== "string" || typeof row.title !== "string") {
+            return [];
+          }
+
+          return [{
+            id: row.id,
+            title: row.title,
+            severity: typeof row.severity === "string" ? row.severity : null,
+            status: typeof row.status === "string" ? row.status : null,
+            streamKind: typeof row.streamKind === "string" ? row.streamKind : "",
+            streamLabel: typeof row.streamLabel === "string" ? row.streamLabel : "",
+          }];
         })
       : [],
     totalCount: finiteNumberOr(stream?.totalCount, 0),
