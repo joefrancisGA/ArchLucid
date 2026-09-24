@@ -13,6 +13,10 @@ export function parseTier2ConnectionWizardStepFromSearch(raw: string | null | un
     return null;
   }
 
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
   const parsed = Number.parseInt(trimmed, 10);
 
   if (!Number.isFinite(parsed) || parsed < 0 || parsed > TIER2_CONNECTION_WIZARD_MAX_STEP_INDEX) {
