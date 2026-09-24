@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -89,9 +90,12 @@ def _float(values: dict, *keys: str) -> float | None:
     for key in keys:
         if key in values and values[key] is not None:
             try:
-                return float(values[key])
-            except (TypeError, ValueError):
-                return None
+                value = float(values[key])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"invalid k6 metric {key}: {values[key]!r}") from exc
+            if not math.isfinite(value) or value < 0:
+                raise ValueError(f"invalid k6 metric {key}: {values[key]!r}")
+            return value
     return None
 
 
@@ -245,4 +249,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
