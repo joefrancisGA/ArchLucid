@@ -28,6 +28,7 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "system-gravity",
   "inhabit-the-architecture",
   "sketch-a-change",
+  "which-mode-am-i-in",
 ];
 
 /** Help search drawer topic ids hidden in the SecureNow shell. */
@@ -52,6 +53,7 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "system-gravity",
   "inhabit-the-architecture",
   "sketch-a-change",
+  "which-mode-am-i-in",
 ];
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
