@@ -47,7 +47,7 @@ describe("DiagramsWorkbenchClient working mode", () => {
     searchParams = new URLSearchParams();
   });
 
-  it("renders skip link, claim discipline, breadcrumb, and scope status", () => {
+  it("renders skip link, claim discipline, and breadcrumb without header controls", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -58,6 +58,8 @@ describe("DiagramsWorkbenchClient working mode", () => {
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("infra-diagrams-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-scope-status")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-scope-status")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-page-shortcuts")).not.toBeInTheDocument();
   });
 });
