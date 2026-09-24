@@ -13,8 +13,8 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
   });
   const raw = await proxyJsonGet<Record<string, unknown>>(`${ARCHITECT_METRICS_PATH}?${params.toString()}`);
 
-  const fromId = String(raw.fromSnapshotId ?? fromSnapshotId).trim();
-  const toId = String(raw.toSnapshotId ?? toSnapshotId).trim();
+  const fromId = (typeof raw.fromSnapshotId === "string" ? raw.fromSnapshotId : fromSnapshotId).trim();
+  const toId = (typeof raw.toSnapshotId === "string" ? raw.toSnapshotId : toSnapshotId).trim();
 
   if (fromId.length === 0 || toId.length === 0) {
     return null;
