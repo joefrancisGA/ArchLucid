@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
@@ -86,11 +87,8 @@ public static class DiagramForestVnetMembership
         }
 
         string source = edge.InferenceSource ?? string.Empty;
-        return IsKnownPlacementSource(source)
-            || string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.Label, "declared · in", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.Label, "likely · in", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryResourceGroupCollocation, StringComparison.OrdinalIgnoreCase);
+        string association = edge.Label ?? string.Empty;
+        return IsKnownPlacementSource(source) || IsKnownPlacementSource(association);
     }
 
     private static bool IsKnownPlacementSource(string source)
@@ -117,9 +115,9 @@ public static class DiagramForestVnetMembership
 
     private static bool IsDescendantSubnet(DiagramNode candidate, string vnetArmId)
     {
+        string? parentVnetId = DiagramAstVnetTopologyResolver.TryResolveVnetIdFromSubnetArmId(ReadArmId(candidate));
         return !string.IsNullOrWhiteSpace(vnetArmId)
-            && !string.IsNullOrWhiteSpace(ReadArmId(candidate))
-            && ReadArmId(candidate).StartsWith(vnetArmId.TrimEnd('/') + "/subnets/", StringComparison.OrdinalIgnoreCase);
+            && string.Equals(parentVnetId, vnetArmId.TrimEnd('/'), StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ReadArmId(DiagramNode node)

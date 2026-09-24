@@ -160,7 +160,7 @@ public static class DiagramForestNodeSvgEmitter
         return SecurityElement.Escape(value) ?? string.Empty;
     }
 
-    private static XElement EmitAzureIcon(
+    public static XElement EmitAzureIcon(
         XNamespace svgNamespace,
         AzureArchitectureIconCatalogEntry icon,
         double size,
@@ -178,7 +178,7 @@ public static class DiagramForestNodeSvgEmitter
                 "transform",
                 string.Create(
                     CultureInfo.InvariantCulture,
-                    $"translate({x:0.###},{y:0.###}) scale({size / sourceWidth:0.###},{size / sourceHeight:0.###})")));
+                    $"translate({x:0.###},{y:0.###}) scale({size / sourceWidth:0.######},{size / sourceHeight:0.######})")));
 
         foreach (XElement child in sourceSvg.Elements())
         {
