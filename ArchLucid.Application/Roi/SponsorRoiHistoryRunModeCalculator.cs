@@ -17,13 +17,13 @@ public static class SponsorRoiHistoryRunModeCalculator
 
     public static decimal ComputeRealModeSavingsUsd(decimal totalSavings, int realRunCount, int simulatorRunCount)
     {
-        int totalRuns = realRunCount + simulatorRunCount;
+        long totalRuns = (long)realRunCount + simulatorRunCount;
 
         if (totalRuns <= 0 || realRunCount <= 0)
         {
             return 0m;
         }
 
-        return totalSavings * realRunCount / totalRuns;
+        return totalSavings / totalRuns * realRunCount;
     }
 }
