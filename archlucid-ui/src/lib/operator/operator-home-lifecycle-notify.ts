@@ -34,13 +34,17 @@ export function consumeOperatorHomeRunsSnapshotStale(): boolean {
     return false;
   }
 
-  const stale = window.sessionStorage.getItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY) === "1";
+  try {
+    const stale = window.sessionStorage.getItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY) === "1";
 
-  if (stale) {
-    window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+    if (stale) {
+      window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+    }
+
+    return stale;
+  } catch {
+    return false;
   }
-
-  return stale;
 }
 
 export function subscribeOperatorHomeLifecycleRefresh(listener: () => void): () => void {
