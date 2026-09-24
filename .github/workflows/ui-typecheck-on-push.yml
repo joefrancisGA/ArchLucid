@@ -91,6 +91,7 @@ jobs:
       - name: Sponsor export + private-beta + release-gate + insight-density guards
         run: |
           python3 scripts/ci/check_no_merge_conflict_markers.py
+          python3 scripts/ci/check_async_hazards.py --root .
           python3 scripts/ci/check_direct_clock_access.py --root .
           python3 scripts/ci/check_temporary_behavior_registry.py
           python3 scripts/ci/check_sponsor_export_execution_mode_label.py
@@ -123,6 +124,7 @@ jobs:
       - name: Beta-readiness guard unit tests
         run: |
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_no_merge_conflict_markers.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_async_hazards.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_direct_clock_access.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_temporary_behavior_registry.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_export_execution_mode_label.py"
