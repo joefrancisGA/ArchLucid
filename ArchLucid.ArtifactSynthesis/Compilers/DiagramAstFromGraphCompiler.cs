@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 using InventoryDataFlowStageResolver = ArchLucid.KnowledgeGraph.Inventory.AzureInventoryDataFlowStageResolver;
 
@@ -285,7 +286,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     graph,
                     mode,
                     NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        ExcludeExternalSourceNodes(nodes)));
+                        ExcludeCollapsedAccessConnectors(
+                            ExcludeExternalSourceNodes(nodes))));
             case DiagramMode.ResourceGroup:
                 return FilterByResourceGroup(graph, nodes, options.ResourceGroupName);
             case DiagramMode.SelectedResources:
@@ -604,6 +606,16 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     {
         return nodes
             .Where(InventoryDataFlowStageResolver.IsDataArchitectureNode)
+            .ToList();
+    }
+
+    private static List<GraphNode> ExcludeCollapsedAccessConnectors(List<GraphNode> nodes)
+    {
+        return nodes
+            .Where(node => !node.Properties.TryGetValue(
+                    AzureInventoryDatabricksAccessConnector.CollapseNodePropertyKey,
+                    out string? collapsed)
+                || !string.Equals(collapsed, "true", StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
 

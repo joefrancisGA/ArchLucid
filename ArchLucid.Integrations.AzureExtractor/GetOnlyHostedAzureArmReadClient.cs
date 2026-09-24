@@ -1531,6 +1531,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
         HostedAzureArmSystemDataPropertyCapture.Capture(item, properties);
 
+        if (resourceType!.Contains("accessConnectors", StringComparison.OrdinalIgnoreCase))
+        {
+            HostedAzureInventoryResourcePropertyExpander.CaptureRootIdentity(item, properties);
+        }
+
         if (item.TryGetProperty("properties", out JsonElement propertiesElement)
             && propertiesElement.ValueKind == JsonValueKind.Object)
         {
