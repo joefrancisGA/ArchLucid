@@ -42,7 +42,11 @@ def main() -> int:
             missing.append(md.name)
             continue
 
-        reviewed = datetime.strptime(m.group(1), "%Y-%m-%d").date()
+        try:
+            reviewed = datetime.strptime(m.group(1), "%Y-%m-%d").date()
+        except ValueError:
+            missing.append(md.name)
+            continue
         age = (today - reviewed).days
 
         if age > STALE_DAYS:
