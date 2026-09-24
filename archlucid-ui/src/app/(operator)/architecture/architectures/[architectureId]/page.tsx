@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
 import { ArchitectureIdentityDesk } from "@/components/architecture/ArchitectureIdentityDesk";
@@ -23,7 +23,7 @@ function decodeRouteSegment(raw: string): string {
   try {
     return decodeURIComponent(trimmed);
   } catch {
-    return trimmed;
+    return "";
   }
 }
 
@@ -47,6 +47,11 @@ export default async function ArchitectureSegmentPage(
   props: ArchitectureSegmentPageProps,
 ): Promise<React.JSX.Element> {
   const segment = decodeRouteSegment((await props.params).architectureId);
+
+  if (segment.length === 0) {
+    notFound();
+  }
+
   const searchParams = await props.searchParams;
   const draftQueryId = readDraftQueryParam(searchParams);
   const resolved = await resolveArchitectureRouteSegment(segment);
