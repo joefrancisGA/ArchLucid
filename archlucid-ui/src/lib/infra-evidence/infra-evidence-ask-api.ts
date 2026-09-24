@@ -32,14 +32,22 @@ export async function submitInfraEvidenceAsk(
     simulatorLabel: typeof raw.simulatorLabel === "string" ? raw.simulatorLabel : null,
     viewPlan: parseDiagramViewPlan(raw.viewPlan),
     citations: Array.isArray(raw.citations)
-      ? raw.citations.map((item) => {
+      ? raw.citations.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            kind: String(row.kind ?? ""),
-            id: String(row.id ?? ""),
-            label: row.label != null ? String(row.label) : null,
-          };
+          if (typeof row.kind !== "string" || typeof row.id !== "string") {
+            return [];
+          }
+
+          return [{
+            kind: row.kind,
+            id: row.id,
+            label: typeof row.label === "string" ? row.label : null,
+          }];
         })
       : [],
   };
