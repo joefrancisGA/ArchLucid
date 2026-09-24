@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpUsersAndRolesHeaderActions } from "@/app/(operator)/help/_sections/HelpUsersAndRolesHeaderActions";
 import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/HelpUsersAndRolesManageAction";
@@ -47,7 +51,6 @@ import {
   type UsersAndRolesCapabilityRow,
   type UsersAndRolesRoleOverview,
 } from "@/lib/users-and-roles-help-manifest";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   USERS_AND_ROLES_HELP_ACTION_PANEL_TITLE,
   USERS_AND_ROLES_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -176,7 +179,7 @@ function UsersAndRolesActionPanel(): React.ReactElement {
 
 /** Customer-facing users and roles guide for `/help/users-and-roles`. */
 export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProps): React.ReactElement {
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = usersAndRolesGuideHeadings(productLineId);
   const roleOverview = usersAndRolesRoleOverview(productLineId);
