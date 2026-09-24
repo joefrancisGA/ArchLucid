@@ -3195,6 +3195,7 @@ export interface components {
         CreateDraftRequest: {
             freeTextIntent?: string;
             priorRunId?: null | string;
+            systemName?: null | string;
             workflowIntent?: null | string;
         };
         CreateFindingVerificationReportRequest: {
@@ -9929,6 +9930,20 @@ export interface components {
             /** Format: int32 */
             openFindings?: number;
         };
+        SecureNowHypothesisResponse: {
+            citedFindingIds?: string[];
+            citedPathIds?: string[];
+            dependentResourceIds?: string[];
+            evidenceReferences?: string[];
+            /** Format: uuid */
+            hypothesisId?: string;
+            kind?: string;
+            pathConfidenceBand?: string;
+            reason?: string;
+            separationDimension?: null | string;
+            sharedDependencyNodeId?: null | string;
+            status?: string;
+        };
         SecurityAssessmentPublicationRequest: {
             assessmentCode?: string;
             assessorDisplayName?: null | string;
@@ -10072,6 +10087,7 @@ export interface components {
             crownJewelAssertionId?: null | string;
             explanationTemplate?: components["schemas"]["SecurityEvidencePathExplanationTemplateResponse"];
             hops?: components["schemas"]["SecurityEvidencePathHopResponse"][];
+            hypotheses?: components["schemas"]["SecureNowHypothesisResponse"][];
             pathConfidenceBand?: string;
             /** Format: uuid */
             pathId?: string;
