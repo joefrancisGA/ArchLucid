@@ -185,7 +185,9 @@ def main() -> int:
 
     errors: list[str] = []
 
-    if failed_rate is not None and failed_rate > args.max_failed_rate + 1e-12:
+    if failed_rate is None:
+        errors.append("http_req_failed rate missing from k6 summary")
+    elif failed_rate > args.max_failed_rate + 1e-12:
         errors.append(
             f"http_req_failed rate {failed_rate:.6f} exceeds cap {args.max_failed_rate:.6f}",
         )
