@@ -54,17 +54,28 @@ export function resolveContinueLastCompositeAlertRule(
     return null;
   }
 
+  const validRules = normalizedRules.filter(
+    (rule) =>
+      typeof rule?.compositeRuleId === "string"
+      && typeof rule?.name === "string"
+      && typeof rule?.createdUtc === "string",
+  );
+
+  if (validRules.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredRuleId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedRules.find((rule) => rule.compositeRuleId === storedId);
+    const storedMatch = validRules.find((rule) => rule.compositeRuleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = normalizedRules
+  const newest = validRules
     .slice()
     .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 
