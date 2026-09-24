@@ -27,6 +27,7 @@ public static class PaginationDefaults
     public static int ToSkip(int page, int pageSize)
     {
         (int safePage, int safePageSize) = Normalize(page, pageSize);
-        return (safePage - 1) * safePageSize;
+        long skip = ((long)safePage - 1) * safePageSize;
+        return (int)Math.Min(skip, int.MaxValue);
     }
 }
