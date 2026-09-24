@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -53,7 +54,6 @@ import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpProxyTimeoutRealExecuteGuideViewProps = {
@@ -109,7 +109,7 @@ export function HelpProxyTimeoutRealExecuteGuideView(
   const { entry } = props;
   const searchParams = useSearchParams();
   const returnToReviewHref = resolveProxyTimeoutHelpReturnHref(searchParams.get("returnTo") ?? undefined);
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const relatedLinks = DAYTIME_WAIT_HELP_PROXY_TIMEOUT_RELATED_LINKS.filter((link) => {
     const slug = helpTopicSlugFromInAppHref(link.href);
 
