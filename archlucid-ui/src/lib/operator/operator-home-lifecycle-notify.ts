@@ -21,7 +21,11 @@ export function clearOperatorHomeRunsSnapshotStale(): void {
     return;
   }
 
-  window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+  try {
+    window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+  } catch {
+    // Session storage may be unavailable.
+  }
 }
 
 /** True once after lifecycle writes; cleared when the runs dashboard reloads. */
