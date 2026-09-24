@@ -28,7 +28,7 @@ export async function submitInfraEvidenceAsk(
   return {
     topicKind: String(raw.topicKind ?? ""),
     answer: String(raw.answer ?? ""),
-    insufficientEvidence: Boolean(raw.insufficientEvidence),
+    insufficientEvidence: raw.insufficientEvidence === true,
     simulatorLabel: raw.simulatorLabel != null ? String(raw.simulatorLabel) : null,
     viewPlan: parseDiagramViewPlan(raw.viewPlan),
     citations: Array.isArray(raw.citations)
