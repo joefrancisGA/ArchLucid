@@ -27,6 +27,16 @@ class CheckSensitiveLogPlaceholdersTests(unittest.TestCase):
             (root / "Service.cs").write_text('logger.LogInformation("API key {ApiKey}", apiKey);\n', encoding="utf-8")
             self.assertEqual(len(sut.find_sensitive_log_placeholders(root)), 1)
 
+    def test_rejects_secret_placeholder_on_next_line(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "Service.cs").write_text(
+                'logger.LogInformation(\n    "Token {Token}", token);\n', encoding="utf-8"
+            )
+            hits = sut.find_sensitive_log_placeholders(root)
+            self.assertEqual(len(hits), 1)
+            self.assertEqual(hits[0][1], 1)
+
     def test_skips_test_projects(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
