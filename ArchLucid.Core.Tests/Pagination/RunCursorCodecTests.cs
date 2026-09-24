@@ -112,4 +112,13 @@ public sealed class RunCursorCodecTests
                 JsonCursorTestHelper.EncodeJsonCursor($"{{\"cu\":\"never\",\"ri\":\"{Guid.NewGuid()}\"}}"))
             .Should().BeNull();
     }
+
+    [Fact]
+    public void RunCursorCodec_TryDecode_TimestampWithoutTimezone_ReturnsNull()
+    {
+        string cursor = JsonCursorTestHelper.EncodeJsonCursor(
+            $"{{\"cu\":\"2026-08-08T12:00:00\",\"ri\":\"{Guid.NewGuid()}\"}}");
+
+        RunCursorCodec.TryDecode(cursor).Should().BeNull();
+    }
 }
