@@ -33,7 +33,7 @@ export async function createSecurityDeclaredConnection(
   request: SecurityDeclaredConnectionCreateRequest,
 ): Promise<string> {
   const raw = await proxyJsonPost<Record<string, unknown>>(BASE_PATH, request);
-  return String(raw.connectionId ?? "");
+  return typeof raw.connectionId === "string" ? raw.connectionId : "";
 }
 
 export async function revokeSecurityDeclaredConnection(connectionId: string): Promise<void> {
