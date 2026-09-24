@@ -53,13 +53,13 @@ function parseDiagramViewPlan(raw: unknown): DiagramViewPlan | null {
   const row = raw as Record<string, unknown>;
 
   return {
-    mermaidMode: String(row.mermaidMode ?? ""),
-    resourceGroupName: row.resourceGroupName != null ? String(row.resourceGroupName) : null,
-    seedNodeId: row.seedNodeId != null ? String(row.seedNodeId) : null,
-    snapshotId: row.snapshotId != null ? String(row.snapshotId) : null,
-    cloudResourceId: row.cloudResourceId != null ? String(row.cloudResourceId) : null,
-    fitTargetNodeId: row.fitTargetNodeId != null ? String(row.fitTargetNodeId) : null,
-    honestyLabel: String(row.honestyLabel ?? "Proposed view — existing diagram modes only"),
+    mermaidMode: typeof row.mermaidMode === "string" ? row.mermaidMode : "",
+    resourceGroupName: typeof row.resourceGroupName === "string" ? row.resourceGroupName : null,
+    seedNodeId: typeof row.seedNodeId === "string" ? row.seedNodeId : null,
+    snapshotId: typeof row.snapshotId === "string" ? row.snapshotId : null,
+    cloudResourceId: typeof row.cloudResourceId === "string" ? row.cloudResourceId : null,
+    fitTargetNodeId: typeof row.fitTargetNodeId === "string" ? row.fitTargetNodeId : null,
+    honestyLabel: typeof row.honestyLabel === "string" ? row.honestyLabel : "Proposed view — existing diagram modes only",
   };
 }
 
