@@ -52,4 +52,51 @@ public sealed class AzureInventoryMessagingAssociationEdgeMapperTests
             && r.RelationshipType == GraphEdgeTypes.ConnectsTo
             && r.InferenceSource == GraphEdgeInferenceSources.InventoryEventHubCapture);
     }
+
+    [Fact]
+    public void MapAssociations_emits_service_bus_forward_edges_only_for_known_children()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sbns";
+        const string ordersId = $"{namespaceId}/queues/orders";
+        const string archiveId = $"{namespaceId}/topics/archive";
+
+        List<AzureInventoryMessagingAssociationRow> associations =
+        [
+            new()
+            {
+                ParentResourceId = namespaceId,
+                ChildResourceId = ordersId,
+                ChildName = "orders",
+                ChildType = AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            },
+            new()
+            {
+                ParentResourceId = namespaceId,
+                ChildResourceId = archiveId,
+                ChildName = "archive",
+                ChildType = AzureInventoryMessagingAssociationTypes.ServiceBusTopic,
+            },
+        ];
+        associations[0] = new AzureInventoryMessagingAssociationRow
+        {
+            ParentResourceId = namespaceId,
+            ChildResourceId = ordersId,
+            ChildName = "orders",
+            ChildType = AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            ForwardToName = "archive",
+        };
+
+        List<AzureInventoryResourceRelationshipWrite> relationships = [];
+        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
+            associations,
+            relationships,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            []);
+
+        relationships.Should().Contain(r =>
+            r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(ordersId)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(archiveId)
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryServiceBusForwardTo);
+    }
 }

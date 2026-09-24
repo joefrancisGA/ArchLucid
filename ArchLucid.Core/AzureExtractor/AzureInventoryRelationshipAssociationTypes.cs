@@ -86,6 +86,10 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string EventHubCapture = "eventHubCapture";
 
+    public const string ServiceBusForwardTo = "serviceBusForwardTo";
+
+    public const string ServiceBusForwardDeadLetterTo = "serviceBusForwardDeadLetterTo";
+
     public const string NatGatewayToSubnet = "natGatewayToSubnet";
 
     public const string FirewallToSubnet = "firewallToSubnet";
@@ -147,6 +151,8 @@ public static class AzureInventoryRelationshipAssociationTypes
         Observed(AdfTriggerSource, AzureInventoryRelationshipArmKind.LinkedServiceTarget, AzureInventoryRelationshipArmKind.DataFactory, "CONNECTS_TO", "inventory-adf-trigger-source"),
         Observed(AdfIntegrationRuntime, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.IntegrationRuntime, "CONNECTS_TO", "inventory-adf-integration-runtime"),
         Observed(EventHubCapture, AzureInventoryRelationshipArmKind.EventHub, AzureInventoryRelationshipArmKind.StorageAccount, "CONNECTS_TO", "inventory-event-hub-capture"),
+        Observed(ServiceBusForwardTo, AzureInventoryRelationshipArmKind.ServiceBusQueue, AzureInventoryRelationshipArmKind.ServiceBusQueue, "CONNECTS_TO", "inventory-service-bus-forward-to"),
+        Observed(ServiceBusForwardDeadLetterTo, AzureInventoryRelationshipArmKind.ServiceBusQueue, AzureInventoryRelationshipArmKind.ServiceBusQueue, "CONNECTS_TO", "inventory-service-bus-forward-dead-letter"),
         Observed(NatGatewayToSubnet, AzureInventoryRelationshipArmKind.NatGateway, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nat-gateway-subnet"),
         Observed(FirewallToSubnet, AzureInventoryRelationshipArmKind.AzureFirewall, AzureInventoryRelationshipArmKind.Subnet, "PROTECTS", "inventory-firewall-subnet"),
         Observed(FrontDoorToOrigin, AzureInventoryRelationshipArmKind.FrontDoor, AzureInventoryRelationshipArmKind.BackendPoolMember, "CONNECTS_TO", "inventory-front-door-origin"),

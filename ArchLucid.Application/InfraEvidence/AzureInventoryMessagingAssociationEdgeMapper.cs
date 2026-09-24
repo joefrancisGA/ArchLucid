@@ -67,7 +67,61 @@ internal static class AzureInventoryMessagingAssociationEdgeMapper
                     ObservedFactConfidence,
                     captureDefinition.DefaultInferenceSource);
             }
+
+            AddForwardRelationship(
+                association,
+                associations,
+                relationships,
+                relationshipKeys,
+                association.ForwardToName,
+                AzureInventoryRelationshipAssociationTypes.ServiceBusForwardTo);
+
+            AddForwardRelationship(
+                association,
+                associations,
+                relationships,
+                relationshipKeys,
+                association.ForwardDeadLetteredMessagesToName,
+                AzureInventoryRelationshipAssociationTypes.ServiceBusForwardDeadLetterTo);
         }
+    }
+
+    private static void AddForwardRelationship(
+        AzureInventoryMessagingAssociationRow association,
+        IReadOnlyList<AzureInventoryMessagingAssociationRow> associations,
+        List<AzureInventoryResourceRelationshipWrite> relationships,
+        HashSet<string> relationshipKeys,
+        string? targetName,
+        string associationType)
+    {
+        if (string.IsNullOrWhiteSpace(targetName)
+            || !AzureInventoryRelationshipAssociationTypes.TryGet(
+                associationType,
+                out AzureInventoryRelationshipAssociationTypeDefinition? definition)
+            || definition is null)
+        {
+            return;
+        }
+
+        string target = targetName.Trim();
+        AzureInventoryMessagingAssociationRow? targetAssociation = associations.FirstOrDefault(candidate =>
+            candidate.ParentResourceId.Equals(association.ParentResourceId, StringComparison.OrdinalIgnoreCase)
+            && candidate.ChildName.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+        if (targetAssociation is null)
+        {
+            return;
+        }
+
+        AddRelationship(
+            relationships,
+            relationshipKeys,
+            ArmResourceIdNormalizer.Normalize(association.ChildResourceId),
+            ArmResourceIdNormalizer.Normalize(targetAssociation.ChildResourceId),
+            definition.DefaultGraphEdgeType,
+            definition.DefaultProvenanceKind,
+            ObservedFactConfidence,
+            definition.DefaultInferenceSource);
     }
 
     private static void AddRelationship(
