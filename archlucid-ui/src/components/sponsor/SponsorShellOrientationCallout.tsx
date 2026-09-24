@@ -25,8 +25,12 @@ export function SponsorShellOrientationCallout(props: SponsorShellOrientationCal
       return;
     }
 
-    if (window.localStorage.getItem(DISMISS_KEY) === "1") {
-      return;
+    try {
+      if (window.localStorage.getItem(DISMISS_KEY) === "1") {
+        return;
+      }
+    } catch {
+      // Storage unavailable: show the orientation for this session.
     }
 
     setVisible(true);
