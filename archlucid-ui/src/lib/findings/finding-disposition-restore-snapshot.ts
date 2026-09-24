@@ -52,7 +52,11 @@ export function readFindingDispositionRestoreSnapshot(
     }
 
     if (!isFindingDispositionRevisitWindowOpen(parsed.revisitDueUtc)) {
-      window.localStorage.removeItem(storageKey(findingId));
+      try {
+    window.localStorage.removeItem(storageKey(findingId));
+  } catch {
+    /* storage unavailable */
+  }
 
       return null;
     }
