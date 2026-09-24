@@ -41,7 +41,11 @@ export function TrialWelcomeRunDeepLink() {
       return;
     }
 
-    window.sessionStorage.setItem(SESSION_KEY, welcomeRunId);
+    try {
+      window.sessionStorage.setItem(SESSION_KEY, welcomeRunId);
+    } catch {
+      // Session storage may be unavailable.
+    }
     // Full navigation: hard commit, no App Router action-queue contention with sidebar Links.
     window.location.replace(`/architecture/reviews/${encodeURIComponent(welcomeRunId)}`);
   }, [welcomeRunId]);
