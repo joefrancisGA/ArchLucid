@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpEnterpriseOnboardingClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingClaimOrientationStrip";
 import { HelpEnterpriseOnboardingHeaderActions } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingHeaderActions";
@@ -20,7 +24,6 @@ import {
   enterpriseOnboardingHelpPageSubtitle,
   enterpriseOnboardingHelpPrimaryActions,
 } from "@/lib/enterprise-onboarding-help-copy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
@@ -56,7 +59,7 @@ export function HelpEnterpriseOnboardingGuideView(
   props: HelpEnterpriseOnboardingGuideViewProps,
 ): React.ReactElement {
   const { entry, markdown } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const pageSubtitle = enterpriseOnboardingHelpPageSubtitle(productLineId);
   const heroOverview = enterpriseOnboardingHelpHeroOverview(productLineId);
   const primaryActions = enterpriseOnboardingHelpPrimaryActions(productLineId);
