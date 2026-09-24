@@ -29,7 +29,15 @@ public static class FindingCursorCodec
         if (!Base64UrlCodec.TryDecode(encoded, out byte[] bytes))
             return null;
 
-        FindingListCursorDto? dto = JsonSerializer.Deserialize<FindingListCursorDto>(bytes, SerializerOptions);
+        FindingListCursorDto? dto;
+        try
+        {
+            dto = JsonSerializer.Deserialize<FindingListCursorDto>(bytes, SerializerOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
 
         if (dto is null || dto.Fri == Guid.Empty)
             return null;
