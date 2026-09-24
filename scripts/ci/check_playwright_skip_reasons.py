@@ -17,9 +17,10 @@ def find_missing_reasons(root: Path) -> list[tuple[str, int, str]]:
         if any(part in {".git", "node_modules", ".next", "dist", "coverage"} for part in path.parts):
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
-        for line_number, line in enumerate(text.splitlines(), start=1):
-            if _BARE_SKIP.search(line):
-                hits.append((path.relative_to(root).as_posix(), line_number, line.strip()))
+        lines = text.splitlines()
+        for match in _BARE_SKIP.finditer(text):
+            line_number = text.count("\n", 0, match.start()) + 1
+            hits.append((path.relative_to(root).as_posix(), line_number, lines[line_number - 1].strip()))
     return hits
 
 
