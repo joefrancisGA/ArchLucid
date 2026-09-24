@@ -1,10 +1,13 @@
 import { cn } from "@/lib/utils";
 
+import { collectInfraEvidenceDiagramAccentKinds } from "@/lib/infra-evidence/collect-infra-evidence-diagram-accent-kinds";
 import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE_GLOSS,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
@@ -19,15 +22,17 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export type InfraEvidenceDiagramLegendProps = {
   readonly outline: InfraEvidenceMermaidOutline | null;
   readonly mermaidSource?: string | null;
+  readonly layoutSvg?: string | null;
 };
 
-/** Inventory diagram edge-style legend when declared or inferred edges are present. */
+/** Inventory diagram legend for connector styles and left-edge category colors. */
 export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProps): React.JSX.Element | null {
   const hasDeclared = hasInfraEvidenceDeclaredDiagramEdges(props.outline, props.mermaidSource);
   const hasProbable = hasInfraEvidenceProbableDiagramEdges(props.outline, props.mermaidSource);
   const hasInferred = hasInfraEvidenceInferredDiagramEdges(props.outline, props.mermaidSource);
+  const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
 
-  if (!hasDeclared && !hasProbable && !hasInferred) {
+  if (!hasDeclared && !hasProbable && !hasInferred && accentKinds.length === 0) {
     return null;
   }
 
@@ -49,6 +54,32 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE}
         </p>
+      ) : null}
+      {accentKinds.length > 0 ? (
+        <div className="space-y-2">
+          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            {INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE}
+          </p>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE_GLOSS}
+          </p>
+          <ul
+            aria-label={INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE}
+            className={cn("m-0 flex list-none flex-wrap gap-x-4 gap-y-2 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-evidence-diagram-legend-left-edge"
+          >
+            {accentKinds.map((kind) => (
+              <li key={kind.fill} className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-3.5 w-1 shrink-0"
+                  style={{ backgroundColor: kind.fill }}
+                />
+                {kind.label}
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </div>
   );

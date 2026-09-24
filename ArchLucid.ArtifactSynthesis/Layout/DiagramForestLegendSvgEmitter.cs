@@ -40,7 +40,7 @@ public static class DiagramForestLegendSvgEmitter
         List<string> rows =
         [
             "Legend",
-            "Eyebrow color = category swatch",
+            "Left edge",
         ];
 
         foreach (DiagramInventoryPictogramKind kind in input.UsedKinds)
@@ -97,7 +97,7 @@ public static class DiagramForestLegendSvgEmitter
                 continue;
             }
 
-            if (string.Equals(row, "Eyebrow color = category swatch", StringComparison.Ordinal))
+            if (string.Equals(row, "Left edge", StringComparison.Ordinal))
             {
                 group.Add(Text(svgNamespace, LeftPadding, y, row, bold: false));
                 continue;
