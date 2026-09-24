@@ -93,10 +93,10 @@ export async function fetchCloudResourceExplorerPage(
 
   return {
     items,
-    totalCount: raw.totalCount ?? items.length,
-    page: raw.page ?? page,
-    pageSize: raw.pageSize ?? pageSize,
-    hasMore: raw.hasMore ?? false,
+    totalCount: Number.isFinite(raw.totalCount) ? Number(raw.totalCount) : items.length,
+    page: Number.isFinite(raw.page) ? Number(raw.page) : page,
+    pageSize: Number.isFinite(raw.pageSize) ? Number(raw.pageSize) : pageSize,
+    hasMore: raw.hasMore === true,
   };
 }
 
