@@ -17,9 +17,14 @@ import type {
 const FINDINGS_PATH = "/api/proxy/v1/operational-security/findings";
 const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
 
+function finiteNumberOrDefault(value: unknown, fallback: number): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
   return {
-    hopOrdinal: Number(raw.hopOrdinal ?? 0),
+    hopOrdinal: finiteNumberOrDefault(raw.hopOrdinal, 0),
     fromNodeLabel: String(raw.fromNodeLabel ?? "—"),
     toNodeLabel: String(raw.toNodeLabel ?? "—"),
     edgeType: String(raw.edgeType ?? "—"),
