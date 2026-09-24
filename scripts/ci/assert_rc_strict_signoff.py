@@ -33,7 +33,7 @@ def _load_json(path: Path) -> dict[str, Any] | None:
 
 def _normalize_pass(raw: object | None) -> bool:
     value = str(raw or "").strip().upper()
-    return value in {"PASS", "READY", "GO", "APPROVE"}
+    return value == "PASS"
 
 
 def _blocking_reason(
