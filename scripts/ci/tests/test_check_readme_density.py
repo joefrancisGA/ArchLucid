@@ -15,6 +15,10 @@ class ReadmeDensityTests(unittest.TestCase):
         text = "```html\r\n<details>\r\n```\r\n[link](target.md)\r\n<details>\r\n"
         self.assertEqual(count_links_before_first_details(text), (1, None))
 
+    def test_inline_code_details_does_not_end_opener(self):
+        text = "Use `<details>` for disclosure.\n[link](target.md)\n<details>\n"
+        self.assertEqual(count_links_before_first_details(text), (1, None))
+
 
 if __name__ == "__main__":
     unittest.main()
