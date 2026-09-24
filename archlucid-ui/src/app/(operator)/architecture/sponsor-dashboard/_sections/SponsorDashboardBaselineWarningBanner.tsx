@@ -42,8 +42,12 @@ export function SponsorDashboardBaselineWarningBanner({
       return;
     }
 
-    if (window.sessionStorage.getItem(SPONSOR_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY) === "1") {
-      setSessionDismissed(true);
+    try {
+      if (window.sessionStorage.getItem(SPONSOR_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY) === "1") {
+        setSessionDismissed(true);
+      }
+    } catch {
+      setSessionDismissed(false);
     }
   }, []);
 
