@@ -1,5 +1,6 @@
 using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ContextIngestion.Diagram;
@@ -38,6 +39,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     [
         ("executive", DiagramMode.Executive),
         ("network", DiagramMode.Network),
+        ("businessContinuity", DiagramMode.BusinessContinuity),
         ("identity", DiagramMode.Identity),
         ("data", DiagramMode.Data),
         ("dataFlow", DiagramMode.DataFlow),
@@ -86,7 +88,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         Guid snapshotId,
         bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default,
-        bool includePrivateEndpointNodes = false)
+        bool includePrivateEndpointNodes = false,
+        bool includeRecoveryServices = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -169,7 +172,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includeNeverShowArmTypes = false,
         string? hiddenExecutiveTierKeys = null,
         CancellationToken cancellationToken = default,
-        bool includePrivateEndpointNodes = false)
+        bool includePrivateEndpointNodes = false,
+        bool includeRecoveryServices = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -210,7 +214,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 seedNodeId,
                 hiddenExecutiveTierKeys,
                 out InfraEvidenceMermaidModeParseResult parsedMode,
-                includePrivateEndpointNodes))
+                includePrivateEndpointNodes,
+                includeRecoveryServices))
         {
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
@@ -239,13 +244,18 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return CreateResourceGroupPickerResponse(snapshotId, graphResult.Graph);
         }
 
+        DiagramAstCompileOptions? compileOptions = MergeRecoveryServicesCompileOptions(
+            parsedMode.CompileOptions,
+            graphResult.Snapshot,
+            includeRecoveryServices);
+
         InfraEvidenceMermaidRenderResponse renderResponse = await TryRenderModeResponseAsync(
             snapshotId,
             parsedMode.ModeKey,
             null,
             graphResult.Graph,
             parsedMode.DiagramMode,
-            parsedMode.CompileOptions,
+            compileOptions,
             includeNeverShowArmTypes,
             graphResult.Snapshot,
             cancellationToken);
@@ -266,7 +276,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includeNeverShowArmTypes = false,
         string? hiddenExecutiveTierKeys = null,
         CancellationToken cancellationToken = default,
-        bool includePrivateEndpointNodes = false)
+        bool includePrivateEndpointNodes = false,
+        bool includeRecoveryServices = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -280,7 +291,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 includeNeverShowArmTypes,
                 hiddenExecutiveTierKeys,
                 cancellationToken,
-                includePrivateEndpointNodes);
+                includePrivateEndpointNodes,
+                includeRecoveryServices);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
         {
@@ -860,6 +872,51 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         return AzureInventorySnapshotCompletenessWarningsJson
             .Deserialize(snapshot.Header.CompletenessWarningsJson)
             .ToList();
+    }
+
+    private static DiagramAstCompileOptions? MergeRecoveryServicesCompileOptions(
+        DiagramAstCompileOptions? options,
+        AzureInventorySnapshotDetailReadModel? snapshot,
+        bool includeRecoveryServices)
+    {
+        bool collectionIncomplete = HasRecoveryServicesCollectionGap(snapshot);
+
+        if (!includeRecoveryServices && !collectionIncomplete)
+        {
+            return options;
+        }
+
+        return new DiagramAstCompileOptions
+        {
+            ResourceGroupName = options?.ResourceGroupName,
+            SelectedNodeIds = options?.SelectedNodeIds,
+            NeighborhoodSeedNodeId = options?.NeighborhoodSeedNodeId,
+            NeighborhoodDepth = options?.NeighborhoodDepth ?? 2,
+            CollapseToResourceGroupMap = options?.CollapseToResourceGroupMap ?? false,
+            CollapseToBackboneKeep = options?.CollapseToBackboneKeep ?? false,
+            HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
+            IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? false,
+            IncludeRecoveryServices = includeRecoveryServices,
+            RecoveryServicesCollectionIncomplete = collectionIncomplete,
+        };
+    }
+
+    private static bool HasRecoveryServicesCollectionGap(AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        foreach (string warning in ResolveCompletenessWarnings(snapshot))
+        {
+            if (warning.StartsWith(
+                    AzureInventoryRecoveryServicesCompletenessWarningCodes.BackupListFailedPrefix,
+                    StringComparison.OrdinalIgnoreCase)
+                || warning.StartsWith(
+                    AzureInventoryRecoveryServicesCompletenessWarningCodes.SiteRecoveryListFailedPrefix,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static InfraEvidenceMermaidCollapseReport? MapCollapseReport(

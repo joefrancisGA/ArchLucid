@@ -161,6 +161,11 @@ public sealed class HostedAzureExtractorClient(
             accessToken.Token,
             cancellationToken).ConfigureAwait(false);
 
+        IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItems =
+            await HostedAzureInventoryRecoveryServicesCollector
+                .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
         List<string> collectionWarnings = [];
 
@@ -241,6 +246,7 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.PaasChildAssociations,
             diagramEnrichment.ServiceConnectorLinks,
             appSettingHosts: diagramEnrichment.AppSettingHosts,
+            recoveryServicesProtectedItems: recoveryServicesProtectedItems,
             collectionWarnings: collectionWarnings,
             actualCostSummary: actualCostSummary,
             policyComplianceDocument: policyComplianceDocument,
@@ -399,6 +405,11 @@ public sealed class HostedAzureExtractorClient(
             accessTokenValue,
             cancellationToken).ConfigureAwait(false);
 
+        IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItems =
+            await HostedAzureInventoryRecoveryServicesCollector
+                .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
         List<string> collectionWarnings = [];
 
@@ -449,6 +460,7 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.PaasChildAssociations,
             diagramEnrichment.ServiceConnectorLinks,
             appSettingHosts: diagramEnrichment.AppSettingHosts,
+            recoveryServicesProtectedItems: recoveryServicesProtectedItems,
             collectionWarnings: collectionWarnings);
 
         string fileName =
