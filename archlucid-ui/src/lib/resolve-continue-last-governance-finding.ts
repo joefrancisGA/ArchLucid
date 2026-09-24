@@ -109,7 +109,14 @@ export function resolveContinueLastGovernanceFinding(
     return null;
   }
 
-  const findingRows = normalizedRows.filter((row) => row.recordKind === "finding");
+  const findingRows = normalizedRows.filter(
+    (row) =>
+      row?.recordKind === "finding"
+      && typeof row?.runId === "string"
+      && typeof row?.findingId === "string"
+      && typeof row?.title === "string"
+      && (row?.agingDays == null || typeof row.agingDays === "number"),
+  );
 
   if (findingRows.length === 0) {
     if (options?.allowRecentWithoutLoadedRow === true) {
