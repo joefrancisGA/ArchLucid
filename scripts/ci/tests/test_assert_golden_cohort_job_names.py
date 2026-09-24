@@ -62,6 +62,14 @@ class GoldenCohortJobNamesTests(unittest.TestCase):
         errors = check_workflow_text(text)
         self.assertTrue(any("cohort-simulator-drift" in item for item in errors))
 
+    def test_pr_skip_in_comment_does_not_count(self) -> None:
+        text = VALID_WORKFLOW.replace(
+            "  cohort-contract:\n    if: github.event_name != 'pull_request'\n",
+            "  cohort-contract:\n    if: always() # github.event_name != 'pull_request'\n",
+        )
+        errors = check_workflow_text(text)
+        self.assertTrue(any("cohort-contract" in item for item in errors))
+
     def test_pr_skip_on_required_gate_fails(self) -> None:
         text = VALID_WORKFLOW.replace(
             "  cohort-real-llm-gate:\n    runs-on: ubuntu-latest\n",
