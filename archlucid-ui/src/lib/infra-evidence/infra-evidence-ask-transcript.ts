@@ -41,9 +41,13 @@ function readTranscriptUserSubject(): string {
     return "anonymous";
   }
 
-  const subject = window.sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)?.trim() ?? "";
+  try {
+    const subject = window.sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)?.trim() ?? "";
 
-  return subject.length > 0 ? subject : "anonymous";
+    return subject.length > 0 ? subject : "anonymous";
+  } catch {
+    return "anonymous";
+  }
 }
 
 function resolveTranscriptStorageKey(scopeKey: string): string {
@@ -58,18 +62,22 @@ export function clearInfraEvidenceAskTranscriptStorage(): void {
     return;
   }
 
-  const keysToRemove: string[] = [];
+  try {
+    const keysToRemove: string[] = [];
 
-  for (let index = 0; index < window.sessionStorage.length; index += 1) {
-    const key = window.sessionStorage.key(index);
+    for (let index = 0; index < window.sessionStorage.length; index += 1) {
+      const key = window.sessionStorage.key(index);
 
-    if (key != null && key.startsWith(INFRA_EVIDENCE_ASK_TRANSCRIPT_STORAGE_PREFIX)) {
-      keysToRemove.push(key);
+      if (key != null && key.startsWith(INFRA_EVIDENCE_ASK_TRANSCRIPT_STORAGE_PREFIX)) {
+        keysToRemove.push(key);
+      }
     }
-  }
 
-  for (const key of keysToRemove) {
-    window.sessionStorage.removeItem(key);
+    for (const key of keysToRemove) {
+      window.sessionStorage.removeItem(key);
+    }
+  } catch {
+    // Session storage may be unavailable.
   }
 }
 

@@ -59,9 +59,16 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
 
 export async function generateMetadata(props: HelpTopicPageProps): Promise<Metadata> {
   const { topic } = await props.params;
-  const entry = getProductDocumentationEntry(helpSlugFromTopicSegments(topic));
+  const slug = helpSlugFromTopicSegments(topic);
+  const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {
+    return { title: "Help topic not found" };
+  }
+
+  const productLineId = await resolveProductLineIdForServer();
+
+  if (isHelpTopicExcludedForProductLine(entry.slug, productLineId)) {
     return { title: "Help topic not found" };
   }
 

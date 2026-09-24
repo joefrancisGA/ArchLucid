@@ -110,7 +110,7 @@ export function reviewsNewGuidedIntakeHasSaveableContent(
     wizardSessionHasTextContent(guided.freeTextIntent) ||
     wizardSessionHasTextContent(guided.businessOutcome) ||
     wizardSessionHasTextContent(guided.systemName) ||
-    (guided.draftId !== null && guided.draftId !== undefined && guided.draftId.trim().length > 0)
+    (typeof guided.draftId === "string" && guided.draftId.trim().length > 0)
   );
 }
 
@@ -219,7 +219,11 @@ export function requestReviewsNewWizardAutoRestore(wizardId: WizardSessionId): v
     return;
   }
 
-  window.sessionStorage.setItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY, wizardId);
+  try {
+    window.sessionStorage.setItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY, wizardId);
+  } catch {
+    // Session storage may be unavailable.
+  }
 }
 
 export function dispatchReviewsNewWizardContinueRequested(wizardId: WizardSessionId): void {
@@ -239,15 +243,19 @@ export function consumeReviewsNewWizardAutoRestore(wizardId: WizardSessionId): b
     return false;
   }
 
-  const stored = window.sessionStorage.getItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY)?.trim() ?? "";
+  try {
+    const stored = window.sessionStorage.getItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY)?.trim() ?? "";
 
-  if (stored !== wizardId) {
+    if (stored !== wizardId) {
+      return false;
+    }
+
+    window.sessionStorage.removeItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY);
+
+    return true;
+  } catch {
     return false;
   }
-
-  window.sessionStorage.removeItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY);
-
-  return true;
 }
 
 type DismissedResumeStrip = {
@@ -310,10 +318,14 @@ export function dismissReviewsNewWizardResumeStrip(session: ReviewsNewResumableW
     savedAtUtc: session.savedAtUtc,
   };
 
-  window.localStorage.setItem(
-    REVIEWS_NEW_WIZARD_RESUME_STRIP_DISMISSED_STORAGE_KEY,
-    JSON.stringify(payload),
-  );
+  try {
+    window.localStorage.setItem(
+      REVIEWS_NEW_WIZARD_RESUME_STRIP_DISMISSED_STORAGE_KEY,
+      JSON.stringify(payload),
+    );
+  } catch {
+    // Local storage may be unavailable.
+  }
 }
 
 export function clearResumableReviewsNewWizardSession(wizardId: WizardSessionId): void {

@@ -68,7 +68,14 @@ export function resolveContinueLastAlert(alerts: unknown): AlertsInboxContinueLa
     return null;
   }
 
-  const visible = normalizedAlerts.filter((alert) => alert.isArchived !== true);
+  const validAlerts = normalizedAlerts.filter(
+    (alert) =>
+      typeof alert?.alertId === "string"
+      && typeof alert?.title === "string"
+      && typeof alert?.status === "string"
+      && typeof alert?.createdUtc === "string",
+  );
+  const visible = validAlerts.filter((alert) => alert.isArchived !== true);
 
   if (visible.length === 0) {
     return null;

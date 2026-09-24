@@ -85,6 +85,11 @@ public static class AzureInventoryNeverShowArmTypes
             return false;
         }
 
+        if (AzureInventoryDatabricksAccessConnector.IsWorkspaceType(armType))
+        {
+            return false;
+        }
+
         if (CatalogArmTypes.Contains(armType, StringComparer.OrdinalIgnoreCase))
         {
             return true;
@@ -113,6 +118,13 @@ public static class AzureInventoryNeverShowArmTypes
             StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         if (segments.Length < 2)
+        {
+            return false;
+        }
+
+        if (azureResourceId.Contains(
+                "Microsoft.Databricks/workspaces/",
+                StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }

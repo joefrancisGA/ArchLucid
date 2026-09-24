@@ -56,12 +56,22 @@ public static class AzureInventoryComputeIdentityPrincipalIndex
                || resourceType.Contains("Microsoft.Databricks/workspaces", StringComparison.OrdinalIgnoreCase);
     }
 
+    public static IReadOnlyList<string> ReadPrincipalIds(string? identityJson)
+    {
+        if (string.IsNullOrWhiteSpace(identityJson)
+            || !TryParseIdentityPrincipalIds(identityJson, out List<string> principalIds))
+        {
+            return [];
+        }
+
+        return principalIds;
+    }
+
     private static IEnumerable<string> EnumerateDeclaredPrincipalIds(AzureExtractorExtendedResourceRow resource)
     {
-        if (resource.Properties.TryGetValue("identity", out string? identityJson)
-            && TryParseIdentityPrincipalIds(identityJson, out List<string> principalIds))
+        if (resource.Properties.TryGetValue("identity", out string? identityJson))
         {
-            foreach (string principalId in principalIds)
+            foreach (string principalId in ReadPrincipalIds(identityJson))
             {
                 yield return principalId;
             }

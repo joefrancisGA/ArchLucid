@@ -103,6 +103,10 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string AvdSessionHostToVm = "avdSessionHostToVm";
 
+    public const string RecoveryServicesProtects = "recoveryServicesProtects";
+
+    public const string RecoveryServicesReplicates = "recoveryServicesReplicates";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -155,6 +159,18 @@ public static class AzureInventoryRelationshipAssociationTypes
             AzureInventoryRelationshipArmKind.VirtualMachine,
             "CONNECTS_TO",
             "inventory-avd-session-host-to-vm"),
+        Observed(
+            RecoveryServicesProtects,
+            AzureInventoryRelationshipArmKind.RecoveryServicesVault,
+            AzureInventoryRelationshipArmKind.VirtualMachine,
+            "PROTECTS",
+            "inventory-recovery-services-protects"),
+        Observed(
+            RecoveryServicesReplicates,
+            AzureInventoryRelationshipArmKind.RecoveryServicesVault,
+            AzureInventoryRelationshipArmKind.VirtualMachine,
+            "PROTECTS",
+            "inventory-recovery-services-replicates"),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =
