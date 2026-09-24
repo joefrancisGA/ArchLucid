@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -85,6 +86,23 @@ def evaluate_bundle(
                     detail=f"expected {expected_schema}, got {payload.get('schema')!r}",
                 )
             )
+
+        if require_pass:
+            raw_generated = payload.get("generatedUtc")
+            try:
+                generated = datetime.fromisoformat(str(raw_generated).replace("Z", "+00:00"))
+                if generated.tzinfo is None:
+                    raise ValueError("timestamp lacks timezone")
+            except ValueError:
+                generated = None
+            if generated is None or datetime.now(timezone.utc) - generated > timedelta(days=_STALE_AFTER_DAYS):
+                blockers.append(
+                    _blocking_reason(
+                        artifact=artifact_name,
+                        field="generatedUtc",
+                        detail=f"missing or older than {_STALE_AFTER_DAYS} days: {raw_generated!r}",
+                    )
+                )
 
         disposition = payload.get(disposition_field)
 
