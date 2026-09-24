@@ -44,6 +44,19 @@ describe("resolveContinueLastCompositeAlertRule", () => {
     expect(match?.name).toBe("New");
   });
 
+  it("ignores invalid timestamps and compares timestamps numerically", () => {
+    window.localStorage.removeItem("archlucid_composite_alert_rule_continue_last_v1");
+
+    const match = resolveContinueLastCompositeAlertRule([
+      rule({ compositeRuleId: "invalid", name: "Invalid", createdUtc: "9999-not-a-date" }),
+      rule({ compositeRuleId: "older", name: "Older", createdUtc: "2026-08-01T00:00:00.000Z" }),
+      rule({ compositeRuleId: "newer", name: "Newer", createdUtc: "2026-07-31T21:00:00-04:00" }),
+    ]);
+
+    expect(match?.ruleId).toBe("newer");
+    expect(match?.name).toBe("Newer");
+  });
+
   it("prefers the stored rule id when it is still in the list", () => {
     window.localStorage.setItem("archlucid_composite_alert_rule_continue_last_v1", "old");
 

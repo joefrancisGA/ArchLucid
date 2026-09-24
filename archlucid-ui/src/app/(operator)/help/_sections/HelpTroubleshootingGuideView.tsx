@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpTroubleshootingClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpTroubleshootingClaimOrientationStrip";
 import { HelpTroubleshootingHeaderActions } from "@/app/(operator)/help/_sections/HelpTroubleshootingHeaderActions";
@@ -48,7 +52,6 @@ import {
   troubleshootingHelpOverview,
   troubleshootingStartHereItems,
 } from "@/lib/troubleshooting-help-guide-content";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   TROUBLESHOOTING_HELP_FIRST_VIEWPORT_TEST_ID,
   TROUBLESHOOTING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -75,7 +78,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Buyer-safe troubleshooting guide for `/help/troubleshooting`. */
 export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const overview = troubleshootingHelpOverview(productLineId);
   const startHereItems = troubleshootingStartHereItems(productLineId);
   const decisionTreeSteps = troubleshootingDecisionTreeSteps(productLineId);

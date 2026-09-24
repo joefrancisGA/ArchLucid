@@ -1,16 +1,18 @@
+"use client";
+
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   AZURE_PERMISSIONS_HELP_FOLLOW_UPS_TITLE,
   AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES_INTRO,
   azurePermissionsHelpOrientationSourcesForProductLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 
 /** Sources follow-ups for `/help/azure-permissions` (HE). */
 export function HelpAzurePermissionsClaimOrientationStrip(): React.JSX.Element {
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip

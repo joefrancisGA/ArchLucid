@@ -22,50 +22,73 @@ public static class DiagramForestOrthogonalEdgeRouter
         double toY,
         IReadOnlyList<Rect> obstacles)
     {
+        return Route(fromX, fromY, toX, toY, obstacles, []);
+    }
+
+    public static RouteResult Route(
+        double fromX,
+        double fromY,
+        double toX,
+        double toY,
+        IReadOnlyList<Rect> obstacles,
+        IReadOnlyList<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted,
+        double? extraVerticalChannelX = null)
+    {
+        ArgumentNullException.ThrowIfNull(obstacles);
+        ArgumentNullException.ThrowIfNull(alreadyRouted);
+
+        List<List<(double X1, double Y1, double X2, double Y2)>> candidates = [];
         List<(double X1, double Y1, double X2, double Y2)> straightSegments = [(fromX, fromY, toX, toY)];
 
         if (IsAxisAligned(fromX, fromY, toX, toY))
         {
-            RouteResult? straightResult = TryRoute(straightSegments, obstacles);
-
-            if (straightResult is not null)
-            {
-                return straightResult;
-            }
+            candidates.Add(straightSegments);
         }
 
-        List<(double X1, double Y1, double X2, double Y2)> horizontalFirst =
+        candidates.Add(
             [
                 (fromX, fromY, toX, fromY),
                 (toX, fromY, toX, toY),
-            ];
-        RouteResult? horizontalResult = TryRoute(horizontalFirst, obstacles);
-
-        if (horizontalResult is not null)
-        {
-            return horizontalResult;
-        }
-
-        List<(double X1, double Y1, double X2, double Y2)> verticalFirst =
+            ]);
+        candidates.Add(
             [
                 (fromX, fromY, fromX, toY),
                 (fromX, toY, toX, toY),
-            ];
-        RouteResult? verticalResult = TryRoute(verticalFirst, obstacles);
+            ]);
+        candidates.AddRange(CollectThreeSegmentCandidates(fromX, fromY, toX, toY));
 
-        if (verticalResult is not null)
+        RouteResult? bestClearRoute = SelectBestClearRoute(candidates, obstacles, alreadyRouted);
+
+        if (bestClearRoute is not null)
         {
-            return verticalResult;
+            if (bestClearRoute.Segments.Count > 0
+                && extraVerticalChannelX is double channelX
+                && DiagramEdgeCrossingCounter.CountAgainst(bestClearRoute.Segments, alreadyRouted) > 0)
+            {
+                List<(double X1, double Y1, double X2, double Y2)> channelSegments =
+                    [
+                        (fromX, fromY, channelX, fromY),
+                        (channelX, fromY, channelX, toY),
+                        (channelX, toY, toX, toY),
+                    ];
+                RouteResult? channelRoute = TryRoute(channelSegments, obstacles);
+
+                if (channelRoute is not null)
+                {
+                    int channelCrossings = DiagramEdgeCrossingCounter.CountAgainst(channelSegments, alreadyRouted);
+                    int bestCrossings = DiagramEdgeCrossingCounter.CountAgainst(bestClearRoute.Segments, alreadyRouted);
+
+                    if (channelCrossings < bestCrossings)
+                    {
+                        return channelRoute;
+                    }
+                }
+            }
+
+            return bestClearRoute;
         }
 
-        RouteResult? uRoute = TryThreeSegmentRoute(fromX, fromY, toX, toY, obstacles);
-
-        if (uRoute is not null)
-        {
-            return uRoute;
-        }
-
-        List<(double X1, double Y1, double X2, double Y2)> fallbackSegments = horizontalFirst;
+        List<(double X1, double Y1, double X2, double Y2)> fallbackSegments = candidates[0];
 
         if (IsAxisAligned(fromX, fromY, toX, toY))
         {
@@ -77,6 +100,68 @@ public static class DiagramForestOrthogonalEdgeRouter
             BuildPathData(fallbackSegments),
             fallbackSegments,
             UsedFallback: true);
+    }
+
+    private static RouteResult? SelectBestClearRoute(
+        IReadOnlyList<List<(double X1, double Y1, double X2, double Y2)>> candidates,
+        IReadOnlyList<Rect> obstacles,
+        IReadOnlyList<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted)
+    {
+        RouteResult? bestRoute = null;
+        int bestCrossings = int.MaxValue;
+
+        foreach (List<(double X1, double Y1, double X2, double Y2)> segments in candidates)
+        {
+            RouteResult? candidateRoute = TryRoute(segments, obstacles);
+
+            if (candidateRoute is null)
+            {
+                continue;
+            }
+
+            int crossings = DiagramEdgeCrossingCounter.CountAgainst(segments, alreadyRouted);
+
+            if (crossings < bestCrossings)
+            {
+                bestCrossings = crossings;
+                bestRoute = candidateRoute;
+            }
+        }
+
+        return bestRoute;
+    }
+
+    private static List<List<(double X1, double Y1, double X2, double Y2)>> CollectThreeSegmentCandidates(
+        double fromX,
+        double fromY,
+        double toX,
+        double toY)
+    {
+        List<List<(double X1, double Y1, double X2, double Y2)>> candidates = [];
+        double[] candidateYs = [fromY, toY];
+        double[] candidateXs = [fromX, toX];
+
+        foreach (double midY in candidateYs)
+        {
+            candidates.Add(
+                [
+                    (fromX, fromY, fromX, midY),
+                    (fromX, midY, toX, midY),
+                    (toX, midY, toX, toY),
+                ]);
+        }
+
+        foreach (double midX in candidateXs)
+        {
+            candidates.Add(
+                [
+                    (fromX, fromY, midX, fromY),
+                    (midX, fromY, midX, toY),
+                    (midX, toY, toX, toY),
+                ]);
+        }
+
+        return candidates;
     }
 
     public static IReadOnlyList<Rect> BuildObstacles(
@@ -122,51 +207,6 @@ public static class DiagramForestOrthogonalEdgeRouter
         }
 
         return new RouteResult(BuildPathData(segments), segments, UsedFallback: false);
-    }
-
-    private static RouteResult? TryThreeSegmentRoute(
-        double fromX,
-        double fromY,
-        double toX,
-        double toY,
-        IReadOnlyList<Rect> obstacles)
-    {
-        double[] candidateYs = [fromY, toY];
-        double[] candidateXs = [fromX, toX];
-
-        foreach (double midY in candidateYs)
-        {
-            List<(double X1, double Y1, double X2, double Y2)> segments =
-                [
-                    (fromX, fromY, fromX, midY),
-                    (fromX, midY, toX, midY),
-                    (toX, midY, toX, toY),
-                ];
-            RouteResult? result = TryRoute(segments, obstacles);
-
-            if (result is not null)
-            {
-                return result;
-            }
-        }
-
-        foreach (double midX in candidateXs)
-        {
-            List<(double X1, double Y1, double X2, double Y2)> segments =
-                [
-                    (fromX, fromY, midX, fromY),
-                    (midX, fromY, midX, toY),
-                    (midX, toY, toX, toY),
-                ];
-            RouteResult? result = TryRoute(segments, obstacles);
-
-            if (result is not null)
-            {
-                return result;
-            }
-        }
-
-        return null;
     }
 
     private static bool SegmentIntersectsAnyObstacle(

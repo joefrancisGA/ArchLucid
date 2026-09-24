@@ -19,6 +19,7 @@ export const INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM = "includeNeverShow";
 export const INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM = "hideTiers";
 export const INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM = "diagramSubscription";
 export const INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM = "includePrivateEndpoints";
+export const INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM = "includeRecoveryServices";
 
 /** @deprecated Legacy URL param; parsed as alias for {@link INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM}. */
 export const INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM = "showTrivialComponents";
@@ -30,6 +31,7 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "architecture", label: "Architecture" },
   { value: "network", label: "Network" },
   { value: "security", label: "Security" },
+  { value: "businessContinuity", label: "Business continuity" },
   { value: "identity", label: "Identity" },
   { value: "data", label: "Data" },
   { value: "dataFlow", label: "Data flow diagram" },
@@ -173,6 +175,10 @@ export function parseInfraDiagramsIncludePrivateEndpointsFromSearch(raw: string 
   return parseTruthyDiagramSearchParam(raw);
 }
 
+export function parseInfraDiagramsIncludeRecoveryServicesFromSearch(raw: string | null | undefined): boolean {
+  return parseTruthyDiagramSearchParam(raw);
+}
+
 /** @deprecated Use {@link parseInfraDiagramsIncludeNeverShowFromSearch}. */
 export function parseInfraDiagramsShowTrivialComponentsFromSearch(raw: string | null | undefined): boolean {
   return parseInfraDiagramsIncludeNeverShowFromSearch(raw);
@@ -188,6 +194,7 @@ export type InfraDiagramsWorkbenchContext = {
   readonly hiddenExecutiveTierKeys?: readonly string[] | null;
   readonly subscriptionFilter?: string | null;
   readonly includePrivateEndpoints?: boolean | null;
+  readonly includeRecoveryServices?: boolean | null;
   readonly runId?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
@@ -205,6 +212,7 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     hiddenExecutiveTierKeys: context.hiddenExecutiveTierKeys ?? undefined,
     subscriptionFilter: context.subscriptionFilter ?? undefined,
     includePrivateEndpoints: context.includePrivateEndpoints ?? undefined,
+    includeRecoveryServices: context.includeRecoveryServices ?? undefined,
     runId: context.runId ?? undefined,
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
@@ -224,6 +232,7 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly hiddenExecutiveTierKeys?: readonly string[];
     readonly subscriptionFilter?: string;
     readonly includePrivateEndpoints?: boolean;
+    readonly includeRecoveryServices?: boolean;
     readonly runId?: string;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
@@ -324,6 +333,14 @@ export function infraDiagramsFilterHrefFromSearch(
       params.set(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM, "1");
     } else {
       params.delete(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM);
+    }
+  }
+
+  if (patch.includeRecoveryServices !== undefined) {
+    if (patch.includeRecoveryServices) {
+      params.set(INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM, "1");
+    } else {
+      params.delete(INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM);
     }
   }
 

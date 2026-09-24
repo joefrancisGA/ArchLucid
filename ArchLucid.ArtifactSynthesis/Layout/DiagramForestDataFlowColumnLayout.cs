@@ -30,7 +30,8 @@ internal static class DiagramForestDataFlowColumnLayout
         IReadOnlyList<DiagramNode> nodes,
         IReadOnlyList<DiagramSubgraph> subgraphs,
         DiagramForestLayoutOptions options,
-        DiagramForestCanvasLabelContext labelContext)
+        DiagramForestCanvasLabelContext labelContext,
+        IReadOnlyList<DiagramEdge>? edges = null)
     {
         ArgumentNullException.ThrowIfNull(nodes);
         ArgumentNullException.ThrowIfNull(subgraphs);
@@ -51,17 +52,27 @@ internal static class DiagramForestDataFlowColumnLayout
                     : notStagedIndex)
             .OrderBy(group => group.Key)
             .ToList();
+        List<List<DiagramNode>> orderedColumns = columnGroups
+            .Select(column => column
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .ToList())
+            .ToList();
+        IReadOnlyList<DiagramEdge> relevantEdges = edges ?? [];
+
+        if (relevantEdges.Count > 0 && orderedColumns.Count > 1)
+        {
+            orderedColumns = ApplyColumnCrossingOrder(orderedColumns, relevantEdges);
+        }
 
         List<NodePlacement> placements = [];
         List<ColumnInfo> columns = [];
         double columnX = options.Padding;
         double nodeTop = options.Padding + options.DataFlowSkyLaneHeight + options.DataFlowStageLabelBand;
 
-        foreach (IGrouping<int, DiagramNode> column in columnGroups)
+        foreach (List<DiagramNode> column in orderedColumns)
         {
             List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = column
-                .OrderBy(node => node.OrderKey)
-                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
                 .Select(node => (
                     Node: node,
                     Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext)))
@@ -69,8 +80,12 @@ internal static class DiagramForestDataFlowColumnLayout
             double columnWidth = sized.Count == 0
                 ? options.UniformNodeWidth
                 : sized.Max(item => item.Metrics.Width);
-            string label = ResolveColumnLabel(column.Key, orderedSubgraphs, notStagedIndex);
-            columns.Add(new ColumnInfo(column.Key, label, columnX, columnWidth));
+            int stageIndex = column.First().SubgraphId is not null
+                && stageOrder.TryGetValue(column.First().SubgraphId!, out int resolvedStageIndex)
+                ? resolvedStageIndex
+                : notStagedIndex;
+            string label = ResolveColumnLabel(stageIndex, orderedSubgraphs, notStagedIndex);
+            columns.Add(new ColumnInfo(stageIndex, label, columnX, columnWidth));
             double nodeY = nodeTop;
 
             foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
@@ -82,7 +97,7 @@ internal static class DiagramForestDataFlowColumnLayout
                     metrics.Width,
                     metrics.Height,
                     metrics,
-                    column.Key));
+                    stageIndex));
                 nodeY += metrics.Height + options.NodeVerticalGap;
             }
 
@@ -90,6 +105,53 @@ internal static class DiagramForestDataFlowColumnLayout
         }
 
         return new Result(placements, columns);
+    }
+
+    private static List<List<DiagramNode>> ApplyColumnCrossingOrder(
+        List<List<DiagramNode>> orderedColumns,
+        IReadOnlyList<DiagramEdge> relevantEdges)
+    {
+        List<List<DiagramNode>> result = orderedColumns
+            .Select(column => column.ToList())
+            .ToList();
+
+        for (int columnIndex = 0; columnIndex < result.Count; columnIndex++)
+        {
+            IReadOnlyList<DiagramNode>? previousColumn = columnIndex > 0 ? result[columnIndex - 1] : null;
+            IReadOnlyList<DiagramNode>? nextColumn = columnIndex < result.Count - 1 ? result[columnIndex + 1] : null;
+
+            if (previousColumn is null)
+            {
+                continue;
+            }
+
+            result[columnIndex] = DiagramLayerCrossingOrder.OrderByAdjacentLayer(
+                result[columnIndex],
+                previousColumn,
+                adjacentIsPrevious: true,
+                nextColumn,
+                relevantEdges);
+        }
+
+        for (int columnIndex = result.Count - 1; columnIndex >= 0; columnIndex--)
+        {
+            IReadOnlyList<DiagramNode>? previousColumn = columnIndex > 0 ? result[columnIndex - 1] : null;
+            IReadOnlyList<DiagramNode>? nextColumn = columnIndex < result.Count - 1 ? result[columnIndex + 1] : null;
+
+            if (nextColumn is null)
+            {
+                continue;
+            }
+
+            result[columnIndex] = DiagramLayerCrossingOrder.OrderByAdjacentLayer(
+                result[columnIndex],
+                nextColumn,
+                adjacentIsPrevious: false,
+                previousColumn,
+                relevantEdges);
+        }
+
+        return result;
     }
 
     private static string ResolveColumnLabel(

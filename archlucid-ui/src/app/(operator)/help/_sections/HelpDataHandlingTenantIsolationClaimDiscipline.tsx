@@ -1,11 +1,14 @@
+"use client";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { resolveDataHandlingTenantIsolationHelpClaimDiscipline } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
 /** Claim discipline callout for `/help/data-handling`. */
 export function HelpDataHandlingTenantIsolationClaimDiscipline(): React.JSX.Element {
-  const claimDiscipline = resolveDataHandlingTenantIsolationHelpClaimDiscipline(resolveProductLineIdFromEnv());
+  const { productLine } = useProductLine();
+  const claimDiscipline = resolveDataHandlingTenantIsolationHelpClaimDiscipline(productLine);
 
   return (
     <aside

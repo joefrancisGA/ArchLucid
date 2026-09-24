@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   ERROR_RECOVERY_RETRY_NO_POSTURE_CHANGE,
   ERROR_RECOVERY_REVIEW_RETRY_NO_CAREER_WASH,
+  ERROR_RECOVERY_SECURITY_BODY,
+  ERROR_RECOVERY_SECURITY_TITLE,
   ERROR_RECOVERY_STAMPED_CAREER_BLOCKED_TITLE,
   resolveErrorRecoveryCareerHonesty,
 } from "@/lib/error-recovery/error-recovery-career-honesty";
@@ -41,5 +43,19 @@ describe("error-recovery-career-honesty (CG-096)", () => {
         stampedWorkingCareerRehearsalDoor: "career",
       }),
     ).toBeNull();
+  });
+
+  it("uses SecureNow recovery copy without Architecture Practice language", () => {
+    const presentation = resolveErrorRecoveryCareerHonesty({
+      workingDesk: true,
+      productLineId: "security",
+      structuralExecutionMode: "Real",
+      stampedWorkingCareerRehearsalDoor: "practice",
+      liveWorkingCareerRehearsalDoor: "practice",
+    });
+
+    expect(presentation?.title).toBe(ERROR_RECOVERY_SECURITY_TITLE);
+    expect(presentation?.body).toBe(ERROR_RECOVERY_SECURITY_BODY);
+    expect(presentation?.body).not.toMatch(/Practice review type|sealed-record proof/i);
   });
 });

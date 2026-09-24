@@ -11,6 +11,10 @@ export function parseNewRunWizardStepFromSearch(raw: string | null | undefined):
     return null;
   }
 
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
   const parsed = Number.parseInt(trimmed, 10);
 
   if (!Number.isFinite(parsed) || parsed < 0) {

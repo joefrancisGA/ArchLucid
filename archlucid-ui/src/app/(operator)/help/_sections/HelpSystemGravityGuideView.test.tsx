@@ -9,10 +9,13 @@ vi.mock("@/lib/product-line/resolve-product-line-id", () => ({
   resolveProductLineIdFromEnv: () => "architecture",
 }));
 
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: () => "architecture-identity-001",
+}));
+
 import { HelpSystemGravityGuideView } from "@/app/(operator)/help/_sections/HelpSystemGravityGuideView";
 import {
   SYSTEM_GRAVITY_HELP_CLAIM_DISCIPLINE,
-  SYSTEM_GRAVITY_HELP_CONCEPT_TILES,
   SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS,
   SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK,
   SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS,
@@ -27,14 +30,14 @@ import {
   SYSTEM_GRAVITY_HELP_SKIP_LINK_LABEL,
   SYSTEM_GRAVITY_HELP_SKIP_TARGET_ID,
 } from "@/lib/system-gravity-help-page-copy";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { WORKING_CAREER_DOOR_LABEL, WORKING_REHEARSAL_DOOR_LABEL } from "@/lib/governance/working-career-rehearsal-door-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpSystemGravityGuideView (SG-107 / HSY Phase 2)", () => {
   const entry = getProductDocumentationEntry("system-gravity");
 
-  it("renders breadcrumb, provenance, skip link, desk definitions, concept tiles, keyboard table, and technical disclosure", () => {
+  it("renders breadcrumb, provenance, skip link, key terms, recovery, keyboard table, and technical disclosure", () => {
     if (entry === undefined) {
       throw new Error("Expected system-gravity documentation entry.");
     }
@@ -53,9 +56,7 @@ describe("HelpSystemGravityGuideView (SG-107 / HSY Phase 2)", () => {
       `#${SYSTEM_GRAVITY_HELP_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("help-system-gravity-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
-    expect(screen.queryByTestId("help-system-gravity-claim-tag")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("help-system-gravity-return-to-help")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("help-system-gravity-seat-securenow")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-system-gravity-concept-tiles")).not.toBeInTheDocument();
 
     const definitions = screen.getByTestId("help-system-gravity-desk-home-definitions");
     for (const row of SYSTEM_GRAVITY_HELP_DESK_HOME_DEFINITIONS) {
@@ -67,10 +68,6 @@ describe("HelpSystemGravityGuideView (SG-107 / HSY Phase 2)", () => {
       const element = document.getElementById(heading.id);
       expect(element).not.toBeNull();
       expect(element).toHaveTextContent(heading.title);
-    }
-
-    for (const tile of SYSTEM_GRAVITY_HELP_CONCEPT_TILES) {
-      expect(screen.getByTestId(`help-system-gravity-tile-${tile.id}`)).toHaveTextContent(tile.title);
     }
 
     const keyboardTable = screen.getByTestId("help-system-gravity-keyboard-table");
@@ -93,14 +90,35 @@ describe("HelpSystemGravityGuideView (SG-107 / HSY Phase 2)", () => {
       "href",
       SYSTEM_GRAVITY_HELP_ERROR_RECOVERY_ARCHITECTURE_LIST_LINK.href,
     );
+    expect(screen.getByTestId("help-system-gravity-recover-last-architecture")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001",
+    );
+    expect(screen.getByTestId("help-system-gravity-trust-link-0")).toHaveAttribute(
+      "href",
+      "/help/sealed-record-vs-decision-register",
+    );
+    expect(screen.getByTestId("help-system-gravity-trust-link-1")).toHaveAttribute("href", "/help/audit-trail");
+    expect(screen.getByTestId("help-system-gravity-record-what-if-cap-link")).toHaveAttribute(
+      "href",
+      "/help/sketch-a-change",
+    );
 
-    expect(screen.getByTestId("help-system-gravity-record-practice-body")).toHaveTextContent(
+    expect(screen.getByTestId("help-system-gravity-record-practice-intro")).toHaveTextContent(
       WORKING_CAREER_DOOR_LABEL,
     );
-    expect(screen.getByTestId("help-system-gravity-record-practice-body")).toHaveTextContent(
+    expect(screen.getByTestId("help-system-gravity-record-practice-intro")).toHaveTextContent(
       WORKING_REHEARSAL_DOOR_LABEL,
     );
-
-    expect(screen.queryByTestId("help-system-gravity-honesty-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-system-gravity-record-practice-record-tag")).toHaveTextContent(
+      WORKING_CAREER_DOOR_LABEL,
+    );
+    expect(screen.getByTestId("help-system-gravity-record-practice-practice-tag")).toHaveTextContent(
+      WORKING_REHEARSAL_DOOR_LABEL,
+    );
+    expect(screen.getByTestId("help-system-gravity-record-effects-tag")).toHaveTextContent(WORKING_CAREER_DOOR_LABEL);
+    expect(screen.getByTestId("help-system-gravity-practice-effects-tag")).toHaveTextContent(
+      WORKING_REHEARSAL_DOOR_LABEL,
+    );
   });
 });

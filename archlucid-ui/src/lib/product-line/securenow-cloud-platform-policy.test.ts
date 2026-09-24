@@ -73,6 +73,7 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpSearchTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("career-vs-rehearsal", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("system-gravity", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("inhabit-the-architecture", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("sketch-a-change", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("system-gravity", "architecture")).toBe(false);
   });

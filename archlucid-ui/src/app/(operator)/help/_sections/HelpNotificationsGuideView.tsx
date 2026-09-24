@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { HelpNotificationsHeaderActions } from "@/app/(operator)/help/_sections/HelpNotificationsHeaderActions";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpNotificationsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpNotificationsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
@@ -47,7 +50,6 @@ import {
 } from "@/lib/notifications-help-page-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -98,7 +100,7 @@ function NotificationsStartHereActionPanel(): React.ReactElement {
 export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const productLine = resolveProductLineIdFromEnv();
+  const { productLine } = useProductLine();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-notifications",
     NOTIFICATIONS_HELP_GUIDE_HEADINGS,

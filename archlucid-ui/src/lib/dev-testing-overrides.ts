@@ -59,7 +59,11 @@ function readCookieValue(name: string): string | null {
     return null;
   }
 
-  return decodeURIComponent(match.slice(prefix.length));
+  try {
+    return decodeURIComponent(match.slice(prefix.length));
+  } catch {
+    return null;
+  }
 }
 
 function writeCookieValue(name: string, value: string | null): void {

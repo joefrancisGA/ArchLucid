@@ -16,7 +16,15 @@ export function MicrosoftClarityLoader(props: { projectId: string }) {
       if (typeof window === "undefined")
         return;
 
-      if (window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY) !== "granted")
+      let consent: string | null = null;
+
+      try {
+        consent = window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY);
+      } catch {
+        return;
+      }
+
+      if (consent !== "granted")
         return;
 
       const w = window as Window & { clarity?: (action: string, id: string) => void };

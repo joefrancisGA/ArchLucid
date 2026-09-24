@@ -4,21 +4,33 @@ import type { QuickScanFieldErrors } from "@/lib/quick-scan/quick-scan-validatio
 export const QUICK_SCAN_SESSION_STORAGE_KEY = "al_quick_scan_session";
 export const QUICK_SCAN_BROWSER_STORAGE_KEY = "al_quick_scan_browser";
 
+let volatileSessionId: string | null = null;
+let volatileBrowserId: string | null = null;
+
+function volatileId(current: string | null): string {
+  return current ?? crypto.randomUUID();
+}
+
 export function ensureSessionId(): string {
   if (typeof window === "undefined") {
     return "server";
   }
 
-  const existing = window.localStorage.getItem(QUICK_SCAN_SESSION_STORAGE_KEY);
+  try {
+    const existing = window.localStorage.getItem(QUICK_SCAN_SESSION_STORAGE_KEY);
 
-  if (existing && existing.trim().length > 0) {
-    return existing;
+    if (existing && existing.trim().length > 0) {
+      return existing;
+    }
+
+    const created = crypto.randomUUID();
+    window.localStorage.setItem(QUICK_SCAN_SESSION_STORAGE_KEY, created);
+
+    return created;
+  } catch {
+    volatileSessionId = volatileId(volatileSessionId);
+    return volatileSessionId;
   }
-
-  const created = crypto.randomUUID();
-  window.localStorage.setItem(QUICK_SCAN_SESSION_STORAGE_KEY, created);
-
-  return created;
 }
 
 export function ensureBrowserId(): string {
@@ -26,16 +38,21 @@ export function ensureBrowserId(): string {
     return "server";
   }
 
-  const existing = window.localStorage.getItem(QUICK_SCAN_BROWSER_STORAGE_KEY);
+  try {
+    const existing = window.localStorage.getItem(QUICK_SCAN_BROWSER_STORAGE_KEY);
 
-  if (existing && existing.trim().length > 0) {
-    return existing;
+    if (existing && existing.trim().length > 0) {
+      return existing;
+    }
+
+    const created = crypto.randomUUID();
+    window.localStorage.setItem(QUICK_SCAN_BROWSER_STORAGE_KEY, created);
+
+    return created;
+  } catch {
+    volatileBrowserId = volatileId(volatileBrowserId);
+    return volatileBrowserId;
   }
-
-  const created = crypto.randomUUID();
-  window.localStorage.setItem(QUICK_SCAN_BROWSER_STORAGE_KEY, created);
-
-  return created;
 }
 
 export function tryReadErrorCode(body: string): string | null {

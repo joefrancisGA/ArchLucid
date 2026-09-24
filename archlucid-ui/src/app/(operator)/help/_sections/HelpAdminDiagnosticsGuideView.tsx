@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpAdminDiagnosticsHeaderActions } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsHeaderActions";
 import { HelpAdminDiagnosticsSignalTable } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsSignalTable";
@@ -37,7 +41,6 @@ import {
   ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/admin-diagnostics-help-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
@@ -99,7 +102,7 @@ export function HelpAdminDiagnosticsGuideView(
 ): React.ReactElement {
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,

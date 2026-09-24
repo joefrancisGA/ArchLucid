@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -42,7 +46,7 @@ import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpSealedVsDecisionRegisterGuideViewProps = {
@@ -92,7 +96,7 @@ function HelpSealedVsDecisionRegisterProvenanceLine(props: {
 }
 
 function filterRelatedLinks(
-  productLineId: ReturnType<typeof resolveProductLineIdFromEnv>,
+  productLineId: ProductLineId,
 ): typeof DESK_IA_HELP_SEALED_VS_REGISTER_RELATED_LINKS {
   return DESK_IA_HELP_SEALED_VS_REGISTER_RELATED_LINKS.filter((link) => {
     const slug = helpTopicSlugFromInAppHref(link.href);
@@ -110,7 +114,7 @@ export function HelpSealedVsDecisionRegisterGuideView(
   props: HelpSealedVsDecisionRegisterGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const relatedLinks = filterRelatedLinks(productLineId);
   const contentGridClass = resolveHelpPageContentGridClass(DESK_IA_HELP_SEALED_VS_REGISTER_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);

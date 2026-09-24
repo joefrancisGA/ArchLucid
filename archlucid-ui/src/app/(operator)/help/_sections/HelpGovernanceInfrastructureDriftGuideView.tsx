@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GovernanceInfrastructureDriftHelpEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-help-infrastructure-strips";
@@ -55,7 +59,7 @@ import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpGovernanceInfrastructureDriftGuideViewProps = {
@@ -86,7 +90,7 @@ function helpTopicSlugFromInAppHref(href: string): string | null {
 }
 
 function filterRelatedLinks(
-  productLineId: ReturnType<typeof resolveProductLineIdFromEnv>,
+  productLineId: ProductLineId,
 ): typeof GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_LINKS {
   return GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_LINKS.filter((link) => {
     const slug = helpTopicSlugFromInAppHref(link.href);
@@ -185,7 +189,7 @@ export function HelpGovernanceInfrastructureDriftGuideView(
   props: HelpGovernanceInfrastructureDriftGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const relatedLinks = filterRelatedLinks(productLineId);
   const guideHeadings = resolveGuideHeadingsForStrip(

@@ -55,7 +55,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryDependencyObservationRow>? dependencyObservations = null,
         bool dependencyObservationsFilePresent = false,
         IReadOnlyList<AzureInventorySqlDatabasePrincipalRow>? sqlDatabasePrincipals = null,
-        bool sqlDatabasePrincipalsFilePresent = false)
+        bool sqlDatabasePrincipalsFilePresent = false,
+        IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow>? recoveryServicesProtectedItems = null,
+        bool recoveryServicesProtectedItemsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -80,6 +82,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryAppSettingHostRow> appSettingHostRows = appSettingHosts ?? [];
         IReadOnlyList<AzureInventoryDependencyObservationRow> dependencyObservationRows = dependencyObservations ?? [];
         IReadOnlyList<AzureInventorySqlDatabasePrincipalRow> sqlDatabasePrincipalRows = sqlDatabasePrincipals ?? [];
+        IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItemRows =
+            recoveryServicesProtectedItems ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -269,6 +273,27 @@ public static class AzureInventorySecurityEdgeMaterializer
                 relationships,
                 relationshipKeys);
         }
+
+        if (!recoveryServicesProtectedItemsFilePresent
+            && resources.Any(resource =>
+                string.Equals(
+                    resource.ResourceType,
+                    AzureInventoryRecoveryServices.VaultResourceType,
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            warnings.Add(AzureInventoryRecoveryServicesCompletenessWarningCodes.ProtectedItemsMissing);
+        }
+
+        HashSet<string> visibleArmIds = resources
+            .Select(resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        AzureInventoryRecoveryServicesEdgeMapper.MapProtectedItems(
+            recoveryServicesProtectedItemRows,
+            visibleArmIds,
+            relationships,
+            relationshipKeys,
+            warnings);
 
         return new AzureInventorySecurityEdgeMaterializeResult
         {

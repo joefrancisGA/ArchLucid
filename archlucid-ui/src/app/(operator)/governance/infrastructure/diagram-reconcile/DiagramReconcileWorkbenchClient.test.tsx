@@ -3,9 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DiagramReconcileWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
 
-const { ingestArchitectureDiagramMock, reconcileArchitectureDiagramMock } = vi.hoisted(() => ({
+const {
+  ingestArchitectureDiagramMock,
+  reconcileArchitectureDiagramMock,
+  fetchArchitectureDiagramReconciliationMock,
+} = vi.hoisted(() => ({
   ingestArchitectureDiagramMock: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
   reconcileArchitectureDiagramMock: vi.fn(),
+  fetchArchitectureDiagramReconciliationMock: vi.fn(),
 }));
 
 let searchParams = new URLSearchParams(
@@ -39,46 +44,26 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
 
+vi.mock("@/hooks/use-run-summary-query", () => ({
+  useRunSummaryQuery: () => ({
+    data: {
+      runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      projectId: "project-1",
+      createdUtc: "2026-01-01T00:00:00Z",
+      displayName: "Claims intake modernization",
+      hasGoldenManifest: true,
+      completedUtc: "2026-01-02T00:00:00Z",
+    },
+    isLoading: false,
+    isFetching: false,
+    failure: null,
+    blockedReason: null,
+  }),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
   fetchArchitectureDiagramModel: vi.fn(async () => ({ nodes: [{ id: "n1", label: "api" }], edges: [] })),
-  fetchArchitectureDiagramReconciliation: vi.fn(async () => ({
-    runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    snapshotId: "11111111-1111-1111-1111-111111111111",
-    diagramNodeCount: 1,
-    inventoryResourceCount: 2,
-    rows: [
-      {
-        correspondenceId: "diagram-node-1",
-        diagramNodeId: "node-1",
-        diagramNodeLabel: "private gateway (rg-net)",
-        cloudResourceId: "22222222-3333-4444-5555-666666666666",
-        azureResourceId: "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
-        resourceType: "Microsoft.Network/publicIPAddresses",
-        resourceGroup: "rg-net",
-        terraformAddress: null,
-        matchKind: "Conflict",
-        confidenceBand: "Likely",
-        explainText: "Multiple inventory resources matched the diagram node.",
-        aiRationale: null,
-        securityDiscrepancy: true,
-      },
-      {
-        correspondenceId: "infra-only-1",
-        diagramNodeId: null,
-        diagramNodeLabel: null,
-        cloudResourceId: "33333333-4444-5555-6666-777777777777",
-        azureResourceId: "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Storage/storageAccounts/orphan",
-        resourceType: "Microsoft.Storage/storageAccounts",
-        resourceGroup: "rg-net",
-        terraformAddress: null,
-        matchKind: "InfrastructureOnly",
-        confidenceBand: "InsufficientEvidence",
-        explainText: "Inventory resource has no corresponding diagram node.",
-        aiRationale: null,
-        securityDiscrepancy: false,
-      },
-    ],
-  })),
+  fetchArchitectureDiagramReconciliation: fetchArchitectureDiagramReconciliationMock,
   ingestArchitectureDiagram: ingestArchitectureDiagramMock,
   reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
   ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),
@@ -99,6 +84,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 
 describe("DiagramReconcileWorkbenchClient", () => {
   beforeEach(() => {
+    window.sessionStorage.clear();
     searchParams = new URLSearchParams(
       "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
     );
@@ -109,6 +95,45 @@ describe("DiagramReconcileWorkbenchClient", () => {
       model: { nodes: [], edges: [] },
     });
     reconcileArchitectureDiagramMock.mockReset();
+    fetchArchitectureDiagramReconciliationMock.mockReset();
+    fetchArchitectureDiagramReconciliationMock.mockResolvedValue({
+      runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      diagramNodeCount: 1,
+      inventoryResourceCount: 2,
+      rows: [
+        {
+          correspondenceId: "diagram-node-1",
+          diagramNodeId: "node-1",
+          diagramNodeLabel: "private gateway (rg-net)",
+          cloudResourceId: "22222222-3333-4444-5555-666666666666",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          terraformAddress: null,
+          matchKind: "Conflict",
+          confidenceBand: "Likely",
+          explainText: "Multiple inventory resources matched the diagram node.",
+          aiRationale: null,
+          securityDiscrepancy: true,
+        },
+        {
+          correspondenceId: "infra-only-1",
+          diagramNodeId: null,
+          diagramNodeLabel: null,
+          cloudResourceId: "33333333-4444-5555-6666-777777777777",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Storage/storageAccounts/orphan",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-net",
+          terraformAddress: null,
+          matchKind: "InfrastructureOnly",
+          confidenceBand: "InsufficientEvidence",
+          explainText: "Inventory resource has no corresponding diagram node.",
+          aiRationale: null,
+          securityDiscrepancy: false,
+        },
+      ],
+    });
   });
 
   it("renders wizard controls, filter, and conflict row with both sides", async () => {
@@ -217,15 +242,35 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
   });
 
-  it("shows an inline validation error instead of a toast when ingest is missing diagram source", async () => {
+  it("keeps ingest disabled until mermaid source is provided", async () => {
     render(<DiagramReconcileWorkbenchClient />);
 
-    fireEvent.click(await screen.findByTestId("infra-diagram-reconcile-ingest"));
-
-    expect(await screen.findByTestId("infra-diagram-reconcile-diagram-source-error")).toHaveTextContent(
-      "Diagram source required",
-    );
+    expect(await screen.findByTestId("infra-diagram-reconcile-ingest")).toBeDisabled();
     expect(ingestArchitectureDiagramMock).not.toHaveBeenCalled();
+  });
+
+  it("shows sealed review record verification strip for a valid run id", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-sealed-record-strip")).toHaveTextContent(
+      "Claims intake modernization",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-sealed-record-status")).toHaveTextContent("Sealed");
+  });
+
+  it("distinguishes missing saved reconciliation from load errors", async () => {
+    fetchArchitectureDiagramReconciliationMock.mockRejectedValue({
+      message: "not found",
+      problem: { status: 404 },
+      correlationId: null,
+      httpStatus: 404,
+      retryAfterSeconds: null,
+    });
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-no-saved-reconciliation")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagram-reconcile-reconciliation-load-error")).not.toBeInTheDocument();
   });
 
   it("shows an inline error instead of a toast when reconciliation fails", async () => {

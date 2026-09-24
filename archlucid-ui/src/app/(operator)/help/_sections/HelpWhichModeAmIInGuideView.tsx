@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -43,7 +47,7 @@ import {
 import { MODE_GRAVITY_HELP_WHICH_MODE_PATH } from "@/lib/mode-gravity-help-route";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpWhichModeAmIInGuideViewProps = {
@@ -93,7 +97,7 @@ function HelpWhichModeAmIInProvenanceLine(props: {
 }
 
 function filterRelatedLinks(
-  productLineId: ReturnType<typeof resolveProductLineIdFromEnv>,
+  productLineId: ProductLineId,
 ): typeof MODE_GRAVITY_HELP_WHICH_MODE_RELATED_LINKS {
   return MODE_GRAVITY_HELP_WHICH_MODE_RELATED_LINKS.filter((link) => {
     const slug = helpTopicSlugFromInAppHref(link.href);
@@ -109,7 +113,7 @@ function filterRelatedLinks(
 /** MG-012 — Working vs Guided; then Career vs Rehearsal; demo/trial are eval. */
 export function HelpWhichModeAmIInGuideView(props: HelpWhichModeAmIInGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const relatedLinks = filterRelatedLinks(productLineId);
   const contentGridClass = resolveHelpPageContentGridClass(MODE_GRAVITY_HELP_WHICH_MODE_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);

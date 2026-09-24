@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
@@ -9,7 +10,6 @@ import {
   CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
   cloudConnectionsHelpPackagingScripts,
 } from "@/lib/cloud-connections-help-guide-content";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   helpCloudConnectionsPackagingScriptsDisclosureHrefFromSearch,
@@ -19,10 +19,11 @@ import { cn } from "@/lib/utils";
 
 /** Packaging scripts disclosure on the cloud connections help page, synced to URL. */
 export function HelpCloudConnectionsPackagingScriptsDisclosure(): ReactElement {
+  const { productLine } = useProductLine();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const packagingScripts = cloudConnectionsHelpPackagingScripts(resolveProductLineIdFromEnv());
+  const packagingScripts = cloudConnectionsHelpPackagingScripts(productLine);
   const helpCloudConnectionsPackagingScriptsOpenParam = searchParams.get("helpCloudConnectionsPackagingScriptsOpen");
   const [packagingScriptsOpen, setPackagingScriptsOpenState] = useState(() =>
     parseHelpCloudConnectionsPackagingScriptsOpenFromSearch(helpCloudConnectionsPackagingScriptsOpenParam),

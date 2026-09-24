@@ -72,17 +72,29 @@ export function resolveContinueLastSettingsPrincipal(
     return null;
   }
 
+  const validRows = normalized.filter(
+    (row) =>
+      typeof row?.id === "string"
+      && (row?.kind === "user" || row?.kind === "api_key")
+      && typeof row?.name === "string"
+      && typeof row?.detail === "string",
+  );
+
+  if (validRows.length === 0) {
+    return null;
+  }
+
   const storedKey = readStoredPrincipalKey();
 
   if (storedKey !== null) {
-    const storedMatch = normalized.find((row) => principalStorageKey(row.kind, row.id) === storedKey);
+    const storedMatch = validRows.find((row) => principalStorageKey(row.kind, row.id) === storedKey);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const first = normalized[0];
+  const first = validRows[0];
 
   return first === undefined ? null : toTarget(first);
 }

@@ -142,10 +142,10 @@
     "openpgp": "^6.3.1",
     "postcss": "^8.5.18",
     "tailwindcss": "^4.3.3",
-    "tsx": "^4.23.13",
+    "tsx": "^4.23.15",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "@typescript/native": "npm:typescript@^7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "@typescript/native": "npm:typescript@^7.0.2"
   },
   "overrides": {
     "@tanstack/query-core": "5.102.8",

@@ -54,10 +54,21 @@ export function resolveContinueLastWebhookSubscription(
     return null;
   }
 
+  const validSubscriptions = normalizedSubscriptions.filter(
+    (subscription) =>
+      typeof subscription?.routingSubscriptionId === "string"
+      && typeof subscription?.name === "string"
+      && typeof subscription?.createdUtc === "string",
+  );
+
+  if (validSubscriptions.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredSubscriptionId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedSubscriptions.find(
+    const storedMatch = validSubscriptions.find(
       (subscription) => subscription.routingSubscriptionId === storedId,
     );
 
@@ -70,9 +81,21 @@ export function resolveContinueLastWebhookSubscription(
     return null;
   }
 
-  const enabled = normalizedSubscriptions.filter((subscription) => subscription.isEnabled === true);
-  const pool = enabled.length > 0 ? enabled : normalizedSubscriptions;
-  const newest = pool.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
+  const enabled = validSubscriptions.filter((subscription) => subscription.isEnabled === true);
+  const pool = enabled.length > 0 ? enabled : validSubscriptions;
+  const newest = pool
+    .map((subscription) => ({
+      subscription,
+      createdAt: Date.parse(subscription.createdUtc),
+    }))
+    .filter((entry) => !Number.isNaN(entry.createdAt))
+    .reduce<typeof pool[number] | null>(
+      (latest, entry) =>
+        latest === null || entry.createdAt > Date.parse(latest.createdUtc)
+          ? entry.subscription
+          : latest,
+      null,
+    );
 
-  return newest === undefined ? null : toTarget(newest);
+  return newest === null ? null : toTarget(newest);
 }

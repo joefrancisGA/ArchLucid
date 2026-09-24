@@ -30,6 +30,15 @@ describe("operator-home-hero-resume-target", () => {
     });
   });
 
+  it("does not throw when matching malformed encoded draft hrefs", () => {
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/architectures/%E0%A4%A" },
+        { href: "/architecture/architectures/other" },
+      ),
+    ).toBe(false);
+  });
+
   it("matches draft and review rows that share the hero href", () => {
     const target = {
       href: "/architecture/reviews/run-hero",

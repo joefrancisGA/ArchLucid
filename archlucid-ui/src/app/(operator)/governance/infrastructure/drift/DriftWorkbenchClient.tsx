@@ -112,6 +112,7 @@ import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHub
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isAppShellWorkspaceFooterBuildFingerprintVisible } from "@/lib/app-shell-workspace-footer-build-fingerprint-visibility";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
@@ -139,18 +140,17 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_SECONDARY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_CLEAR_SNAPSHOT_SELECTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL,
@@ -161,6 +161,14 @@ import {
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DRIFT_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-drift-page-shortcuts";
+import {
+  readDriftLastComparisonSelection,
+  validateDriftLastComparisonSelection,
+  writeDriftLastComparisonSelection,
+  type DriftLastComparisonSelection,
+} from "@/lib/infra-evidence/infra-evidence-drift-last-comparison-storage";
+import { partitionInfraEvidenceLaterSnapshotsForAnchor } from "@/lib/infra-evidence/infra-evidence-drift-later-snapshots";
+import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
@@ -185,6 +193,8 @@ import { DriftChangeDetail } from "./DriftChangeDetail";
 import { DriftChangeRiskCell } from "./DriftChangeRiskCell";
 import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
 import { DriftChangesPagination } from "./DriftChangesPagination";
+import { DriftLaterCapturesAvailability } from "./DriftLaterCapturesAvailability";
+import { DriftResumeLastComparisonRow } from "./DriftResumeLastComparisonRow";
 import {
   DRIFT_CHANGES_TABLE_COLUMN_COUNT,
   DRIFT_INVENTORY_TABLE_COLUMN_COUNT,
@@ -199,8 +209,6 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
-
-const cnPickerField = cn(cnField, "w-full max-w-md");
 
 const SNAPSHOTS_PAGE_SIZE = 50;
 
@@ -303,6 +311,11 @@ export function DriftWorkbenchClient() {
   const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null);
   const [snapshotsReloadNonce, setSnapshotsReloadNonce] = useState(0);
   const [workbenchRetryNonce, setWorkbenchRetryNonce] = useState(0);
+  const [focusedSnapshotId, setFocusedSnapshotId] = useState("");
+  const [resumeLastComparisonSelection, setResumeLastComparisonSelection] = useState(
+    () => readDriftLastComparisonSelection(),
+  );
+  const pendingResumeComparisonRef = useRef<DriftLastComparisonSelection | null>(null);
 
   const retryWorkbenchLoad = useCallback(() => {
     setLoadError(null);
@@ -324,7 +337,7 @@ export function DriftWorkbenchClient() {
     if (selectedSnapshotId.length > 0) {
       return (
         <StatusTag
-          kind="ready"
+          kind="neutral"
           label="Snapshot selected"
           data-testid="infra-drift-scope-status"
         />
@@ -333,7 +346,7 @@ export function DriftWorkbenchClient() {
 
     return (
       <StatusTag
-        kind="needs-attention"
+        kind="neutral"
         label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL}
         data-testid="infra-drift-scope-status"
       />
@@ -366,10 +379,26 @@ export function DriftWorkbenchClient() {
     return sortDriftSnapshots(filtered, snapshotTableFilterState.sortBy, snapshotTableFilterState.sortDir);
   }, [snapshots, snapshotTableFilterState]);
 
-  const snapshotPickerOptions = useMemo(
-    () => sortDriftSnapshots(snapshots, "captured", "desc"),
-    [snapshots],
-  );
+  const laterSnapshotsPartition = useMemo(() => {
+    if (selectedSnapshot == null) {
+      return { sameSubscription: [], crossSubscription: [] };
+    }
+
+    return partitionInfraEvidenceLaterSnapshotsForAnchor(selectedSnapshot, snapshots);
+  }, [selectedSnapshot, snapshots]);
+  const validatedResumeLastComparison = useMemo(() => {
+    if (resumeLastComparisonSelection == null) {
+      return null;
+    }
+
+    return validateDriftLastComparisonSelection(resumeLastComparisonSelection, snapshots, diffs);
+  }, [diffs, resumeLastComparisonSelection, snapshots]);
+  const showResumeLastComparisonRow =
+    selectedSnapshotId.length === 0
+    && urlSnapshotId.length === 0
+    && validatedResumeLastComparison != null;
+  const showBuildProvenanceStrip =
+    !buyerPolishedShell && !isAppShellWorkspaceFooterBuildFingerprintVisible(pathname);
   const isViewingSnapshotInventory = selectedSnapshotId.length > 0 && selectedDiffId.length === 0;
   const changesTableColumnCount = isViewingSnapshotInventory
     ? DRIFT_INVENTORY_TABLE_COLUMN_COUNT
@@ -607,6 +636,27 @@ export function DriftWorkbenchClient() {
     setSelectedSnapshotId(urlSnapshotId);
     setAnchorSnapshotId(urlSnapshotId);
   }, [urlSnapshotId]);
+
+  useEffect(() => {
+    if (selectedSnapshotId.length === 0) {
+      setFocusedSnapshotId("");
+      return;
+    }
+
+    setFocusedSnapshotId((current) => (current.length > 0 ? current : selectedSnapshotId));
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
+    writeDriftLastComparisonSelection({
+      snapshotId: selectedSnapshotId,
+      diffId: selectedDiffId,
+      changeId: selectedChangeId ?? "",
+    });
+  }, [selectedChangeId, selectedDiffId, selectedSnapshotId]);
+
+  useEffect(() => {
+    setResumeLastComparisonSelection(readDriftLastComparisonSelection());
+  }, [selectedSnapshotId, selectedDiffId, selectedChangeId]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0) {
@@ -977,18 +1027,6 @@ export function DriftWorkbenchClient() {
     [anchorSnapshot, applySnapshotSelect, requestSubscriptionConfirmation, selectedSnapshot, selectedSnapshotId, snapshots],
   );
 
-  const handleSnapshotPickerChange = useCallback(
-    (nextSnapshotId: string) => {
-      if (nextSnapshotId.length === 0) {
-        applySnapshotClear();
-        return;
-      }
-
-      handleSnapshotSelect(nextSnapshotId);
-    },
-    [applySnapshotClear, handleSnapshotSelect],
-  );
-
   const handleDiffSelect = useCallback(
     (nextDiffId: string) => {
       if (nextDiffId.length === 0) {
@@ -1075,6 +1113,110 @@ export function DriftWorkbenchClient() {
     }
   }, []);
 
+  const handleResumeLastComparison = useCallback(() => {
+    if (validatedResumeLastComparison == null) {
+      return;
+    }
+
+    pendingResumeComparisonRef.current = validatedResumeLastComparison;
+    applySnapshotSelect(validatedResumeLastComparison.snapshotId);
+  }, [applySnapshotSelect, validatedResumeLastComparison]);
+
+  useEffect(() => {
+    const pending = pendingResumeComparisonRef.current;
+
+    if (pending == null || selectedSnapshotId !== pending.snapshotId || loadingDiffs) {
+      return;
+    }
+
+    if (pending.diffId.length > 0) {
+      if (!visibleDiffs.some((diff) => diff.diffId === pending.diffId)) {
+        return;
+      }
+
+      applyDiffSelect(pending.diffId);
+    }
+
+    if (pending.changeId.length > 0 && !loadingChanges) {
+      activateChange(pending.changeId, "replace");
+    }
+
+    pendingResumeComparisonRef.current = null;
+  }, [
+    activateChange,
+    applyDiffSelect,
+    loadingChanges,
+    loadingDiffs,
+    selectedSnapshotId,
+    visibleDiffs,
+  ]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (visibleSnapshots.length === 0) {
+        return;
+      }
+
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Enter") {
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      const isFormControl =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement instanceof HTMLTextAreaElement;
+
+      if (isFormControl) {
+        return;
+      }
+
+      const activeRow = activeElement?.closest("[data-testid^='infra-drift-snapshot-row-']");
+      const inSnapshotsSection = activeElement?.closest("[data-testid='infra-drift-snapshots-section']");
+
+      if (activeRow == null && inSnapshotsSection == null) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const currentIndex = focusedSnapshotId.length === 0
+        ? visibleSnapshots.findIndex((snapshot) => snapshot.snapshotId === selectedSnapshotId)
+        : visibleSnapshots.findIndex((snapshot) => snapshot.snapshotId === focusedSnapshotId);
+      const resolvedIndex = currentIndex >= 0 ? currentIndex : 0;
+      const nextIndex = event.key === "ArrowDown"
+        ? Math.min(resolvedIndex + 1, visibleSnapshots.length - 1)
+        : event.key === "ArrowUp"
+          ? Math.max(resolvedIndex - 1, 0)
+          : resolvedIndex;
+      const nextSnapshot = visibleSnapshots[nextIndex];
+
+      if (nextSnapshot == null) {
+        return;
+      }
+
+      setFocusedSnapshotId(nextSnapshot.snapshotId);
+
+      window.requestAnimationFrame(() => {
+        const row = document.querySelector(
+          `[data-testid="infra-drift-snapshot-row-${nextSnapshot.snapshotId}"]`,
+        ) as HTMLElement | null;
+        row?.scrollIntoView({ block: "nearest" });
+        row?.focus();
+      });
+
+      if (event.key === "Enter") {
+        handleSnapshotSelect(nextSnapshot.snapshotId);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [focusedSnapshotId, handleSnapshotSelect, selectedSnapshotId, visibleSnapshots]);
+
   const renderChangesEmptyState = () => {
     if (loadingChanges) {
       return (
@@ -1132,20 +1274,37 @@ export function DriftWorkbenchClient() {
         {GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL}
       </a>
 
+      <DriftBreadcrumb />
+
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
         title={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
-        subtitle={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
+        subtitle={
+          <>
+            {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_LEAD}{" "}
+            <span data-testid="infra-drift-page-secondary-lead">
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_SECONDARY}
+            </span>
+          </>
+        }
         subtitleTestId="infra-drift-page-lead"
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-drift-claim-discipline"
         titleTestId="infra-drift-page-title"
-        metadata={<DriftBreadcrumb />}
         actions={
           <InfraEvidenceWorkbenchHeaderActions
             shortcutsTestId="infra-drift-page-shortcuts"
             shortcuts={DRIFT_WORKBENCH_PAGE_SHORTCUTS}
             scopeStatusBadge={scopeStatusBadge}
+            contextualHelpTriggerText={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
+            extraShortcutHints={
+              <>
+                {" · snapshot rows "}
+                <KeyboardShortcutBadge shortcut="↑" />
+                <KeyboardShortcutBadge shortcut="↓" />
+                <KeyboardShortcutBadge shortcut="Enter" />
+              </>
+            }
           />
         }
       />
@@ -1156,6 +1315,10 @@ export function DriftWorkbenchClient() {
         data-testid="infra-drift-primary-content"
       >
         <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-drift-selection-announcer" />
+
+        {showResumeLastComparisonRow && validatedResumeLastComparison != null ? (
+          <DriftResumeLastComparisonRow onResume={handleResumeLastComparison} />
+        ) : null}
 
         {urlCloudResourceId.length > 0 ? (
           <section
@@ -1238,6 +1401,7 @@ export function DriftWorkbenchClient() {
           ref={snapshotsSectionRef}
           className={cn("flex flex-col gap-3", cnCard)}
           aria-label={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}
+          data-testid="infra-drift-snapshots-section"
         >
           <div>
             <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}</h2>
@@ -1246,38 +1410,15 @@ export function DriftWorkbenchClient() {
             </p>
           </div>
 
-          <div className="grid max-w-md gap-2">
-            <Label htmlFor="infra-drift-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL}</Label>
-            <select
-              id="infra-drift-snapshot-picker"
-              className={cnPickerField}
-              data-testid="infra-drift-snapshot-picker"
-              disabled={loadingSnapshots || snapshotPickerOptions.length === 0}
-              value={selectedSnapshotId}
-              onChange={(event) => {
-                handleSnapshotPickerChange(event.target.value);
-              }}
-            >
-              <option value="">{GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER}</option>
-              {loadingSnapshots ? <option value="" disabled>Loading inventory files…</option> : null}
-              {!loadingSnapshots && snapshotPickerOptions.length === 0 ? (
-                <option value="" disabled>No inventory files yet</option>
-              ) : null}
-              {snapshotPickerOptions.map((snapshot) => (
-                <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                  {formatInfraEvidenceSnapshotLabel(snapshot)}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <DriftSnapshotsTable
             snapshots={visibleSnapshots}
             selectedSnapshotId={selectedSnapshotId}
+            focusedSnapshotId={focusedSnapshotId}
             loading={loadingSnapshots}
             tableFilterState={snapshotTableFilterState}
             hasActiveFilters={hasActiveSnapshotTableFilters}
             onSelectSnapshot={handleSnapshotSelect}
+            onFocusSnapshot={setFocusedSnapshotId}
             onSortColumn={handleSnapshotSortColumn}
             onTableFiltersChange={handleSnapshotTableFiltersChange}
             onClearFilters={handleClearSnapshotTableFilters}
@@ -1312,10 +1453,33 @@ export function DriftWorkbenchClient() {
 
           {selectedSnapshotId.length > 0 ? (
             <div className="flex flex-col gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800">
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-selected-snapshot-summary">
-                <span className="font-medium text-al-text-primary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL}:</span>{" "}
-                {selectedSnapshot != null ? formatInfraEvidenceSnapshotLabel(selectedSnapshot) : selectedSnapshotId}
-              </p>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-selected-snapshot-summary">
+                  <span className="font-medium text-al-text-primary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL}:</span>{" "}
+                  {selectedSnapshot != null ? formatInfraEvidenceSnapshotLabel(selectedSnapshot) : selectedSnapshotId}
+                  {selectedSnapshot != null ? (
+                    <>
+                      {" "}
+                      <StatusTag
+                        kind={resolveInfraEvidenceSnapshotCaptureStatusPresentation(selectedSnapshot.captureStatus).kind}
+                        label={resolveInfraEvidenceSnapshotCaptureStatusPresentation(selectedSnapshot.captureStatus).label}
+                        data-testid="infra-drift-selected-snapshot-capture-status"
+                      />
+                    </>
+                  ) : null}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  data-testid="infra-drift-clear-snapshot-selection"
+                  onClick={applySnapshotClear}
+                >
+                  {GOVERNANCE_INFRASTRUCTURE_DRIFT_CLEAR_SNAPSHOT_SELECTION_LABEL}
+                </Button>
+              </div>
+
+              <DriftLaterCapturesAvailability partition={laterSnapshotsPartition} />
 
               <div className="flex flex-wrap items-start gap-3">
                 <Button
@@ -1352,7 +1516,11 @@ export function DriftWorkbenchClient() {
 
               <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
 
-              <DriftSnapshotIdentifiers snapshotId={selectedSnapshotId} diffId={selectedDiffId} />
+              <DriftSnapshotIdentifiers
+                snapshotId={selectedSnapshotId}
+                diffId={selectedDiffId}
+                architectureName={selectedSnapshot?.architectureName}
+              />
 
               {exportReceipt != null ? (
                 <div
@@ -1640,7 +1808,9 @@ export function DriftWorkbenchClient() {
         ) : null}
 
         <DriftClaimOrientationStrip />
-        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-drift-build-provenance-limitation" />
+        {showBuildProvenanceStrip ? (
+          <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-drift-build-provenance-limitation" />
+        ) : null}
       </main>
 
       <DriftCrossSubscriptionDiffConfirmDialog
@@ -1658,7 +1828,12 @@ export function DriftWorkbenchClient() {
           }
         }}
       >
-        <AlertDialogContent data-testid="infra-drift-delete-snapshot-dialog">
+        <AlertDialogContent
+          data-testid="infra-drift-delete-snapshot-dialog"
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+          }}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE}</AlertDialogTitle>
             <AlertDialogDescription>
@@ -1668,7 +1843,7 @@ export function DriftWorkbenchClient() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deletingSnapshotId != null}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel autoFocus disabled={deletingSnapshotId != null}>Cancel</AlertDialogCancel>
             <Button
               type="button"
               variant="destructive"
