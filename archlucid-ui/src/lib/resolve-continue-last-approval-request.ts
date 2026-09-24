@@ -88,17 +88,30 @@ export function resolveContinueLastApprovalRequest(
     return null;
   }
 
+  const validApprovals = normalizedApprovals.filter(
+    (row) =>
+      typeof row?.approvalRequestId === "string"
+      && typeof row?.requestedUtc === "string"
+      && typeof row?.manifestVersion === "string"
+      && typeof row?.sourceEnvironment === "string"
+      && typeof row?.targetEnvironment === "string",
+  );
+
+  if (validApprovals.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredApprovalRequestId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedApprovals.find((row) => row.approvalRequestId === storedId);
+    const storedMatch = validApprovals.find((row) => row.approvalRequestId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = normalizedApprovals
+  const newest = validApprovals
     .slice()
     .sort((left, right) => right.requestedUtc.localeCompare(left.requestedUtc))[0];
 
