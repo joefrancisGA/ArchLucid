@@ -271,14 +271,26 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       raw.remediationInstances as Record<string, unknown> | undefined,
     ),
     rbacAssignments: Array.isArray(raw.rbacAssignments)
-      ? raw.rbacAssignments.map((item) => {
+      ? raw.rbacAssignments.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            principalId: String(row.principalId ?? ""),
-            roleDefinitionId: String(row.roleDefinitionId ?? ""),
-            scope: String(row.scope ?? ""),
-          };
+          if (
+            typeof row.principalId !== "string"
+            || typeof row.roleDefinitionId !== "string"
+            || typeof row.scope !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            principalId: row.principalId,
+            roleDefinitionId: row.roleDefinitionId,
+            scope: row.scope,
+          }];
         })
       : [],
     networkRelationships: Array.isArray(raw.networkRelationships)
