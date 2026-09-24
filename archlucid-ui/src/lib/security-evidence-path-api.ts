@@ -218,9 +218,9 @@ export async function fetchRankedSecurityEvidencePaths(
     items: itemsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapRankSummary),
-    totalCount: Number(raw.totalCount ?? 0),
-    page: Number(raw.page ?? page),
-    pageSize: Number(raw.pageSize ?? pageSize),
+    totalCount: finiteNumberOrDefault(raw.totalCount, 0),
+    page: finiteNumberOrDefault(raw.page, page),
+    pageSize: finiteNumberOrDefault(raw.pageSize, pageSize),
     topCutPoints: topCutPointsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapCutPoint),
