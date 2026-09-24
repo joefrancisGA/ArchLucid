@@ -31,6 +31,12 @@ export type FetchAdminAiUsageDashboardOptions = {
   readonly signal?: AbortSignal;
 };
 
+function finiteNumberOrZero(value: unknown): number {
+  const parsed = typeof value === "number" ? value : Number(value ?? 0);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export async function fetchAdminAiUsageDashboard(
   options?: FetchAdminAiUsageDashboardOptions,
 ): Promise<AdminAiUsageDashboard> {
@@ -39,9 +45,9 @@ export async function fetchAdminAiUsageDashboard(
   });
 
   return {
-    budgetAmountUsd: Number(payload.budgetAmountUsd ?? 0),
-    usedAmountUsd: Number(payload.usedAmountUsd ?? 0),
-    remainingAmountUsd: Number(payload.remainingAmountUsd ?? 0),
+    budgetAmountUsd: finiteNumberOrZero(payload.budgetAmountUsd),
+    usedAmountUsd: finiteNumberOrZero(payload.usedAmountUsd),
+    remainingAmountUsd: finiteNumberOrZero(payload.remainingAmountUsd),
     resetPeriod: typeof payload.resetPeriod === "string" ? payload.resetPeriod : "",
     hardStopEnabled: payload.hardStopEnabled === true,
     trialExpirationUtc:
@@ -55,7 +61,7 @@ export async function fetchAdminAiUsageDashboard(
         ? Object.fromEntries(
             Object.entries(payload.usageByFeatureUsd as Record<string, unknown>).map(([key, value]) => [
               key,
-              Number(value),
+              finiteNumberOrZero(value),
             ]),
           )
         : {},
@@ -91,7 +97,7 @@ function parseAdminAiUsageEventRow(entry: unknown): AdminAiUsageEventRow | null 
     occurredUtc: typeof row.occurredUtc === "string" ? row.occurredUtc : "",
     feature: typeof row.feature === "string" ? row.feature : "",
     providerKind: typeof row.providerKind === "string" ? row.providerKind : "",
-    estimatedCostUsd: Number(row.estimatedCostUsd ?? 0),
+    estimatedCostUsd: finiteNumberOrZero(row.estimatedCostUsd),
     userId: typeof row.userId === "string" ? row.userId : null,
     servedFromDemoCache: row.servedFromDemoCache === true,
     budgetBlocked: row.budgetBlocked === true,
