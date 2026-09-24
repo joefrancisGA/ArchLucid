@@ -65,7 +65,12 @@ export function readRecurrenceProposalDecline(runId: string): RecurrenceProposal
 
     const record = parsed as Partial<RecurrenceProposalDeclineRecord>;
 
-    if (record.v !== RECURRENCE_PROPOSAL_DECLINE_VERSION || typeof record.declinedAtUtc !== "string") {
+    if (
+      record.v !== RECURRENCE_PROPOSAL_DECLINE_VERSION
+      || typeof record.declinedAtUtc !== "string"
+      || record.declinedAtUtc.trim().length === 0
+      || Number.isNaN(Date.parse(record.declinedAtUtc))
+    ) {
       return null;
     }
 
