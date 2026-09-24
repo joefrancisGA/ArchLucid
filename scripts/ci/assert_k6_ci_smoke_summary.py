@@ -42,6 +42,28 @@ def _env_float(key: str, default: str) -> float:
     return float(raw)
 
 
+def _ci_smoke_tag_caps() -> dict[str, float]:
+    caps = dict(_CI_SMOKE_TAG_CAPS)
+    for tag, env_key, default in (
+        ("health_live", "ARCHLUCID_K6_P95_HEALTH_LIVE_MS", "300"),
+        ("health_ready", "ARCHLUCID_K6_P95_HEALTH_READY_MS", "1200"),
+        ("create_run", "ARCHLUCID_K6_P95_TIER3_MS", "6600"),
+    ):
+        caps[f"http_req_duration{{k6ci:{tag}}}"] = _env_float(env_key, default)
+    tier2 = _env_float("ARCHLUCID_K6_P95_TIER2_MS", "928")
+    for name in caps:
+        if name not in {
+            "http_req_duration{k6ci:health_live}",
+            "http_req_duration{k6ci:health_ready}",
+            "http_req_duration{k6ci:create_run}",
+        }:
+            caps[name] = tier2
+    for name, cap in caps.items():
+        if not math.isfinite(cap) or cap <= 0:
+            raise ValueError(f"invalid k6 p95 cap for {name}: {cap!r}")
+    return caps
+
+
 def _k6_api_smoke_tag_caps() -> dict[str, float]:
     """Caps for tests/load/k6-api-smoke.js — MUST stay aligned with that script's P95_MS + thresholds."""
     tier2 = _env_float("ARCHLUCID_K6_P95_TIER2_MS", "928")
@@ -217,7 +239,7 @@ def main() -> int:
         )
 
     if args.per_tag_ci_smoke:
-        found = _check_per_tag(payload, errors, _CI_SMOKE_TAG_CAPS)
+        found = _check_per_tag(payload, errors, _ci_smoke_tag_caps())
 
         if not found:
             print(
