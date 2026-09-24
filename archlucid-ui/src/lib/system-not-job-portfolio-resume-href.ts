@@ -22,9 +22,13 @@ export function resolveRunIdFromWorkingReviewHref(href: string): string | null {
   const nestedMatch = /^\/architecture\/architectures\/[^/]+\/reviews\/([^/?#]+)/.exec(path);
 
   if (nestedMatch !== null) {
-    const runId = decodeURIComponent(nestedMatch[1]).trim();
+    try {
+      const runId = decodeURIComponent(nestedMatch[1]).trim();
 
-    return runId.length > 0 ? runId : null;
+      return runId.length > 0 ? runId : null;
+    } catch {
+      return null;
+    }
   }
 
   const peerMatch = /^\/architecture\/reviews\/([^/?#]+)/.exec(path);
@@ -33,13 +37,17 @@ export function resolveRunIdFromWorkingReviewHref(href: string): string | null {
     return null;
   }
 
-  const runId = decodeURIComponent(peerMatch[1]).trim();
+  try {
+    const runId = decodeURIComponent(peerMatch[1]).trim();
 
-  if (runId.length === 0 || runId === "new" || runId.includes("/")) {
+    if (runId.length === 0 || runId === "new" || runId.includes("/")) {
+      return null;
+    }
+
+    return runId;
+  } catch {
     return null;
   }
-
-  return runId;
 }
 
 /** SN-012 / SG-040: Working resume lands on the architecture desk when parent id is known; honest peer fallback otherwise. */
