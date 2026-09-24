@@ -137,6 +137,15 @@ def _print_k6_api_budget_summary(payload: dict, caps: dict[str, float]) -> None:
         print(f"  {metric_name}: p(95)={p95:.1f} ms cap={cap_ms:.0f} ms [{status}]")
 
 
+def _check_global_p95(payload: dict, errors: list[str], cap_ms: float, *, fallback: bool = False) -> None:
+    p95_ms = _float(_metric_values(payload, "http_req_duration"), "p(95)")
+    if p95_ms is None:
+        errors.append("http_req_duration p(95) missing from k6 summary")
+    elif p95_ms > cap_ms + 1e-9:
+        label = " (global fallback)" if fallback else ""
+        errors.append(f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {cap_ms:.0f} ms{label}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("summary_json", type=Path, help="k6 --summary-export JSON path")
@@ -201,13 +210,7 @@ def main() -> int:
                 "falling back to global --max-p95-ms",
                 file=sys.stderr,
             )
-            duration = _metric_values(payload, "http_req_duration")
-            p95_ms = _float(duration, "p(95)")
-
-            if p95_ms is not None and p95_ms > args.max_p95_ms + 1e-9:
-                errors.append(
-                    f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms (global fallback)",
-                )
+            _check_global_p95(payload, errors, args.max_p95_ms, fallback=True)
     elif args.per_tag_k6_api_smoke:
         caps = _k6_api_smoke_tag_caps()
         found = _check_per_tag(payload, errors, caps)
@@ -218,23 +221,11 @@ def main() -> int:
                 "falling back to global --max-p95-ms",
                 file=sys.stderr,
             )
-            duration = _metric_values(payload, "http_req_duration")
-            p95_ms = _float(duration, "p(95)")
-
-            if p95_ms is not None and p95_ms > args.max_p95_ms + 1e-9:
-                errors.append(
-                    f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms (global fallback)",
-                )
+            _check_global_p95(payload, errors, args.max_p95_ms, fallback=True)
         elif not errors:
             _print_k6_api_budget_summary(payload, caps)
     else:
-        duration = _metric_values(payload, "http_req_duration")
-        p95_ms = _float(duration, "p(95)")
-
-        if p95_ms is not None and p95_ms > args.max_p95_ms + 1e-9:
-            errors.append(
-                f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms",
-            )
+        _check_global_p95(payload, errors, args.max_p95_ms)
 
     if errors:
         print("k6 smoke gate failed:", file=sys.stderr)

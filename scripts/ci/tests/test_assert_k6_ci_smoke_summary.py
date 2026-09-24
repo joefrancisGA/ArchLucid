@@ -18,6 +18,18 @@ def _payload(**tag_p95: float) -> dict:
 
 
 class AssertK6CiSmokeSummaryTests(unittest.TestCase):
+    def test_missing_global_duration_cannot_pass(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(_payload(), tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            for mode in ([], ["--per-tag-ci-smoke"], ["--per-tag-k6-api-smoke"]):
+                proc = subprocess.run([PYTHON, str(SCRIPT), str(tmp_path), *mode], capture_output=True, text=True)
+                self.assertEqual(proc.returncode, 1, proc.stderr)
+                self.assertIn("http_req_duration p(95) missing", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
     def test_missing_failure_rate_cannot_pass(self):
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
             json.dump({"metrics": {"http_req_duration": {"values": {"p(95)": 100}}}}, tmp)
