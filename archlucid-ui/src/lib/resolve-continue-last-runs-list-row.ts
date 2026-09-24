@@ -52,7 +52,8 @@ export function resolveContinueLastRunsListRow(runs: unknown): RunSummary | null
   }
 
   const validRuns = normalizedRuns.filter(
-    (run) => typeof run?.runId === "string" && typeof run?.createdUtc === "string",
+    (run): run is RunSummary =>
+      typeof run?.runId === "string" && typeof run?.createdUtc === "string",
   );
 
   if (validRuns.length === 0) {
