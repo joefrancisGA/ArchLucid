@@ -186,6 +186,13 @@ def main() -> int:
         )
         return 2
 
+    if not math.isfinite(args.max_failed_rate) or not 0 <= args.max_failed_rate <= 1:
+        print("error: --max-failed-rate must be between 0 and 1", file=sys.stderr)
+        return 2
+    if not math.isfinite(args.max_p95_ms) or args.max_p95_ms <= 0:
+        print("error: --max-p95-ms must be a finite positive number", file=sys.stderr)
+        return 2
+
     path: Path = args.summary_json
     if not path.is_file():
         print(f"error: missing k6 summary file: {path}", file=sys.stderr)
