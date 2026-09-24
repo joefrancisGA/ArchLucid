@@ -48,6 +48,7 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
         IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
         IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
+        IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow>? recoveryServicesProtectedItems = null,
         IReadOnlyList<string>? collectionWarnings = null,
         HostedAzureActualCostSummary? actualCostSummary = null,
         HostedAzurePolicyComplianceDocument? policyComplianceDocument = null,
@@ -398,6 +399,19 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] recoveryServicesProtectedItemRows = (recoveryServicesProtectedItems ?? [])
+            .Select(static row => new
+            {
+                vaultResourceId = row.VaultResourceId,
+                itemKind = row.ItemKind,
+                sourceResourceId = row.SourceResourceId,
+                targetRegion = row.TargetRegion,
+                targetResourceId = row.TargetResourceId,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -480,6 +494,10 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.ServiceConnectorLinks,
                 JsonSerializer.Serialize(serviceConnectorLinkRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.RecoveryServicesProtectedItems,
+                JsonSerializer.Serialize(recoveryServicesProtectedItemRows, SerializerOptions));
 
             if (appSettingHosts is not null)
             {
