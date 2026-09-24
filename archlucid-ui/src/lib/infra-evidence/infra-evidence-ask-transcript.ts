@@ -41,9 +41,13 @@ function readTranscriptUserSubject(): string {
     return "anonymous";
   }
 
-  const subject = window.sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)?.trim() ?? "";
+  try {
+    const subject = window.sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)?.trim() ?? "";
 
-  return subject.length > 0 ? subject : "anonymous";
+    return subject.length > 0 ? subject : "anonymous";
+  } catch {
+    return "anonymous";
+  }
 }
 
 function resolveTranscriptStorageKey(scopeKey: string): string {
