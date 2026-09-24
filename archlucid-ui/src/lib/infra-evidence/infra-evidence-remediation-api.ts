@@ -90,11 +90,11 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
       matchRaw == null
         ? null
         : {
-            matchResultId: String(matchRaw.matchResultId ?? ""),
-            patternKey: String(matchRaw.patternKey ?? ""),
-            patternVersion: String(matchRaw.patternVersion ?? ""),
-            matchKind: String(matchRaw.matchKind ?? ""),
-            explainText: String(matchRaw.explainText ?? ""),
+            matchResultId: typeof matchRaw.matchResultId === "string" ? matchRaw.matchResultId : "",
+            patternKey: typeof matchRaw.patternKey === "string" ? matchRaw.patternKey : "",
+            patternVersion: typeof matchRaw.patternVersion === "string" ? matchRaw.patternVersion : "",
+            matchKind: typeof matchRaw.matchKind === "string" ? matchRaw.matchKind : "",
+            explainText: typeof matchRaw.explainText === "string" ? matchRaw.explainText : "",
           },
     evidence: Array.isArray(raw.evidence)
       ? raw.evidence.flatMap((item) => {
