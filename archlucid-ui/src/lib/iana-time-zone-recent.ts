@@ -61,7 +61,11 @@ export function recordRecentIanaTimeZoneId(ianaTimeZoneId: string): void {
     MAX_RECENT_TIME_ZONES,
   );
 
-  window.localStorage.setItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY, JSON.stringify(nextRecent));
+  try {
+    window.localStorage.setItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY, JSON.stringify(nextRecent));
+  } catch {
+    /* private/restricted storage */
+  }
 }
 
 /** Clears recent time zones between Vitest cases. */
