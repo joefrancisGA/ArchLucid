@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpCloudConnectionsClaimDisciplineCallout } from "@/app/(operator)/help/_sections/HelpCloudConnectionsClaimDisciplineCallout";
 import { HelpCloudConnectionsFollowUpLinks } from "@/app/(operator)/help/_sections/HelpCloudConnectionsFollowUpLinks";
@@ -18,7 +22,6 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { extractMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -123,7 +126,7 @@ export function HelpCloudConnectionsGuideView(
   props: HelpCloudConnectionsGuideViewProps,
 ): React.ReactElement {
   const { entry, markdown } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   // Related topics only — React owns intro/tiers/next-actions (avoids duplicate doc intro).
