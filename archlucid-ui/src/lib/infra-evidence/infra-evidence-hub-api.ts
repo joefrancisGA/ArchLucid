@@ -348,7 +348,7 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
         })
       : [],
     auditLineageLink: {
-      available: Boolean(auditRaw?.available),
+      available: auditRaw?.available === true,
       degradedReason: auditRaw?.degradedReason != null ? String(auditRaw.degradedReason) : null,
       relativePath: auditRaw?.relativePath != null ? String(auditRaw.relativePath) : null,
       assessmentId: auditRaw?.assessmentId != null ? String(auditRaw.assessmentId) : null,
