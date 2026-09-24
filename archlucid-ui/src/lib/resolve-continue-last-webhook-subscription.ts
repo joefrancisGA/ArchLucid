@@ -83,7 +83,19 @@ export function resolveContinueLastWebhookSubscription(
 
   const enabled = validSubscriptions.filter((subscription) => subscription.isEnabled === true);
   const pool = enabled.length > 0 ? enabled : validSubscriptions;
-  const newest = pool.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
+  const newest = pool
+    .map((subscription) => ({
+      subscription,
+      createdAt: Date.parse(subscription.createdUtc),
+    }))
+    .filter((entry) => !Number.isNaN(entry.createdAt))
+    .reduce<typeof pool[number] | null>(
+      (latest, entry) =>
+        latest === null || entry.createdAt > Date.parse(latest.createdUtc)
+          ? entry.subscription
+          : latest,
+      null,
+    );
 
-  return newest === undefined ? null : toTarget(newest);
+  return newest === null ? null : toTarget(newest);
 }
