@@ -12,5 +12,7 @@ export function resolveContinueLastPlanningPlan(
     return null;
   }
 
-  return [...normalized].sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0] ?? null;
+  const validPlans = normalized.filter((plan) => typeof plan?.createdUtc === "string");
+
+  return [...validPlans].sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0] ?? null;
 }
