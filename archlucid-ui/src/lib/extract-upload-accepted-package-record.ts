@@ -86,8 +86,13 @@ export function writeExtractUploadAcceptedPackageRecord(
 
   try {
     window.localStorage.setItem(key, JSON.stringify(record));
-  } catch {
-    /* private/restricted storage */
+  } catch (error) {
+    if (error instanceof DOMException) {
+      // Private/restricted storage and quota failures are non-fatal.
+      return;
+    }
+
+    throw error;
   }
 }
 
