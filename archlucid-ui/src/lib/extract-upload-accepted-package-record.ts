@@ -39,13 +39,13 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
     return null;
   }
 
-  const raw = window.localStorage.getItem(key);
-
-  if (raw === null || raw.trim().length === 0) {
-    return null;
-  }
-
   try {
+    const raw = window.localStorage.getItem(key);
+
+    if (raw === null || raw.trim().length === 0) {
+      return null;
+    }
+
     const parsed = JSON.parse(raw) as Partial<ExtractUploadAcceptedPackageRecord>;
     const packageId = parsed.packageId?.trim() ?? "";
     const acceptedAtUtc = parsed.acceptedAtUtc?.trim() ?? "";
