@@ -14,6 +14,7 @@ import {
 } from "@/lib/livelihood-grade-no-hard-infeasible-inventory";
 import { KEYBOARD_SHORTCUTS_OPEN_PARAM } from "@/lib/operator/keyboard-shortcuts-dialog-url";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   verdictTierFromFeasibilityKind,
   verdictTierLabel,
@@ -185,7 +186,7 @@ export const LIVELIHOOD_GRADE_NO_HELP_FALSE_HARD_FEASIBILITY_PURPOSE_LINKS: read
       description: "Decision-grade findings still need Kind A/B provenance — separate from feasibility citation.",
     },
     {
-      label: "Review packages",
+      label: `${REVIEW_PACKAGE_LABEL}s`,
       href: inAppHelpHref("review-packages"),
       description: "Sponsor handoff strips surface extraction and feasibility honesty before send.",
     },
