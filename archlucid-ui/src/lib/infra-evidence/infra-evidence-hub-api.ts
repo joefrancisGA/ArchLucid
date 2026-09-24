@@ -358,17 +358,33 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       controlNumber: typeof auditRaw?.controlNumber === "string" ? auditRaw.controlNumber : null,
       controlTitle: typeof auditRaw?.controlTitle === "string" ? auditRaw.controlTitle : null,
       matches: Array.isArray(auditRaw?.matches)
-        ? auditRaw.matches.map((item) => {
-            const row = item as Record<string, unknown>;
+        ? auditRaw.matches.flatMap((item) => {
+            if (item === null || typeof item !== "object" || Array.isArray(item)) {
+              return [];
+            }
 
-            return {
-              assessmentId: String(row.assessmentId ?? ""),
-              auditEvidenceSnapshotId: String(row.auditEvidenceSnapshotId ?? ""),
-              controlId: String(row.controlId ?? ""),
-              controlNumber: String(row.controlNumber ?? ""),
-              controlTitle: String(row.controlTitle ?? ""),
-              snapshotCreatedUtc: String(row.snapshotCreatedUtc ?? ""),
-            };
+            const row = item as Record<string, unknown>;
+            const required = [
+              row.assessmentId,
+              row.auditEvidenceSnapshotId,
+              row.controlId,
+              row.controlNumber,
+              row.controlTitle,
+              row.snapshotCreatedUtc,
+            ];
+
+            if (!required.every((value) => typeof value === "string")) {
+              return [];
+            }
+
+            return [{
+              assessmentId: row.assessmentId as string,
+              auditEvidenceSnapshotId: row.auditEvidenceSnapshotId as string,
+              controlId: row.controlId as string,
+              controlNumber: row.controlNumber as string,
+              controlTitle: row.controlTitle as string,
+              snapshotCreatedUtc: row.snapshotCreatedUtc as string,
+            }];
           })
         : [],
     },
