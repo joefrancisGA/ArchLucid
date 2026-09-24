@@ -54,10 +54,21 @@ export function resolveContinueLastWebhookSubscription(
     return null;
   }
 
+  const validSubscriptions = normalizedSubscriptions.filter(
+    (subscription) =>
+      typeof subscription?.routingSubscriptionId === "string"
+      && typeof subscription?.name === "string"
+      && typeof subscription?.createdUtc === "string",
+  );
+
+  if (validSubscriptions.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredSubscriptionId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedSubscriptions.find(
+    const storedMatch = validSubscriptions.find(
       (subscription) => subscription.routingSubscriptionId === storedId,
     );
 
@@ -70,8 +81,8 @@ export function resolveContinueLastWebhookSubscription(
     return null;
   }
 
-  const enabled = normalizedSubscriptions.filter((subscription) => subscription.isEnabled === true);
-  const pool = enabled.length > 0 ? enabled : normalizedSubscriptions;
+  const enabled = validSubscriptions.filter((subscription) => subscription.isEnabled === true);
+  const pool = enabled.length > 0 ? enabled : validSubscriptions;
   const newest = pool.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 
   return newest === undefined ? null : toTarget(newest);
