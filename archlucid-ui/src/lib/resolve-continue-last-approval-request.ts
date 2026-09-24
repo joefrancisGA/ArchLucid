@@ -21,9 +21,13 @@ function approvalRequestIdFromRecentHref(href: string): string | null {
     return null;
   }
 
-  const approvalRequestId = decodeURIComponent(match[1] ?? "").trim();
+  try {
+    const approvalRequestId = decodeURIComponent(match[1] ?? "").trim();
 
-  return approvalRequestId.length > 0 ? approvalRequestId : null;
+    return approvalRequestId.length > 0 ? approvalRequestId : null;
+  } catch {
+    return null;
+  }
 }
 
 function readStoredApprovalRequestId(): string | null {
