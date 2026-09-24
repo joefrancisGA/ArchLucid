@@ -18,18 +18,18 @@ const FINDING_MATCH_PATH = "/api/proxy/v1/infra-evidence/operational-findings";
 
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
   return {
-    instanceId: String(raw.instanceId ?? ""),
-    findingId: String(raw.findingId ?? ""),
-    patternKey: String(raw.patternKey ?? ""),
-    status: String(raw.status ?? "Classified") as RemediationInstanceSummary["status"],
-    automationLevel: String(raw.automationLevel ?? ""),
-    cloudResourceId: raw.cloudResourceId != null ? String(raw.cloudResourceId) : null,
-    waveId: raw.waveId != null ? String(raw.waveId) : null,
-    preflightSnapshotId: raw.preflightSnapshotId != null ? String(raw.preflightSnapshotId) : null,
-    executionSnapshotId: raw.executionSnapshotId != null ? String(raw.executionSnapshotId) : null,
-    verificationSnapshotId: raw.verificationSnapshotId != null ? String(raw.verificationSnapshotId) : null,
-    createdUtc: String(raw.createdUtc ?? ""),
-    updatedUtc: String(raw.updatedUtc ?? ""),
+    instanceId: typeof raw.instanceId === "string" ? raw.instanceId : "",
+    findingId: typeof raw.findingId === "string" ? raw.findingId : "",
+    patternKey: typeof raw.patternKey === "string" ? raw.patternKey : "",
+    status: (typeof raw.status === "string" ? raw.status : "Classified") as RemediationInstanceSummary["status"],
+    automationLevel: typeof raw.automationLevel === "string" ? raw.automationLevel : "",
+    cloudResourceId: typeof raw.cloudResourceId === "string" ? raw.cloudResourceId : null,
+    waveId: typeof raw.waveId === "string" ? raw.waveId : null,
+    preflightSnapshotId: typeof raw.preflightSnapshotId === "string" ? raw.preflightSnapshotId : null,
+    executionSnapshotId: typeof raw.executionSnapshotId === "string" ? raw.executionSnapshotId : null,
+    verificationSnapshotId: typeof raw.verificationSnapshotId === "string" ? raw.verificationSnapshotId : null,
+    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
+    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
   };
 }
 
