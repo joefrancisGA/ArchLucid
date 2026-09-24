@@ -25,8 +25,12 @@ function approvalRequestIdFromRecentHref(href: string): string | null {
     const approvalRequestId = decodeURIComponent(match[1] ?? "").trim();
 
     return approvalRequestId.length > 0 ? approvalRequestId : null;
-  } catch {
-    return null;
+  } catch (err) {
+    if (err instanceof URIError) {
+      return null;
+    }
+
+    throw err;
   }
 }
 
