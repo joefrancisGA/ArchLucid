@@ -38,7 +38,13 @@ export default async function RunFindingExplainPage({
     notFound();
   }
 
-  const decodedFindingId = decodeURIComponent(findingId);
+  let decodedFindingId: string;
+
+  try {
+    decodedFindingId = decodeURIComponent(findingId);
+  } catch {
+    notFound();
+  }
 
   const result = await loadFindingDetailPageModel(runId, decodedFindingId, findingId);
 
