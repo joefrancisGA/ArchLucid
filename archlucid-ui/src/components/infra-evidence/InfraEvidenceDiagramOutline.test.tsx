@@ -39,9 +39,11 @@ const outline: InfraEvidenceMermaidOutline = {
 };
 
 function getNodesTable(): HTMLTableElement {
-  const panel = screen.getByTestId("infra-diagrams-outline-nodes-panel");
+  return within(screen.getByTestId("infra-diagrams-connected-nodes-list")).getByRole("table");
+}
 
-  return within(panel).getByRole("table");
+function getUnconnectedNodesList(): HTMLElement {
+  return screen.getByTestId("infra-diagrams-unconnected-nodes-list");
 }
 
 function getEdgesTable(): HTMLTableElement {
@@ -52,19 +54,9 @@ function getEdgesTable(): HTMLTableElement {
 
 function getFirstConnectedDataRow(table: HTMLTableElement): HTMLTableRowElement {
   const rows = within(table).getAllByRole("row");
-  let passedConnectedHeader = false;
 
   for (const row of rows) {
-    if (row.textContent?.startsWith("Connected nodes")) {
-      passedConnectedHeader = true;
-      continue;
-    }
-
-    if (row.textContent?.startsWith("Unconnected nodes")) {
-      break;
-    }
-
-    if (passedConnectedHeader) {
+    if (row.querySelector("th") === null) {
       return row;
     }
   }
@@ -75,12 +67,7 @@ function getFirstConnectedDataRow(table: HTMLTableElement): HTMLTableRowElement 
 function countNodeDataRows(table: HTMLTableElement): number {
   return within(table)
     .getAllByRole("row")
-    .filter(
-      (row) =>
-        !row.textContent?.startsWith("Connected nodes")
-        && !row.textContent?.startsWith("Unconnected nodes")
-        && row.querySelector("th") === null,
-    ).length;
+    .filter((row) => row.querySelector("th") === null).length;
 }
 
 describe("InfraEvidenceDiagramOutline", () => {
@@ -378,9 +365,12 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     const nodesTable = getNodesTable();
 
-    expect(within(nodesTable).getByText("Connected nodes (2)")).toBeTruthy();
-    expect(within(nodesTable).getByText("Unconnected nodes (1)")).toBeTruthy();
-    expect(countNodeDataRows(nodesTable)).toBe(3);
+    expect(screen.getByText("Connected nodes (2)")).toBeTruthy();
+    expect(within(getUnconnectedNodesList()).getByText("Unconnected nodes (1)")).toBeTruthy();
+    expect(
+      countNodeDataRows(nodesTable)
+      + countNodeDataRows(within(getUnconnectedNodesList()).getByRole("table")),
+    ).toBe(3);
     expect(screen.queryByTestId("infra-diagrams-outline-nodes-truncated")).toBeNull();
   });
 
@@ -411,8 +401,8 @@ describe("InfraEvidenceDiagramOutline", () => {
     const nodesTable = getNodesTable();
     const edgesTable = getEdgesTable();
 
-    expect(within(nodesTable).getByText("Connected nodes (201)")).toBeTruthy();
-    expect(screen.queryByText(/Unconnected nodes/)).toBeNull();
+    expect(screen.getByText("Connected nodes (201)")).toBeTruthy();
+    expect(within(getUnconnectedNodesList()).getByText("Unconnected nodes (0)")).toBeTruthy();
     expect(countNodeDataRows(nodesTable)).toBe(201);
     expect(within(edgesTable).getAllByRole("row")).toHaveLength(202);
     expect(screen.queryByTestId("infra-diagrams-outline-nodes-truncated")).toBeNull();
