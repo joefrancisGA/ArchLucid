@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP,
@@ -8,7 +12,6 @@ import {
   dataHandlingTenantIsolationHelpOverviewCrossCheckLinks,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
@@ -16,7 +19,7 @@ import { cn } from "@/lib/utils";
 /** Lead + linked cross-check line for `/help/data-handling`. */
 export function HelpDataHandlingTenantIsolationOverview(): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const crossCheckLinks = dataHandlingTenantIsolationHelpOverviewCrossCheckLinks(buyerPolishedShell);
   const overviewLead = dataHandlingTenantIsolationHelpOverviewLead(productLineId);
 
