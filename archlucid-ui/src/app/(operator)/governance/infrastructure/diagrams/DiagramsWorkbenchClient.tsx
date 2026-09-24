@@ -153,7 +153,6 @@ import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlSc
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
-import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -165,7 +164,6 @@ import {
   DESIGN_TOKENS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { DIAGRAMS_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-diagrams-page-shortcuts";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
@@ -1571,45 +1569,6 @@ export function DiagramsWorkbenchClient() {
     { enabled: !buyerPolishedShell },
   );
 
-  const scopeStatusBadge = useMemo(() => {
-    if (urlCloudResourceId.length > 0) {
-      return (
-        <StatusTag
-          kind="ready"
-          label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL}
-          data-testid="infra-diagrams-scope-status"
-        />
-      );
-    }
-
-    if (selectedSnapshotId.length > 0 && diagramTypeSelected) {
-      return (
-        <StatusTag kind="ready" label="Diagram scope ready" data-testid="infra-diagrams-scope-status" />
-      );
-    }
-
-    if (selectedSnapshotId.length > 0) {
-      return (
-        <StatusTag kind="needs-attention" label="Select diagram type" data-testid="infra-diagrams-scope-status" />
-      );
-    }
-
-    if (diagramsSubscriptionChosen) {
-      return (
-        <StatusTag kind="needs-attention" label="Select snapshot" data-testid="infra-diagrams-scope-status" />
-      );
-    }
-
-    return (
-      <StatusTag kind="needs-attention" label="Select subscription" data-testid="infra-diagrams-scope-status" />
-    );
-  }, [
-    diagramTypeSelected,
-    diagramsSubscriptionChosen,
-    selectedSnapshotId,
-    urlCloudResourceId.length,
-  ]);
-
   return (
     <OperatorPageContainer
       variant="full"
@@ -1631,14 +1590,6 @@ export function DiagramsWorkbenchClient() {
         claimDisciplineTestId="infra-diagrams-claim-discipline"
         titleTestId="infra-diagrams-page-title"
         metadata={<DiagramsBreadcrumb />}
-        actions={
-          <InfraEvidenceWorkbenchHeaderActions
-            shortcutsTestId="infra-diagrams-page-shortcuts"
-            shortcuts={DIAGRAMS_WORKBENCH_PAGE_SHORTCUTS}
-            scopeStatusBadge={scopeStatusBadge}
-            showShortcutHints={!buyerPolishedShell}
-          />
-        }
       />
 
       <main
