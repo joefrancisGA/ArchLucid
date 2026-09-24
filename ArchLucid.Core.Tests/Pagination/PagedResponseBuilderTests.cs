@@ -32,4 +32,12 @@ public sealed class PagedResponseBuilderTests
         page.Page.Should().Be(1);
         page.PageSize.Should().Be(5);
     }
+
+    [Fact]
+    public void HasMore_ExtremePage_DoesNotOverflow()
+    {
+        PagedResponse<int> page = new() { Page = int.MaxValue, PageSize = 200, TotalCount = 5 };
+
+        page.HasMore.Should().BeFalse();
+    }
 }
