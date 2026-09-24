@@ -19,6 +19,10 @@ class ReadmeDensityTests(unittest.TestCase):
         text = "Use `<details>` for disclosure.\n[link](target.md)\n<details>\n"
         self.assertEqual(count_links_before_first_details(text), (1, None))
 
+    def test_link_to_route_group_counts_toward_budget(self):
+        text = "[route](archlucid-ui/(operator)/runs)\n<details>\n"
+        self.assertEqual(count_links_before_first_details(text), (1, None))
+
 
 if __name__ == "__main__":
     unittest.main()
