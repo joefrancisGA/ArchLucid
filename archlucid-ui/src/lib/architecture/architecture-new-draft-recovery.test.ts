@@ -61,4 +61,17 @@ describe("architecture-new-draft-recovery (WS-15)", () => {
 
     expect(readArchitectureNewDraftRecovery()).toBeNull();
   });
+
+  it("falls back to a fresh timestamp when persisted queuedAtUtc is malformed", () => {
+    window.localStorage.setItem(
+      "archlucid.architecture-new-draft-recovery.v1",
+      JSON.stringify({ fields, actorSet, queuedAtUtc: "not-a-date" }),
+    );
+
+    const snapshot = readArchitectureNewDraftRecovery();
+
+    expect(snapshot).not.toBeNull();
+    expect(snapshot?.queuedAtUtc).not.toBe("not-a-date");
+    expect(Number.isNaN(Date.parse(snapshot?.queuedAtUtc ?? ""))).toBe(false);
+  });
 });
