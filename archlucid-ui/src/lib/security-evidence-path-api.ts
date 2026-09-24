@@ -174,7 +174,7 @@ export async function fetchOperationalSecurityFindingDetail(
 ): Promise<OperationalSecurityFindingDetail | null> {
   const raw = await proxyJsonGet<Record<string, unknown>>(`${FINDINGS_PATH}/${findingId.trim()}`);
 
-  if (!Boolean(raw.succeeded)) {
+  if (raw.succeeded !== true) {
     return null;
   }
 
