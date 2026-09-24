@@ -31,7 +31,13 @@ export function TrialWelcomeRunDeepLink() {
       return;
     }
 
-    const alreadyRedirected = window.sessionStorage.getItem(SESSION_KEY);
+    let alreadyRedirected: string | null = null;
+
+    try {
+      alreadyRedirected = window.sessionStorage.getItem(SESSION_KEY);
+    } catch {
+      alreadyRedirected = null;
+    }
 
     // Same welcome id (returning home) or explicit e2e suppress — never start a competing navigation.
     if (
@@ -41,7 +47,11 @@ export function TrialWelcomeRunDeepLink() {
       return;
     }
 
-    window.sessionStorage.setItem(SESSION_KEY, welcomeRunId);
+    try {
+      window.sessionStorage.setItem(SESSION_KEY, welcomeRunId);
+    } catch {
+      // Session storage may be unavailable.
+    }
     // Full navigation: hard commit, no App Router action-queue contention with sidebar Links.
     window.location.replace(`/architecture/reviews/${encodeURIComponent(welcomeRunId)}`);
   }, [welcomeRunId]);

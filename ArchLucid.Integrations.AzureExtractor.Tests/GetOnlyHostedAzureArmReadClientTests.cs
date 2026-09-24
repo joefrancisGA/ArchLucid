@@ -1,5 +1,7 @@
 using System.Net;
 
+using ArchLucid.Core.AzureExtractor;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -1069,6 +1071,66 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                 CancellationToken.None));
 
         Assert.Contains("repeating nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task ListSubscriptionResourcesAsync_captures_databricks_access_connector_identity_and_workspace_link()
+    {
+        const string connectorId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/accessConnectors/uc-connector";
+        const string workspaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/analytics";
+
+        const string body = """
+                            {
+                              "value": [
+                                {
+                                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/accessConnectors/uc-connector",
+                                  "name": "uc-connector",
+                                  "type": "Microsoft.Databricks/accessConnectors",
+                                  "location": "eastus",
+                                  "identity": {
+                                    "type": "SystemAssigned",
+                                    "principalId": "11111111-2222-3333-4444-555555555555"
+                                  },
+                                  "properties": {}
+                                },
+                                {
+                                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/analytics",
+                                  "name": "analytics",
+                                  "type": "Microsoft.Databricks/workspaces",
+                                  "location": "eastus",
+                                  "properties": {
+                                    "accessConnector": {
+                                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/accessConnectors/uc-connector",
+                                      "identityType": "SystemAssigned"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                            """;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = await client.ListSubscriptionResourcesAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        HostedAzureArmResourceRecord connector = Assert.Single(resources, resource => resource.ResourceId == connectorId);
+        Assert.Contains("11111111-2222-3333-4444-555555555555", connector.Properties["identity"]?.ToString(), StringComparison.OrdinalIgnoreCase);
+
+        HostedAzureArmResourceRecord workspace = Assert.Single(resources, resource => resource.ResourceId == workspaceId);
+        Assert.Equal(connectorId, workspace.Properties[AzureInventoryDatabricksAccessConnector.IdPropertyKey]);
     }
 
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)

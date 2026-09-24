@@ -57,6 +57,8 @@ public static class AzureExtractorPackageInventoryReader
                 ReadDependencyObservations(archive);
             (bool sqlDatabasePrincipalsFilePresent, List<AzureInventorySqlDatabasePrincipalRow> sqlDatabasePrincipals) =
                 ReadSqlDatabasePrincipals(archive);
+            (bool recoveryServicesProtectedItemsFilePresent, List<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItems) =
+                ReadRecoveryServicesProtectedItems(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -100,6 +102,8 @@ public static class AzureExtractorPackageInventoryReader
                 DependencyObservationsFilePresent = dependencyObservationsFilePresent,
                 SqlDatabasePrincipals = sqlDatabasePrincipals,
                 SqlDatabasePrincipalsFilePresent = sqlDatabasePrincipalsFilePresent,
+                RecoveryServicesProtectedItems = recoveryServicesProtectedItems,
+                RecoveryServicesProtectedItemsFilePresent = recoveryServicesProtectedItemsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -343,6 +347,15 @@ public static class AzureExtractorPackageInventoryReader
             archive,
             AzureExtractorPackageZipEntryNames.SqlDatabasePrincipals,
             AzureInventorySqlDatabasePrincipalParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryRecoveryServicesProtectedItemRow> Rows) ReadRecoveryServicesProtectedItems(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryRecoveryServicesProtectedItemRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.RecoveryServicesProtectedItems,
+            AzureInventoryRecoveryServicesProtectedItemParser.TryParse);
     }
 
     private static (bool FilePresent, List<TRow> Rows) ReadCompanionRows<TRow>(
@@ -815,6 +828,18 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool SqlDatabasePrincipalsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> RecoveryServicesProtectedItems
+    {
+        get;
+        init;
+    } = [];
+
+    public bool RecoveryServicesProtectedItemsFilePresent
     {
         get;
         init;

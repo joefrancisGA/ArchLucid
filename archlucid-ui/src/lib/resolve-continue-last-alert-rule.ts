@@ -51,17 +51,28 @@ export function resolveContinueLastAlertRule(rules: unknown): AlertRulesContinue
     return null;
   }
 
+  const validRules = normalizedRules.filter(
+    (rule) =>
+      typeof rule?.ruleId === "string"
+      && typeof rule?.name === "string"
+      && typeof rule?.createdUtc === "string",
+  );
+
+  if (validRules.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredRuleId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedRules.find((rule) => rule.ruleId === storedId);
+    const storedMatch = validRules.find((rule) => rule.ruleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = normalizedRules
+  const newest = validRules
     .slice()
     .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 

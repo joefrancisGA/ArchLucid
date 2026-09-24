@@ -51,6 +51,7 @@ import {
   INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM,
   INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM,
   INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM,
+  INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
   INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM,
@@ -59,6 +60,7 @@ import {
   parseInfraDiagramsHiddenExecutiveTierKeysFromSearchParam,
   parseInfraDiagramsIncludeNeverShowFromSearch,
   parseInfraDiagramsIncludePrivateEndpointsFromSearch,
+  parseInfraDiagramsIncludeRecoveryServicesFromSearch,
   parseInfraDiagramsSubscriptionFilterFromSearch,
   isInfraDiagramsMermaidModeSelected,
   parseInfraDiagramsMermaidModeFromSearch,
@@ -321,6 +323,9 @@ export function DiagramsWorkbenchClient() {
   const urlIncludePrivateEndpoints = parseInfraDiagramsIncludePrivateEndpointsFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM),
   );
+  const urlIncludeRecoveryServices = parseInfraDiagramsIncludeRecoveryServicesFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM),
+  );
   const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
     searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
@@ -368,6 +373,7 @@ export function DiagramsWorkbenchClient() {
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
+  const [includeRecoveryServices, setIncludeRecoveryServices] = useState(urlIncludeRecoveryServices);
   const [pendingSubscriptionFilter, setPendingSubscriptionFilter] = useState<string | null>(null);
   const [subscriptionChangeConfirmOpen, setSubscriptionChangeConfirmOpen] = useState(false);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
@@ -418,6 +424,10 @@ export function DiagramsWorkbenchClient() {
   }, [urlIncludePrivateEndpoints]);
 
   useEffect(() => {
+    setIncludeRecoveryServices(urlIncludeRecoveryServices);
+  }, [urlIncludeRecoveryServices]);
+
+  useEffect(() => {
     if (urlSubscriptionFilter.length === 0) {
       return;
     }
@@ -433,6 +443,7 @@ export function DiagramsWorkbenchClient() {
       seedNodeId?: string;
       subscriptionFilter?: string;
       includePrivateEndpoints?: boolean;
+      includeRecoveryServices?: boolean;
     }) => {
       router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
         scroll: false,
@@ -964,6 +975,7 @@ export function DiagramsWorkbenchClient() {
           mode: "resourceGroup",
           includeNeverShow,
           includePrivateEndpointNodes: showPrivateEndpoints,
+          includeRecoveryServices,
           ...executiveTierQuery,
         };
       }
@@ -972,6 +984,7 @@ export function DiagramsWorkbenchClient() {
         mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName),
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
+        includeRecoveryServices,
         ...executiveTierQuery,
       };
     }
@@ -981,6 +994,7 @@ export function DiagramsWorkbenchClient() {
         fallbackKey: effectiveFallbackKey,
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
+        includeRecoveryServices,
         ...executiveTierQuery,
       };
     }
@@ -997,6 +1011,7 @@ export function DiagramsWorkbenchClient() {
         seedNodeId: trimmedSeed,
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
+        includeRecoveryServices,
         ...executiveTierQuery,
       };
     }
@@ -1013,6 +1028,7 @@ export function DiagramsWorkbenchClient() {
         seedNodeId: trimmedSelection,
         includeNeverShow,
         includePrivateEndpointNodes: showPrivateEndpoints,
+        includeRecoveryServices,
         ...executiveTierQuery,
       };
     }
@@ -1022,6 +1038,7 @@ export function DiagramsWorkbenchClient() {
       seedNodeId: null,
       includeNeverShow,
       includePrivateEndpointNodes: showPrivateEndpoints,
+      includeRecoveryServices,
       ...executiveTierQuery,
     };
   }, [
@@ -1029,6 +1046,7 @@ export function DiagramsWorkbenchClient() {
     effectiveFallbackKey,
     hiddenExecutiveTierKeys,
     includeNeverShow,
+    includeRecoveryServices,
     diagramsSubscriptionChosen,
     diagramTypeSelected,
     selectedMode,
@@ -1205,6 +1223,13 @@ export function DiagramsWorkbenchClient() {
     setShowPrivateEndpoints(nextShowPrivateEndpoints);
     syncUrl({ includePrivateEndpoints: nextShowPrivateEndpoints });
   }, [showPrivateEndpoints, syncUrl]);
+
+  const handleIncludeRecoveryServicesToggle = useCallback(() => {
+    const nextIncludeRecoveryServices = !includeRecoveryServices;
+
+    setIncludeRecoveryServices(nextIncludeRecoveryServices);
+    syncUrl({ includeRecoveryServices: nextIncludeRecoveryServices });
+  }, [includeRecoveryServices, syncUrl]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
@@ -1832,13 +1857,11 @@ export function DiagramsWorkbenchClient() {
               )}
             >
               <div className="flex min-w-0 flex-col gap-1">
-                <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-subscription-picker">
-                  Subscription
-                </label>
                 <select
                   id="infra-diagrams-subscription-picker"
-                  className={cn("w-full", cnField)}
+                  className="w-full bg-transparent px-3 py-2"
                   data-testid="infra-diagrams-subscription-picker"
+                  aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
                   disabled={loadingSnapshots || snapshots.length === 0}
                   value={selectedSubscriptionFilter}
                   onChange={(event) => handleSubscriptionFilterChange(event.target.value)}
@@ -1968,15 +1991,28 @@ export function DiagramsWorkbenchClient() {
             Private endpoints remain available for relationship analysis but are hidden from the canvas by default.
           </p>
         </div>
-        <Button
-          type="button"
-          variant={showPrivateEndpoints ? "default" : "outline"}
-          data-testid="infra-diagrams-show-private-endpoints"
-          aria-pressed={showPrivateEndpoints}
-          onClick={handlePrivateEndpointsToggle}
-        >
-          {showPrivateEndpoints ? "Hide private endpoints" : "Show private endpoints"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={showPrivateEndpoints ? "default" : "outline"}
+            data-testid="infra-diagrams-show-private-endpoints"
+            aria-pressed={showPrivateEndpoints}
+            onClick={handlePrivateEndpointsToggle}
+          >
+            {showPrivateEndpoints ? "Hide private endpoints" : "Show private endpoints"}
+          </Button>
+          {selectedMode !== "businessContinuity" ? (
+            <Button
+              type="button"
+              variant={includeRecoveryServices ? "secondary" : "outline"}
+              data-testid="infra-diagrams-include-recovery-services"
+              aria-pressed={includeRecoveryServices}
+              onClick={handleIncludeRecoveryServicesToggle}
+            >
+              Include backup and recovery
+            </Button>
+          ) : null}
+        </div>
       </section>
 
       {selectedMode === "dependencyNeighborhood" ? (

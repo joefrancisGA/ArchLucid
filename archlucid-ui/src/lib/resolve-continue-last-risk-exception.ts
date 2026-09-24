@@ -25,9 +25,17 @@ function findingIdFromRecentHref(href: string): string | null {
     return null;
   }
 
-  const findingId = decodeURIComponent(match[2] ?? "").trim();
+  try {
+    const findingId = decodeURIComponent(match[2] ?? "").trim();
 
-  return findingId.length > 0 ? findingId : null;
+    return findingId.length > 0 ? findingId : null;
+  } catch (err) {
+    if (err instanceof URIError) {
+      return null;
+    }
+
+    throw err;
+  }
 }
 
 function readStoredExceptionId(): string | null {
@@ -101,23 +109,35 @@ export function resolveContinueLastRiskException(
     return null;
   }
 
+  const validRecords = normalizedRecords.filter(
+    (record) =>
+      typeof record?.riskExceptionId === "string"
+      && typeof record?.findingId === "string"
+      && typeof record?.rationale === "string"
+      && (record?.runId == null || typeof record.runId === "string"),
+  );
+
+  if (validRecords.length === 0) {
+    return null;
+  }
+
   const storedKey = readStoredExceptionId();
 
   if (storedKey !== null) {
-    const idMatch = normalizedRecords.find((record) => record.riskExceptionId === storedKey);
+    const idMatch = validRecords.find((record) => record.riskExceptionId === storedKey);
 
     if (idMatch !== undefined) {
       return toTarget(idMatch, inspectHrefOptions);
     }
 
-    const findingMatch = normalizedRecords.find((record) => record.findingId === storedKey);
+    const findingMatch = validRecords.find((record) => record.findingId === storedKey);
 
     if (findingMatch !== undefined) {
       return toTarget(findingMatch, inspectHrefOptions);
     }
   }
 
-  const mostRecent = normalizedRecords.slice().sort((left, right) => right.riskExceptionId.localeCompare(left.riskExceptionId))[0];
+  const mostRecent = validRecords.slice().sort((left, right) => right.riskExceptionId.localeCompare(left.riskExceptionId))[0];
 
   return mostRecent === undefined ? null : toTarget(mostRecent, inspectHrefOptions);
 }
