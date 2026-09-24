@@ -74,6 +74,13 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryEventHubCapture = "inventory-event-hub-capture";
 
+    public const string InventoryEventHubMayPublish = "inventory-event-hub-may-publish";
+    public const string InventoryEventHubMayConsume = "inventory-event-hub-may-consume";
+    public const string InventoryServiceBusMaySend = "inventory-service-bus-may-send";
+    public const string InventoryServiceBusMayReceive = "inventory-service-bus-may-receive";
+    public const string InventoryServiceBusForwardTo = "inventory-service-bus-forward-to";
+    public const string InventoryServiceBusForwardDeadLetter = "inventory-service-bus-forward-dead-letter";
+
     public const string InventoryNatGatewaySubnet = "inventory-nat-gateway-subnet";
 
     public const string InventoryFirewallSubnet = "inventory-firewall-subnet";
