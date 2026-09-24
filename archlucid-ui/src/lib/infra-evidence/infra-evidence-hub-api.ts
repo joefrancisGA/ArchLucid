@@ -259,7 +259,7 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
             confidenceBand: typeof diagramRaw.confidenceBand === "string" ? diagramRaw.confidenceBand : "",
             explainText: typeof diagramRaw.explainText === "string" ? diagramRaw.explainText : "",
             aiRationale: typeof diagramRaw.aiRationale === "string" ? diagramRaw.aiRationale : null,
-            securityDiscrepancy: Boolean(diagramRaw.securityDiscrepancy),
+            securityDiscrepancy: diagramRaw.securityDiscrepancy === true,
           },
     operationalSecurityFindings: mapFindingStream(
       raw.operationalSecurityFindings as Record<string, unknown> | undefined,
