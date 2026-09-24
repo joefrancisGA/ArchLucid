@@ -66,7 +66,11 @@ export function clearArchitectureNewDraftRecovery(): void {
     return;
   }
 
-  window.localStorage.removeItem(RECOVERY_KEY);
+  try {
+    window.localStorage.removeItem(RECOVERY_KEY);
+  } catch {
+    /* private mode */
+  }
 }
 
 export function resetArchitectureNewDraftRecoveryForTests(): void {
