@@ -42,9 +42,13 @@ export function readPersistedCapturedEvidenceInventory(
 
     return parsed.filter(
       (item) =>
-        typeof item?.key === "string" &&
-        typeof item?.fileName === "string" &&
-        typeof item?.ingestedUtc === "string",
+        typeof item?.key === "string"
+        && item.key.trim().length > 0
+        && typeof item?.fileName === "string"
+        && item.fileName.trim().length > 0
+        && typeof item?.ingestedUtc === "string"
+        && item.ingestedUtc.trim().length > 0
+        && !Number.isNaN(Date.parse(item.ingestedUtc)),
     );
   } catch {
     return [];
