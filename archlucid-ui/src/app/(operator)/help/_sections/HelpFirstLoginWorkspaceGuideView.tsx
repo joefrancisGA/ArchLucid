@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -55,7 +56,7 @@ import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpFirstLoginWorkspaceGuideViewProps = {
@@ -105,7 +106,7 @@ function helpTopicSlugFromInAppHref(href: string): string | null {
 }
 
 function filterRelatedLinks(
-  productLineId: ReturnType<typeof resolveProductLineIdFromEnv>,
+  productLineId: ProductLineId,
 ): typeof FIRST_LOGIN_WORKSPACE_HELP_RELATED_LINKS {
   return FIRST_LOGIN_WORKSPACE_HELP_RELATED_LINKS.filter((link) => {
     const slug = helpTopicSlugFromInAppHref(link.href);
@@ -123,9 +124,9 @@ export function HelpFirstLoginWorkspaceGuideView(
   props: HelpFirstLoginWorkspaceGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
+  const { productLine: productLineId } = useProductLine();
   const searchParams = useSearchParams();
   const returnHref = resolveFirstLoginWorkspaceHelpReturnHref(searchParams.get("returnTo") ?? undefined);
-  const productLineId = resolveProductLineIdFromEnv();
   const relatedLinks = filterRelatedLinks(productLineId);
   const contentGridClass = resolveHelpPageContentGridClass(FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
