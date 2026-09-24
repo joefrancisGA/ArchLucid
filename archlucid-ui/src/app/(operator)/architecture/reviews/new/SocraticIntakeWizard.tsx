@@ -36,8 +36,12 @@ import { INTAKE_WIZARD_STEPPER_STEPS } from "./guided-intake-steps";
 import { SocraticIntakeWizardGuards } from "./SocraticIntakeWizardGuards";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
+export type SocraticIntakeWizardProps = {
+  readonly requiresSystemName?: boolean;
+};
+
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
-export function SocraticIntakeWizard() {
+export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { isWorkingMode } = useWorkspaceMode();
   const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
@@ -47,6 +51,7 @@ export function SocraticIntakeWizard() {
     exampleTemplate,
     isCreateArchitectureFlow,
     sourceArchitectureId,
+    requiresSystemName,
     sourceArchitectureDisplayName,
     llmBudgetStatus,
     blocksLlmExecution,
@@ -117,7 +122,7 @@ export function SocraticIntakeWizard() {
     policyPackCloudMismatch,
     clarificationInference,
     systemNameAvailability,
-  } = useGuidedIntakeWizard();
+  } = useGuidedIntakeWizard({ requiresSystemName: props.requiresSystemName });
 
   const {
     inferredQuestionKeys,
@@ -286,6 +291,7 @@ export function SocraticIntakeWizard() {
       {step === 0 ? (
         <SocraticIntakeWizardStepScope
           isCreateArchitectureFlow={isCreateArchitectureFlow}
+          requiresSystemName={requiresSystemName}
           busy={busy}
           systemName={systemName}
           setSystemName={setSystemName}

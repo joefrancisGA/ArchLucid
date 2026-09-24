@@ -103,4 +103,25 @@ describe("useGuidedIntakeBriefForm", () => {
     expect(second.result.current.businessOutcome).toBe("");
     expect(second.result.current.systemName).toBe("");
   });
+
+  it("prefills guided intake from a starter preset", async () => {
+    useSearchParams.mockReturnValue(
+      new URLSearchParams("path=guided-intake&preset=starter-api-platform-b2b"),
+    );
+
+    const { result } = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate: null,
+        isCreateArchitectureFlow: false,
+        requiresSystemName: true,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.systemName).toBe("PartnerApiPlatform");
+    });
+
+    expect(result.current.freeTextIntent).toContain("B2B API platform");
+    expect(result.current.businessOutcome).toContain("API platform (B2B)");
+  });
 });
