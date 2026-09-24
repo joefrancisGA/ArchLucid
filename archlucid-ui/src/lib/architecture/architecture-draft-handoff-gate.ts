@@ -20,6 +20,18 @@ type ArchitectureDraftSpawnedRunProbe = {
   readonly spawnedRunId?: string | null;
 };
 
+function clearLegacyHandoffAcknowledgment(architectureId: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(`${ACK_STORAGE_PREFIX}${architectureId}`);
+  } catch {
+    // Legacy cleanup is best-effort when browser storage is unavailable.
+  }
+}
+
 export function architectureDraftSpawnedRunId(
   draft: ArchitectureDraftSpawnedRunProbe | null | undefined,
 ): string | null {
@@ -51,9 +63,7 @@ export function isArchitectureDraftHandoffAcknowledged(architectureId: string): 
     return false;
   }
 
-  if (typeof window !== "undefined") {
-    window.localStorage.removeItem(`${ACK_STORAGE_PREFIX}${trimmedArchitectureId}`);
-  }
+  clearLegacyHandoffAcknowledgment(trimmedArchitectureId);
 
   return false;
 }
@@ -67,9 +77,7 @@ export function acknowledgeArchitectureDraftHandoff(architectureId: string, link
     return;
   }
 
-  if (typeof window !== "undefined") {
-    window.localStorage.removeItem(`${ACK_STORAGE_PREFIX}${trimmedArchitectureId}`);
-  }
+  clearLegacyHandoffAcknowledgment(trimmedArchitectureId);
 }
 
 export function clearArchitectureDraftHandoffAcknowledgment(architectureId: string): void {
@@ -83,7 +91,7 @@ export function clearArchitectureDraftHandoffAcknowledgment(architectureId: stri
     return;
   }
 
-  window.localStorage.removeItem(`${ACK_STORAGE_PREFIX}${trimmedArchitectureId}`);
+  clearLegacyHandoffAcknowledgment(trimmedArchitectureId);
 }
 
 export function buildArchitectureDraftHandoffBannerTitle(linkedReviewTitle: string): string {
