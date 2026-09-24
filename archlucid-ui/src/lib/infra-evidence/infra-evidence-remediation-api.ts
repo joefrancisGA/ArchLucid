@@ -36,10 +36,10 @@ function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSu
 function mapOperationResult(raw: Record<string, unknown>): RemediationInstanceOperationResult {
   return {
     succeeded: raw.succeeded === true,
-    instanceId: raw.instanceId != null ? String(raw.instanceId) : null,
-    status: raw.status != null ? String(raw.status) as RemediationInstanceOperationResult["status"] : null,
+    instanceId: typeof raw.instanceId === "string" ? raw.instanceId : null,
+    status: typeof raw.status === "string" ? raw.status as RemediationInstanceOperationResult["status"] : null,
     blockers: Array.isArray(raw.blockers) ? raw.blockers.filter((item): item is string => typeof item === "string") : [],
-    errorMessage: raw.errorMessage != null ? String(raw.errorMessage) : null,
+    errorMessage: typeof raw.errorMessage === "string" ? raw.errorMessage : null,
   };
 }
 
