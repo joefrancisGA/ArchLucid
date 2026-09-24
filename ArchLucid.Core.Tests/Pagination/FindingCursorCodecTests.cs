@@ -60,4 +60,12 @@ public sealed class FindingCursorCodecTests
     {
         FindingCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("{")).Should().BeNull();
     }
+
+    [Fact]
+    public void FindingCursorCodec_TryDecode_MissingSortOrder_ReturnsNull()
+    {
+        string cursor = JsonCursorTestHelper.EncodeJsonCursor($"{{\"fri\":\"{Guid.NewGuid()}\"}}");
+
+        FindingCursorCodec.TryDecode(cursor).Should().BeNull();
+    }
 }

@@ -39,15 +39,15 @@ public static class FindingCursorCodec
             return null;
         }
 
-        if (dto is null || dto.Fri == Guid.Empty)
+        if (dto is null || dto.So is null || dto.Fri == Guid.Empty)
             return null;
 
-        return (dto.So, dto.Fri);
+        return (dto.So.Value, dto.Fri);
     }
 
     private sealed class FindingListCursorDto
     {
-        public int So
+        public int? So
         {
             get;
             init;
