@@ -219,14 +219,14 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       currentConfigurationRaw == null
         ? null
         : {
-            snapshotId: String(currentConfigurationRaw.snapshotId ?? ""),
-            azureResourceId: String(currentConfigurationRaw.azureResourceId ?? ""),
-            resourceType: String(currentConfigurationRaw.resourceType ?? ""),
+            snapshotId: typeof currentConfigurationRaw.snapshotId === "string" ? currentConfigurationRaw.snapshotId : "",
+            azureResourceId: typeof currentConfigurationRaw.azureResourceId === "string" ? currentConfigurationRaw.azureResourceId : "",
+            resourceType: typeof currentConfigurationRaw.resourceType === "string" ? currentConfigurationRaw.resourceType : "",
             resourceGroup:
-              currentConfigurationRaw.resourceGroup != null
-                ? String(currentConfigurationRaw.resourceGroup)
+              typeof currentConfigurationRaw.resourceGroup === "string"
+                ? currentConfigurationRaw.resourceGroup
                 : null,
-            region: currentConfigurationRaw.region != null ? String(currentConfigurationRaw.region) : null,
+            region: typeof currentConfigurationRaw.region === "string" ? currentConfigurationRaw.region : null,
             properties: (currentConfigurationRaw.properties as Record<string, string>) ?? {},
             tags: (currentConfigurationRaw.tags as Record<string, string>) ?? {},
           },
