@@ -66,22 +66,30 @@ export async function fetchCloudResourceExplorerPage(
     hasMore?: boolean;
   }>(`${CLOUD_RESOURCES_PATH}?${params.toString()}`);
 
-  const items = (raw.items ?? []).map((row) => ({
-    cloudResourceId: row.cloudResourceId ?? "",
-    externalResourceId: row.externalResourceId ?? "",
-    displayName: row.displayName ?? null,
-    resourceType: row.resourceType ?? null,
-    resourceGroup: row.resourceGroup ?? null,
-    region: row.region ?? null,
-    lastSeenUtc: row.lastSeenUtc ?? "",
-    workCounts: row.workCounts == null
-      ? null
-      : {
-          openOperationalFindingsCount: row.workCounts.openOperationalFindingsCount ?? 0,
-          openRemediationInstancesCount: row.workCounts.openRemediationInstancesCount ?? 0,
-          inventoryDriftChangeCount: row.workCounts.inventoryDriftChangeCount ?? 0,
-        },
-  }));
+  const items = (raw.items ?? [])
+    .filter(
+      (row) =>
+        row != null
+        && typeof row.cloudResourceId === "string"
+        && typeof row.externalResourceId === "string"
+        && typeof row.lastSeenUtc === "string",
+    )
+    .map((row) => ({
+      cloudResourceId: row.cloudResourceId,
+      externalResourceId: row.externalResourceId,
+      displayName: typeof row.displayName === "string" ? row.displayName : null,
+      resourceType: typeof row.resourceType === "string" ? row.resourceType : null,
+      resourceGroup: typeof row.resourceGroup === "string" ? row.resourceGroup : null,
+      region: typeof row.region === "string" ? row.region : null,
+      lastSeenUtc: row.lastSeenUtc,
+      workCounts: row.workCounts == null
+        ? null
+        : {
+            openOperationalFindingsCount: row.workCounts.openOperationalFindingsCount ?? 0,
+            openRemediationInstancesCount: row.workCounts.openRemediationInstancesCount ?? 0,
+            inventoryDriftChangeCount: row.workCounts.inventoryDriftChangeCount ?? 0,
+          },
+    }));
 
   return {
     items,
