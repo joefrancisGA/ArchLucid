@@ -23,6 +23,7 @@ async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promi
 
   const errorShell = page.getByText(/Something went wrong/i);
   if ((await errorShell.count()) > 0) {
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
     await page.reload({ waitUntil: "load" });
   }
 

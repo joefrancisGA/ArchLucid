@@ -28,7 +28,7 @@ public static class PilotProofPacketCommercialReadinessBuilder
 
         string dataConsistencyDisposition = ResolveDataConsistencyDisposition(runId, deltasJson);
 
-        string roiFreshnessDisposition = PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, DateTime.UtcNow);
+        string roiFreshnessDisposition = PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         string explanationConfidenceDisposition =
             PilotProofPacketExplanationConfidenceEvaluator.ResolveDisposition(aggregateExplanationJson);
@@ -46,7 +46,7 @@ public static class PilotProofPacketCommercialReadinessBuilder
         Dictionary<string, object?> payload = new(StringComparer.Ordinal)
         {
             ["schema"] = PilotProofPacketArtifactCatalog.QuoteToProofSchema,
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["runId"] = runId,
             ["proofDisposition"] = proofDisposition,
             ["sponsorHandoffRecommended"] = proofDisposition is "READY" or "WARN",

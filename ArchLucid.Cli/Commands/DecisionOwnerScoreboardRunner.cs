@@ -17,7 +17,7 @@ internal sealed class DecisionOwnerScoreboardRunner
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(rules);
 
-        DateTime evaluationUtc = DateTime.UtcNow;
+        DateTime evaluationUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         string ledgerDirectory = ResolveLedgerDirectory(repositoryRoot, options);
         List<DecisionOwnerScoreboardCheckResult> checks = new();
         checks.Add(BuildFixturePackCheck(repositoryRoot));

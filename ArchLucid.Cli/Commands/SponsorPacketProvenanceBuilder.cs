@@ -19,7 +19,7 @@ public static class SponsorPacketProvenanceBuilder
         {
             ["schema"] = SponsorPacketArtifactCatalog.ProvenanceSchema,
             ["runId"] = runId.Trim(),
-            ["capturedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["capturedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["auditEventIds"] = auditEventIds,
             ["artifactIds"] = artifactIds,
             ["note"] = "Ids only — fetch full payloads through authenticated operator APIs when needed.",

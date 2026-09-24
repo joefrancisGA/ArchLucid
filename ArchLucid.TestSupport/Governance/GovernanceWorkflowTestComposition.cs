@@ -209,7 +209,7 @@ public static class GovernanceWorkflowTestComposition
             Services = [],
             Datastores = [],
             Relationships = [],
-            Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = DateTime.UtcNow },
+            Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime },
         };
 
     /// <summary>Run detail with embedded manifest so submit/promote/activate stages skip the unified reader.</summary>

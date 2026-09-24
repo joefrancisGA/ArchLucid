@@ -27,7 +27,7 @@ public static class SupportBundleRedactionManifestBuilder
 
         return new SupportBundleRedactionManifest
         {
-            GeneratedUtc = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            GeneratedUtc = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             Status = status,
             RedactionPassAppliedToSerializedSections = redactionPassAppliedToSerializedSections,
             RulesApplied = rules,

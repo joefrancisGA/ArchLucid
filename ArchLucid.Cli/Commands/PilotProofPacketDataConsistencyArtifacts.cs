@@ -31,7 +31,7 @@ internal static class PilotProofPacketDataConsistencyArtifacts
         Dictionary<string, object?> payload = new(StringComparer.Ordinal)
         {
             ["schema"] = "archlucid.proof-packet.data-consistency-summary.v1",
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["runId"] = runId,
             ["disposition"] = disposition,
             ["holdReasons"] = holdReasons.ToArray(),
@@ -182,7 +182,7 @@ internal static class PilotProofPacketDataConsistencyArtifacts
                 warnReasons.Add("ROI evidence confidence is Low — label savings claims accordingly.");
         }
 
-        string roiFreshness = PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, DateTime.UtcNow);
+        string roiFreshness = PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         if (string.Equals(roiFreshness, "HOLD", StringComparison.Ordinal))
             holdReasons.Add("ROI source freshness is HOLD — stale extractor or unsourced savings claim.");

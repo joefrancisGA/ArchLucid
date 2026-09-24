@@ -38,7 +38,7 @@ internal static class PilotProofPacketLimitationsBuilder
             }
         }
 
-        string roiFreshnessLine = PilotProofPacketRoiFreshnessEvaluator.BuildLimitationsLine(deltasJson, DateTime.UtcNow);
+        string roiFreshnessLine = PilotProofPacketRoiFreshnessEvaluator.BuildLimitationsLine(deltasJson, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         if (!string.IsNullOrWhiteSpace(roiFreshnessLine))
         {
