@@ -1,10 +1,18 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const searchParams = new URLSearchParams("tab=overview");
+let searchParams = new URLSearchParams("tab=overview");
+
+const matchOperationalFinding = vi.fn(async () => undefined);
+const createRemediationInstance = vi.fn(async () => ({
+  succeeded: true,
+  instanceId: "new-instance-1",
+  blockers: [] as string[],
+  errorMessage: null as string | null,
+}));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
   usePathname: () => "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
   useSearchParams: () => searchParams,
 }));
@@ -18,14 +26,15 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: "archlucid" }),
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
+  matchOperationalFinding: (...args: unknown[]) => matchOperationalFinding(...args),
+  createRemediationInstance: (...args: unknown[]) => createRemediationInstance(...args),
+  formatInfraEvidenceRemediationApiError: (error: unknown) => String(error),
+}));
 
-  return {
-    ...actual,
-    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-  };
-});
+vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
+  formatInfraEvidenceHubApiError: (error: unknown) => String(error),
+}));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-resource-hub-cache", () => ({
   fetchCachedInfraEvidenceResourceHub: vi.fn(async () => ({
@@ -40,8 +49,17 @@ vi.mock("@/lib/infra-evidence/infra-evidence-resource-hub-cache", () => ({
     operationalSecurityFindings: {
       streamKind: "OperationalSecurity",
       streamLabel: "Operational security",
-      items: [],
-      totalCount: 0,
+      items: [
+        {
+          id: "finding-1",
+          title: "Public endpoint",
+          severity: "High",
+          status: "Open",
+          streamKind: "OperationalSecurity",
+          streamLabel: "Operational security",
+        },
+      ],
+      totalCount: 1,
       page: 1,
       pageSize: 25,
       hasMore: false,
@@ -83,6 +101,11 @@ import {
 import { ResourceHubClient } from "./ResourceHubClient";
 
 describe("ResourceHubClient working mode", () => {
+  beforeEach(() => {
+    matchOperationalFinding.mockClear();
+    createRemediationInstance.mockClear();
+  });
+
   it("renders skip link, claim discipline, breadcrumb, and orientation strip without LayerHeader", async () => {
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
@@ -103,5 +126,26 @@ describe("ResourceHubClient working mode", () => {
     );
     expect(screen.getByTestId("governance-infrastructure-resource-hub-sources")).toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-hub-page-title")).toBeInTheDocument();
+  });
+
+  it("renders inline identifier strip with copy buttons in working mode", async () => {
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    const strip = await screen.findByTestId("infra-resource-hub-identifier-strip");
+    expect(strip).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-cloud-resource-id-disclosure")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Copy cloud resource id")).toBeInTheDocument();
+    expect(screen.getByLabelText("Copy ARM resource path")).toBeInTheDocument();
+  });
+
+  it("does not call remediation API when confirm dialog is cancelled", async () => {
+    searchParams = new URLSearchParams("tab=findings");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+
+    expect(matchOperationalFinding).not.toHaveBeenCalled();
+    expect(createRemediationInstance).not.toHaveBeenCalled();
   });
 });
