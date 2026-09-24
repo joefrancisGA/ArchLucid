@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { ComparePageHeaderActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageHeaderActions";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CompareSourcesOrientationStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSourcesOrientationStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -43,7 +44,6 @@ import {
 } from "@/lib/compare-two-reviews-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
@@ -58,6 +58,7 @@ export type CompareFormProps = {
  */
 export function CompareForm(props: CompareFormProps = {}) {
   const evalChrome = useProductionEvalChrome();
+  const { productLine } = useProductLine();
   const {
     comparePagePath,
     comparePageSubtitle,
@@ -206,7 +207,7 @@ export function CompareForm(props: CompareFormProps = {}) {
           className={cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
           data-testid="compare-two-reviews-overview"
         >
-          {compareBuyerOverview(resolveProductLineIdFromEnv())}
+          {compareBuyerOverview(productLine)}
         </p>
       ) : null}
       <section
