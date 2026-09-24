@@ -22,7 +22,8 @@ internal static class UtcCursorDateTimeCodec
         if (string.IsNullOrWhiteSpace(value))
             return false;
 
-        if (!DateTime.TryParse(value, null, DateTimeStyles.RoundtripKind, out DateTime parsed))
+        if (!DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime parsed)
+            || parsed.Kind == DateTimeKind.Unspecified)
             return false;
 
         utc = NormalizeToUtc(parsed);
