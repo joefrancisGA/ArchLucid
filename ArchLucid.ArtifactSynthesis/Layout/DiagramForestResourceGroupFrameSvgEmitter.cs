@@ -7,6 +7,10 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 /// <summary>Solid resource-group frames around packed forest node groups.</summary>
 public static class DiagramForestResourceGroupFrameSvgEmitter
 {
+    public const double CaptionIconGap = 4.0d;
+
+    private static readonly AzureArchitectureIconCatalog IconCatalog = AzureArchitectureIconCatalog.Load();
+
     public static XElement EmitLayer(
         XNamespace svgNamespace,
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frames)
@@ -29,10 +33,14 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
         DiagramResourceGroupPacker.ResourceGroupFrameBounds frame)
     {
         string escapedName = Escape(frame.GroupName);
+        double fontSize = DiagramForestResourceGroupFrameStyle.LabelFontSize;
+        AzureArchitectureIconCatalogEntry? icon = IconCatalog.Resolve("Microsoft.Resources/resourceGroups");
+        double iconAdvance = icon is null ? 0.0d : fontSize + CaptionIconGap;
         double labelX = frame.X + DiagramForestResourceGroupFrameStyle.LabelInsetX;
+        double textX = labelX + iconAdvance;
         double labelBaselineY = frame.Y + DiagramForestResourceGroupFrameStyle.LabelBaselineY;
         double labelWidth = EstimateLabelWidth(frame.GroupName);
-        double haloWidth = labelWidth + (DiagramForestResourceGroupFrameStyle.HaloPaddingX * 2.0d);
+        double haloWidth = iconAdvance + labelWidth + (DiagramForestResourceGroupFrameStyle.HaloPaddingX * 2.0d);
         double haloHeight = DiagramForestResourceGroupFrameStyle.LabelFontSize
             + (DiagramForestResourceGroupFrameStyle.HaloPaddingY * 2.0d);
         double haloX = labelX - DiagramForestResourceGroupFrameStyle.HaloPaddingX;
@@ -68,10 +76,18 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
                 new XAttribute("stroke-width", Format(DiagramForestResourceGroupFrameStyle.HaloStrokeWidth)),
                 new XAttribute("rx", Format(DiagramForestResourceGroupFrameStyle.HaloRadius)),
                 new XAttribute("pointer-events", "none")),
+            icon is null
+                ? null
+                : DiagramForestNodeSvgEmitter.EmitAzureIcon(
+                    svgNamespace,
+                    icon,
+                    fontSize,
+                    labelX,
+                    haloY + DiagramForestResourceGroupFrameStyle.HaloPaddingY),
             new XElement(
                 svgNamespace + "text",
                 new XAttribute("class", "rg-frame-label"),
-                new XAttribute("x", Format(labelX)),
+                new XAttribute("x", Format(textX)),
                 new XAttribute("y", Format(labelBaselineY)),
                 new XAttribute("text-anchor", "start"),
                 new XAttribute("font-size", Format(DiagramForestResourceGroupFrameStyle.LabelFontSize)),

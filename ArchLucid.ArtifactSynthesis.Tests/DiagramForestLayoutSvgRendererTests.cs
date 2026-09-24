@@ -52,6 +52,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
                     FromNodeId = "vm",
                     ToNodeId = "vnet",
                     Label = "in",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
                 },
             ],
         };

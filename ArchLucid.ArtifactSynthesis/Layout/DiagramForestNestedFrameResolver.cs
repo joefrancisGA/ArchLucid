@@ -22,35 +22,23 @@ public static class DiagramForestNestedFrameResolver
 
         foreach (DiagramNode vnet in nodes.Where(IsVnet))
         {
-            List<DiagramNode> members = placements
-                .Where(placement => string.Equals(
-                    placement.VnetFrameId,
-                    $"vnet-{vnet.NodeId}",
-                    StringComparison.Ordinal))
-                .Select(placement => placement.Node)
-                .ToList();
-
-            if (members.Count < 2)
-            {
-                IReadOnlySet<string> memberIds = DiagramForestVnetMembership.ResolveMembers(
-                    vnet,
-                    nodes,
-                    edges,
-                    sameResourceGroupOnly: true);
-                members = memberIds
-                    .Where(placementByNodeId.ContainsKey)
-                    .Select(nodesById.GetValueOrDefault)
-                    .Where(node => node is not null)
-                    .Cast<DiagramNode>()
-                    .ToList();
-            }
-
-            if (members.Count < 2 || !placementByNodeId.ContainsKey(vnet.NodeId))
+            DiagramResourceGroupPacker.NodePlacementBounds? anchor = placements
+                .FirstOrDefault(placement =>
+                    placement.IsFrameAnchor
+                    && string.Equals(placement.Node.NodeId, vnet.NodeId, StringComparison.Ordinal));
+            if (anchor is null)
             {
                 continue;
             }
 
-            frames.Add(BuildFrame("vnet", vnet, members, placementByNodeId));
+            frames.Add(new DiagramForestNestedFrameBounds(
+                "vnet",
+                vnet.Label,
+                $"vnet-{vnet.NodeId}",
+                anchor.X,
+                anchor.Y,
+                anchor.Width,
+                anchor.Height));
         }
 
         foreach (DiagramNode subnet in nodes.Where(IsSubnet))
