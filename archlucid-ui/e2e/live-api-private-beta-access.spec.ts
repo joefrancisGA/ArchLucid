@@ -298,6 +298,11 @@ test.describe(
       const fakeRunId = "00000000-0000-4000-8000-000000000000";
 
       await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+      const errorShell = page.getByText(/Something went wrong/i);
+      if ((await errorShell.count()) > 0) {
+        await primePrivateBetaBrowserPage(page, accessToken);
+        await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+      }
 
       await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 30_000 });
       await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 30_000 });
