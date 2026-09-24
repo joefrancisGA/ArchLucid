@@ -91,7 +91,7 @@ export function collectAskCitationFindingIds(input: AskCitationActionFollowUpsIn
     try {
       pushUniqueId(ids, decodeURIComponent(match[1]));
     } catch {
-      pushUniqueId(ids, match[1]);
+      continue;
     }
   }
 
