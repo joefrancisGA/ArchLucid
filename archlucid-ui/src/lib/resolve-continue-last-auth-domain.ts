@@ -55,18 +55,29 @@ export function resolveContinueLastAuthDomain(domains: unknown): AuthDomainsCont
     return null;
   }
 
+  const validDomains = normalizedDomains.filter(
+    (domain) =>
+      typeof domain?.normalizedDomain === "string"
+      && typeof domain?.displayDomain === "string"
+      && typeof domain?.createdUtc === "string",
+  );
+
+  if (validDomains.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredDomain();
 
   if (storedId !== null) {
-    const storedMatch = normalizedDomains.find((domain) => domain.normalizedDomain === storedId);
+    const storedMatch = validDomains.find((domain) => domain.normalizedDomain === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const unverified = normalizedDomains.filter((domain) => isUnverified(domain));
-  const pool = unverified.length > 0 ? unverified : normalizedDomains;
+  const unverified = validDomains.filter((domain) => isUnverified(domain));
+  const pool = unverified.length > 0 ? unverified : validDomains;
   const newest = pool.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 
   return newest === undefined ? null : toTarget(newest);

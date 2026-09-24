@@ -19,14 +19,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
-  };
-});
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
 
 import { AuditEvidenceControlLineageClient } from "./AuditEvidenceControlLineageClient";
 
@@ -50,7 +46,7 @@ describe("AuditEvidenceControlLineageClient", () => {
     expect(screen.getByTestId("audit-evidence-lineage-error")).toBeInTheDocument();
   });
 
-  it("expands chain when supported checkbox is clicked", () => {
+  it("expands chain by default in working mode and collapses when toggled", () => {
     useAuditEvidenceLineageQueryMock.mockReturnValue({
       data: {
         controlNumber: "AC-1",
@@ -87,15 +83,26 @@ describe("AuditEvidenceControlLineageClient", () => {
 
     render(<AuditEvidenceControlLineageClient {...ids} />);
 
-    expect(screen.getByTestId("audit-evidence-lineage-collapsed")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId("audit-evidence-positive-checkbox"));
-
     expect(screen.getByTestId("audit-evidence-lineage-spine")).toBeInTheDocument();
+    expect(screen.queryAllByTestId("audit-evidence-lineage-status-tag")).toHaveLength(1);
+    expect(screen.getByTestId("audit-evidence-lineage-evaluation-context")).toHaveTextContent(
+      "Technically supported",
+    );
+    expect(screen.getByTestId("audit-evidence-lineage-hash-summary")).toHaveTextContent(
+      "1/1 evidence hashes verified",
+    );
+    expect(screen.getByTestId("audit-evidence-lineage-back-to-lookup-header")).toHaveAttribute(
+      "href",
+      "/governance/audit-evidence",
+    );
     expect(screen.getByTestId("audit-evidence-spine-resource-hub-ev-1")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
+
+    fireEvent.click(screen.getByTestId("audit-evidence-positive-checkbox"));
+
+    expect(screen.getByTestId("audit-evidence-lineage-collapsed")).toBeInTheDocument();
   });
 
   it("shows broken links when chain is incomplete", () => {
@@ -134,6 +141,66 @@ describe("AuditEvidenceControlLineageClient", () => {
 
     expect(screen.getByTestId("audit-evidence-broken-link-reasons")).toHaveTextContent("Snapshot hash unverified");
     expect(screen.getByTestId("audit-evidence-missing-links-ev-2")).toHaveTextContent("Raw API blob");
+  });
+
+  it("announces successful evidence bundle download", async () => {
+    useAuditEvidenceLineageQueryMock.mockReturnValue({
+      data: {
+        controlNumber: "AC-1",
+        controlTitle: "Access control",
+        readyForPositiveCheckbox: true,
+        snapshotHashVerified: true,
+        brokenLinkReasons: [],
+        requirementChains: [],
+      },
+      isError: false,
+      isPending: false,
+      refetch: refetchMock,
+    });
+
+    render(<AuditEvidenceControlLineageClient {...ids} />);
+
+    fireEvent.click(screen.getByTestId("audit-evidence-package-download"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("audit-evidence-lineage-live-region")).toHaveTextContent(
+        "Snapshot evidence bundle downloaded.",
+      );
+    });
+  });
+
+  it("announces clipboard copy failures in the live region", async () => {
+    const writeText = vi.fn(async () => {
+      throw new Error("denied");
+    });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    useAuditEvidenceLineageQueryMock.mockReturnValue({
+      data: {
+        controlNumber: "AC-1",
+        controlTitle: "Access control",
+        readyForPositiveCheckbox: true,
+        snapshotHashVerified: true,
+        brokenLinkReasons: [],
+        requirementChains: [],
+      },
+      isError: false,
+      isPending: false,
+      refetch: refetchMock,
+    });
+
+    render(<AuditEvidenceControlLineageClient {...ids} />);
+
+    fireEvent.click(screen.getByTestId("audit-evidence-lineage-copy-link"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("audit-evidence-lineage-live-region")).toHaveTextContent(
+        "Could not copy lineage link",
+      );
+    });
   });
 
   it("shows an inline error instead of a toast when evidence package download fails", async () => {

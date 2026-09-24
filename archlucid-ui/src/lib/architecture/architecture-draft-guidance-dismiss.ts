@@ -7,7 +7,11 @@ export function isArchitectureDraftGuidanceDismissed(): boolean {
     return false;
   }
 
-  return window.localStorage.getItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY) === "1";
+  try {
+    return window.localStorage.getItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
 export function persistArchitectureDraftGuidanceDismissed(): void {
@@ -15,5 +19,9 @@ export function persistArchitectureDraftGuidanceDismissed(): void {
     return;
   }
 
-  window.localStorage.setItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY, "1");
+  try {
+    window.localStorage.setItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY, "1");
+  } catch {
+    /* private/restricted storage */
+  }
 }

@@ -38,8 +38,12 @@ export function writeAcknowledgedAssumptionIds(runId: string, ids: ReadonlySet<s
     return;
   }
 
-  window.localStorage.setItem(storageKeyForRun(runId), JSON.stringify([...ids]));
-  window.dispatchEvent(new CustomEvent(CHANGE_EVENT_NAME, { detail: { runId: runId.trim() } }));
+  try {
+    window.localStorage.setItem(storageKeyForRun(runId), JSON.stringify([...ids]));
+    window.dispatchEvent(new CustomEvent(CHANGE_EVENT_NAME, { detail: { runId: runId.trim() } }));
+  } catch {
+    /* private/restricted storage */
+  }
 }
 
 /** Subscribe to acknowledgement changes for one run (same-tab only). */

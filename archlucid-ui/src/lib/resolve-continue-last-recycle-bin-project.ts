@@ -76,17 +76,30 @@ export function resolveContinueLastRecycleBinProject(
     return null;
   }
 
+  const validProjects = normalizedProjects.filter(
+    (project) =>
+      typeof project?.projectId === "string"
+      && typeof project?.projectName === "string"
+      && typeof project?.workspaceId === "string"
+      && typeof project?.workspaceName === "string"
+      && typeof project?.deletedUtcIso === "string",
+  );
+
+  if (validProjects.length === 0) {
+    return null;
+  }
+
   const storedId = readStoredProjectId();
 
   if (storedId !== null) {
-    const storedMatch = normalizedProjects.find((project) => project.projectId === storedId);
+    const storedMatch = validProjects.find((project) => project.projectId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = normalizedProjects.slice().sort((left, right) => right.deletedUtcIso.localeCompare(left.deletedUtcIso))[0];
+  const newest = validProjects.slice().sort((left, right) => right.deletedUtcIso.localeCompare(left.deletedUtcIso))[0];
 
   return newest === undefined ? null : toTarget(newest);
 }

@@ -1744,13 +1744,11 @@ export function DiagramsWorkbenchClient() {
               )}
             >
               <div className="grid min-w-0 gap-2">
-                <Label htmlFor="infra-diagrams-subscription-picker">
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
-                </Label>
                 <select
                   id="infra-diagrams-subscription-picker"
-                  className={cn("w-full", cnField)}
+                  className="w-full bg-transparent px-3 py-2"
                   data-testid="infra-diagrams-subscription-picker"
+                  aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
                   disabled={loadingSnapshots || snapshots.length === 0}
                   value={selectedSubscriptionFilter}
                   onChange={(event) => handleSubscriptionFilterChange(event.target.value)}
@@ -2019,6 +2017,28 @@ export function DiagramsWorkbenchClient() {
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
           </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="infra-diagrams-choose-another-view"
+              onClick={() => {
+                const modePicker = document.getElementById("infra-diagrams-mode-picker");
+
+                modePicker?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                if (modePicker instanceof HTMLSelectElement) {
+                  modePicker.focus();
+                }
+              }}
+            >
+              Choose another diagram
+            </Button>
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Return to the diagram type selector.
+            </span>
+          </div>
           <div className="flex flex-wrap items-end gap-3">
             {seedCandidateNodes.length > 0 ? (
               <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
@@ -2341,7 +2361,6 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
-              defaultNodesOpen={true}
             />
           ) : (
             <EnterpriseCompactEmptyState
@@ -2373,8 +2392,6 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
-              defaultNodesOpen={true}
-              defaultEdgesOpen={true}
             />
           ) : null}
         </>

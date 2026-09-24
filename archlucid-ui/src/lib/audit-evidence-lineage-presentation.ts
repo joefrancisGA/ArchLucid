@@ -1,5 +1,6 @@
 import type { AuditEvaluationOutcome, AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 export type AuditLineageCheckboxPresentation = {
   kind: EnterpriseStatusKind;
@@ -57,7 +58,8 @@ export function deriveAuditLineageCheckboxPresentation(
     return {
       kind: "ready",
       label: "Supported",
-      detail: "Chain of custody is complete — positive checkbox is allowed.",
+      detail:
+        "Chain of custody is complete — downstream attestation may record this control as supported.",
     };
   }
 
@@ -82,6 +84,76 @@ export function deriveAuditLineageCheckboxPresentation(
     label: "Not ready",
     detail: "Evidence chain is incomplete or snapshot hash is unverified.",
   };
+}
+
+export function countEvidenceHashVerification(lineage: AuditEvidenceLineageRecord): {
+  verifiedCount: number;
+  totalCount: number;
+} {
+  let verifiedCount = 0;
+  let totalCount = 0;
+
+  for (const chain of lineage.requirementChains ?? []) {
+    for (const evidence of chain.evidence ?? []) {
+      totalCount += 1;
+
+      if (evidence.itemHashVerified) {
+        verifiedCount += 1;
+      }
+    }
+  }
+
+  return { verifiedCount, totalCount };
+}
+
+export function formatEvidenceHashVerificationSummary(lineage: AuditEvidenceLineageRecord): string {
+  const { verifiedCount, totalCount } = countEvidenceHashVerification(lineage);
+
+  if (totalCount === 0) {
+    return "No evidence rows to verify in this snapshot";
+  }
+
+  return `${verifiedCount}/${totalCount} evidence hashes verified`;
+}
+
+export function resolveLatestCollectedUtc(lineage: AuditEvidenceLineageRecord): string | null {
+  let latestMs = Number.NaN;
+  let latestIso: string | null = null;
+
+  for (const chain of lineage.requirementChains ?? []) {
+    for (const evidence of chain.evidence ?? []) {
+      const collected = evidence.collectedUtc?.trim();
+
+      if (collected === undefined || collected.length === 0) {
+        continue;
+      }
+
+      const ms = parseIsoUtcMs(collected);
+
+      if (Number.isNaN(ms)) {
+        continue;
+      }
+
+      if (Number.isNaN(latestMs) || ms > latestMs) {
+        latestMs = ms;
+        latestIso = collected;
+      }
+    }
+  }
+
+  return latestIso;
+}
+
+export function formatAuditLineageEvaluationContext(lineage: AuditEvidenceLineageRecord): string {
+  const outcomeLabel = lineage.evaluation?.outcome
+    ? auditEvaluationOutcomeLabel(lineage.evaluation.outcome)
+    : "Evaluation unavailable";
+  const latestUtc = resolveLatestCollectedUtc(lineage);
+  const latestLabel = latestUtc
+    ? formatIsoUtcForDisplay(latestUtc)
+    : "no collected evidence timestamps in this snapshot";
+
+  return `${outcomeLabel} · Latest evidence collected ${latestLabel}`;
 }
 
 export function countAuditEvidenceLineageSummary(lineage: AuditEvidenceLineageRecord): {

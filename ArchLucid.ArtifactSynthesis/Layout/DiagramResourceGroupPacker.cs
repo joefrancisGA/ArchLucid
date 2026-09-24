@@ -189,7 +189,8 @@ public static class DiagramResourceGroupPacker
         double Y,
         double Width,
         double Height,
-        string? FrameCellId = null);
+        string? FrameCellId = null,
+        string? VnetFrameId = null);
 
     public sealed record ResourceGroupFrameBounds(
         string GroupName,

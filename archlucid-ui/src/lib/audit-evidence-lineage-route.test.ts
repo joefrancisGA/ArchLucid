@@ -5,6 +5,7 @@ import {
   SECURENOW_AUDIT_EVIDENCE_PATH,
   auditEvidenceLineageLookupPathFromPathname,
   buildAuditEvidenceControlLineagePath,
+  isAuditEvidenceControlLineagePath,
   isAuditEvidenceRoutePath,
   parseAuditEvidenceControlLineagePath,
 } from "@/lib/audit-evidence-lineage-route";
@@ -52,6 +53,12 @@ describe("audit-evidence-lineage-route", () => {
   it("returns null for invalid lineage paths", () => {
     expect(parseAuditEvidenceControlLineagePath("/governance/audit-evidence")).toBeNull();
     expect(parseAuditEvidenceControlLineagePath("not-a-url")).toBeNull();
+  });
+
+  it("detects control lineage detail routes", () => {
+    expect(isAuditEvidenceControlLineagePath("/governance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
+    expect(isAuditEvidenceControlLineagePath("/compliance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
+    expect(isAuditEvidenceControlLineagePath(AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH)).toBe(false);
   });
 
   it("detects audit evidence routes", () => {

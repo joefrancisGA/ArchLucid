@@ -35,10 +35,12 @@ export const AUDIT_EVIDENCE_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   },
 ] as const;
 
+/** Product-line-aware Sources for audit evidence control lineage (COO / GOO). */
 export function auditEvidenceSourcesForProductLine(
   productLineId: ProductLineId,
 ): readonly EvidenceSourceLinkWithWhen[] {
   const resourceInventoryPath = infrastructureResourcesPathForProductLine(productLineId);
+
   const sources = AUDIT_EVIDENCE_SOURCES.map((source) =>
     source.href === "/governance/infrastructure/resources"
       ? { ...source, href: resourceInventoryPath }

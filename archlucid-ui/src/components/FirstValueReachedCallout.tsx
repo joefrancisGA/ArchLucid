@@ -29,13 +29,17 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
       return;
     }
 
-    if (window.localStorage.getItem(DISMISS_KEY) === "1") {
-      setDismissed(true);
+    try {
+      if (window.localStorage.getItem(DISMISS_KEY) === "1") {
+        setDismissed(true);
 
-      return;
+        return;
+      }
+
+      setDismissed(false);
+    } catch {
+      setDismissed(false);
     }
-
-    setDismissed(false);
   }, []);
 
   useEffect(() => {
@@ -59,7 +63,11 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
 
   const dismiss = useCallback(() => {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(DISMISS_KEY, "1");
+      try {
+        window.localStorage.setItem(DISMISS_KEY, "1");
+      } catch {
+        // Storage may be unavailable.
+      }
     }
 
     setVisible(false);

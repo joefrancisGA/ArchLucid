@@ -13,7 +13,7 @@ import {
   auditEvaluationOutcomeLabel,
   auditEvaluationOutcomeStatusKind,
   countAuditEvidenceLineageSummary,
-  deriveAuditLineageCheckboxPresentation,
+  formatEvidenceHashVerificationSummary,
   humanizeAuditEvidenceLinkKind,
 } from "@/lib/audit-evidence-lineage-presentation";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
@@ -57,7 +57,6 @@ function TechnicalIdentifierRow(props: { readonly label: string; readonly value:
 }
 
 export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps): React.JSX.Element {
-  const checkbox = deriveAuditLineageCheckboxPresentation(props.lineage);
   const evaluation = props.lineage.evaluation;
   const buyerPolishedShell = props.buyerPolishedShell ?? false;
   const router = useRouter();
@@ -128,9 +127,17 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
         data-testid="audit-evidence-lineage-collapsed"
       >
         <div className="flex flex-wrap items-center gap-2">
-          <StatusTag kind={checkbox.kind} label={checkbox.label} />
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{checkbox.detail}</p>
+          <StatusTag
+            kind={props.lineage.snapshotHashVerified ? "ready" : "needs-attention"}
+            label={props.lineage.snapshotHashVerified ? "Snapshot hash verified" : "Snapshot hash unverified"}
+          />
         </div>
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="audit-evidence-lineage-hash-summary"
+        >
+          {formatEvidenceHashVerificationSummary(props.lineage)}
+        </p>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {summaryCounts.requirementCount} requirements · {summaryCounts.evidenceCount} evidence rows
         </p>
@@ -148,11 +155,16 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
         <h2 id="audit-evidence-lineage-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Chain of custody
         </h2>
-        <StatusTag kind={checkbox.kind} label={checkbox.label} />
         <StatusTag
           kind={props.lineage.snapshotHashVerified ? "ready" : "needs-attention"}
           label={props.lineage.snapshotHashVerified ? "Snapshot hash verified" : "Snapshot hash unverified"}
         />
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="audit-evidence-lineage-hash-summary"
+        >
+          {formatEvidenceHashVerificationSummary(props.lineage)}
+        </p>
       </div>
       {(props.lineage.brokenLinkReasons?.length ?? 0) > 0 ? (
         <div className={cnBrokenLinksPanel} data-testid="audit-evidence-broken-link-reasons">

@@ -61,7 +61,11 @@ export function recordRecentIanaTimeZoneId(ianaTimeZoneId: string): void {
     MAX_RECENT_TIME_ZONES,
   );
 
-  window.localStorage.setItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY, JSON.stringify(nextRecent));
+  try {
+    window.localStorage.setItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY, JSON.stringify(nextRecent));
+  } catch {
+    /* private/restricted storage */
+  }
 }
 
 /** Clears recent time zones between Vitest cases. */
@@ -70,5 +74,9 @@ export function resetRecentIanaTimeZoneIdsForTests(): void {
     return;
   }
 
-  window.localStorage.removeItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY);
+  try {
+    window.localStorage.removeItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY);
+  } catch {
+    /* private/restricted storage */
+  }
 }

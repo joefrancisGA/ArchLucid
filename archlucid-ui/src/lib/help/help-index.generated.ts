@@ -234,14 +234,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "what-good-looks-like",
     "sectionHeading": "What good looks like",
-    "excerpt": "Resume an architecture draft, open an architecture package, inspect sealed records, or start a new review from the architecture draft editor."
+    "excerpt": "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
     "docTitle": "Your first architecture review",
     "sectionSlug": "recommended-first-session",
     "sectionHeading": "Recommended first session",
-    "excerpt": "Resume an architecture draft, open an architecture package, inspect sealed records, or start a new review from the architecture draft editor."
+    "excerpt": "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
@@ -4182,7 +4182,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "azure-extractor-infosec-pre-read",
     "sectionHeading": "Azure extractor — InfoSec pre-read",
-    "excerpt": "Audience: Customer security, cloud platform, and procurement reviewers who must approve running `Get-ArchLucidAzurePackage.ps1` or uploading its ZIP output to ArchLucid. Status: generally available — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) Â§2.16 and [`trust-center.md`](trust-center.md) Azure connectivity posture. Rel…"
+    "excerpt": "Audience: Customer security, cloud platform, and procurement reviewers who must approve collecting Azure inventory (scheduled agent or one-time script) and uploading the ZIP to ArchLucid. Status: generally available — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) Â§2.16 and [`trust-center.md`](trust-center.md) Azure connect…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4194,9 +4194,9 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "tier-1-customer-run-collector-default-v1-path",
-    "sectionHeading": "Tier 1 — customer-run collector (default path)",
-    "excerpt": "1. Your team downloads and reviews `scripts/azure/Get-ArchLucidAzurePackage.ps1` from the ArchLucid distribution you received (or repository tag aligned to your pilot build). 2. An authorized operator runs the script inside your Azure context (Azure PowerShell / Cloud Shell / approved automation runner). 3. The arch…"
+    "sectionSlug": "tier-1-customer-owned-collector-default-v1-path",
+    "sectionHeading": "Tier 1 — customer-owned collector (default path)",
+    "excerpt": "Preferred production cadence: deploy the Terraform Automation runbook (or Function timer) shipped with the ArchLucid distribution as the scheduled-agent template. A system-assigned managed identity with Reader + Cost Management Reader runs the same collector on a schedule and POSTs the ZIP. ArchLucid never receives …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4215,9 +4215,9 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "alternative-when-the-script-is-blocked",
-    "sectionHeading": "Alternative when the script is blocked",
-    "excerpt": "1. Run an evidence-only review (`CloudProvider.None`). 2. Use demo evidence for internal evaluator dry-runs only (label demo-derived; do not quote externally). 3. Revisit Tier 1 after sandbox approval or use a narrow resource-group scope on a non-production subscription."
+    "sectionSlug": "alternative-when-workstation-collection-is-blocked",
+    "sectionHeading": "Alternative when workstation collection is blocked",
+    "excerpt": "1. Prefer the scheduled agent (customer Automation / Function) so collection stays in-tenant without a laptop CLI. 2. Run an evidence-only review (`CloudProvider.None`). 3. Use demo evidence for internal evaluator dry-runs only (label demo-derived; do not quote externally). 4. Revisit one-time collection after sandb…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4301,7 +4301,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "53-data-handling-and-retention",
     "sectionHeading": "5.3 Data handling and retention",
-    "excerpt": "Q: How long is customer data retained? A: Retention posture is documented and configurable. A formal data-retention schedule is an architecture draft artifact pending owner review. See [`trust-center.md`](trust-center.md)."
+    "excerpt": "Q: How long is customer data retained? A: Retention posture is documented and configurable. A formal data-retention schedule is a draft artifact pending owner review. See [`trust-center.md`](trust-center.md)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4322,7 +4322,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "56-incident-response",
     "sectionHeading": "5.6 Incident response",
-    "excerpt": "Q: Does ArchLucid have an incident response plan? A: An incident communications policy is documented at [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md). A formal IR plan is an architecture draft artifact pending owner review. Pilot buyers will be contacted within 24 hours of a confirmed incident affecting…"
+    "excerpt": "Q: Does ArchLucid have an incident response plan? A: An incident communications policy is documented at [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md). A formal IR plan is a draft artifact pending owner review. Pilot buyers will be contacted within 24 hours of a confirmed incident affecting…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

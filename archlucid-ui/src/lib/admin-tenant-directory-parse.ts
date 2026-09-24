@@ -111,11 +111,13 @@ export function parseAdminUsersDirectoryPayload(json: unknown): AdminDirectoryUs
     }
 
     const record = entry as Record<string, unknown>;
-    const userId = String(record.userId ?? record.id ?? "");
+    const rawUserId = record.userId ?? record.id;
 
-    if (userId.length === 0) {
+    if (typeof rawUserId !== "string" || rawUserId.trim().length === 0) {
       continue;
     }
+
+    const userId = rawUserId.trim();
 
     const displayName = String(record.displayName ?? record.name ?? " — ");
     const email = String(record.email ?? " — ");
@@ -164,11 +166,13 @@ export function parseAdminApiKeysDirectoryPayload(json: unknown): AdminDirectory
     }
 
     const record = entry as Record<string, unknown>;
-    const credentialId = String(record.credentialId ?? record.apiKeyId ?? record.keyId ?? record.id ?? "");
+    const rawCredentialId = record.credentialId ?? record.apiKeyId ?? record.keyId ?? record.id;
 
-    if (credentialId.length === 0) {
+    if (typeof rawCredentialId !== "string" || rawCredentialId.trim().length === 0) {
       continue;
     }
+
+    const credentialId = rawCredentialId.trim();
 
     const displayName = String(record.displayName ?? record.name ?? record.label ?? "API key");
     const hint = String(record.maskedKey ?? record.keyHint ?? record.hint ?? record.preview ?? " — ");

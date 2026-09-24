@@ -424,7 +424,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT}
                 </p>
               ) : null}
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className="flex flex-col gap-4">
                 <InfraEvidenceDiagramOutlineNodeTable
                   nodes={connectedNodeRows}
                   sectionLabel="Connected nodes"

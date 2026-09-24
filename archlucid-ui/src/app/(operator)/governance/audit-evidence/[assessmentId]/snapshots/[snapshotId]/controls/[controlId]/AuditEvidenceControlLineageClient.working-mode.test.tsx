@@ -74,5 +74,16 @@ describe("AuditEvidenceControlLineageClient working mode", () => {
       AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID,
     );
     expect(screen.getByTestId("audit-evidence-control-lineage-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-lineage-back-to-lookup-header")).toHaveAttribute(
+      "href",
+      "/governance/audit-evidence",
+    );
+    expect(screen.getByTestId("audit-evidence-lineage-spine")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-lineage-route-identifiers")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-package-download")).toHaveAttribute(
+      "aria-describedby",
+      "audit-evidence-package-download-scope-note",
+    );
+    expect(screen.getByTestId("audit-evidence-control-lineage-keyboard-affordance")).toHaveTextContent("Alt+1");
   });
 });

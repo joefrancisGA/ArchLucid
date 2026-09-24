@@ -57,6 +57,16 @@ export function parseAuditEvidenceControlLineagePath(
   return { assessmentId, snapshotId, controlId };
 }
 
+export function isAuditEvidenceControlLineagePath(pathname: string | null | undefined): boolean {
+  const bare = barePathname(pathname);
+
+  if (bare === null) {
+    return false;
+  }
+
+  return AUDIT_EVIDENCE_CONTROL_LINEAGE_PATH_PATTERN.test(bare);
+}
+
 export function isAuditEvidenceRoutePath(pathname: string): boolean {
   const bare = pathname.split("?", 1)[0] ?? pathname;
 

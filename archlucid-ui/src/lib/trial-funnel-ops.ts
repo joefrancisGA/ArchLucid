@@ -87,13 +87,19 @@ function readOptionalString(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
+function readFiniteNumberOrDefault(value: unknown, fallback: number): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function mapStageMetric(entry: unknown): TrialFunnelStageMetric {
   const row = (entry ?? {}) as Record<string, unknown>;
 
   return {
     stageId: String(row.stageId ?? ""),
     label: String(row.label ?? ""),
-    count: Number(row.count ?? 0),
+    count: readFiniteNumberOrDefault(row.count, 0),
     percentOfTrialStarts: readOptionalNumber(row.percentOfTrialStarts),
     percentFromPreviousStage: readOptionalNumber(row.percentFromPreviousStage),
     medianHoursFromPreviousStage: readOptionalNumber(row.medianHoursFromPreviousStage),
@@ -127,22 +133,22 @@ function mapSummary(json: Record<string, unknown>): TrialFunnelOperationalSummar
   const cohortRaw = Array.isArray(json.cohortRows) ? json.cohortRows : [];
 
   return {
-    activeSelfServiceTrials: Number(json.activeSelfServiceTrials ?? 0),
-    signupAttempts30Days: Number(json.signupAttempts30Days ?? 0),
-    signupFailures30Days: Number(json.signupFailures30Days ?? 0),
-    firstCommittedReviews30Days: Number(json.firstCommittedReviews30Days ?? 0),
-    trialConversions30Days: Number(json.trialConversions30Days ?? 0),
-    billingCheckouts30Days: Number(json.billingCheckouts30Days ?? 0),
+    activeSelfServiceTrials: readFiniteNumberOrDefault(json.activeSelfServiceTrials, 0),
+    signupAttempts30Days: readFiniteNumberOrDefault(json.signupAttempts30Days, 0),
+    signupFailures30Days: readFiniteNumberOrDefault(json.signupFailures30Days, 0),
+    firstCommittedReviews30Days: readFiniteNumberOrDefault(json.firstCommittedReviews30Days, 0),
+    trialConversions30Days: readFiniteNumberOrDefault(json.trialConversions30Days, 0),
+    billingCheckouts30Days: readFiniteNumberOrDefault(json.billingCheckouts30Days, 0),
     medianSignupToFirstCommitSeconds: readOptionalNumber(json.medianSignupToFirstCommitSeconds),
     estimatedFirstReviewCogsUsdLow: readOptionalNumber(json.estimatedFirstReviewCogsUsdLow),
     estimatedFirstReviewCogsUsdMid: readOptionalNumber(json.estimatedFirstReviewCogsUsdMid),
     estimatedFirstReviewCogsUsdHigh: readOptionalNumber(json.estimatedFirstReviewCogsUsdHigh),
-    llmBudgetCutoffEvents30Days: Number(json.llmBudgetCutoffEvents30Days ?? 0),
+    llmBudgetCutoffEvents30Days: readFiniteNumberOrDefault(json.llmBudgetCutoffEvents30Days, 0),
     cogsBasisLabel: typeof json.cogsBasisLabel === "string" ? json.cogsBasisLabel : "estimated",
     dataQuality: dataQualityRaw
       ? {
           generatedAtUtc: String(dataQualityRaw.generatedAtUtc ?? ""),
-          periodDays: Number(dataQualityRaw.periodDays ?? 30),
+          periodDays: readFiniteNumberOrDefault(dataQualityRaw.periodDays, 30),
           comparePreviousPeriod: Boolean(dataQualityRaw.comparePreviousPeriod),
           excludesDemoWorkspaces: Boolean(dataQualityRaw.excludesDemoWorkspaces),
           conversionDefinition: String(dataQualityRaw.conversionDefinition ?? ""),
@@ -170,7 +176,7 @@ function mapSummary(json: Record<string, unknown>): TrialFunnelOperationalSummar
           medianEstimatedUsd: readOptionalNumber(costRaw.medianEstimatedUsd),
           lowEstimatedUsd: readOptionalNumber(costRaw.lowEstimatedUsd),
           highEstimatedUsd: readOptionalNumber(costRaw.highEstimatedUsd),
-          sampleSize: Number(costRaw.sampleSize ?? 0),
+          sampleSize: readFiniteNumberOrDefault(costRaw.sampleSize, 0),
           currencyCode: String(costRaw.currencyCode ?? "USD"),
           basisLabel: String(costRaw.basisLabel ?? "estimated"),
           status: String(costRaw.status ?? "unavailable"),
@@ -288,16 +294,16 @@ export async function fetchAdminFleetLlmCogsDashboard(): Promise<AdminFleetLlmCo
     costBasisLabel: typeof json.costBasisLabel === "string" ? json.costBasisLabel : "estimated",
     monthlyBudgetMonitoringActive: Boolean(json.monthlyBudgetMonitoringActive),
     costRatesConfigured: Boolean(json.costRatesConfigured),
-    budgetWarningTenantCount: Number(json.budgetWarningTenantCount ?? 0),
-    hardStopTenantCount: Number(json.hardStopTenantCount ?? 0),
-    missingRateTenantCount: Number(json.missingRateTenantCount ?? 0),
+    budgetWarningTenantCount: readFiniteNumberOrDefault(json.budgetWarningTenantCount, 0),
+    hardStopTenantCount: readFiniteNumberOrDefault(json.hardStopTenantCount, 0),
+    missingRateTenantCount: readFiniteNumberOrDefault(json.missingRateTenantCount, 0),
     rows: rawRows.map((entry) => {
       const row = entry as Record<string, unknown>;
 
       return {
         tenantId: String(row.tenantId ?? ""),
         tenantName: String(row.tenantName ?? ""),
-        estimatedUsdPressureUtcMonth: Number(row.estimatedUsdPressureUtcMonth ?? 0),
+        estimatedUsdPressureUtcMonth: readFiniteNumberOrDefault(row.estimatedUsdPressureUtcMonth, 0),
         hardCapUsdUtcMonth:
           typeof row.hardCapUsdUtcMonth === "number" ? row.hardCapUsdUtcMonth : null,
         blocksAdditionalLlmExecution: Boolean(row.blocksAdditionalLlmExecution),
