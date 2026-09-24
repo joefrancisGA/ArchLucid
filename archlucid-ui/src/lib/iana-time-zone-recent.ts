@@ -70,5 +70,9 @@ export function resetRecentIanaTimeZoneIdsForTests(): void {
     return;
   }
 
-  window.localStorage.removeItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY);
+  try {
+    window.localStorage.removeItem(IANA_TIME_ZONE_RECENT_STORAGE_KEY);
+  } catch {
+    /* private/restricted storage */
+  }
 }
