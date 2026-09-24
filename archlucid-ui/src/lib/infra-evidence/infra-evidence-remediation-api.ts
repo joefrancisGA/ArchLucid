@@ -161,12 +161,12 @@ export async function fetchRemediationPrioritizedFindings(): Promise<Remediation
   const raw = await proxyJsonGet<Array<Record<string, unknown>>>(PRIORITIZATION_RANKED_PATH);
 
   return raw.map((row) => ({
-    findingId: String(row.findingId ?? ""),
-    totalScore: Number(row.totalScore ?? 0),
-    explanationSummary: String(row.explanationSummary ?? ""),
-    cloudResourceId: row.cloudResourceId != null ? String(row.cloudResourceId) : null,
-    controlId: row.controlId != null ? String(row.controlId) : null,
-    patternKey: row.patternKey != null ? String(row.patternKey) : null,
+    findingId: typeof row.findingId === "string" ? row.findingId : "",
+    totalScore: finiteNumberOrDefault(row.totalScore, 0),
+    explanationSummary: typeof row.explanationSummary === "string" ? row.explanationSummary : "",
+    cloudResourceId: typeof row.cloudResourceId === "string" ? row.cloudResourceId : null,
+    controlId: typeof row.controlId === "string" ? row.controlId : null,
+    patternKey: typeof row.patternKey === "string" ? row.patternKey : null,
   }));
 }
 
