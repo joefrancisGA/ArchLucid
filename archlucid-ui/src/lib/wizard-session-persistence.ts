@@ -59,7 +59,12 @@ export function readWizardSessionSnapshot<TState>(wizardId: WizardSessionId): Wi
       return null;
     }
 
-    if (snapshot.state === undefined || typeof snapshot.savedAtUtc !== "string") {
+    if (
+      snapshot.state === undefined
+      || typeof snapshot.savedAtUtc !== "string"
+      || snapshot.savedAtUtc.trim().length === 0
+      || Number.isNaN(Date.parse(snapshot.savedAtUtc))
+    ) {
       return null;
     }
 
