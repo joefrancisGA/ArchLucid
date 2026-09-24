@@ -34061,6 +34061,65 @@
         },
         "type": "object"
       },
+      "SecureNowHypothesisResponse": {
+        "properties": {
+          "citedFindingIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "citedPathIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependentResourceIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evidenceReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "hypothesisId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "separationDimension": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sharedDependencyNodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecurityAssessmentPublicationRequest": {
         "properties": {
           "assessmentCode": {
@@ -34472,6 +34531,12 @@
           "hops": {
             "items": {
               "$ref": "#/components/schemas/SecurityEvidencePathHopResponse"
+            },
+            "type": "array"
+          },
+          "hypotheses": {
+            "items": {
+              "$ref": "#/components/schemas/SecureNowHypothesisResponse"
             },
             "type": "array"
           },
