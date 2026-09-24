@@ -27,12 +27,12 @@ public static class BulkEvidenceUploadBatchSelector
         if (!TryParseBatchIndex(paginationToken, out int batchIndex))
             return files.ToList();
 
-        int skip = batchIndex * effectiveBatchSize;
+        long skip = (long)batchIndex * effectiveBatchSize;
 
         if (skip >= files.Count)
             return [];
 
-        return files.Skip(skip).Take(effectiveBatchSize).ToList();
+        return files.Skip((int)skip).Take(effectiveBatchSize).ToList();
     }
 
     /// <summary>Sums declared content lengths for payload-too-large guards.</summary>

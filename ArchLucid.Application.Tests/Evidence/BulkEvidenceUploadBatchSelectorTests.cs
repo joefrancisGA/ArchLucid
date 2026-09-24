@@ -33,6 +33,15 @@ public sealed class BulkEvidenceUploadBatchSelectorTests
     }
 
     [Fact]
+    public void SelectBatch_extreme_token_returns_empty_instead_of_first_files()
+    {
+        IFormFileCollection files = BuildFiles(3);
+
+        BulkEvidenceUploadBatchSelector.SelectBatch(files, int.MaxValue.ToString(), 200)
+            .Should().BeEmpty();
+    }
+
+    [Fact]
     public void SumDeclaredBytes_sums_non_empty_lengths()
     {
         List<Mock<IFormFile>> mocks =
