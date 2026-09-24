@@ -1,6 +1,7 @@
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.Tests.InfraEvidence.SyntheticAzureWorlds;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 
 using FluentAssertions;
