@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-09-10 (**TB-2400**–**TB-2401** opened — option-preserving API split follow-on after Done **OP-01**–**OP-06**; details in [`TECH_BACKLOG_TB2400_INDEX.md`](TECH_BACKLOG_TB2400_INDEX.md)). Prior: 2026-08-19 (**TB-2363**–**TB-2372** opened — structural refactor follow-on after IA chrome; details in [`TECH_BACKLOG_TB2363_INDEX.md`](TECH_BACKLOG_TB2363_INDEX.md)). Prior: 2026-08-17 (**TB-2353**–**TB-2362** **Done** — residual ease-of-use / IA chrome; [`TECH_BACKLOG_TB2353_INDEX.md`](TECH_BACKLOG_TB2353_INDEX.md)). Prior: 2026-08-16 (**TB-655** **Done** — three metadata composition roots + `apply-saas.ps1` 3-wave orchestration). Prior: 2026-08-14 (**TB-2296**–**TB-2300** **Done** — strengthen-reviews items 3–7). Prior: 2026-08-14 (**TB-2282** **Done** — architecture draft structured brief). Prior: 2026-08-14 (**TB-2251**/**TB-2276**–**TB-2280** **Done** — multi-cloud orphan KPI markers + color token hierarchy).
+> **Updated:** 2026-09-23 (**TB-2408**–**TB-2412** opened — SecureNow engine-strength follow-ons; test-only directional mutations and bounded path oracles are already shipped). Prior: 2026-09-10 (**TB-2400**–**TB-2401** opened — option-preserving API split follow-on after Done **OP-01**–**OP-06**; details in [`TECH_BACKLOG_TB2400_INDEX.md`](TECH_BACKLOG_TB2400_INDEX.md)). Prior: 2026-08-19 (**TB-2363**–**TB-2372** opened — structural refactor follow-on after IA chrome; details in [`TECH_BACKLOG_TB2363_INDEX.md`](TECH_BACKLOG_TB2363_INDEX.md)). Prior: 2026-08-17 (**TB-2353**–**TB-2362** **Done** — residual ease-of-use / IA chrome; [`TECH_BACKLOG_TB2353_INDEX.md`](TECH_BACKLOG_TB2353_INDEX.md)). Prior: 2026-08-16 (**TB-655** **Done** — three metadata composition roots + `apply-saas.ps1` 3-wave orchestration). Prior: 2026-08-14 (**TB-2296**–**TB-2300** **Done** — strengthen-reviews items 3–7). Prior: 2026-08-14 (**TB-2282** **Done** — architecture draft structured brief). Prior: 2026-08-14 (**TB-2251**/**TB-2276**–**TB-2280** **Done** — multi-cloud orphan KPI markers + color token hierarchy).
 
 
 
@@ -836,6 +836,15 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-873 | Generic OpenAI-compatible endpoint adapter | P3 **V1.1/V2 boundary** — promoted by ADR 0065 D7; after **TB-872**; gates retained via ADR 0065 D3/D4 (**TB-2104**, **TB-2105**) |
 | TB-2108 | First non-Azure ArchLucid-managed engine adapter | P3 **V2**; ADR 0065 D1; gated on **TB-2103**–**TB-2107**, **TB-2109**, **TB-872** |
 | TB-932 | Offload large JSON payloads to blob storage | P3 **V2**; after **TB-929**–**TB-931** + measured sizes |
+| TB-2408 | Paired engine-strength evaluation | P2 **V2**; candidate versus baseline cohort comparisons; no unsupported buyer-facing Elo |
+| TB-2409 | Stable-conclusion gate for decision-grade findings | P1 **V2**; after **TB-2404**/**TB-2405** |
+| TB-2410 | Ordered SecureNow remediation paths | P1 **V2**; extends **SA-10**/**SA-13** |
+| TB-2411 | Adaptive analysis depth and compute budget | P2 **V2**; after verifier, falsification, and coverage semantics |
+| TB-2412 | Proposed-state what-if planning | P2 **V2**; after **TB-2410**, **SA-12**, and **SA-13** |
+| TB-2413 | N-1 and selective N-2 contingency propagation | P1 **V2**; after **TB-2410**, **SA-13**, and common-mode hypotheses |
+| TB-2414 | Information-gain investigation order | P2 **V2**; after **TB-2411** and diagnostic hypotheses |
+| TB-2415 | Pareto architecture alternatives | P2 **V2**; after **TB-2412** and **TB-2413** |
+| TB-2416 | Requirements-constrained architecture synthesis | P3 **V2**; after **TB-2415**; not a current-product design guarantee |
 
 ## Curated slices
 

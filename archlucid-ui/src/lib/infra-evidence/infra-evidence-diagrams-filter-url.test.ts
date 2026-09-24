@@ -6,6 +6,8 @@ import {
   infraDiagramsFilterHrefFromSearch,
   parseInfraDiagramsCloudResourceIdFromSearch,
   parseInfraDiagramsIncludePrivateEndpointsFromSearch,
+  parseInfraDiagramsIncludeRecoveryServicesFromSearch,
+  INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
@@ -141,6 +143,27 @@ describe("infra-evidence-diagrams-filter-url", () => {
     expect(parseInfraDiagramsIncludePrivateEndpointsFromSearch("1")).toBe(true);
     expect(parseInfraDiagramsIncludePrivateEndpointsFromSearch("true")).toBe(true);
     expect(parseInfraDiagramsIncludePrivateEndpointsFromSearch(null)).toBe(false);
+    expect(parseInfraDiagramsIncludeRecoveryServicesFromSearch("1")).toBe(true);
+    expect(parseInfraDiagramsIncludeRecoveryServicesFromSearch(null)).toBe(false);
+  });
+
+  it("round-trips includeRecoveryServices without touching includeNeverShow", () => {
+    expect(
+      infraDiagramsFilterHrefFromSearch("includeNeverShow=1", {
+        includeRecoveryServices: true,
+      }),
+    ).toBe(
+      `/governance/infrastructure/diagrams?includeNeverShow=1&${INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM}=1`,
+    );
+
+    expect(
+      infraDiagramsFilterHrefFromSearch(
+        `includeNeverShow=1&${INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM}=1`,
+        {
+          includeRecoveryServices: false,
+        },
+      ),
+    ).toBe("/governance/infrastructure/diagrams?includeNeverShow=1");
   });
 
   it("round-trips subscription filter and private endpoint patches", () => {

@@ -568,6 +568,7 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-diagrams-seed-node-input")).toHaveValue(armId);
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
+    expect(screen.getByTestId("infra-diagrams-choose-another-view")).toBeInTheDocument();
     expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
@@ -634,6 +635,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-mermaid-outline")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-diagrams-outline-nodes-disclosure"));
     expect(screen.getByRole("button", { name: /Focus neighborhood from vnet-aep-hi-test-wus-001/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Focus neighborhood from gateway-pip/i })).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-dependency-seed-prompt")).not.toBeInTheDocument();
