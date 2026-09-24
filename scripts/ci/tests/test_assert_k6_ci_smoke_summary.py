@@ -18,6 +18,21 @@ def _payload(**tag_p95: float) -> dict:
 
 
 class AssertK6CiSmokeSummaryTests(unittest.TestCase):
+    def test_nonfinite_tagged_latency_cannot_pass(self):
+        data = _payload(**{"http_req_duration{k6api:version}": float("nan")})
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(data, tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run(
+                [PYTHON, str(SCRIPT), str(tmp_path), "--per-tag-k6-api-smoke"],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 1, proc.stderr)
+            self.assertIn("invalid k6 metric", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
     def test_missing_global_duration_cannot_pass(self):
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
             json.dump(_payload(), tmp)
