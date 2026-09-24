@@ -97,7 +97,11 @@ export function clearWizardSessionSnapshot(wizardId: WizardSessionId): void {
     return;
   }
 
-  window.sessionStorage.removeItem(buildWizardSessionStorageKey(wizardId));
+  try {
+    window.sessionStorage.removeItem(buildWizardSessionStorageKey(wizardId));
+  } catch {
+    /* private/restricted storage */
+  }
 }
 
 export function wizardSessionHasTextContent(value: string | null | undefined): boolean {
