@@ -317,20 +317,34 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
         })
       : [],
     recentChanges: Array.isArray(raw.recentChanges)
-      ? raw.recentChanges.map((item) => {
+      ? raw.recentChanges.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            changeId: String(row.changeId ?? ""),
-            diffId: String(row.diffId ?? ""),
-            snapshotAId: String(row.snapshotAId ?? ""),
-            snapshotBId: String(row.snapshotBId ?? ""),
-            changeType: String(row.changeType ?? ""),
-            property: row.property != null ? String(row.property) : null,
-            oldValue: row.oldValue != null ? String(row.oldValue) : null,
-            newValue: row.newValue != null ? String(row.newValue) : null,
-            riskClassification: row.riskClassification != null ? String(row.riskClassification) : null,
-          };
+          if (
+            typeof row.changeId !== "string"
+            || typeof row.diffId !== "string"
+            || typeof row.snapshotAId !== "string"
+            || typeof row.snapshotBId !== "string"
+            || typeof row.changeType !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            changeId: row.changeId,
+            diffId: row.diffId,
+            snapshotAId: row.snapshotAId,
+            snapshotBId: row.snapshotBId,
+            changeType: row.changeType,
+            property: typeof row.property === "string" ? row.property : null,
+            oldValue: typeof row.oldValue === "string" ? row.oldValue : null,
+            newValue: typeof row.newValue === "string" ? row.newValue : null,
+            riskClassification: typeof row.riskClassification === "string" ? row.riskClassification : null,
+          }];
         })
       : [],
     auditLineageLink: {
