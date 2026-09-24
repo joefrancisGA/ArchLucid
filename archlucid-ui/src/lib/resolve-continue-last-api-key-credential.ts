@@ -98,17 +98,29 @@ export function resolveContinueLastApiKeyCredential(
     return null;
   }
 
+  const validCredentials = normalizedCredentials.filter(
+    (credential) =>
+      (credential?.slot === "Admin" || credential?.slot === "ReadOnly")
+      && typeof credential?.keyName === "string"
+      && typeof credential?.isConfigured === "boolean"
+      && (credential?.expiresAtUtc == null || typeof credential.expiresAtUtc === "string"),
+  );
+
+  if (validCredentials.length === 0) {
+    return null;
+  }
+
   const storedSlot = readStoredSlot();
 
   if (storedSlot !== null) {
-    const storedMatch = normalizedCredentials.find((credential) => credential.slot === storedSlot);
+    const storedMatch = validCredentials.find((credential) => credential.slot === storedSlot);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const activeMatch = normalizedCredentials.find((credential) => isSlotActive(credential));
+  const activeMatch = validCredentials.find((credential) => isSlotActive(credential));
 
   if (activeMatch !== undefined) {
     return toTarget(activeMatch);
@@ -125,14 +137,14 @@ export function resolveContinueLastApiKeyCredential(
   if (newestAudit !== undefined) {
     const auditSlot = slotFromKeyName(newestAudit.keyName);
     const auditMatch =
-      auditSlot === null ? undefined : normalizedCredentials.find((credential) => credential.slot === auditSlot);
+      auditSlot === null ? undefined : validCredentials.find((credential) => credential.slot === auditSlot);
 
     if (auditMatch !== undefined) {
       return toTarget(auditMatch);
     }
   }
 
-  const first = normalizedCredentials[0];
+  const first = validCredentials[0];
 
   return first === undefined ? null : toTarget(first);
 }
