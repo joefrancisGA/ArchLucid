@@ -2,6 +2,7 @@ import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
 import { flattenNavLinks } from "@/lib/nav-config";
 import { resolveNavLinkPresentation } from "@/lib/operator/operator-nav-labels";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import type { GuidedPaletteLockedDestination } from "@/lib/usability/guided-palette-locked-destinations";
@@ -75,8 +76,7 @@ function dedupeFindPageEntriesByHref(entries: readonly FindPageSearchEntry[]): F
   return [...byHref.values()];
 }
 
-function buildNavFindPageSearchEntries(): readonly FindPageSearchEntry[] {
-  const productLine = resolveProductLineIdFromEnv();
+function buildNavFindPageSearchEntries(productLine: ProductLineId): readonly FindPageSearchEntry[] {
 
   return flattenNavLinks().map((link) => {
     const presentation = resolveNavLinkPresentation(link, false, false, false, productLine);
@@ -92,8 +92,8 @@ function buildNavFindPageSearchEntries(): readonly FindPageSearchEntry[] {
 }
 
 /** Static find-a-page entries shared by header search and command palette (TB-2364). */
-export function buildStaticFindPageSearchIndex(): readonly FindPageSearchEntry[] {
-  const nav: FindPageSearchEntry[] = [...buildNavFindPageSearchEntries()];
+export function buildStaticFindPageSearchIndex(productLineId: ProductLineId = resolveProductLineIdFromEnv()): readonly FindPageSearchEntry[] {
+  const nav: FindPageSearchEntry[] = [...buildNavFindPageSearchEntries(productLineId)];
 
   const curated: FindPageSearchEntry[] = COMMAND_PALETTE_CURATED_TASKS.map((task) => ({
     id: `curated:${task.href}`,
@@ -145,7 +145,7 @@ export function searchGuidedLockedFindPageEntries(
 
 export function searchFindPageIndex(
   query: string,
-  options?: { readonly limit?: number; readonly visibleHrefs?: ReadonlySet<string> },
+  options?: { readonly limit?: number; readonly visibleHrefs?: ReadonlySet<string>; readonly productLineId?: ProductLineId },
 ): readonly FindPageSearchEntry[] {
   const normalizedQuery = normalizeQuery(query);
 
@@ -156,7 +156,7 @@ export function searchFindPageIndex(
   const limit = options?.limit ?? 8;
   const visibleHrefs = options?.visibleHrefs;
 
-  return buildStaticFindPageSearchIndex()
+  return buildStaticFindPageSearchIndex(options?.productLineId)
     .filter(
       (entry) =>
         visibleHrefs === undefined || visibleHrefs.has(commandPaletteNavVisibilityHref(entry.href)),
@@ -171,11 +171,11 @@ export function searchFindPageIndex(
 /** Help-topic rows in the same result shape for header merge (Insights Ask excluded). */
 export function searchFindPageHelpEntries(
   query: string,
-  options?: { readonly limit?: number },
+  options?: { readonly limit?: number; readonly productLineId?: ProductLineId },
 ): readonly FindPageSearchEntry[] {
   const limit = options?.limit ?? 4;
 
-  return searchHelpTopics(query, limit).map((hit) => ({
+  return searchHelpTopics(query, limit, options?.productLineId).map((hit) => ({
     id: `help:${hit.slug}`,
     label: hit.title,
     href: `/help/${hit.slug}`,
