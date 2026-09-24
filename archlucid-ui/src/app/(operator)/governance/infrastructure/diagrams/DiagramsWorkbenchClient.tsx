@@ -2475,6 +2475,7 @@ export function DiagramsWorkbenchClient() {
           <InfraEvidenceDiagramLegend
             outline={visibleMermaidOutline}
             mermaidSource={displayMermaidSource}
+            layoutSvg={displayLayoutSvg}
           />
           {visibleMermaidOutline != null ? (
             <InfraEvidenceDiagramOutline
