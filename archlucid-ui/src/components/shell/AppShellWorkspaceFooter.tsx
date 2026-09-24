@@ -10,7 +10,6 @@ import { isSecureNowWorkspaceFooterTrustLinkExcluded } from "@/lib/product-line/
 import { cn } from "@/lib/utils";
 
 import {
-  DeploymentBuildFingerprintStripDeferred,
   SystemHealthStatusStripDeferred,
   TrustCenterShellLinkDeferred,
 } from "./app-shell-workspace-footer-deferred-chunks";
@@ -42,7 +41,6 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
             "flex items-center gap-3",
           )}
         >
-          <DeploymentBuildFingerprintStripDeferred variant="compact" />
           {showWorkspaceFooterTrustLink ? (
             <TrustCenterShellLinkDeferred variant="footer" className="ml-auto" />
           ) : null}
@@ -62,7 +60,6 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
     >
       <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-col gap-1")}>
         <SystemHealthStatusStripDeferred className="mb-0 min-w-0 flex-1" />
-        <DeploymentBuildFingerprintStripDeferred />
       </div>
     </footer>
   );

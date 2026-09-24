@@ -6,7 +6,6 @@ import {
   WORKING_REHEARSAL_DOOR_LABEL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { SYSTEM_GRAVITY_ADR_0098_RELATIVE_PATH } from "@/lib/system-gravity-adr-inventory";
 import { SYSTEM_GRAVITY_HELP_PATH, SYSTEM_GRAVITY_HELP_SLUG } from "@/lib/system-gravity-help-route";
 
 /** SG-107 — help: architecture desk vs nested review inspector on Working (Record/Practice per ADR 0097). */
@@ -17,7 +16,7 @@ export const SYSTEM_GRAVITY_HELP_TITLE = "System gravity" as const;
 export const SYSTEM_GRAVITY_HELP_TOPIC_LABEL = "System gravity" as const;
 
 export const SYSTEM_GRAVITY_HELP_PAGE_SUBTITLE =
-  "Working instrument after desk lock — architecture desk vs nested review workspace (ADR 0098)." as const;
+  "Working instrument after desk lock — architecture desk vs nested review workspace." as const;
 
 export const SYSTEM_GRAVITY_HELP_CLAIM_DISCIPLINE =
   "On Working, the architecture desk is Home — nested review routes are inspectors, not a second Home." as const;
@@ -113,10 +112,9 @@ export const SYSTEM_GRAVITY_HELP_TECHNICAL_HEADING = "Technical reference" as co
 export const SYSTEM_GRAVITY_HELP_TECHNICAL_HEADING_ID = "help-system-gravity-technical" as const;
 
 export const SYSTEM_GRAVITY_HELP_TECHNICAL_INTRO =
-  "Route templates, identifiers, and ADR 0098 for engineers reviewing Working desk gravity." as const;
+  "Route templates and identifiers for engineers reviewing Working desk gravity." as const;
 
 export const SYSTEM_GRAVITY_HELP_TECHNICAL_IDENTIFIERS: readonly string[] = [
-  SYSTEM_GRAVITY_ADR_0098_RELATIVE_PATH,
   "/architecture/architectures/{architectureId}",
   "/architecture/architectures/{architectureId}/reviews/{reviewId}",
   "ArchitectureId",

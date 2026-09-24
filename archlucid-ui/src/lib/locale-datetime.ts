@@ -99,6 +99,20 @@ function formatInstantClockInTimeZone(instant: Date, timeZoneId: string): string
   });
 }
 
+/** Minute-precision wall clock plus short zone (EDT/EST), using a 24-hour clock. */
+function formatInstantMilitaryClockInTimeZone(instant: Date, timeZoneId: string): string {
+  return instant.toLocaleString("en-US", {
+    timeZone: timeZoneId,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZoneName: "short",
+  });
+}
+
 /** Two-digit year and 24-hour clock, no AM/PM — dense inventory last-seen cells. */
 function formatInstantCompactMilitaryClockInTimeZone(instant: Date, timeZoneId: string): string {
   return instant.toLocaleString("en-US", {
@@ -148,6 +162,41 @@ export function formatInstantInPreferredTimeZone(
     }
 
     return formatInstantClockInTimeZone(instant, DEFAULT_IANA_TIME_ZONE_ID);
+  }
+}
+
+/** Operator capture/clock labels in the user's IANA preference with a 24-hour clock. */
+export function formatInstantInPreferredTimeZoneMilitary(
+  iso: string | null | undefined,
+  ianaTimeZoneId: string | null | undefined = DEFAULT_IANA_TIME_ZONE_ID,
+): string {
+  if (iso === null || iso === undefined) {
+    return " — ";
+  }
+
+  const trimmed = iso.trim();
+
+  if (trimmed.length === 0) {
+    return " — ";
+  }
+
+  const ms = parseIsoUtcMs(trimmed);
+
+  if (!Number.isFinite(ms)) {
+    return trimmed;
+  }
+
+  const instant = new Date(ms);
+  const timeZoneId = resolvePreferredIanaTimeZoneId(ianaTimeZoneId);
+
+  try {
+    return formatInstantMilitaryClockInTimeZone(instant, timeZoneId);
+  } catch {
+    if (timeZoneId === DEFAULT_IANA_TIME_ZONE_ID) {
+      return trimmed;
+    }
+
+    return formatInstantMilitaryClockInTimeZone(instant, DEFAULT_IANA_TIME_ZONE_ID);
   }
 }
 

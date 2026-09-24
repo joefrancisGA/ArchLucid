@@ -374,6 +374,28 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(screen.queryByTestId("infra-diagrams-outline-nodes-truncated")).toBeNull();
   });
 
+  it("places the unconnected node list below the connected node list", () => {
+    const stackedOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        ...outline.nodes,
+        {
+          id: "n_extra",
+          label: "standalone-resource",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-extra",
+        },
+      ],
+      edges: outline.edges,
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={stackedOutline} defaultNodesOpen={true} />);
+
+    const connectedList = screen.getByTestId("infra-diagrams-connected-nodes-list");
+    const unconnectedList = screen.getByTestId("infra-diagrams-unconnected-nodes-list");
+
+    expect(connectedList.compareDocumentPosition(unconnectedList) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("lists every node and every edge when the outline is larger than 200 rows", () => {
     const manyNodeOutline: InfraEvidenceMermaidOutline = {
       nodes: Array.from({ length: 201 }, (_, index) => ({

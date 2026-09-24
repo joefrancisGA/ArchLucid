@@ -67,6 +67,8 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 | P2 | **IDA / IDL / IDS / IDT** | Inventory diagram layout and Graphviz forest | **Backlog** | L | Executive forest packing — see `.cursor/prompts/inventory-diagram-*-00-index.md`. Not a SecureNow-only codepath but blocks “all-day” diagram UX. |
 | P2 | **TB-2400** | Second HTTP host **compile check** (`SecureNow.Api` facade subset) | **Backlog** | L | Owner pickup only — [`TECH_BACKLOG_TB2400_INDEX.md`](../library/TECH_BACKLOG_TB2400_INDEX.md). |
 | P3 | **TB-2401** | Product-line catalog / DDL split | **Backlog** | XL | Last cut; requires integration contract — same index. |
+| P1/P2 | **TB-2409–TB-2412** | Engine-strength follow-ons | **Backlog** | M–XL | **TB-2409** stable-conclusion gate; **TB-2410** ordered remediation paths; **TB-2411** adaptive analysis depth; **TB-2412** proposed-state what-if planning. Directional mutations and bounded path oracles are already implemented as test-only coverage; paired engine-strength evaluation is **TB-2408** in the monorepo backlog. |
+| P1/P3 | **TB-2413–TB-2416** | Future causal-search product | **Backlog** | M–XL | **TB-2413** N-1/N-2 contingency propagation; **TB-2414** information-gain investigation order; **TB-2415** Pareto alternatives; **TB-2416** requirements-constrained synthesis. Current-product diagnosis is SN-QA-03 and SN-QA-04, not these rows. |
 | P3 | **SN-08** | Platform rename hold (namespaces, domains) | **Hold** | — | Do not implement from agent sessions. |
 
 ### SecureNow-specific follow-ons (after baseline)
