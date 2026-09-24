@@ -56,8 +56,12 @@ export function InlineGlossaryChip({
 
     const storageKey = resolveSeenStorageKey(nounId);
 
-    if (localStorage.getItem(storageKey) === "1") {
-      return;
+    try {
+      if (localStorage.getItem(storageKey) === "1") {
+        return;
+      }
+    } catch {
+      // Storage unavailable: allow the transient first-encounter affordance.
     }
 
     setFirstPulse(true);
