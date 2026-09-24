@@ -113,6 +113,18 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
         self.assertIn("live-ui-sql-parity", result.stderr)
 
+    def test_reference_to_wrong_artifact_blocks_signoff(self) -> None:
+        bundle = self.temp_dir / "wrong-reference"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "rc-evidence-signoff-bundle.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["references"]["releaseConfidenceRollup"] = "unrelated.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("references.releaseConfidenceRollup", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
