@@ -5,10 +5,10 @@ import { ExtractUploadSettingsPageClient } from "./_sections/ExtractUploadSettin
 import { ExtractUploadSettingsPageLoading } from "./_sections/ExtractUploadSettingsPageLoading";
 import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { extractUploadSettingsPathForProductLine } from "@/lib/extract-upload-settings-route";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
 
-export default function ExtractUploadSettingsPage() {
-  const canonicalPath = extractUploadSettingsPathForProductLine(resolveProductLineIdFromEnv());
+export default async function ExtractUploadSettingsPage() {
+  const canonicalPath = extractUploadSettingsPathForProductLine(await resolveProductLineIdForServer());
 
   if (canonicalPath !== EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH) {
     redirect(canonicalPath);
