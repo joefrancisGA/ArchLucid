@@ -36,7 +36,11 @@ export function MarketingAnalyticsConsentBanner(props: { clarityProjectId: strin
   }, []);
 
   const persist = useCallback((value: MarketingAnalyticsConsentValue) => {
-    window.localStorage.setItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY, value);
+    try {
+      window.localStorage.setItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY, value);
+    } catch {
+      // Storage may be unavailable; consent still applies for this page lifetime.
+    }
     setConsent(value);
     window.dispatchEvent(new Event("archlucid-marketing-consent-changed"));
   }, []);
