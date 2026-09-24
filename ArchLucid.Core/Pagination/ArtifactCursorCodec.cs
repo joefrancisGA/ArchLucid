@@ -28,7 +28,15 @@ public static class ArtifactCursorCodec
         if (!Base64UrlCodec.TryDecode(encoded, out byte[] bytes))
             return null;
 
-        ArtifactListCursorDto? dto = JsonSerializer.Deserialize<ArtifactListCursorDto>(bytes, SerializerOptions);
+        ArtifactListCursorDto? dto;
+        try
+        {
+            dto = JsonSerializer.Deserialize<ArtifactListCursorDto>(bytes, SerializerOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
 
         if (dto is null || dto.Ai == Guid.Empty)
             return null;
