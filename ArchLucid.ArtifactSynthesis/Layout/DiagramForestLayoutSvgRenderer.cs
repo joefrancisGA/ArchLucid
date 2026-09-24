@@ -635,6 +635,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         HashSet<string> suppressedEdgeKeys = DiagramForestEdgeLabelCollapse.ResolveSuppressedEdgeKeys(
             renderableNodes,
             visibleEdges);
+        foreach (DiagramEdge edge in ResolveVnetInternalPlacementEdges(renderableNodes, visibleEdges))
+        {
+            suppressedEdgeKeys.Add(DiagramForestEdgeLabelCollapse.EdgeKey(edge));
+        }
         Dictionary<string, IReadOnlyList<DiagramNode>> componentByNodeId =
             BuildComponentMembership(renderableNodes, visibleEdges);
         Dictionary<string, DiagramNode> nodesById = renderableNodes.ToDictionary(
@@ -681,6 +685,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach (DiagramEdge edge in visibleEdges)
         {
+            if (suppressedEdgeKeys.Contains(DiagramForestEdgeLabelCollapse.EdgeKey(edge)))
+            {
+                continue;
+            }
+
             string routeFromNodeId = edge.FromNodeId;
             string routeToNodeId = edge.ToNodeId;
 
@@ -814,6 +823,40 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
 
         return root.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static IReadOnlyList<DiagramEdge> ResolveVnetInternalPlacementEdges(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramEdge> edges)
+    {
+        Dictionary<string, DiagramNode> nodesById = nodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+        HashSet<string> suppressed = [];
+
+        foreach (IReadOnlySet<string> members in DiagramForestVnetMembership
+                     .Resolve(nodes, edges, sameResourceGroupOnly: true)
+                     .Values)
+        {
+            foreach (DiagramEdge edge in edges)
+            {
+                if (DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge)
+                    || !DiagramForestVnetMembership.IsCitedPlacementEdge(edge)
+                    || !members.Contains(edge.FromNodeId)
+                    || !members.Contains(edge.ToNodeId)
+                    || !nodesById.ContainsKey(edge.FromNodeId)
+                    || !nodesById.ContainsKey(edge.ToNodeId))
+                {
+                    continue;
+                }
+
+                suppressed.Add(DiagramForestEdgeLabelCollapse.EdgeKey(edge));
+            }
+        }
+
+        return edges
+            .Where(edge => suppressed.Contains(DiagramForestEdgeLabelCollapse.EdgeKey(edge)))
+            .ToList();
     }
 
     private static Dictionary<string, IReadOnlyList<DiagramNode>> BuildComponentMembership(

@@ -2,7 +2,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
-/// <summary>Resolves non-empty VNet and subnet frames from visible nodes and placement edges.</summary>
+/// <summary>Resolves non-empty VNet and subnet frames from visible nodes and cited placement edges.</summary>
 public static class DiagramForestNestedFrameResolver
 {
     public static IReadOnlyList<DiagramForestNestedFrameBounds> Resolve(
@@ -22,7 +22,17 @@ public static class DiagramForestNestedFrameResolver
 
         foreach (DiagramNode vnet in nodes.Where(IsVnet))
         {
-            List<DiagramNode> members = ResolveMembers(vnet, nodesById, edges, placementByNodeId);
+            IReadOnlySet<string> memberIds = DiagramForestVnetMembership.ResolveMembers(
+                vnet,
+                nodes,
+                edges,
+                sameResourceGroupOnly: true);
+            List<DiagramNode> members = memberIds
+                .Where(placementByNodeId.ContainsKey)
+                .Select(nodesById.GetValueOrDefault)
+                .Where(node => node is not null)
+                .Cast<DiagramNode>()
+                .ToList();
 
             if (members.Count < 2 || !placementByNodeId.ContainsKey(vnet.NodeId))
             {
@@ -34,7 +44,18 @@ public static class DiagramForestNestedFrameResolver
 
         foreach (DiagramNode subnet in nodes.Where(IsSubnet))
         {
-            List<DiagramNode> members = ResolveMembers(subnet, nodesById, edges, placementByNodeId);
+            HashSet<string> subnetMemberIds = edges
+                .Where(DiagramForestVnetMembership.IsCitedPlacementEdge)
+                .Where(edge => string.Equals(edge.ToNodeId, subnet.NodeId, StringComparison.Ordinal))
+                .Select(edge => edge.FromNodeId)
+                .Where(placementByNodeId.ContainsKey)
+                .ToHashSet(StringComparer.Ordinal);
+            subnetMemberIds.Add(subnet.NodeId);
+            List<DiagramNode> members = subnetMemberIds
+                .Select(nodesById.GetValueOrDefault)
+                .Where(node => node is not null)
+                .Cast<DiagramNode>()
+                .ToList();
 
             if (members.Count < 2 || !placementByNodeId.ContainsKey(subnet.NodeId))
             {
@@ -45,41 +66,6 @@ public static class DiagramForestNestedFrameResolver
         }
 
         return frames;
-    }
-
-    private static List<DiagramNode> ResolveMembers(
-        DiagramNode container,
-        IReadOnlyDictionary<string, DiagramNode> nodesById,
-        IReadOnlyList<DiagramEdge> edges,
-        IReadOnlyDictionary<string, DiagramResourceGroupPacker.NodePlacementBounds> placements)
-    {
-        HashSet<string> memberIds = edges
-            .Where(edge => IsPlacementEdge(edge) && string.Equals(edge.ToNodeId, container.NodeId, StringComparison.Ordinal))
-            .Select(edge => edge.FromNodeId)
-            .Where(placements.ContainsKey)
-            .ToHashSet(StringComparer.Ordinal);
-        memberIds.Add(container.NodeId);
-
-        string armId = ReadArmId(container);
-
-        if (!string.IsNullOrWhiteSpace(armId))
-        {
-            foreach (DiagramNode candidate in nodesById.Values)
-            {
-                if (!string.IsNullOrWhiteSpace(ReadArmId(candidate))
-                    && ReadArmId(candidate).StartsWith(armId.TrimEnd('/') + "/subnets/", StringComparison.OrdinalIgnoreCase)
-                    && placements.ContainsKey(candidate.NodeId))
-                {
-                    memberIds.Add(candidate.NodeId);
-                }
-            }
-        }
-
-        return memberIds
-            .Select(nodesById.GetValueOrDefault)
-            .Where(node => node is not null)
-            .Cast<DiagramNode>()
-            .ToList();
     }
 
     private static DiagramForestNestedFrameBounds BuildFrame(
@@ -106,12 +92,6 @@ public static class DiagramForestNestedFrameResolver
             maxY - minY + (pad * 2.0d));
     }
 
-    private static bool IsPlacementEdge(DiagramEdge edge)
-    {
-        return string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.Label, "likely · in", StringComparison.OrdinalIgnoreCase);
-    }
-
     private static bool IsVnet(DiagramNode node)
     {
         return (node.ArmResourceType ?? string.Empty).Equals(
@@ -126,8 +106,4 @@ public static class DiagramForestNestedFrameResolver
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string ReadArmId(DiagramNode node)
-    {
-        return node.CloudResourceId?.ToString() ?? string.Empty;
-    }
 }

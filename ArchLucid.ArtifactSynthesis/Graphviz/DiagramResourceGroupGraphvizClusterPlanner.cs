@@ -15,6 +15,12 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
         string GroupName,
         IReadOnlyList<DiagramNode> Nodes);
 
+    public sealed record VnetClusterPlan(
+        string ClusterId,
+        string Label,
+        string VnetNodeId,
+        IReadOnlyList<DiagramNode> Nodes);
+
     public static IReadOnlyList<ClusterPlan> Plan(DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -71,5 +77,52 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
         }
 
         return nodeIds;
+    }
+
+    public static IReadOnlyList<VnetClusterPlan> PlanVnetClusters(
+        DiagramAst ast,
+        ClusterPlan resourceGroupCluster)
+    {
+        ArgumentNullException.ThrowIfNull(ast);
+        ArgumentNullException.ThrowIfNull(resourceGroupCluster);
+
+        IReadOnlyDictionary<string, IReadOnlySet<string>> memberships =
+            DiagramForestVnetMembership.Resolve(ast.Nodes, ast.Edges, sameResourceGroupOnly: true);
+        Dictionary<string, DiagramNode> nodesById = ast.Nodes
+            .Where(node => node is not null)
+            .ToDictionary(node => node.NodeId, StringComparer.Ordinal);
+        HashSet<string> resourceGroupNodeIds = resourceGroupCluster.Nodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+        List<VnetClusterPlan> plans = [];
+
+        foreach ((string vnetNodeId, IReadOnlySet<string> memberIds) in memberships)
+        {
+            if (!nodesById.TryGetValue(vnetNodeId, out DiagramNode? vnet)
+                || !resourceGroupNodeIds.Contains(vnetNodeId))
+            {
+                continue;
+            }
+
+            List<DiagramNode> members = memberIds
+                .Where(resourceGroupNodeIds.Contains)
+                .Where(nodesById.ContainsKey)
+                .Select(nodeId => nodesById[nodeId])
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .ToList();
+            if (members.Count < 2)
+            {
+                continue;
+            }
+
+            plans.Add(new VnetClusterPlan(
+                $"vnet_{GraphvizIdEscaper.SanitizeClusterId(vnetNodeId)}",
+                vnet.Label,
+                vnetNodeId,
+                members));
+        }
+
+        return plans;
     }
 }
