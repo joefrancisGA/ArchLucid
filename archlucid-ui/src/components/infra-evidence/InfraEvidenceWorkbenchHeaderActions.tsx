@@ -16,12 +16,13 @@ export type InfraEvidenceWorkbenchHeaderActionsProps = {
   readonly scopeStatusBadge?: React.ReactNode;
   readonly extraShortcutHints?: React.ReactNode;
   readonly showShortcutHints?: boolean;
+  readonly contextualHelpTriggerText?: string;
 };
 
 export function InfraEvidenceWorkbenchHeaderActions(
   props: InfraEvidenceWorkbenchHeaderActionsProps,
 ): React.JSX.Element {
-  const { scopeStatusBadge, shortcuts, shortcutsTestId, extraShortcutHints, showShortcutHints = true } = props;
+  const { scopeStatusBadge, shortcuts, shortcutsTestId, extraShortcutHints, showShortcutHints = true, contextualHelpTriggerText } = props;
   const shortcutEntries = (shortcuts ?? []).map((entry) => ({
     id: entry.key,
     label: entry.label,
@@ -32,7 +33,9 @@ export function InfraEvidenceWorkbenchHeaderActions(
     <div className="flex flex-col items-end gap-2">
       <div className="flex flex-wrap items-center justify-end gap-2">
         {scopeStatusBadge}
-        <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+        <PageContextualHelpButton
+          triggerText={contextualHelpTriggerText ?? PAGE_HELP_SHORT_TRIGGER_TEXT}
+        />
       </div>
       {shortcutEntries.length > 0 ? (
         <PageShortcutsDisclosure testId={shortcutsTestId} entries={shortcutEntries} />

@@ -325,6 +325,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL = "Skip to drift co
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE =
   "Compare inventory snapshots and classify drift. Pick current and baseline snapshots before exporting advisory Terraform." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_LEAD =
+  "Compare inventory snapshots and classify drift." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_SECONDARY =
+  "Pick current and baseline snapshots before exporting advisory Terraform." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD =
   "Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot evidence." as const;
 
@@ -363,7 +369,37 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL = "Selected" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ACTIONS_COLUMN_LABEL = "Actions" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL = "Delete" as const;
+
+export function formatGovernanceInfrastructureDriftDeleteSnapshotAriaLabel(subscriptionLabel: string): string {
+  return `Delete inventory snapshot for ${subscriptionLabel}`;
+}
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CLEAR_SNAPSHOT_SELECTION_LABEL = "Clear selection" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LATER_CAPTURES_NONE_LABEL =
+  "No later captures are available." as const;
+
+export function GOVERNANCE_INFRASTRUCTURE_DRIFT_LATER_CAPTURES_SAME_SUBSCRIPTION_LABEL(count: number): string {
+  return count === 1
+    ? "1 later capture available in the same subscription."
+    : `${count} later captures available in the same subscription.`;
+}
+
+export function GOVERNANCE_INFRASTRUCTURE_DRIFT_LATER_CAPTURES_CROSS_SUBSCRIPTION_SUFFIX(count: number): string {
+  return count === 1
+    ? "1 later capture available in other subscriptions."
+    : `${count} later captures available in other subscriptions.`;
+}
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RESUME_LAST_COMPARISON_TITLE = "Resume last comparison" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RESUME_LAST_COMPARISON_BODY =
+  "Restore your previous snapshot, diff, and change selection from this browser." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RESUME_LAST_COMPARISON_ACTION_LABEL = "Resume last comparison" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE = "Delete inventory snapshot?" as const;
 
