@@ -110,7 +110,7 @@ export function reviewsNewGuidedIntakeHasSaveableContent(
     wizardSessionHasTextContent(guided.freeTextIntent) ||
     wizardSessionHasTextContent(guided.businessOutcome) ||
     wizardSessionHasTextContent(guided.systemName) ||
-    (guided.draftId !== null && guided.draftId !== undefined && guided.draftId.trim().length > 0)
+    (typeof guided.draftId === "string" && guided.draftId.trim().length > 0)
   );
 }
 
