@@ -52,7 +52,7 @@ export async function listInferenceQuestionnaireItems(
     items,
     totalCount: Number(raw.totalCount ?? items.length),
     cap: Number(raw.cap ?? 50),
-    capReached: Boolean(raw.capReached),
+    capReached: raw.capReached === true,
   };
 }
 
