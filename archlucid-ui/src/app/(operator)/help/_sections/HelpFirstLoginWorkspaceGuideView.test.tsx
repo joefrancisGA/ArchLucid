@@ -65,7 +65,7 @@ describe("HelpFirstLoginWorkspaceGuideView (LS-015 / HFI Phase 2)", () => {
 
     expect(screen.getByTestId("help-first-login-workspace-blocked-reason")).toHaveTextContent(/inline reason/i);
     expect(screen.getByTestId("help-first-login-workspace-error-recovery")).toHaveTextContent("What failed");
-    expect(screen.getByTestId("help-first-login-workspace-applicability")).toHaveTextContent(/SecureNow/i);
+    expect(screen.getByTestId("help-first-login-workspace-applicability-architecture")).toHaveTextContent(/Working Architecture/i);
 
     expect(screen.getByTestId("help-first-login-workspace-return-to-help")).toHaveAttribute(
       "href",

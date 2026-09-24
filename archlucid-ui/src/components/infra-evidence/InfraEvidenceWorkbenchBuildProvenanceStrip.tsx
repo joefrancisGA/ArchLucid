@@ -2,6 +2,7 @@
 
 import { clientHasDeploymentBuildIdentity, readClientDeploymentFingerprint } from "@/lib/deployment-fingerprint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION } from "@/lib/governance/governance-infrastructure-copy";
 import { cn } from "@/lib/utils";
 
 export type InfraEvidenceWorkbenchBuildProvenanceStripProps = {

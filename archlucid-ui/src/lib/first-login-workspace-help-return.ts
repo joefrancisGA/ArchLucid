@@ -1,6 +1,14 @@
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
-const WORKSPACE_RETURN_PREFIXES = ["/settings/workspace", "/architecture", "/help"] as const;
+const WORKSPACE_RETURN_PREFIXES = [
+  "/settings/workspace",
+  "/architecture",
+  "/governance",
+  "/compliance",
+  "/infrastructure",
+  "/help",
+  "/",
+] as const;
 
 /** Accept same-origin workspace or architecture routes; reject external returnTo values. */
 export function resolveFirstLoginWorkspaceHelpReturnHref(returnTo: string | undefined): string | null {

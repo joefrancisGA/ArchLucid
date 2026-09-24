@@ -28,7 +28,11 @@ import {
   FIRST_LOGIN_WORKSPACE_HELP_FIRST_CHOICE_SECTION,
   FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS,
   FIRST_LOGIN_WORKSPACE_HELP_HELP_RETURN,
+  FIRST_LOGIN_WORKSPACE_HELP_INDICATOR_LOOKUP_BODY,
+  FIRST_LOGIN_WORKSPACE_HELP_INDICATOR_LOOKUP_HEADING,
   FIRST_LOGIN_WORKSPACE_HELP_INVITE_SECTION,
+  FIRST_LOGIN_WORKSPACE_HELP_KEYBOARD_PATHS_BODY,
+  FIRST_LOGIN_WORKSPACE_HELP_NOT_LIVE_HEADING,
   FIRST_LOGIN_WORKSPACE_HELP_NOT_LIVE_SECTION,
   FIRST_LOGIN_WORKSPACE_HELP_OVERVIEW,
   FIRST_LOGIN_WORKSPACE_HELP_PAGE_SUBTITLE,
@@ -37,6 +41,8 @@ import {
   FIRST_LOGIN_WORKSPACE_HELP_RELATED_LINKS,
   FIRST_LOGIN_WORKSPACE_HELP_RELATED_TOPICS_HEADING,
   FIRST_LOGIN_WORKSPACE_HELP_RELATED_TOPICS_HEADING_ID,
+  FIRST_LOGIN_WORKSPACE_HELP_SECURENOW_APPLICABILITY_HEADING,
+  FIRST_LOGIN_WORKSPACE_HELP_SECURENOW_OVERVIEW,
   FIRST_LOGIN_WORKSPACE_HELP_TITLE,
   FIRST_LOGIN_WORKSPACE_HELP_TOPIC_LABEL,
 } from "@/lib/first-login-workspace-help-guide-content";
@@ -55,7 +61,10 @@ import { FIRST_LOGIN_WORKSPACE_HELP_PATH } from "@/lib/first-login-workspace-hel
 import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  isHelpTopicExcludedForProductLine,
+  isSecureNowProductLine,
+} from "@/lib/product-line/securenow-cloud-platform-policy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { cn } from "@/lib/utils";
 
@@ -119,16 +128,48 @@ function filterRelatedLinks(
   });
 }
 
+function renderInlineHelpReference(
+  productLineId: ProductLineId,
+  slug: string,
+  label: string,
+): React.ReactNode {
+  if (isHelpTopicExcludedForProductLine(slug, productLineId)) {
+    return <span className="text-al-text-primary">{label}</span>;
+  }
+
+  return (
+    <Link href={`/help/${slug}`} className={OPERATOR_LINK.inline}>
+      {label}
+    </Link>
+  );
+}
+
+function resolveGuideHeadings(productLineId: ProductLineId): typeof FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS {
+  if (!isSecureNowProductLine(productLineId)) {
+    return FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS;
+  }
+
+  return FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS.filter(
+    (heading) =>
+      heading.id !== "help-first-login-choice-heading"
+      && heading.id !== "help-first-login-record-heading"
+      && heading.id !== "help-first-login-not-live-heading"
+      && heading.id !== "help-first-login-applicability",
+  );
+}
+
 /** LS-015 — first login, Training vs live workspace, Record vs Practice. */
 export function HelpFirstLoginWorkspaceGuideView(
   props: HelpFirstLoginWorkspaceGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
   const { productLine: productLineId } = useProductLine();
+  const secureNow = isSecureNowProductLine(productLineId);
   const searchParams = useSearchParams();
   const returnHref = resolveFirstLoginWorkspaceHelpReturnHref(searchParams.get("returnTo") ?? undefined);
   const relatedLinks = filterRelatedLinks(productLineId);
-  const contentGridClass = resolveHelpPageContentGridClass(FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadings(productLineId);
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -157,7 +198,7 @@ export function HelpFirstLoginWorkspaceGuideView(
             /
           </li>
           <li aria-current="page" className="text-al-text-primary">
-            {FIRST_LOGIN_WORKSPACE_HELP_TOPIC_LABEL}
+            {FIRST_LOGIN_WORKSPACE_HELP_TITLE}
           </li>
         </ol>
       </nav>
@@ -196,29 +237,61 @@ export function HelpFirstLoginWorkspaceGuideView(
             className="space-y-4"
           >
             <p className={readingBodyClass} data-testid="help-first-login-workspace-overview">
-              {FIRST_LOGIN_WORKSPACE_HELP_OVERVIEW}
+              {secureNow ? FIRST_LOGIN_WORKSPACE_HELP_SECURENOW_OVERVIEW : FIRST_LOGIN_WORKSPACE_HELP_OVERVIEW}
             </p>
 
+            {secureNow ? (
+              <section
+                aria-labelledby="help-first-login-securenow-applicability"
+                className="max-w-3xl space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="help-first-login-workspace-applicability"
+              >
+                <HelpSectionHeading id="help-first-login-securenow-applicability">
+                  {FIRST_LOGIN_WORKSPACE_HELP_SECURENOW_APPLICABILITY_HEADING}
+                </HelpSectionHeading>
+                <p className={cn(readingBodyClass, "text-al-text-primary")} data-testid="help-first-login-workspace-seat-securenow">
+                  {FIRST_LOGIN_WORKSPACE_HELP_APPLICABILITY_SECURENOW}
+                </p>
+              </section>
+            ) : null}
+
+            {!secureNow ? (
+              <section
+                aria-labelledby={FIRST_LOGIN_WORKSPACE_HELP_CLAIM_HEADING_ID}
+                className="max-w-3xl space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="help-first-login-workspace-claim-discipline"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2
+                    id={FIRST_LOGIN_WORKSPACE_HELP_CLAIM_HEADING_ID}
+                    className={cn(
+                      OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+                      "m-0 scroll-mt-24 text-al-text-primary",
+                      OPERATOR_TYPOGRAPHY.sectionTitle,
+                    )}
+                  >
+                    Training is not live tenant proof
+                  </h2>
+                  <StatusTag kind="needs-attention" label="Not live data" data-testid="help-first-login-workspace-claim-tag" />
+                </div>
+                <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  {FIRST_LOGIN_WORKSPACE_HELP_CLAIM_DISCIPLINE}
+                </p>
+              </section>
+            ) : null}
+
             <section
-              aria-labelledby={FIRST_LOGIN_WORKSPACE_HELP_CLAIM_HEADING_ID}
-              className="max-w-3xl space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-              data-testid="help-first-login-workspace-claim-discipline"
+              aria-labelledby="help-first-login-indicator-heading"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
             >
-              <div className="flex flex-wrap items-center gap-2">
-                <h2
-                  id={FIRST_LOGIN_WORKSPACE_HELP_CLAIM_HEADING_ID}
-                  className={cn(
-                    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-                    "m-0 scroll-mt-24 text-al-text-primary",
-                    OPERATOR_TYPOGRAPHY.sectionTitle,
-                  )}
-                >
-                  Training is not live tenant proof
-                </h2>
-                <StatusTag kind="neutral" label="Not live data" data-testid="help-first-login-workspace-claim-tag" />
-              </div>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {FIRST_LOGIN_WORKSPACE_HELP_CLAIM_DISCIPLINE}
+              <HelpSectionHeading id="help-first-login-indicator-heading">
+                {FIRST_LOGIN_WORKSPACE_HELP_INDICATOR_LOOKUP_HEADING}
+              </HelpSectionHeading>
+              <p className={readingBodyClass} data-testid="help-first-login-workspace-indicator-lookup">
+                {FIRST_LOGIN_WORKSPACE_HELP_INDICATOR_LOOKUP_BODY}
+              </p>
+              <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-first-login-workspace-keyboard-paths">
+                {FIRST_LOGIN_WORKSPACE_HELP_KEYBOARD_PATHS_BODY}
               </p>
             </section>
           </div>
@@ -241,71 +314,70 @@ export function HelpFirstLoginWorkspaceGuideView(
             <p className={readingBodyClass} data-testid="help-first-login-workspace-create">
               {FIRST_LOGIN_WORKSPACE_HELP_CREATE_SECTION}
             </p>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-first-login-workspace-blocked-reason">
+            <p className={cn(readingBodyClass, "text-al-text-primary")} data-testid="help-first-login-workspace-blocked-reason">
               {FIRST_LOGIN_WORKSPACE_HELP_BLOCKED_REASON_VISIBLE}
             </p>
           </section>
 
-          <section
-            aria-labelledby="help-first-login-choice-heading"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="help-first-login-choice-heading">First-time Training question</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-first-login-workspace-first-choice">
-              {FIRST_LOGIN_WORKSPACE_HELP_FIRST_CHOICE_SECTION}
-            </p>
-          </section>
+          {!secureNow ? (
+            <>
+              <section
+                aria-labelledby="help-first-login-choice-heading"
+                className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              >
+                <HelpSectionHeading id="help-first-login-choice-heading">First-time Training question</HelpSectionHeading>
+                <p className={readingBodyClass} data-testid="help-first-login-workspace-first-choice">
+                  {FIRST_LOGIN_WORKSPACE_HELP_FIRST_CHOICE_SECTION}
+                </p>
+              </section>
 
-          <section
-            aria-labelledby="help-first-login-record-heading"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="help-first-login-record-heading">Record, Practice, and Training</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-first-login-workspace-record-vs-training">
-              {FIRST_LOGIN_WORKSPACE_HELP_RECORD_VS_TRAINING_SECTION}
-            </p>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-first-login-workspace-record-practice">
-              {FIRST_LOGIN_WORKSPACE_HELP_RECORD_PRACTICE_BODY}
-            </p>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")}>
-              Review-type detail lives in{" "}
-              <Link href="/help/career-vs-rehearsal" className={OPERATOR_LINK.inline}>
-                Record and Practice
-              </Link>
-              . Workspace labels live in{" "}
-              <Link href="/help/scope" className={OPERATOR_LINK.inline}>
-                Workspace and scope
-              </Link>
-              .
-            </p>
-          </section>
+              <section
+                aria-labelledby="help-first-login-record-heading"
+                className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              >
+                <HelpSectionHeading id="help-first-login-record-heading">Record, Practice, and Training</HelpSectionHeading>
+                <p className={readingBodyClass} data-testid="help-first-login-workspace-record-vs-training">
+                  {FIRST_LOGIN_WORKSPACE_HELP_RECORD_VS_TRAINING_SECTION}
+                </p>
+                <p className={cn(readingBodyClass, "text-al-text-primary")} data-testid="help-first-login-workspace-record-practice">
+                  {FIRST_LOGIN_WORKSPACE_HELP_RECORD_PRACTICE_BODY}
+                </p>
+                <p className={cn(readingBodyClass, "text-al-text-secondary")}>
+                  Review-type detail lives in{" "}
+                  {renderInlineHelpReference(productLineId, "career-vs-rehearsal", "Record and Practice")}
+                  . Workspace labels live in{" "}
+                  {renderInlineHelpReference(productLineId, "scope", "Workspace and scope")}
+                  .
+                </p>
+              </section>
 
-          <section
-            aria-labelledby="help-first-login-not-live-heading"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="help-first-login-not-live-heading">NOT LIVE DATA unexpected</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-first-login-workspace-not-live">
-              {FIRST_LOGIN_WORKSPACE_HELP_NOT_LIVE_SECTION}
-            </p>
-          </section>
+              <section
+                aria-labelledby="help-first-login-not-live-heading"
+                className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              >
+                <HelpSectionHeading id="help-first-login-not-live-heading">
+                  {FIRST_LOGIN_WORKSPACE_HELP_NOT_LIVE_HEADING}
+                </HelpSectionHeading>
+                <p className={readingBodyClass} data-testid="help-first-login-workspace-not-live">
+                  {FIRST_LOGIN_WORKSPACE_HELP_NOT_LIVE_SECTION}
+                </p>
+              </section>
 
-          <section
-            aria-labelledby="help-first-login-applicability"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-            data-testid="help-first-login-workspace-applicability"
-          >
-            <HelpSectionHeading id="help-first-login-applicability">Scope and seat applicability</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-first-login-workspace-seat-working">
-              {FIRST_LOGIN_WORKSPACE_HELP_APPLICABILITY_WORKING}
-            </p>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-first-login-workspace-seat-guided">
-              {FIRST_LOGIN_WORKSPACE_HELP_APPLICABILITY_GUIDED}
-            </p>
-            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-first-login-workspace-seat-securenow">
-              {FIRST_LOGIN_WORKSPACE_HELP_APPLICABILITY_SECURENOW}
-            </p>
-          </section>
+              <section
+                aria-labelledby="help-first-login-applicability"
+                className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+                data-testid="help-first-login-workspace-applicability-architecture"
+              >
+                <HelpSectionHeading id="help-first-login-applicability">Scope and seat applicability</HelpSectionHeading>
+                <p className={readingBodyClass} data-testid="help-first-login-workspace-seat-working">
+                  {FIRST_LOGIN_WORKSPACE_HELP_APPLICABILITY_WORKING}
+                </p>
+                <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-first-login-workspace-seat-guided">
+                  {FIRST_LOGIN_WORKSPACE_HELP_APPLICABILITY_GUIDED}
+                </p>
+              </section>
+            </>
+          ) : null}
 
           <section
             aria-labelledby="help-first-login-error-recovery"
@@ -360,7 +432,7 @@ export function HelpFirstLoginWorkspaceGuideView(
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={FIRST_LOGIN_WORKSPACE_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

@@ -45,6 +45,8 @@ public enum AzureInventoryRelationshipArmKind
     ContainerAppEnvironment = 30,
     EventHub = 31,
 
+    ServiceBusQueue = 34,
+
     /// <summary>AVD host pool session host child resource.</summary>
     VirtualDesktopSessionHost = 32,
 

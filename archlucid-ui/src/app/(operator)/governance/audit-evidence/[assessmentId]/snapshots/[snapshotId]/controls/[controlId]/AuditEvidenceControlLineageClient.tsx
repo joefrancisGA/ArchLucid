@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -41,6 +42,7 @@ import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_TITLE,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_EXPAND_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE_ERROR,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_BUSY,
@@ -63,6 +65,7 @@ import {
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 
+import { formatShortId } from "@/lib/format-short-id";
 import { cn } from "@/lib/utils";
 
 import { AuditEvidenceControlLineageBreadcrumb } from "./AuditEvidenceControlLineageBreadcrumb";
@@ -126,6 +129,11 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
 
   const lineage = lineageQuery.data;
   const checkboxPresentation = lineage ? deriveAuditLineageCheckboxPresentation(lineage) : null;
+  const chainRegionId = "audit-evidence-lineage-chain-region";
+  const keyboardAffordance =
+    lineageQuery.isError
+      ? AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE_ERROR
+      : AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE;
   const chainToggleLabel = chainExpanded
     ? AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION
     : AUDIT_EVIDENCE_CONTROL_LINEAGE_EXPAND_ACTION;
@@ -204,7 +212,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   return (
     <OperatorPageContainer
       variant="dashboard"
-      className={OPERATOR_LAYOUT.sectionStack}
+      className={cn(OPERATOR_LAYOUT.sectionStack, "max-w-none")}
       data-testid="audit-evidence-control-lineage-page"
     >
       <AuditEvidenceControlLineageBreadcrumb />
@@ -223,6 +231,25 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         subtitle={AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD}
         claimDiscipline={AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE}
         claimDisciplineTestId="audit-evidence-control-lineage-claim-discipline"
+        metadata={
+          <div
+            className="flex flex-wrap items-center gap-3"
+            data-testid="audit-evidence-lineage-route-metadata"
+          >
+            <span className={cn("inline-flex items-center gap-1 font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Assessment {formatShortId(props.assessmentId)}
+              <CopyIdButton value={props.assessmentId} aria-label="Copy assessment ID" />
+            </span>
+            <span className={cn("inline-flex items-center gap-1 font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Snapshot {formatShortId(props.snapshotId)}
+              <CopyIdButton value={props.snapshotId} aria-label="Copy snapshot ID" />
+            </span>
+            <span className={cn("inline-flex items-center gap-1 font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Control {formatShortId(props.controlId)}
+              <CopyIdButton value={props.controlId} aria-label="Copy control ID" />
+            </span>
+          </div>
+        }
         actions={
           <div className="flex max-w-xl flex-col items-end gap-2">
             <div className="flex flex-wrap items-start justify-end gap-2">
@@ -276,7 +303,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
               <ShortcutHint shortcut={AUDIT_EVIDENCE_CONTROL_LINEAGE_CHAIN_TOGGLE_SHORTCUT} /> chain;{" "}
               <ShortcutHint shortcut={AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_SHORTCUT} /> copy link;{" "}
               <ShortcutHint shortcut={AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SHORTCUT} /> download.
-              <span className="sr-only">{AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE}</span>
+              <span className="sr-only">{keyboardAffordance}</span>
             </p>
           </div>
         }
@@ -345,16 +372,13 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         ) : null}
 
         {lineage && checkboxPresentation ? (
-          <section className="space-y-3" aria-label="Control support status">
+          <section className="space-y-3" aria-label="Control attestation status">
             <div className="flex flex-wrap items-center gap-3">
               <StatusTag
                 kind={checkboxPresentation.kind}
                 label={checkboxPresentation.label}
                 data-testid="audit-evidence-lineage-status-tag"
               />
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {checkboxPresentation.detail}
-              </p>
             </div>
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -362,11 +386,6 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
             >
               {formatAuditLineageEvaluationContext(lineage)}
             </p>
-            <AuditEvidenceLineageRouteIdentifiersDisclosure
-              assessmentId={props.assessmentId}
-              snapshotId={props.snapshotId}
-              controlId={props.controlId}
-            />
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
@@ -374,6 +393,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
                 size="sm"
                 data-testid="audit-evidence-positive-checkbox"
                 aria-expanded={chainExpanded}
+                aria-controls={chainRegionId}
                 aria-label={chainToggleLabel}
                 onClick={() => setChainExpanded((value) => !value)}
               >
@@ -381,15 +401,23 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
               </Button>
             </div>
 
-            <AuditEvidenceLineageSpine
-              lineage={lineage}
-              expanded={chainExpanded || !lineage.readyForPositiveCheckbox}
-              buyerPolishedShell={buyerPolishedShell}
-              lineageContext={{
-                assessmentId: props.assessmentId,
-                auditEvidenceSnapshotId: props.snapshotId,
-                controlId: props.controlId,
-              }}
+            <div id={chainRegionId}>
+              <AuditEvidenceLineageSpine
+                lineage={lineage}
+                expanded={chainExpanded || !lineage.readyForPositiveCheckbox}
+                buyerPolishedShell={buyerPolishedShell}
+                lineageContext={{
+                  assessmentId: props.assessmentId,
+                  auditEvidenceSnapshotId: props.snapshotId,
+                  controlId: props.controlId,
+                }}
+              />
+            </div>
+
+            <AuditEvidenceLineageRouteIdentifiersDisclosure
+              assessmentId={props.assessmentId}
+              snapshotId={props.snapshotId}
+              controlId={props.controlId}
             />
           </section>
         ) : null}

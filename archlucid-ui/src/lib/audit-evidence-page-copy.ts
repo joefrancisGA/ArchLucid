@@ -192,7 +192,10 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_SHORTCUT = "Alt+2" as cons
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SHORTCUT = "Alt+3" as const;
 
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE =
-  "F1 opens page help; Ctrl+K opens search; Alt+1 toggles chain of custody; Alt+2 copies lineage link; Alt+3 downloads the snapshot bundle when lineage is loaded." as const;
+  "F1 opens page help; Ctrl+K opens search; Alt+1 toggles chain of custody; Alt+2 copies lineage link; Alt+3 downloads the snapshot bundle when lineage is loaded. Use Back to audit evidence lookup in the header to return to identifier entry." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE_ERROR =
+  "F1 opens page help; Ctrl+K opens search. Back to audit evidence lookup is available in the error panel when lineage cannot load." as const;
 
 export function formatAuditEvidenceControlLineagePageTitle(
   controlNumber: string | null | undefined,

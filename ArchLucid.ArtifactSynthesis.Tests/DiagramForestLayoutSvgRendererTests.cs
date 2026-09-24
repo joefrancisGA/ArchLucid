@@ -200,7 +200,8 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .OnlyContain(value => value.Contains("al-edge-arrow", StringComparison.Ordinal));
 
         result.Svg.Should().Contain("class=\"legend\"");
-        result.Svg.Should().Contain("Eyebrow color = category swatch");
+        result.Svg.Should().Contain("Left edge");
+        result.Svg.Should().NotContain("Eyebrow color");
         result.Svg.Should().Contain("Network");
         result.Svg.Should().Contain("Peering");
 

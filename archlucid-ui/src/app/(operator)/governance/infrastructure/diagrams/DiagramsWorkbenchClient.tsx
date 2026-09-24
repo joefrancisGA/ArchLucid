@@ -1985,29 +1985,29 @@ export function DiagramsWorkbenchClient() {
         <div>
           <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Private endpoints remain available for relationship analysis but are hidden from the canvas by default.
+            Private endpoints and backup/recovery resources are hidden from the canvas by default.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant={showPrivateEndpoints ? "default" : "outline"}
-            data-testid="infra-diagrams-show-private-endpoints"
-            aria-pressed={showPrivateEndpoints}
-            onClick={handlePrivateEndpointsToggle}
-          >
-            {showPrivateEndpoints ? "Hide private endpoints" : "Show private endpoints"}
-          </Button>
+          <label className="flex items-center gap-2">
+            <Checkbox
+              checked={showPrivateEndpoints}
+              data-testid="infra-diagrams-show-private-endpoints"
+              aria-label="Show private endpoints"
+              onCheckedChange={handlePrivateEndpointsToggle}
+            />
+            <span className={OPERATOR_TYPOGRAPHY.body}>Show private endpoints</span>
+          </label>
           {selectedMode !== "businessContinuity" ? (
-            <Button
-              type="button"
-              variant={includeRecoveryServices ? "secondary" : "outline"}
-              data-testid="infra-diagrams-include-recovery-services"
-              aria-pressed={includeRecoveryServices}
-              onClick={handleIncludeRecoveryServicesToggle}
-            >
-              Include backup and recovery
-            </Button>
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={includeRecoveryServices}
+                data-testid="infra-diagrams-include-recovery-services"
+                aria-label="Include backup and recovery"
+                onCheckedChange={handleIncludeRecoveryServicesToggle}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>Include backup and recovery</span>
+            </label>
           ) : null}
         </div>
       </section>
@@ -2486,6 +2486,7 @@ export function DiagramsWorkbenchClient() {
           <InfraEvidenceDiagramLegend
             outline={visibleMermaidOutline}
             mermaidSource={displayMermaidSource}
+            layoutSvg={displayLayoutSvg}
           />
           {visibleMermaidOutline != null ? (
             <InfraEvidenceDiagramOutline

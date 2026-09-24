@@ -1,10 +1,13 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "@/hooks/useKeyboardShortcuts";
-import { isAuditEvidenceControlLineagePath } from "@/lib/audit-evidence-lineage-route";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import {
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_CHAIN_TOGGLE_SHORTCUT,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_SHORTCUT,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SHORTCUT,
+} from "@/lib/audit-evidence-page-copy";
 
 type AuditEvidenceControlLineageShortcutHandlers = {
   readonly toggleChain: () => void;
@@ -13,52 +16,48 @@ type AuditEvidenceControlLineageShortcutHandlers = {
   readonly lineageLoaded: boolean;
 };
 
-/** Control lineage page shortcuts — Alt+1/2/3 when the route and lineage payload are active. */
+type UseAuditEvidenceControlLineageShortcutsOptions = {
+  readonly enabled: boolean;
+};
+
 export function useAuditEvidenceControlLineageShortcuts(
   handlers: AuditEvidenceControlLineageShortcutHandlers,
-  options?: { readonly enabled?: boolean },
+  options: UseAuditEvidenceControlLineageShortcutsOptions,
 ): void {
-  const pathname = usePathname();
-  const enabled = options?.enabled !== false;
-
-  const shortcuts = useMemo((): KeyboardShortcutsMap => {
-    if (!enabled || !handlers.lineageLoaded) {
+  const shortcuts = useMemo(() => {
+    if (!options.enabled) {
       return {};
     }
 
-    return {
-      "alt+1": {
-        handler: () => {
-          if (!isAuditEvidenceControlLineagePath(pathname)) {
-            return;
-          }
-
-          handlers.toggleChain();
-        },
+    const map = {
+      [AUDIT_EVIDENCE_CONTROL_LINEAGE_CHAIN_TOGGLE_SHORTCUT]: {
+        handler: handlers.toggleChain,
         description: "Toggle chain of custody",
       },
-      "alt+2": {
-        handler: () => {
-          if (!isAuditEvidenceControlLineagePath(pathname)) {
-            return;
-          }
-
-          handlers.copyLineageLink();
-        },
+      [AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_SHORTCUT]: {
+        handler: handlers.copyLineageLink,
         description: "Copy lineage link",
       },
-      "alt+3": {
-        handler: () => {
-          if (!isAuditEvidenceControlLineagePath(pathname)) {
-            return;
-          }
-
-          handlers.downloadPackage();
-        },
-        description: "Download snapshot evidence bundle",
-      },
     };
-  }, [enabled, handlers, pathname]);
+
+    if (handlers.lineageLoaded) {
+      return {
+        ...map,
+        [AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SHORTCUT]: {
+          handler: handlers.downloadPackage,
+          description: "Download snapshot evidence bundle",
+        },
+      };
+    }
+
+    return map;
+  }, [
+    handlers.copyLineageLink,
+    handlers.downloadPackage,
+    handlers.lineageLoaded,
+    handlers.toggleChain,
+    options.enabled,
+  ]);
 
   useKeyboardShortcuts(shortcuts);
 }
