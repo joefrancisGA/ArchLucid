@@ -97,15 +97,28 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
             explainText: String(matchRaw.explainText ?? ""),
           },
     evidence: Array.isArray(raw.evidence)
-      ? raw.evidence.map((item) => {
+      ? raw.evidence.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            evidenceId: String(row.evidenceId ?? ""),
-            phase: String(row.phase ?? ""),
-            payloadJson: String(row.payloadJson ?? ""),
-            createdUtc: String(row.createdUtc ?? ""),
-          };
+          if (
+            typeof row.evidenceId !== "string"
+            || typeof row.phase !== "string"
+            || typeof row.payloadJson !== "string"
+            || typeof row.createdUtc !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            evidenceId: row.evidenceId,
+            phase: row.phase,
+            payloadJson: row.payloadJson,
+            createdUtc: row.createdUtc,
+          }];
         })
       : [],
   };
