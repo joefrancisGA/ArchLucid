@@ -41,7 +41,7 @@ def validate_doc(path: Path) -> list[str]:
         matches = [row for row in rows if row and name.casefold() in row[0].casefold()]
         if not matches:
             errors.append(f"budget doc missing {name} row")
-        elif not any(len(row) >= 2 and re.fullmatch(r"\\d+", row[1].strip()) for row in matches):
+        elif not any(len(row) >= 2 and re.fullmatch(r"\d+", row[1].strip()) for row in matches):
             errors.append(f"budget doc missing numeric p95 budget for {name}")
 
     if not re.search(r"p95 budget \(ms\)", text, re.IGNORECASE):
