@@ -442,6 +442,8 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-export-mmd")).toHaveTextContent(/^Export Mermaid$/);
+    expect(screen.queryByTestId("infra-diagrams-export-advisory-status")).not.toBeInTheDocument();
+    expect(screen.queryByText("Advisory export")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",

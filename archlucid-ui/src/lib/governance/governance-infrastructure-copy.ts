@@ -195,8 +195,6 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER =
   "PNG export is an advisory inventory reconstruction — confirm snapshot and subscription scope before sealed-record citations." as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_ADVISORY_STATUS = "Advisory export" as const;
-
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE =
   "Change subscription filter?" as const;
 
