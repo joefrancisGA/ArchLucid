@@ -63,4 +63,18 @@ public sealed class DiagramAstCompileOptions
         get;
         init;
     }
+
+    /// <summary>When true, cited Recovery Services vaults and <c>PROTECTS</c> edges join non-BC modes (RSV-04).</summary>
+    public bool IncludeRecoveryServices
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When true, at least one vault protected-item list failed during collection (RSV-03).</summary>
+    public bool RecoveryServicesCollectionIncomplete
+    {
+        get;
+        init;
+    }
 }

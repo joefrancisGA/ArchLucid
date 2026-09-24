@@ -31,6 +31,7 @@ public static class DiagramArmTypeFriendlyName
         ["Microsoft.DBforMySQL/servers"] = "MySQL",
         ["Microsoft.DataFactory/factories"] = "Data factory",
         ["Microsoft.Synapse/workspaces"] = "Synapse workspace",
+        ["Microsoft.RecoveryServices/vaults"] = "Recovery Services vault",
         ["Microsoft.Databricks/workspaces"] = "Databricks workspace",
         ["Microsoft.PowerBIDedicated/capacities"] = "Power BI capacity",
         ["Microsoft.Fabric/capacities"] = "Fabric capacity",
