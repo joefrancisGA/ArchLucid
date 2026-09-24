@@ -212,9 +212,9 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
   const auditRaw = raw.auditLineageLink as Record<string, unknown> | undefined;
 
   return {
-    cloudResourceId: String(raw.cloudResourceId ?? ""),
-    externalResourceId: String(raw.externalResourceId ?? ""),
-    resourceType: raw.resourceType != null ? String(raw.resourceType) : null,
+    cloudResourceId: typeof raw.cloudResourceId === "string" ? raw.cloudResourceId : "",
+    externalResourceId: typeof raw.externalResourceId === "string" ? raw.externalResourceId : "",
+    resourceType: typeof raw.resourceType === "string" ? raw.resourceType : null,
     currentConfiguration:
       currentConfigurationRaw == null
         ? null
@@ -230,9 +230,9 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
             properties: (currentConfigurationRaw.properties as Record<string, string>) ?? {},
             tags: (currentConfigurationRaw.tags as Record<string, string>) ?? {},
           },
-    terraformAddress: raw.terraformAddress != null ? String(raw.terraformAddress) : null,
+    terraformAddress: typeof raw.terraformAddress === "string" ? raw.terraformAddress : null,
     terraformGenerationMethod:
-      raw.terraformGenerationMethod != null ? String(raw.terraformGenerationMethod) : null,
+      typeof raw.terraformGenerationMethod === "string" ? raw.terraformGenerationMethod : null,
     diagramCorrespondence:
       diagramRaw == null
         ? null
