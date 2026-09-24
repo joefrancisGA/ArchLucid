@@ -141,6 +141,11 @@ export async function fetchCloudResourceEvidenceHub(
 }
 
 function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubResponse {
+  const finiteNumberOr = (value: unknown, fallback: number): number => {
+    const parsed = typeof value === "number" ? value : Number(value);
+
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
   const mapFindingStream = (stream: Record<string, unknown> | undefined) => ({
     streamKind: String(stream?.streamKind ?? ""),
     streamLabel: String(stream?.streamLabel ?? ""),
@@ -158,9 +163,9 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
           };
         })
       : [],
-    totalCount: Number(stream?.totalCount ?? 0),
-    page: Number(stream?.page ?? 1),
-    pageSize: Number(stream?.pageSize ?? 25),
+    totalCount: finiteNumberOr(stream?.totalCount, 0),
+    page: finiteNumberOr(stream?.page, 1),
+    pageSize: finiteNumberOr(stream?.pageSize, 25),
     hasMore: stream?.hasMore === true,
   });
 
