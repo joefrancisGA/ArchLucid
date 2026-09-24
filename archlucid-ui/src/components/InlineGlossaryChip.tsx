@@ -73,7 +73,11 @@ export function InlineGlossaryChip({
       return;
     }
 
-    localStorage.setItem(resolveSeenStorageKey(nounId), "1");
+    try {
+      localStorage.setItem(resolveSeenStorageKey(nounId), "1");
+    } catch {
+      // Storage may be unavailable.
+    }
     setFirstPulse(false);
   };
 
