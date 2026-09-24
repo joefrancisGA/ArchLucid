@@ -22,4 +22,11 @@ public sealed class SponsorRoiHistoryRunModeCalculatorTests
                 decimal.MaxValue, 1, 1)
             .Should().Be(decimal.MaxValue / 2);
     }
+
+    [Fact]
+    public void ComputeRealModeSavingsUsd_NegativeSimulatorCount_DoesNotInflateSavings()
+    {
+        SponsorRoiHistoryRunModeCalculator.ComputeRealModeSavingsUsd(100m, 2, -1)
+            .Should().Be(0m);
+    }
 }
