@@ -161,7 +161,7 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
     totalCount: Number(stream?.totalCount ?? 0),
     page: Number(stream?.page ?? 1),
     pageSize: Number(stream?.pageSize ?? 25),
-    hasMore: Boolean(stream?.hasMore),
+    hasMore: stream?.hasMore === true,
   });
 
   const mapRemediationStream = (stream: Record<string, unknown> | undefined) => ({
