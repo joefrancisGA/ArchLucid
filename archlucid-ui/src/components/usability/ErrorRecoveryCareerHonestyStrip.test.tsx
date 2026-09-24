@@ -7,6 +7,9 @@ import { ERROR_RECOVERY_WORKING_RETRY_TITLE } from "@/lib/error-recovery/error-r
 const workspaceModeMock = vi.hoisted(() => ({
   isWorkingMode: true,
 }));
+const productLineMock = vi.hoisted(() => ({
+  productLine: "architecture" as "architecture" | "security",
+}));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
@@ -15,6 +18,12 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
     accountSyncState: "synced",
     isWorkingMode: workspaceModeMock.isWorkingMode,
     setAndPersist: vi.fn(),
+  }),
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({
+    productLine: productLineMock.productLine,
   }),
 }));
 
@@ -55,5 +64,22 @@ describe("ErrorRecoveryCareerHonestyStrip (CG-096)", () => {
     render(<ErrorRecoveryCareerHonestyStrip scopedRunId="run-1" />);
 
     expect(screen.queryByTestId("error-recovery-career-honesty-strip")).not.toBeInTheDocument();
+  });
+
+  it("uses SecureNow recovery copy instead of Practice copy", () => {
+    workspaceModeMock.isWorkingMode = true;
+    productLineMock.productLine = "security";
+
+    render(<ErrorRecoveryCareerHonestyStrip scopedRunId="run-1" />);
+
+    expect(screen.getByTestId("error-recovery-career-honesty-title")).toHaveTextContent(
+      "SecureNow recovery does not change findings",
+    );
+    expect(screen.getByTestId("error-recovery-career-honesty-body")).toHaveTextContent(
+      "SecureNow has no Practice review mode.",
+    );
+    expect(screen.getByTestId("error-recovery-career-honesty-body")).not.toHaveTextContent(
+      "sealed-record proof",
+    );
   });
 });
