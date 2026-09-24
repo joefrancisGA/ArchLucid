@@ -170,7 +170,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_ADVISORY_STATUS,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER,
@@ -2270,11 +2269,6 @@ export function DiagramsWorkbenchClient() {
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-2">
-            <StatusTag
-              kind="needs-attention"
-              label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_ADVISORY_STATUS}
-              data-testid="infra-diagrams-export-advisory-status"
-            />
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-png-export-disclaimer"
