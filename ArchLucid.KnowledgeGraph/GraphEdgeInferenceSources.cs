@@ -42,6 +42,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryLogicAppConnection = "inventory-logic-app-connection";
 
+    public const string InventoryDatabricksAccessConnector = "inventory-databricks-access-connector";
+
     public const string InventoryIdentityRoleAssignment = "inventory-identity-role-assignment";
 
     public const string InventoryAppAuthorizedAccess = "inventory-app-authorized-access";

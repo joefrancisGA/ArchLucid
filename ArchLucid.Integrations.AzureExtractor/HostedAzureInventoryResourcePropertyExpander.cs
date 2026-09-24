@@ -602,6 +602,8 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             properties["managedResourceGroupId"] = managedResourceGroupId.Trim();
         }
 
+        AddDatabricksAccessConnectorProperties(propertiesElement, properties);
+
         if (!propertiesElement.TryGetProperty("parameters", out JsonElement parametersElement)
             || parametersElement.ValueKind is not JsonValueKind.Object)
         {
@@ -626,6 +628,55 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         {
             properties["parameters.customPublicSubnetName"] = publicSubnetName.Trim();
         }
+    }
+
+    private static void AddDatabricksAccessConnectorProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("accessConnector", out JsonElement accessConnector)
+            || accessConnector.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        string? connectorId = TryReadNestedString(accessConnector, "id");
+
+        if (!string.IsNullOrWhiteSpace(connectorId))
+        {
+            properties[AzureInventoryDatabricksAccessConnector.IdPropertyKey] = connectorId.Trim();
+        }
+
+        string? identityType = TryReadNestedString(accessConnector, "identityType");
+
+        if (!string.IsNullOrWhiteSpace(identityType))
+        {
+            properties[AzureInventoryDatabricksAccessConnector.IdentityTypePropertyKey] = identityType.Trim();
+        }
+
+        string? userAssignedIdentityId = TryReadNestedString(accessConnector, "userAssignedIdentityId");
+
+        if (!string.IsNullOrWhiteSpace(userAssignedIdentityId))
+        {
+            properties[AzureInventoryDatabricksAccessConnector.UserAssignedIdentityIdPropertyKey] =
+                userAssignedIdentityId.Trim();
+        }
+    }
+
+    internal static void CaptureRootIdentity(JsonElement resource, Dictionary<string, object?> properties)
+    {
+        if (properties.ContainsKey(AzureInventoryDatabricksAccessConnector.IdentityPropertyKey))
+        {
+            return;
+        }
+
+        if (!resource.TryGetProperty("identity", out JsonElement identity)
+            || identity.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        properties[AzureInventoryDatabricksAccessConnector.IdentityPropertyKey] = identity.GetRawText();
     }
 
     private static string? TryReadDatabricksParameterValue(JsonElement parametersElement, string parameterName)
