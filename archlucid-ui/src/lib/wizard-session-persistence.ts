@@ -51,7 +51,11 @@ export function readWizardSessionSnapshot<TState>(wizardId: WizardSessionId): Wi
       return null;
     }
 
-    if (typeof snapshot.stepIndex !== "number" || !Number.isFinite(snapshot.stepIndex)) {
+    if (
+      typeof snapshot.stepIndex !== "number"
+      || !Number.isInteger(snapshot.stepIndex)
+      || snapshot.stepIndex < 0
+    ) {
       return null;
     }
 
