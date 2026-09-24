@@ -26,7 +26,13 @@ export function parseResourceExplorerPageFromSearch(raw: string | null | undefin
     return 1;
   }
 
-  const parsed = Number.parseInt(raw.trim(), 10);
+  const trimmed = raw.trim();
+
+  if (!/^\d+$/.test(trimmed)) {
+    return 1;
+  }
+
+  const parsed = Number.parseInt(trimmed, 10);
 
   if (!Number.isFinite(parsed) || parsed < 1) {
     return 1;

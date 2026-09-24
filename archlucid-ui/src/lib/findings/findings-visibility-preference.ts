@@ -71,8 +71,12 @@ export function writeFindingsVisibilityToStorage(preferences: FindingsVisibility
     return;
   }
 
-  window.localStorage.setItem(FINDINGS_VISIBILITY_STORAGE_KEY, JSON.stringify(preferences));
-  dispatchFindingsVisibilityChanged();
+  try {
+    window.localStorage.setItem(FINDINGS_VISIBILITY_STORAGE_KEY, JSON.stringify(preferences));
+    dispatchFindingsVisibilityChanged();
+  } catch {
+    // Local storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export function findingsVisibilityFromUserPreferencesResponse(

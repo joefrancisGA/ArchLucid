@@ -39,13 +39,13 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
     return null;
   }
 
-  const raw = window.localStorage.getItem(key);
-
-  if (raw === null || raw.trim().length === 0) {
-    return null;
-  }
-
   try {
+    const raw = window.localStorage.getItem(key);
+
+    if (raw === null || raw.trim().length === 0) {
+      return null;
+    }
+
     const parsed = JSON.parse(raw) as Partial<ExtractUploadAcceptedPackageRecord>;
     const packageId = parsed.packageId?.trim() ?? "";
     const acceptedAtUtc = parsed.acceptedAtUtc?.trim() ?? "";
@@ -84,7 +84,16 @@ export function writeExtractUploadAcceptedPackageRecord(
     return;
   }
 
-  window.localStorage.setItem(key, JSON.stringify(record));
+  try {
+    window.localStorage.setItem(key, JSON.stringify(record));
+  } catch (error) {
+    if (error instanceof DOMException) {
+      // Private/restricted storage and quota failures are non-fatal.
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export function truncateExtractUploadPackageId(packageId: string, visiblePrefix = 8): string {

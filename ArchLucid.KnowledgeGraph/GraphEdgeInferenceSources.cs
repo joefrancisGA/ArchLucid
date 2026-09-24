@@ -42,6 +42,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryLogicAppConnection = "inventory-logic-app-connection";
 
+    public const string InventoryDatabricksAccessConnector = "inventory-databricks-access-connector";
+
     public const string InventoryIdentityRoleAssignment = "inventory-identity-role-assignment";
 
     public const string InventoryAppAuthorizedAccess = "inventory-app-authorized-access";
@@ -89,6 +91,10 @@ public static class GraphEdgeInferenceSources
     public const string InventoryVmNic = "inventory-vm-nic";
 
     public const string InventoryAvdSessionHostToVm = "inventory-avd-session-host-to-vm";
+
+    public const string InventoryRecoveryServicesProtects = "inventory-recovery-services-protects";
+
+    public const string InventoryRecoveryServicesReplicates = "inventory-recovery-services-replicates";
 
     public const string InventoryNicNsg = "inventory-nic-nsg";
 

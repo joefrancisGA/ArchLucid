@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpSystemGravityRecoverLinks } from "@/app/(operator)/help/_sections/HelpSystemGravityRecoverLinks";
 import {
   HelpSystemGravityPracticeTag,
@@ -24,7 +27,7 @@ import {
   isHelpTopicExcludedForProductLine,
   isSecureNowProductLine,
 } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   SYSTEM_GRAVITY_HELP_APPLICABILITY_GUIDED,
   SYSTEM_GRAVITY_HELP_APPLICABILITY_WORKING,
@@ -119,7 +122,7 @@ function HelpSystemGravityProvenanceLine(props: {
 }
 
 function filterRelatedLinks(
-  productLineId: ReturnType<typeof resolveProductLineIdFromEnv>,
+  productLineId: ProductLineId,
 ): typeof SYSTEM_GRAVITY_HELP_RELATED_LINKS {
   return SYSTEM_GRAVITY_HELP_RELATED_LINKS.filter((link) => {
     if (link.architectureProductLineOnly === true && isSecureNowProductLine(productLineId)) {
@@ -139,7 +142,7 @@ function filterRelatedLinks(
 /** SG-107 — architecture desk vs nested review inspector orientation for `/help/system-gravity`. */
 export function HelpSystemGravityGuideView(props: HelpSystemGravityGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const relatedLinks = filterRelatedLinks(productLineId);
   const contentGridClass = resolveHelpPageContentGridClass(SYSTEM_GRAVITY_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);

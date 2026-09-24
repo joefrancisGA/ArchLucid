@@ -62,6 +62,7 @@ import {
   resolveFindingsHelpSources,
   resolveFindingsHelpSourcesIntro,
 } from "@/lib/findings/findings-help-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { FINDINGS_HELP_CLAIM_HEADING_ID } from "@/lib/findings/findings-help-guide-content";
 import {
@@ -248,8 +249,10 @@ export function GovernanceApprovalHelpEvidenceOrientationStrip(): React.JSX.Elem
   );
 }
 
-export function FindingsHelpEvidenceOrientationStrip(): React.JSX.Element {
-  const productLineId = resolveProductLineIdFromEnv();
+export function FindingsHelpEvidenceOrientationStrip(
+  props: { readonly productLineId?: ProductLineId } = {},
+): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip

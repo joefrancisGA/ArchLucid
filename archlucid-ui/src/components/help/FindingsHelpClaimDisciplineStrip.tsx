@@ -1,11 +1,13 @@
+"use client";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { resolveFindingsHelpClaimDiscipline } from "@/lib/findings/findings-help-evidence-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
-/** Claim-discipline orientation for `/help/findings` — header info strip (TB-2092). */
 export function FindingsHelpClaimDisciplineStrip(): React.JSX.Element {
-  const claimDiscipline = resolveFindingsHelpClaimDiscipline(resolveProductLineIdFromEnv());
+  const { productLine } = useProductLine();
+  const claimDiscipline = resolveFindingsHelpClaimDiscipline(productLine);
 
   return (
     <aside

@@ -5,7 +5,7 @@ import { ResourceHubClient } from "@/app/(operator)/governance/infrastructure/re
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { infrastructureResourceHubPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 
 export const metadata: Metadata = {
@@ -17,7 +17,6 @@ type InfrastructureResourceHubPageProps = {
   readonly searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-/** IE-UX-04 per-resource evidence hub with drift, diagram, findings, and audit lineage tabs. */
 export default async function InfrastructureResourceHubPage(props: InfrastructureResourceHubPageProps) {
   const { cloudResourceId } = await props.params;
 
@@ -27,7 +26,7 @@ export default async function InfrastructureResourceHubPage(props: Infrastructur
 
   const trimmedCloudResourceId = cloudResourceId.trim();
   const canonicalPath = infrastructureResourceHubPathForProductLine(
-    resolveProductLineIdFromEnv(),
+    await resolveProductLineIdForServer(),
     trimmedCloudResourceId,
   );
   const governanceHubPath = `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/${trimmedCloudResourceId}`;
@@ -37,21 +36,15 @@ export default async function InfrastructureResourceHubPage(props: Infrastructur
     const params = new URLSearchParams();
 
     for (const [key, value] of Object.entries(searchParams)) {
-      if (value === undefined) {
-        continue;
-      }
-
+      if (value === undefined) continue;
       if (Array.isArray(value)) {
-        for (const entry of value) {
-          params.append(key, entry);
-        }
+        for (const entry of value) params.append(key, entry);
       } else {
         params.set(key, value);
       }
     }
 
     const query = params.toString();
-
     redirect(query.length === 0 ? canonicalPath : `${canonicalPath}?${query}`);
   }
 

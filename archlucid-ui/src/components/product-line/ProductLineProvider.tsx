@@ -74,7 +74,7 @@ export function useProductLine(): ProductLineContextValue {
 
   if (value === null) {
     return {
-      productLine: resolveProductLineIdFromEnv(),
+      productLine: resolveProductLineId(),
       assignmentOverrides: {},
       setProductLine: () => {},
       setHrefAssignment: () => {},

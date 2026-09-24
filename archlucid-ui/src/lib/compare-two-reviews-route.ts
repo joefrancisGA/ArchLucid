@@ -63,7 +63,11 @@ export function readReviewRunIdFromPathname(pathname: string): string | null {
     return null;
   }
 
-  const runId = decodeURIComponent(match[1] ?? "").trim();
+  try {
+    const runId = decodeURIComponent(match[1] ?? "").trim();
 
-  return runId.length > 0 ? runId : null;
+    return runId.length > 0 ? runId : null;
+  } catch {
+    return null;
+  }
 }

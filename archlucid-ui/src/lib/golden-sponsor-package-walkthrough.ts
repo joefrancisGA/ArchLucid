@@ -75,7 +75,11 @@ export function buildGoldenSponsorPackageWalkthroughHrefFromReviewPath(
     return null;
   }
 
-  return buildGoldenSponsorPackageWalkthroughHref(decodeURIComponent(match[1]!));
+  try {
+    return buildGoldenSponsorPackageWalkthroughHref(decodeURIComponent(match[1]!));
+  } catch {
+    return null;
+  }
 }
 
 export function isGoldenSponsorPackageWalkthroughIntent(

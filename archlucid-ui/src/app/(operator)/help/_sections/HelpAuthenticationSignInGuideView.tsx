@@ -1,4 +1,7 @@
+"use client";
+
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpAuthenticationSignInActionPanel } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInActionPanel";
 import { HelpAuthenticationSignInHeaderActions } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInHeaderActions";
 import { HelpAuthenticationSignInRelatedTopics } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInRelatedTopics";
@@ -31,7 +34,6 @@ import {
 } from "@/lib/authentication-sign-in-help-page-copy";
 import { splitAuthenticationSignInHelpMarkdown } from "@/lib/authentication-sign-in-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -93,7 +95,7 @@ export function HelpAuthenticationSignInGuideView(
 ): React.ReactElement {
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,

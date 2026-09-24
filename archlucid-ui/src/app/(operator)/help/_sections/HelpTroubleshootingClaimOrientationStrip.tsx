@@ -1,7 +1,9 @@
+"use client";
+
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE,
   resolveTroubleshootingHelpSources,
@@ -10,7 +12,7 @@ import {
 
 /** Sources follow-ups for `/help/troubleshooting` (HTX). */
 export function HelpTroubleshootingClaimOrientationStrip(): React.JSX.Element {
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip

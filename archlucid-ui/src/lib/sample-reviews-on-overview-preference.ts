@@ -49,8 +49,12 @@ export function writeSampleReviewsOnOverviewEnabledToStorage(enabled: boolean): 
     return;
   }
 
-  window.localStorage.setItem(SAMPLE_REVIEWS_ON_OVERVIEW_STORAGE_KEY, enabled ? "true" : "false");
-  dispatchSampleReviewsOnOverviewChanged();
+  try {
+    window.localStorage.setItem(SAMPLE_REVIEWS_ON_OVERVIEW_STORAGE_KEY, enabled ? "true" : "false");
+    dispatchSampleReviewsOnOverviewChanged();
+  } catch {
+    // Local storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export function persistSampleReviewsOnOverviewEnabledLocally(enabled: boolean): void {

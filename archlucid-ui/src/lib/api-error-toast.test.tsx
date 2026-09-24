@@ -2,11 +2,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as sonner from "sonner";
 
-import { showApiError, showMutationApiError } from "@/lib/api-error-toast";
+import { ApiRequestError } from "@/lib/api-request-error";
+import { showApiError, showApiRequestErrorToast, showMutationApiError } from "@/lib/api-error-toast";
+import { PRODUCT_LINE_COOKIE } from "@/lib/product-line/product-line-storage";
 import { TOAST_DEFAULT_DURATION_MS, TOAST_STICKY_DURATION } from "@/lib/toast";
 
 describe("showApiError", () => {
   afterEach(() => {
+    document.cookie = `${PRODUCT_LINE_COOKIE}=; Max-Age=0; Path=/`;
     vi.restoreAllMocks();
   });
 
@@ -51,5 +54,22 @@ describe("showApiError", () => {
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(typeof spy.mock.calls[0]?.[0]).toBe("function");
+  });
+
+  it("uses the cookie-selected product line for connectivity errors", () => {
+    document.cookie = `${PRODUCT_LINE_COOKIE}=security; Path=/`;
+    const spy = vi.spyOn(sonner.toast, "warning").mockImplementation(() => "id");
+    const err = new ApiRequestError("failed to fetch", {
+      problem: null,
+      correlationId: null,
+      httpStatus: 0,
+    });
+
+    showApiRequestErrorToast(err);
+
+    expect(spy).toHaveBeenCalledWith(
+      "Cannot reach SecureNow API — Network or transport failure while calling the API.",
+      { duration: TOAST_DEFAULT_DURATION_MS },
+    );
   });
 });

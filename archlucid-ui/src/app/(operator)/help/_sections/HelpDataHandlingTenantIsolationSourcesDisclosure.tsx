@@ -4,12 +4,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { HelpDataHandlingTenantIsolationSourceLinks } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationSourceLinks";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE,
   resolveDataHandlingTenantIsolationHelpSourcesIntro,
 } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   HELP_DATA_HANDLING_TENANT_ISOLATION_SOURCES_OPEN_PARAM,
   helpDataHandlingTenantIsolationSourcesDisclosureHrefFromSearch,
@@ -18,7 +18,8 @@ import {
 
 /** Source links disclosure synced to `helpDataHandlingTenantIsolationSourcesOpen`. */
 export function HelpDataHandlingTenantIsolationSourcesDisclosure(): ReactElement {
-  const sourcesIntro = resolveDataHandlingTenantIsolationHelpSourcesIntro(resolveProductLineIdFromEnv());
+  const { productLine } = useProductLine();
+  const sourcesIntro = resolveDataHandlingTenantIsolationHelpSourcesIntro(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();

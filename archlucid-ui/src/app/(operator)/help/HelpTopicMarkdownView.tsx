@@ -1,10 +1,13 @@
-﻿import Link from "next/link";
+"use client";
+
+import Link from "next/link";
 
 import type { ReactNode } from "react";
 
 
 
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 
@@ -75,7 +78,7 @@ import {
 
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+
 
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -170,7 +173,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const preserveMaintenanceMetadata = entry.audience === "developer";
 
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
 
   const isCaiqSigResponse = isCaiqSigResponseHelpTopic(entry.slug);
 

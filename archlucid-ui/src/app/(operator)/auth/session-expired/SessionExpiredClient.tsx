@@ -32,7 +32,11 @@ export function SessionExpiredClient() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSessionClearedAt(sessionStorage.getItem(SESSION_CLEARED_AT_STORAGE_KEY));
+    try {
+      setSessionClearedAt(sessionStorage.getItem(SESSION_CLEARED_AT_STORAGE_KEY));
+    } catch {
+      setSessionClearedAt(null);
+    }
   }, []);
 
   const handleSignIn = () => {

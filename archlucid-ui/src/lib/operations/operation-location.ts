@@ -23,13 +23,17 @@ export function parseOperationIdFromLocation(location: string | null | undefined
   const rest = trimmed.slice(markerIndex + marker.length);
   const withoutQuery = rest.split("?")[0] ?? "";
   const withoutHash = withoutQuery.split("#")[0] ?? "";
-  const decoded = decodeURIComponent(withoutHash.trim());
+  try {
+    const decoded = decodeURIComponent(withoutHash.trim());
 
-  if (decoded.length === 0) {
+    if (decoded.length === 0) {
+      return null;
+    }
+
+    return decoded;
+  } catch {
     return null;
   }
-
-  return decoded;
 }
 
 /** Prefer run detail when resultRef has a runId; otherwise fall back to caller href. */

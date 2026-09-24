@@ -122,6 +122,17 @@ public static class DiagramHubSpokeLayerPlanner
             .ThenBy(node => node.NodeId, StringComparer.Ordinal)
             .ToList();
 
+        if (spokes.Count > 1)
+        {
+            List<DiagramNode> hubLayer = [hub];
+            spokes = DiagramLayerCrossingOrder.OrderByAdjacentLayer(
+                spokes,
+                hubLayer,
+                adjacentIsPrevious: false,
+                otherAdjacentLayer: null,
+                visibleEdges);
+        }
+
         spokes.AddRange(isolated);
 
         return spokes;
