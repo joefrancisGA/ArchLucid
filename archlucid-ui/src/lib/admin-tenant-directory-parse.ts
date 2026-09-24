@@ -111,11 +111,13 @@ export function parseAdminUsersDirectoryPayload(json: unknown): AdminDirectoryUs
     }
 
     const record = entry as Record<string, unknown>;
-    const userId = String(record.userId ?? record.id ?? "");
+    const rawUserId = record.userId ?? record.id;
 
-    if (userId.length === 0) {
+    if (typeof rawUserId !== "string" || rawUserId.trim().length === 0) {
       continue;
     }
+
+    const userId = rawUserId.trim();
 
     const displayName = String(record.displayName ?? record.name ?? " — ");
     const email = String(record.email ?? " — ");
