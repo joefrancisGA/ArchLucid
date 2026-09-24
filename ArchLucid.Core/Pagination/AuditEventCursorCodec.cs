@@ -27,7 +27,15 @@ public static class AuditEventCursorCodec
 
         if (!Base64UrlCodec.TryDecode(encoded, out byte[] bytes))
             return null;
-        AuditListCursorDto? dto = JsonSerializer.Deserialize<AuditListCursorDto>(bytes, SerializerOptions);
+        AuditListCursorDto? dto;
+        try
+        {
+            dto = JsonSerializer.Deserialize<AuditListCursorDto>(bytes, SerializerOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
 
         if (dto is null || string.IsNullOrWhiteSpace(dto.Ou) || dto.Ei == Guid.Empty)
             return null;
