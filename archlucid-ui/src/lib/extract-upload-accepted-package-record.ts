@@ -84,7 +84,11 @@ export function writeExtractUploadAcceptedPackageRecord(
     return;
   }
 
-  window.localStorage.setItem(key, JSON.stringify(record));
+  try {
+    window.localStorage.setItem(key, JSON.stringify(record));
+  } catch {
+    /* private/restricted storage */
+  }
 }
 
 export function truncateExtractUploadPackageId(packageId: string, visiblePrefix = 8): string {
