@@ -19,6 +19,18 @@ public sealed class ZipArchiveSafetyTests
     }
 
     [Fact]
+    public void ValidateArchive_rejects_unsafe_directory_entry()
+    {
+        using MemoryStream stream = new();
+        using (ZipArchive archive = new(stream, ZipArchiveMode.Create, leaveOpen: true))
+            archive.CreateEntry("../");
+        stream.Position = 0;
+        using ZipArchive readArchive = new(stream, ZipArchiveMode.Read, leaveOpen: true);
+
+        ZipArchiveSafety.ValidateArchive(readArchive).Allowed.Should().BeFalse();
+    }
+
+    [Fact]
     public void ValidateArchive_rejects_archives_exceeding_entry_limit()
     {
         using MemoryStream stream = new();

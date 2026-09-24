@@ -48,13 +48,13 @@ public static class ZipArchiveSafety
 
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
-            if (entry.FullName.EndsWith('/'))
-                continue;
-
             if (!IsSafeEntryPath(entry.FullName))
             {
                 return ZipArchiveSafetyResult.Reject($"Unsafe ZIP entry path: {entry.FullName}");
             }
+
+            if (entry.FullName.EndsWith('/'))
+                continue;
 
             fileEntryCount++;
 
