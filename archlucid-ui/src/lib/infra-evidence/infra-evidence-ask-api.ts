@@ -26,10 +26,10 @@ export async function submitInfraEvidenceAsk(
   });
 
   return {
-    topicKind: String(raw.topicKind ?? ""),
-    answer: String(raw.answer ?? ""),
+    topicKind: typeof raw.topicKind === "string" ? raw.topicKind : "",
+    answer: typeof raw.answer === "string" ? raw.answer : "",
     insufficientEvidence: Boolean(raw.insufficientEvidence),
-    simulatorLabel: raw.simulatorLabel != null ? String(raw.simulatorLabel) : null,
+    simulatorLabel: typeof raw.simulatorLabel === "string" ? raw.simulatorLabel : null,
     viewPlan: parseDiagramViewPlan(raw.viewPlan),
     citations: Array.isArray(raw.citations)
       ? raw.citations.map((item) => {
