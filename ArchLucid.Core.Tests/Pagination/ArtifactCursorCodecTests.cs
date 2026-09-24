@@ -61,4 +61,12 @@ public sealed class ArtifactCursorCodecTests
     {
         ArtifactCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("{")).Should().BeNull();
     }
+
+    [Fact]
+    public void ArtifactCursorCodec_TryDecode_MissingSortOrder_ReturnsNull()
+    {
+        string cursor = JsonCursorTestHelper.EncodeJsonCursor($"{{\"ai\":\"{Guid.NewGuid()}\"}}");
+
+        ArtifactCursorCodec.TryDecode(cursor).Should().BeNull();
+    }
 }
