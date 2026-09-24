@@ -1,6 +1,6 @@
 "use client";
 
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -56,6 +56,7 @@ import { useRecurrenceSchedulesClient } from "./use-recurrence-schedules-client"
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_RECURRENCE_SCHEDULES_PATH;
   const searchParams = useSearchParams();
@@ -209,7 +210,7 @@ export default function RecurrenceSchedulesClient() {
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
                 data-testid="governance-recurrence-schedules-intro"
               >
-                {recurrenceSchedulesPageLead(resolveProductLineIdFromEnv())}
+                {recurrenceSchedulesPageLead(productLine)}
               </p>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
