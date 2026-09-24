@@ -16,6 +16,7 @@ def count_links_before_first_details(text: str) -> tuple[int, str | None]:
     visible = re.sub(
         r"(?ms)^[ \t]*(```|~~~)[^\n]*\n.*?^[ \t]*\1[ \t]*(?:\r?\n|$)", "", visible
     )
+    visible = re.sub(r"`[^`\n]*`", "", visible)
     match = re.search(r"<details(?:\s|>)", visible, re.IGNORECASE)
     if match is None:
         return -1, "No <details> block found in README.md — opener must stay collapsible."
