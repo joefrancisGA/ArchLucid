@@ -36,11 +36,21 @@ export function WorkingCareerRehearsalIntentProvider(props: { readonly children:
   useEffect(() => {
     const stored = readWorkingCareerRehearsalIntentFromStorage();
 
+    let hasStoredPreference = false;
+
+    if (typeof window !== "undefined") {
+      try {
+        hasStoredPreference =
+          window.localStorage.getItem("archlucid.workingCareerRehearsalIntent.v1") !== null;
+      } catch {
+        hasStoredPreference = false;
+      }
+    }
+
     setIntentState(
       resolveInitialWorkingCareerRehearsalIntent({
         storedIntent: stored,
-        hasStoredPreference: typeof window !== "undefined"
-          && window.localStorage.getItem("archlucid.workingCareerRehearsalIntent.v1") !== null,
+        hasStoredPreference,
       }),
     );
     setMounted(true);
