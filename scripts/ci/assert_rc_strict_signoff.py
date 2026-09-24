@@ -103,6 +103,14 @@ def evaluate_bundle(
                         detail=f"missing or older than {_STALE_AFTER_DAYS} days: {raw_generated!r}",
                     )
                 )
+            elif generated > datetime.now(timezone.utc) + timedelta(minutes=5):
+                blockers.append(
+                    _blocking_reason(
+                        artifact=artifact_name,
+                        field="generatedUtc",
+                        detail=f"timestamp is in the future: {raw_generated!r}",
+                    )
+                )
 
         disposition = payload.get(disposition_field)
 
