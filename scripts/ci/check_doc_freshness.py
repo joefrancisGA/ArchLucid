@@ -33,6 +33,7 @@ def main() -> int:
     today = date.today()
     missing: list[str] = []
     stale: list[str] = []
+    future: list[str] = []
 
     for md in sorted(runbooks.glob("*.md")):
         head = "\n".join(md.read_text(encoding="utf-8", errors="replace").splitlines()[:50])
@@ -49,7 +50,9 @@ def main() -> int:
             continue
         age = (today - reviewed).days
 
-        if age > STALE_DAYS:
+        if age < 0:
+            future.append(f"{md.name} ({m.group(1)})")
+        elif age > STALE_DAYS:
             stale.append(f"{md.name} ({m.group(1)}, {age} days old)")
 
     if missing:
@@ -60,7 +63,11 @@ def main() -> int:
         print(f"WARN: runbooks older than {STALE_DAYS} days by **Last reviewed:**")
         print("  " + "; ".join(stale))
 
-    if not missing and not stale:
+    if future:
+        print("WARN: runbooks with future **Last reviewed:** dates:")
+        print("  " + "; ".join(future))
+
+    if not missing and not stale and not future:
         print("check_doc_freshness: OK (runbook headers present / not stale)")
 
     return 0
