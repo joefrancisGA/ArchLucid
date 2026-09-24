@@ -48,9 +48,8 @@ export function readFirstTouchCookie(): MarketingFirstTouchPayload | null {
 
   if (!match) return null;
 
-  const raw = decodeURIComponent(match.slice(MARKETING_FIRST_TOUCH_COOKIE.length + 1));
-
   try {
+    const raw = decodeURIComponent(match.slice(MARKETING_FIRST_TOUCH_COOKIE.length + 1));
     return JSON.parse(raw) as MarketingFirstTouchPayload;
   } catch {
     return null;
