@@ -75,8 +75,12 @@ export function writeCloudPlatformScopeToStorage(scope: CloudPlatformScope): voi
     return;
   }
 
-  window.localStorage.setItem(PERSONAL_SCOPE_STORAGE_KEY, JSON.stringify(scope));
-  dispatchCloudPlatformScopeChanged();
+  try {
+    window.localStorage.setItem(PERSONAL_SCOPE_STORAGE_KEY, JSON.stringify(scope));
+    dispatchCloudPlatformScopeChanged();
+  } catch {
+    // Local storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export function persistCloudPlatformScopeLocally(scope: CloudPlatformScope): void {
