@@ -4429,6 +4429,52 @@ jobs:
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
+  ui-playwright-console-network:
+    name: "Operator UI: console/network smoke (PR)"
+    needs: gitleaks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Build mock UI and install Chromium
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_DEMO_MODE: "true"
+          NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
+          NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: "true"
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: "public-self-service"
+          FOUNDER_PUBLIC_ONLY: "1"
+        run: |
+          npm ci
+          npm run build
+          MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
+
+      - name: Run public console and network guards
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          MOCK_E2E_SKIP_NEXT_BUILD: "1"
+          FOUNDER_PUBLIC_ONLY: "1"
+        run: npx playwright test -c playwright.mock.config.ts e2e/founder-console-network.spec.ts
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ui-console-network-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
   ui-playwright-infra-diagrams-layout:
     name: "Operator UI: Inventory diagram layout ratchet (PR)"
     needs:
@@ -5976,6 +6022,7 @@ jobs:
       - ui-axe-components
       - ui-static-quality
       - ui-playwright-mock-smoke
+      - ui-playwright-console-network
       - ui-playwright-accessibility
       - ui-e2e-live
       - ui-e2e-live-extended
