@@ -125,6 +125,18 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
         self.assertIn("references.releaseConfidenceRollup", result.stderr)
 
+    def test_non_pass_synonym_does_not_approve_strict_signoff(self) -> None:
+        bundle = self.temp_dir / "non-pass"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "release-confidence-rollup.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["strictDisposition"] = "READY"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("strictDisposition", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
