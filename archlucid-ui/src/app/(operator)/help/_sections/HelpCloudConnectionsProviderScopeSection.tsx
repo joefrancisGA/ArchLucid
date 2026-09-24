@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { HelpCloudConnectionsPackagingScriptsDisclosure } from "@/app/(operator)/help/_sections/HelpCloudConnectionsPackagingScriptsDisclosure";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import {
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
@@ -10,7 +13,6 @@ import {
   cloudConnectionsHelpProviderScopeRows,
   cloudConnectionsHelpTier2,
 } from "@/lib/cloud-connections-help-guide-content";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   DESIGN_TOKENS,
   OPERATOR_LINK,
@@ -38,7 +40,7 @@ function TierCardEyebrow(props: { readonly children: string }): React.ReactEleme
 /** Evidence tiers and provider permission scope for `/help/cloud-connections` (HCE). */
 export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const productLine = resolveProductLineIdFromEnv();
+  const { productLine } = useProductLine();
   const scheduledAgent = cloudConnectionsHelpScheduledAgent(productLine);
   const tier1 = cloudConnectionsHelpTier1(productLine);
   const tier2 = cloudConnectionsHelpTier2(productLine);
