@@ -22,7 +22,7 @@ function decodeRouteSegment(raw: string): string {
   try {
     return decodeURIComponent(trimmed);
   } catch {
-    return trimmed;
+    return "";
   }
 }
 
