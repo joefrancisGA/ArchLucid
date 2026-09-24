@@ -1,4 +1,7 @@
+"use client";
+
 import { HelpSlackIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpSlackIntegrationHeaderActions";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpSlackIntegrationCredentialHandlingDisclosure } from "@/app/(operator)/help/_sections/HelpSlackIntegrationCredentialHandlingDisclosure";
 import { HelpSlackIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationSourcesOrientationStrip";
 import { HelpSlackIntegrationWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip";
@@ -51,7 +54,6 @@ import {
   SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/slack-integration-help-page-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpSlackIntegrationGuideViewProps = {
@@ -103,6 +105,7 @@ function slackIntegrationHelpPageSubtitle(buyerPolishedShell: boolean): string {
 export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-slack-integration",
     SLACK_INTEGRATION_HELP_GUIDE_HEADINGS,
@@ -180,7 +183,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           >
             <div className="space-y-4" data-testid="help-slack-integration-buyer-intro">
               <p className={readingBodyClass} data-testid="help-slack-integration-intro">
-                {slackIntegrationHelpPageLead(resolveProductLineIdFromEnv())}
+                {slackIntegrationHelpPageLead(productLine)}
               </p>
             </div>
             <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
