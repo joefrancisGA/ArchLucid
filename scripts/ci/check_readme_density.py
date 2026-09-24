@@ -13,6 +13,9 @@ _LINK_RE = re.compile(r"\[[^\]]*\]\([^)\s]+\)")
 def count_links_before_first_details(text: str) -> tuple[int, str | None]:
     # Comments can contain documentation examples of <details>; they are not collapsible blocks.
     visible = re.sub(r"<!--[\s\S]*?-->", "", text)
+    visible = re.sub(
+        r"(?ms)^[ \t]*(```|~~~)[^\n]*\n.*?^[ \t]*\1[ \t]*(?:\n|$)", "", visible
+    )
     match = re.search(r"<details(?:\s|>)", visible, re.IGNORECASE)
     if match is None:
         return -1, "No <details> block found in README.md — opener must stay collapsible."
