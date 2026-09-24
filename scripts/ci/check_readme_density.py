@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 # Inline markdown links [text](url) — excludes bare URLs and reference-style [ref][id].
-_LINK_RE = re.compile(r"\[[^\]]*\]\([^()\s]*(?:\([^()]*\)[^()\s]*)*\)")
+_LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\([^()\s]*(?:\([^()]*\)[^()\s]*)*\)")
 
 
 def count_links_before_first_details(text: str) -> tuple[int, str | None]:
