@@ -8,7 +8,11 @@ export function markOperatorHomeRunsSnapshotStale(): void {
     return;
   }
 
-  window.sessionStorage.setItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY, "1");
+  try {
+    window.sessionStorage.setItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY, "1");
+  } catch {
+    // Session storage may be unavailable.
+  }
 }
 
 /** Clears lifecycle stale marker on tenant/workspace scope change (parity with other session clears). */
