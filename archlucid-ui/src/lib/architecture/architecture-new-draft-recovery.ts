@@ -53,7 +53,7 @@ export function readArchitectureNewDraftRecovery(): ArchitectureNewDraftRecovery
 
     const queuedAtUtc =
       typeof parsed.queuedAtUtc === "string" && parsed.queuedAtUtc.trim().length > 0
-        ? parsed.queuedAtUtc
+        ? parsed.queuedAtUtc.trim()
         : new Date().toISOString();
 
     return {
