@@ -201,10 +201,10 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
           }];
         })
       : [],
-    totalCount: Number(stream?.totalCount ?? 0),
-    page: Number(stream?.page ?? 1),
-    pageSize: Number(stream?.pageSize ?? 25),
-    hasMore: Boolean(stream?.hasMore),
+    totalCount: finiteNumberOr(stream?.totalCount, 0),
+    page: finiteNumberOr(stream?.page, 1),
+    pageSize: finiteNumberOr(stream?.pageSize, 25),
+    hasMore: stream?.hasMore === true,
   });
 
   const currentConfigurationRaw = raw.currentConfiguration as Record<string, unknown> | null | undefined;
