@@ -140,6 +140,16 @@ export async function fetchCloudResourceEvidenceHub(
   }
 }
 
+function stringRecord(value: unknown): Record<string, string> {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+  );
+}
+
 function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubResponse {
   const finiteNumberOr = (value: unknown, fallback: number): number => {
     const parsed = typeof value === "number" ? value : Number(value);
@@ -227,8 +237,8 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
                 ? currentConfigurationRaw.resourceGroup
                 : null,
             region: typeof currentConfigurationRaw.region === "string" ? currentConfigurationRaw.region : null,
-            properties: (currentConfigurationRaw.properties as Record<string, string>) ?? {},
-            tags: (currentConfigurationRaw.tags as Record<string, string>) ?? {},
+            properties: stringRecord(currentConfigurationRaw.properties),
+            tags: stringRecord(currentConfigurationRaw.tags),
           },
     terraformAddress: typeof raw.terraformAddress === "string" ? raw.terraformAddress : null,
     terraformGenerationMethod:
