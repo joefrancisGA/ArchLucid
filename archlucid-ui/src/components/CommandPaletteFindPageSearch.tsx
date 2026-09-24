@@ -1,6 +1,9 @@
+"use client";
+
 import { useCommandState } from "cmdk";
 
 import { CommandGroup, CommandItem } from "@/components/ui/command";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { searchFindPageIndex, searchGuidedLockedFindPageEntries } from "@/lib/find-page-search-index";
 import type { GuidedPaletteLockedDestination } from "@/lib/usability/guided-palette-locked-destinations";
@@ -15,9 +18,10 @@ export function CommandPaletteFindPageSearch({
   lockedDestinations?: readonly GuidedPaletteLockedDestination[];
   onNavigate: (href: string) => void;
 }) {
+  const { productLine } = useProductLine();
   const search = useCommandState((state) => state.search);
   const trimmed = search.trim();
-  const matches = searchFindPageIndex(trimmed, { limit: 8, visibleHrefs });
+  const matches = searchFindPageIndex(trimmed, { limit: 8, visibleHrefs, productLineId: productLine });
   const lockedMatches = searchGuidedLockedFindPageEntries(trimmed, lockedDestinations, { limit: 4 });
   const allMatches = [...matches, ...lockedMatches];
 
