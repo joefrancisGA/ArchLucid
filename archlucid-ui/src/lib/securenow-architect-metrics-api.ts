@@ -3,6 +3,11 @@ import type { SecureNowArchitectOutcomeMetrics } from "@/lib/securenow-architect
 
 const ARCHITECT_METRICS_PATH = "/api/proxy/v1/operational-security/architect-metrics";
 
+function finiteNumberOrZero(value: unknown): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export async function fetchSecureNowArchitectOutcomeMetrics(
   fromSnapshotId: string,
   toSnapshotId: string,
@@ -26,18 +31,18 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
     fromSnapshotId: fromId,
     toSnapshotId: toId,
     ruleVersion: String(raw.ruleVersion ?? ""),
-    criticalOrHighConfidencePathsRemoved: Number(raw.criticalOrHighConfidencePathsRemoved ?? 0),
-    privilegedIdentityNodesOnPathsReduced: Number(raw.privilegedIdentityNodesOnPathsReduced ?? 0),
-    unrestrictedEgressCapabilityPathsReduced: Number(raw.unrestrictedEgressCapabilityPathsReduced ?? 0),
-    assertedCrownJewelExposurePathsRemoved: Number(raw.assertedCrownJewelExposurePathsRemoved ?? 0),
-    sharedControlBlastRadiusPathsRemoved: Number(raw.sharedControlBlastRadiusPathsRemoved ?? 0),
-    exceptionsExpired: Number(raw.exceptionsExpired ?? 0),
-    remediationRecurrenceCount: Number(raw.remediationRecurrenceCount ?? 0),
+    criticalOrHighConfidencePathsRemoved: finiteNumberOrZero(raw.criticalOrHighConfidencePathsRemoved),
+    privilegedIdentityNodesOnPathsReduced: finiteNumberOrZero(raw.privilegedIdentityNodesOnPathsReduced),
+    unrestrictedEgressCapabilityPathsReduced: finiteNumberOrZero(raw.unrestrictedEgressCapabilityPathsReduced),
+    assertedCrownJewelExposurePathsRemoved: finiteNumberOrZero(raw.assertedCrownJewelExposurePathsRemoved),
+    sharedControlBlastRadiusPathsRemoved: finiteNumberOrZero(raw.sharedControlBlastRadiusPathsRemoved),
+    exceptionsExpired: finiteNumberOrZero(raw.exceptionsExpired),
+    remediationRecurrenceCount: finiteNumberOrZero(raw.remediationRecurrenceCount),
     supportingOperationalMetrics:
       supportingRaw == null
         ? null
         : {
-            openFindings: Number(supportingRaw.openFindings ?? 0),
+            openFindings: finiteNumberOrZero(supportingRaw.openFindings),
           },
   };
 }
