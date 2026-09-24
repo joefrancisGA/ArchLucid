@@ -146,11 +146,11 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
           const row = item as Record<string, unknown>;
 
           return {
-            waveId: String(row.waveId ?? ""),
-            name: String(row.name ?? ""),
-            status: String(row.status ?? ""),
-            memberCount: Number(row.memberCount ?? 0),
-            targetSize: row.targetSize != null ? Number(row.targetSize) : null,
+            waveId: typeof row.waveId === "string" ? row.waveId : "",
+            name: typeof row.name === "string" ? row.name : "",
+            status: typeof row.status === "string" ? row.status : "",
+            memberCount: finiteNumberOrDefault(row.memberCount, 0),
+            targetSize: row.targetSize == null ? null : finiteNumberOrDefault(row.targetSize, 0),
           };
         })
       : [],
@@ -174,8 +174,8 @@ export async function fetchRemediationWaves(): Promise<Array<{ waveId: string; n
   const raw = await proxyJsonGet<Array<Record<string, unknown>>>(WAVES_PATH);
 
   return raw.map((row) => ({
-    waveId: String(row.waveId ?? ""),
-    name: String(row.name ?? ""),
+    waveId: typeof row.waveId === "string" ? row.waveId : "",
+    name: typeof row.name === "string" ? row.name : "",
   }));
 }
 
