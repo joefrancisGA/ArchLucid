@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CommandPalette, palettePressUsesPaletteModifier } from "@/components/CommandPalette";
@@ -9,6 +9,16 @@ import {
 
 const mockPush = vi.fn();
 const mockReplace = vi.fn();
+const commitHrefIfChanged = vi.hoisted(() => vi.fn(() => false));
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    commitHrefIfChanged,
+  };
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
@@ -56,6 +66,8 @@ describe("CommandPalette", () => {
   beforeEach(() => {
     mockPush.mockClear();
     mockReplace.mockClear();
+    commitHrefIfChanged.mockClear();
+    window.history.replaceState(null, "", "/administration/users");
   });
 
   it("shows Ctrl+K on the trigger and never the macOS command symbol", () => {
@@ -86,6 +98,25 @@ describe("CommandPalette", () => {
     render(<CommandPalette />);
 
     expect(screen.queryByRole("button", { name: "Open command palette" })).toBeNull();
+  });
+
+  it("does not commit href churn when the palette mounts closed", async () => {
+    render(<CommandPalette />);
+
+    await waitFor(() => {
+      expect(commitHrefIfChanged).not.toHaveBeenCalled();
+    });
+  });
+
+  it("does not commit href churn when popstate matches the closed palette", async () => {
+    render(<CommandPalette />);
+    commitHrefIfChanged.mockClear();
+
+    fireEvent.popState(window);
+
+    await waitFor(() => {
+      expect(commitHrefIfChanged).not.toHaveBeenCalled();
+    });
   });
 
   it("toggles the dialog on Ctrl+K", () => {

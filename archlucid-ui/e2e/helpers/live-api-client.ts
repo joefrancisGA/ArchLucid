@@ -29,6 +29,7 @@ import {
   mergeTenantScope,
   type LiveTenantScopeHeaders,
 } from "./live-api-headers";
+import { parsePrivateBetaCommittedRunId } from "./private-beta-create-identity";
 import {
   continueInfrastructureMutationRetry,
   getMaxCommitInfrastructureMutationAttempts,
@@ -214,6 +215,12 @@ export async function createRun(
 
     if (!res.ok()) {
       const responseBody = await res.text();
+
+      const committedRunId = parsePrivateBetaCommittedRunId(status, responseBody);
+
+      if (committedRunId !== null) {
+        return { runId: committedRunId };
+      }
 
       if (
         await continueInfrastructureMutationRetry(

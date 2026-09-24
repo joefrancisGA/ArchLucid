@@ -4,8 +4,10 @@ import { cn } from "@/lib/utils";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
@@ -106,110 +108,175 @@ export function RunFindingExplainabilityTable({
   rows,
   findingWireSnapshots = null,
 }: RunFindingExplainabilityTableProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
-  const searchParams = useSearchParams();
-  const urlExplainId = parseRunFindingsExplainIdFromSearch(searchParams.get("explainId"));
-  const urlReasonId = parseRunFindingsReasonIdFromSearch(searchParams.get("reasonId"));
-  const [open, setOpenState] = useState(urlExplainId.length > 0);
+  const readExplainabilityFromUrl = (): {
+    explainId: string;
+    reasonId: string;
+  } => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return {
+      explainId: parseRunFindingsExplainIdFromSearch(params.get("explainId")),
+      reasonId: parseRunFindingsReasonIdFromSearch(params.get("reasonId")),
+    };
+  };
+  const initialUrlState = readExplainabilityFromUrl();
+  const [open, setOpenState] = useState(initialUrlState.explainId.length > 0);
   const [activeFindingId, setActiveFindingIdState] = useState<string | null>(
-    urlExplainId.length > 0 ? urlExplainId : null,
+    initialUrlState.explainId.length > 0 ? initialUrlState.explainId : null,
   );
-  const [reasoningOpen, setReasoningOpenState] = useState(urlReasonId.length > 0);
+  const [reasoningOpen, setReasoningOpenState] = useState(initialUrlState.reasonId.length > 0);
   const [reasoningFindingId, setReasoningFindingIdState] = useState<string | null>(
-    urlReasonId.length > 0 ? urlReasonId : null,
+    initialUrlState.reasonId.length > 0 ? initialUrlState.reasonId : null,
   );
   const [reasoningTitle, setReasoningTitle] = useState("");
   const [confidenceSortReversed, setConfidenceSortReversed] = useState(false);
   const parentRef = useRef<HTMLDivElement>(null);
+  const openRef = useRef(open);
+  openRef.current = open;
+  const activeFindingIdRef = useRef(activeFindingId);
+  activeFindingIdRef.current = activeFindingId;
+  const reasoningOpenRef = useRef(reasoningOpen);
+  reasoningOpenRef.current = reasoningOpen;
+  const reasoningFindingIdRef = useRef(reasoningFindingId);
+  reasoningFindingIdRef.current = reasoningFindingId;
 
   const syncExplainabilityToUrl = useCallback(
     (state: { readonly explainFindingId: string | null; readonly reasoningFindingId: string | null }) => {
-      router.replace(
-        runFindingsExplainabilityHrefFromSearch(searchParams.toString(), state, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runFindingsExplainabilityHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (next: boolean) => {
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
       setOpenState(next);
 
+      const nextActiveFindingId = next ? activeFindingIdRef.current : null;
+
       if (!next) {
+        activeFindingIdRef.current = null;
         setActiveFindingIdState(null);
       }
 
       syncExplainabilityToUrl({
-        explainFindingId: next ? activeFindingId : null,
-        reasoningFindingId: reasoningOpen ? reasoningFindingId : null,
+        explainFindingId: nextActiveFindingId,
+        reasoningFindingId: reasoningOpenRef.current ? reasoningFindingIdRef.current : null,
       });
     },
-    [activeFindingId, reasoningFindingId, reasoningOpen, syncExplainabilityToUrl],
+    [syncExplainabilityToUrl],
   );
 
   const setActiveFindingId = useCallback(
     (findingId: string | null) => {
+      if (activeFindingIdRef.current === findingId) {
+        return;
+      }
+
+      activeFindingIdRef.current = findingId;
       setActiveFindingIdState(findingId);
       syncExplainabilityToUrl({
         explainFindingId: findingId,
-        reasoningFindingId: reasoningOpen ? reasoningFindingId : null,
+        reasoningFindingId: reasoningOpenRef.current ? reasoningFindingIdRef.current : null,
       });
     },
-    [reasoningFindingId, reasoningOpen, syncExplainabilityToUrl],
+    [syncExplainabilityToUrl],
   );
 
   const setReasoningOpen = useCallback(
     (next: boolean) => {
+      if (reasoningOpenRef.current === next) {
+        return;
+      }
+
+      reasoningOpenRef.current = next;
       setReasoningOpenState(next);
 
       if (!next) {
+        reasoningFindingIdRef.current = null;
         setReasoningFindingIdState(null);
         setReasoningTitle("");
       }
 
       syncExplainabilityToUrl({
-        explainFindingId: open ? activeFindingId : null,
-        reasoningFindingId: next ? reasoningFindingId : null,
+        explainFindingId: openRef.current ? activeFindingIdRef.current : null,
+        reasoningFindingId: next ? reasoningFindingIdRef.current : null,
       });
     },
-    [activeFindingId, open, reasoningFindingId, syncExplainabilityToUrl],
+    [syncExplainabilityToUrl],
   );
 
   const setReasoningFindingId = useCallback(
     (findingId: string | null) => {
+      if (reasoningFindingIdRef.current === findingId) {
+        return;
+      }
+
+      reasoningFindingIdRef.current = findingId;
       setReasoningFindingIdState(findingId);
       syncExplainabilityToUrl({
-        explainFindingId: open ? activeFindingId : null,
+        explainFindingId: openRef.current ? activeFindingIdRef.current : null,
         reasoningFindingId: findingId,
       });
     },
-    [activeFindingId, open, syncExplainabilityToUrl],
+    [syncExplainabilityToUrl],
   );
 
   useEffect(() => {
-    if (urlExplainId.length > 0) {
-      setOpenState(true);
-      setActiveFindingIdState(urlExplainId);
-    }
+    const syncExplainabilityFromUrl = (): void => {
+      const { explainId, reasonId } = readExplainabilityFromUrl();
 
-    if (urlReasonId.length > 0) {
-      setReasoningOpenState(true);
-      setReasoningFindingIdState(urlReasonId);
-      const matched = rows.find((row) => row.findingId === urlReasonId);
-      const title =
-        matched?.findingTitle !== null &&
-        matched?.findingTitle !== undefined &&
-        matched.findingTitle.trim().length > 0
-          ? matched.findingTitle.trim()
-          : "";
+      if (explainId.length > 0) {
+        if (!openRef.current) {
+          openRef.current = true;
+          setOpenState(true);
+        }
 
-      if (title.length > 0) {
-        setReasoningTitle(title);
+        if (activeFindingIdRef.current !== explainId) {
+          activeFindingIdRef.current = explainId;
+          setActiveFindingIdState(explainId);
+        }
       }
-    }
-  }, [rows, urlExplainId, urlReasonId]);
+
+      if (reasonId.length > 0) {
+        if (!reasoningOpenRef.current) {
+          reasoningOpenRef.current = true;
+          setReasoningOpenState(true);
+        }
+
+        if (reasoningFindingIdRef.current !== reasonId) {
+          reasoningFindingIdRef.current = reasonId;
+          setReasoningFindingIdState(reasonId);
+          const matched = rows.find((row) => row.findingId === reasonId);
+          const title =
+            matched?.findingTitle !== null &&
+            matched?.findingTitle !== undefined &&
+            matched.findingTitle.trim().length > 0
+              ? matched.findingTitle.trim()
+              : "";
+
+          if (title.length > 0) {
+            setReasoningTitle(title);
+          }
+        }
+      }
+    };
+
+    syncExplainabilityFromUrl();
+    window.addEventListener("popstate", syncExplainabilityFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncExplainabilityFromUrl);
+    };
+  }, [rows]);
 
   const sortedRows = useMemo(() => {
     const copy = [...rows];

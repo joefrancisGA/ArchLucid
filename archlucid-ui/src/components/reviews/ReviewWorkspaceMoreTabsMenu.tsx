@@ -1,8 +1,8 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -13,6 +13,7 @@ import {
   parseReviewWorkspaceMoreTabsOpenFromSearch,
   reviewWorkspaceMoreTabsHrefFromSearch,
 } from "@/lib/reviews/review-workspace-more-tabs-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -27,32 +28,63 @@ export type ReviewWorkspaceMoreTabsMenuProps = {
 
 /** Secondary review workspace tabs behind a single More sections affordance. */
 export function ReviewWorkspaceMoreTabsMenu(props: ReviewWorkspaceMoreTabsMenuProps): React.JSX.Element | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const reviewMoreTabsOpenParam = searchParams.get("reviewMoreTabsOpen");
-  const [open, setOpenState] = useState(() => parseReviewWorkspaceMoreTabsOpenFromSearch(reviewMoreTabsOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewWorkspaceMoreTabsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("reviewMoreTabsOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncMoreTabsOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(reviewWorkspaceMoreTabsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
+      commitHrefIfChanged(reviewWorkspaceMoreTabsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname), {
+        notify: false,
       });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncMoreTabsOpenToUrl(next);
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+      syncMoreTabsOpenToUrl(next);
     },
     [syncMoreTabsOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncMoreTabsOpenFromUrl = (): void => {
+      const nextOpen = parseReviewWorkspaceMoreTabsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("reviewMoreTabsOpen"),
+      );
+
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncMoreTabsOpenFromUrl();
+    window.addEventListener("popstate", syncMoreTabsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncMoreTabsOpenFromUrl);
+    };
+  }, []);
 
   if (props.moreTabIds.length === 0) {
     return null;

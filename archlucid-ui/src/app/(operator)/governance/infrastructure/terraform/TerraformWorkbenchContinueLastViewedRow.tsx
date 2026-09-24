@@ -9,7 +9,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_RESUME, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ContinueLastInfraEvidenceTerraformWorkbenchTarget } from "@/lib/resolve-continue-last-infra-evidence-terraform-workbench";
-import { formatRelativeTime } from "@/lib/relative-time";
+import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 export type TerraformWorkbenchContinueLastViewedRowProps = {
@@ -52,7 +52,9 @@ export function TerraformWorkbenchContinueLastViewedRow(
             {" · "}
             Snapshot {snapshotLabel}
             {" · "}
-            {viewedLabel}
+            <time dateTime={props.target.viewedAtUtc} title={formatAbsoluteUpdatedAtTitle(props.target.viewedAtUtc)}>
+              {viewedLabel}
+            </time>
           </p>
         </div>
         <Button

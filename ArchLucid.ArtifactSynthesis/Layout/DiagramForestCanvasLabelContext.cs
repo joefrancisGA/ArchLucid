@@ -113,3 +113,4 @@ public sealed class DiagramForestCanvasLabelContext
             HasPrivateEndpointAccess: node.HasPrivateEndpointAccess,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
 }
+}

@@ -24,7 +24,7 @@ export function ProvenanceNextReviewFooter(props: ProvenanceNextReviewFooterProp
         <p className="m-0 font-medium text-al-text-primary">Next package provenance</p>
         <p
           className={cn("m-0 mt-1 line-clamp-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          title={props.target.reviewTitle}
+          aria-label={props.target.reviewTitle}
         >
           Continue with <span className="font-medium text-al-text-primary">{props.target.reviewTitle}</span>.
         </p>

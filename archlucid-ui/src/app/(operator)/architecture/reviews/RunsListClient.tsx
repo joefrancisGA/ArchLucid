@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { usePathname } from "next/navigation";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -30,7 +31,7 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, OPERATOR_
 import { resolveContinueLastRunsListRow } from "@/lib/resolve-continue-last-runs-list-row";
 import { resolveReviewsHubResumeAffordancePlan } from "@/lib/reviews-hub-resume-affordance";
 import {
-  parseRunsListSortFromSearch,
+  runsListSortFromSortOrder,
   runsListSortHrefFromSearch,
 } from "@/lib/runs/runs-list-sort-url";
 import {
@@ -67,16 +68,18 @@ function activateBuyerFeaturedCard(
  * Large viewports show an inline inspector; smaller viewports use a slide-over sheet.
  */
 export function RunsListClient(props: RunsListClientProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews";
-  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
-  const runsListFilterOpenParam = searchParams.get("runsListFilterOpen");
-  const activeSort = parseRunsListSortFromSearch(searchParams.get("sort"));
   const [runsListFilterOpen, setRunsListFilterOpenState] = useState(() =>
-    parseRunsListFilterOpenFromSearch(runsListFilterOpenParam),
+    parseRunsListFilterOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runsListFilterOpen"),
+    ),
   );
+  const runsListFilterOpenRef = useRef(runsListFilterOpen);
+  runsListFilterOpenRef.current = runsListFilterOpen;
   const {
     projectId,
     page,
@@ -111,18 +114,25 @@ export function RunsListClient(props: RunsListClientProps) {
     clearCompareSelection,
     filterStatusLine,
   } = useRunsList(props);
+  const activeSort = runsListSortFromSortOrder(sortOrder);
 
   const syncRunsListFilterOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(runsListFilterDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runsListFilterDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setRunsListFilterOpen = useCallback(
     (open: boolean) => {
+      if (runsListFilterOpenRef.current === open) {
+        return;
+      }
+
+      runsListFilterOpenRef.current = open;
       setRunsListFilterOpenState(open);
       syncRunsListFilterOpenToUrl(open);
     },
@@ -130,8 +140,26 @@ export function RunsListClient(props: RunsListClientProps) {
   );
 
   useEffect(() => {
-    setRunsListFilterOpenState(parseRunsListFilterOpenFromSearch(runsListFilterOpenParam));
-  }, [runsListFilterOpenParam]);
+    const syncRunsListFilterOpenFromUrl = (): void => {
+      const next = parseRunsListFilterOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runsListFilterOpen"),
+      );
+
+      if (runsListFilterOpenRef.current === next) {
+        return;
+      }
+
+      runsListFilterOpenRef.current = next;
+      setRunsListFilterOpenState(next);
+    };
+
+    syncRunsListFilterOpenFromUrl();
+    window.addEventListener("popstate", syncRunsListFilterOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRunsListFilterOpenFromUrl);
+    };
+  }, []);
 
   const continueLastViewedRun = useMemo(
     () => resolveContinueLastRunsListRow(props.runs),

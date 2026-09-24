@@ -527,6 +527,24 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL = "Resourc
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL = "None" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SCOPE_ALL_LABEL = "All resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLEAR_FILTERS_LABEL = "Clear filters" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_UNAPPLIED_FILTERS_LABEL = "Unapplied filter changes" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SORT_PAGE_LOCAL_DISCLOSURE =
+  "Sorting applies to the current page only." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_MARKERS_KEY_LABEL =
+  "F findings · R remediation · D drift" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_LATEST_SNAPSHOT_LABEL = "Latest inventory" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_PINNED_SNAPSHOT_LABEL = "Pinned snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_AS_OF_LABEL = "Inventory as of" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL = "Opening resource evidence hub…" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_TITLE = "Resource evidence hub" as const;
@@ -645,6 +663,17 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TAG = "Not mapped" a
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_EXPORT_DISABLED_NO_SNAPSHOT =
   "Select a snapshot with inventory evidence before downloading the advisory ZIP." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING =
+  "Advisory Terraform is reconstructed from inventory evidence — review before any apply; exports are not validated for safe cloud apply." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING_ID =
+  "infra-terraform-apply-safety-warning" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_INVALID_ENTER =
+  "Enter a valid cloud resource UUID or pick a resource from the list." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HUB_LOAD_RETRY_ACTION = "Retry load" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
 

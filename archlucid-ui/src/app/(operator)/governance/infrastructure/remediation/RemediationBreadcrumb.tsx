@@ -5,11 +5,18 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Remediation factory breadcrumb (GRE). */
-export function RemediationBreadcrumb(): React.JSX.Element {
+export function RemediationBreadcrumb(): React.JSX.Element | null {
+  const { productLine } = useProductLine();
+
+  if (productLine === "security") {
+    return null;
+  }
+
   return (
     <nav aria-label="Breadcrumb" data-testid="infra-remediation-breadcrumb">
       <ol className={cn("m-0 flex flex-wrap items-center gap-1 p-0 list-none", OPERATOR_TYPOGRAPHY.helper)}>

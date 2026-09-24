@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -97,19 +99,28 @@ export function ArchitectureSponsorSharingPanel(
   props: ArchitectureSponsorSharingPanelProps,
 ): React.JSX.Element {
   const canShare = useOperateCapability();
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const sponsorShareConfirmParam = searchParams.get("sponsorShareConfirm");
-  const architectureSponsorSharingOpenParam = searchParams.get("architectureSponsorSharingOpen");
   const resolveReadinessVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const [dialogOpen, setDialogOpenState] = useState(
-    () => parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam),
+    () =>
+      parseArchitectureSponsorShareConfirmOpenFromSearch(
+        typeof window === "undefined"
+          ? null
+          : new URLSearchParams(window.location.search).get("sponsorShareConfirm"),
+      ),
   );
   const [readinessPanelOpen, setReadinessPanelOpenState] = useState(() =>
-    parseArchitectureSponsorSharingOpenFromSearch(architectureSponsorSharingOpenParam),
+    parseArchitectureSponsorSharingOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("architectureSponsorSharingOpen"),
+    ),
   );
+  const dialogOpenRef = useRef(dialogOpen);
+  dialogOpenRef.current = dialogOpen;
+  const readinessPanelOpenRef = useRef(readinessPanelOpen);
+  readinessPanelOpenRef.current = readinessPanelOpen;
   const [overrideConfirmed, setOverrideConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -119,18 +130,24 @@ export function ArchitectureSponsorSharingPanel(
         return;
       }
 
-      router.replace(
-        architectureSponsorShareConfirmHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureSponsorShareConfirmHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setDialogOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setDialogOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (dialogOpenRef.current === next) {
+          return current;
+        }
+
+        dialogOpenRef.current = next;
         syncSponsorShareToUrl(next);
 
         return next;
@@ -140,8 +157,26 @@ export function ArchitectureSponsorSharingPanel(
   );
 
   useEffect(() => {
-    setDialogOpenState(parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam));
-  }, [sponsorShareConfirmParam]);
+    const syncDialogOpenFromUrl = (): void => {
+      const next = parseArchitectureSponsorShareConfirmOpenFromSearch(
+        new URLSearchParams(window.location.search).get("sponsorShareConfirm"),
+      );
+
+      if (dialogOpenRef.current === next) {
+        return;
+      }
+
+      dialogOpenRef.current = next;
+      setDialogOpenState(next);
+    };
+
+    syncDialogOpenFromUrl();
+    window.addEventListener("popstate", syncDialogOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDialogOpenFromUrl);
+    };
+  }, []);
 
   const syncReadinessPanelOpenToUrl = useCallback(
     (open: boolean) => {
@@ -149,16 +184,21 @@ export function ArchitectureSponsorSharingPanel(
         return;
       }
 
-      router.replace(
-        architectureSponsorSharingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureSponsorSharingDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setReadinessPanelOpen = useCallback(
     (open: boolean) => {
+      if (readinessPanelOpenRef.current === open) {
+        return;
+      }
+
+      readinessPanelOpenRef.current = open;
       setReadinessPanelOpenState(open);
       syncReadinessPanelOpenToUrl(open);
     },
@@ -166,10 +206,26 @@ export function ArchitectureSponsorSharingPanel(
   );
 
   useEffect(() => {
-    setReadinessPanelOpenState(
-      parseArchitectureSponsorSharingOpenFromSearch(architectureSponsorSharingOpenParam),
-    );
-  }, [architectureSponsorSharingOpenParam]);
+    const syncReadinessPanelOpenFromUrl = (): void => {
+      const next = parseArchitectureSponsorSharingOpenFromSearch(
+        new URLSearchParams(window.location.search).get("architectureSponsorSharingOpen"),
+      );
+
+      if (readinessPanelOpenRef.current === next) {
+        return;
+      }
+
+      readinessPanelOpenRef.current = next;
+      setReadinessPanelOpenState(next);
+    };
+
+    syncReadinessPanelOpenFromUrl();
+    window.addEventListener("popstate", syncReadinessPanelOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncReadinessPanelOpenFromUrl);
+    };
+  }, []);
 
   const assessment = useMemo(
     () =>
@@ -252,7 +308,8 @@ export function ArchitectureSponsorSharingPanel(
       data-testid="architecture-sponsor-sharing-panel"
       open={readinessPanelOpen}
       onToggle={(event) => {
-        setReadinessPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+        event.preventDefault();
+        setReadinessPanelOpen(!readinessPanelOpenRef.current);
       }}
     >
       <summary className={cn("cursor-pointer list-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>

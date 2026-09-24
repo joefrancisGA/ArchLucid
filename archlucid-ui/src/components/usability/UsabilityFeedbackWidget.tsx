@@ -2,8 +2,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,13 +34,14 @@ type UsabilityFeedbackWidgetProps = {
 
 /** Lightweight in-app feedback — posts to customer-success product-feedback. */
 export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const usabilityFeedbackOpenParam = searchParams.get("usabilityFeedbackOpen");
   const [internalOpen, setInternalOpenState] = useState(() =>
-    parseUsabilityFeedbackOpenFromSearch(usabilityFeedbackOpenParam),
+    parseUsabilityFeedbackOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("usabilityFeedbackOpen"),
+    ),
   );
+  const internalOpenRef = useRef(internalOpen);
+  internalOpenRef.current = internalOpen;
   const isControlled = props.open !== undefined;
   const open = isControlled ? props.open : internalOpen;
   const showTrigger = props.showTrigger !== false;
@@ -52,11 +55,12 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
         return;
       }
 
-      router.replace(usabilityFeedbackDisclosureHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        usabilityFeedbackDisclosureHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        { notify: false },
+      );
     },
-    [isControlled, pathname, router, searchParams],
+    [isControlled, pathname],
   );
 
   useEffect(() => {
@@ -64,8 +68,26 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
       return;
     }
 
-    setInternalOpenState(parseUsabilityFeedbackOpenFromSearch(usabilityFeedbackOpenParam));
-  }, [isControlled, usabilityFeedbackOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseUsabilityFeedbackOpenFromSearch(
+        new URLSearchParams(window.location.search).get("usabilityFeedbackOpen"),
+      );
+
+      if (internalOpenRef.current === next) {
+        return;
+      }
+
+      internalOpenRef.current = next;
+      setInternalOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, [isControlled]);
 
   function setOpen(next: boolean): void {
     if (isControlled) {
@@ -74,6 +96,11 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
       return;
     }
 
+    if (internalOpenRef.current === next) {
+      return;
+    }
+
+    internalOpenRef.current = next;
     setInternalOpenState(next);
     syncOpenToUrl(next);
   }

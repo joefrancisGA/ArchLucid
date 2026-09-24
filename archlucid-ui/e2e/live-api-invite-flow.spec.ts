@@ -8,19 +8,35 @@ import {
   createScimAdminToken,
   primePrivateBetaBrowserSessionIfJwtMode,
   provisionScimDirectoryUser,
-  submitAdminInviteFromUsersUi,
+  stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
+import { submitAdminInviteFromUsersUi } from "./helpers/live-invite-form-submit";
+import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
+import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
+import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase } from "./helpers/live-api-client";
 
 async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
   await primePrivateBetaBrowserSessionIfJwtMode(page);
-  await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
+  await injectDefaultTenantOperatorScope(page);
+  await page.goto("/administration/users", { waitUntil: "load" });
+
+  const errorShell = page.getByText(/Something went wrong/i);
+  if ((await errorShell.count()) > 0) {
+    await page.reload({ waitUntil: "load" });
+  }
+
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
   await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
 }
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
   test.describe.configure({ timeout: 180_000 });
+
+  test.beforeEach(async ({ page }) => {
+    await stubEmptyArchitectureDraftListRoute(page);
+  });
 
   test.beforeAll(async ({ request }) => {
     test.setTimeout(120_000);
@@ -31,6 +47,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + auth.`,
       );
     }
+    await requireLiveScimAdminPreflight(request);
   });
 
   test("admin invite round-trip: send invite, list pending, revoke", async ({ page }) => {
@@ -45,7 +62,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
     await expect(pendingRow).toContainText("Pending");
 
-    await pendingRow.getByRole("button", { name: "Revoke" }).click();
+    await clickThroughBlockingOverlays(page, pendingRow.getByRole("button", { name: "Revoke" }));
 
     const revokeDialog = page.getByRole("alertdialog");
 

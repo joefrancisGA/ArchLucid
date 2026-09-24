@@ -30,12 +30,12 @@ export function ArchitectureIdentityDeskOpenQuestions(
     props.currentDraftId,
     props.latestReviewId,
   );
+  const draftQuery = useArchitectureDraftQuery(state.kind === "drafting" ? state.draftId : "");
 
   if (state.kind !== "drafting") {
     return null;
   }
 
-  const draftQuery = useArchitectureDraftQuery(state.draftId);
   const openQuestions = draftQuery.data?.document.openQuestions?.trim() ?? "";
 
   return (

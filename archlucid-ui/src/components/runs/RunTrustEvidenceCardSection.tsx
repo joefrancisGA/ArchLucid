@@ -3,8 +3,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState, type SetStateAction } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FindingEvidenceTrailLink } from "@/components/usability/FindingEvidenceTrailLink";
@@ -46,59 +47,100 @@ export function RunTrustEvidenceCardSection(props: {
   readonly approvalBlocked?: boolean;
 }): ReactElement {
   const { card, evidenceAskRunId, runId, blockingFindingId, blockingFindingTitle, approvalBlocked } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const trustEvidenceFieldsOpenParam = searchParams.get("trustEvidenceFieldsOpen");
-  const trustEvidenceTechOpenParam = searchParams.get("trustEvidenceTechOpen");
   const [fieldsOpen, setFieldsOpenState] = useState(() =>
-    parseTrustEvidenceFieldsOpenFromSearch(trustEvidenceFieldsOpenParam),
+    parseTrustEvidenceFieldsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("trustEvidenceFieldsOpen"),
+    ),
   );
+  const fieldsOpenRef = useRef(fieldsOpen);
+  fieldsOpenRef.current = fieldsOpen;
   const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseTrustEvidenceTechOpenFromSearch(trustEvidenceTechOpenParam),
+    parseTrustEvidenceTechOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("trustEvidenceTechOpen"),
+    ),
   );
+  const technicalOpenRef = useRef(technicalOpen);
+  technicalOpenRef.current = technicalOpen;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const syncTrustEvidencePanelsToUrl = useCallback(
     (state: { fieldsOpen: boolean; technicalOpen: boolean }) => {
-      router.replace(runTrustEvidenceDisclosureHrefFromSearch(searchParams.toString(), state, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runTrustEvidenceDisclosureHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setFieldsOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setFieldsOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncTrustEvidencePanelsToUrl({ fieldsOpen: next, technicalOpen });
+
+        if (fieldsOpenRef.current === next) {
+          return current;
+        }
+
+        fieldsOpenRef.current = next;
+        syncTrustEvidencePanelsToUrl({ fieldsOpen: next, technicalOpen: technicalOpenRef.current });
 
         return next;
       });
     },
-    [syncTrustEvidencePanelsToUrl, technicalOpen],
+    [syncTrustEvidencePanelsToUrl],
   );
 
   const setTechnicalOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setTechnicalOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncTrustEvidencePanelsToUrl({ fieldsOpen, technicalOpen: next });
+
+        if (technicalOpenRef.current === next) {
+          return current;
+        }
+
+        technicalOpenRef.current = next;
+        syncTrustEvidencePanelsToUrl({ fieldsOpen: fieldsOpenRef.current, technicalOpen: next });
 
         return next;
       });
     },
-    [fieldsOpen, syncTrustEvidencePanelsToUrl],
+    [syncTrustEvidencePanelsToUrl],
   );
 
   useEffect(() => {
-    setFieldsOpenState(parseTrustEvidenceFieldsOpenFromSearch(trustEvidenceFieldsOpenParam));
-  }, [trustEvidenceFieldsOpenParam]);
+    const syncTrustEvidencePanelsFromUrl = (): void => {
+      const nextFieldsOpen = parseTrustEvidenceFieldsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("trustEvidenceFieldsOpen"),
+      );
+      const nextTechnicalOpen = parseTrustEvidenceTechOpenFromSearch(
+        new URLSearchParams(window.location.search).get("trustEvidenceTechOpen"),
+      );
 
-  useEffect(() => {
-    setTechnicalOpenState(parseTrustEvidenceTechOpenFromSearch(trustEvidenceTechOpenParam));
-  }, [trustEvidenceTechOpenParam]);
+      if (fieldsOpenRef.current !== nextFieldsOpen) {
+        fieldsOpenRef.current = nextFieldsOpen;
+        setFieldsOpenState(nextFieldsOpen);
+      }
+
+      if (technicalOpenRef.current !== nextTechnicalOpen) {
+        technicalOpenRef.current = nextTechnicalOpen;
+        setTechnicalOpenState(nextTechnicalOpen);
+      }
+    };
+
+    syncTrustEvidencePanelsFromUrl();
+    window.addEventListener("popstate", syncTrustEvidencePanelsFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTrustEvidencePanelsFromUrl);
+    };
+  }, []);
 
   const trimmedAskRun =
     buyerPolishedShell && typeof evidenceAskRunId === "string" ? evidenceAskRunId.trim() : "";

@@ -2,8 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,7 @@ import {
   parseCommandPaletteOpenFromSearch,
   parseCommandPaletteQueryFromSearch,
 } from "@/lib/operator/command-palette-overlay-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 /** Buyer-polished header search: route-aware label for the Ctrl+K command palette trigger. */
 function buyerPolishedCommandPaletteLabel(pathname: string): string {
@@ -124,14 +125,33 @@ export type CommandPaletteProps = {
   readonly showTrigger?: boolean;
 };
 
+function readCommandPaletteOpenFromWindow(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseCommandPaletteOpenFromSearch(
+    new URLSearchParams(window.location.search).get("paletteOpen"),
+  );
+}
+
+function readCommandPaletteQueryFromWindow(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return parseCommandPaletteQueryFromSearch(new URLSearchParams(window.location.search).get("paletteQ"));
+}
+
 export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const paletteOpenParam = searchParams.get("paletteOpen");
-  const paletteQueryParam = searchParams.get("paletteQ");
-  const [open, setOpenState] = useState(() => parseCommandPaletteOpenFromSearch(paletteOpenParam));
-  const [paletteQuery, setPaletteQueryState] = useState(() => parseCommandPaletteQueryFromSearch(paletteQueryParam));
+  const [open, setOpenState] = useState(() => readCommandPaletteOpenFromWindow());
+  const [paletteQuery, setPaletteQueryState] = useState(() => readCommandPaletteQueryFromWindow());
+  const openRef = useRef(open);
+  openRef.current = open;
+  const paletteQueryRef = useRef(paletteQuery);
+  paletteQueryRef.current = paletteQuery;
   const auditRunId = useOperatorShellAuditRunId();
   // Tier disclosure retired: palette lists every authority-eligible href (same as sidebar).
   const callerAuthorityRank = useNavCallerAuthorityRank();
@@ -205,49 +225,85 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
 
   const syncCommandPaletteToUrl = useCallback(
     (nextOpen: boolean, nextQuery: string) => {
-      router.replace(
+      commitHrefIfChanged(
         commandPaletteOverlayHrefFromSearch(
-          searchParams.toString(),
-          { open: nextOpen, query: nextQuery },
+          readWindowLocationSearch(),
+          { open: nextOpen, query: nextOpen ? nextQuery : "" },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
-  const setOpen = useCallback((value: SetStateAction<boolean>) => {
-    setOpenState((current) => {
-      return typeof value === "function" ? value(current) : value;
-    });
-  }, []);
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-  const setPaletteQuery = useCallback((value: SetStateAction<string>) => {
-    setPaletteQueryState((current) => {
-      return typeof value === "function" ? value(current) : value;
-    });
-  }, []);
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+
+      const nextQuery = next ? paletteQueryRef.current : "";
+
+      if (!next && paletteQueryRef.current !== "") {
+        paletteQueryRef.current = "";
+        setPaletteQueryState("");
+      }
+
+      syncCommandPaletteToUrl(next, nextQuery);
+    },
+    [syncCommandPaletteToUrl],
+  );
+
+  const setPaletteQuery = useCallback(
+    (value: SetStateAction<string>) => {
+      const current = paletteQueryRef.current;
+      const next = typeof value === "function" ? value(current) : value;
+
+      if (paletteQueryRef.current === next) {
+        return;
+      }
+
+      paletteQueryRef.current = next;
+      setPaletteQueryState(next);
+
+      if (openRef.current) {
+        syncCommandPaletteToUrl(true, next);
+      }
+    },
+    [syncCommandPaletteToUrl],
+  );
 
   useEffect(() => {
-    const queryForUrl = open ? paletteQuery : "";
+    const syncCommandPaletteFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const nextOpen = parseCommandPaletteOpenFromSearch(params.get("paletteOpen"));
+      const nextQuery = parseCommandPaletteQueryFromSearch(params.get("paletteQ"));
 
-    if (!open && paletteQuery !== "") {
-      setPaletteQueryState("");
-    }
+      if (openRef.current !== nextOpen) {
+        openRef.current = nextOpen;
+        setOpenState(nextOpen);
+      }
 
-    const nextHref = commandPaletteOverlayHrefFromSearch(
-      searchParams.toString(),
-      { open, query: queryForUrl },
-      pathname,
-    );
-    const currentSearch = searchParams.toString();
-    const currentHref = currentSearch.length === 0 ? pathname : `${pathname}?${currentSearch}`;
+      if (paletteQueryRef.current !== nextQuery) {
+        paletteQueryRef.current = nextQuery;
+        setPaletteQueryState(nextQuery);
+      }
+    };
 
-    if (nextHref !== currentHref) {
-      syncCommandPaletteToUrl(open, queryForUrl);
-    }
-  }, [open, paletteQuery, pathname, searchParams, syncCommandPaletteToUrl]);
+    syncCommandPaletteFromUrl();
+    window.addEventListener("popstate", syncCommandPaletteFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncCommandPaletteFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const pending = consumePendingCommandPaletteOpen();
@@ -266,10 +322,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   }, [setOpen, setPaletteQuery]);
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
-
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key?.toLowerCase() !== "k") {
         return;
@@ -288,7 +340,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, setOpen]);
+  }, [setOpen]);
 
   useEffect(() => {
     const onOpenRequest = (event: Event): void => {

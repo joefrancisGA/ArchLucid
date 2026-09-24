@@ -22,8 +22,7 @@ import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-d
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import {
   resolveReviewWorkspaceTabFromSearchParams,
-  resolveReviewWorkspaceVisibleTabs,
-} from "@/lib/resolve-review-workspace-visible-tabs";
+  resolveReviewWorkspaceVisibleTabs} from "@/lib/resolve-review-workspace-visible-tabs";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
@@ -96,8 +95,7 @@ export function useReviewDetailWorkspaceTabs(
       return resolveReviewWorkspaceVisibleTabs({
         ...props.tabLifecycle,
         lifecycle,
-        workingDesk: isWorkingMode,
-      });
+        workingDesk: isWorkingMode});
     }
 
     const fallbackInput =
@@ -118,17 +116,20 @@ export function useReviewDetailWorkspaceTabs(
   const { isTabNewSinceLastVisit, markTabSeen } = useReviewDetailLastVisited(props.runId, tabActivityAt);
 
   useEffect(() => {
-    setActiveTab(searchParamTab);
-  }, [searchParamTab]);
+    const syncActiveTabFromUrl = (): void => {
+      setActiveTab((current) => {
+        const next = readReviewDetailTabFromWindowLocation();
 
-  useEffect(() => {
-    const onPopState = () => {
-      setActiveTab(readReviewDetailTabFromWindowLocation());
+        return current === next ? current : next;
+      });
     };
 
-    window.addEventListener("popstate", onPopState);
+    syncActiveTabFromUrl();
+    window.addEventListener("popstate", syncActiveTabFromUrl);
 
-    return () => window.removeEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", syncActiveTabFromUrl);
+    };
   }, []);
 
   const navigateTab = useCallback(
@@ -138,8 +139,7 @@ export function useReviewDetailWorkspaceTabs(
         hash: null,
         findingId: options?.findingId,
         workbenchFocus: options?.workbenchFocus ?? (isWorkbenchTab(tab) ? tab : null),
-        presenter: presenterMode ? true : null,
-      });
+        presenter: presenterMode ? true : null});
       markTabSeen(tab);
     },
     [markTabSeen, presenterMode],
@@ -182,7 +182,7 @@ export function useReviewDetailWorkspaceTabs(
     }
 
     scheduleScrollToReviewDetailSection(hash);
-  }, [activeTab, searchParams]);
+  }, [activeTab]);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -207,8 +207,7 @@ export function useReviewDetailWorkspaceTabs(
 
   useIncrementalReviewFindingsRefresh({
     runId: props.runId,
-    enabled: pipelineInFlight,
-  });
+    enabled: pipelineInFlight});
 
   const workbench = useProfessionalWorkbenchEnabled();
   const workbenchVisible =
@@ -225,8 +224,7 @@ export function useReviewDetailWorkspaceTabs(
 
   useReviewWorkbenchShortcuts({
     enabled: workbenchVisible,
-    onFocusColumn: (column) => navigateTab(column, { workbenchFocus: column }),
-  });
+    onFocusColumn: (column) => navigateTab(column, { workbenchFocus: column })});
 
   return {
     activeTab,
@@ -242,8 +240,7 @@ export function useReviewDetailWorkspaceTabs(
     presenterMode,
     pipelineInFlight,
     inPipelineBanner,
-    counts,
-  };
+    counts};
 }
 
 export { isWorkbenchTab, WORKBENCH_TAB_IDS };

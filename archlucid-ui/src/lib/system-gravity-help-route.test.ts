@@ -3,10 +3,12 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { HELP_APP_GUIDED_TOPIC_SLUGS } from "@/lib/help/help-topic-content-loader";
+import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   SYSTEM_GRAVITY_HELP_CONCEPT_TILES,
   SYSTEM_GRAVITY_HELP_OVERVIEW,
   SYSTEM_GRAVITY_HELP_SLUG,
+  SYSTEM_GRAVITY_HELP_TECHNICAL_IDENTIFIERS,
 } from "@/lib/system-gravity-help-guide-content";
 import {
   SYSTEM_GRAVITY_HELP_PATH,
@@ -29,13 +31,19 @@ describe("system-gravity help route (SG-107)", () => {
     expect(resolverSource).toContain("HelpSystemGravityGuideView");
   });
 
-  it("teaches system vs job vs inspector without GitHub blob links", () => {
+  it("renders on ArchLucid and is excluded from SecureNow help surfaces", () => {
+    expect(isHelpTopicExcludedForProductLine("system-gravity", "architecture")).toBe(false);
+    expect(isHelpTopicExcludedForProductLine("system-gravity", "security")).toBe(true);
+  });
+
+  it("teaches architecture desk vs nested review inspector without GitHub blob links", () => {
     const corpus = [
       SYSTEM_GRAVITY_HELP_OVERVIEW,
       ...SYSTEM_GRAVITY_HELP_CONCEPT_TILES.map((tile) => `${tile.title} ${tile.body}`),
+      ...SYSTEM_GRAVITY_HELP_TECHNICAL_IDENTIFIERS,
     ].join(" ");
 
-    expect(corpus).toMatch(/instrument after spawn/i);
+    expect(corpus).toMatch(/desk lock/i);
     expect(corpus).toMatch(/inspector/i);
     expect(corpus).toMatch(/Record/i);
     expect(corpus).toMatch(/Practice/i);

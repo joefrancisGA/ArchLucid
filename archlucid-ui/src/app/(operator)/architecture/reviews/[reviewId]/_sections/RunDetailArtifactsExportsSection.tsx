@@ -52,6 +52,7 @@ import {
   parseRunDeliverablesOpenFromSearch,
   runDetailDeliverablesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-deliverables-disclosure-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 import { RunDetailExportRecordCompareCallout } from "./RunDetailExportRecordCompareCallout";
@@ -147,11 +148,12 @@ export function RunDetailArtifactsExportsSection(
 
   const setDeliverablesOpen = useCallback(
     (open: boolean) => {
-      router.replace(runDetailDeliverablesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runDetailDeliverablesDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const [bundleBusy, setBundleBusy] = useState(false);

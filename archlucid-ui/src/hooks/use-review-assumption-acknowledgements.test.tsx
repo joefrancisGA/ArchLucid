@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/globals -- the probe intentionally exposes the hook result to assertions. */
+
 import { act, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

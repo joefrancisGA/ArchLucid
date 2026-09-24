@@ -120,7 +120,7 @@ export function SettingsRolesMatrixTable({
                     )}
                   >
                     <div className="flex min-h-[4.5rem] flex-col items-center justify-start gap-1">
-                      <span className="line-clamp-2 text-center" title={displayName}>
+                      <span className="line-clamp-2 text-center" aria-label={displayName}>
                         {displayName}
                       </span>
                       <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>

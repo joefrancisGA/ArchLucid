@@ -8,8 +8,10 @@ import {
 
 import { InlineGuidance } from "@/components/InlineGuidance";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
@@ -38,34 +40,61 @@ export type OperatorFirstRunWorkflowChecklistProps = {
 
 export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflowChecklistProps): ReactElement {
   const { panel } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const operatorFirstSessionCoachingParam = searchParams.get(OPERATOR_FIRST_SESSION_COACHING_OPEN_PARAM);
   const [operatorFirstSessionCoachingOpen, setOperatorFirstSessionCoachingOpenState] = useState(() =>
-    parseOperatorFirstSessionCoachingOpenFromSearch(operatorFirstSessionCoachingParam),
+    parseOperatorFirstSessionCoachingOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(OPERATOR_FIRST_SESSION_COACHING_OPEN_PARAM),
+    ),
   );
+  const operatorFirstSessionCoachingOpenRef = useRef(operatorFirstSessionCoachingOpen);
+  operatorFirstSessionCoachingOpenRef.current = operatorFirstSessionCoachingOpen;
+
   const syncOperatorFirstSessionCoachingOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        operatorFirstSessionCoachingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        operatorFirstSessionCoachingDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setOperatorFirstSessionCoachingOpen = useCallback(
     (open: boolean) => {
+      if (operatorFirstSessionCoachingOpenRef.current === open) {
+        return;
+      }
+
+      operatorFirstSessionCoachingOpenRef.current = open;
       setOperatorFirstSessionCoachingOpenState(open);
       syncOperatorFirstSessionCoachingOpenToUrl(open);
     },
     [syncOperatorFirstSessionCoachingOpenToUrl],
   );
+
   useEffect(() => {
-    setOperatorFirstSessionCoachingOpenState(
-      parseOperatorFirstSessionCoachingOpenFromSearch(operatorFirstSessionCoachingParam),
-    );
-  }, [operatorFirstSessionCoachingParam]);
+    const syncCoachingOpenFromUrl = (): void => {
+      const next = parseOperatorFirstSessionCoachingOpenFromSearch(
+        new URLSearchParams(window.location.search).get(OPERATOR_FIRST_SESSION_COACHING_OPEN_PARAM),
+      );
+
+      if (operatorFirstSessionCoachingOpenRef.current === next) {
+        return;
+      }
+
+      operatorFirstSessionCoachingOpenRef.current = next;
+      setOperatorFirstSessionCoachingOpenState(next);
+    };
+
+    syncCoachingOpenFromUrl();
+    window.addEventListener("popstate", syncCoachingOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncCoachingOpenFromUrl);
+    };
+  }, []);
 
   if (!panel.hydrated) {
     return <div className="min-h-[100px] w-full" aria-hidden />;
@@ -240,7 +269,10 @@ export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflo
               <details
                 className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55"
                 open={operatorFirstSessionCoachingOpen}
-                onToggle={(event) => setOperatorFirstSessionCoachingOpen(event.currentTarget.open)}
+                onToggle={(event) => {
+                  event.preventDefault();
+                  setOperatorFirstSessionCoachingOpen(!operatorFirstSessionCoachingOpenRef.current);
+                }}
               >
                 <summary className={cn("cursor-pointer font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   First session coaching

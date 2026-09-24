@@ -2,10 +2,11 @@
 
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -32,32 +33,60 @@ type ReviewsHubInventoryRowActionsProps = {
 export function ReviewsHubInventoryRowActions(
   props: ReviewsHubInventoryRowActionsProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const reviewsHubRowOverflowRunIdParam = searchParams.get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM);
   const [openOverflowRunId, setOpenOverflowRunIdState] = useState(() =>
-    parseReviewsHubRowOverflowRunIdFromSearch(reviewsHubRowOverflowRunIdParam),
+    parseReviewsHubRowOverflowRunIdFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM),
+    ),
   );
+  const openOverflowRunIdRef = useRef(openOverflowRunId);
+  openOverflowRunIdRef.current = openOverflowRunId;
   const syncOpenOverflowRunIdToUrl = useCallback(
     (runId: string | null) => {
-      router.replace(
-        reviewsHubRowOverflowDisclosureHrefFromSearch(searchParams.toString(), runId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        reviewsHubRowOverflowDisclosureHrefFromSearch(readWindowLocationSearch(), runId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setOpenOverflowRunId = useCallback(
     (runId: string | null) => {
-      setOpenOverflowRunIdState(runId ?? "");
+      const next = runId ?? "";
+
+      if (openOverflowRunIdRef.current === next) {
+        return;
+      }
+
+      openOverflowRunIdRef.current = next;
+      setOpenOverflowRunIdState(next);
       syncOpenOverflowRunIdToUrl(runId);
     },
     [syncOpenOverflowRunIdToUrl],
   );
   useEffect(() => {
-    setOpenOverflowRunIdState(parseReviewsHubRowOverflowRunIdFromSearch(reviewsHubRowOverflowRunIdParam));
-  }, [reviewsHubRowOverflowRunIdParam]);
+    const syncOpenOverflowRunIdFromUrl = (): void => {
+      const next = parseReviewsHubRowOverflowRunIdFromSearch(
+        new URLSearchParams(window.location.search).get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM),
+      );
+
+      if (openOverflowRunIdRef.current === next) {
+        return;
+      }
+
+      openOverflowRunIdRef.current = next;
+      setOpenOverflowRunIdState(next);
+    };
+
+    syncOpenOverflowRunIdFromUrl();
+    window.addEventListener("popstate", syncOpenOverflowRunIdFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenOverflowRunIdFromUrl);
+    };
+  }, []);
   const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
@@ -95,7 +124,8 @@ export function ReviewsHubInventoryRowActions(
           className="relative"
           open={overflowOpen}
           onToggle={(event) => {
-            const nextOpen = event.currentTarget.open;
+            event.preventDefault();
+            const nextOpen = !overflowOpen;
             setOpenOverflowRunId(nextOpen ? props.row.runId : null);
           }}
         >

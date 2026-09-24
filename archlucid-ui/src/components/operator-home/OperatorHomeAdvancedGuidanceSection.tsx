@@ -11,13 +11,8 @@ import {
   operatorHomeAdvancedGuidanceDisclosureHrefFromSearch,
   parseOperatorHomeAdvancedGuidanceOpenFromSearch,
 } from "@/lib/operator/operator-home-advanced-guidance-disclosure-url";
-import {
-  OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS,
-  readOperatorHomeDisclosureExpanded,
-  writeOperatorHomeDisclosureExpanded,
-} from "@/lib/operator/operator-home-disclosure-storage";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+import { useOperatorHomeBooleanDisclosureUrlSync } from "@/hooks/use-operator-home-boolean-disclosure-url-sync";
 
 type OperatorHomeAdvancedGuidanceDisclosureProps = {
   readonly checklistVariant: "full" | "compact";
@@ -27,33 +22,13 @@ type OperatorHomeAdvancedGuidanceDisclosureProps = {
 function OperatorHomeAdvancedGuidanceDisclosure(
   props: OperatorHomeAdvancedGuidanceDisclosureProps,
 ): React.JSX.Element {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const operatorHomeAdvancedGuidanceOpenParam = searchParams.get("operatorHomeAdvancedGuidanceOpen");
-  const [advancedGuidanceExpanded, setAdvancedGuidanceExpandedState] = useState(() => {
-    if (parseOperatorHomeAdvancedGuidanceOpenFromSearch(operatorHomeAdvancedGuidanceOpenParam)) {
-      return true;
-    }
-
-    return readOperatorHomeDisclosureExpanded(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance, false);
-  });
-
-  const setAdvancedGuidanceExpanded = useCallback(
-    (open: boolean) => {
-      setAdvancedGuidanceExpandedState(open);
-      writeOperatorHomeDisclosureExpanded(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance, open);
-      router.replace(
-        operatorHomeAdvancedGuidanceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
+  const [advancedGuidanceExpanded, setAdvancedGuidanceExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance,
+    "operatorHomeAdvancedGuidanceOpen",
+    parseOperatorHomeAdvancedGuidanceOpenFromSearch,
+    operatorHomeAdvancedGuidanceDisclosureHrefFromSearch,
+    false,
   );
-
-  useEffect(() => {
-    setAdvancedGuidanceExpandedState(parseOperatorHomeAdvancedGuidanceOpenFromSearch(operatorHomeAdvancedGuidanceOpenParam));
-  }, [operatorHomeAdvancedGuidanceOpenParam]);
 
   return (
     <OperatorHomeDisclosureSection

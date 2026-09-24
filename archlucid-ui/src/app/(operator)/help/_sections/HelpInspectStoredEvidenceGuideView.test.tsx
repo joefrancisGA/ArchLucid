@@ -45,8 +45,11 @@ describe("HelpInspectStoredEvidenceGuideView (ESI-08 / EIN Phase 1)", () => {
       EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_TITLE,
     );
     expect(screen.getByText(EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-09-12");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("ESI-08");
+    expect(screen.getByTestId("help-inspect-stored-evidence-provenance-footer")).toHaveTextContent(
+      "Guide last reviewed 2026-09-12",
+    );
+    expect(screen.getByTestId("help-inspect-stored-evidence-provenance-footer")).toHaveTextContent("ESI-08");
+    expect(screen.getByTestId("help-inspect-stored-evidence-source-doc-path")).toHaveTextContent("Source:");
     expect(screen.getByTestId("help-inspect-stored-evidence-header-claim-discipline")).toHaveTextContent(
       EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_CLAIM_DISCIPLINE,
     );
@@ -63,6 +66,10 @@ describe("HelpInspectStoredEvidenceGuideView (ESI-08 / EIN Phase 1)", () => {
     expect(screen.getByTestId("help-inspect-stored-evidence-safety-callout")).toHaveTextContent(
       "not the sealed review record",
     );
+    expect(screen.getByTestId("help-inspect-stored-evidence-safety-status-tag")).toHaveTextContent(
+      "Not sealed package proof",
+    );
+    expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("help-inspect-stored-evidence-audit")).not.toHaveTextContent("EvidenceSourceOpened");
     expect(screen.getByTestId("help-inspect-stored-evidence-controls")).toHaveTextContent("no separate Open button");
     expect(screen.getByTestId("help-inspect-stored-evidence-technical-reference")).toBeInTheDocument();
@@ -79,6 +86,7 @@ describe("HelpInspectStoredEvidenceGuideView (ESI-08 / EIN Phase 1)", () => {
     }
 
     const related = screen.getByTestId("help-inspect-stored-evidence-related-topics");
+    expect(screen.getByTestId("help-inspect-stored-evidence-related-review-workflow")).toBeInTheDocument();
     for (const topic of EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS) {
       expect(within(related).getByRole("link", { name: topic.label })).toHaveAttribute("href", topic.href);
     }
@@ -104,10 +112,9 @@ describe("HelpInspectStoredEvidenceGuideView returnTo", () => {
 
     render(<HelpInspectStoredEvidenceGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-inspect-stored-evidence-return-to-review-evidence")).toHaveAttribute(
-      "href",
-      "/architecture/reviews/run-1?reviewTab=evidence",
-    );
+    const returnButton = screen.getByTestId("help-inspect-stored-evidence-return-to-review-evidence");
+    expect(returnButton.tagName.toLowerCase()).toBe("a");
+    expect(returnButton).toHaveAttribute("href", "/architecture/reviews/run-1?reviewTab=evidence");
 
     mockSearchParams.delete("returnTo");
   });

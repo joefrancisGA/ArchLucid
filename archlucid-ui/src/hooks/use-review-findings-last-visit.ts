@@ -1,22 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 import type {
   RunDetailFindingsFilterKind,
-  RunDetailFindingsSortKind,
-} from "@/components/findings/run-detail-findings-toolbar-presentation";
+  RunDetailFindingsSortKind} from "@/components/findings/run-detail-findings-toolbar-presentation";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import {
   buildReviewFindingsLastVisitHref,
-  reviewFindingsLastVisitHasUrlParams,
-} from "@/lib/findings/review-findings-last-visit-url";
+  reviewFindingsLastVisitHasUrlParams} from "@/lib/findings/review-findings-last-visit-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   patchReviewFindingsLastVisit,
-  readReviewFindingsLastVisit,
-} from "@/lib/findings/review-findings-last-visit-storage";
+  readReviewFindingsLastVisit} from "@/lib/findings/review-findings-last-visit-storage";
 import type { ReviewFindingsClassificationBandId } from "@/lib/findings/review-detail-findings-classification-band";
 
 export type UseReviewFindingsLastVisitRestoreOptions = {
@@ -24,34 +22,51 @@ export type UseReviewFindingsLastVisitRestoreOptions = {
   readonly enabled: boolean;
 };
 
+const reviewFindingsLastVisitRestoredRunIds = new Set<string>();
+
+/** Test-only reset for module-level restore guard. */
+export function resetReviewFindingsLastVisitRestoreStateForTests(): void {
+  reviewFindingsLastVisitRestoredRunIds.clear();
+}
+
 /** Restores last-visit review findings filters when the URL omits them (DR-13). */
 export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLastVisitRestoreOptions): void {
   const { runId, enabled } = options;
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const restoredRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled || restoredRef.current || pathname.length === 0) {
+    if (!enabled || pathname.length === 0 || reviewFindingsLastVisitRestoredRunIds.has(runId)) {
       return;
     }
 
-    if (reviewFindingsLastVisitHasUrlParams(searchParams)) {
-      restoredRef.current = true;
+    const restoreFromLastVisitIfNeeded = (): void => {
+      if (reviewFindingsLastVisitRestoredRunIds.has(runId)) {
+        return;
+      }
 
-      return;
-    }
+      const windowSearchParams = new URLSearchParams(window.location.search);
 
-    const lastVisit = readReviewFindingsLastVisit(runId);
-    const nextHref = buildReviewFindingsLastVisitHref(pathname, searchParams.toString(), lastVisit);
+      if (reviewFindingsLastVisitHasUrlParams(windowSearchParams)) {
+        reviewFindingsLastVisitRestoredRunIds.add(runId);
 
-    if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-      router.replace(nextHref, { scroll: false });
-    }
+        return;
+      }
 
-    restoredRef.current = true;
-  }, [enabled, pathname, router, runId, searchParams]);
+      const lastVisit = readReviewFindingsLastVisit(runId);
+      const windowSearch = windowSearchParams.toString();
+      const nextHref = buildReviewFindingsLastVisitHref(pathname, windowSearch, lastVisit);
+
+      commitHrefIfChanged(nextHref);
+      reviewFindingsLastVisitRestoredRunIds.add(runId);
+    };
+
+    restoreFromLastVisitIfNeeded();
+    window.addEventListener("popstate", restoreFromLastVisitIfNeeded);
+
+    return () => {
+      window.removeEventListener("popstate", restoreFromLastVisitIfNeeded);
+    };
+  }, [enabled, pathname, runId]);
 }
 
 export type UseReviewFindingsLastVisitPersistOptions = {
@@ -83,8 +98,7 @@ export function useReviewFindingsLastVisitPersist(options: UseReviewFindingsLast
     groundingFilter,
     sort,
     classificationBand,
-    hideGenericLowDensity,
-  } = options;
+    hideGenericLowDensity} = options;
 
   useEffect(() => {
     if (!enabled || runId.trim().length === 0) {
@@ -101,8 +115,7 @@ export function useReviewFindingsLastVisitPersist(options: UseReviewFindingsLast
       groundingFilter,
       sort,
       classificationBand,
-      hideGenericLowDensity,
-    });
+      hideGenericLowDensity});
   }, [
     classificationBand,
     domainFilter,

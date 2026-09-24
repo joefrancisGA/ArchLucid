@@ -2,8 +2,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState, useCallback, useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -29,11 +31,16 @@ type FindingIacStubPanelProps = {
  * Collapsible Azure Bicep remediation stub for a finding (from run agent results `iacStub`).
  */
 export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingIacStubOpenParam = searchParams.get("findingIacStubOpen");
-  const [open, setOpenState] = useState(() => parseFindingIacStubOpenFromSearch(findingIacStubOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseFindingIacStubOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingIacStubOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const [iacStub, setIacStub] = useState<string | null>(
     typeof props.initialIacStub === "string" && props.initialIacStub.trim().length > 0
       ? props.initialIacStub.trim()
@@ -50,15 +57,21 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(findingIacStubDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        findingIacStubDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -66,8 +79,26 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
   );
 
   useEffect(() => {
-    setOpenState(parseFindingIacStubOpenFromSearch(findingIacStubOpenParam));
-  }, [findingIacStubOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseFindingIacStubOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingIacStubOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   async function loadStub(): Promise<void> {
     if (loaded || busy) {

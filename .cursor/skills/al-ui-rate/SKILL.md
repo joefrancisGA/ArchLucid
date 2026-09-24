@@ -30,7 +30,7 @@ Follow the full workflow in `.cursor/commands/al-ui-rate.md`.
 
 | Phase | Model | Output |
 |-------|-------|--------|
-| 1 — Rate | **`claude-opus-5-thinking-high`** subagent (always, even if the parent is Opus) | Critique + full fix backlog (P0/P1/P2) + current/projected Evidence and UX scores |
+| 1 — Rate | **Opus 5.5 High preferred; `claude-opus-5-5-medium` fallback** (always, even if the parent is Opus) | Critique + full fix backlog (P0/P1/P2) + current/projected Evidence and UX scores |
 | 2 — Implement | **`composer-2.5`** subagent | **All** backlog fixes (not P0-only) + scoped verification + per-item shipped/partial/skipped status |
 | 3 — Ship | Parent | Quality gate, commit and push to **`master`**, `/fix-ci` until green |
 | 4 — Score | Parent | UX + Evidence written to `.local/owner/ui_route_traffic_estimates.md`, capped by fixes actually shipped (`fix_count`), plus a dated Note |

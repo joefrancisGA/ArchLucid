@@ -1,9 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { type ReactElement } from "react";
 
 import { HelpLazyDetails, type HelpLazyDetailsProps } from "@/components/help/HelpLazyDetails";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
 type HelpUrlSyncedLazyDetailsProps = Omit<HelpLazyDetailsProps, "open" | "onOpenChange"> & {
   readonly paramName: string;
@@ -14,30 +14,7 @@ type HelpUrlSyncedLazyDetailsProps = Omit<HelpLazyDetailsProps, "open" | "onOpen
 /** HelpLazyDetails with URL-synced open state for shareable operator help disclosures. */
 export function HelpUrlSyncedLazyDetails(props: HelpUrlSyncedLazyDetailsProps): ReactElement {
   const { paramName, parseOpenFromSearch, disclosureHrefFromSearch, ...lazyDetailsProps } = props;
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const openParam = searchParams.get(paramName);
-  const [open, setOpenState] = useState(() => parseOpenFromSearch(openParam));
-
-  const syncOpenToUrl = useCallback(
-    (detailsOpen: boolean) => {
-      router.replace(disclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), { scroll: false });
-    },
-    [disclosureHrefFromSearch, pathname, router, searchParams],
-  );
-
-  const setOpen = useCallback(
-    (detailsOpen: boolean) => {
-      setOpenState(detailsOpen);
-      syncOpenToUrl(detailsOpen);
-    },
-    [syncOpenToUrl],
-  );
-
-  useEffect(() => {
-    setOpenState(parseOpenFromSearch(openParam));
-  }, [openParam, parseOpenFromSearch]);
+  const [open, setOpen] = useBooleanSearchParamUrlSync(paramName, parseOpenFromSearch, disclosureHrefFromSearch);
 
   return <HelpLazyDetails {...lazyDetailsProps} open={open} onOpenChange={setOpen} />;
 }

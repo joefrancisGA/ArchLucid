@@ -3,8 +3,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,11 +48,11 @@ export function RunDetailRunGovernanceDispositionActions(
 ): ReactElement | null {
   const { runId, hasCommitBlockingFailures, existingDecision = null } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const runDispDecisionParam = searchParams.get("runDispDecision");
+  const router = useRouter();
   const [pending, setPendingState] = useState<PendingDecision | null>(null);
+  const pendingRef = useRef(pending);
+  pendingRef.current = pending;
   const [rationale, setRationale] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -62,22 +64,28 @@ export function RunDetailRunGovernanceDispositionActions(
         return;
       }
 
-      router.replace(
+      commitHrefIfChanged(
         runGovernanceDispositionConfirmHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           decision === null ? null : runGovernanceDispositionToUrlValue(decision),
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPending = useCallback(
     (value: SetStateAction<PendingDecision | null>) => {
       setPendingState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (pendingRef.current === next) {
+          return current;
+        }
+
+        pendingRef.current = next;
         syncRunDispConfirmToUrl(next);
 
         return next;
@@ -87,22 +95,39 @@ export function RunDetailRunGovernanceDispositionActions(
   );
 
   useEffect(() => {
-    const parsed = parseRunGovernanceDispositionDecisionFromSearch(runDispDecisionParam);
+    const syncPendingFromUrl = (): void => {
+      const parsed = parseRunGovernanceDispositionDecisionFromSearch(
+        new URLSearchParams(window.location.search).get("runDispDecision"),
+      );
 
-    if (parsed === null) {
-      setPendingState(null);
+      if (parsed === null) {
+        if (pendingRef.current === null) {
+          return;
+        }
 
-      return;
-    }
+        pendingRef.current = null;
+        setPendingState(null);
 
-    const decision = runGovernanceDispositionFromUrlValue(parsed);
+        return;
+      }
 
-    if (pending === decision) {
-      return;
-    }
+      const decision = runGovernanceDispositionFromUrlValue(parsed);
 
-    setPendingState(decision);
-  }, [pending, runDispDecisionParam]);
+      if (pendingRef.current === decision) {
+        return;
+      }
+
+      pendingRef.current = decision;
+      setPendingState(decision);
+    };
+
+    syncPendingFromUrl();
+    window.addEventListener("popstate", syncPendingFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPendingFromUrl);
+    };
+  }, []);
 
   if (buyerPolishedShell)
     return null;

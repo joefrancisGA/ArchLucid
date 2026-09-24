@@ -104,6 +104,7 @@ function renderWorkingWorkbench(
 describe("ReviewDetailWorkspace", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
     workspaceModeMock.mode = "guided";
     workspaceModeMock.isWorkingMode = false;
     workspaceModeMock.mounted = true;
@@ -362,6 +363,11 @@ describe("ReviewDetailWorkspace", () => {
 
   it("restores finding selection from findingId query in tab-only layout (LI-13)", async () => {
     window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "0");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-claims",
+    );
     searchParamsMock.value = new URLSearchParams("reviewTab=findings&findingId=finding-claims");
 
     const panels = {
@@ -392,6 +398,11 @@ describe("ReviewDetailWorkspace", () => {
 
   it("fails closed when findingId query does not match a rendered finding (LI-13)", async () => {
     window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "0");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=stale-missing",
+    );
     searchParamsMock.value = new URLSearchParams("reviewTab=findings&findingId=stale-missing");
 
     const panels = {

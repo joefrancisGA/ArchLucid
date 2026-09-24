@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState, type ReactElement, type SyntheticEvent } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SyntheticEvent } from "react";
+import { usePathname } from "next/navigation";
 
 import { FindingInspectJsonPayload } from "@/components/findings/FindingInspectJsonPayload";
 import { getFindingInspect } from "@/lib/api/findings-api";
@@ -16,6 +16,7 @@ import {
   findingInspectEvaluationDisclosureHrefFromSearch,
   parseFindingInspectEvaluationOpenFromSearch,
 } from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly runId: string;
@@ -35,61 +36,94 @@ export function FindingInspectReasoningPayloadDetails({
   typedPayload,
   lazyLoadTypedPayload = false,
 }: FindingInspectReasoningPayloadDetailsProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingInspectReasoningOpenParam = searchParams.get("findingInspectReasoningOpen");
-  const findingInspectEvaluationOpenParam = searchParams.get("findingInspectEvaluationOpen");
   const buyerPolished = resolveProductionEvalChromeFromStorage();
   const rationaleLabel = buyerPolished ? "Review rationale (technical)" : "View AI Reasoning";
   const evaluationLabel = buyerPolished ? "Structured evaluation record" : "AI Audit Inspection";
-  const [reasoningOpen, setReasoningOpenState] = useState(() =>
-    parseFindingInspectReasoningOpenFromSearch(findingInspectReasoningOpenParam),
-  );
+  const readReasoningOpenFromUrl = (): boolean =>
+    parseFindingInspectReasoningOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("findingInspectReasoningOpen"),
+    );
+  const [reasoningOpen, setReasoningOpenState] = useState(() => readReasoningOpenFromUrl());
+  const reasoningOpenRef = useRef(reasoningOpen);
+  reasoningOpenRef.current = reasoningOpen;
 
   const syncReasoningOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(findingInspectReasoningHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        findingInspectReasoningHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setReasoningOpen = useCallback(
     (open: boolean) => {
+      if (reasoningOpenRef.current === open) {
+        return;
+      }
+
+      reasoningOpenRef.current = open;
       setReasoningOpenState(open);
       syncReasoningOpenToUrl(open);
     },
     [syncReasoningOpenToUrl],
   );
 
-  useEffect(() => {
-    setReasoningOpenState(parseFindingInspectReasoningOpenFromSearch(findingInspectReasoningOpenParam));
-  }, [findingInspectReasoningOpenParam]);
-
-  const [evaluationOpen, setEvaluationOpenState] = useState(() =>
-    parseFindingInspectEvaluationOpenFromSearch(findingInspectEvaluationOpenParam),
-  );
+  const readEvaluationOpenFromUrl = (): boolean =>
+    parseFindingInspectEvaluationOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("findingInspectEvaluationOpen"),
+    );
+  const [evaluationOpen, setEvaluationOpenState] = useState(() => readEvaluationOpenFromUrl());
+  const evaluationOpenRef = useRef(evaluationOpen);
+  evaluationOpenRef.current = evaluationOpen;
   const syncEvaluationOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingInspectEvaluationDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingInspectEvaluationDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setEvaluationOpen = useCallback(
     (open: boolean) => {
+      if (evaluationOpenRef.current === open) {
+        return;
+      }
+
+      evaluationOpenRef.current = open;
       setEvaluationOpenState(open);
       syncEvaluationOpenToUrl(open);
     },
     [syncEvaluationOpenToUrl],
   );
+
   useEffect(() => {
-    setEvaluationOpenState(parseFindingInspectEvaluationOpenFromSearch(findingInspectEvaluationOpenParam));
-  }, [findingInspectEvaluationOpenParam]);
+    const syncFromUrl = (): void => {
+      const nextReasoning = readReasoningOpenFromUrl();
+
+      if (reasoningOpenRef.current !== nextReasoning) {
+        reasoningOpenRef.current = nextReasoning;
+        setReasoningOpenState(nextReasoning);
+      }
+
+      const nextEvaluation = readEvaluationOpenFromUrl();
+
+      if (evaluationOpenRef.current !== nextEvaluation) {
+        evaluationOpenRef.current = nextEvaluation;
+        setEvaluationOpenState(nextEvaluation);
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, []);
 
   const [resolvedPayload, setResolvedPayload] = useState<unknown>(typedPayload);
   const [loadState, setLoadState] = useState<"idle" | "loading" | "error" | "ready">(
@@ -98,7 +132,8 @@ export function FindingInspectReasoningPayloadDetails({
 
   const onEvaluationToggle = useCallback(
     async (event: SyntheticEvent<HTMLDetailsElement>) => {
-      const nextOpen = event.currentTarget.open;
+      event.preventDefault();
+      const nextOpen = !evaluationOpenRef.current;
       setEvaluationOpen(nextOpen);
 
       if (!lazyLoadTypedPayload || loadState === "ready" || loadState === "loading") {
@@ -128,7 +163,8 @@ export function FindingInspectReasoningPayloadDetails({
         className="rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40"
         open={reasoningOpen}
         onToggle={(event) => {
-          setReasoningOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setReasoningOpen(!reasoningOpenRef.current);
         }}
       >
         <summary className={cn("cursor-pointer select-none px-4 py-3 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

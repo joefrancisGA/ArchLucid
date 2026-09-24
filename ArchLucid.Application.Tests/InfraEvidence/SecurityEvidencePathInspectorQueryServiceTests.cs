@@ -54,6 +54,10 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         detail.ExplanationTemplate.Verify.Should().NotBeNull();
         detail.ExplanationTemplate.ArchitectSentence.Should().NotBeNullOrWhiteSpace();
         SecureNowArchitectHonestyCopyGuard.IsHonestCopy(detail.ExplanationTemplate.ArchitectSentence).Should().BeTrue();
+        detail.Hypotheses.Should().Contain(hypothesis =>
+            hypothesis.Kind == SecureNowHypothesisAnalyzer.PrivilegeEscalation
+            && hypothesis.Status == SecureNowHypothesisAnalyzer.Concluded
+            && hypothesis.CitedPathIds.Contains(PathId));
     }
 
     [Fact]

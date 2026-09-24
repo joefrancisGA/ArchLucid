@@ -25,6 +25,9 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "career-vs-rehearsal",
   "inspect-stored-evidence",
   "slack-integration",
+  "system-gravity",
+  "inhabit-the-architecture",
+  "sketch-a-change",
 ];
 
 /** Help search drawer topic ids hidden in the SecureNow shell. */
@@ -46,6 +49,8 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "architecture-desk",
   "career-rehearsal-doors",
   "career-vs-rehearsal",
+  "system-gravity",
+  "sketch-a-change",
 ];
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {

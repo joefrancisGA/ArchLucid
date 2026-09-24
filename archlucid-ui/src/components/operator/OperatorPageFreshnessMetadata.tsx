@@ -41,8 +41,7 @@ export function OperatorPageFreshnessMetadata(
       className={className}
       data-testid={props.testId}
       dateTime={props.lastRefreshedAt.toISOString()}
-      title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
-      aria-label={props.ariaLabel}
+      aria-label={props.ariaLabel ?? operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
     >
       {props.children}
     </time>

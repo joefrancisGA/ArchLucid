@@ -5,13 +5,19 @@ import { usePathname } from "next/navigation";
 
 import { EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE } from "@/lib/extract-upload-settings-page-copy";
 import { extractUploadSettingsBreadcrumbParent } from "@/lib/extract-upload-settings-route";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Administration or Infrastructure trail for the Extract & Upload workspace (INX). */
-export function ExtractUploadSettingsBreadcrumb(): React.JSX.Element {
+export function ExtractUploadSettingsBreadcrumb(): React.JSX.Element | null {
+  const { productLine } = useProductLine();
   const pathname = usePathname();
   const { href: parentHref, label: parentLabel } = extractUploadSettingsBreadcrumbParent(pathname);
+
+  if (productLine === "security") {
+    return null;
+  }
 
   return (
     <nav aria-label="Breadcrumb" data-testid="extract-upload-page-breadcrumb">

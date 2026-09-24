@@ -1,8 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
@@ -14,6 +11,7 @@ import {
   operatorEvidenceLimitsScopeDisclosureHrefFromSearch,
   parseOperatorEvidenceLimitsScopeOpenFromSearch,
 } from "@/lib/operator/operator-evidence-limits-scope-disclosure-url";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
 export type OperatorEvidenceLimitsExecutionProps = {
   readonly realModeFellBackToSimulator?: boolean;
@@ -51,36 +49,12 @@ export function OperatorEvidenceLimitsFooter({
   execution,
   inspectMetadata,
 }: OperatorEvidenceLimitsFooterProps) {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const operatorEvidenceLimitsScopeOpenParam = searchParams.get("operatorEvidenceLimitsScopeOpen");
-  const [scopeOpen, setScopeOpenState] = useState(() =>
-    parseOperatorEvidenceLimitsScopeOpenFromSearch(operatorEvidenceLimitsScopeOpenParam),
+  const [scopeOpen, setScopeOpen] = useBooleanSearchParamUrlSync(
+    "operatorEvidenceLimitsScopeOpen",
+    parseOperatorEvidenceLimitsScopeOpenFromSearch,
+    operatorEvidenceLimitsScopeDisclosureHrefFromSearch,
   );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-
-  const syncScopeOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        operatorEvidenceLimitsScopeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setScopeOpen = useCallback(
-    (open: boolean) => {
-      setScopeOpenState(open);
-      syncScopeOpenToUrl(open);
-    },
-    [syncScopeOpenToUrl],
-  );
-
-  useEffect(() => {
-    setScopeOpenState(parseOperatorEvidenceLimitsScopeOpenFromSearch(operatorEvidenceLimitsScopeOpenParam));
-  }, [operatorEvidenceLimitsScopeOpenParam]);
 
   const safeRunId = runId.trim();
   const runBase = `/architecture/reviews/${encodeURIComponent(safeRunId)}`;
@@ -125,7 +99,8 @@ export function OperatorEvidenceLimitsFooter({
         className={cn("m-0 mt-2 rounded-md border border-neutral-200 bg-white/60 p-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         open={scopeOpen}
         onToggle={(event) => {
-          setScopeOpen(event.currentTarget.open);
+          event.preventDefault();
+          setScopeOpen(!scopeOpen);
         }}
       >
         <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">Review scope and limitations</summary>

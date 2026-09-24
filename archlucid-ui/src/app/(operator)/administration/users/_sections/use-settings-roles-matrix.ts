@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -74,7 +75,6 @@ async function fetchRoles(): Promise<CustomRoleDto[]> {
 }
 
 export function useSettingsRolesMatrix() {
-  const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
   const searchParams = useSearchParams();
   const rolesMatrixConfirmKindParam = searchParams.get("rolesMatrixConfirm");
@@ -93,22 +93,22 @@ export function useSettingsRolesMatrix() {
 
   const syncRolesMatrixConfirmToUrl = useCallback(
     (state: { kind: SettingsRolesMatrixConfirmKind | null; roleName: string | null }) => {
-      router.replace(
-        settingsRolesMatrixConfirmHrefFromSearch(searchParams.toString(), state, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        settingsRolesMatrixConfirmHrefFromSearch(readWindowLocationSearch(), state, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const syncCollapsedGroupsToUrl = useCallback(
     (groups: readonly string[]) => {
-      router.replace(
-        settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch(searchParams.toString(), groups, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch(readWindowLocationSearch(), groups, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPendingHighRisk = useCallback(
@@ -191,7 +191,7 @@ export function useSettingsRolesMatrix() {
     const roleName = parseSettingsRolesMatrixConfirmRoleNameFromSearch(rolesMatrixConfirmRoleNameParam);
 
     if (kind === null || roleName.length === 0) {
-      setPendingHighRiskState(null);
+      setPendingHighRiskState((current) => (current === null ? current : null));
 
       return;
     }
@@ -207,16 +207,14 @@ export function useSettingsRolesMatrix() {
         return;
       }
 
-      if (pendingHighRisk?.kind === "save" && pendingHighRisk.role.name === roleName) {
-        return;
-      }
+      setPendingHighRiskState((current) => {
+        if (current?.kind === "save" && current.role.name === roleName) {
+          return current;
+        }
 
-      setPendingHighRiskState({ kind: "save", role });
+        return { kind: "save", role };
+      });
 
-      return;
-    }
-
-    if (pendingHighRisk?.kind === "create" && pendingHighRisk.name === roleName) {
       return;
     }
 
@@ -226,8 +224,14 @@ export function useSettingsRolesMatrix() {
         ? []
         : matrixPermissionList(startFrom.permissions);
 
-    setPendingHighRiskState({ kind: "create", name: roleName, permissions });
-  }, [loading, pendingHighRisk, roles, rolesMatrixConfirmKindParam, rolesMatrixConfirmRoleNameParam, startFromRole]);
+    setPendingHighRiskState((current) => {
+      if (current?.kind === "create" && current.name === roleName) {
+        return current;
+      }
+
+      return { kind: "create", name: roleName, permissions };
+    });
+  }, [loading, roles, rolesMatrixConfirmKindParam, rolesMatrixConfirmRoleNameParam, startFromRole]);
 
   useEffect(() => {
     if (!hasUnsavedEdits)

@@ -1,16 +1,16 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { InlineGuidance } from "@/components/InlineGuidance";
 import type { RunDetailFirstScreenProofSummary } from "@/lib/runs/run-detail-first-screen-proof-status";
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/runs/run-detail-first-screen-proof-status";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunDetailFirstScreenProofOpenFromSearch,
-  runDetailFirstScreenProofDisclosureHrefFromSearch,
-} from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
+  runDetailFirstScreenProofDisclosureHrefFromSearch} from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
 import { PROOF_CONFIDENCE_FIELD_LABEL } from "@/lib/proof-confidence-taxonomy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -21,28 +21,36 @@ type RunDetailFirstScreenProofStatusProps = {
 /** First-screen READY/WARN/HOLD proof summary for run detail (Improvement #24). */
 export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProofStatusProps): React.JSX.Element {
   const { summary } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailFirstScreenProofOpenParam = searchParams.get("runDetailFirstScreenProofOpen");
   const [proofDetailsOpen, setProofDetailsOpenState] = useState(() =>
-    parseRunDetailFirstScreenProofOpenFromSearch(runDetailFirstScreenProofOpenParam),
+    parseRunDetailFirstScreenProofOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
+    ),
   );
+  const proofDetailsOpenRef = useRef(proofDetailsOpen);
+  proofDetailsOpenRef.current = proofDetailsOpen;
   const primaryBullet = summary.whySafeToSendBullets[0] ?? null;
   const detailBullets = summary.whySafeToSendBullets.slice(1);
 
   const syncProofDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailFirstScreenProofDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailFirstScreenProofDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setProofDetailsOpen = useCallback(
     (open: boolean) => {
+      if (proofDetailsOpenRef.current === open) {
+        return;
+      }
+
+      proofDetailsOpenRef.current = open;
       setProofDetailsOpenState(open);
       syncProofDetailsOpenToUrl(open);
     },
@@ -50,8 +58,26 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
   );
 
   useEffect(() => {
-    setProofDetailsOpenState(parseRunDetailFirstScreenProofOpenFromSearch(runDetailFirstScreenProofOpenParam));
-  }, [runDetailFirstScreenProofOpenParam]);
+    const syncProofDetailsOpenFromUrl = (): void => {
+      const next = parseRunDetailFirstScreenProofOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
+      );
+
+      if (proofDetailsOpenRef.current === next) {
+        return;
+      }
+
+      proofDetailsOpenRef.current = next;
+      setProofDetailsOpenState(next);
+    };
+
+    syncProofDetailsOpenFromUrl();
+    window.addEventListener("popstate", syncProofDetailsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncProofDetailsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section
@@ -80,7 +106,8 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
         className="mt-3"
         open={proofDetailsOpen}
         onToggle={(event) => {
-          setProofDetailsOpen(event.currentTarget.open);
+          event.preventDefault();
+          setProofDetailsOpen(!proofDetailsOpenRef.current);
         }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>

@@ -2,8 +2,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useState, type SetStateAction } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -30,25 +32,35 @@ type ShareableReviewLinkButtonProps = {
 
 /** Copy a read-only showcase link for sponsors who will not log in. */
 export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const searchParams = useSearchParams();
-  const shareLinkOpenParam = searchParams.get("shareLinkOpen");
-  const [open, setOpenState] = useState(() => parseReviewShareLinkOpenFromSearch(shareLinkOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewShareLinkOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("shareLinkOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncShareLinkOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(reviewShareLinkPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        reviewShareLinkPanelsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (openRef.current === next) {
+          return current;
+        }
+
+        openRef.current = next;
         syncShareLinkOpenToUrl(next);
 
         return next;
@@ -56,6 +68,28 @@ export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps)
     },
     [syncShareLinkOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncShareLinkOpenFromUrl = (): void => {
+      const next = parseReviewShareLinkOpenFromSearch(
+        new URLSearchParams(window.location.search).get("shareLinkOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncShareLinkOpenFromUrl();
+    window.addEventListener("popstate", syncShareLinkOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShareLinkOpenFromUrl);
+    };
+  }, []);
 
   const shareUrl = useCallback((): string => {
     if (typeof window === "undefined") {

@@ -25,6 +25,7 @@ export function TenantMastheadWordmark(props: TenantMastheadWordmarkProps): Reac
   const { variant, className, "aria-label": ariaLabel, ...linkProps } = props;
   const { productLine } = useProductLine();
   const poweredByLine = productLinePoweredByLine(productLine);
+  const { data: presentation } = useTenantBrandingPresentationQuery({ context: "ApplicationHeader" });
 
   if (variant === "marketing") {
     return (
@@ -36,8 +37,6 @@ export function TenantMastheadWordmark(props: TenantMastheadWordmarkProps): Reac
       />
     );
   }
-
-  const { data: presentation } = useTenantBrandingPresentationQuery({ context: "ApplicationHeader" });
 
   if (!presentation?.usesTenantVisualBrand || presentation.isProductBrand) {
     return (

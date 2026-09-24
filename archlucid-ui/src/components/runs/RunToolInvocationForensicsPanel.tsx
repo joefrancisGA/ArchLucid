@@ -1,9 +1,10 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -50,26 +51,34 @@ function formatDuration(durationMs: number | null | undefined): string {
 
 /** TB-110: structured ledger or trace-derived invocation table with execute-gated raw preview. */
 export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensicsPanelProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runToolInvocationForensicsOpenParam = searchParams.get("runToolInvocationForensicsOpen");
   const [open, setOpenState] = useState(() =>
-    parseRunToolInvocationForensicsOpenFromSearch(runToolInvocationForensicsOpenParam),
+    parseRunToolInvocationForensicsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runToolInvocationForensicsOpen"),
+    ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        runToolInvocationForensicsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runToolInvocationForensicsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -77,8 +86,26 @@ export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensic
   );
 
   useEffect(() => {
-    setOpenState(parseRunToolInvocationForensicsOpenFromSearch(runToolInvocationForensicsOpenParam));
-  }, [runToolInvocationForensicsOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseRunToolInvocationForensicsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runToolInvocationForensicsOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   if (props.rows.length === 0) {
     return null;

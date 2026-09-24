@@ -18,8 +18,8 @@ import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRo
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/architecture-routes";
@@ -34,14 +34,13 @@ import { REVIEW_WORKSPACE_CLAIM_DISCIPLINE } from "@/lib/review-workspace-eviden
 import {
   deriveReviewRecordMetadataContext,
   isReviewPipelineIncomplete,
-  resolveReviewMetadataAbsentReasons,
-} from "@/lib/run-detail-workspace-derive";
+  resolveReviewMetadataAbsentReasons} from "@/lib/run-detail-workspace-derive";
 import { whyDisabledReviewHeaderActions } from "@/lib/why-disabled-cta";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import {
   parseRunDetailRecordMetadataOpenFromSearch,
-  runDetailRecordMetadataHrefFromSearch,
-} from "@/lib/runs/run-detail-record-metadata-url";
+  runDetailRecordMetadataHrefFromSearch} from "@/lib/runs/run-detail-record-metadata-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 type ReviewMetadataField = {
   readonly key: string;
@@ -76,26 +75,22 @@ function buildReviewMetadataFields(
       key: "governance-decision-recorded-by",
       label: "Approval decision recorded by",
       value: reviewOwnerLabel.length > 0 ? formatActionActorName(reviewOwnerLabel) : null,
-      absentReason: absentReasons.governanceDecisionRecordedBy,
-    },
+      absentReason: absentReasons.governanceDecisionRecordedBy},
     {
       key: "review-template",
       label: "Review template",
       value: props.templateLabel,
-      absentReason: absentReasons.reviewTemplate,
-    },
+      absentReason: absentReasons.reviewTemplate},
     {
       key: "finalized-at",
       label: "Finalized at",
       value: props.finalizedAtLabel,
-      absentReason: absentReasons.finalizedAt,
-    },
+      absentReason: absentReasons.finalizedAt},
     {
       key: "package-version",
       label: "Package version",
       value: props.packageVersionLabel,
-      absentReason: absentReasons.packageVersion,
-    },
+      absentReason: absentReasons.packageVersion},
   ];
 }
 
@@ -108,15 +103,13 @@ function buildCollapseMetadataFields(
       key: "review-id",
       label: "Review ID",
       value: props.runId,
-      absentReason: "Not recorded — review ID missing",
-    },
+      absentReason: "Not recorded — review ID missing"},
     ...buildReviewMetadataFields(props, absentReasons),
     {
       key: "signed-review-record-id",
       label: "Finalized review record ID",
       value: props.signedReviewRecordIdLabel,
-      absentReason: absentReasons.signedReviewRecordId,
-    },
+      absentReason: absentReasons.signedReviewRecordId},
   ];
 }
 
@@ -185,12 +178,9 @@ function shouldShowReviewRecordMetadata(
 
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const runRecordMetaOpenParam = searchParams.get("runRecordMetaOpen");
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);
@@ -202,24 +192,32 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     architectureId: parentArchitectureId,
     runId: props.runId,
     filter: "all",
-    isWorkingMode,
-  });
+    isWorkingMode});
   const [recordMetadataOpen, setRecordMetadataOpenState] = useState(() =>
-    parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam),
+    parseRunDetailRecordMetadataOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
+    ),
   );
+  const recordMetadataOpenRef = useRef(recordMetadataOpen);
+  recordMetadataOpenRef.current = recordMetadataOpen;
 
   const syncRecordMetadataOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailRecordMetadataHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailRecordMetadataHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setRecordMetadataOpen = useCallback(
     (open: boolean) => {
+      if (recordMetadataOpenRef.current === open) {
+        return;
+      }
+
+      recordMetadataOpenRef.current = open;
       setRecordMetadataOpenState(open);
       syncRecordMetadataOpenToUrl(open);
     },
@@ -227,8 +225,26 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   );
 
   useEffect(() => {
-    setRecordMetadataOpenState(parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam));
-  }, [runRecordMetaOpenParam]);
+    const syncRecordMetadataOpenFromUrl = (): void => {
+      const nextOpen = parseRunDetailRecordMetadataOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
+      );
+
+      if (recordMetadataOpenRef.current === nextOpen) {
+        return;
+      }
+
+      recordMetadataOpenRef.current = nextOpen;
+      setRecordMetadataOpenState(nextOpen);
+    };
+
+    syncRecordMetadataOpenFromUrl();
+    window.addEventListener("popstate", syncRecordMetadataOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncRecordMetadataOpenFromUrl);
+    };
+  }, []);
   const metadataContext = deriveReviewRecordMetadataContext(props.signedReviewRecordId);
   const absentReasons = resolveReviewMetadataAbsentReasons(metadataContext);
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);
@@ -344,7 +360,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 data-testid="run-detail-record-metadata-disclosure"
                 open={recordMetadataOpen}
                 onToggle={(event) => {
-                  setRecordMetadataOpen((event.currentTarget as HTMLDetailsElement).open);
+                  event.preventDefault();
+                  setRecordMetadataOpen(!recordMetadataOpenRef.current);
                 }}
               >
                 <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>

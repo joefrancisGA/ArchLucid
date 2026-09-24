@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import { ShellInFlightCancelAbandonClarity } from "@/components/shell/ShellInFlightCancelAbandonClarity";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -26,7 +26,30 @@ import {
   shellInFlightPopoverHrefFromSearch,
 } from "@/lib/operator/shell-in-flight-popover-url";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
+
+function readShellInFlightOpenFromWindow(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseShellInFlightPopoverOpenFromSearch(
+    new URLSearchParams(window.location.search).get("inFlightOpen"),
+  );
+}
+
+function readShellInFlightCancelIdFromWindow(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const parsed = parseShellInFlightCancelIdFromSearch(
+    new URLSearchParams(window.location.search).get("inFlightCancelId"),
+  );
+
+  return parsed.length > 0 ? parsed : null;
+}
 
 /**
  * Operator shell header affordance for in-flight long-running operations (TB-2077 / TB-2225).
@@ -35,63 +58,95 @@ import { cn } from "@/lib/utils";
 export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const inFlightCancelIdParam = searchParams.get("inFlightCancelId");
-  const inFlightOpenParam = searchParams.get("inFlightOpen");
   const operations = useShellInFlightOperations();
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const [open, setOpenState] = useState(() => parseShellInFlightPopoverOpenFromSearch(inFlightOpenParam));
+  const [open, setOpenState] = useState(() => readShellInFlightOpenFromWindow());
+  const openRef = useRef(open);
+  openRef.current = open;
   const [cancellingIds, setCancellingIds] = useState<ReadonlySet<string>>(() => new Set());
-  const [pendingCancelOperationId, setPendingCancelOperationIdState] = useState<string | null>(() => {
-    const parsed = parseShellInFlightCancelIdFromSearch(inFlightCancelIdParam);
-
-    return parsed.length > 0 ? parsed : null;
-  });
+  const [pendingCancelOperationId, setPendingCancelOperationIdState] = useState<string | null>(() =>
+    readShellInFlightCancelIdFromWindow(),
+  );
+  const pendingCancelOperationIdRef = useRef(pendingCancelOperationId);
+  pendingCancelOperationIdRef.current = pendingCancelOperationId;
   const [cancelFailureMessage, setCancelFailureMessage] = useState<string | null>(null);
   const clarity = buildCancelAbandonInFlightClarity();
 
   const syncInFlightPopoverOpenToUrl = useCallback(
     (popoverOpen: boolean) => {
-      router.replace(shellInFlightPopoverHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        shellInFlightPopoverHrefFromSearch(readWindowLocationSearch(), popoverOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncInFlightPopoverOpenToUrl(next);
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+      syncInFlightPopoverOpenToUrl(next);
     },
     [syncInFlightPopoverOpenToUrl],
   );
 
   const syncInFlightCancelIdToUrl = useCallback(
     (operationId: string | null) => {
-      router.replace(
-        shellInFlightCancelConfirmHrefFromSearch(searchParams.toString(), operationId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        shellInFlightCancelConfirmHrefFromSearch(readWindowLocationSearch(), operationId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPendingCancelOperationId = useCallback(
     (value: SetStateAction<string | null>) => {
-      setPendingCancelOperationIdState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncInFlightCancelIdToUrl(next);
+      const current = pendingCancelOperationIdRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      if ((next ?? null) === (current ?? null)) {
+        return;
+      }
+
+      pendingCancelOperationIdRef.current = next;
+      setPendingCancelOperationIdState(next);
+      syncInFlightCancelIdToUrl(next);
     },
     [syncInFlightCancelIdToUrl],
   );
+
+  useEffect(() => {
+    const syncInFlightOverlayFromUrl = (): void => {
+      const nextOpen = readShellInFlightOpenFromWindow();
+      const nextCancelId = readShellInFlightCancelIdFromWindow();
+
+      if (openRef.current !== nextOpen) {
+        openRef.current = nextOpen;
+        setOpenState(nextOpen);
+      }
+
+      if ((pendingCancelOperationIdRef.current ?? null) !== (nextCancelId ?? null)) {
+        pendingCancelOperationIdRef.current = nextCancelId;
+        setPendingCancelOperationIdState(nextCancelId);
+      }
+    };
+
+    syncInFlightOverlayFromUrl();
+    window.addEventListener("popstate", syncInFlightOverlayFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncInFlightOverlayFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     function onOperationTerminal(): void {

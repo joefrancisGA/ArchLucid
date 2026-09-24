@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks -- this factory is only called from custom hooks and centralizes useQuery defaults. */
+
 import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query";
 
 import {

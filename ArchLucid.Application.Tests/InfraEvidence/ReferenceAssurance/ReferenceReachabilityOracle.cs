@@ -9,7 +9,8 @@ internal static class ReferenceReachabilityOracle
         string startNode,
         IReadOnlyDictionary<string, IReadOnlyList<(string ToNodeId, string EdgeType)>> outgoing,
         IReadOnlySet<string> terminalNodes,
-        int maxDepth)
+        int maxDepth,
+        Func<IReadOnlyList<(string FromNodeId, string EdgeType, string ToNodeId)>, bool>? terminalPathPredicate = null)
     {
         HashSet<string> results = new(StringComparer.Ordinal);
         Walk(startNode, [], new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode });
@@ -23,7 +24,10 @@ internal static class ReferenceReachabilityOracle
         {
             if (path.Count > 0 && terminalNodes.Contains(current))
             {
-                results.Add(Signature(path));
+                if (terminalPathPredicate is null || terminalPathPredicate(path))
+                {
+                    results.Add(Signature(path));
+                }
             }
 
             if (path.Count >= maxDepth || !outgoing.TryGetValue(current, out IReadOnlyList<(string ToNodeId, string EdgeType)>? edges))

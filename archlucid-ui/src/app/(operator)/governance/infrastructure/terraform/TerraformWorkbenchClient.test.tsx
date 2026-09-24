@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TerraformWorkbenchClient } from "@/app/(operator)/governance/infrastructure/terraform/TerraformWorkbenchClient";
 
-let searchParams = new URLSearchParams(
+const searchParams = new URLSearchParams(
   "snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
 );
 

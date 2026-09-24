@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import {
   FINDING_CORRELATION_VOCABULARY_DISAMBIGUATION_LINES,
@@ -22,26 +24,34 @@ export type FindingCorrelationVocabularyDisambiguationProps = {
 export function FindingCorrelationVocabularyDisambiguation(
   props: FindingCorrelationVocabularyDisambiguationProps,
 ): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingCorrelationVocabularyOpenParam = searchParams.get("findingCorrelationVocabularyOpen");
   const [vocabularyOpen, setVocabularyOpenState] = useState(() =>
-    parseFindingCorrelationVocabularyOpenFromSearch(findingCorrelationVocabularyOpenParam),
+    parseFindingCorrelationVocabularyOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingCorrelationVocabularyOpen"),
+    ),
   );
+  const vocabularyOpenRef = useRef(vocabularyOpen);
+  vocabularyOpenRef.current = vocabularyOpen;
 
   const syncVocabularyOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingCorrelationVocabularyDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingCorrelationVocabularyDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setVocabularyOpen = useCallback(
     (open: boolean) => {
+      if (vocabularyOpenRef.current === open) {
+        return;
+      }
+
+      vocabularyOpenRef.current = open;
       setVocabularyOpenState(open);
       syncVocabularyOpenToUrl(open);
     },
@@ -49,8 +59,26 @@ export function FindingCorrelationVocabularyDisambiguation(
   );
 
   useEffect(() => {
-    setVocabularyOpenState(parseFindingCorrelationVocabularyOpenFromSearch(findingCorrelationVocabularyOpenParam));
-  }, [findingCorrelationVocabularyOpenParam]);
+    const syncVocabularyOpenFromUrl = (): void => {
+      const next = parseFindingCorrelationVocabularyOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingCorrelationVocabularyOpen"),
+      );
+
+      if (vocabularyOpenRef.current === next) {
+        return;
+      }
+
+      vocabularyOpenRef.current = next;
+      setVocabularyOpenState(next);
+    };
+
+    syncVocabularyOpenFromUrl();
+    window.addEventListener("popstate", syncVocabularyOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncVocabularyOpenFromUrl);
+    };
+  }, []);
 
   return (
     <details
@@ -58,7 +86,8 @@ export function FindingCorrelationVocabularyDisambiguation(
       data-testid={props.testId ?? "finding-correlation-vocabulary-disambiguation"}
       open={vocabularyOpen}
       onToggle={(event) => {
-        setVocabularyOpen(event.currentTarget.open);
+        event.preventDefault();
+        setVocabularyOpen(!vocabularyOpenRef.current);
       }}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

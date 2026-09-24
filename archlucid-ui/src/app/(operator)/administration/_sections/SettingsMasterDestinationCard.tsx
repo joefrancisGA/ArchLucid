@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
@@ -25,31 +27,39 @@ type SettingsMasterDestinationCardProps = {
 
 export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCardProps) {
   const destination = props.destination;
-  const router = useRouter();
   const pathname = usePathname() ?? "/administration/settings";
-  const searchParams = useSearchParams();
-  const settingsDestinationMetaDestinationIdParam = searchParams.get("settingsDestinationMetaDestinationId");
   const [metaOpen, setMetaOpenState] = useState(
     () =>
-      parseSettingsDestinationMetaDestinationIdFromSearch(settingsDestinationMetaDestinationIdParam) === destination.id,
+      parseSettingsDestinationMetaDestinationIdFromSearch(
+        typeof window === "undefined"
+          ? null
+          : new URLSearchParams(window.location.search).get("settingsDestinationMetaDestinationId"),
+      ) === destination.id,
   );
+  const metaOpenRef = useRef(metaOpen);
+  metaOpenRef.current = metaOpen;
 
   const syncMetaOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
+      commitHrefIfChanged(
         settingsDestinationMetaDisclosureHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           open ? destination.id : null,
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [destination.id, pathname, router, searchParams],
+    [destination.id, pathname],
   );
 
   const setMetaOpen = useCallback(
     (open: boolean) => {
+      if (metaOpenRef.current === open) {
+        return;
+      }
+
+      metaOpenRef.current = open;
       setMetaOpenState(open);
       syncMetaOpenToUrl(open);
     },
@@ -57,10 +67,27 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
   );
 
   useEffect(() => {
-    setMetaOpenState(
-      parseSettingsDestinationMetaDestinationIdFromSearch(settingsDestinationMetaDestinationIdParam) === destination.id,
-    );
-  }, [destination.id, settingsDestinationMetaDestinationIdParam]);
+    const syncMetaOpenFromUrl = (): void => {
+      const next =
+        parseSettingsDestinationMetaDestinationIdFromSearch(
+          new URLSearchParams(window.location.search).get("settingsDestinationMetaDestinationId"),
+        ) === destination.id;
+
+      if (metaOpenRef.current === next) {
+        return;
+      }
+
+      metaOpenRef.current = next;
+      setMetaOpenState(next);
+    };
+
+    syncMetaOpenFromUrl();
+    window.addEventListener("popstate", syncMetaOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncMetaOpenFromUrl);
+    };
+  }, [destination.id]);
 
   const showAuditConfirmation =
     destination.editability !== "read-only"
@@ -101,7 +128,8 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
             data-testid="settings-destination-meta-disclosure"
             open={metaOpen}
             onToggle={(event) => {
-              setMetaOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setMetaOpen(!metaOpenRef.current);
             }}
           >
             <summary

@@ -19,10 +19,11 @@ import {
   architectureDiagramMermaidSourceDisclosureHrefFromSearch,
   parseArchitectureDiagramMermaidSourceOpenFromSearch,
 } from "@/lib/architecture/architecture-diagram-mermaid-source-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import type { ArchitectureDiagramPanelState } from "./use-architecture-diagram-panel";
 
@@ -32,26 +33,34 @@ type ArchitectureDiagramReadyViewProps = {
 
 export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyViewProps): React.JSX.Element | null {
   const { panel } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureDiagramMermaidSourceOpenParam = searchParams.get("architectureDiagramMermaidSourceOpen");
-  const [mermaidSourceOpen, setMermaidSourceOpenState] = useState(() =>
-    parseArchitectureDiagramMermaidSourceOpenFromSearch(architectureDiagramMermaidSourceOpenParam),
-  );
+  const readMermaidSourceOpenFromUrl = (): boolean =>
+    parseArchitectureDiagramMermaidSourceOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        "architectureDiagramMermaidSourceOpen",
+      ),
+    );
+  const [mermaidSourceOpen, setMermaidSourceOpenState] = useState(() => readMermaidSourceOpenFromUrl());
+  const mermaidSourceOpenRef = useRef(mermaidSourceOpen);
+  mermaidSourceOpenRef.current = mermaidSourceOpen;
 
   const syncMermaidSourceOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        architectureDiagramMermaidSourceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureDiagramMermaidSourceDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setMermaidSourceOpen = useCallback(
     (open: boolean) => {
+      if (mermaidSourceOpenRef.current === open) {
+        return;
+      }
+
+      mermaidSourceOpenRef.current = open;
       setMermaidSourceOpenState(open);
       syncMermaidSourceOpenToUrl(open);
     },
@@ -59,10 +68,24 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
   );
 
   useEffect(() => {
-    setMermaidSourceOpenState(
-      parseArchitectureDiagramMermaidSourceOpenFromSearch(architectureDiagramMermaidSourceOpenParam),
-    );
-  }, [architectureDiagramMermaidSourceOpenParam]);
+    const syncMermaidSourceOpenFromUrl = (): void => {
+      const next = readMermaidSourceOpenFromUrl();
+
+      if (mermaidSourceOpenRef.current === next) {
+        return;
+      }
+
+      mermaidSourceOpenRef.current = next;
+      setMermaidSourceOpenState(next);
+    };
+
+    syncMermaidSourceOpenFromUrl();
+    window.addEventListener("popstate", syncMermaidSourceOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncMermaidSourceOpenFromUrl);
+    };
+  }, []);
 
   if (panel.displayMermaidSource === null) {
     return null;
@@ -117,7 +140,8 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
           data-testid="architecture-diagram-mermaid-source"
           open={mermaidSourceOpen}
           onToggle={(event) => {
-            setMermaidSourceOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setMermaidSourceOpen(!mermaidSourceOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer px-1 py-2 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>

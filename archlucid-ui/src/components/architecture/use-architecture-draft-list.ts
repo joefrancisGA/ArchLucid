@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
@@ -37,6 +37,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-draft-continue-last";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL,
   ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL,
@@ -76,7 +77,6 @@ function compareEntries(
 export type ArchitectureDraftListController = ReturnType<typeof useArchitectureDraftList>;
 
 export function useArchitectureDraftList() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlSearchQuery = parseArchitecturesHubSearchQuery(searchParams.get("q"));
@@ -100,7 +100,9 @@ export function useArchitectureDraftList() {
       shareVisibleIdentitiesQuery.data.items,
     );
   }, [rawEntries, shareVisibleIdentitiesQuery.data, shareVisibleIdentitiesQuery.isFetched]);
-  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
+  const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
+  const searchQueryRef = useRef(searchQuery);
+  searchQueryRef.current = searchQuery;
   const scopeRecord = useOperatorScopeRecord();
   const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
     listEmpty: entries.length === 0,
@@ -109,22 +111,41 @@ export function useArchitectureDraftList() {
   });
 
   useEffect(() => {
-    setSearchQuery(urlSearchQuery);
-  }, [urlSearchQuery]);
+    const syncSearchQueryFromUrl = (): void => {
+      const next = parseArchitecturesHubSearchQuery(new URLSearchParams(window.location.search).get("q"));
+
+      if (searchQueryRef.current === next) {
+        return;
+      }
+
+      searchQueryRef.current = next;
+      setSearchQueryState(next);
+    };
+
+    syncSearchQueryFromUrl();
+    window.addEventListener("popstate", syncSearchQueryFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSearchQueryFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      const nextHref = architecturesHubSearchHrefFromSearch(searchParams.toString(), searchQuery);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
+      commitHrefIfChanged(architecturesHubSearchHrefFromSearch(readWindowLocationSearch(), searchQuery), {
+        notify: false,
+      });
     }, 250);
 
     return () => {
       window.clearTimeout(handle);
     };
-  }, [router, searchParams, searchQuery]);
+  }, [searchQuery]);
+
+  const setSearchQuery = useCallback((value: string) => {
+    searchQueryRef.current = value;
+    setSearchQueryState(value);
+  }, []);
 
   const filterCounts = useMemo(() => {
     const counts = new Map<ArchitectureHubFilterId, number>();
@@ -153,9 +174,12 @@ export function useArchitectureDraftList() {
   }, [activeDomain, activeFilter, activeOwner, activeSort, entries, searchQuery]);
 
   const clearSearch = useCallback(() => {
-    setSearchQuery("");
-    router.replace(architecturesHubClearSearchHrefFromSearch(currentSearch), { scroll: false });
-  }, [currentSearch, router]);
+    searchQueryRef.current = "";
+    setSearchQueryState("");
+    commitHrefIfChanged(architecturesHubClearSearchHrefFromSearch(readWindowLocationSearch()), {
+      notify: false,
+    });
+  }, []);
 
   const continueLastDraft = useMemo(() => resolveContinueLastArchitectureDraftEntry(entries), [entries]);
 

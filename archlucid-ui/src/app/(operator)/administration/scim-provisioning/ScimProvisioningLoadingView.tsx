@@ -9,7 +9,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Shared loading chrome for `/administration/scim-provisioning` Suspense fallback. */
 export function ScimProvisioningLoadingView(): React.JSX.Element {
   return (
-    <div className="max-w-[960px]" data-testid="scim-provisioning-loading">
+    <div
+      className="max-w-[960px]"
+      data-testid="scim-provisioning-settings-page"
+      data-scim-provisioning-state="loading"
+    >
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SCIM_PROVISIONING_PAGE_TITLE}</h1>
 
       <Skeleton className="mt-3 h-4 w-full max-w-md" data-testid="scim-provisioning-loading-lead-skeleton" />

@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,7 @@ import {
   architectureDiagramVersionHistoryDisclosureHrefFromSearch,
   parseArchitectureDiagramVersionHistoryOpenFromSearch,
 } from "@/lib/architecture/architecture-diagram-version-history-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { isValidMermaidArchitectureDiagram } from "@/lib/architecture/architecture-diagram-mermaid";
 import type { ArchitectureDiagramVersion } from "@/lib/architecture/architecture-diagram-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -46,24 +47,34 @@ export type ArchitectureDiagramEditorProps = {
 
 /** Hand-edit Mermaid source and browse device-local diagram version history. */
 export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureDiagramVersionHistoryParam = searchParams.get(ARCHITECTURE_DIAGRAM_VERSION_HISTORY_OPEN_PARAM);
+  const readVersionHistoryOpenFromUrl = (): boolean =>
+    parseArchitectureDiagramVersionHistoryOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        ARCHITECTURE_DIAGRAM_VERSION_HISTORY_OPEN_PARAM,
+      ),
+    );
   const [architectureDiagramVersionHistoryOpen, setArchitectureDiagramVersionHistoryOpenState] = useState(() =>
-    parseArchitectureDiagramVersionHistoryOpenFromSearch(architectureDiagramVersionHistoryParam),
+    readVersionHistoryOpenFromUrl(),
   );
+  const architectureDiagramVersionHistoryOpenRef = useRef(architectureDiagramVersionHistoryOpen);
+  architectureDiagramVersionHistoryOpenRef.current = architectureDiagramVersionHistoryOpen;
   const syncArchitectureDiagramVersionHistoryOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        architectureDiagramVersionHistoryDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureDiagramVersionHistoryDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setArchitectureDiagramVersionHistoryOpen = useCallback(
     (open: boolean) => {
+      if (architectureDiagramVersionHistoryOpenRef.current === open) {
+        return;
+      }
+
+      architectureDiagramVersionHistoryOpenRef.current = open;
       setArchitectureDiagramVersionHistoryOpenState(open);
       syncArchitectureDiagramVersionHistoryOpenToUrl(open);
     },
@@ -74,10 +85,24 @@ export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps)
   const saveMermaidVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   useEffect(() => {
-    setArchitectureDiagramVersionHistoryOpenState(
-      parseArchitectureDiagramVersionHistoryOpenFromSearch(architectureDiagramVersionHistoryParam),
-    );
-  }, [architectureDiagramVersionHistoryParam]);
+    const syncVersionHistoryOpenFromUrl = (): void => {
+      const next = readVersionHistoryOpenFromUrl();
+
+      if (architectureDiagramVersionHistoryOpenRef.current === next) {
+        return;
+      }
+
+      architectureDiagramVersionHistoryOpenRef.current = next;
+      setArchitectureDiagramVersionHistoryOpenState(next);
+    };
+
+    syncVersionHistoryOpenFromUrl();
+    window.addEventListener("popstate", syncVersionHistoryOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncVersionHistoryOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     setDraftSource(props.mermaidSource);
@@ -159,7 +184,10 @@ export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps)
               <details
                 data-testid="architecture-diagram-version-history"
                 open={architectureDiagramVersionHistoryOpen}
-                onToggle={(event) => setArchitectureDiagramVersionHistoryOpen(event.currentTarget.open)}
+                onToggle={(event) => {
+                  event.preventDefault();
+                  setArchitectureDiagramVersionHistoryOpen(!architectureDiagramVersionHistoryOpenRef.current);
+                }}
               >
                 <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
                   {ARCHITECTURE_DIAGRAM_VERSION_HISTORY_LABEL}

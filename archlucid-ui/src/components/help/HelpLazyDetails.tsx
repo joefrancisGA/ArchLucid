@@ -20,6 +20,8 @@ export type HelpLazyDetailsProps = {
   /** Controlled open state; pair with {@link onOpenChange}. */
   readonly open?: boolean;
   readonly onOpenChange?: (open: boolean) => void;
+  /** Keep body mounted but visually hidden when closed (find-in-page / print). */
+  readonly mountBodyHiddenWhenClosed?: boolean;
 };
 
 /**
@@ -37,6 +39,7 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
     id,
     bodyTestId,
     mountOnHash = true,
+    mountBodyHiddenWhenClosed = false,
     open: controlledOpen,
     onOpenChange,
   } = props;
@@ -46,6 +49,8 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
   const suppressToggleHandlerRef = useRef(false);
   const mountedRef = useRef(false);
   const [contentMounted, setContentMounted] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const detailsOpen = controlled ? controlledOpen === true : uncontrolledOpen;
 
   const mountBodyContent = (): void => {
     queueMicrotask(() => {
@@ -58,10 +63,14 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
   useEffect(() => {
     mountedRef.current = true;
 
+    if (mountBodyHiddenWhenClosed) {
+      mountBodyContent();
+    }
+
     return () => {
       mountedRef.current = false;
     };
-  }, []);
+  }, [mountBodyHiddenWhenClosed]);
 
   useEffect(() => {
     if (controlled && controlledOpen) {
@@ -131,6 +140,8 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
           return;
         }
 
+        setUncontrolledOpen(nextOpen);
+
         if (suppressToggleHandlerRef.current || !nextOpen) {
           return;
         }
@@ -141,7 +152,12 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
       <summary className={summaryClassName}>{summary}</summary>
       {preface}
       {contentMounted ? (
-        <div className={bodyClassName} data-testid={bodyTestId}>
+        <div
+          className={bodyClassName}
+          data-testid={bodyTestId}
+          hidden={mountBodyHiddenWhenClosed && !detailsOpen}
+          aria-hidden={mountBodyHiddenWhenClosed && !detailsOpen ? true : undefined}
+        >
           {children}
         </div>
       ) : null}

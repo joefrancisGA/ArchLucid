@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
@@ -103,11 +105,16 @@ export function buildReviewMeetingPacketSteps(
 
 /** One-click CAB / meeting packet launcher with ordered exports and deep links. */
 export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const searchParams = useSearchParams();
-  const meetingPacketOpenParam = searchParams.get("meetingPacketOpen");
-  const [open, setOpenState] = useState(() => parseReviewMeetingPacketOpenFromSearch(meetingPacketOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewMeetingPacketOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("meetingPacketOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
   const steps = buildMeetingPacketSteps(props);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -117,17 +124,24 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
 
   const syncMeetingPacketOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(reviewMeetingPacketPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        reviewMeetingPacketPanelsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (openRef.current === next) {
+          return current;
+        }
+
+        openRef.current = next;
         syncMeetingPacketOpenToUrl(next);
 
         return next;
@@ -135,6 +149,28 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
     },
     [syncMeetingPacketOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncOpenFromUrl = (): void => {
+      const next = parseReviewMeetingPacketOpenFromSearch(
+        new URLSearchParams(window.location.search).get("meetingPacketOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   const onDownloadStep = useCallback(
     (step: ReviewMeetingPacketStep) => {

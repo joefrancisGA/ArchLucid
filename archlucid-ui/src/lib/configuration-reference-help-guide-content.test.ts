@@ -40,6 +40,10 @@ describe("configuration-reference-help-guide-content", () => {
       kind: "neutral",
       label: "Not available in product",
     });
+    expect(CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS[1]?.body).toContain("not available in this release");
+    expect(CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS[0]?.primaryActionHref).toBe(
+      CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.href,
+    );
   });
 
   it("lists Sources without a self-link to this topic", () => {

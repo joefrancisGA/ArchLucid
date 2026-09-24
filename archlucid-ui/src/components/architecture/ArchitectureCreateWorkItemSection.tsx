@@ -2,8 +2,10 @@
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 import { CreateWorkItemButton } from "@/components/work-items/CreateWorkItemButton";
@@ -29,34 +31,58 @@ export type ArchitectureCreateWorkItemSectionProps = {
 export function ArchitectureCreateWorkItemSection(
   props: ArchitectureCreateWorkItemSectionProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureCreateWorkItemParam = searchParams.get(ARCHITECTURE_CREATE_WORK_ITEM_OPEN_PARAM);
   const [architectureCreateWorkItemOpen, setArchitectureCreateWorkItemOpenState] = useState(() =>
-    parseArchitectureCreateWorkItemOpenFromSearch(architectureCreateWorkItemParam),
+    parseArchitectureCreateWorkItemOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(ARCHITECTURE_CREATE_WORK_ITEM_OPEN_PARAM),
+    ),
   );
+  const architectureCreateWorkItemOpenRef = useRef(architectureCreateWorkItemOpen);
+  architectureCreateWorkItemOpenRef.current = architectureCreateWorkItemOpen;
   const syncArchitectureCreateWorkItemOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        architectureCreateWorkItemDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureCreateWorkItemDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setArchitectureCreateWorkItemOpen = useCallback(
     (open: boolean) => {
+      if (architectureCreateWorkItemOpenRef.current === open) {
+        return;
+      }
+
+      architectureCreateWorkItemOpenRef.current = open;
       setArchitectureCreateWorkItemOpenState(open);
       syncArchitectureCreateWorkItemOpenToUrl(open);
     },
     [syncArchitectureCreateWorkItemOpenToUrl],
   );
   useEffect(() => {
-    setArchitectureCreateWorkItemOpenState(
-      parseArchitectureCreateWorkItemOpenFromSearch(architectureCreateWorkItemParam),
-    );
-  }, [architectureCreateWorkItemParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseArchitectureCreateWorkItemOpenFromSearch(
+        new URLSearchParams(window.location.search).get(ARCHITECTURE_CREATE_WORK_ITEM_OPEN_PARAM),
+      );
+
+      if (architectureCreateWorkItemOpenRef.current === next) {
+        return;
+      }
+
+      architectureCreateWorkItemOpenRef.current = next;
+      setArchitectureCreateWorkItemOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
   const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
@@ -65,7 +91,10 @@ export function ArchitectureCreateWorkItemSection(
       data-workspace-disclosure
       data-testid="architecture-create-work-item-section"
       open={architectureCreateWorkItemOpen}
-      onToggle={(event) => setArchitectureCreateWorkItemOpen(event.currentTarget.open)}
+      onToggle={(event) => {
+        event.preventDefault();
+        setArchitectureCreateWorkItemOpen(!architectureCreateWorkItemOpenRef.current);
+      }}
     >
       <summary className={cn("cursor-pointer list-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {CREATE_WORK_ITEM_SECTION_TITLE}

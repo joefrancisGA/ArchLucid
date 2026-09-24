@@ -14,6 +14,7 @@ _REQUIRED_SPECS = (
     "archlucid-ui/e2e/demo-workspace-b.smoke.spec.ts",
     "archlucid-ui/e2e/live-api-private-beta-access.spec.ts",
 )
+_RESTART_MARKER = "Restart API after Enterprise grant"
 
 
 def repo_root() -> Path:
@@ -38,6 +39,18 @@ def main(argv: list[str] | None = None) -> int:
 
         if "@release-gate" not in text:
             errors.append(f"{rel_path}: missing @release-gate grep/playwright wiring")
+
+        if rel_path == _RC_REL:
+            grant = text.find("grant_ci_live_e2e_enterprise_tenant.sh")
+            restart = text.find(_RESTART_MARKER)
+            ready = text.find("wait-for-api-ready.sh", restart if restart >= 0 else 0)
+            if grant < 0 or restart < grant or ready < restart:
+                errors.append(f"{rel_path}: Enterprise grant must be followed by API restart and readiness wait")
+            else:
+                restart_text = text[restart:ready]
+                for marker in ("cat \"${RUNNER_TEMP}/", "pkill -TERM -P", "kill \"${API_PID}\"", "nohup dotnet run --no-build"):
+                    if marker not in restart_text:
+                        errors.append(f"{rel_path}: Enterprise-grant restart is missing {marker}")
 
     for spec in _REQUIRED_SPECS:
         if not (root / spec).is_file():

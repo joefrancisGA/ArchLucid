@@ -13,6 +13,7 @@ import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/Inf
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ShortcutHint } from "@/components/ShortcutHint";
@@ -58,7 +59,10 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_ADVISORY_RECONSTRUCTED_TAG,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING_ID,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HUB_LOAD_RETRY_ACTION,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_RESOURCE_SCOPE_ACTION,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_SNAPSHOT_SCOPE_ACTION,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_EXPORT_DISABLED_NO_SNAPSHOT,
@@ -138,6 +142,8 @@ export function TerraformWorkbenchClient() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [exportBusy, setExportBusy] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [hubReloadNonce, setHubReloadNonce] = useState(0);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [terraformResourceIdOpen, setTerraformResourceIdOpen] = useState(false);
   const [continueLastTarget, setContinueLastTarget] = useState<ContinueLastInfraEvidenceTerraformWorkbenchTarget | null>(
@@ -289,6 +295,11 @@ export function TerraformWorkbenchClient() {
   }, [productLine, urlCloudResourceId.length]);
 
   useEffect(() => {
+    setCopyMessage(null);
+    setExportError(null);
+  }, [urlCloudResourceId, urlSnapshotId]);
+
+  useEffect(() => {
     if (urlCloudResourceId.length === 0) {
       setHub(null);
       setLoadError(null);
@@ -328,7 +339,12 @@ export function TerraformWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [urlCloudResourceId, urlSnapshotId]);
+  }, [hubReloadNonce, urlCloudResourceId, urlSnapshotId]);
+
+  const retryHubLoad = useCallback(() => {
+    setLoadError(null);
+    setHubReloadNonce((value) => value + 1);
+  }, []);
 
   const terraformAskHref = useMemo(() => {
     if (urlCloudResourceId.length === 0) {
@@ -394,9 +410,12 @@ export function TerraformWorkbenchClient() {
     }
 
     setExportBusy(true);
+    setExportError(null);
 
     try {
       await downloadInfraEvidenceTerraformAdvisoryZip(resolvedSnapshotId);
+    } catch (error: unknown) {
+      setExportError(formatInfraEvidenceHubApiError(error));
     } finally {
       setExportBusy(false);
     }
@@ -412,8 +431,15 @@ export function TerraformWorkbenchClient() {
       return;
     }
 
-    await navigator.clipboard.writeText(advisorySnippet);
-    setCopyMessage("Copied advisory snippet.");
+    try {
+      await navigator.clipboard.writeText(advisorySnippet);
+      setCopyMessage("Copied advisory snippet.");
+      window.setTimeout(() => {
+        setCopyMessage(null);
+      }, 4000);
+    } catch {
+      setCopyMessage("Clipboard copy failed — select the snippet manually.");
+    }
   };
 
   const headerActions = (
@@ -422,10 +448,12 @@ export function TerraformWorkbenchClient() {
         {scopeStatusBadge}
         <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
       </div>
-      <PageShortcutsDisclosure
-        testId="infra-terraform-page-shortcuts"
-        entries={TERRAFORM_WORKBENCH_PAGE_SHORTCUTS}
-      />
+      {isUnscoped ? (
+        <PageShortcutsDisclosure
+          testId="infra-terraform-page-shortcuts"
+          entries={TERRAFORM_WORKBENCH_PAGE_SHORTCUTS}
+        />
+      ) : null}
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;{" "}
         {isUnscoped ? (
@@ -483,55 +511,58 @@ export function TerraformWorkbenchClient() {
             {continueLastTarget != null ? (
               <TerraformWorkbenchContinueLastViewedRow target={continueLastTarget} />
             ) : null}
-            <EnterpriseCompactEmptyState
-              title={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_TITLE}
-              description={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_BODY}
-              testId="infra-terraform-unscoped-panel"
-              actions={[
-                {
-                  label: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION,
-                  href: resourcesPath,
-                  variant: "primary",
-                },
-                {
-                  label: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION,
-                  href: driftPath,
-                  variant: "outline",
-                },
-              ]}
-              footer={
-                <div className="grid gap-4">
-                  <TerraformWorkbenchScopePicker inputRef={scopePickerRef} />
-                  <TerraformWorkbenchRecentMappingsTable targets={recentMappingTargets} />
-                </div>
-              }
-            />
+            <section
+              aria-labelledby="infra-terraform-unscoped-heading"
+              className="rounded-md border border-dashed border-neutral-200 px-3 py-3 dark:border-neutral-700"
+              data-testid="infra-terraform-unscoped-panel"
+            >
+              <h2
+                id="infra-terraform-unscoped-heading"
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle, "text-al-text-primary")}
+              >
+                {GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_TITLE}
+              </h2>
+              <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_BODY}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild variant="primary" size="sm">
+                  <Link href={resourcesPath}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION}</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={driftPath}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION}</Link>
+                </Button>
+              </div>
+            </section>
+            <TerraformWorkbenchScopePicker inputRef={scopePickerRef} />
+            <TerraformWorkbenchRecentMappingsTable targets={recentMappingTargets} />
             {buyerPolishedShell ? <TerraformClaimOrientationStrip /> : null}
             <TerraformWorkbenchBuildProvenanceStrip />
           </>
         ) : null}
 
         {deepLinkedSnapshotMissing ? (
-          <StatusTag
-            kind="needs-attention"
-            label="The linked snapshot is not available for this scoped resource."
+          <div
+            role="alert"
+            className="rounded-md border border-dashed border-neutral-200 px-3 py-3 dark:border-neutral-700"
             data-testid="infra-terraform-snapshot-deep-link-missing"
-          />
-        ) : null}
-
-        {deepLinkedSnapshotMissing ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <p className={cn("m-0 flex-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusTag kind="needs-attention" label="The linked snapshot is not available for this scoped resource." />
+            </div>
+            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SNAPSHOT_DEEP_LINK_RECOVERY}
             </p>
-            <Button asChild variant="outline" size="sm" data-testid="infra-terraform-clear-snapshot-scope">
-              <Link href={clearSnapshotScopeHref}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_SNAPSHOT_SCOPE_ACTION}</Link>
-            </Button>
-            {driftWorkbenchHref != null ? (
-              <Button asChild variant="outline" size="sm" data-testid="infra-terraform-open-drift-recovery">
-                <Link href={driftWorkbenchHref}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION}</Link>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm" data-testid="infra-terraform-clear-snapshot-scope">
+                <Link href={clearSnapshotScopeHref}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_SNAPSHOT_SCOPE_ACTION}</Link>
               </Button>
-            ) : null}
+              {driftWorkbenchHref != null ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-terraform-open-drift-recovery">
+                  <Link href={driftWorkbenchHref}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION}</Link>
+                </Button>
+              ) : null}
+            </div>
           </div>
         ) : null}
 
@@ -543,6 +574,15 @@ export function TerraformWorkbenchClient() {
             testId="infra-terraform-load-error-panel"
             footer={
               <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  data-testid="infra-terraform-retry-hub-load"
+                  onClick={retryHubLoad}
+                >
+                  {GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HUB_LOAD_RETRY_ACTION}
+                </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-terraform-clear-resource-scope">
                   <Link href={clearResourceScopeHref}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_RESOURCE_SCOPE_ACTION}</Link>
                 </Button>
@@ -680,6 +720,9 @@ export function TerraformWorkbenchClient() {
               <div className="mt-4">
                 <h3 className="text-sm font-medium">Advisory snippet preview</h3>
                 <pre
+                  tabIndex={0}
+                  role="region"
+                  aria-label="Advisory Terraform snippet preview"
                   className="mt-2 overflow-x-auto rounded border border-border bg-muted/30 p-3 font-mono text-xs"
                   data-testid="infra-terraform-snippet-preview"
                 >
@@ -692,6 +735,13 @@ export function TerraformWorkbenchClient() {
                 {copyMessage}
               </p>
             ) : null}
+            <p
+              id={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING_ID}
+              className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              role="note"
+            >
+              {GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING}
+            </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -699,7 +749,13 @@ export function TerraformWorkbenchClient() {
                 size="sm"
                 data-testid="infra-terraform-download-advisory-zip"
                 disabled={exportBusy || exportDisabledReason != null}
-                aria-describedby={exportDisabledReason != null ? "infra-terraform-export-disabled-reason" : undefined}
+                aria-describedby={
+                  exportDisabledReason != null
+                    ? "infra-terraform-export-disabled-reason"
+                    : exportError != null
+                      ? "infra-terraform-export-error"
+                      : GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING_ID
+                }
                 onClick={() => void runAdvisoryExport()}
               >
                 {exportBusy ? (
@@ -717,12 +773,20 @@ export function TerraformWorkbenchClient() {
                   variant="outline"
                   size="sm"
                   data-testid="infra-terraform-copy-snippet"
+                  aria-describedby={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING_ID}
                   onClick={() => void copyAdvisorySnippet()}
                 >
                   Copy advisory snippet
                 </Button>
               ) : null}
             </div>
+            {exportError != null ? (
+              <OperatorMutationInlineError
+                className="mt-3"
+                message={exportError}
+                testId="infra-terraform-export-error"
+              />
+            ) : null}
             {exportDisabledReason != null ? (
               <p
                 id="infra-terraform-export-disabled-reason"
@@ -768,9 +832,9 @@ export function TerraformWorkbenchClient() {
           </section>
         ) : null}
 
-        {buyerPolishedShell && urlCloudResourceId.length > 0 ? (
+        {urlCloudResourceId.length > 0 ? (
           <>
-            <TerraformClaimOrientationStrip />
+            {buyerPolishedShell ? <TerraformClaimOrientationStrip /> : null}
             <TerraformWorkbenchBuildProvenanceStrip />
           </>
         ) : null}

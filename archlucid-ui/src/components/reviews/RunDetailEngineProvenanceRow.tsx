@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-display";
@@ -16,6 +16,7 @@ import {
   parseRunEngineProvenanceOpenFromSearch,
   runEngineProvenanceDisclosureHrefFromSearch,
 } from "@/lib/runs/run-engine-provenance-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunDetailEngineProvenanceRowProps = {
@@ -36,11 +37,16 @@ function ProvenanceField(props: { readonly label: string; readonly value: string
 /** Quiet enterprise footnote for model engine provenance on run detail. */
 export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRowProps): ReactElement {
   const { provenance } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runEngineProvenanceOpenParam = searchParams.get("runEngineProvenanceOpen");
-  const [open, setOpenState] = useState(() => parseRunEngineProvenanceOpenFromSearch(runEngineProvenanceOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseRunEngineProvenanceOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runEngineProvenanceOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const engineLabel = provenance.modelAliasId
     ? `${provenance.modelAliasId} (${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId})`
     : `${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId}`;
@@ -48,15 +54,21 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runEngineProvenanceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runEngineProvenanceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -64,8 +76,26 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   );
 
   useEffect(() => {
-    setOpenState(parseRunEngineProvenanceOpenFromSearch(runEngineProvenanceOpenParam));
-  }, [runEngineProvenanceOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const nextOpen = parseRunEngineProvenanceOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runEngineProvenanceOpen"),
+      );
+
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <CollapsibleSection title="Engine & model" open={open} onToggle={setOpen}>
