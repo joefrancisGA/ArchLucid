@@ -3,7 +3,6 @@
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
-import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -28,9 +27,30 @@ import {
   workspaceAiAvailableDetail,
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+function readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseWorkspaceAiProbeDebugMetadataOpenFromSearch(
+    new URLSearchParams(window.location.search).get("workspaceAiProbeDebugMetadataOpen"),
+  );
+}
+
+function readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseWorkspaceAiProbeDiagnosticsOpenFromSearch(
+    new URLSearchParams(window.location.search).get("workspaceAiProbeDiagnosticsOpen"),
+  );
+}
 
 export type WorkspaceAiAvailabilityPanelProps = {
   readonly workspaceAiSignal: WorkspaceAiConfigurationSignal;
@@ -205,22 +225,20 @@ function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, co
   return `AI availability details — ${checkLabel}`;
 }
 
-function resolveProbeProvenanceCopy(aiSource: string, productLine: "architecture" | "security"): string {
-  const productName = productLine === "security" ? "SecureNow" : "ArchLucid";
-
+function resolveProbeProvenanceCopy(aiSource: string): string {
   if (aiSource === "managed-platform") {
-    return `${productName} ran a live completion probe against the Azure OpenAI deployment configured for this workspace on the managed platform.`;
+    return "ArchLucid ran a live completion probe against the Azure OpenAI deployment configured for this workspace on the managed platform.";
   }
 
   if (aiSource === "customer-connection") {
-    return `${productName} ran a live completion probe against the deployment configured in your workspace customer AI connection.`;
+    return "ArchLucid ran a live completion probe against the deployment configured in your workspace customer AI connection.";
   }
 
   if (aiSource === "simulator") {
     return "Simulator mode is active — a live deployment probe was not required.";
   }
 
-  return `${productName} ran a live completion probe against the deployment configured for this workspace.`;
+  return "ArchLucid ran a live completion probe against the deployment configured for this workspace.";
 }
 
 function statusTagKind(
@@ -251,12 +269,11 @@ function resolveWorkspaceAiDetail(
   state: ReturnType<typeof useWorkspaceAiAvailabilityCheck>["state"],
   workspaceAiSignal: WorkspaceAiConfigurationSignal,
   managedBySession: boolean,
-  productLine: "architecture" | "security",
 ): string {
   if (state.status === "loaded") {
     return state.result.isAvailable
       ? workspaceAiAvailableDetail(state.result)
-      : workspaceAiUnavailableDetail(state.result, productLine);
+      : workspaceAiUnavailableDetail(state.result);
   }
 
   if (state.status === "loading") {
@@ -278,10 +295,9 @@ function WorkspaceAiProbeModelSummary(props: {
   readonly deploymentName: string | null;
   readonly modelId: string | null;
   readonly aiSource: string;
-  readonly productLine: "architecture" | "security";
   readonly compact?: boolean;
 }): React.JSX.Element | null {
-  const { deploymentName, modelId, aiSource, productLine, compact = false } = props;
+  const { deploymentName, modelId, aiSource, compact = false } = props;
 
   if (deploymentName === null && modelId === null) {
     return null;
@@ -308,7 +324,7 @@ function WorkspaceAiProbeModelSummary(props: {
           className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="review-package-workspace-ai-model-provenance"
         >
-          {resolveProbeProvenanceCopy(aiSource, productLine)}
+          {resolveProbeProvenanceCopy(aiSource)}
         </p>
       ) : null}
     </div>
@@ -317,28 +333,31 @@ function WorkspaceAiProbeModelSummary(props: {
 
 function WorkspaceAiProbeDiagnostics(props: {
   readonly result: WorkspaceAiAvailabilityResult;
-  readonly productLine: "architecture" | "security";
   readonly compact?: boolean;
 }): React.JSX.Element {
-  const { result, productLine, compact = false } = props;
-  const router = useRouter();
+  const { result, compact = false } = props;
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const workspaceAiProbeDebugMetadataOpenParam = searchParams.get("workspaceAiProbeDebugMetadataOpen");
   const [debugMetadataOpen, setDebugMetadataOpenState] = useState(() =>
-    parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam),
+    readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation(),
   );
+  const debugMetadataOpenRef = useRef(debugMetadataOpen);
+  debugMetadataOpenRef.current = debugMetadataOpen;
   const syncDebugMetadataOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setDebugMetadataOpen = useCallback(
     (open: boolean) => {
+      if (debugMetadataOpenRef.current === open) {
+        return;
+      }
+
+      debugMetadataOpenRef.current = open;
       setDebugMetadataOpenState(open);
       syncDebugMetadataOpenToUrl(open);
     },
@@ -346,8 +365,24 @@ function WorkspaceAiProbeDiagnostics(props: {
   );
 
   useEffect(() => {
-    setDebugMetadataOpenState(parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam));
-  }, [workspaceAiProbeDebugMetadataOpenParam]);
+    const syncDebugMetadataOpenFromUrl = (): void => {
+      const nextOpen = readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation();
+
+      if (debugMetadataOpenRef.current === nextOpen) {
+        return;
+      }
+
+      debugMetadataOpenRef.current = nextOpen;
+      setDebugMetadataOpenState(nextOpen);
+    };
+
+    syncDebugMetadataOpenFromUrl();
+    window.addEventListener("popstate", syncDebugMetadataOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDebugMetadataOpenFromUrl);
+    };
+  }, []);
 
   const deploymentName = resolveProbeDeploymentName(result.debug);
   const modelId = resolveProbeModelId(result.debug);
@@ -360,7 +395,6 @@ function WorkspaceAiProbeDiagnostics(props: {
         deploymentName={deploymentName}
         modelId={modelId}
         aiSource={result.aiSource}
-        productLine={productLine}
         compact={compact}
       />
 
@@ -405,7 +439,6 @@ function WorkspaceAiProbeDiagnostics(props: {
 /** API-validated workspace AI availability with full probe diagnostics for review failure recovery. */
 export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanelProps): React.JSX.Element {
   const { workspaceAiSignal, availabilityCheck, reviewTerminalFailure = false, scopingLabel } = props;
-  const { productLine } = useProductLine();
   const internalCheck = useWorkspaceAiAvailabilityCheck({
     enabled: availabilityCheck === undefined,
     autoCheck: false,
@@ -418,7 +451,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       ? workspaceAiAvailabilityStatusLabel(state.result)
       : workspaceAiSignal.label;
 
-  const detail = resolveWorkspaceAiDetail(state, workspaceAiSignal, managedBySession, productLine);
+  const detail = resolveWorkspaceAiDetail(state, workspaceAiSignal, managedBySession);
 
   const liveProbeFailure =
     state.status === "loaded"
@@ -440,26 +473,30 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
     probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
   const probeTriggerLabel =
     probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "AI availability details";
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const workspaceAiProbeDiagnosticsOpenParam = searchParams.get("workspaceAiProbeDiagnosticsOpen");
   const [probeDiagnosticsOpen, setProbeDiagnosticsOpenState] = useState(() =>
-    parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
+    readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation(),
   );
+  const probeDiagnosticsOpenRef = useRef(probeDiagnosticsOpen);
+  probeDiagnosticsOpenRef.current = probeDiagnosticsOpen;
 
   const syncProbeDiagnosticsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setProbeDiagnosticsOpen = useCallback(
     (open: boolean) => {
+      if (probeDiagnosticsOpenRef.current === open) {
+        return;
+      }
+
+      probeDiagnosticsOpenRef.current = open;
       setProbeDiagnosticsOpenState(open);
       syncProbeDiagnosticsOpenToUrl(open);
     },
@@ -467,10 +504,24 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
   );
 
   useEffect(() => {
-    setProbeDiagnosticsOpenState(
-      parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
-    );
-  }, [workspaceAiProbeDiagnosticsOpenParam]);
+    const syncProbeDiagnosticsOpenFromUrl = (): void => {
+      const nextOpen = readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation();
+
+      if (probeDiagnosticsOpenRef.current === nextOpen) {
+        return;
+      }
+
+      probeDiagnosticsOpenRef.current = nextOpen;
+      setProbeDiagnosticsOpenState(nextOpen);
+    };
+
+    syncProbeDiagnosticsOpenFromUrl();
+    window.addEventListener("popstate", syncProbeDiagnosticsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncProbeDiagnosticsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <div
@@ -580,7 +631,6 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
             deploymentName={resolveProbeDeploymentName(state.result.debug)}
             modelId={resolveProbeModelId(state.result.debug)}
             aiSource={state.result.aiSource}
-            productLine={productLine}
             compact
           />
           <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
@@ -601,7 +651,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
             open={probeDiagnosticsOpen}
             onOpenChange={setProbeDiagnosticsOpen}
           >
-          <WorkspaceAiProbeDiagnostics result={state.result} productLine={productLine} compact />
+            <WorkspaceAiProbeDiagnostics result={state.result} compact />
           </AdvancedOptionsAccordion>
         </div>
       ) : null}
@@ -615,7 +665,6 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
         >
           <WorkspaceAiProbeDiagnostics
             result={state.result}
-            productLine={productLine}
             compact={!neutralProbeOnTerminalFailure}
           />
         </AdvancedOptionsAccordion>

@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Menu } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useLayoutEffect, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
 
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
@@ -26,6 +26,7 @@ import {
   sidebarNavGroupIsExpanded,
   type SidebarCollapsibleNavGroupId,
 } from "@/lib/sidebar-nav-group-expansion-storage";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   mobileNavDrawerHrefFromSearch,
   parseMobileNavDrawerOpenFromSearch,
@@ -37,32 +38,63 @@ import {
  */
 export function MobileNavDrawer() {
   const pathname = usePathname() ?? "";
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const mobileNavOpenParam = searchParams.get("mobileNavOpen");
-  const [open, setOpenState] = useState(() => parseMobileNavDrawerOpenFromSearch(mobileNavOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseMobileNavDrawerOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("mobileNavOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const [mounted, setMounted] = useState(false);
 
   const syncMobileNavOpenToUrl = useCallback(
     (drawerOpen: boolean) => {
-      router.replace(mobileNavDrawerHrefFromSearch(searchParams.toString(), drawerOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        mobileNavDrawerHrefFromSearch(readWindowLocationSearch(), drawerOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncMobileNavOpenToUrl(next);
+      const next = typeof value === "function" ? value(openRef.current) : value;
 
-        return next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+      syncMobileNavOpenToUrl(next);
     },
     [syncMobileNavOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncMobileNavOpenFromUrl = (): void => {
+      const nextOpen = parseMobileNavDrawerOpenFromSearch(
+        new URLSearchParams(window.location.search).get("mobileNavOpen"),
+      );
+
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncMobileNavOpenFromUrl();
+    window.addEventListener("popstate", syncMobileNavOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncMobileNavOpenFromUrl);
+    };
+  }, []);
   const { expansion, toggleGroupExpanded, setGroupExpanded } = useSidebarNavGroupExpansion();
   const { isGovernanceModeEnabled } = useGovernanceMode();
   const {

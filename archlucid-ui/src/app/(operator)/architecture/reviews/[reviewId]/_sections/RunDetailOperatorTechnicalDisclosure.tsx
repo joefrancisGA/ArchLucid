@@ -1,10 +1,11 @@
 "use client";
 
 import type { ReactNode, ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunTechnicalDetailsOpenFromSearch,
   runDetailOperatorTechnicalDisclosureHrefFromSearch,
@@ -18,26 +19,34 @@ type RunDetailOperatorTechnicalDisclosureProps = {
 export function RunDetailOperatorTechnicalDisclosure(
   props: RunDetailOperatorTechnicalDisclosureProps,
 ): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runTechnicalDetailsOpenParam = searchParams.get("runTechnicalDetailsOpen");
   const [open, setOpenState] = useState(() =>
-    parseRunTechnicalDetailsOpenFromSearch(runTechnicalDetailsOpenParam),
+    parseRunTechnicalDetailsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runTechnicalDetailsOpen"),
+    ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        runDetailOperatorTechnicalDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailOperatorTechnicalDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -45,8 +54,26 @@ export function RunDetailOperatorTechnicalDisclosure(
   );
 
   useEffect(() => {
-    setOpenState(parseRunTechnicalDetailsOpenFromSearch(runTechnicalDetailsOpenParam));
-  }, [runTechnicalDetailsOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const nextOpen = parseRunTechnicalDetailsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runTechnicalDetailsOpen"),
+      );
+
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <div data-testid="run-detail-advanced-options">

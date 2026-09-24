@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
@@ -37,8 +37,8 @@ import {
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
-  SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM,
   parseScopeSwitcherTechnicalDetailsOpenFromSearch,
   scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch,
 } from "@/lib/operator/scope-switcher-technical-details-disclosure-url";
@@ -85,34 +85,50 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
     workspaceId,
     workspaces,
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const scopeSwitcherTechnicalDetailsParam = searchParams.get(SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM);
   const [scopeSwitcherTechnicalDetailsOpen, setScopeSwitcherTechnicalDetailsOpenState] = useState(() =>
-    parseScopeSwitcherTechnicalDetailsOpenFromSearch(scopeSwitcherTechnicalDetailsParam),
+    parseScopeSwitcherTechnicalDetailsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("scopeSwitcherTechnicalDetailsOpen"),
+    ),
   );
   const syncScopeSwitcherTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setScopeSwitcherTechnicalDetailsOpen = useCallback(
     (open: boolean) => {
+      if (scopeSwitcherTechnicalDetailsOpen === open) {
+        return;
+      }
+
       setScopeSwitcherTechnicalDetailsOpenState(open);
       syncScopeSwitcherTechnicalDetailsOpenToUrl(open);
     },
-    [syncScopeSwitcherTechnicalDetailsOpenToUrl],
+    [scopeSwitcherTechnicalDetailsOpen, syncScopeSwitcherTechnicalDetailsOpenToUrl],
   );
   useEffect(() => {
-    setScopeSwitcherTechnicalDetailsOpenState(
-      parseScopeSwitcherTechnicalDetailsOpenFromSearch(scopeSwitcherTechnicalDetailsParam),
-    );
-  }, [scopeSwitcherTechnicalDetailsParam]);
+    const syncScopeSwitcherTechnicalDetailsOpenFromUrl = (): void => {
+      setScopeSwitcherTechnicalDetailsOpenState(
+        parseScopeSwitcherTechnicalDetailsOpenFromSearch(
+          new URLSearchParams(window.location.search).get("scopeSwitcherTechnicalDetailsOpen"),
+        ),
+      );
+    };
+
+    syncScopeSwitcherTechnicalDetailsOpenFromUrl();
+    window.addEventListener("popstate", syncScopeSwitcherTechnicalDetailsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncScopeSwitcherTechnicalDetailsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <>

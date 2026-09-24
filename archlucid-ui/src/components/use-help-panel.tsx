@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
@@ -42,28 +44,44 @@ const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin
 
 export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPanelProps) {
   const pathname = usePathname() ?? "/";
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const teachingChromeVisible = useTeachingChromeVisible();
-  const urlHelpQuery = parseHelpPanelQueryFromSearch(searchParams.get("helpQ"));
-  const urlHelpTab = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
-  const [query, setQueryState] = useState(urlHelpQuery);
-  const [tab, setTabState] = useState<HelpTabId>(urlHelpTab ?? initialTab);
+  const openRef = useRef(open);
+  openRef.current = open;
+  const [query, setQueryState] = useState(() =>
+    parseHelpPanelQueryFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("helpQ"),
+    ),
+  );
+  const [tab, setTabState] = useState<HelpTabId>(() => {
+    const fromUrl = parseHelpPanelTabFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("helpTab"),
+    );
+
+    return fromUrl ?? initialTab;
+  });
+  const queryRef = useRef(query);
+  queryRef.current = query;
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
   const [corePilotPinDismissedThisSession, setCorePilotPinDismissedThisSession] = useState(false);
 
   const syncHelpPanelOverlayToUrl = useCallback(
     (patch: { tab?: HelpTabId; query?: string; open?: boolean }) => {
-      router.replace(
-        helpPanelOverlayHrefFromSearch(searchParams.toString(), {
-          open: patch.open ?? open,
-          tab: patch.tab ?? tab,
-          query: patch.query ?? query,
+      commitHrefIfChanged(
+        helpPanelOverlayHrefFromSearch(readWindowLocationSearch(), {
+          open: patch.open ?? openRef.current,
+          tab: patch.tab ?? tabRef.current,
+          query: patch.query ?? queryRef.current,
         }, pathname),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [open, pathname, query, router, searchParams, tab],
+    [pathname],
   );
 
   const setQuery = useCallback(
@@ -89,14 +107,30 @@ export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: Help
   }, [open, initialTab]);
 
   useEffect(() => {
-    setQueryState(parseHelpPanelQueryFromSearch(searchParams.get("helpQ")));
+    const syncHelpPanelFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const nextQuery = parseHelpPanelQueryFromSearch(params.get("helpQ"));
 
-    const fromUrl = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
+      if (queryRef.current !== nextQuery) {
+        queryRef.current = nextQuery;
+        setQueryState(nextQuery);
+      }
 
-    if (fromUrl !== null) {
-      setTabState(fromUrl);
-    }
-  }, [searchParams]);
+      const fromUrl = parseHelpPanelTabFromSearch(params.get("helpTab"));
+
+      if (fromUrl !== null && tabRef.current !== fromUrl) {
+        tabRef.current = fromUrl;
+        setTabState(fromUrl);
+      }
+    };
+
+    syncHelpPanelFromUrl();
+    window.addEventListener("popstate", syncHelpPanelFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncHelpPanelFromUrl);
+    };
+  }, []);
 
   useLayoutEffect(() => {
     try {

@@ -3,11 +3,12 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseReviewCliReproduceOpenFromSearch,
   reviewCliReproduceDisclosureHrefFromSearch,
@@ -23,25 +24,36 @@ export function ReviewCliReproduceSection({
   runId,
   ruleSetId,
 }: ReviewCliReproduceSectionProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const reviewCliReproduceOpenParam = searchParams.get("reviewCliReproduceOpen");
-  const [open, setOpenState] = useState(() => parseReviewCliReproduceOpenFromSearch(reviewCliReproduceOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewCliReproduceOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("reviewCliReproduceOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const policyFlag = ruleSetId ? ` --policy ${ruleSetId}` : "";
   const command = `archlucid review run --package-id ${runId}${policyFlag}`;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(reviewCliReproduceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        reviewCliReproduceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -49,8 +61,26 @@ export function ReviewCliReproduceSection({
   );
 
   useEffect(() => {
-    setOpenState(parseReviewCliReproduceOpenFromSearch(reviewCliReproduceOpenParam));
-  }, [reviewCliReproduceOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseReviewCliReproduceOpenFromSearch(
+        new URLSearchParams(window.location.search).get("reviewCliReproduceOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section id="cli-reproduce" className="scroll-mt-24">

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { cn } from "@/lib/utils";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
@@ -88,40 +90,58 @@ export function IdentityProvidersDiagnosticsPageView(
   props: IdentityProvidersDiagnosticsPageViewProps,
 ): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const router = useRouter();
   const pathname = usePathname() ?? "/administration/identity-providers/diagnostics";
-  const searchParams = useSearchParams();
-  const identityProvidersDiagnosticsProtocolOpenParam = searchParams.get("identityProvidersDiagnosticsProtocolOpen");
-  const identityProvidersTechnicalDetailsOpenParam = searchParams.get("identityProvidersTechnicalDetailsOpen");
-  const identityProvidersDiagnosticsCustomerToolsOpenParam = searchParams.get("identityProvidersDiagnosticsCustomerToolsOpen");
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
   const bundlePending = diagnosticsBundlePending(props.model);
   const showProtocolDetails =
     props.model.oidcDiagnosticsLoaded || props.model.samlOperationalHealthLoaded;
   const collapseHealthIntoProtocol = bothIdentityProviderProbesNotApplicable(props.model.identityProviderDiagnostics);
   const [protocolDetailsOpen, setProtocolDetailsOpenState] = useState(() =>
-    parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
+    parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("identityProvidersDiagnosticsProtocolOpen"),
+    ),
   );
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
-    parseIdentityProvidersTechnicalDetailsOpenFromSearch(identityProvidersTechnicalDetailsOpenParam),
+    parseIdentityProvidersTechnicalDetailsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("identityProvidersTechnicalDetailsOpen"),
+    ),
   );
   const [customerToolsOpen, setCustomerToolsOpenState] = useState(() =>
-    parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(identityProvidersDiagnosticsCustomerToolsOpenParam),
+    parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("identityProvidersDiagnosticsCustomerToolsOpen"),
+    ),
   );
+  const protocolDetailsOpenRef = useRef(protocolDetailsOpen);
+  protocolDetailsOpenRef.current = protocolDetailsOpen;
+  const technicalDetailsOpenRef = useRef(technicalDetailsOpen);
+  technicalDetailsOpenRef.current = technicalDetailsOpen;
+  const customerToolsOpenRef = useRef(customerToolsOpen);
+  customerToolsOpenRef.current = customerToolsOpen;
   const oidcDeepLinkHandledRef = useRef<boolean>(false);
 
   const syncProtocolDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        identityProvidersDiagnosticsProtocolDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        identityProvidersDiagnosticsProtocolDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setProtocolDetailsOpen = useCallback(
     (open: boolean) => {
+      if (protocolDetailsOpenRef.current === open) {
+        return;
+      }
+
+      protocolDetailsOpenRef.current = open;
       setProtocolDetailsOpenState(open);
       syncProtocolDetailsOpenToUrl(open);
     },
@@ -129,23 +149,44 @@ export function IdentityProvidersDiagnosticsPageView(
   );
 
   useEffect(() => {
-    setProtocolDetailsOpenState(
-      parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
-    );
-  }, [identityProvidersDiagnosticsProtocolOpenParam]);
+    const syncProtocolDetailsOpenFromUrl = (): void => {
+      const next = parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(
+        new URLSearchParams(window.location.search).get("identityProvidersDiagnosticsProtocolOpen"),
+      );
+
+      if (protocolDetailsOpenRef.current === next) {
+        return;
+      }
+
+      protocolDetailsOpenRef.current = next;
+      setProtocolDetailsOpenState(next);
+    };
+
+    syncProtocolDetailsOpenFromUrl();
+    window.addEventListener("popstate", syncProtocolDetailsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncProtocolDetailsOpenFromUrl);
+    };
+  }, []);
 
   const syncTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        identityProvidersTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        identityProvidersTechnicalDetailsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalDetailsOpen = useCallback(
     (open: boolean) => {
+      if (technicalDetailsOpenRef.current === open) {
+        return;
+      }
+
+      technicalDetailsOpenRef.current = open;
       setTechnicalDetailsOpenState(open);
       syncTechnicalDetailsOpenToUrl(open);
     },
@@ -153,23 +194,44 @@ export function IdentityProvidersDiagnosticsPageView(
   );
 
   useEffect(() => {
-    setTechnicalDetailsOpenState(
-      parseIdentityProvidersTechnicalDetailsOpenFromSearch(identityProvidersTechnicalDetailsOpenParam),
-    );
-  }, [identityProvidersTechnicalDetailsOpenParam]);
+    const syncTechnicalDetailsOpenFromUrl = (): void => {
+      const next = parseIdentityProvidersTechnicalDetailsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("identityProvidersTechnicalDetailsOpen"),
+      );
+
+      if (technicalDetailsOpenRef.current === next) {
+        return;
+      }
+
+      technicalDetailsOpenRef.current = next;
+      setTechnicalDetailsOpenState(next);
+    };
+
+    syncTechnicalDetailsOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalDetailsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalDetailsOpenFromUrl);
+    };
+  }, []);
 
   const syncCustomerToolsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setCustomerToolsOpen = useCallback(
     (open: boolean) => {
+      if (customerToolsOpenRef.current === open) {
+        return;
+      }
+
+      customerToolsOpenRef.current = open;
       setCustomerToolsOpenState(open);
       syncCustomerToolsOpenToUrl(open);
     },
@@ -177,10 +239,26 @@ export function IdentityProvidersDiagnosticsPageView(
   );
 
   useEffect(() => {
-    setCustomerToolsOpenState(
-      parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(identityProvidersDiagnosticsCustomerToolsOpenParam),
-    );
-  }, [identityProvidersDiagnosticsCustomerToolsOpenParam]);
+    const syncCustomerToolsOpenFromUrl = (): void => {
+      const next = parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("identityProvidersDiagnosticsCustomerToolsOpen"),
+      );
+
+      if (customerToolsOpenRef.current === next) {
+        return;
+      }
+
+      customerToolsOpenRef.current = next;
+      setCustomerToolsOpenState(next);
+    };
+
+    syncCustomerToolsOpenFromUrl();
+    window.addEventListener("popstate", syncCustomerToolsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncCustomerToolsOpenFromUrl);
+    };
+  }, []);
 
   // The disclosure this deep link targets only mounts once the protocol payloads settle, so the
   // effect has to wait for that render rather than firing once on mount.
@@ -195,7 +273,7 @@ export function IdentityProvidersDiagnosticsPageView(
       return;
     }
 
-    setProtocolDetailsOpenState(true);
+    setProtocolDetailsOpen(true);
 
     const target = document.getElementById(IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID);
 
@@ -203,7 +281,7 @@ export function IdentityProvidersDiagnosticsPageView(
       target.scrollIntoView({ block: "start" });
       oidcDeepLinkHandledRef.current = true;
     }
-  }, [showProtocolDetails]);
+  }, [setProtocolDetailsOpen, showProtocolDetails]);
 
   return (
     <IdentityProvidersSettingsShell
@@ -264,7 +342,8 @@ export function IdentityProvidersDiagnosticsPageView(
             data-testid="identity-providers-diagnostics-protocol-details"
             open={protocolDetailsOpen}
             onToggle={(event) => {
-              setProtocolDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setProtocolDetailsOpen(!protocolDetailsOpenRef.current);
             }}
           >
             <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -305,7 +384,8 @@ export function IdentityProvidersDiagnosticsPageView(
           data-testid="identity-providers-technical-details"
           open={technicalDetailsOpen}
           onToggle={(event) => {
-            setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setTechnicalDetailsOpen(!technicalDetailsOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -325,7 +405,8 @@ export function IdentityProvidersDiagnosticsPageView(
           data-testid="identity-providers-diagnostics-customer-tools"
           open={customerToolsOpen}
           onToggle={(event) => {
-            setCustomerToolsOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setCustomerToolsOpen(!customerToolsOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

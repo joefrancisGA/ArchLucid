@@ -2,10 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   findingInsightDensityDisclosureHrefFromSearch,
   parseFindingInsightDensityOpenFromSearch,
@@ -20,28 +21,36 @@ export type FindingInsightDensityDisclosureProps = {
 
 /** Optional insight-density fields behind disclosure on finding detail surfaces. */
 export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisclosureProps): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingInsightDensityOpenParam = searchParams.get("findingInsightDensityOpen");
   const [open, setOpenState] = useState(() =>
-    parseFindingInsightDensityOpenFromSearch(findingInsightDensityOpenParam),
+    parseFindingInsightDensityOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingInsightDensityOpen"),
+    ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
   const hasScore = props.insightDensityScore !== null && Number.isFinite(props.insightDensityScore);
   const whyText = props.whyThisIsNotGeneric?.trim() ?? "";
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        findingInsightDensityDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingInsightDensityDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -49,8 +58,26 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
   );
 
   useEffect(() => {
-    setOpenState(parseFindingInsightDensityOpenFromSearch(findingInsightDensityOpenParam));
-  }, [findingInsightDensityOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseFindingInsightDensityOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingInsightDensityOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   if (!hasScore && whyText.length === 0) {
     return null;
@@ -62,7 +89,8 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
       data-testid="finding-insight-density-disclosure"
       open={open}
       onToggle={(event) => {
-        setOpen((event.currentTarget as HTMLDetailsElement).open);
+        event.preventDefault();
+        setOpen(!openRef.current);
       }}
     >
       <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

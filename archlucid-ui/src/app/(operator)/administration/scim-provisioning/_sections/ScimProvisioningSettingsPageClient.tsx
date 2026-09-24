@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { ScimProvisioningSettingsBuyerChrome } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningSettingsBuyerChrome";
 import { AuthBetaReadinessInviteCallout } from "@/app/(operator)/administration/users/_sections/AuthBetaReadinessInviteCallout";
@@ -81,6 +81,7 @@ import {
   scimProvisioningTokenHrefFromSearch,
 } from "@/lib/administration/scim-provisioning-token-url";
 import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 const tokensPath = "/api/proxy/v1/admin/scim/tokens";
 
@@ -95,11 +96,7 @@ async function copyText(value: string): Promise<void> {
 /** SCIM inbound provisioning administration — token lifecycle and connectivity verification. */
 export function ScimProvisioningSettingsPageClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const router = useRouter();
   const pathname = usePathname() ?? SCIM_PROVISIONING_CANONICAL_PATH;
-  const searchParams = useSearchParams();
-  const urlScimCreate = parseScimTokenCreateOpenFromSearch(searchParams.get("scimCreate"));
-  const urlScimRevokeId = parseScimTokenRevokeIdFromSearch(searchParams.get("scimRevokeId"));
 
   const [state, setState] = useState<ScimTokensLoadState>({ status: "idle" });
   const [scimBaseUrlClassification, setScimBaseUrlClassification] = useState<ScimBaseUrlClassification | null>(
@@ -113,35 +110,51 @@ export function ScimProvisioningSettingsPageClient() {
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [pendingRevoke, setPendingRevokeState] = useState<ScimTokenSummary | null>(null);
   const [pendingCreate, setPendingCreateState] = useState(false);
+  const pendingCreateRef = useRef(false);
+  const pendingRevokeIdRef = useRef<string | null>(null);
+  pendingCreateRef.current = pendingCreate;
+  pendingRevokeIdRef.current = pendingRevoke?.id ?? null;
 
   const syncScimTokenUrl = useCallback(
     (createOpen: boolean, revokeTokenId: string | null) => {
-      router.replace(
+      commitHrefIfChanged(
         scimProvisioningTokenHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           { createOpen, revokeTokenId },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPendingCreate = useCallback(
     (value: boolean) => {
+      if (pendingCreateRef.current === value) {
+        return;
+      }
+
+      pendingCreateRef.current = value;
       setPendingCreateState(value);
-      syncScimTokenUrl(value, pendingRevoke?.id ?? null);
+      syncScimTokenUrl(value, pendingRevokeIdRef.current);
     },
-    [pendingRevoke?.id, syncScimTokenUrl],
+    [syncScimTokenUrl],
   );
 
   const setPendingRevoke = useCallback(
     (value: ScimTokenSummary | null) => {
+      const nextId = value?.id ?? null;
+
+      if (pendingRevokeIdRef.current === nextId) {
+        return;
+      }
+
+      pendingRevokeIdRef.current = nextId;
       setPendingRevokeState(value);
-      syncScimTokenUrl(pendingCreate, value?.id ?? null);
+      syncScimTokenUrl(pendingCreateRef.current, nextId);
     },
-    [pendingCreate, syncScimTokenUrl],
+    [syncScimTokenUrl],
   );
 
   const [copiedBaseUrl, setCopiedBaseUrl] = useState(false);
@@ -191,34 +204,65 @@ export function ScimProvisioningSettingsPageClient() {
   }, [load]);
 
   useEffect(() => {
-    setPendingCreateState(urlScimCreate);
-  }, [urlScimCreate]);
+    const syncCreateFromUrl = (): void => {
+      const nextCreate = parseScimTokenCreateOpenFromSearch(
+        new URLSearchParams(window.location.search).get("scimCreate"),
+      );
 
-  useEffect(() => {
-    if (urlScimRevokeId.length === 0) {
-      if (pendingRevoke !== null) {
-        setPendingRevokeState(null);
+      if (pendingCreateRef.current === nextCreate) {
+        return;
       }
 
-      return;
-    }
+      pendingCreateRef.current = nextCreate;
+      setPendingCreateState(nextCreate);
+    };
 
-    if (state.status !== "ready") {
-      return;
-    }
+    syncCreateFromUrl();
+    window.addEventListener("popstate", syncCreateFromUrl);
 
-    const token = state.tokens.find((row) => row.id === urlScimRevokeId);
+    return () => {
+      window.removeEventListener("popstate", syncCreateFromUrl);
+    };
+  }, []);
 
-    if (token === undefined) {
-      return;
-    }
+  useEffect(() => {
+    const syncPendingRevokeFromUrl = (): void => {
+      const revokeId = parseScimTokenRevokeIdFromSearch(
+        new URLSearchParams(window.location.search).get("scimRevokeId"),
+      );
 
-    if (pendingRevoke?.id === token.id) {
-      return;
-    }
+      if (revokeId.length === 0) {
+        if (pendingRevokeIdRef.current === null) {
+          return;
+        }
 
-    setPendingRevokeState(token);
-  }, [pendingRevoke?.id, state, urlScimRevokeId]);
+        pendingRevokeIdRef.current = null;
+        setPendingRevokeState(null);
+
+        return;
+      }
+
+      if (state.status !== "ready") {
+        return;
+      }
+
+      const token = state.tokens.find((row) => row.id === revokeId);
+
+      if (token === undefined || pendingRevokeIdRef.current === revokeId) {
+        return;
+      }
+
+      pendingRevokeIdRef.current = revokeId;
+      setPendingRevokeState(token);
+    };
+
+    syncPendingRevokeFromUrl();
+    window.addEventListener("popstate", syncPendingRevokeFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPendingRevokeFromUrl);
+    };
+  }, [state]);
 
   const clearSetupSession = useCallback(() => {
     setIssuedToken(null);

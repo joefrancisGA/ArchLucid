@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -20,6 +20,7 @@ import {
   architectureCreatedHomeOverflowDisclosureHrefFromSearch,
   parseArchitectureCreatedHomeOverflowOpenFromSearch,
 } from "@/lib/architecture/architecture-created-home-overflow-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -31,24 +32,34 @@ export type ArchitectureCreatedHomeViewportProps = {
 export function ArchitectureCreatedHomeViewport(
   props: ArchitectureCreatedHomeViewportProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureCreatedHomeOverflowParam = searchParams.get(ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM);
+  const readOverflowOpenFromUrl = (): boolean =>
+    parseArchitectureCreatedHomeOverflowOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM,
+      ),
+    );
   const [architectureCreatedHomeOverflowOpen, setArchitectureCreatedHomeOverflowOpenState] = useState(() =>
-    parseArchitectureCreatedHomeOverflowOpenFromSearch(architectureCreatedHomeOverflowParam),
+    readOverflowOpenFromUrl(),
   );
+  const architectureCreatedHomeOverflowOpenRef = useRef(architectureCreatedHomeOverflowOpen);
+  architectureCreatedHomeOverflowOpenRef.current = architectureCreatedHomeOverflowOpen;
   const syncArchitectureCreatedHomeOverflowOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        architectureCreatedHomeOverflowDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureCreatedHomeOverflowDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setArchitectureCreatedHomeOverflowOpen = useCallback(
     (open: boolean) => {
+      if (architectureCreatedHomeOverflowOpenRef.current === open) {
+        return;
+      }
+
+      architectureCreatedHomeOverflowOpenRef.current = open;
       setArchitectureCreatedHomeOverflowOpenState(open);
       syncArchitectureCreatedHomeOverflowOpenToUrl(open);
     },
@@ -59,10 +70,24 @@ export function ArchitectureCreatedHomeViewport(
   const secondaryActions = model.primaryActions.filter((action) => action !== primaryAction);
 
   useEffect(() => {
-    setArchitectureCreatedHomeOverflowOpenState(
-      parseArchitectureCreatedHomeOverflowOpenFromSearch(architectureCreatedHomeOverflowParam),
-    );
-  }, [architectureCreatedHomeOverflowParam]);
+    const syncOverflowOpenFromUrl = (): void => {
+      const next = readOverflowOpenFromUrl();
+
+      if (architectureCreatedHomeOverflowOpenRef.current === next) {
+        return;
+      }
+
+      architectureCreatedHomeOverflowOpenRef.current = next;
+      setArchitectureCreatedHomeOverflowOpenState(next);
+    };
+
+    syncOverflowOpenFromUrl();
+    window.addEventListener("popstate", syncOverflowOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOverflowOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section
@@ -99,7 +124,10 @@ export function ArchitectureCreatedHomeViewport(
         <details
           className="relative"
           open={architectureCreatedHomeOverflowOpen}
-          onToggle={(event) => setArchitectureCreatedHomeOverflowOpen(event.currentTarget.open)}
+          onToggle={(event) => {
+            event.preventDefault();
+            setArchitectureCreatedHomeOverflowOpen(!architectureCreatedHomeOverflowOpenRef.current);
+          }}
         >
           <summary
             className={cn(

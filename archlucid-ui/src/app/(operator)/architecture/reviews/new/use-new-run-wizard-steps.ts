@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { UseFormTrigger } from "react-hook-form";
 
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
@@ -53,7 +55,6 @@ export type UseNewRunWizardStepsOptions = {
 };
 
 export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
   const urlStepIndex = parseNewRunWizardStepFromSearch(searchParams.get("step"));
@@ -72,11 +73,12 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
 
   const syncStepToUrl = useCallback(
     (nextStepIndex: number) => {
-      router.replace(newRunWizardStepHrefFromSearch(searchParams.toString(), nextStepIndex, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        newRunWizardStepHrefFromSearch(readWindowLocationSearch(), nextStepIndex, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setStepIndexWithUrl = useCallback(
@@ -118,14 +120,25 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   }, [setStepIndex, stepDefinitions.length, syncStepToUrl]);
 
   useEffect(() => {
-    const nextStep = parseNewRunWizardStepFromSearch(searchParams.get("step"));
+    const syncStepFromUrl = (): void => {
+      const nextStep = parseNewRunWizardStepFromSearch(
+        new URLSearchParams(window.location.search).get("step"),
+      );
 
-    if (nextStep === null) {
-      return;
-    }
+      if (nextStep === null) {
+        return;
+      }
 
-    goToStep(clampWizardStepIndex(nextStep, stepDefinitions.length));
-  }, [goToStep, searchParams, stepDefinitions.length]);
+      goToStep(clampWizardStepIndex(nextStep, stepDefinitions.length));
+    };
+
+    syncStepFromUrl();
+    window.addEventListener("popstate", syncStepFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncStepFromUrl);
+    };
+  }, [goToStep, stepDefinitions.length]);
 
   const macroStep: number = macroWizardStepIndex(stepIndex);
   const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);

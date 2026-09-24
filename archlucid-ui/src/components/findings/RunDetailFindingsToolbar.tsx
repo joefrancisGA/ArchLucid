@@ -1,8 +1,10 @@
 ﻿"use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,21 +89,68 @@ export type RunDetailFindingsToolbarProps = {
 
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
   const layout = props.layout ?? "full";
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingsFilterPanelOpenParam = searchParams.get("findingsFilterPanelOpen");
-  const urlFilterPanelOpen = parseFindingsFilterPanelOpenFromSearch(findingsFilterPanelOpenParam);
-  const filterPanelOpen = urlFilterPanelOpen ?? props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD;
+  const readFilterPanelOpenFromUrl = (): boolean | null =>
+    parseFindingsFilterPanelOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        "findingsFilterPanelOpen",
+      ),
+    );
+  const [filterPanelOpen, setFilterPanelOpenState] = useState(() => {
+    const fromUrl = readFilterPanelOpenFromUrl();
+
+    if (fromUrl !== null) {
+      return fromUrl;
+    }
+
+    return props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD;
+  });
+  const filterPanelOpenRef = useRef(filterPanelOpen);
+  filterPanelOpenRef.current = filterPanelOpen;
+
+  const syncFilterPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      commitHrefIfChanged(
+        runDetailFindingsFilterDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
 
   const setFilterPanelOpen = useCallback(
     (open: boolean) => {
-      router.replace(runDetailFindingsFilterDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      if (filterPanelOpenRef.current === open) {
+        return;
+      }
+
+      filterPanelOpenRef.current = open;
+      setFilterPanelOpenState(open);
+      syncFilterPanelOpenToUrl(open);
     },
-    [pathname, router, searchParams],
+    [syncFilterPanelOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncFilterPanelOpenFromUrl = (): void => {
+      const fromUrl = readFilterPanelOpenFromUrl();
+      const next = fromUrl ?? props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD;
+
+      if (filterPanelOpenRef.current === next) {
+        return;
+      }
+
+      filterPanelOpenRef.current = next;
+      setFilterPanelOpenState(next);
+    };
+
+    syncFilterPanelOpenFromUrl();
+    window.addEventListener("popstate", syncFilterPanelOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFilterPanelOpenFromUrl);
+    };
+  }, [props.findings.length]);
   const severityCounts = useMemo(
     () => deriveFindingsToolbarSeverityCounts(props.findings),
     [props.findings],
@@ -245,7 +294,8 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           data-workspace-disclosure
           open={filterPanelOpen}
           onToggle={(event) => {
-            setFilterPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+            event.preventDefault();
+            setFilterPanelOpen(!filterPanelOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -361,7 +411,8 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
         data-workspace-disclosure
         open={filterPanelOpen}
         onToggle={(event) => {
-          setFilterPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setFilterPanelOpen(!filterPanelOpenRef.current);
         }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>

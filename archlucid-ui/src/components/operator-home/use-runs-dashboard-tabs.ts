@@ -1,7 +1,9 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
@@ -73,14 +75,19 @@ export function useRunsDashboardTabs({
   restoreArchivedRequest,
 }: UseRunsDashboardTabsOptions) {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [tab, setTab] = useState<RunsDashboardTabId>(() => parseRunsDashboardTabFromSearch(searchParams.get("tab")));
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
   const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(() =>
     homeGovernanceWarningsQueryEnabled(searchParams),
   );
+  const governanceWarningsOnlyRef = useRef(governanceWarningsOnly);
+  governanceWarningsOnlyRef.current = governanceWarningsOnly;
   const [showArchived, setShowArchived] = useState(() =>
     parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")),
   );
+  const showArchivedRef = useRef(showArchived);
+  showArchivedRef.current = showArchived;
   const { reportWorkspaceReviews, homeAttentionPreviewExcludedRunIds } = useOperatorHomeWorkspaceActivity();
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
   const { summaries: attentionSummaries } = useOperatorAttentionSummary();
@@ -105,14 +112,43 @@ export function useRunsDashboardTabs({
   );
 
   useEffect(() => {
-    if (homeGovernanceWarningsQueryEnabled(searchParams)) {
-      setGovernanceWarningsOnly(true);
-      setTab("all");
-    }
+    const syncDashboardStateFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
 
-    setTab(parseRunsDashboardTabFromSearch(searchParams.get("tab")));
-    setShowArchived(parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")));
-  }, [searchParams]);
+      if (homeGovernanceWarningsQueryEnabled(params)) {
+        if (!governanceWarningsOnlyRef.current) {
+          governanceWarningsOnlyRef.current = true;
+          setGovernanceWarningsOnly(true);
+        }
+
+        if (tabRef.current !== "all") {
+          tabRef.current = "all";
+          setTab("all");
+        }
+      }
+
+      const nextTab = parseRunsDashboardTabFromSearch(params.get("tab"));
+
+      if (tabRef.current !== nextTab) {
+        tabRef.current = nextTab;
+        setTab(nextTab);
+      }
+
+      const nextShowArchived = parseRunsDashboardShowArchivedFromSearch(params.get("archived"));
+
+      if (showArchivedRef.current !== nextShowArchived) {
+        showArchivedRef.current = nextShowArchived;
+        setShowArchived(nextShowArchived);
+      }
+    };
+
+    syncDashboardStateFromUrl();
+    window.addEventListener("popstate", syncDashboardStateFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDashboardStateFromUrl);
+    };
+  }, []);
 
   const displayItems = useMemo(() => {
     if (hideHeading && !sampleReviewsVisible) {
@@ -352,43 +388,61 @@ export function useRunsDashboardTabs({
     next: RunsDashboardTabId,
     options?: { readonly preserveShowArchived?: boolean },
   ) => {
+    const nextShowArchived = options?.preserveShowArchived ? showArchivedRef.current : false;
+
+    if (tabRef.current === next && showArchivedRef.current === nextShowArchived) {
+      return;
+    }
+
+    tabRef.current = next;
     setTab(next);
 
     if (!options?.preserveShowArchived) {
+      showArchivedRef.current = false;
       setShowArchived(false);
     }
 
-    router.replace(
-      runsDashboardHomeHrefFromSearch(searchParams.toString(), {
+    commitHrefIfChanged(
+      runsDashboardHomeHrefFromSearch(readWindowLocationSearch(), {
         tab: next,
         ...(options?.preserveShowArchived ? {} : { showArchived: false }),
       }),
-      { scroll: false },
+      { notify: false },
     );
-  }, [router, searchParams]);
+  }, []);
 
   const setShowArchivedWithUrl = useCallback(
     (value: boolean) => {
+      if (showArchivedRef.current === value) {
+        return;
+      }
+
+      showArchivedRef.current = value;
       setShowArchived(value);
-      router.replace(
-        runsDashboardHomeHrefFromSearch(searchParams.toString(), { showArchived: value }),
-        { scroll: false },
+      commitHrefIfChanged(
+        runsDashboardHomeHrefFromSearch(readWindowLocationSearch(), { showArchived: value }),
+        { notify: false },
       );
     },
-    [router, searchParams],
+    [],
   );
 
   const setGovernanceWarningsOnlyWithUrl = useCallback(
     (value: boolean) => {
+      if (governanceWarningsOnlyRef.current === value) {
+        return;
+      }
+
+      governanceWarningsOnlyRef.current = value;
       setGovernanceWarningsOnly(value);
 
       const nextHref = value
-        ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
-        : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
+        ? homeGovernanceWarningsHrefFromSearch(readWindowLocationSearch())
+        : homeGovernanceWarningsClearHrefFromSearch(readWindowLocationSearch());
 
-      router.replace(nextHref, { scroll: false });
+      commitHrefIfChanged(nextHref, { notify: false });
     },
-    [router, searchParams],
+    [],
   );
 
   const clearGovernanceWarningsFilter = useCallback(() => {

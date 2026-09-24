@@ -60,7 +60,12 @@ public static class EffectfulFindingEngineCollectionFreshness
         DateTime utcNow,
         int staleAfterDays)
     {
-        DateTime collectionUtc = ResolvePinnedCollectionUtcOrThrow(analysisContext, provider);
+        DateTime? collectionUtc = ResolvePinnedCollectionUtc(analysisContext, provider);
+
+        if (collectionUtc is null)
+        {
+            return true;
+        }
 
         return InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
             collectionUtc,

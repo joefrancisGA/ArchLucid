@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseSidebarNavExpandedGroupsFromSearch,
   sidebarNavExpandedGroupsDisclosureHrefFromSearch,
@@ -40,42 +41,39 @@ export function useSidebarNavGroupExpansion(): {
   setGroupExpanded: (groupId: SidebarCollapsibleNavGroupId, expanded: boolean) => void;
   toggleGroupExpanded: (groupId: SidebarCollapsibleNavGroupId) => void;
 } {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
-  const sidebarNavExpandedGroupsParam = searchParams.get("sidebarNavExpandedGroups");
-  const currentSearchRef = useRef(currentSearch);
   const pathnameRef = useRef(pathname);
+  const suppressUrlSyncRef = useRef(false);
 
-  currentSearchRef.current = currentSearch;
   pathnameRef.current = pathname;
 
   const [expansion, setExpansion] = useState<SidebarNavGroupExpansionState>(() =>
     readSidebarNavGroupExpansionState(),
   );
 
-  const syncExpandedGroupsToUrl = useCallback(
-    (state: SidebarNavGroupExpansionState) => {
-      router.replace(
-        sidebarNavExpandedGroupsDisclosureHrefFromSearch(
-          currentSearchRef.current,
-          expandedGroupIdsFromState(state),
-          pathnameRef.current,
-        ),
-        { scroll: false },
-      );
-    },
-    [router],
-  );
+  const syncExpandedGroupsToUrl = useCallback((state: SidebarNavGroupExpansionState) => {
+    suppressUrlSyncRef.current = true;
+    commitHrefIfChanged(
+      sidebarNavExpandedGroupsDisclosureHrefFromSearch(
+        window.location.search.slice(1),
+        expandedGroupIdsFromState(state),
+        pathnameRef.current,
+      ),
+      { notify: false },
+    );
+  }, []);
 
-  const persist = useCallback(
+  const persistLocal = useCallback((next: SidebarNavGroupExpansionState) => {
+    setExpansion(next);
+    writeSidebarNavGroupExpansionState(next);
+  }, []);
+
+  const persistWithUrl = useCallback(
     (next: SidebarNavGroupExpansionState) => {
-      setExpansion(next);
-      writeSidebarNavGroupExpansionState(next);
+      persistLocal(next);
       syncExpandedGroupsToUrl(next);
     },
-    [syncExpandedGroupsToUrl],
+    [persistLocal, syncExpandedGroupsToUrl],
   );
 
   useEffect(() => {
@@ -83,16 +81,33 @@ export function useSidebarNavGroupExpansion(): {
   }, []);
 
   useEffect(() => {
-    const expandedFromUrl = parseSidebarNavExpandedGroupsFromSearch(sidebarNavExpandedGroupsParam);
+    const syncExpandedGroupsFromUrl = (): void => {
+      if (suppressUrlSyncRef.current) {
+        suppressUrlSyncRef.current = false;
 
-    if (expandedFromUrl.length === 0) {
-      return;
-    }
+        return;
+      }
 
-    const next = applyExpandedGroupsToState(readSidebarNavGroupExpansionState(), expandedFromUrl);
-    setExpansion(next);
-    writeSidebarNavGroupExpansionState(next);
-  }, [sidebarNavExpandedGroupsParam]);
+      const expandedFromUrl = parseSidebarNavExpandedGroupsFromSearch(
+        new URLSearchParams(window.location.search).get("sidebarNavExpandedGroups"),
+      );
+
+      if (expandedFromUrl.length === 0) {
+        return;
+      }
+
+      const next = applyExpandedGroupsToState(readSidebarNavGroupExpansionState(), expandedFromUrl);
+      setExpansion(next);
+      writeSidebarNavGroupExpansionState(next);
+    };
+
+    syncExpandedGroupsFromUrl();
+    window.addEventListener("popstate", syncExpandedGroupsFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncExpandedGroupsFromUrl);
+    };
+  }, []);
 
   const setGroupExpanded = useCallback(
     (groupId: SidebarCollapsibleNavGroupId, expanded: boolean) => {
@@ -102,24 +117,24 @@ export function useSidebarNavGroupExpansion(): {
         return;
       }
 
-      persist({
+      persistLocal({
         ...current,
         [groupId]: expanded,
       });
     },
-    [persist],
+    [persistLocal],
   );
 
   const toggleGroupExpanded = useCallback(
     (groupId: SidebarCollapsibleNavGroupId) => {
       const current = readSidebarNavGroupExpansionState();
 
-      persist({
+      persistWithUrl({
         ...current,
         [groupId]: !current[groupId],
       });
     },
-    [persist],
+    [persistWithUrl],
   );
 
   return {

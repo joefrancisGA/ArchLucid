@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type ArchitectureNestedToolScopeSeedProps = {
   readonly architectureId: string;
@@ -12,9 +14,7 @@ export type ArchitectureNestedToolScopeSeedProps = {
 export function ArchitectureNestedToolScopeSeed(
   props: ArchitectureNestedToolScopeSeedProps,
 ): null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
   const architectureId = props.architectureId.trim();
 
   useEffect(() => {
@@ -22,18 +22,19 @@ export function ArchitectureNestedToolScopeSeed(
       return;
     }
 
-    const current = searchParams.get(props.queryParam)?.trim() ?? "";
+    const current = new URLSearchParams(readWindowLocationSearch()).get(props.queryParam)?.trim() ?? "";
 
     if (current === architectureId) {
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(readWindowLocationSearch());
     params.set(props.queryParam, architectureId);
     const query = params.toString();
+    const nextHref = query.length > 0 ? `${pathname}?${query}` : pathname;
 
-    router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [architectureId, pathname, props.queryParam, router, searchParams]);
+    commitHrefIfChanged(nextHref, { notify: false });
+  }, [architectureId, pathname, props.queryParam]);
 
   return null;
 }

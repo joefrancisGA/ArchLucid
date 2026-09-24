@@ -17,10 +17,11 @@ import {
   parseReviewsNewMoreWaysToStartOpenFromSearch,
   reviewsNewMoreWaysToStartDisclosureHrefFromSearch,
 } from "@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ReviewsNewActivePath } from "./reviews-new-path-switcher-state";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 type ReviewsNewMoreWaysToStartProps = {
   readonly onSelectPath: (path: ReviewsNewActivePath) => void;
@@ -49,24 +50,32 @@ function secondaryPathTestId(path: ReviewsNewActivePath): string {
 /** Secondary review-start paths for first-run tenants (TB-2130). */
 export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps): React.JSX.Element {
   const { onSelectPath } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const reviewsNewMoreWaysToStartOpenParam = searchParams.get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM);
   const [open, setOpenState] = useState(() =>
-    parseReviewsNewMoreWaysToStartOpenFromSearch(reviewsNewMoreWaysToStartOpenParam),
+    parseReviewsNewMoreWaysToStartOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM),
+    ),
   );
+  const openRef = useRef(open);
+  openRef.current = open;
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        reviewsNewMoreWaysToStartDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        reviewsNewMoreWaysToStartDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -74,8 +83,26 @@ export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps)
   );
 
   useEffect(() => {
-    setOpenState(parseReviewsNewMoreWaysToStartOpenFromSearch(reviewsNewMoreWaysToStartOpenParam));
-  }, [reviewsNewMoreWaysToStartOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseReviewsNewMoreWaysToStartOpenFromSearch(
+        new URLSearchParams(window.location.search).get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <CollapsibleSection

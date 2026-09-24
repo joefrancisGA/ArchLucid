@@ -106,6 +106,16 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertIn(sut._INVITE_FLOW_SPEC, push_text)
 
+    def test_private_beta_workflows_restart_api_after_enterprise_grant(self) -> None:
+        for rel_path in (sut._CI_REL, sut._PUSH_REL, sut._SMOKE_REL):
+            errors: list[str] = []
+            sut._require_enterprise_grant_api_restart(
+                rel_path,
+                (REPO_ROOT / rel_path).read_text(encoding="utf-8"),
+                errors,
+            )
+            self.assertEqual(errors, [], msg=rel_path)
+
     def test_tb927_invitee_role_wiring_requires_direct_me_helper(self) -> None:
         helper_text = (REPO_ROOT / sut._PRIVATE_BETA_HELPER_REL).read_text(encoding="utf-8")
         spec_text = (REPO_ROOT / "archlucid-ui" / "e2e" / sut._SPEC).read_text(encoding="utf-8")

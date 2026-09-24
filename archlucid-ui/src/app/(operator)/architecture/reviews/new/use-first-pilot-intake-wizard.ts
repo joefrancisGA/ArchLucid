@@ -1,9 +1,10 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
@@ -70,7 +71,6 @@ export type FirstPilotIntakeWizardProps = {
 
 export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { onRunCreatedNavigate } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
@@ -120,6 +120,8 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     isSimulator,
   });
   const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
+  const scopeGateOpenRef = useRef(scopeGateOpen);
+  scopeGateOpenRef.current = scopeGateOpen;
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
 
   const setScopeGateOpen = useCallback(
@@ -127,17 +129,40 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       setScopeGateOpenState((current) => {
         const resolved = typeof next === "function" ? next(current) : next;
 
-        router.replace(scopeGateHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+        if (scopeGateOpenRef.current !== resolved) {
+          scopeGateOpenRef.current = resolved;
+          commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
+            notify: false,
+          });
+        }
 
         return resolved;
       });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   useEffect(() => {
-    setScopeGateOpenState(urlScopeGateOpen);
-  }, [urlScopeGateOpen]);
+    const syncScopeGateFromUrl = (): void => {
+      const next = parseScopeGateOpenFromSearch(
+        new URLSearchParams(window.location.search).get("scopeGate"),
+      );
+
+      if (scopeGateOpenRef.current === next) {
+        return;
+      }
+
+      scopeGateOpenRef.current = next;
+      setScopeGateOpenState(next);
+    };
+
+    syncScopeGateFromUrl();
+    window.addEventListener("popstate", syncScopeGateFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncScopeGateFromUrl);
+    };
+  }, []);
 
   const [writeDestination, setWriteDestination] = useState(() =>
     formatFirstPilotIntakeWriteDestination(readActiveTenantContext()),

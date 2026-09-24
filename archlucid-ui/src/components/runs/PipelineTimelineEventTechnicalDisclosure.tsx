@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parsePipelineTimelineEventIdFromSearch,
   pipelineTimelineEventDisclosureHrefFromSearch,
@@ -20,30 +21,39 @@ export function PipelineTimelineEventTechnicalDisclosure(
   props: PipelineTimelineEventTechnicalDisclosureProps,
 ): React.JSX.Element {
   const { row, eventLabel } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const pipelineTimelineEventIdParam = searchParams.get("pipelineTimelineEventId");
   const [open, setOpenState] = useState(
-    () => parsePipelineTimelineEventIdFromSearch(pipelineTimelineEventIdParam) === row.eventId,
+    () =>
+      parsePipelineTimelineEventIdFromSearch(
+        typeof window === "undefined"
+          ? null
+          : new URLSearchParams(window.location.search).get("pipelineTimelineEventId"),
+      ) === row.eventId,
   );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
+      commitHrefIfChanged(
         pipelineTimelineEventDisclosureHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           detailsOpen ? row.eventId : null,
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, row.eventId, searchParams],
+    [pathname, row.eventId],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -51,8 +61,27 @@ export function PipelineTimelineEventTechnicalDisclosure(
   );
 
   useEffect(() => {
-    setOpenState(parsePipelineTimelineEventIdFromSearch(pipelineTimelineEventIdParam) === row.eventId);
-  }, [pipelineTimelineEventIdParam, row.eventId]);
+    const syncOpenFromUrl = (): void => {
+      const next =
+        parsePipelineTimelineEventIdFromSearch(
+          new URLSearchParams(window.location.search).get("pipelineTimelineEventId"),
+        ) === row.eventId;
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, [row.eventId]);
 
   return (
     <CollapsibleSection

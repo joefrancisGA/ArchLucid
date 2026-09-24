@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type SetStateAction } from "react";
 
 import { palettePressUsesPaletteModifier } from "@/components/CommandPalette";
@@ -18,65 +18,84 @@ import {
   isGlobalSearchBarOverlayHrefCurrent,
   parseGlobalSearchBarOpenFromSearch,
 } from "@/lib/operator/global-search-bar-overlay-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";
 export const FOCUS_GLOBAL_SEARCH_EVENT = "archlucid-focus-global-search";
 
 export type GlobalSearchBarController = ReturnType<typeof useGlobalSearchBar>;
 
+function readGlobalSearchOpenFromWindow(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseGlobalSearchBarOpenFromSearch(
+    new URLSearchParams(window.location.search).get("globalSearchOpen"),
+  );
+}
+
 export function useGlobalSearchBar() {
   const inputId = useId();
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams?.toString() ?? "";
-  const globalSearchOpenParam = searchParams?.get("globalSearchOpen") ?? null;
-  const urlOpen = parseGlobalSearchBarOpenFromSearch(globalSearchOpenParam);
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const previousUrlOpenRef = useRef(urlOpen);
   const [query, setQuery] = useState("");
-  const [open, setOpenState] = useState(urlOpen);
+  const [open, setOpenState] = useState(() => readGlobalSearchOpenFromWindow());
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncGlobalSearchOpenToUrl = useCallback(
     (panelOpen: boolean) => {
+      const currentSearch = window.location.search.slice(1);
+
       if (isGlobalSearchBarOverlayHrefCurrent(currentSearch, panelOpen, pathname)) {
         return;
       }
 
-      router.replace(globalSearchBarOverlayHrefFromSearch(currentSearch, panelOpen, pathname), {
-        scroll: false,
+      commitHrefIfChanged(globalSearchBarOverlayHrefFromSearch(currentSearch, panelOpen, pathname), {
+        notify: false,
       });
     },
-    [currentSearch, pathname, router],
+    [pathname],
   );
 
-  const setOpen = useCallback((value: SetStateAction<boolean>) => {
-    setOpenState((current) => (typeof value === "function" ? value(current) : value));
-  }, []);
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-  useEffect(() => {
-    // Keep router.replace out of the open-state updater. React runs updaters during
-    // render, and replacing the URL would update Router while GlobalSearchBar renders.
-    // Depend on the parsed flag, not searchParams identity, so a new params object
-    // cannot look like an external close and collapse the panel.
-
-    if (previousUrlOpenRef.current !== urlOpen) {
-      previousUrlOpenRef.current = urlOpen;
-
-      if (urlOpen !== open) {
-        setOpenState(urlOpen);
+      if (openRef.current === next) {
+        return;
       }
 
-      return;
-    }
+      openRef.current = next;
+      setOpenState(next);
+      syncGlobalSearchOpenToUrl(next);
+    },
+    [syncGlobalSearchOpenToUrl],
+  );
 
-    if (urlOpen === open) {
-      return;
-    }
+  useEffect(() => {
+    const syncGlobalSearchOpenFromUrl = (): void => {
+      const nextOpen = readGlobalSearchOpenFromWindow();
 
-    syncGlobalSearchOpenToUrl(open);
-  }, [open, syncGlobalSearchOpenToUrl, urlOpen]);
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncGlobalSearchOpenFromUrl();
+    window.addEventListener("popstate", syncGlobalSearchOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncGlobalSearchOpenFromUrl);
+    };
+  }, []);
 
   const {
     routeLocalSearchMode,

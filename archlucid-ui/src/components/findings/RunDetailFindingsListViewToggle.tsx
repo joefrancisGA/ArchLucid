@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { ReactElement } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -10,6 +10,7 @@ import {
   reviewFindingsListViewHrefFromSearch,
   type ReviewFindingsListViewKind,
 } from "@/lib/findings/review-findings-list-view";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsListViewToggleProps = {
@@ -17,15 +18,55 @@ export type RunDetailFindingsListViewToggleProps = {
 };
 
 export function RunDetailFindingsListViewToggle(props: RunDetailFindingsListViewToggleProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const urlView = parseReviewFindingsListViewFromSearch(searchParams.get("findingsListView"));
-  const activeView = urlView ?? defaultReviewFindingsListView(props.workingMode);
+  const readActiveView = (): ReviewFindingsListViewKind => {
+    const fromUrl = parseReviewFindingsListViewFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingsListView"),
+    );
 
-  function setView(next: ReviewFindingsListViewKind): void {
-    router.replace(reviewFindingsListViewHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
-  }
+    return fromUrl ?? defaultReviewFindingsListView(props.workingMode);
+  };
+  const [activeView, setActiveViewState] = useState<ReviewFindingsListViewKind>(() => readActiveView());
+  const activeViewRef = useRef(activeView);
+  activeViewRef.current = activeView;
+
+  const setView = useCallback(
+    (next: ReviewFindingsListViewKind) => {
+      if (activeViewRef.current === next) {
+        return;
+      }
+
+      activeViewRef.current = next;
+      setActiveViewState(next);
+      commitHrefIfChanged(
+        reviewFindingsListViewHrefFromSearch(readWindowLocationSearch(), next, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  useEffect(() => {
+    const syncViewFromUrl = (): void => {
+      const next = readActiveView();
+
+      if (activeViewRef.current === next) {
+        return;
+      }
+
+      activeViewRef.current = next;
+      setActiveViewState(next);
+    };
+
+    syncViewFromUrl();
+    window.addEventListener("popstate", syncViewFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncViewFromUrl);
+    };
+  }, [props.workingMode]);
 
   return (
     <div

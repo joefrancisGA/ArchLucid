@@ -9,14 +9,13 @@ import {
   clearReviewFindingsLastVisitStorage,
   patchReviewFindingsLastVisit,
 } from "@/lib/findings/review-findings-last-visit-storage";
-import { useReviewFindingsLastVisitRestore } from "@/hooks/use-review-findings-last-visit";
-
-const routerReplace = vi.fn();
+import {
+  resetReviewFindingsLastVisitRestoreStateForTests,
+  useReviewFindingsLastVisitRestore,
+} from "@/hooks/use-review-findings-last-visit";
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: routerReplace }),
   usePathname: () => "/architecture/reviews/run-1",
-  useSearchParams: () => new URLSearchParams("reviewTab=findings"),
 }));
 
 function RestoreProbe(props: { readonly runId: string }) {
@@ -28,10 +27,12 @@ function RestoreProbe(props: { readonly runId: string }) {
 describe("useReviewFindingsLastVisitRestore", () => {
   afterEach(() => {
     clearReviewFindingsLastVisitStorage();
-    routerReplace.mockReset();
+    resetReviewFindingsLastVisitRestoreStateForTests();
   });
 
   it("restores stored filters on mount when the URL has no toolbar params", () => {
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
     patchReviewFindingsLastVisit("run-1", {
       filter: "high",
       searchQuery: "auth",
@@ -40,11 +41,13 @@ describe("useReviewFindingsLastVisitRestore", () => {
 
     render(<RestoreProbe runId="run-1" />);
 
-    expect(routerReplace).toHaveBeenCalled();
-    const nextHref = String(routerReplace.mock.calls[0]?.[0] ?? "");
+    expect(replaceState).toHaveBeenCalled();
+    const nextHref = String(replaceState.mock.calls[0]?.[2] ?? "");
     expect(nextHref).toContain("findingsFilter=high");
     expect(nextHref).toContain("q=auth");
     expect(nextHref).toContain("findingsBand=checklist");
+
+    replaceState.mockRestore();
   });
 
   it("buildReviewFindingsLastVisitHref encodes stored state", () => {

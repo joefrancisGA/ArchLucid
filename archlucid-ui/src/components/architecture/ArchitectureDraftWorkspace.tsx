@@ -31,6 +31,7 @@ import {
 import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
@@ -70,7 +71,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.draftId)}`;
   const searchParams = useSearchParams();
-  const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
+  const readScopeGateOpenFromUrl = (): boolean =>
+    parseScopeGateOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("scopeGate"),
+    );
   const buyerPolishedShell = useProductionEvalChrome();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const acceptServerBaselineRef = useRef<
@@ -103,7 +107,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [exitPending, setExitPending] = useState(false);
   const [unlockBusy, setUnlockBusy] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
-  const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
+  const [scopeGateOpen, setScopeGateOpenState] = useState(readScopeGateOpenFromUrl);
+  const scopeGateOpenRef = useRef(scopeGateOpen);
+  scopeGateOpenRef.current = scopeGateOpen;
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
 
   const setScopeGateOpen = useCallback(
@@ -111,17 +117,38 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       setScopeGateOpenState((current) => {
         const resolved = typeof next === "function" ? next(current) : next;
 
-        router.replace(scopeGateHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+        if (scopeGateOpenRef.current === resolved) {
+          return current;
+        }
+
+        scopeGateOpenRef.current = resolved;
+        commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), { notify: false });
 
         return resolved;
       });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   useEffect(() => {
-    setScopeGateOpenState(urlScopeGateOpen);
-  }, [urlScopeGateOpen]);
+    const syncScopeGateOpenFromUrl = (): void => {
+      const next = readScopeGateOpenFromUrl();
+
+      if (scopeGateOpenRef.current === next) {
+        return;
+      }
+
+      scopeGateOpenRef.current = next;
+      setScopeGateOpenState(next);
+    };
+
+    syncScopeGateOpenFromUrl();
+    window.addEventListener("popstate", syncScopeGateOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncScopeGateOpenFromUrl);
+    };
+  }, []);
 
   const isDetailDraft = !isNewDraft;
   const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {

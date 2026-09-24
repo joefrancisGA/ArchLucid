@@ -40,6 +40,9 @@ function readFindingRefFromDom(findingId: string): {
 /** Shared finding selection: finding clicks, diagram highlight, evidence scroll (LI-09 / PT-12). */
 export function WorkbenchSelectionCoordinator(props: { readonly enabled: boolean }): null {
   const selection = useReviewWorkbenchSelection();
+  const selectedFindingId = selection?.selectedFindingId ?? null;
+  const setHighlightedNodeId = selection?.setHighlightedNodeId;
+  const setSelectedFindingId = selection?.setSelectedFindingId;
   const [diagramNodes, setDiagramNodes] = useState<readonly ArchitectureFindingsDualPaneDiagramNode[]>([]);
 
   useEffect(() => {
@@ -58,14 +61,14 @@ export function WorkbenchSelectionCoordinator(props: { readonly enabled: boolean
   }, [props.enabled]);
 
   useEffect(() => {
-    if (!props.enabled || selection === null) {
+    if (!props.enabled || setHighlightedNodeId === undefined) {
       return;
     }
 
-    const selectedId = selection.selectedFindingId?.trim() ?? "";
+    const selectedId = selectedFindingId?.trim() ?? "";
 
     if (selectedId.length === 0) {
-      selection.setHighlightedNodeId(null);
+      setHighlightedNodeId(null);
 
       return;
     }
@@ -73,11 +76,11 @@ export function WorkbenchSelectionCoordinator(props: { readonly enabled: boolean
     const findingRef = readFindingRefFromDom(selectedId);
     const sync = resolveFindingDiagramSelectionSync(findingRef, diagramNodes);
 
-    selection.setHighlightedNodeId(sync.matchedNodeId);
-  }, [diagramNodes, props.enabled, selection, selection?.selectedFindingId]);
+    setHighlightedNodeId(sync.matchedNodeId);
+  }, [diagramNodes, props.enabled, selectedFindingId, setHighlightedNodeId]);
 
   useEffect(() => {
-    if (selection === null) {
+    if (setSelectedFindingId === undefined) {
       return;
     }
 
@@ -97,21 +100,21 @@ export function WorkbenchSelectionCoordinator(props: { readonly enabled: boolean
       const findingId = card.getAttribute("data-finding-id")?.trim() ?? "";
 
       if (findingId.length > 0) {
-        selection.setSelectedFindingId(findingId);
+        setSelectedFindingId(findingId);
       }
     };
 
     document.addEventListener("click", onClick, true);
 
     return () => document.removeEventListener("click", onClick, true);
-  }, [selection]);
+  }, [setSelectedFindingId]);
 
   useEffect(() => {
-    if (!props.enabled || selection === null) {
+    if (!props.enabled) {
       return;
     }
 
-    const selectedId = selection.selectedFindingId?.trim() ?? "";
+    const selectedId = selectedFindingId?.trim() ?? "";
     const evidenceColumn = document.querySelector<HTMLElement>('[data-testid="review-workbench-column-evidence"]');
 
     if (evidenceColumn === null) {
@@ -137,16 +140,16 @@ export function WorkbenchSelectionCoordinator(props: { readonly enabled: boolean
       "data-workbench-evidence-empty",
       selectedId.length > 0 && !matched && linkedRows.length === 0 ? "true" : "false",
     );
-  }, [props.enabled, selection, selection?.selectedFindingId]);
+  }, [props.enabled, selectedFindingId]);
 
   useEffect(() => {
-    if (props.enabled || selection === null) {
+    if (props.enabled || setHighlightedNodeId === undefined) {
       return;
     }
 
     // Tab-only layout still restores ?findingId=; only drop workbench node highlight.
-    selection.setHighlightedNodeId(null);
-  }, [props.enabled, selection]);
+    setHighlightedNodeId(null);
+  }, [props.enabled, setHighlightedNodeId]);
 
   return null;
 }

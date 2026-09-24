@@ -3,8 +3,10 @@ import { BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA } from "@/lib/buyer/buyer-p
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
@@ -44,27 +46,37 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
   const buyerPolishedShell = props.buyerPolishedShell === true;
   const defaultCollapsed = props.defaultCollapsed !== false;
   const sampleReview = isShowcaseStaticDemoRunId(props.runId.trim());
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingExplainabilityOpenParam = searchParams.get("findingExplainabilityOpen");
-  const [open, setOpenState] = useState(() => parseFindingExplainabilityOpenFromSearch(findingExplainabilityOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseFindingExplainabilityOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingExplainabilityOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
   const [data, setData] = useState<FindingExplainability | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        findingExplainabilityTraceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingExplainabilityTraceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -72,8 +84,26 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
   );
 
   useEffect(() => {
-    setOpenState(parseFindingExplainabilityOpenFromSearch(findingExplainabilityOpenParam));
-  }, [findingExplainabilityOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseFindingExplainabilityOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingExplainabilityOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     const findingId = props.findingId.trim();

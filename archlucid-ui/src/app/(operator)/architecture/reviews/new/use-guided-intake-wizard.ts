@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, type SetStateAction } from "re
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
@@ -77,11 +78,12 @@ export function useGuidedIntakeWizard() {
 
   const syncIntakeStepToUrl = useCallback(
     (nextStepIndex: number) => {
-      router.replace(guidedIntakeStepHrefFromSearch(searchParams.toString(), nextStepIndex, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        guidedIntakeStepHrefFromSearch(readWindowLocationSearch(), nextStepIndex, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setStep = useCallback(
@@ -97,14 +99,25 @@ export function useGuidedIntakeWizard() {
   );
 
   useEffect(() => {
-    const nextStep = parseGuidedIntakeStepFromSearch(searchParams.get("intakeStep"));
+    const syncIntakeStepFromUrl = (): void => {
+      const nextStep = parseGuidedIntakeStepFromSearch(
+        new URLSearchParams(window.location.search).get("intakeStep"),
+      );
 
-    if (nextStep === null) {
-      return;
-    }
+      if (nextStep === null) {
+        return;
+      }
 
-    goToStep(clampWizardStepIndex(nextStep, INTAKE_STEP_DEFINITIONS.length));
-  }, [goToStep, searchParams]);
+      goToStep(clampWizardStepIndex(nextStep, INTAKE_STEP_DEFINITIONS.length));
+    };
+
+    syncIntakeStepFromUrl();
+    window.addEventListener("popstate", syncIntakeStepFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncIntakeStepFromUrl);
+    };
+  }, [goToStep]);
 
   const form = useGuidedIntakeBriefForm({ exampleTemplate, isCreateArchitectureFlow });
 

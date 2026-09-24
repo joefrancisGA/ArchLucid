@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Button } from "@/components/ui/button";
@@ -22,44 +21,19 @@ import {
   persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch,
 } from "@/lib/usability/persistent-workspace-first-review-steps-disclosure-url";
 import { cn } from "@/lib/utils";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
 /** Cross-page strip: one highlighted next action while first-review steps remain. */
 export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const persistentWorkspaceFirstReviewStepsOpenParam = searchParams.get("persistentWorkspaceFirstReviewStepsOpen");
   const teachingChromeVisible = useTeachingChromeVisible();
   const [hydrated, setHydrated] = useState(false);
-  const [firstReviewStepsOpen, setFirstReviewStepsOpenState] = useState(() =>
-    parsePersistentWorkspaceFirstReviewStepsOpenFromSearch(persistentWorkspaceFirstReviewStepsOpenParam),
+  const [firstReviewStepsOpen, setFirstReviewStepsOpen] = useBooleanSearchParamUrlSync(
+    "persistentWorkspaceFirstReviewStepsOpen",
+    parsePersistentWorkspaceFirstReviewStepsOpenFromSearch,
+    persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch,
   );
   const commitPresentationContext = useCorePilotCommitPresentationContext();
   const { progress, nextStepIndex, statuses, isPending } = useCorePilotDerivedStepStatus();
-
-  const syncFirstReviewStepsOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setFirstReviewStepsOpen = useCallback(
-    (open: boolean) => {
-      setFirstReviewStepsOpenState(open);
-      syncFirstReviewStepsOpenToUrl(open);
-    },
-    [syncFirstReviewStepsOpenToUrl],
-  );
-
-  useEffect(() => {
-    setFirstReviewStepsOpenState(
-      parsePersistentWorkspaceFirstReviewStepsOpenFromSearch(persistentWorkspaceFirstReviewStepsOpenParam),
-    );
-  }, [persistentWorkspaceFirstReviewStepsOpenParam]);
 
   useEffect(() => {
     setHydrated(true);
@@ -138,7 +112,8 @@ export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
         data-testid="persistent-workspace-first-review-steps-disclosure"
         open={firstReviewStepsOpen}
         onToggle={(event) => {
-          setFirstReviewStepsOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setFirstReviewStepsOpen(!firstReviewStepsOpen);
         }}
       >
         <summary

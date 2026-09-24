@@ -82,6 +82,51 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
             await routingRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
+        IReadOnlyList<SecurityEvidencePathRecord> snapshotPaths =
+            await pathRepository.ListBySnapshotAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                path.SnapshotId,
+                cancellationToken);
+
+        if (!snapshotPaths.Any(candidate => candidate.PathId == path.PathId))
+        {
+            snapshotPaths = [path, .. snapshotPaths];
+        }
+
+        List<(
+            SecurityEvidencePathRecord Path,
+            IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> pathEvidence = [];
+        Dictionary<Guid, IReadOnlyList<Guid>> findingIdsByPath = [];
+
+        foreach (SecurityEvidencePathRecord snapshotPath in snapshotPaths)
+        {
+            IReadOnlyList<SecurityEvidencePathHopRecord> snapshotHops =
+                snapshotPath.PathId == path.PathId
+                    ? hops
+                    : await pathRepository.ListHopsByPathInScopeAsync(
+                        scope.ToProjectScopeKey(),
+                        snapshotPath.PathId,
+                        cancellationToken);
+            IReadOnlyList<Guid> snapshotFindingIds =
+                snapshotPath.PathId == path.PathId
+                    ? citingFindingIds
+                    : await findingRepository.ListFindingIdsByPathIdInScopeAsync(
+                        scope.ToProjectScopeKey(),
+                        snapshotPath.PathId,
+                        cancellationToken);
+
+            pathEvidence.Add((snapshotPath, snapshotHops));
+            findingIdsByPath[snapshotPath.PathId] = snapshotFindingIds;
+        }
+
+        IReadOnlyList<SecureNowHypothesisResponse> hypotheses =
+            SecureNowHypothesisAnalyzer
+                .Analyze(pathEvidence, findingIdsByPath)
+                .Where(hypothesis => hypothesis.CitedPathIds.Contains(path.PathId))
+                .ToList();
+
         return new SecurityEvidencePathDetailResponse
         {
             PathId = path.PathId,
@@ -99,6 +144,7 @@ public sealed class SecurityEvidencePathInspectorQueryService(
                 .Select(SecurityEvidenceCutPointResponseMapper.MapSummary)
                 .ToList(),
             Routing = routingRows.Select(MapRouting).ToList(),
+            Hypotheses = hypotheses,
         };
     }
 

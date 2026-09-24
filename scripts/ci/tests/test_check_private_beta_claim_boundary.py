@@ -58,6 +58,19 @@ class TestCheckPrivateBetaClaimBoundary(unittest.TestCase):
 
         self.assertEqual(violations, [])
 
+    def test_scan_buyer_surfaces_rejects_uncaveated_overclaim(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in sut._BUYER_SURFACES:
+                path = root / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("ArchLucid is SOC 2 certified.\n", encoding="utf-8")
+
+            violations = sut.scan_buyer_surfaces(root)
+
+        self.assertEqual(len(violations), len(sut._BUYER_SURFACES))
+        self.assertTrue(all("SOC 2 certified" in item for item in violations))
+
     def test_founder_demo_requires_recovery_honesty_markers(self) -> None:
         errors = sut.require_founder_demo_recovery(REPO_ROOT)
 

@@ -156,6 +156,13 @@ public sealed partial class CachingTenantRepository
     }
 
     /// <inheritdoc />
+    public async Task E2eHarnessGrantEnterpriseCommercialAsync(Guid tenantId, CancellationToken ct)
+    {
+        await _inner.E2eHarnessGrantEnterpriseCommercialAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, ct);
+    }
+
+    /// <inheritdoc />
     public async Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
     {
         await _inner.EnqueueTrialArchitecturePreseedAsync(tenantId, ct);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { generateArchitectureDiagramAsync } from "@/lib/architecture/architecture-diagram-generate";
 import { architectureDiagramModelToMermaid, isValidMermaidArchitectureDiagram } from "@/lib/architecture/architecture-diagram-mermaid";
@@ -23,6 +23,7 @@ import {
   parseArchitectureDiagramIdFromSearch,
   parseArchitectureDiagramKindFromSearch,
 } from "@/lib/architecture/architecture-diagram-selection-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -52,12 +53,16 @@ export type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invali
 
 export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps) {
   const variant = props.variant ?? "full";
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const searchParams = useSearchParams();
-  const urlDiagramKind = parseArchitectureDiagramKindFromSearch(searchParams.get("diagKind"));
-  const urlDiagramId = parseArchitectureDiagramIdFromSearch(searchParams.get("diagId"));
-  const urlDiagramEditOpen = parseArchitectureDiagramEditOpenFromSearch(searchParams.get("diagEdit"));
+  const readDiagramSelectionFromUrl = useCallback(() => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return {
+      kind: parseArchitectureDiagramKindFromSearch(params.get("diagKind")),
+      id: parseArchitectureDiagramIdFromSearch(params.get("diagId")),
+      editorOpen: parseArchitectureDiagramEditOpenFromSearch(params.get("diagEdit")),
+    };
+  }, []);
   const [phase, setPhase] = useState<PanelPhase>("idle");
   const [mermaidSource, setMermaidSource] = useState<string | null>(null);
   const [textAlternative, setTextAlternative] = useState("");
@@ -65,12 +70,18 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
   const [missingExplanation, setMissingExplanation] = useState("");
   const [diagramModel, setDiagramModel] = useState<ArchitectureDiagramModel | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const editorOpenRef = useRef(editorOpen);
+  editorOpenRef.current = editorOpen;
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [storageWriteFailed, setStorageWriteFailed] = useState(false);
   const [liveModelSynced, setLiveModelSynced] = useState(true);
   const [selectedElementKind, setSelectedElementKind] = useState<ArchitectureDiagramElementKind | null>(null);
+  const selectedElementKindRef = useRef(selectedElementKind);
+  selectedElementKindRef.current = selectedElementKind;
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const selectedElementIdRef = useRef(selectedElementId);
+  selectedElementIdRef.current = selectedElementId;
   const [, setCacheVersion] = useState(0);
   const autoStartedRef = useRef(false);
   const dark = useDocumentDarkMode();
@@ -81,75 +92,101 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     (
       elementKind: ArchitectureDiagramElementKind | null,
       elementId: string | null,
-      editorOpen: boolean,
+      editorOpenNext: boolean,
     ): void => {
-      router.replace(
+      commitHrefIfChanged(
         architectureDiagramSelectionHrefFromSearch(
-          searchParams.toString(),
-          { elementKind, elementId, editorOpen },
+          readWindowLocationSearch(),
+          { elementKind, elementId, editorOpen: editorOpenNext },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setSelectedElementKindWithUrl = useCallback(
     (kind: ArchitectureDiagramElementKind | null) => {
+      if (selectedElementKindRef.current === kind) {
+        return;
+      }
+
+      selectedElementKindRef.current = kind;
       setSelectedElementKind(kind);
-      syncDiagramSelectionToUrl(kind, selectedElementId, editorOpen);
+      syncDiagramSelectionToUrl(kind, selectedElementIdRef.current, editorOpenRef.current);
     },
-    [editorOpen, selectedElementId, syncDiagramSelectionToUrl],
+    [syncDiagramSelectionToUrl],
   );
 
   const setSelectedElementIdWithUrl = useCallback(
     (id: string | null) => {
+      if (selectedElementIdRef.current === id) {
+        return;
+      }
+
+      selectedElementIdRef.current = id;
       setSelectedElementId(id);
-      syncDiagramSelectionToUrl(selectedElementKind, id, editorOpen);
+      syncDiagramSelectionToUrl(selectedElementKindRef.current, id, editorOpenRef.current);
     },
-    [editorOpen, selectedElementKind, syncDiagramSelectionToUrl],
+    [syncDiagramSelectionToUrl],
   );
 
   const setEditorOpenWithUrl = useCallback(
     (open: boolean) => {
+      if (editorOpenRef.current === open) {
+        return;
+      }
+
+      editorOpenRef.current = open;
       setEditorOpen(open);
-      syncDiagramSelectionToUrl(selectedElementKind, selectedElementId, open);
+      syncDiagramSelectionToUrl(selectedElementKindRef.current, selectedElementIdRef.current, open);
     },
-    [selectedElementId, selectedElementKind, syncDiagramSelectionToUrl],
+    [syncDiagramSelectionToUrl],
   );
 
   const selectDiagramElementWithUrl = useCallback(
     (kind: ArchitectureDiagramElementKind | null, id: string | null) => {
+      selectedElementKindRef.current = kind;
+      selectedElementIdRef.current = id;
       setSelectedElementKind(kind);
       setSelectedElementId(id);
-      syncDiagramSelectionToUrl(kind, id, editorOpen);
+      syncDiagramSelectionToUrl(kind, id, editorOpenRef.current);
     },
-    [editorOpen, syncDiagramSelectionToUrl],
+    [syncDiagramSelectionToUrl],
   );
 
+  const applyDiagramSelectionFromUrl = useCallback((): void => {
+    const { kind: urlDiagramKind, id: urlDiagramId, editorOpen: urlDiagramEditOpen } = readDiagramSelectionFromUrl();
+
+    if (diagramModel !== null && urlDiagramKind !== null && urlDiagramId.length > 0) {
+      const elementExists =
+        urlDiagramKind === "node"
+          ? diagramModel.nodes.some((node) => node.id === urlDiagramId && !node.removed)
+          : diagramModel.edges.some((edge) => edge.id === urlDiagramId && !edge.removed);
+
+      if (elementExists) {
+        selectedElementKindRef.current = urlDiagramKind;
+        selectedElementIdRef.current = urlDiagramId;
+        editorOpenRef.current = urlDiagramEditOpen;
+        setSelectedElementKind(urlDiagramKind);
+        setSelectedElementId(urlDiagramId);
+        setEditorOpen(urlDiagramEditOpen);
+      }
+    } else if (editorOpenRef.current !== urlDiagramEditOpen) {
+      editorOpenRef.current = urlDiagramEditOpen;
+      setEditorOpen(urlDiagramEditOpen);
+    }
+  }, [diagramModel, readDiagramSelectionFromUrl]);
+
   useEffect(() => {
-    if (diagramModel === null) {
-      return;
-    }
+    applyDiagramSelectionFromUrl();
+    window.addEventListener("popstate", applyDiagramSelectionFromUrl);
 
-    if (urlDiagramKind === null || urlDiagramId.length === 0) {
-      return;
-    }
-
-    const elementExists =
-      urlDiagramKind === "node"
-        ? diagramModel.nodes.some((node) => node.id === urlDiagramId && !node.removed)
-        : diagramModel.edges.some((edge) => edge.id === urlDiagramId && !edge.removed);
-
-    if (!elementExists) {
-      return;
-    }
-
-    setSelectedElementKind(urlDiagramKind);
-    setSelectedElementId(urlDiagramId);
-    setEditorOpen(urlDiagramEditOpen);
-  }, [diagramModel, urlDiagramEditOpen, urlDiagramId, urlDiagramKind]);
+    return () => {
+      window.removeEventListener("popstate", applyDiagramSelectionFromUrl);
+    };
+  }, [applyDiagramSelectionFromUrl]);
 
   useEffect(() => {
     if (diagramModel === null) {
@@ -182,8 +219,10 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
 
     setSelectedElementKind("node");
     setSelectedElementId(id);
-    syncDiagramSelectionToUrl("node", id, editorOpen);
-  }, [diagramModel, editorOpen, highlightedNodeId, syncDiagramSelectionToUrl]);
+    selectedElementKindRef.current = "node";
+    selectedElementIdRef.current = id;
+    syncDiagramSelectionToUrl("node", id, editorOpenRef.current);
+  }, [diagramModel, syncDiagramSelectionToUrl]);
 
   const cache = readArchitectureDiagramCache(props.runId);
   const versions = cache?.versions ?? [];

@@ -14,11 +14,14 @@ import {
   expectBuyerPolishedReviewDetailShellReady,
   gotoLiveRunDetailPage,
 } from "./operator-journey";
+import {
+  LIVE_E2E_DEFAULT_PROJECT_ID,
+  LIVE_E2E_DEFAULT_TENANT_ID,
+  LIVE_E2E_DEFAULT_WORKSPACE_ID,
+  stubEmptyArchitectureDraftListRoute,
+} from "./live-private-beta-access";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
-
-/** Playwright `baseURL` / live E2E webServer origin — cookie must match for SSR scope on first navigation. */
-const LIVE_E2E_OPERATOR_ORIGIN = "http://127.0.0.1:3000";
 
 export const DEMO_SCOPE_DEFAULT_TENANT_ID = demoWorkspacesFixtureManifest.defaultTenantId;
 
@@ -46,14 +49,10 @@ export type DemoWorkspaceScopeIds = {
   projectId: string;
 };
 
-/**
- * Mirrors `OperatorScopeRecord` minimal shape so `/api/proxy` forwards tenant/workspace/project on run detail hydration.
- * Also mirrors the scope cookie (`TB-075`) so RSC run-detail SSR (`getServerResolvedScopeHeaders`) matches
- * `freshIsolatedTenantScope` API calls — localStorage alone is invisible to the server on first paint.
- */
-export async function injectDemoWorkspaceOperatorScope(
+async function writeOperatorScopeToBrowser(
   page: Page,
   scope: DemoWorkspaceScopeIds,
+  options?: { readonly persistViaInitScript?: boolean },
 ): Promise<void> {
   const scopeCookieValue = serializeOperatorScopeCookiePayload({
     tenantId: scope.tenantId,
@@ -61,18 +60,50 @@ export async function injectDemoWorkspaceOperatorScope(
     projectId: scope.projectId,
   });
 
-  // Establish the Playwright origin before setting cookies so the first RSC navigation to run detail
-  // includes archlucid_operator_scope_v1 (isolated tenant scope for live-api-journey).
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-
   await page.context().addCookies([
     {
       name: OPERATOR_SCOPE_COOKIE_NAME,
       value: scopeCookieValue,
-      url: LIVE_E2E_OPERATOR_ORIGIN,
+      url: new URL(page.url()).origin,
       sameSite: "Lax",
     },
   ]);
+
+  await page.evaluate(
+    (
+      payload: {
+        readonly key: string;
+        readonly tenantId: string;
+        readonly workspaceId: string;
+        readonly projectId: string;
+        readonly cookieName: string;
+        readonly cookieValue: string;
+      },
+    ) => {
+      const record = {
+        tenantId: payload.tenantId,
+        workspaceId: payload.workspaceId,
+        projectId: payload.projectId,
+        workspaceLabel: "",
+        projectLabel: "",
+      };
+
+      window.localStorage.setItem(payload.key, JSON.stringify(record));
+      document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
+    },
+    {
+      key: OPERATOR_SCOPE_STORAGE_KEY,
+      tenantId: scope.tenantId,
+      workspaceId: scope.workspaceId,
+      projectId: scope.projectId,
+      cookieName: OPERATOR_SCOPE_COOKIE_NAME,
+      cookieValue: scopeCookieValue,
+    },
+  );
+
+  if (options?.persistViaInitScript !== true) {
+    return;
+  }
 
   await page.addInitScript(
     (
@@ -105,9 +136,47 @@ export async function injectDemoWorkspaceOperatorScope(
       cookieValue: scopeCookieValue,
     },
   );
+}
+
+/**
+ * Mirrors `OperatorScopeRecord` minimal shape so `/api/proxy` forwards tenant/workspace/project on run detail hydration.
+ * Also mirrors the scope cookie (`TB-075`) so RSC run-detail SSR (`getServerResolvedScopeHeaders`) matches
+ * `freshIsolatedTenantScope` API calls — localStorage alone is invisible to the server on first paint.
+ */
+export async function injectDemoWorkspaceOperatorScope(
+  page: Page,
+  scope: DemoWorkspaceScopeIds,
+): Promise<void> {
+  // Home chrome mounts draft inventory; cold SQL list reads can block proxy for 60s during scope priming navigations.
+  await stubEmptyArchitectureDraftListRoute(page);
+
+  // Establish the Playwright origin before setting cookies so the first RSC navigation to run detail
+  // includes archlucid_operator_scope_v1 (isolated tenant scope for live-api-journey).
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await writeOperatorScopeToBrowser(page, scope, { persistViaInitScript: true });
 
   // Init script only runs on navigations after registration — reload once so localStorage and
   // document.cookie mirror the SSR cookie before isolated-tenant run-detail RSC hydration.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+}
+
+/** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */
+export async function injectDefaultTenantOperatorScope(page: Page): Promise<void> {
+  const defaultScope = {
+    tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
+    workspaceId: LIVE_E2E_DEFAULT_WORKSPACE_ID,
+    projectId: LIVE_E2E_DEFAULT_PROJECT_ID,
+  };
+
+  await stubEmptyArchitectureDraftListRoute(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  // Register after demo-workspace init scripts in the same browser context so default scope wins
+  // on every subsequent navigation (admin settings requires default tenant Admin, not demo scope).
+  await writeOperatorScopeToBrowser(page, defaultScope, { persistViaInitScript: true });
+
+  // Init script only runs on navigations after registration — reload once so scope is committed
+  // before the first /administration/users RSC flight.
   await page.goto("/", { waitUntil: "domcontentloaded" });
 }
 
