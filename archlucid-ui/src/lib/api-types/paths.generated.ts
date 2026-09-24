@@ -88070,6 +88070,7 @@ export interface paths {
                     includeNeverShow?: boolean;
                     hideTiers?: string;
                     includePrivateEndpointNodes?: boolean;
+                    includeRecoveryServices?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
@@ -88227,6 +88228,7 @@ export interface paths {
                     includeNeverShow?: boolean;
                     hideTiers?: string;
                     includePrivateEndpointNodes?: boolean;
+                    includeRecoveryServices?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
@@ -88372,6 +88374,7 @@ export interface paths {
                 query?: {
                     includeNeverShow?: boolean;
                     includePrivateEndpointNodes?: boolean;
+                    includeRecoveryServices?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
