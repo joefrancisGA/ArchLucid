@@ -80,9 +80,10 @@ export function resolveContinueLastRecurrenceSchedule(
 
   const validSchedules = normalizedSchedules.filter(
     (schedule) =>
-      typeof schedule?.recurrenceScheduleId === "string"
+      typeof schedule?.scheduleId === "string"
       && typeof schedule?.name === "string"
-      && typeof schedule?.createdUtc === "string",
+      && (schedule?.nextRunUtc == null || typeof schedule.nextRunUtc === "string")
+      && (schedule?.lastTriggeredUtc == null || typeof schedule.lastTriggeredUtc === "string"),
   );
 
   if (validSchedules.length === 0) {
