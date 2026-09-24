@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -19,7 +20,12 @@ def load_means(results_dir: Path) -> dict[str, float]:
             mean = stats.get("Mean")
             if full_name is None or mean is None:
                 continue
-            means[str(full_name)] = float(mean)
+            value = float(mean)
+            if not math.isfinite(value) or value < 0:
+                raise ValueError(f"invalid benchmark mean for {full_name}: {mean!r}")
+            if str(full_name) in means:
+                raise ValueError(f"duplicate benchmark result: {full_name}")
+            means[str(full_name)] = value
     return means
 
 
@@ -31,6 +37,11 @@ def main() -> int:
 
     baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
     expected = {str(x["fullName"]): float(x["maxMeanNs"]) for x in baseline["benchmarks"]}
+    if len(expected) != len(baseline["benchmarks"]):
+        raise ValueError("duplicate benchmark baseline name")
+    for full_name, limit in expected.items():
+        if not math.isfinite(limit) or limit <= 0:
+            raise ValueError(f"invalid benchmark baseline for {full_name}: {limit!r}")
     actual = load_means(args.results)
 
     failures: list[str] = []
