@@ -176,6 +176,18 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
         self.assertIn("(generatedUtc)", result.stderr)
 
+    def test_future_artifact_blocks_strict_signoff(self) -> None:
+        bundle = self.temp_dir / "future"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "release-confidence-rollup.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["generatedUtc"] = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("timestamp is in the future", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
