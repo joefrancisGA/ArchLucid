@@ -71,22 +71,39 @@ export function readArchitectureCreationHandoff(
     }
 
     const row = parsed as Record<string, unknown>;
+
+    if (
+      typeof row.runId !== "string"
+      || typeof row.recordedAtUtc !== "string"
+      || typeof row.architectureName !== "string"
+      || typeof row.architectureOverview !== "string"
+      || typeof row.businessOutcome !== "string"
+    ) {
+      return null;
+    }
+
     const peopleAndSystems = Array.isArray(row.peopleAndSystems)
       ? row.peopleAndSystems
-          .filter((entry): entry is Record<string, unknown> => entry !== null && typeof entry === "object")
+          .filter(
+            (entry): entry is Record<string, unknown> =>
+              entry !== null
+              && typeof entry === "object"
+              && typeof (entry as Record<string, unknown>).label === "string"
+              && typeof (entry as Record<string, unknown>).kind === "string",
+          )
           .map((entry) => ({
-            label: String(entry.label ?? "").trim(),
-            kind: String(entry.kind ?? "").trim(),
+            label: (entry.label as string).trim(),
+            kind: (entry.kind as string).trim(),
           }))
           .filter((entry) => entry.label.length > 0)
       : [];
 
     return {
-      runId: String(row.runId ?? trimmedRunId),
-      recordedAtUtc: String(row.recordedAtUtc ?? ""),
-      architectureName: String(row.architectureName ?? "").trim(),
-      architectureOverview: String(row.architectureOverview ?? "").trim(),
-      businessOutcome: String(row.businessOutcome ?? "").trim(),
+      runId: row.runId,
+      recordedAtUtc: row.recordedAtUtc,
+      architectureName: row.architectureName.trim(),
+      architectureOverview: row.architectureOverview.trim(),
+      businessOutcome: row.businessOutcome.trim(),
       peopleAndSystems,
     };
   } catch {
