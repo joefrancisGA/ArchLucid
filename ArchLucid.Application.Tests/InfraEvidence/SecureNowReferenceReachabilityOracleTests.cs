@@ -101,7 +101,7 @@ public sealed class SecureNowReferenceReachabilityOracleTests
                 [sql] = Resource(sql, "Microsoft.Sql/servers"),
                 [vault] = Resource(vault, "Microsoft.KeyVault/vaults"),
             },
-            terminals: [app, sql]);
+            terminals: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { app, sql });
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public sealed class SecureNowReferenceReachabilityOracleTests
                 [app] = Resource(app, "Microsoft.Web/sites"),
                 [sql] = Resource(sql, "Microsoft.Sql/servers"),
             },
-            terminals: [app, sql]);
+            terminals: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { app, sql });
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public sealed class SecureNowReferenceReachabilityOracleTests
             {
                 [app] = Resource(app, "Microsoft.Web/sites"),
             },
-            terminals: [app],
+            terminals: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { app },
             terminalPathPredicate: static path => path.Any(hop =>
                 hop.EdgeType.Equals(GraphEdgeTypes.Exposes, StringComparison.OrdinalIgnoreCase)
                 || hop.EdgeType.Equals(GraphEdgeTypes.RoutesTo, StringComparison.OrdinalIgnoreCase)
