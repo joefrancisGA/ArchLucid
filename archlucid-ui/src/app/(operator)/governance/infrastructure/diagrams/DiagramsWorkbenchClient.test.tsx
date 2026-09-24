@@ -1574,6 +1574,48 @@ describe("DiagramsWorkbenchClient", () => {
     expect(exportQuery).toEqual(renderQuery);
   });
 
+  it("toggles include recovery services in the search param and mermaid request", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    const toggle = await screen.findByTestId("infra-diagrams-include-recovery-services");
+
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      const renderQuery = fetchInfraEvidenceMermaidRenderMock.mock.calls.at(-1)?.[1];
+
+      expect(renderQuery).toEqual(
+        expect.objectContaining({
+          mode: "executive",
+          includeRecoveryServices: true,
+        }),
+      );
+    });
+  });
+
   it("confirms before a subscription change clears the active diagram selection", async () => {
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
       items: [

@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
@@ -123,7 +124,7 @@ internal static class DiagramLeftToRightLayerPlanner
             layers[layerById[node.NodeId]].Add(node);
         }
 
-        List<IReadOnlyList<DiagramNode>> result = [];
+        List<List<DiagramNode>> orderedLayers = [];
 
         foreach (List<DiagramNode> layer in layers)
         {
@@ -132,9 +133,25 @@ internal static class DiagramLeftToRightLayerPlanner
                 continue;
             }
 
-            result.Add(layer);
+            orderedLayers.Add(layer);
         }
 
-        return result;
+        if (internalEdges.Count > 0)
+        {
+            for (int layerIndex = 0; layerIndex < orderedLayers.Count; layerIndex++)
+            {
+                IReadOnlyList<DiagramNode>? previousLayer = layerIndex > 0 ? orderedLayers[layerIndex - 1] : null;
+                IReadOnlyList<DiagramNode>? nextLayer = layerIndex < orderedLayers.Count - 1
+                    ? orderedLayers[layerIndex + 1]
+                    : null;
+                orderedLayers[layerIndex] = DiagramLayerCrossingOrder.OrderLayer(
+                    orderedLayers[layerIndex],
+                    previousLayer,
+                    nextLayer,
+                    internalEdges);
+            }
+        }
+
+        return orderedLayers;
     }
 }

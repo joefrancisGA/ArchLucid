@@ -77,10 +77,21 @@ export function resolveContinueLastPolicyPackDetail(packs: unknown): ResolvedCon
     return null;
   }
 
+  const validPacks = normalizedPacks.filter(
+    (pack) =>
+      typeof pack?.policyPackId === "string"
+      && typeof pack?.createdUtc === "string"
+      && (pack?.activatedUtc == null || typeof pack.activatedUtc === "string"),
+  );
+
+  if (validPacks.length === 0) {
+    return null;
+  }
+
   const recentView = readRecentPolicyPackView();
 
   if (recentView !== null) {
-    const recentMatch = normalizedPacks.find((pack) => pack.policyPackId === recentView.policyPackId);
+    const recentMatch = validPacks.find((pack) => pack.policyPackId === recentView.policyPackId);
 
     if (recentMatch !== undefined) {
       return {
@@ -92,7 +103,7 @@ export function resolveContinueLastPolicyPackDetail(packs: unknown): ResolvedCon
   }
 
   const fallbackPack =
-    normalizedPacks
+    validPacks
       .slice()
       .sort((left, right) => policyPackRecencyUtc(right).localeCompare(policyPackRecencyUtc(left)))[0] ?? null;
 

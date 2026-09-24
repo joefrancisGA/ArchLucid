@@ -16,6 +16,10 @@ export function parseSsoWizardStepFromSearch(raw: string | null | undefined): nu
     return null;
   }
 
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
   const parsed = Number.parseInt(trimmed, 10);
 
   if (!Number.isFinite(parsed) || parsed < 0 || parsed > SSO_WIZARD_MAX_STEP_INDEX) {

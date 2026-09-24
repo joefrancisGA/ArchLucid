@@ -51,10 +51,16 @@ export function readArchitectureNewDraftRecovery(): ArchitectureNewDraftRecovery
       return null;
     }
 
+    const trimmedQueuedAtUtc = typeof parsed.queuedAtUtc === "string" ? parsed.queuedAtUtc.trim() : "";
+    const queuedAtUtc =
+      trimmedQueuedAtUtc.length > 0 && !Number.isNaN(Date.parse(trimmedQueuedAtUtc))
+        ? trimmedQueuedAtUtc
+        : new Date().toISOString();
+
     return {
       fields: parsed.fields,
       actorSet: parsed.actorSet,
-      queuedAtUtc: parsed.queuedAtUtc ?? new Date().toISOString(),
+      queuedAtUtc,
     };
   } catch {
     return null;

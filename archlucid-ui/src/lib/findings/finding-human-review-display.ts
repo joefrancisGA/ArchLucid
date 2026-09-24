@@ -5,8 +5,8 @@ export function formatFindingHumanReviewStatusLabel(
   const numeric =
     typeof status === "number"
       ? status
-      : typeof status === "string" && status.trim().length > 0
-        ? Number.parseInt(status, 10)
+      : typeof status === "string" && /^-?\d+$/.test(status.trim())
+        ? Number.parseInt(status.trim(), 10)
         : Number.NaN;
 
   switch (numeric) {

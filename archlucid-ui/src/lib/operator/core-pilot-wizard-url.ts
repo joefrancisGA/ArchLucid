@@ -29,6 +29,10 @@ export function parseCorePilotWizardStepFromSearch(raw: string | null | undefine
     return null;
   }
 
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
   const parsed = Number.parseInt(trimmed, 10);
 
   if (!Number.isFinite(parsed) || parsed < 0 || parsed >= CORE_PILOT_WIZARD_STEP_COUNT) {
