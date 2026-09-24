@@ -294,14 +294,26 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
         })
       : [],
     networkRelationships: Array.isArray(raw.networkRelationships)
-      ? raw.networkRelationships.map((item) => {
+      ? raw.networkRelationships.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            relationshipType: String(row.relationshipType ?? ""),
-            fromAzureResourceId: String(row.fromAzureResourceId ?? ""),
-            toAzureResourceId: String(row.toAzureResourceId ?? ""),
-          };
+          if (
+            typeof row.relationshipType !== "string"
+            || typeof row.fromAzureResourceId !== "string"
+            || typeof row.toAzureResourceId !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            relationshipType: row.relationshipType,
+            fromAzureResourceId: row.fromAzureResourceId,
+            toAzureResourceId: row.toAzureResourceId,
+          }];
         })
       : [],
     recentChanges: Array.isArray(raw.recentChanges)
