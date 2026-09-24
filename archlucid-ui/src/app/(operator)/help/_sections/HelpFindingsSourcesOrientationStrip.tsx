@@ -1,12 +1,12 @@
 "use client";
 
 import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   FINDINGS_HELP_FOLLOW_UPS_TITLE,
   resolveFindingsHelpSources,
   resolveFindingsHelpSourcesIntro,
 } from "@/lib/findings/findings-help-evidence-copy";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { FINDINGS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/findings/findings-help-page-copy";
 import {
   helpFindingsSourcesDisclosureHrefFromSearch,
@@ -15,7 +15,7 @@ import {
 
 /** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpFindingsSourcesOrientationStrip(): React.JSX.Element {
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
 
   return (
     <UrlSyncedSourcesCollapsibleStrip
