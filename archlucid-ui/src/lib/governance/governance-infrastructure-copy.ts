@@ -99,7 +99,34 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD =
   "Reconcile an ingested architecture diagram against an Azure inventory snapshot and review correspondence rows." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE =
-  "Correspondence rows are deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient evidence to confirmed." as const;
+  "Correspondence rows are deterministic — AI rationale appears only on Probable or Unknown confidence bands and cannot promote insufficient evidence to confirmed." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_TITLE =
+  "No saved reconciliation" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_DESCRIPTION =
+  "No saved reconciliation exists for this sealed review record and inventory snapshot yet. Run reconciliation after ingesting a diagram model." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILIATION_LOAD_ERROR_TITLE =
+  "Could not load saved reconciliation" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_SUCCESS_AUDIT_NOTE =
+  "Diagram ingest recorded on the audit trail for this sealed review record." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DRAFT_RESTORED_LABEL =
+  "Draft restored" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCE_NAME_PLACEHOLDER =
+  "uploaded-diagram" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_BUTTON_LABEL =
+  "Ingest diagram to review record" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILE_BUTTON_LABEL =
+  "Reconcile diagram" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RESOURCE_SCOPE_LABEL =
+  "All resources" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL = "Scoped to resource" as const;
 
