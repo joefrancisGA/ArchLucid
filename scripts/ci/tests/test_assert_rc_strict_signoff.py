@@ -149,6 +149,18 @@ class AssertRcStrictSignoffTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
         self.assertIn("(status)", result.stderr)
 
+    def test_wrong_artifact_schema_blocks_signoff(self) -> None:
+        bundle = self.temp_dir / "wrong-schema"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "rc-go-no-go-verdict.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["schema"] = "unrelated.v1"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("(schema)", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
