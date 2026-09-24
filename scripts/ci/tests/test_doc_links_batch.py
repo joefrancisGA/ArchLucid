@@ -9,7 +9,7 @@ from ci_test_helpers import PYTHON
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_doc_links import should_skip_target
+from check_doc_links import resolve_target, should_skip_target
 
 
 def repo_root() -> Path:
@@ -21,6 +21,13 @@ def broken_link_lines(stderr: str) -> list[str]:
 
 
 class DocLinksBatchTests(unittest.TestCase):
+    def test_relative_link_query_is_not_part_of_file_path(self) -> None:
+        root = repo_root()
+        self.assertEqual(
+            resolve_target(root / "README.md", "docs/START_HERE.md?raw=1#section"),
+            root / "docs" / "START_HERE.md",
+        )
+
     def test_external_url_schemes_are_case_insensitive(self) -> None:
         self.assertTrue(should_skip_target("HTTPS://example.com/path"))
         self.assertTrue(should_skip_target("MAILTO:contact@example.com"))
