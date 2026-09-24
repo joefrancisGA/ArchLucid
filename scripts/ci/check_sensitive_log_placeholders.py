@@ -24,8 +24,13 @@ def find_sensitive_log_placeholders(root: Path) -> list[tuple[str, int, str]]:
         if any(part.endswith(".Tests") or part == "tests" for part in path.parts):
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
-        for line_number, line in enumerate(text.splitlines(), start=1):
-            if _LOG_CALL.search(line) and _SENSITIVE_PLACEHOLDER.search(line):
+        for call in _LOG_CALL.finditer(text):
+            end = text.find(");", call.end())
+            if end == -1:
+                continue
+            if _SENSITIVE_PLACEHOLDER.search(text[call.start():end]):
+                line_number = text.count("\n", 0, call.start()) + 1
+                line = text.splitlines()[line_number - 1]
                 hits.append((path.relative_to(root).as_posix(), line_number, line.strip()))
     return hits
 
