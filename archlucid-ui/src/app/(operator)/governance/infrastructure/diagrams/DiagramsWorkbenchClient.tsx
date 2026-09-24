@@ -2281,7 +2281,7 @@ export function DiagramsWorkbenchClient() {
               disabled={mermaidExportDisabled}
               onClick={runMermaidExport}
             >
-              Export Mermaid (.mmd)
+              Export Mermaid
             </Button>
           </div>
         </div>

@@ -185,7 +185,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
     "Server-side PNG rendering is unavailable in this environment and the browser could not safely rasterize the diagram.",
   whatIsIntact: "The in-browser diagram and Mermaid export remain available.",
   nextStep:
-    "Use Export Mermaid (.mmd), screenshot the diagram viewport, or ask your operator to enable Mermaid CLI on the API host.",
+    "Use Export Mermaid, screenshot the diagram viewport, or ask your operator to enable Mermaid CLI on the API host.",
 } as const;
 
 /** Shown after a successful browser PNG fallback when the API host lacks mmdc. */
