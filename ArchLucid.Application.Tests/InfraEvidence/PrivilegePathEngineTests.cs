@@ -416,6 +416,61 @@ public sealed class PrivilegePathEngineTests
     }
 
     [Fact]
+    public void Enumerate_unknown_role_with_explicit_action_emits_concrete_action_only()
+    {
+        const string principalNode = "azure-ad://principal/cccccccc-cccc-cccc-cccc-cccccccccccc";
+        const string roleNode = "azure-ad://role/unknown";
+        const string scopeArm = StorageAccountArm;
+
+        InventoryPrivilegePathGraphSnapshot graph = new()
+        {
+            OutgoingEdges = new Dictionary<string, List<PrivilegePathEdge>>(StringComparer.OrdinalIgnoreCase)
+            {
+                [principalNode] =
+                [
+                    new PrivilegePathEdge
+                    {
+                        FromNodeId = principalNode,
+                        ToNodeId = roleNode,
+                        EdgeType = GraphEdgeTypes.HasRole,
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                    },
+                ],
+                [roleNode] =
+                [
+                    new PrivilegePathEdge
+                    {
+                        FromNodeId = roleNode,
+                        ToNodeId = scopeArm,
+                        EdgeType = GraphEdgeTypes.CanWrite,
+                        ProvenanceKind = ProvenanceKind.DerivedFact,
+                    },
+                ],
+            },
+            ResourcesByArmId = new Dictionary<string, AzureInventoryResourceRecord>(
+                StringComparer.OrdinalIgnoreCase)
+            {
+                [scopeArm] = new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    AzureResourceId = scopeArm,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            },
+        };
+
+        IReadOnlyList<PrivilegePathCandidate> candidates =
+            PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        PrivilegePathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeFalse();
+        candidate.Hops.Should().NotContain(hop => hop.EdgeType == "unknown-role-actions");
+        candidate.Hops.Should().ContainSingle(hop => hop.EdgeType == GraphEdgeTypes.CanWrite);
+    }
+
+    [Fact]
     public void PrivilegePathEngine_is_not_a_finding_engine_plugin()
     {
         typeof(PrivilegePathEngine).Should().NotImplement<IFindingEngine>();
