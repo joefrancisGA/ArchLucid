@@ -6963,3 +6963,4 @@
 {"at":"2026-09-25T22:28:19.2474708Z","zoneId":"core-azure-extractor","outcome":"hit"}
 {"at":"2026-09-25T22:34:27.0271045Z","zoneId":"core-azure-extractor","outcome":"hit"}
 {"at":"2026-09-25T22:46:59.9166219Z","zoneId":"core-azure-extractor","outcome":"seed-only"}
+{"at":"2026-09-25T22:50:00.5442048Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
