@@ -23364,10 +23364,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — pick-review and show-all-filtered URL sync gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
