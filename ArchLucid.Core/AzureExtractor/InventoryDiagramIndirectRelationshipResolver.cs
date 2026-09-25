@@ -128,10 +128,61 @@ public static class InventoryDiagramIndirectRelationshipResolver
     {
         ArgumentNullException.ThrowIfNull(edge);
 
-        return !string.Equals(
-            edge.InferenceSource,
-            InventoryDiagramIndirectRelationshipEdgeSources.ResourceGroupCollocation,
-            StringComparison.OrdinalIgnoreCase);
+        if (edge.Properties.ContainsKey(InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency)
+            || edge.Properties.ContainsKey(InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceSource))
+        {
+            return true;
+        }
+
+        if (AzureInventoryRelationshipAssociationTypes.IsKnown(edge.EdgeType))
+        {
+            return true;
+        }
+
+        return IsCitedInferenceSource(edge.InferenceSource);
+    }
+
+    private static bool IsCitedInferenceSource(string? inferenceSource)
+    {
+        return string.Equals(
+                   inferenceSource,
+                   InventoryDiagramIndirectRelationshipEdgeSources.ObservedDependency,
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   inferenceSource,
+                   InventoryDiagramIndirectRelationshipEdgeSources.PrivateEndpoint,
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   inferenceSource,
+                   InventoryDiagramIndirectRelationshipEdgeSources.PropertyArmId,
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   inferenceSource,
+                   InventoryDiagramIndirectRelationshipEdgeSources.IndirectDerivedRelationship,
+                   StringComparison.OrdinalIgnoreCase)
+               || IsKnownAssociationTypeMappedInferenceSource(inferenceSource);
+    }
+
+    private static bool IsKnownAssociationTypeMappedInferenceSource(string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        foreach (AzureInventoryRelationshipAssociationTypeDefinition definition in
+                 AzureInventoryRelationshipAssociationTypes.All)
+        {
+            if (string.Equals(
+                    inferenceSource,
+                    definition.DefaultInferenceSource,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void AddDerivedVirtualMachineSubnetEdges(
