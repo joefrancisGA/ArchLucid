@@ -102,7 +102,7 @@ public sealed partial class DapperTenantRepository
     }
 
     /// <inheritdoc />
-    public async Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
+    public async Task<bool> MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -110,10 +110,11 @@ public sealed partial class DapperTenantRepository
                            UPDATE dbo.Tenants
                            SET TrialStatus = @Converted,
                                Tier = CASE WHEN @NewTier IS NULL THEN Tier ELSE @NewTier END
-                           WHERE Id = @Id AND TrialStatus = @Active;
+                           WHERE Id = @Id
+                             AND LTRIM(RTRIM(TrialStatus)) COLLATE Latin1_General_CI_AI = LTRIM(RTRIM(@Active));
                            """;
 
-        await connection.ExecuteAsync(
+        int updated = await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
                 new
@@ -124,5 +125,7 @@ public sealed partial class DapperTenantRepository
                     NewTier = newCommercialTier?.ToString()
                 },
                 cancellationToken: ct)).ConfigureAwait(false);
+
+        return updated > 0;
     }
 }

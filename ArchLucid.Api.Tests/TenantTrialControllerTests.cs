@@ -506,7 +506,7 @@ public sealed class TenantTrialControllerTests
         tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
         tenants
             .Setup(t => t.MarkTrialConvertedAsync(scope.TenantId, null, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(true);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
         Mock<IAuditService> audit = new();
@@ -617,7 +617,7 @@ public sealed class TenantTrialControllerTests
         tenants
             .Setup(t => t.MarkTrialConvertedAsync(scope.TenantId, TenantTier.Standard, It.IsAny<CancellationToken>()))
             .Callback(() => current = convertedTenant)
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(true);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
         Mock<IAuditService> audit = new();

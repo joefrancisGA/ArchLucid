@@ -73,10 +73,11 @@ public sealed partial class CachingTenantRepository
     }
 
     /// <inheritdoc />
-    public async Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
+    public async Task<bool> MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
-        await _inner.MarkTrialConvertedAsync(tenantId, newCommercialTier, ct);
+        bool converted = await _inner.MarkTrialConvertedAsync(tenantId, newCommercialTier, ct);
         await InvalidateAsync(tenantId, ct);
+        return converted;
     }
 
     /// <inheritdoc />
