@@ -15598,7 +15598,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
@@ -15811,6 +15811,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureInventoryDataFlowEvidenceCatalog` — Event Hub and Service Bus messaging RBAC verb rows used raw inference-source strings (`inventory-event-hub-may-publish`, etc.) as `associationType` without registering matching IE-RF catalog entries — **hit 2026-09-25 seed hunt:** `AllIncludedOnDataFlow_types_are_known_association_types` failed; Data Flow humanizer lookup by inference source worked but IE-RF `IsKnown` rejected the rows; fixed by adding `eventHubMayPublish`/`eventHubMayConsume`/`serviceBusMaySend`/`serviceBusMayReceive` to `AzureInventoryRelationshipAssociationTypes` and wiring catalog constants; regressions `Messaging_rbac_verbs_resolve_by_association_type_and_inference_source`.
 
 2026-09-25 seed hunt (seed→hit): reseeded core-azure-extractor after NSG association casing fix; proved messaging RBAC Data Flow catalog rows omitted IE-RF association types; 1384 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `AzureInventoryNsgSecurityRuleParser` / `AzureInventoryRouteTableRouteParser` — JSON fallback keys `securityRules`/`routes` require ordinal equality while `AzureInventoryVnetPeeringParser.TryGetPeeringsJson` scans case-insensitively — **cheap-disproof 2026-09-25 seed hunt #26:** hydrator builds case-insensitive property dictionaries from DB rows; post-hydration graph nodes carry flattened NR-02 keys so data-flow/orphaned classifiers never hit the JSON fallback on Ordinal `GraphNode.Properties`; package `ReadProperties` also uses `OrdinalIgnoreCase`.
+- [x] (valid-no-repro) `AzureInventoryParentAttachmentParentResolver.AddArmParentId` — indexed `inventory.parentAttachment.parent.{n}.armId` lookup is ordinal while NR-02 suffix readers are case-insensitive — **cheap-disproof 2026-09-25 seed hunt #26:** `AzureInventorySnapshotParentAttachmentGraphHydrator` writes canonical `.armId` suffix keys; no production caller supplies PascalCase `.ArmId` on Ordinal graph bags.
+- [x] (valid-no-repro) `InventoryDiagramDataFlowNsgAttachmentIndex.GetNicNodesForVm` — ignores `inventory-vm-nic` inference-only edges while traversal-hop projection honors them — **cheap-disproof 2026-09-25 seed hunt #26:** hosted inventory network associations always emit `RelationshipType = vmToNic`; `AzureInventorySnapshotGraphResolver` therefore materializes `vmToNic` edges, not inference-only `CONNECTS_TO` fallbacks.
+
+2026-09-25 seed hunt #26 (seed-only): reseeded core-azure-extractor after messaging RBAC catalog hit; cheap-disproof closed NR-02 JSON fallback key casing, NR-03 parent `.ArmId` suffix casing, and data-flow NSG inference-only VM→NIC edge parity candidates; 1384 scoped `AzureExtractor` tests passed; no new hunt-ready rows.
 
 ---
 ## Zone: core-configuration-summary
