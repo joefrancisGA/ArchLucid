@@ -138,4 +138,40 @@ public sealed class InventoryArtifactGeneratorTests
         JsonElement uncovered = items[1];
         uncovered.GetProperty("IsMandatory").GetBoolean().Should().BeFalse();
     }
+
+    [Fact]
+    public async Task GenerateAsync_serializes_issue_type_and_supporting_finding_ids_for_issue_items()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items =
+                [
+                    new ManifestIssue
+                    {
+                        IssueType = "Policy",
+                        Title = "DR gap",
+                        Severity = "High",
+                        Description = "No warm standby.",
+                        SupportingFindingIds = ["finding-dr-1"],
+                    },
+                ],
+            },
+        };
+
+        InventoryArtifactGenerator sut = new();
+
+        SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
+
+        using JsonDocument doc = JsonDocument.Parse(artifact.Content);
+        JsonElement issue = doc.RootElement.GetProperty("Items")[0];
+        issue.GetProperty("Category").GetString().Should().Be("Issue");
+        issue.GetProperty("IssueType").GetString().Should().Be("Policy");
+        issue.GetProperty("SupportingFindingIds").EnumerateArray()
+            .Select(x => x.GetString())
+            .Should().Equal("finding-dr-1");
+    }
 }

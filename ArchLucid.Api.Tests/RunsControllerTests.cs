@@ -98,6 +98,28 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task DraftRequest_returns_bad_request_when_description_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        DraftArchitectureRequestInput input = new()
+        {
+            FreeTextDescription = new string('a', 19) + "\uD800",
+        };
+
+        IActionResult action = await controller.DraftRequest(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RewriteArchitectureOverview_returns_rewritten_overview_when_valid()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
@@ -232,6 +254,88 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_question_prompt_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "l0.actor.additional-kinds",
+                    QuestionPrompt = "Are there other kinds of users \uD800 interacting with this system?",
+                    ExtractedAnswer = "Partner integrations and service accounts also call the API.",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "l0.actor.additional-kinds",
+                    QuestionPrompt =
+                        "Are there other kinds of users (human or machine) that interact with this system besides those already identified?",
+                    ExtractedAnswer = "\uD800",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_suggestion_text_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        RunsController controller = CreateController();
+
+        ExplainStructuredBriefSuggestionInput input = new()
+        {
+            SourceText = "Tenant migration platform with private networking and EU residency goals.",
+            SuggestionKind = StructuredBriefSuggestionKind.Constraint,
+            SuggestionText = "\uD800",
+        };
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ExplainStructuredBriefSuggestionAsync(It.IsAny<ExplainStructuredBriefSuggestionInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

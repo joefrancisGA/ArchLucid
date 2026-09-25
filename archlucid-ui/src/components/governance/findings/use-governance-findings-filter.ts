@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
@@ -97,15 +97,24 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   const [groupByResource, setGroupByResource] = useState(() =>
     initialGroupByResourceFromUrlOrStorage(searchParams.get("groupBy")),
   );
+  const hadRegisterFilterInUrlRef = useRef(
+    (searchParams.get("filter")?.trim().length ?? 0) > 0,
+  );
 
   useEffect(() => {
     const rawFilter = searchParams.get("filter");
+    const hasActiveRegisterFilter = (rawFilter?.trim().length ?? 0) > 0;
 
-    if (rawFilter !== null && rawFilter.trim().length > 0) {
+    if (hasActiveRegisterFilter) {
       const fromUrl = riskRegisterFilterFromQuery(rawFilter);
 
       setRegisterFilterState(fromUrl);
       patchGovernanceFindingsQueueFacets({ registerFilter: fromUrl }, mode);
+      hadRegisterFilterInUrlRef.current = true;
+    } else if (hadRegisterFilterInUrlRef.current) {
+      setRegisterFilterState("all");
+      patchGovernanceFindingsQueueFacets({ registerFilter: "all" }, mode);
+      hadRegisterFilterInUrlRef.current = false;
     }
 
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));

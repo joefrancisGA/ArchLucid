@@ -178,4 +178,122 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/\u29F9\u29F9evil.example")]
+    [InlineData("/%E2%A7%B9%E2%A7%B9evil.example")]
+    [InlineData("/\u29F5\u29F5evil.example")]
+    [InlineData("/%E2%A7%B5%E2%A7%B5evil.example")]
+    public void TryNormalize_rejects_final_unicode_slash_homoglyph_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/signin/\u0387\u0387/other")]
+    [InlineData("/signin/%CE%87%CE%87/other")]
+    [InlineData("/signin/\u2027\u2027/other")]
+    [InlineData("/signin/%E2%80%A7%E2%80%A7/other")]
+    [InlineData("/signin/\u22C5\u22C5/other")]
+    [InlineData("/signin/%E2%8B%85%E2%8B%85/other")]
+    [InlineData("/signin/\u2219\u2219/other")]
+    [InlineData("/signin/%E2%88%99%E2%88%99/other")]
+    public void TryNormalize_rejects_final_unicode_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/\u29B8\u29B8evil.example")]
+    [InlineData("/%E2%A6%B8%E2%A6%B8evil.example")]
+    [InlineData("/\u29C4\u29C4evil.example")]
+    [InlineData("/%E2%A7%84%E2%A7%84evil.example")]
+    [InlineData("/\u29C5\u29C5evil.example")]
+    [InlineData("/%E2%A7%85%E2%A7%85evil.example")]
+    [InlineData("/\u2AFB\u2AFBevil.example")]
+    [InlineData("/%E2%AB%BB%E2%AB%BBevil.example")]
+    public void TryNormalize_rejects_named_unicode_slash_homoglyph_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/signin/\u1362\u1362/other")]
+    [InlineData("/signin/%E1%8D%A2%E1%8D%A2/other")]
+    [InlineData("/signin/\u05C3\u05C3/other")]
+    [InlineData("/signin/%D7%83%D7%83/other")]
+    public void TryNormalize_rejects_script_full_stop_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/\u2298\u2298evil.example")]
+    [InlineData("/%E2%8A%98%E2%8A%98evil.example")]
+    [InlineData("/\u2E4A\u2E4Aevil.example")]
+    [InlineData("/%E2%B9%8A%E2%B9%8Aevil.example")]
+    [InlineData("/\u244A\u244Aevil.example")]
+    [InlineData("/%E2%91%8A%E2%91%8Aevil.example")]
+    [InlineData("/\u27C8\u27C8evil.example")]
+    [InlineData("/%E2%9F%88%E2%9F%88evil.example")]
+    [InlineData("/\u27C9\u27C9evil.example")]
+    [InlineData("/%E2%9F%89%E2%9F%89evil.example")]
+    public void TryNormalize_rejects_remaining_named_unicode_slash_homoglyph_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/\u27CB\u27CBevil.example")]
+    [InlineData("/%E2%9F%8B%E2%9F%8Bevil.example")]
+    [InlineData("/\u27CD\u27CDevil.example")]
+    [InlineData("/%E2%9F%8D%E2%9F%8Devil.example")]
+    [InlineData("/\u29F4\u29F4evil.example")]
+    [InlineData("/%E2%A7%B4%E2%A7%B4evil.example")]
+    public void TryNormalize_rejects_mathematical_diagonal_and_solidus_interoperator_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/signin/\u2E31\u2E31/other")]
+    [InlineData("/signin/%E2%B8%B1%E2%B8%B1/other")]
+    [InlineData("/signin/\u2E33\u2E33/other")]
+    [InlineData("/signin/%E2%B8%B3%E2%B8%B3/other")]
+    [InlineData("/signin/\u2981\u2981/other")]
+    [InlineData("/signin/%E2%A6%81%E2%A6%81/other")]
+    [InlineData("/signin/\u16EB\u16EB/other")]
+    [InlineData("/signin/%E1%9B%AB%E1%9B%AB/other")]
+    [InlineData("/signin/\u1427\u1427/other")]
+    [InlineData("/signin/%E1%90%A7%E1%90%A7/other")]
+    [InlineData("/signin/\u1803\u1803/other")]
+    [InlineData("/signin/%E1%A0%83%E1%A0%83/other")]
+    public void TryNormalize_rejects_additional_script_and_separator_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/\u2AFF\u2AFFevil.example")]
+    [InlineData("/%E2%AB%BF%E2%AB%BFevil.example")]
+    public void TryNormalize_rejects_double_reverse_solidus_operator_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/signin/\u166E\u166E/other")]
+    [InlineData("/signin/%E1%99%AE%E1%99%AE/other")]
+    [InlineData("/signin/\u2E30\u2E30/other")]
+    [InlineData("/signin/%E2%B8%B0%E2%B8%B0/other")]
+    [InlineData("/signin/\uA78F\uA78F/other")]
+    [InlineData("/signin/%EA%9E%8F%EA%9E%8F/other")]
+    [InlineData("/signin/\u0701\u0701/other")]
+    [InlineData("/signin/%DC%81%DC%81/other")]
+    [InlineData("/signin/\u0702\u0702/other")]
+    [InlineData("/signin/%DC%82%DC%82/other")]
+    public void TryNormalize_rejects_script_full_stop_and_ring_point_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -76,6 +77,14 @@ public sealed partial class RunCoverageController
                         $"ExclusionReason must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
                         ProblemTypes.ValidationFailed);
                 }
+
+                if (row.ExclusionReason is not null
+                    && !UnicodeTextValidation.IsValidUnicodeText(row.ExclusionReason))
+                {
+                    return this.BadRequestProblem(
+                        "ExclusionReason must not contain invalid Unicode surrogate pairs.",
+                        ProblemTypes.ValidationFailed);
+                }
             }
         }
 
@@ -141,6 +150,14 @@ public sealed partial class RunCoverageController
         {
             return this.BadRequestProblem(
                 $"ExclusionReason must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.ExclusionReason is not null
+            && !UnicodeTextValidation.IsValidUnicodeText(request.ExclusionReason))
+        {
+            return this.BadRequestProblem(
+                "ExclusionReason must not contain invalid Unicode surrogate pairs.",
                 ProblemTypes.ValidationFailed);
         }
 

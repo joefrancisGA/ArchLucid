@@ -180,6 +180,79 @@ describe("proxy route pre-auth anonymous paths", () => {
     vi.useRealTimers();
   });
 
+  it("forwards health ready GET when BFF session cookie is expired", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "pre-auth-health-bff-secret");
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-06T12:00:00.000Z"));
+
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    vi.setSystemTime(new Date("2026-09-07T12:00:00.000Z"));
+    fetchMock.mockResolvedValue(
+      new Response('{"status":"Healthy"}', {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const req = new NextRequest("http://localhost/api/proxy/health/ready", {
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+      },
+    });
+
+    const res = await GET(req, {
+      params: Promise.resolve({ path: ["health", "ready"] }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  it("forwards post-registration trial-status GET when BFF session cookie is idle-expired", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "pre-auth-trial-bff-secret");
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-06T12:00:00.000Z"));
+
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      lastActivityAtMs: Date.now() - 4 * 60 * 60 * 1000 - 1,
+      workingMode: true,
+    });
+
+    fetchMock.mockResolvedValue(
+      new Response('{"status":"Provisioning"}', {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/tenant/trial-status", {
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        "x-tenant-id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "x-workspace-id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "x-project-id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      },
+    });
+
+    const res = await GET(req, {
+      params: Promise.resolve({ path: ["v1", "tenant", "trial-status"] }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
   it("forwards tenant self-registration POST when BFF session is valid but CSRF is omitted", async () => {
     vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "pre-auth-register-bff-secret");
     vi.useFakeTimers();

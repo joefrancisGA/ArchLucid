@@ -31,4 +31,16 @@ public class InventoryItem
         get;
         set;
     }
+
+    public string? IssueType
+    {
+        get;
+        set;
+    }
+
+    public List<string>? SupportingFindingIds
+    {
+        get;
+        set;
+    }
 }

@@ -6,6 +6,7 @@ import {
   BFF_SESSION_COOKIE_NAME,
   buildBffSessionClearCookieHeaders,
   buildBffSessionCookieHeaders,
+  hasPresentButUnparseableBffSessionCookie,
   isBffSessionCookieEnabled,
   parseBffSessionCookieValue,
   slideBffSessionActivity,
@@ -80,6 +81,7 @@ export function enforceProxyBffSessionGuard(
   const cookieValue = request.cookies.get(BFF_SESSION_COOKIE_NAME)?.value ?? null;
   const payload = cookieValue !== null ? parseBffSessionCookieValue(cookieValue) : null;
   const browserBearer = request.headers.get("authorization")?.trim() ?? "";
+  const unparseableCookie = hasPresentButUnparseableBffSessionCookie(cookieValue, payload);
 
   if (payload === null) {
     if (
@@ -94,12 +96,16 @@ export function enforceProxyBffSessionGuard(
           "BFF session required",
           "Mutating proxy calls require an active HttpOnly BFF session.",
           correlationId,
-          false,
+          unparseableCookie,
         ),
       };
     }
 
-    return { allowed: true, payload: null, slideCookieHeaders: [] };
+    return {
+      allowed: true,
+      payload: null,
+      slideCookieHeaders: unparseableCookie ? buildBffSessionClearCookieHeaders() : [],
+    };
   }
 
   if (Date.now() >= payload.exp) {

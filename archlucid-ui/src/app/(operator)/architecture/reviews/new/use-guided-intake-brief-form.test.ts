@@ -1,4 +1,5 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { renderHook, act, waitFor, type ReactNode } from "@testing-library/react";
+import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REVIEW_INTAKE_EXAMPLE_TEMPLATES } from "@/lib/operator/operator-home-example-request";
@@ -8,14 +9,69 @@ import { GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER } from "@/lib/guided-intake-co
 import { resetGuidedIntakeExampleTemplatePrefillAppliedIdsForTests } from "./guided-intake-example-template-prefill-once";
 import { useGuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 
+const scopeGateSearchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+    },
+  };
+});
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => scopeGateSearchParamsHarness.state.query,
+    commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
+      scopeGateSearchParamsHarness.applyHref(href);
+
+      return true;
+    },
+  };
+});
+
 const replaceMock = vi.fn();
-const useSearchParams = vi.fn(() => new URLSearchParams());
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
   usePathname: () => "/architecture/reviews/new",
-  useSearchParams: () => useSearchParams(),
+  useSearchParams: () => new URLSearchParams(scopeGateSearchParamsHarness.state.query),
 }));
+
+function ScopeGateSearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
+  useSyncExternalStore(
+    scopeGateSearchParamsHarness.subscribe,
+    () => scopeGateSearchParamsHarness.state.query,
+    () => "",
+  );
+
+  return createElement("div", null, children);
+}
 
 describe("useGuidedIntakeBriefForm", () => {
   const exampleTemplate =
@@ -24,12 +80,32 @@ describe("useGuidedIntakeBriefForm", () => {
 
   beforeEach(() => {
     replaceMock.mockReset();
-    useSearchParams.mockReturnValue(new URLSearchParams());
+    scopeGateSearchParamsHarness.reset();
     resetGuidedIntakeExampleTemplatePrefillAppliedIdsForTests();
   });
 
+  it("follows scopeGate= URL changes without a popstate event", () => {
+    scopeGateSearchParamsHarness.state.query = "scopeGate=1";
+
+    const { result, rerender } = renderHook(
+      () =>
+        useGuidedIntakeBriefForm({
+          exampleTemplate: null,
+          isCreateArchitectureFlow: false,
+        }),
+      { wrapper: ScopeGateSearchParamsRerenderHost },
+    );
+
+    expect(result.current.scopeGateOpen).toBe(true);
+
+    scopeGateSearchParamsHarness.applyHref("/architecture/reviews/new");
+    rerender();
+
+    expect(result.current.scopeGateOpen).toBe(false);
+  });
+
   it("blocks advance when scopeGate URL is set but scope bullets are not confirmed", () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("scopeGate=1"));
+    scopeGateSearchParamsHarness.state.query = "scopeGate=1";
 
     const { result } = renderHook(() =>
       useGuidedIntakeBriefForm({
@@ -44,7 +120,7 @@ describe("useGuidedIntakeBriefForm", () => {
   });
 
   it("clears scope confirmation blocker when scope bullets are confirmed after scopeGate URL prefill", () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("scopeGate=1"));
+    scopeGateSearchParamsHarness.state.query = "scopeGate=1";
 
     const { result } = renderHook(() =>
       useGuidedIntakeBriefForm({
@@ -105,9 +181,7 @@ describe("useGuidedIntakeBriefForm", () => {
   });
 
   it("prefills guided intake from a starter preset", async () => {
-    useSearchParams.mockReturnValue(
-      new URLSearchParams("path=guided-intake&preset=starter-api-platform-b2b"),
-    );
+    scopeGateSearchParamsHarness.state.query = "path=guided-intake&preset=starter-api-platform-b2b";
 
     const { result } = renderHook(() =>
       useGuidedIntakeBriefForm({

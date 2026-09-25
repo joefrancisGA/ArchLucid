@@ -1,5 +1,7 @@
 using System.Security.Claims;
 
+using ArchLucid.Api.Http.Governance;
+using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.Models.Admin;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
@@ -20,14 +22,18 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Authorize(Policy = ArchLucidPolicies.PlatformTenantDeletionAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/tenants")]
-public sealed class AdminTenantsController(ITenantRepository tenantRepository, ITenantErasureCommandService tenantErasureCommands)
-    : ControllerBase
+public sealed class AdminTenantsController(
+    ITenantRepository tenantRepository,
+    ITenantErasureCommandService tenantErasureCommands,
+    TimeProvider? timeProvider = null) : ControllerBase
 {
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private readonly ITenantErasureCommandService _tenantErasureCommands =
         tenantErasureCommands ?? throw new ArgumentNullException(nameof(tenantErasureCommands));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     /// <summary>
     ///     Starts scheduled erasure quarantine (suspends tenant surface; hard purge runs after eligibility unless legal hold
@@ -102,6 +108,13 @@ public sealed class AdminTenantsController(ITenantRepository tenantRepository, I
     {
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? validationProblem =
+            TenantErasureLegalHoldHttpMapper.ValidateSetLegalHold(body, _timeProvider)
+                .ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(id, cancellationToken);
 

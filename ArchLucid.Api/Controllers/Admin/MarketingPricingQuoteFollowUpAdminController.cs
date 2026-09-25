@@ -1,7 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Admin;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -39,6 +40,8 @@ public sealed class MarketingPricingQuoteFollowUpAdminController(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private const int MaxAssignedOwnerLength = 200;
+
     /// <summary>Records first human acknowledgement (clears SLA aging when combined with open status).</summary>
     [HttpPost("{id:guid}/acknowledge")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -48,6 +51,25 @@ public sealed class MarketingPricingQuoteFollowUpAdminController(
         [FromBody] MarketingPricingQuoteAcknowledgeRequest? body,
         CancellationToken cancellationToken)
     {
+        if (body?.AssignedOwner is { } assignedOwner)
+        {
+            string trimmedAssignedOwner = assignedOwner.Trim();
+
+            if (trimmedAssignedOwner.Length > MaxAssignedOwnerLength)
+            {
+                return this.BadRequestProblem(
+                    $"AssignedOwner must be at most {MaxAssignedOwnerLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (!UnicodeTextValidation.IsValidUnicodeText(trimmedAssignedOwner))
+            {
+                return this.BadRequestProblem(
+                    "AssignedOwner must not contain invalid Unicode surrogate pairs.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         bool updated = await _followUpRepository
             .AcknowledgeAsync(id, body?.AssignedOwner, cancellationToken)
             .ConfigureAwait(false);

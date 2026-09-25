@@ -97,9 +97,10 @@ export function ReviewsNewPathSwitcher() {
   const isReturningTenant =
     commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;
   const reviewsNewReturningJobChooserOpenParam = searchParams?.get("reviewsNewReturningJobChooserOpen");
-  const [returningJobChooserOpen, setReturningJobChooserOpenState] = useState(() =>
-    parseReviewsNewReturningJobChooserOpenFromSearch(reviewsNewReturningJobChooserOpenParam),
+  const urlReturningJobChooserOpen = parseReviewsNewReturningJobChooserOpenFromSearch(
+    reviewsNewReturningJobChooserOpenParam,
   );
+  const [returningJobChooserOpen, setReturningJobChooserOpenState] = useState(urlReturningJobChooserOpen);
   const returningJobChooserOpenRef = useRef(returningJobChooserOpen);
   returningJobChooserOpenRef.current = returningJobChooserOpen;
 
@@ -127,9 +128,16 @@ export function ReviewsNewPathSwitcher() {
   );
 
   useEffect(() => {
+    if (returningJobChooserOpenRef.current !== urlReturningJobChooserOpen) {
+      returningJobChooserOpenRef.current = urlReturningJobChooserOpen;
+      setReturningJobChooserOpenState(urlReturningJobChooserOpen);
+    }
+  }, [urlReturningJobChooserOpen]);
+
+  useEffect(() => {
     const syncReturningJobChooserOpenFromUrl = (): void => {
       const next = parseReviewsNewReturningJobChooserOpenFromSearch(
-        new URLSearchParams(window.location.search).get("reviewsNewReturningJobChooserOpen"),
+        new URLSearchParams(readWindowLocationSearch()).get("reviewsNewReturningJobChooserOpen"),
       );
 
       if (returningJobChooserOpenRef.current === next) {

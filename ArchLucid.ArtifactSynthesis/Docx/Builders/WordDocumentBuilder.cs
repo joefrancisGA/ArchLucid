@@ -159,8 +159,10 @@ public static class WordDocumentBuilder
         table.AppendChild(
             new TableRow(
                 CreateHeaderCell("Severity"),
+                CreateHeaderCell("Issue Type"),
                 CreateHeaderCell("Title"),
-                CreateHeaderCell("Description")));
+                CreateHeaderCell("Description"),
+                CreateHeaderCell("Supporting Findings")));
 
         foreach (ManifestIssue issue in issues)
         {
@@ -170,11 +172,17 @@ public static class WordDocumentBuilder
                     new Bold(),
                     new Color { Val = DocxIssueSeverityStyles.HighSeverityColorHex });
 
+            string supportingFindings = issue.SupportingFindingIds.Count == 0
+                ? string.Empty
+                : string.Join(", ", issue.SupportingFindingIds);
+
             table.AppendChild(
                 new TableRow(
                     new TableCell(new Paragraph(severityRun)),
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.IssueType))))),
                     new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.Title))))),
-                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.Description)))))));
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.Description))))),
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(supportingFindings)))))));
         }
 
         body.AppendChild(table);

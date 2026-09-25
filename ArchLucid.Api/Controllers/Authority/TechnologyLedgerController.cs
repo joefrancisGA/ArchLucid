@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models.TechnologyLedger;
 using ArchLucid.Api.ProblemDetails;
@@ -116,6 +117,20 @@ public sealed partial class TechnologyLedgerController(
         {
             return this.BadRequestProblem(
                 $"TechnologyName must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.Rationale is not null && !UnicodeTextValidation.IsValidUnicodeText(request.Rationale))
+        {
+            return this.BadRequestProblem(
+                "Rationale must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.TechnologyName is not null && !UnicodeTextValidation.IsValidUnicodeText(request.TechnologyName))
+        {
+            return this.BadRequestProblem(
+                "TechnologyName must not contain invalid Unicode surrogate pairs.",
                 ProblemTypes.ValidationFailed);
         }
 

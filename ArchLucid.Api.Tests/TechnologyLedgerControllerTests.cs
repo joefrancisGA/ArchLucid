@@ -187,6 +187,54 @@ public sealed class TechnologyLedgerControllerTests
     }
 
     [Fact]
+    public async Task PatchTechnologyLedgerEntry_returns_bad_request_when_rationale_contains_invalid_surrogate()
+    {
+        TechnologyLedgerController sut = BuildSut();
+
+        IActionResult result = await sut.PatchTechnologyLedgerEntry(
+            RunGuid,
+            "entry-1",
+            new PatchTechnologyLedgerEntryRequest { Rationale = "\uD800" },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _service.Verify(
+            static s => s.PatchEntryAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchTechnologyLedgerEntryCommand>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PatchTechnologyLedgerEntry_returns_bad_request_when_technology_name_contains_invalid_surrogate()
+    {
+        TechnologyLedgerController sut = BuildSut();
+
+        IActionResult result = await sut.PatchTechnologyLedgerEntry(
+            RunGuid,
+            "entry-1",
+            new PatchTechnologyLedgerEntryRequest { TechnologyName = "\uD800" },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _service.Verify(
+            static s => s.PatchEntryAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchTechnologyLedgerEntryCommand>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PatchTechnologyLedgerEntry_NullBody_ReturnsBadRequest_AndDoesNotAudit()
     {
         TechnologyLedgerController sut = BuildSut();

@@ -121,9 +121,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const filterTextRef = useRef(filterText);
   filterTextRef.current = filterText;
   const buyerPackageScope = urlBuyerPackageScope;
-  const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
-  const sortOrderRef = useRef(sortOrder);
-  sortOrderRef.current = sortOrder;
+  const sortOrder = urlSortOrder;
   const [selectedRun, setSelectedRunState] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelectionState] = useState<string[]>(() => [...urlCompareRunIds]);
   const compareSelectionRef = useRef(compareSelection);
@@ -138,7 +136,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
   useEffect(() => {
     const syncFilterTextFromUrl = (): void => {
-      const next = parseRunsListSearchQuery(new URLSearchParams(window.location.search).get("q"));
+      const next = parseRunsListSearchQuery(new URLSearchParams(readWindowLocationSearch()).get("q"));
 
       if (filterTextRef.current === next) {
         return;
@@ -153,28 +151,6 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
     return () => {
       window.removeEventListener("popstate", syncFilterTextFromUrl);
-    };
-  }, []);
-
-  useEffect(() => {
-    const syncSortOrderFromUrl = (): void => {
-      const next = sortOrderFromRunsListSort(
-        parseRunsListSortFromSearch(new URLSearchParams(window.location.search).get("sort")),
-      );
-
-      if (sortOrderRef.current === next) {
-        return;
-      }
-
-      sortOrderRef.current = next;
-      setSortOrderState(next);
-    };
-
-    syncSortOrderFromUrl();
-    window.addEventListener("popstate", syncSortOrderFromUrl);
-
-    return () => {
-      window.removeEventListener("popstate", syncSortOrderFromUrl);
     };
   }, []);
 
@@ -204,9 +180,8 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     });
   }, [pathname]);
 
-  const setSortOrder = useCallback((order: SortOrder): void => {
-    sortOrderRef.current = order;
-    setSortOrderState(order);
+  const setSortOrder = useCallback((_order: SortOrder): void => {
+    // Sort is URL-driven via FilterChip navigation; retained for hook API compatibility.
   }, []);
 
   const syncCompareInspectorToUrl = useCallback(
@@ -247,7 +222,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     const syncCompareSelectionFromUrl = (): void => {
       const next = [
         ...parseRunsListCompareRunIdsFromSearch(
-          new URLSearchParams(window.location.search).get("compareRuns"),
+          new URLSearchParams(readWindowLocationSearch()).get("compareRuns"),
         ),
       ];
       const current = compareSelectionRef.current;

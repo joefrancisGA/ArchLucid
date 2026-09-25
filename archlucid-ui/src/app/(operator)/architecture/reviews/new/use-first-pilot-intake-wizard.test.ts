@@ -1,16 +1,72 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { renderHook, act, waitFor, type ReactNode } from "@testing-library/react";
+import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
 
+const scopeGateSearchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+    },
+  };
+});
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => scopeGateSearchParamsHarness.state.query,
+    commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
+      scopeGateSearchParamsHarness.applyHref(href);
+
+      return true;
+    },
+  };
+});
+
 const replaceMock = vi.fn();
-const useSearchParams = vi.fn(() => new URLSearchParams("scopeGate=1"));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock, push: vi.fn() }),
   usePathname: () => "/architecture/reviews/new",
-  useSearchParams: () => useSearchParams(),
+  useSearchParams: () => new URLSearchParams(scopeGateSearchParamsHarness.state.query),
 }));
+
+function ScopeGateSearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
+  useSyncExternalStore(
+    scopeGateSearchParamsHarness.subscribe,
+    () => scopeGateSearchParamsHarness.state.query,
+    () => "",
+  );
+
+  return createElement("div", null, children);
+}
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({ status: "ok", blocksLlmExecution: false }),
@@ -108,12 +164,12 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
   beforeEach(() => {
     replaceMock.mockReset();
     capturedPersistence = null;
-    useSearchParams.mockReturnValue(new URLSearchParams());
+    scopeGateSearchParamsHarness.reset();
     useRunSummaryQuery.mockReturnValue({ data: undefined });
   });
 
   it("does not prefill the run title from orphan rerun= without revised-clone intent", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("rerun=run-guided-only"));
+    scopeGateSearchParamsHarness.state.query = "rerun=run-guided-only";
     useRunSummaryQuery.mockReturnValue({
       data: { displayName: "Inherited guided rerun title", description: null },
     });
@@ -129,9 +185,8 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
   });
 
   it("prefills the run title when revised-clone intent carries rerun=", async () => {
-    useSearchParams.mockReturnValue(
-      new URLSearchParams("intent=revised-clone&rerun=run-second-review&priorRunId=run-second-review"),
-    );
+    scopeGateSearchParamsHarness.state.query =
+      "intent=revised-clone&rerun=run-second-review&priorRunId=run-second-review";
     useRunSummaryQuery.mockReturnValue({
       data: { displayName: "Second review inherited title", description: null },
     });
@@ -146,11 +201,35 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
   });
 });
 
+describe("useFirstPilotIntakeWizard scope gate URL sync", () => {
+  beforeEach(() => {
+    replaceMock.mockReset();
+    capturedPersistence = null;
+    scopeGateSearchParamsHarness.reset();
+    useRunSummaryQuery.mockReturnValue({ data: undefined });
+  });
+
+  it("follows scopeGate= URL changes without a popstate event", () => {
+    scopeGateSearchParamsHarness.state.query = "scopeGate=1";
+
+    const { result, rerender } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    expect(result.current.scopeGateOpen).toBe(true);
+
+    scopeGateSearchParamsHarness.applyHref("/architecture/reviews/new");
+    rerender();
+
+    expect(result.current.scopeGateOpen).toBe(false);
+  });
+});
+
 describe("useFirstPilotIntakeWizard session restore", () => {
   beforeEach(() => {
     replaceMock.mockReset();
     capturedPersistence = null;
-    useSearchParams.mockReturnValue(new URLSearchParams("scopeGate=1"));
+    scopeGateSearchParamsHarness.state.query = "scopeGate=1";
     useRunSummaryQuery.mockReturnValue({ data: undefined });
   });
 
