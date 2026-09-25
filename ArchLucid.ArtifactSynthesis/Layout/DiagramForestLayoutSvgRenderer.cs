@@ -782,7 +782,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 placement.Width,
                 placement.Height,
                 placement.FrameCellId,
-                placement.VnetFrameId))
+                placement.VnetFrameId,
+                placement.IsFrameAnchor))
             .ToList();
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frameBounds =
             DiagramResourceGroupPacker.ResolveFrameBounds(placementBounds);

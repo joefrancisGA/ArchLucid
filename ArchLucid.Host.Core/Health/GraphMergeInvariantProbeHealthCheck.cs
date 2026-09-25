@@ -23,7 +23,7 @@ public sealed class GraphMergeInvariantProbeHealthCheck : IHealthCheck
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Nodes =
             [
                 new GraphNode

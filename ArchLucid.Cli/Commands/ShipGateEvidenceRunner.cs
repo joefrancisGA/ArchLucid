@@ -36,7 +36,7 @@ internal sealed partial class ShipGateEvidenceRunner(
             RunId = runId,
             UiBaseUrl = string.IsNullOrWhiteSpace(uiBaseUrl) ? null : uiBaseUrl.Trim().TrimEnd('/'),
             UiBaseUrlSource = string.IsNullOrWhiteSpace(uiBaseUrlSource) ? null : uiBaseUrlSource,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Gates = [gate1, gate2, gate3, gate4, gate5, gate6],
         };
     }

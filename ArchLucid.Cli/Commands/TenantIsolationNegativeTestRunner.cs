@@ -67,7 +67,7 @@ internal sealed class TenantIsolationNegativeTestRunner
         {
             RepositoryRoot = repositoryRoot,
             BaseUrl = baseUrl,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             OverallVerdict = overallVerdict,
             PrimaryRunId = runId,
             AlternateTenantId = alternateTenantId,

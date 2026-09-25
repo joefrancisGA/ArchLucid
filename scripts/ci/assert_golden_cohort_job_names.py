@@ -90,7 +90,7 @@ def _job_level_if_text(job_body: str) -> str:
 
         break
 
-    return "\n".join(collected)
+    return "\n".join(line.split("#", 1)[0] for line in collected)
 
 
 def _workflow_level_concurrency_block(text: str) -> str:

@@ -39,7 +39,7 @@ public sealed class ProcessSharedValueReportJobPollStateCache : IValueReportJobP
         if (!_entries.TryGetValue(key, out CacheEntry? entry))
             return null;
 
-        if (entry.ExpiresAtUtc <= DateTimeOffset.UtcNow)
+        if (entry.ExpiresAtUtc <= TimeProvider.System.GetUtcNow())
         {
             _entries.TryRemove(key, out _);
 
@@ -52,12 +52,12 @@ public sealed class ProcessSharedValueReportJobPollStateCache : IValueReportJobP
     private static DateTimeOffset ResolveExpiresAtUtc(DistributedCacheEntryOptions options)
     {
         if (options.AbsoluteExpirationRelativeToNow is TimeSpan relative)
-            return DateTimeOffset.UtcNow.Add(relative);
+            return TimeProvider.System.GetUtcNow().Add(relative);
 
         if (options.AbsoluteExpiration is DateTimeOffset absolute)
             return absolute;
 
-        return DateTimeOffset.UtcNow.AddHours(2);
+        return TimeProvider.System.GetUtcNow().AddHours(2);
     }
 
     private sealed record CacheEntry(byte[] Payload, DateTimeOffset ExpiresAtUtc);

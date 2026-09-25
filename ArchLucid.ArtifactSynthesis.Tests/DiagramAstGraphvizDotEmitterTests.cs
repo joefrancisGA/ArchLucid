@@ -114,6 +114,8 @@ public sealed class DiagramAstGraphvizDotEmitterTests
 
         dot.Should().Contain("subgraph cluster_vnet_vnet");
         dot.Should().Contain("label=\"vnet-app\"");
+        dot.Should().NotContain("cluster_subscription");
+        dot.Should().NotContain("label=\"Subscription\"");
         dot.Should().NotContain("VNet / subnet");
         dot.Should().Contain("vault");
     }

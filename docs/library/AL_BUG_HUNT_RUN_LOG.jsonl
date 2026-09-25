@@ -7239,3 +7239,4 @@
 {"at":"2026-09-21T22:21:29.2077051Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-21T22:21:33.5927106Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-21T22:21:38.0553101Z","zoneId":"persistence-identity","outcome":"seed-only"}
+{"at":"2026-09-25T00:03:09.5610477Z","zoneId":"ui-auth-proxy","outcome":"seed-only"}

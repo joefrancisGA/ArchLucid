@@ -30,7 +30,7 @@ internal static class PilotProofPacketEnvironmentBuilder
         Dictionary<string, object?> payload = new(StringComparer.Ordinal)
         {
             ["schema"] = "archlucid.proof-packet.environment.v1",
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["apiBaseUrlRedacted"] = Support.SupportBundleRedactor.RedactHttpUrl(apiBaseRedacted),
             ["storageProviderSummary"] = "(see config-summary in support bundle — not duplicated here)",
             ["demoDataWarning"] = demoWarning,

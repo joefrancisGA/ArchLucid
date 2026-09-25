@@ -51,10 +51,10 @@ export function parseCircuitGatesFromHealthEntry(
       continue;
     }
     const row = g as Record<string, unknown>;
-    const name = String(row.name ?? " — ");
-    const state = String(row.state ?? " — ");
+    const name = typeof row.name === "string" ? row.name : " — ";
+    const state = typeof row.state === "string" ? row.state : " — ";
     const breakDurationSeconds =
-      typeof row.breakDurationSeconds === "number" ? row.breakDurationSeconds : undefined;
+      typeof row.breakDurationSeconds === "number" && Number.isFinite(row.breakDurationSeconds) ? row.breakDurationSeconds : undefined;
     out.push({
       name,
       provider: typeof row.provider === "string" ? row.provider : undefined,
@@ -62,10 +62,10 @@ export function parseCircuitGatesFromHealthEntry(
       state,
       openReason: typeof row.openReason === "string" && row.openReason.length > 0 ? row.openReason : undefined,
       breakDurationSeconds,
-      consecutiveFailures: typeof row.consecutiveFailures === "number" ? row.consecutiveFailures : undefined,
-      failureThreshold: typeof row.failureThreshold === "number" ? row.failureThreshold : undefined,
+      consecutiveFailures: typeof row.consecutiveFailures === "number" && Number.isFinite(row.consecutiveFailures) ? row.consecutiveFailures : undefined,
+      failureThreshold: typeof row.failureThreshold === "number" && Number.isFinite(row.failureThreshold) ? row.failureThreshold : undefined,
       halfOpenSuccessThreshold:
-        typeof row.halfOpenSuccessThreshold === "number" ? row.halfOpenSuccessThreshold : undefined,
+        typeof row.halfOpenSuccessThreshold === "number" && Number.isFinite(row.halfOpenSuccessThreshold) ? row.halfOpenSuccessThreshold : undefined,
       lastStateChangeUtc: typeof row.lastStateChangeUtc === "string" ? row.lastStateChangeUtc : undefined,
     });
   }

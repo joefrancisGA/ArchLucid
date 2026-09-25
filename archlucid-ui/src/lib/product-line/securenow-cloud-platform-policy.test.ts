@@ -61,6 +61,7 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpTopicExcludedForProductLine("system-gravity", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("inhabit-the-architecture", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("sketch-a-change", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("which-mode-am-i-in", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("system-gravity", "architecture")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("findings", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "security")).toBe(false);
@@ -75,6 +76,7 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpSearchTopicExcludedForProductLine("system-gravity", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("inhabit-the-architecture", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("sketch-a-change", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("which-mode-am-i-in", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("system-gravity", "architecture")).toBe(false);
   });
 

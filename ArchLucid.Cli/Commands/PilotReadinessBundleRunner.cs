@@ -45,7 +45,7 @@ internal sealed class PilotReadinessBundleRunner
         return new PilotReadinessBundleReport
         {
             RepositoryRoot = repositoryRoot,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             RunId = string.IsNullOrWhiteSpace(options.RunId) ? null : options.RunId.Trim(),
             OverallVerdict = PilotReadinessBundleVerdictRollup.FromSlots(slots),
             Slots = slots,

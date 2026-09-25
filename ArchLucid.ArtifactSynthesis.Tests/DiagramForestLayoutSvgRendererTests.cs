@@ -19,7 +19,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
-    public void Render_network_inventory_adds_subscription_and_vnet_frames()
+    public void Render_network_inventory_adds_vnet_frame_without_subscription_frame()
     {
         DiagramAst ast = new()
         {
@@ -52,6 +52,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
                     FromNodeId = "vm",
                     ToNodeId = "vnet",
                     Label = "in",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
                 },
             ],
         };
@@ -59,7 +60,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().Contain("class=\"subscription-frame\"");
+        result.Svg.Should().NotContain("class=\"subscription-frame\"");
         result.Svg.Should().Contain("class=\"vnet-frame\"");
     }
 

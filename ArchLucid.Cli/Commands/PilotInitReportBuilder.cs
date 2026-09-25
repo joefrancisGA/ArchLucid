@@ -23,7 +23,7 @@ internal static class PilotInitReportBuilder
 
         return new PilotInitReportDocument
         {
-            GeneratedAtUtc = DateTimeOffset.UtcNow,
+            GeneratedAtUtc = TimeProvider.System.GetUtcNow(),
             BaseUrl = baseUrl.Trim().TrimEnd('/'),
             OverallDisposition = blockingCount == 0 && warningCount == 0 ? "PASS" : "HOLD",
             BlockingCount = blockingCount,

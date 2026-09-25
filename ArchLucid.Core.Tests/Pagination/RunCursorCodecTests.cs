@@ -38,6 +38,19 @@ public sealed class RunCursorCodecTests
     }
 
     [Fact]
+    public void RunCursorCodec_Encode_ConvertsLocalTimeToUtc()
+    {
+        DateTime local = new(2026, 1, 2, 3, 4, 5, DateTimeKind.Local);
+        Guid runId = Guid.NewGuid();
+
+        (DateTime CreatedUtc, Guid RunId)? decoded = RunCursorCodec.TryDecode(RunCursorCodec.Encode(local, runId));
+
+        decoded.Should().NotBeNull();
+        decoded!.Value.CreatedUtc.Should().Be(local.ToUniversalTime());
+        decoded.Value.CreatedUtc.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
     public void RunCursorCodec_TryDecode_OffsetTimestamp_IsNormalizedToUtc()
     {
         Guid runId = Guid.NewGuid();
@@ -74,6 +87,12 @@ public sealed class RunCursorCodecTests
     }
 
     [Fact]
+    public void RunCursorCodec_TryDecode_MalformedJson_ReturnsNull()
+    {
+        RunCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("{")).Should().BeNull();
+    }
+
+    [Fact]
     public void RunCursorCodec_TryDecode_MissingTimestamp_ReturnsNull()
     {
         RunCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor($"{{\"cu\":\"\",\"ri\":\"{Guid.NewGuid()}\"}}"))
@@ -92,5 +111,14 @@ public sealed class RunCursorCodecTests
         RunCursorCodec.TryDecode(
                 JsonCursorTestHelper.EncodeJsonCursor($"{{\"cu\":\"never\",\"ri\":\"{Guid.NewGuid()}\"}}"))
             .Should().BeNull();
+    }
+
+    [Fact]
+    public void RunCursorCodec_TryDecode_TimestampWithoutTimezone_ReturnsNull()
+    {
+        string cursor = JsonCursorTestHelper.EncodeJsonCursor(
+            $"{{\"cu\":\"2026-08-08T12:00:00\",\"ri\":\"{Guid.NewGuid()}\"}}");
+
+        RunCursorCodec.TryDecode(cursor).Should().BeNull();
     }
 }

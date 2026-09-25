@@ -119,8 +119,8 @@ export function parseAdminUsersDirectoryPayload(json: unknown): AdminDirectoryUs
 
     const userId = rawUserId.trim();
 
-    const displayName = String(record.displayName ?? record.name ?? " — ");
-    const email = String(record.email ?? " — ");
+    const displayName = typeof record.displayName === "string" ? record.displayName : typeof record.name === "string" ? record.name : " — ";
+    const email = typeof record.email === "string" ? record.email : " — ";
     const rank = record.authorityRank;
     const role = record.role ?? record.maxAuthority;
     const authorityLabel =
@@ -174,8 +174,8 @@ export function parseAdminApiKeysDirectoryPayload(json: unknown): AdminDirectory
 
     const credentialId = rawCredentialId.trim();
 
-    const displayName = String(record.displayName ?? record.name ?? record.label ?? "API key");
-    const hint = String(record.maskedKey ?? record.keyHint ?? record.hint ?? record.preview ?? " — ");
+    const displayName = typeof record.displayName === "string" ? record.displayName : typeof record.name === "string" ? record.name : typeof record.label === "string" ? record.label : "API key";
+    const hint = typeof record.maskedKey === "string" ? record.maskedKey : typeof record.keyHint === "string" ? record.keyHint : typeof record.hint === "string" ? record.hint : typeof record.preview === "string" ? record.preview : " — ";
     const rank = record.authorityRank;
     const role = record.role ?? record.maxAuthority ?? record.appRole;
     const authorityLabel =

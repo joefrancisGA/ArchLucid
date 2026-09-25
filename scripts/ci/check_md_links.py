@@ -15,7 +15,7 @@ from pathlib import Path
 
 def main() -> int:
     script = Path(__file__).resolve().with_name("check_doc_links.py")
-    return subprocess.call([sys.executable, str(script)])
+    return subprocess.call([sys.executable, str(script), *sys.argv[1:]])
 
 
 if __name__ == "__main__":

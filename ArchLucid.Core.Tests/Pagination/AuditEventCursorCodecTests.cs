@@ -60,6 +60,12 @@ public sealed class AuditEventCursorCodecTests
     }
 
     [Fact]
+    public void AuditEventCursorCodec_TryDecode_MalformedJson_ReturnsNull()
+    {
+        AuditEventCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor("{")).Should().BeNull();
+    }
+
+    [Fact]
     public void AuditEventCursorCodec_TryDecode_MissingTimestamp_ReturnsNull()
     {
         AuditEventCursorCodec.TryDecode(JsonCursorTestHelper.EncodeJsonCursor($"{{\"ou\":\"\",\"ei\":\"{Guid.NewGuid()}\"}}"))

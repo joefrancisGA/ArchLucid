@@ -77,7 +77,7 @@ internal sealed class CitationIntegrityRunner
         {
             RepositoryRoot = repositoryRoot,
             BaseUrl = baseUrl,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             OverallVerdict = overallVerdict,
             SampleSize = sampled.Count,
             CommittedRunsConsidered = candidates.Count(static bundle => bundle.Status == ArchitectureRunStatus.Committed),

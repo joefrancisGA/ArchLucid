@@ -608,7 +608,11 @@ export function DiagramsWorkbenchClient() {
   }, [selectedMode, selectedResourceGroupName, showResourceGroupDropdown]);
 
   const diagramTypePickerValue =
-    diagramTypeSelected && !isInfraDiagramsResourceGroupMode(selectedMode) ? selectedMode : "";
+    diagramTypeSelected
+    && !isInfraDiagramsResourceGroupMode(selectedMode)
+    && selectedMode !== "selectedResources"
+      ? selectedMode
+      : "";
 
   const resourceGroupPickerAwaitingSelection =
     isInfraDiagramsResourceGroupMode(selectedMode)
@@ -2006,33 +2010,33 @@ export function DiagramsWorkbenchClient() {
         />
       ) : null}
 
-      <section className={cn("flex items-center justify-between gap-3", cnCard)} aria-label="Diagram display options">
+      <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
           <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Private endpoints, backup/recovery resources, and cross-group applies/likely links are hidden from the canvas by default.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant={showPrivateEndpoints ? "default" : "outline"}
-            data-testid="infra-diagrams-show-private-endpoints"
-            aria-pressed={showPrivateEndpoints}
-            onClick={handlePrivateEndpointsToggle}
-          >
-            {showPrivateEndpoints ? "Hide private endpoints" : "Show private endpoints"}
-          </Button>
+        <div className="flex flex-wrap items-center gap-4">
+          <label className="flex items-center gap-2">
+            <Checkbox
+              checked={showPrivateEndpoints}
+              data-testid="infra-diagrams-show-private-endpoints"
+              aria-label="Show private endpoints"
+              onCheckedChange={handlePrivateEndpointsToggle}
+            />
+            <span className={OPERATOR_TYPOGRAPHY.body}>Show private endpoints</span>
+          </label>
           {selectedMode !== "businessContinuity" ? (
-            <Button
-              type="button"
-              variant={includeRecoveryServices ? "secondary" : "outline"}
-              data-testid="infra-diagrams-include-recovery-services"
-              aria-pressed={includeRecoveryServices}
-              onClick={handleIncludeRecoveryServicesToggle}
-            >
-              Include backup and recovery
-            </Button>
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={includeRecoveryServices}
+                data-testid="infra-diagrams-include-recovery-services"
+                aria-label="Include backup and recovery"
+                onCheckedChange={handleIncludeRecoveryServicesToggle}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>Include backup and recovery</span>
+            </label>
           ) : null}
           <label className="flex items-center gap-2">
             <Checkbox

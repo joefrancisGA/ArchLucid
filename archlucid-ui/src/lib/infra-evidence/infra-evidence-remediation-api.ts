@@ -16,6 +16,11 @@ const PRIORITIZATION_RANKED_PATH = "/api/proxy/v1/operational-security/remediati
 const WAVES_PATH = "/api/proxy/v1/operational-security/remediation-waves";
 const FINDING_MATCH_PATH = "/api/proxy/v1/infra-evidence/operational-findings";
 
+function finiteNumberOrDefault(value: unknown, fallback: number): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
   return {
     instanceId: typeof raw.instanceId === "string" ? raw.instanceId : "",
@@ -36,10 +41,10 @@ function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSu
 function mapOperationResult(raw: Record<string, unknown>): RemediationInstanceOperationResult {
   return {
     succeeded: raw.succeeded === true,
-    instanceId: raw.instanceId != null ? String(raw.instanceId) : null,
-    status: raw.status != null ? String(raw.status) as RemediationInstanceOperationResult["status"] : null,
+    instanceId: typeof raw.instanceId === "string" ? raw.instanceId : null,
+    status: typeof raw.status === "string" ? raw.status as RemediationInstanceOperationResult["status"] : null,
     blockers: Array.isArray(raw.blockers) ? raw.blockers.filter((item): item is string => typeof item === "string") : [],
-    errorMessage: raw.errorMessage != null ? String(raw.errorMessage) : null,
+    errorMessage: typeof raw.errorMessage === "string" ? raw.errorMessage : null,
   };
 }
 
@@ -79,22 +84,22 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
       findingRaw == null
         ? null
         : {
-            findingId: String(findingRaw.findingId ?? ""),
-            title: String(findingRaw.title ?? ""),
-            severity: findingRaw.severity != null ? String(findingRaw.severity) : null,
-            status: findingRaw.status != null ? String(findingRaw.status) : null,
-            cloudResourceId: findingRaw.cloudResourceId != null ? String(findingRaw.cloudResourceId) : null,
-            controlId: findingRaw.controlId != null ? String(findingRaw.controlId) : null,
+            findingId: typeof findingRaw.findingId === "string" ? findingRaw.findingId : "",
+            title: typeof findingRaw.title === "string" ? findingRaw.title : "",
+            severity: typeof findingRaw.severity === "string" ? findingRaw.severity : null,
+            status: typeof findingRaw.status === "string" ? findingRaw.status : null,
+            cloudResourceId: typeof findingRaw.cloudResourceId === "string" ? findingRaw.cloudResourceId : null,
+            controlId: typeof findingRaw.controlId === "string" ? findingRaw.controlId : null,
           },
     activeMatch:
       matchRaw == null
         ? null
         : {
-            matchResultId: String(matchRaw.matchResultId ?? ""),
-            patternKey: String(matchRaw.patternKey ?? ""),
-            patternVersion: String(matchRaw.patternVersion ?? ""),
-            matchKind: String(matchRaw.matchKind ?? ""),
-            explainText: String(matchRaw.explainText ?? ""),
+            matchResultId: typeof matchRaw.matchResultId === "string" ? matchRaw.matchResultId : "",
+            patternKey: typeof matchRaw.patternKey === "string" ? matchRaw.patternKey : "",
+            patternVersion: typeof matchRaw.patternVersion === "string" ? matchRaw.patternVersion : "",
+            matchKind: typeof matchRaw.matchKind === "string" ? matchRaw.matchKind : "",
+            explainText: typeof matchRaw.explainText === "string" ? matchRaw.explainText : "",
           },
     evidence: Array.isArray(raw.evidence)
       ? raw.evidence.flatMap((item) => {
@@ -130,10 +135,10 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
 
   return {
     factoryMetrics: {
-      openFindings: Number(metricsRaw.openFindings ?? 0),
-      remediatedThisWeek: Number(metricsRaw.remediatedThisWeek ?? 0),
-      verificationFailureCount: Number(metricsRaw.verificationFailureCount ?? 0),
-      businessBlockedCount: Number(metricsRaw.businessBlockedCount ?? 0),
+      openFindings: finiteNumberOrDefault(metricsRaw.openFindings, 0),
+      remediatedThisWeek: finiteNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
+      verificationFailureCount: finiteNumberOrDefault(metricsRaw.verificationFailureCount, 0),
+      businessBlockedCount: finiteNumberOrDefault(metricsRaw.businessBlockedCount, 0),
     },
     openInstancesByStatus: (raw.openInstancesByStatus as Record<string, number>) ?? {},
     waves: Array.isArray(raw.waves)
@@ -141,11 +146,11 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
           const row = item as Record<string, unknown>;
 
           return {
-            waveId: String(row.waveId ?? ""),
-            name: String(row.name ?? ""),
-            status: String(row.status ?? ""),
-            memberCount: Number(row.memberCount ?? 0),
-            targetSize: row.targetSize != null ? Number(row.targetSize) : null,
+            waveId: typeof row.waveId === "string" ? row.waveId : "",
+            name: typeof row.name === "string" ? row.name : "",
+            status: typeof row.status === "string" ? row.status : "",
+            memberCount: finiteNumberOrDefault(row.memberCount, 0),
+            targetSize: row.targetSize == null ? null : finiteNumberOrDefault(row.targetSize, 0),
           };
         })
       : [],
@@ -156,12 +161,12 @@ export async function fetchRemediationPrioritizedFindings(): Promise<Remediation
   const raw = await proxyJsonGet<Array<Record<string, unknown>>>(PRIORITIZATION_RANKED_PATH);
 
   return raw.map((row) => ({
-    findingId: String(row.findingId ?? ""),
-    totalScore: Number(row.totalScore ?? 0),
-    explanationSummary: String(row.explanationSummary ?? ""),
-    cloudResourceId: row.cloudResourceId != null ? String(row.cloudResourceId) : null,
-    controlId: row.controlId != null ? String(row.controlId) : null,
-    patternKey: row.patternKey != null ? String(row.patternKey) : null,
+    findingId: typeof row.findingId === "string" ? row.findingId : "",
+    totalScore: finiteNumberOrDefault(row.totalScore, 0),
+    explanationSummary: typeof row.explanationSummary === "string" ? row.explanationSummary : "",
+    cloudResourceId: typeof row.cloudResourceId === "string" ? row.cloudResourceId : null,
+    controlId: typeof row.controlId === "string" ? row.controlId : null,
+    patternKey: typeof row.patternKey === "string" ? row.patternKey : null,
   }));
 }
 
@@ -169,8 +174,8 @@ export async function fetchRemediationWaves(): Promise<Array<{ waveId: string; n
   const raw = await proxyJsonGet<Array<Record<string, unknown>>>(WAVES_PATH);
 
   return raw.map((row) => ({
-    waveId: String(row.waveId ?? ""),
-    name: String(row.name ?? ""),
+    waveId: typeof row.waveId === "string" ? row.waveId : "",
+    name: typeof row.name === "string" ? row.name : "",
   }));
 }
 

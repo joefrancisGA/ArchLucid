@@ -21,11 +21,11 @@ internal sealed class RealModeSmokePollRunProbe(HttpClient http)
         const string name = "poll-ready";
         const string hint = "Inspect run status, agent tasks, and worker logs for the runId.";
 
-        DateTimeOffset deadline = DateTimeOffset.UtcNow.AddSeconds(options.TimeoutSeconds);
+        DateTimeOffset deadline = TimeProvider.System.GetUtcNow().AddSeconds(options.TimeoutSeconds);
         string? lastStatus = null;
         long lastTokens = 0;
 
-        while (DateTimeOffset.UtcNow < deadline)
+        while (TimeProvider.System.GetUtcNow() < deadline)
         {
             ct.ThrowIfCancellationRequested();
 
