@@ -3080,15 +3080,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 20
-- **bugs-found:** 16
+- **hunts:** 21
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — circled-reverse-solidus and Ethiopic/Hebrew full-stop homoglyphs evaded return-path guard
+- **last-bug:** 2026-09-25 — circled-division-slash and OCR double-backslash homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved circled-division-slash and remaining SOLIDUS-named slash homoglyph bypasses; 92 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) CIRCLED DIVISION SLASH (`⊘`), DOTTED SOLIDUS (`⹊`), OCR DOUBLE BACKSLASH (`⑊`), REVERSE SOLIDUS PRECEDING SUBSET (`⟈`), and SUPERSET PRECEDING SOLIDUS (`⟉`) bypass `IsSlashHomoglyph` — **hit 2026-09-25 seed hunt:** evaded protocol-relative checks; fixed by extending `IsSlashHomoglyph`; regression `TryNormalize_rejects_remaining_named_unicode_slash_homoglyph_protocol_relative_paths`.
+- [x] (valid-no-repro) Bullet (`•`) and Ethiopic wordspace (`፡`) parent-segment pairs — **valid-no-repro 2026-09-25 seed hunt:** not browser-normalized full-stop or slash homoglyphs; no external host introduced.
+- [x] (valid-no-repro) Query-string dot-dot (`/signin?x=../../evil`), semicolon segment (`/signin/..;/evil`), bidi marks, and zero-width space — **valid-no-repro 2026-09-25 seed hunt:** prior ledger rows; path prefix remains same-origin relative.
 
 2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved circled-reverse-solidus slash homoglyphs and Ethiopic/Hebrew full-stop dot homoglyph traversal bypasses; 82 scoped AuthSignInReturnPathGuard tests passed.
 

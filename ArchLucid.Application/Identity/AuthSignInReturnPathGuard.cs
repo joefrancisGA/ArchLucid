@@ -244,7 +244,12 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u29B8' // ⦸ CIRCLED REVERSE SOLIDUS
         || ch == '\u29C4' // ⧄ SQUARED RISING DIAGONAL SLASH
         || ch == '\u29C5' // ⧅ SQUARED FALLING DIAGONAL SLASH
-        || ch == '\u2AFB'; // ⫻ TRIPLE SOLIDUS BINARY RELATION
+        || ch == '\u2AFB' // ⫻ TRIPLE SOLIDUS BINARY RELATION
+        || ch == '\u2298' // ⊘ CIRCLED DIVISION SLASH
+        || ch == '\u2E4A' // ⹊ DOTTED SOLIDUS
+        || ch == '\u244A' // ⑊ OCR DOUBLE BACKSLASH
+        || ch == '\u27C8' // ⟈ REVERSE SOLIDUS PRECEDING SUBSET
+        || ch == '\u27C9'; // ⟉ SUPERSET PRECEDING SOLIDUS
 
     // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
     private static bool IsDotHomoglyph(char ch) =>
