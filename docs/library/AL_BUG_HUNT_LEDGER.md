@@ -21058,10 +21058,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 278
+- **hunts:** 279
 - **bugs-found:** 506
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — pre-finalize checklist disposition lookback and evidence-linkage disposition parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
