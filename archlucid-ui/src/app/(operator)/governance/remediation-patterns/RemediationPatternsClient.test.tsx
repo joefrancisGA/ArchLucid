@@ -1,16 +1,17 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const useRemediationPatternsQueryMock = vi.hoisted(() => vi.fn());
 const useRemediationPatternDetailQueryMock = vi.hoisted(() => vi.fn());
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
 const routerReplaceMock = vi.hoisted(() => vi.fn());
 const importRemediationPatternYamlMock = vi.hoisted(() => vi.fn());
+let searchParams = vi.hoisted(() => new URLSearchParams());
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/security/remediation-patterns",
   useRouter: () => ({ replace: routerReplaceMock, push: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
@@ -87,6 +88,51 @@ function mockDetailQuery(overrides: Record<string, unknown> = {}) {
 }
 
 describe("RemediationPatternsClient", () => {
+  beforeEach(() => {
+    searchParams = new URLSearchParams();
+    routerReplaceMock.mockClear();
+  });
+
+  it("clears selected pattern when registry filter hides the selected row", () => {
+    const approvedPatternId = "11111111-1111-1111-1111-111111111111";
+
+    searchParams = new URLSearchParams(
+      `patternId=${approvedPatternId}&registryFilter=needs-attention`,
+    );
+
+    mockListQuery({
+      data: [
+        {
+          patternId: approvedPatternId,
+          patternKey: "storage.encrypt",
+          displayName: "Encrypt storage",
+          currentApprovedVersion: "1.0.0",
+          createdByActorKey: "author",
+          createdUtc: new Date().toISOString(),
+          updatedUtc: new Date().toISOString(),
+        },
+        {
+          patternId: "22222222-2222-2222-2222-222222222222",
+          patternKey: "network.private",
+          displayName: "Private endpoints",
+          currentApprovedVersion: null,
+          createdByActorKey: "author",
+          createdUtc: new Date().toISOString(),
+          updatedUtc: new Date().toISOString(),
+        },
+      ],
+      dataUpdatedAt: Date.now(),
+    });
+    mockDetailQuery({ data: { succeeded: true, versions: [] }, dataUpdatedAt: Date.now() });
+
+    render(<RemediationPatternsClient />);
+
+    expect(screen.queryByTestId("remediation-pattern-detail-section")).not.toBeInTheDocument();
+    expect(routerReplaceMock).toHaveBeenCalledWith("/security/remediation-patterns?registryFilter=needs-attention", {
+      scroll: false,
+    });
+  });
+
   it("renders empty state when no patterns exist", () => {
     mockListQuery();
     mockDetailQuery();
