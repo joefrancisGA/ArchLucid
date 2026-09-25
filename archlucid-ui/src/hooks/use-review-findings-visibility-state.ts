@@ -1,11 +1,11 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   persistFindingsVisibilityPreferences,
   readFindingsVisibilityFromStorage,
@@ -32,70 +32,117 @@ export type ReviewFindingsVisibilityState = {
   readonly setHideGenericLowDensity: (next: boolean) => void;
 };
 
+type ReviewFindingsVisibilityUrlState = {
+  readonly hasUrlShowLow: boolean;
+  readonly urlShowLow: boolean;
+  readonly hasUrlShowAdvisory: boolean;
+  readonly urlShowAdvisory: boolean;
+  readonly hasUrlHideGeneric: boolean;
+  readonly urlHideGeneric: boolean;
+};
+
+function readReviewFindingsVisibilityFromUrl(): ReviewFindingsVisibilityUrlState {
+  const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+  return {
+    hasUrlShowLow: params.has(REVIEW_FINDINGS_SHOW_LOW_PARAM),
+    urlShowLow: parseReviewFindingsShowLowFromSearch(params.get(REVIEW_FINDINGS_SHOW_LOW_PARAM)),
+    hasUrlShowAdvisory: params.has(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM),
+    urlShowAdvisory: parseReviewFindingsShowAdvisoryFromSearch(params.get(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM)),
+    hasUrlHideGeneric: params.has(REVIEW_FINDINGS_HIDE_GENERIC_PARAM),
+    urlHideGeneric: parseReviewFindingsHideGenericFromSearch(params.get(REVIEW_FINDINGS_HIDE_GENERIC_PARAM)),
+  };
+}
+
 export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityState {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
   const { mode: workspaceMode } = useWorkspaceMode();
-  const urlShowLow = parseReviewFindingsShowLowFromSearch(searchParams?.get(REVIEW_FINDINGS_SHOW_LOW_PARAM));
-  const urlShowAdvisory = parseReviewFindingsShowAdvisoryFromSearch(
-    searchParams?.get(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM),
-  );
-  const urlHideGeneric = parseReviewFindingsHideGenericFromSearch(
-    searchParams?.get(REVIEW_FINDINGS_HIDE_GENERIC_PARAM),
-  );
-  const hasUrlShowLow = searchParams?.has(REVIEW_FINDINGS_SHOW_LOW_PARAM) ?? false;
-  const hasUrlShowAdvisory = searchParams?.has(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM) ?? false;
-  const hasUrlHideGeneric = searchParams?.has(REVIEW_FINDINGS_HIDE_GENERIC_PARAM) ?? false;
+  const initialUrlState = readReviewFindingsVisibilityFromUrl();
   const [accountPrefs] = useState(() => readFindingsVisibilityFromStorage(workspaceMode));
   const [showLowConfidence, setShowLowConfidenceState] = useState(() =>
-    resolveFindingsVisibilityFlag(hasUrlShowLow, urlShowLow, accountPrefs.showLowConfidenceEnabled),
+    resolveFindingsVisibilityFlag(
+      initialUrlState.hasUrlShowLow,
+      initialUrlState.urlShowLow,
+      accountPrefs.showLowConfidenceEnabled,
+    ),
   );
   const [showAdvisory, setShowAdvisoryState] = useState(() =>
-    resolveFindingsVisibilityFlag(hasUrlShowAdvisory, urlShowAdvisory, accountPrefs.showAdvisoryEnabled),
+    resolveFindingsVisibilityFlag(
+      initialUrlState.hasUrlShowAdvisory,
+      initialUrlState.urlShowAdvisory,
+      accountPrefs.showAdvisoryEnabled,
+    ),
   );
   const [hideGenericLowDensity, setHideGenericLowDensityState] = useState(() =>
-    resolveFindingsVisibilityFlag(hasUrlHideGeneric, urlHideGeneric, accountPrefs.hideGenericEnabled),
+    resolveFindingsVisibilityFlag(
+      initialUrlState.hasUrlHideGeneric,
+      initialUrlState.urlHideGeneric,
+      accountPrefs.hideGenericEnabled,
+    ),
   );
+  const showLowConfidenceRef = useRef(showLowConfidence);
+  const showAdvisoryRef = useRef(showAdvisory);
+  const hideGenericLowDensityRef = useRef(hideGenericLowDensity);
+  const urlVisibilityRef = useRef(initialUrlState);
+
+  showLowConfidenceRef.current = showLowConfidence;
+  showAdvisoryRef.current = showAdvisory;
+  hideGenericLowDensityRef.current = hideGenericLowDensity;
 
   useEffect(() => {
     void syncFindingsVisibilityFromServer();
   }, []);
 
   useEffect(() => {
+    const syncVisibilityFromUrl = (): void => {
+      const nextUrlState = readReviewFindingsVisibilityFromUrl();
+      urlVisibilityRef.current = nextUrlState;
+
+      if (nextUrlState.hasUrlShowLow && showLowConfidenceRef.current !== nextUrlState.urlShowLow) {
+        showLowConfidenceRef.current = nextUrlState.urlShowLow;
+        setShowLowConfidenceState(nextUrlState.urlShowLow);
+      }
+
+      if (nextUrlState.hasUrlShowAdvisory && showAdvisoryRef.current !== nextUrlState.urlShowAdvisory) {
+        showAdvisoryRef.current = nextUrlState.urlShowAdvisory;
+        setShowAdvisoryState(nextUrlState.urlShowAdvisory);
+      }
+
+      if (nextUrlState.hasUrlHideGeneric && hideGenericLowDensityRef.current !== nextUrlState.urlHideGeneric) {
+        hideGenericLowDensityRef.current = nextUrlState.urlHideGeneric;
+        setHideGenericLowDensityState(nextUrlState.urlHideGeneric);
+      }
+    };
+
+    syncVisibilityFromUrl();
+    window.addEventListener("popstate", syncVisibilityFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncVisibilityFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
     return subscribeFindingsVisibilityChanges(() => {
       const nextPrefs = readFindingsVisibilityFromStorage(workspaceMode);
+      const urlState = urlVisibilityRef.current;
 
-      if (!hasUrlShowLow) {
+      if (!urlState.hasUrlShowLow) {
+        showLowConfidenceRef.current = nextPrefs.showLowConfidenceEnabled;
         setShowLowConfidenceState(nextPrefs.showLowConfidenceEnabled);
       }
 
-      if (!hasUrlShowAdvisory) {
+      if (!urlState.hasUrlShowAdvisory) {
+        showAdvisoryRef.current = nextPrefs.showAdvisoryEnabled;
         setShowAdvisoryState(nextPrefs.showAdvisoryEnabled);
       }
 
-      if (!hasUrlHideGeneric) {
+      if (!urlState.hasUrlHideGeneric) {
+        hideGenericLowDensityRef.current = nextPrefs.hideGenericEnabled;
         setHideGenericLowDensityState(nextPrefs.hideGenericEnabled);
       }
     });
-  }, [hasUrlHideGeneric, hasUrlShowAdvisory, hasUrlShowLow, workspaceMode]);
-
-  useEffect(() => {
-    if (hasUrlShowLow) {
-      setShowLowConfidenceState(urlShowLow);
-    }
-  }, [hasUrlShowLow, urlShowLow]);
-
-  useEffect(() => {
-    if (hasUrlShowAdvisory) {
-      setShowAdvisoryState(urlShowAdvisory);
-    }
-  }, [hasUrlShowAdvisory, urlShowAdvisory]);
-
-  useEffect(() => {
-    if (hasUrlHideGeneric) {
-      setHideGenericLowDensityState(urlHideGeneric);
-    }
-  }, [hasUrlHideGeneric, urlHideGeneric]);
+  }, [workspaceMode]);
 
   const syncVisibilityToUrl = useCallback(
     (next: { showLowConfidence: boolean; showAdvisory: boolean; hideGenericLowDensity: boolean }) => {
@@ -104,11 +151,11 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
       }
 
       const nextHref = reviewFindingsVisibilityHrefFromSearch(
-        window.location.search.slice(1),
+        readWindowLocationSearch(),
         next,
         pathname,
       );
-      commitHrefIfChanged(nextHref);
+      commitHrefIfChanged(nextHref, { notify: false });
     },
     [pathname],
   );
@@ -126,44 +173,59 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
 
   const setShowLowConfidence = useCallback(
     (next: boolean) => {
+      if (showLowConfidenceRef.current === next) {
+        return;
+      }
+
+      showLowConfidenceRef.current = next;
       setShowLowConfidenceState(next);
       const merged = {
         showLowConfidence: next,
-        showAdvisory,
-        hideGenericLowDensity,
+        showAdvisory: showAdvisoryRef.current,
+        hideGenericLowDensity: hideGenericLowDensityRef.current,
       };
       syncVisibilityToUrl(merged);
       persistVisibility(merged);
     },
-    [hideGenericLowDensity, persistVisibility, showAdvisory, syncVisibilityToUrl],
+    [persistVisibility, syncVisibilityToUrl],
   );
 
   const setShowAdvisory = useCallback(
     (next: boolean) => {
+      if (showAdvisoryRef.current === next) {
+        return;
+      }
+
+      showAdvisoryRef.current = next;
       setShowAdvisoryState(next);
       const merged = {
-        showLowConfidence,
+        showLowConfidence: showLowConfidenceRef.current,
         showAdvisory: next,
-        hideGenericLowDensity,
+        hideGenericLowDensity: hideGenericLowDensityRef.current,
       };
       syncVisibilityToUrl(merged);
       persistVisibility(merged);
     },
-    [hideGenericLowDensity, persistVisibility, showLowConfidence, syncVisibilityToUrl],
+    [persistVisibility, syncVisibilityToUrl],
   );
 
   const setHideGenericLowDensity = useCallback(
     (next: boolean) => {
+      if (hideGenericLowDensityRef.current === next) {
+        return;
+      }
+
+      hideGenericLowDensityRef.current = next;
       setHideGenericLowDensityState(next);
       const merged = {
-        showLowConfidence,
-        showAdvisory,
+        showLowConfidence: showLowConfidenceRef.current,
+        showAdvisory: showAdvisoryRef.current,
         hideGenericLowDensity: next,
       };
       syncVisibilityToUrl(merged);
       persistVisibility(merged);
     },
-    [persistVisibility, showAdvisory, showLowConfidence, syncVisibilityToUrl],
+    [persistVisibility, syncVisibilityToUrl],
   );
 
   return {
