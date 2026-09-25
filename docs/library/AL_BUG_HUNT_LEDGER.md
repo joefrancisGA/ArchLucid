@@ -3080,15 +3080,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 26
-- **bugs-found:** 18
+- **hunts:** 27
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — mathematical diagonal and script dot homoglyphs evaded return-path guard
+- **last-bug:** 2026-09-25 — double-reverse-solidus and script full-stop dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved DOUBLE REVERSE SOLIDUS OPERATOR and script full-stop dot homoglyph bypasses; cheap-disproved white-square quadrant glyphs, mathematical right-angle/long-division pairs, and punctuation comma/colon parent-segment pairs; 122 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) DOUBLE REVERSE SOLIDUS OPERATOR (`⫿`) bypass `IsSlashHomoglyph` — **hit 2026-09-25 seed hunt:** evaded protocol-relative checks; fixed by extending `IsSlashHomoglyph`; regression `TryNormalize_rejects_double_reverse_solidus_operator_protocol_relative_paths`
+- [x] (proven) CANADIAN SYLLABICS FULL STOP (`᙮`), RING POINT (`⸰`), LATIN LETTER SINOLOGICAL DOT (`ꞏ`), SYRIAC SUPRALINEAR/SUBLINEAR FULL STOP (`܁`/`܂`) bypass `ContainsDotHomoglyph` — **hit 2026-09-25 seed hunt:** parent-segment pairs evaded ASCII `..` checks; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_script_full_stop_and_ring_point_dot_homoglyph_path_traversal_segments`
+- [x] (valid-no-repro) WHITE SQUARE quadrant glyphs (`⧰`–`⧳`), MATHEMATICAL RIGHT ANGLE (`⟎`), RIGHT ANGLE WITH ARC (`⟏`), LONG DIVISION (`⟌`), and DIAGONAL CROSS (`⟊`) protocol-relative pairs — **valid-no-repro 2026-09-25 seed hunt:** not SOLIDUS-named or browser-normalized slash homoglyphs; same-origin relative prefix only.
+- [x] (valid-no-repro) MONGOLIAN COMMA/COLON (`᠂`/`᠄`), MYANMAR LITTLE SECTION (`၊`), COMMA ABOVE (`⸲`), and INVERTED QUESTION MARK (`⸮`) parent-segment pairs — **valid-no-repro 2026-09-25 seed hunt:** punctuation glyphs are not FULL STOP/dot homoglyphs; ETHIOPIC WORDSPACE (`፡`) remains prior valid-no-repro row.
 
 2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved mathematical diagonal and script/separator dot homoglyph bypasses; cheap-disproved BLACK LOZENGE (`⧨`) as slash homoglyph; 110 scoped AuthSignInReturnPathGuard tests passed.
 
