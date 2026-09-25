@@ -3080,7 +3080,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
@@ -3089,6 +3089,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved APL slash symbols, combining solidus overlays, spaced-slash segments, and soft-hyphen segment pairs; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) APL SLASH/BACKSLASH symbols (`⌿`, `⍀`, `⍁`, `⍂`, `⍉`) accepted as path segments — **valid-no-repro 2026-09-25 seed hunt:** specialized APL notation; browsers do not normalize to URL `/` or `\\`; no external host introduced.
+- [x] (valid-no-repro) Combining solidus overlays (`⃠`, `⃥`, `⃫`) and mathematical slash glyphs (`⨏`, `⫮`, `⼃`) — **valid-no-repro 2026-09-25 seed hunt:** not contiguous protocol-relative traversal after decode; same-origin relative prefix only.
+- [x] (valid-no-repro) Whitespace-separated slash segments (`/ / /evil.example`) and NBSP/space path segments — **valid-no-repro 2026-09-25 seed hunt:** `ContainsProtocolRelativeTraversal` requires contiguous `//`; spaced slashes are not open-redirect class.
+- [x] (valid-no-repro) Soft-hyphen parent-segment pairs (`/signin/­­/other`) — **valid-no-repro 2026-09-25 seed hunt:** not a browser-normalized dot homoglyph; segment text does not collapse to `..`.
 
 2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved circled-division-slash and remaining SOLIDUS-named slash homoglyph bypasses; 92 scoped AuthSignInReturnPathGuard tests passed.
 
