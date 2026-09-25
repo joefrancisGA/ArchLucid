@@ -20651,11 +20651,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 15
-- **bugs-found:** 29
+- **hunts:** 16
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — inventory.json mandatory flag parity vs markdown/DOCX
+- **last-hunt:** 2026-09-25
+- **last-bug:** 2026-09-25 — DOCX and inventory.json unresolved-issue metadata parity vs unresolved-issues.json
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -20704,6 +20704,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-12 seed hunt #1914 (seed-only): reseeded artifact-synthesis; cheap-disproof closed inventory mandatory-flag parity as fixed in #1847; 213 scoped ArtifactSynthesis tests passed.
 
 - [x] (valid-no-repro) `InventoryArtifactGenerator` omits `RequirementCoverageItem.IsMandatory` — **cheap-disproof 2026-09-12 seed hunt #1914:** regression `GenerateAsync_serializes_mandatory_flag_for_requirement_items` (#1847).
+
+- [x] (proven) `DocxExportService.BuildDocumentAsync` / `WordDocumentBuilder.AddIssuesTable` — unresolved-issues table omitted `IssueType` and `SupportingFindingIds` present in `unresolved-issues.json` and markdown export — **hit 2026-09-25 seed hunt (seed→hit):** added Issue Type and Supporting Findings columns; regression `ExportAsync_includes_issue_type_and_supporting_finding_ids_in_unresolved_issues_table_matching_json_export`
+- [x] (proven) `InventoryArtifactGenerator.GenerateAsync` — `inventory.json` issue rows omitted `IssueType` and `SupportingFindingIds` present in `unresolved-issues.json` — **hit 2026-09-25 seed hunt (seed→hit):** issue items now serialize both fields; regression `GenerateAsync_serializes_issue_type_and_supporting_finding_ids_for_issue_items`
+- [x] (invalid) `MermaidDiagramArtifactGenerator` vs `DiagramAstGenerator` — decision/issue node ID schema drift (`decision-`/`issue-` vs `decision_`/`issue_`) — **cheap-disproof 2026-09-25 seed hunt:** intentional; Mermaid `MermaidIdSanitizer` rejects hyphens in simple IDs while diagram-ast JSON uses hyphenated keys; #890 parity test asserts node presence only
+
+2026-09-25 seed hunt (seed→hit): reseeded artifact-synthesis after 70 commits; proved DOCX unresolved-issues table and inventory.json issue metadata parity gaps; cheap-disproved diagram-ast vs Mermaid node-id convention as intentional; 5 targeted + 536 scoped ArtifactSynthesis tests passed (1 pre-existing unrelated peel-budget failure).
 
 2026-09-11 seed hunt #1707 (seed→hit): reseeded artifact-synthesis after master merge; proved compliance-matrix gap substring mis-attribution and three markdown cross-surface parity gaps; 200 scoped ArtifactSynthesis tests passed.
 

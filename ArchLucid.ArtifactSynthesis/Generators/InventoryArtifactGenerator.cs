@@ -65,7 +65,14 @@ public class InventoryArtifactGenerator : IArtifactGenerator
 
             inventory.Items.Add(new InventoryItem
             {
-                Category = "Issue", Name = issue.Title, Status = issue.Severity, Notes = issue.Description
+                Category = "Issue",
+                Name = issue.Title,
+                Status = issue.Severity,
+                Notes = issue.Description,
+                IssueType = issue.IssueType,
+                SupportingFindingIds = issue.SupportingFindingIds.Count == 0
+                    ? null
+                    : issue.SupportingFindingIds.ToList(),
             });
 
         string content = JsonSerializer.Serialize(inventory, SynthesisJsonOptions.WriteIndented);
