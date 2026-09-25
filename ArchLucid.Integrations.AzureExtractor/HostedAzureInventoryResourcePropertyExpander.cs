@@ -209,7 +209,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             && definitionElement.ValueKind is not JsonValueKind.Null
             && definitionElement.ValueKind is not JsonValueKind.Undefined)
         {
-            properties["definition"] = definitionElement.GetRawText();
+properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(definitionElement);
         }
     }
 
