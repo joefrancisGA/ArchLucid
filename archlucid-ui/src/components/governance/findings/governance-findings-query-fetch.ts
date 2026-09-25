@@ -17,6 +17,8 @@ import {
 } from "@/components/governance/findings/governance-findings-row-mappers";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { governanceRegistersBlockedReason } from "@/lib/governance/governance-registers-blocked-reason";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   architectureRiskRegisterEntryMatchesAssigneeIdentities,
 } from "@/lib/governance/governance-assigned-to-me-identities";
@@ -58,6 +60,7 @@ function captureGovernanceFindingsFetchFailure(error: unknown, attemptedAtUtc: s
 
 export async function fetchGovernanceFindingQueueRows(
   useCuratedDemoSpine: boolean,
+  productLineId: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
 ): Promise<GovernanceFindingsFetchResult> {
   if (useCuratedDemoSpine) {
     return {
@@ -80,6 +83,10 @@ export async function fetchGovernanceFindingQueueRows(
 
     if (registerRows.length > 0) {
       return { rows: registerRows, loadFailed: false, failure: null };
+    }
+
+    if (isSecureNowProductLine(productLineId)) {
+      return { rows: [], loadFailed: false, failure: null };
     }
 
     const page = await listRunsByProjectPaged("default", 1, 25);

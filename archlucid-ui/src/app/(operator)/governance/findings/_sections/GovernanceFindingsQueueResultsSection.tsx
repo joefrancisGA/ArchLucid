@@ -12,6 +12,7 @@ import { InhabitedFindingsFocusCoordinator } from "@/components/governance/Inhab
 import { WorkingFindingsKeyboardHint } from "@/components/governance/findings/WorkingFindingsKeyboardHint";
 import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
 import { usePathname } from "next/navigation";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ export function GovernanceFindingsQueueResultsSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
   const inhabitedFindingsDocument =
     resolveInhabitedFindingsDocumentPresentation({
       workingMode: props.isWorkingMode,
@@ -30,6 +32,7 @@ export function GovernanceFindingsQueueResultsSection(
       architectureDisplayName: props.architectureDisplayName,
       scopedRunId: props.scopedRunId,
       scopedRunTitle: props.scopedRunContextTitle,
+      productLineId: productLine,
     }) !== null;
 
   return (

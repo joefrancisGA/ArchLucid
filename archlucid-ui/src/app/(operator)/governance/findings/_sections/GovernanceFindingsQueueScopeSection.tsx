@@ -23,11 +23,13 @@ import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(opera
 import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
 import { InhabitedFindingsDocumentChrome } from "@/components/governance/InhabitedFindingsDocumentChrome";
 import { usePathname } from "next/navigation";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
 export function GovernanceFindingsQueueScopeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
   const inhabitedPresentation = resolveInhabitedFindingsDocumentPresentation({
     workingMode: props.isWorkingMode,
     pathname,
@@ -35,6 +37,7 @@ export function GovernanceFindingsQueueScopeSection(
     architectureDisplayName: props.architectureDisplayName,
     scopedRunId: props.scopedRunId,
     scopedRunTitle: props.scopedRunContextTitle,
+    productLineId: productLine,
   });
   const suppressPipelineChrome = inhabitedPresentation?.suppressPipelineChrome === true;
 
@@ -48,6 +51,7 @@ export function GovernanceFindingsQueueScopeSection(
           architectureDisplayName={props.architectureDisplayName}
           scopedRunId={props.scopedRunId}
           scopedRunTitle={props.scopedRunContextTitle}
+          productLineId={productLine}
           initialTrailBundle={props.inhabitedFindingsInitialTrailBundle}
         />
       ) : null}

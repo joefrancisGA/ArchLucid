@@ -4,6 +4,9 @@
  * detailed cloud-connection SoT (AZURE_CLOUD_CONNECTION_CANNOT_DO).
  */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { PAGE_CAPABILITY_BOUNDARY_SECURENOW_GOVERNANCE_FINDINGS } from "@/lib/product-line/securenow-governance-findings-copy";
+
 export const PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY =
   "What this page does not do" as const;
 
@@ -129,4 +132,16 @@ export function getPageCapabilityBoundary(
   surfaceId: PageCapabilityBoundarySurfaceId,
 ): PageCapabilityBoundary {
   return PAGE_CAPABILITY_BOUNDARY_BY_SURFACE[surfaceId];
+}
+
+/** Product-line-aware boundary resolver — SecureNow findings queue uses cloud-security copy. */
+export function resolvePageCapabilityBoundary(
+  surfaceId: PageCapabilityBoundarySurfaceId,
+  productLineId?: ProductLineId,
+): PageCapabilityBoundary {
+  if (surfaceId === "governanceFindings" && productLineId === "security") {
+    return PAGE_CAPABILITY_BOUNDARY_SECURENOW_GOVERNANCE_FINDINGS;
+  }
+
+  return getPageCapabilityBoundary(surfaceId);
 }
