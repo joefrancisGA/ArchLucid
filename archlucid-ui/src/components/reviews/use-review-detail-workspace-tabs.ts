@@ -8,7 +8,7 @@ import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-rev
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_FINDING_PARAM,
-  REVIEW_DETAIL_TAB_PARAM, 
+  REVIEW_DETAIL_TAB_PARAM,
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
   readPresenterModeFromSearchParams,
