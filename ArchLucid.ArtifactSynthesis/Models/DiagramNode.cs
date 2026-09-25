@@ -1,3 +1,5 @@
+using ArchLucid.Core.AzureExtractor;
+
 namespace ArchLucid.ArtifactSynthesis.Models;
 
 public class DiagramNode
@@ -90,4 +92,46 @@ public class DiagramNode
         get;
         set;
     }
+
+    /// <summary>Child resources attached to this parent after NR-03 parent-property projection.</summary>
+    public List<string> ParentAttachmentDetails
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Standalone posture after NR-05 orphaned-state projection.</summary>
+    public InventoryDiagramConnectionState? ConnectionState
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Missing requirement when <see cref="ConnectionState" /> is orphaned.</summary>
+    public string? ConnectionStateMessage
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Partially unresolved relationships that do not orphan the resource (e.g. workflow actions).</summary>
+    public List<string> UnresolvedRelationshipDetails
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Collapsed Azure Virtual Desktop boundary representing hidden AVD internals (NR-06).</summary>
+    public bool IsAvdCollapsedBoundary
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Cited traversal-hop evidence shown on data-flow canvases (NR-07).</summary>
+    public List<string> DataFlowTraversalHopEvidenceDetails
+    {
+        get;
+        set;
+    } = [];
 }

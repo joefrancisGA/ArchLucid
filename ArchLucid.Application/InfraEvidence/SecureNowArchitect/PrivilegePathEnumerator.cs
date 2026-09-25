@@ -205,6 +205,12 @@ internal static class PrivilegePathEnumerator
         return true;
     }
 
+    private static bool HasExplicitActionEdge(
+        InventoryPrivilegePathGraphSnapshot graph,
+        string nodeId) =>
+        graph.OutgoingEdges.TryGetValue(nodeId, out List<PrivilegePathEdge>? edges)
+        && edges.Any(static edge => edge.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite);
+
     private static bool TryFinalizeMappedRolePath(
         InventoryPrivilegePathGraphSnapshot graph,
         IReadOnlyList<PrivilegePathEdge> hops,

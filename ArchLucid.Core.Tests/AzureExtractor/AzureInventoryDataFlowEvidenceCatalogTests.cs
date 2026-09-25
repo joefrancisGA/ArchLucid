@@ -105,6 +105,7 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     [Theory]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AgwToBackend)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.LbToBackend)]
     public void Ingress_routes_are_declared_movement_on_data_flow(string associationType)
     {
         AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(

@@ -78,12 +78,14 @@ public sealed class DraftRequestCreateStage(
 
         // Linking the draft to its architecture identity is a persisted mutation that advances UpdatedUtc.
         // Return that refreshed concurrency token so the caller's immediate PATCH is not falsely rejected as stale.
-        DraftRequestResponse? linkedDraft = await _draftRepository.GetAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            created.DraftId,
-            cancellationToken);
+        DraftRequestResponse? linkedDraft = await _draftRepository
+            .GetAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                created.DraftId,
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (linkedDraft is not null)
             return linkedDraft;

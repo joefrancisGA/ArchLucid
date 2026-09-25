@@ -29,6 +29,15 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
 
+        if (mode == DiagramMode.Avd)
+        {
+            topologyNodes = InventoryDiagramAvdViewFilter.IncludeAvdDiagramNodes(graph, topologyNodes);
+        }
+        else if (InventoryDiagramAvdViewFilter.ShouldApply(mode))
+        {
+            topologyNodes = InventoryDiagramAvdViewFilter.ExcludeAvdOnlyNodes(graph, topologyNodes);
+        }
+
         if (mode != DiagramMode.BusinessContinuity)
         {
             topologyNodes = DiagramRecoveryServicesVaultFilter.Exclude(topologyNodes);
@@ -46,6 +55,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (isDataFlowMode)
         {
             topologyNodes = DataFlowEvidenceEndpointIncluder.Include(graph, topologyNodes);
+            topologyNodes = DataFlowTraversalHopEndpointIncluder.Include(graph, topologyNodes);
         }
         else if (!isSecureNowDataMode)
         {
@@ -142,7 +152,6 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             });
         }
 
-
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
         if (mode == DiagramMode.Executive)
@@ -179,6 +188,16 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
         DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+        InventoryDiagramNodeRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
+        InventoryDiagramParentAttachmentApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramOrphanedStateApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramAvdBoundaryApplier.Apply(ast, graph, nodeIdMap, mode);
+
+        if (isDataFlowMode)
+        {
+            InventoryDiagramDataFlowTraversalHopApplier.Apply(ast, graph, nodeIdMap, includedEdges);
+        }
 
         DiagramInventoryConnectionRollupApplier.Apply(ast);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
@@ -189,6 +208,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         if (isDataFlowMode)
         {
+            InventoryDiagramDataFlowNsgAnnotationApplier.Apply(ast, graph, nodeIdMap);
             ast.FlowchartDirection = "LR";
             ast.CaptionLines = DiagramDataFlowCaptionBuilder.BuildCaptions(topologyNodes, includedEdges).ToList();
         }
@@ -392,6 +412,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 return FilterBySelectedNodes(graph, nodes, options.SelectedNodeIds);
             case DiagramMode.DependencyNeighborhood:
                 return FilterByNeighborhood(graph, nodes, options);
+            case DiagramMode.Avd:
+                return NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(nodes);
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, "Unsupported diagram mode.");
         }
