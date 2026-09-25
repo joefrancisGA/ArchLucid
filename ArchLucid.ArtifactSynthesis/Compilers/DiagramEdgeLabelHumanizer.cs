@@ -23,7 +23,7 @@ internal static class DiagramEdgeLabelHumanizer
                 continue;
             }
 
-            edge.Label = HumanizeLabel(edge.Label);
+            edge.Label = ResolveDisplayLabel(edge.Label, edge.InferenceSource, edge.InferenceSource);
         }
     }
 

@@ -52,7 +52,7 @@ public static class AzureInventoryDataFlowStageResolver
             return null;
         }
 
-        if (IsDataFlowIngressArmType(resourceType))
+        if (IsDataFlowTraversalHopArmType(resourceType))
         {
             return AzureInventoryDataFlowStageNames.Application;
         }
@@ -161,14 +161,18 @@ public static class AzureInventoryDataFlowStageResolver
     }
 
     /// <summary>
-    ///     Ingress resources that move traffic into applications. Child types stay off the diagram.
+    ///     Traversal hops that move traffic into applications. Child types stay off the diagram.
     ///     Front Door Standard/Premium is <c>Microsoft.Cdn/profiles</c>.
     /// </summary>
-    private static bool IsDataFlowIngressArmType(string resourceType)
+    private static bool IsDataFlowTraversalHopArmType(string resourceType)
     {
         return resourceType.Equals("Microsoft.Network/applicationGateways", StringComparison.OrdinalIgnoreCase)
             || resourceType.Equals("Microsoft.Network/azureFirewalls", StringComparison.OrdinalIgnoreCase)
             || resourceType.Equals("Microsoft.Network/frontDoors", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Equals("Microsoft.Cdn/profiles", StringComparison.OrdinalIgnoreCase);
+            || resourceType.Equals("Microsoft.Cdn/profiles", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.Network/loadBalancers", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.Network/natGateways", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.Network/virtualNetworkGateways", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.Network/privateEndpoints", StringComparison.OrdinalIgnoreCase);
     }
 }

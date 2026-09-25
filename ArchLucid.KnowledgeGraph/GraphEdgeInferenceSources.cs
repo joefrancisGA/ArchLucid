@@ -42,6 +42,18 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryLogicAppConnection = "inventory-logic-app-connection";
 
+    public const string InventoryNetworkConnection = "inventory-network-connection";
+
+    public const string InventoryWorkflowAction = "inventory-workflow-action";
+
+    public const string InventoryRouteTableRoute = "inventory-route-table-route";
+
+    public const string InventoryNsgPolicyAttachment = "inventory-nsg-policy-attachment";
+
+    public const string InventoryAccessConnectorExternalTarget = "inventory-access-connector-external-target";
+
+    public const string InventoryIndirectDerivedRelationship = "inventory-indirect-derived-relationship";
+
     public const string InventoryDatabricksAccessConnector = "inventory-databricks-access-connector";
 
     public const string InventoryIdentityRoleAssignment = "inventory-identity-role-assignment";
