@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
@@ -12,6 +12,7 @@ import {
   findingsGroundingFilterHrefFromSearch,
   findingsOriginFilterHrefFromSearch,
 } from "@/lib/findings/findings-provenance-url";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   GROUNDING_FILTER_OPTIONS,
   ORIGIN_FILTER_OPTIONS,
@@ -23,8 +24,7 @@ export function FindingsProvenanceFilters(props: {
   readonly groundingFilter: FindingGroundingFilter;
 }): React.JSX.Element {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
+  const currentSearch = readWindowLocationSearch();
 
   return (
     <>
