@@ -34,6 +34,7 @@ import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { resolveGovernanceFindingsClaimDiscipline } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { resolvePageCapabilityBoundary } from "@/lib/page-capability-boundary";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;
@@ -107,6 +108,7 @@ export function GovernanceFindingsQueueHeader({
       architectureDisplayName,
       scopedRunId,
       scopedRunTitle,
+      productLineId: productLine,
     },
   );
   const claimDisciplineTestId = isAssignedToMe
@@ -248,7 +250,10 @@ export function GovernanceFindingsQueueHeader({
           <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
           <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
           <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
-          <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
+          <PageCapabilityBoundaryStrip
+            surfaceId="governanceFindings"
+            boundary={resolvePageCapabilityBoundary("governanceFindings", productLine)}
+          />
         </>
       ) : null}
     </>

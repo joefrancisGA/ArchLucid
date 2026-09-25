@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 
@@ -135,6 +136,72 @@ public sealed class DiagramResourceGroupCellFlowPlannerTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("visibleEdges");
     }
 
+    [Fact]
+    public void OrderCells_seats_cross_group_endpoints_adjacent_when_middle_group_is_unconnected()
+    {
+        DiagramResourceGroupPacker.ResourceGroupCell cellA = Singleton("a", orderKey: 2, resourceGroup: "rg-a");
+        DiagramResourceGroupPacker.ResourceGroupCell cellB = Singleton("b", orderKey: 1, resourceGroup: "rg-b");
+        DiagramResourceGroupPacker.ResourceGroupCell cellC = Singleton("c", orderKey: 0, resourceGroup: "rg-c");
+
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> ordered =
+            DiagramResourceGroupCellFlowPlanner.OrderCells(
+                [cellB, cellC, cellA],
+                [Edge("a", "c")]);
+
+        IReadOnlyList<string> order = ordered.Select(cell => cell.Nodes.Single().NodeId).ToList();
+        int aIndex = order.ToList().IndexOf("a");
+        int cIndex = order.ToList().IndexOf("c");
+
+        aIndex.Should().BeOneOf(cIndex - 1, cIndex + 1);
+        order.Should().Equal("a", "c", "b");
+    }
+
+    [Fact]
+    public void OrderCells_keeps_chain_order_for_painted_cross_group_path()
+    {
+        DiagramResourceGroupPacker.ResourceGroupCell cellA = Singleton("a", orderKey: 2, resourceGroup: "rg-a");
+        DiagramResourceGroupPacker.ResourceGroupCell cellB = Singleton("b", orderKey: 1, resourceGroup: "rg-b");
+        DiagramResourceGroupPacker.ResourceGroupCell cellC = Singleton("c", orderKey: 0, resourceGroup: "rg-c");
+
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> ordered =
+            DiagramResourceGroupCellFlowPlanner.OrderCells(
+                [cellC, cellB, cellA],
+                [
+                    Edge("a", "b"),
+                    Edge("b", "c"),
+                ]);
+
+        ordered.Select(cell => cell.Nodes.Single().NodeId).Should().Equal("a", "b", "c");
+    }
+
+    [Fact]
+    public void OrderCells_ignores_hidden_cross_group_fan_out_edge_for_seating()
+    {
+        DiagramResourceGroupPacker.ResourceGroupCell cellA = Singleton("a", orderKey: 2, resourceGroup: "rg-a");
+        DiagramResourceGroupPacker.ResourceGroupCell cellB = Singleton("b", orderKey: 1, resourceGroup: "rg-b");
+        DiagramResourceGroupPacker.ResourceGroupCell cellC = Singleton("c", orderKey: 0, resourceGroup: "rg-c");
+        DiagramEdge paintedEdge = Edge("a", "b", "connects");
+        DiagramEdge hiddenFanOut = Edge("a", "c", "likely · applies");
+        IReadOnlyList<DiagramNode> nodes =
+        [
+            Node("a", "rg-a"),
+            Node("b", "rg-b"),
+            Node("c", "rg-c"),
+        ];
+        IReadOnlyList<DiagramEdge> filteredEdges = DiagramCrossGroupFanOutCanvasExclusion
+            .FilterCanvasEdges(nodes, [paintedEdge, hiddenFanOut], includeCrossGroupFanOut: false)
+            .ToList();
+
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> orderedPaintedOnly =
+            DiagramResourceGroupCellFlowPlanner.OrderCells([cellB, cellC, cellA], [paintedEdge]);
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> orderedAfterFilter =
+            DiagramResourceGroupCellFlowPlanner.OrderCells([cellB, cellC, cellA], filteredEdges);
+
+        orderedAfterFilter.Select(cell => cell.Nodes.Single().NodeId)
+            .Should()
+            .Equal(orderedPaintedOnly.Select(cell => cell.Nodes.Single().NodeId));
+    }
+
     private static DiagramResourceGroupPacker.ResourceGroupCell Singleton(
         string nodeId,
         int orderKey,
@@ -155,13 +222,25 @@ public sealed class DiagramResourceGroupCellFlowPlannerTests
         };
     }
 
-    private static DiagramEdge Edge(string fromNodeId, string toNodeId)
+    private static DiagramNode Node(string nodeId, string resourceGroup)
+    {
+        return new DiagramNode
+        {
+            NodeId = nodeId,
+            Label = nodeId,
+            NodeType = "TopologyResource",
+            ArmResourceGroup = resourceGroup,
+            OrderKey = 0,
+        };
+    }
+
+    private static DiagramEdge Edge(string fromNodeId, string toNodeId, string label = "connects")
     {
         return new DiagramEdge
         {
             FromNodeId = fromNodeId,
             ToNodeId = toNodeId,
-            Label = "connects",
+            Label = label,
         };
     }
 }

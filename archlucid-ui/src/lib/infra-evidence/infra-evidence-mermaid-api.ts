@@ -34,6 +34,7 @@ export type InfraEvidenceMermaidRenderQuery = {
   readonly includeNeverShow?: boolean | null;
   readonly includePrivateEndpointNodes?: boolean | null;
   readonly includeRecoveryServices?: boolean | null;
+  readonly includeCrossGroupFanOut?: boolean | null;
   readonly hiddenExecutiveTierKeys?: readonly string[] | null;
 };
 
@@ -72,6 +73,10 @@ function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
 
   if (params.includeRecoveryServices === true) {
     search.set("includeRecoveryServices", "true");
+  }
+
+  if (params.includeCrossGroupFanOut === true) {
+    search.set("includeCrossGroupFanOut", "true");
   }
 
   if (params.hiddenExecutiveTierKeys != null && params.hiddenExecutiveTierKeys.length > 0) {

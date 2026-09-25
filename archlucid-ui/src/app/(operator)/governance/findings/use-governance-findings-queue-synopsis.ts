@@ -20,6 +20,7 @@ import {
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import { resolveInhabitedFindingsInspectHrefOptions } from "@/lib/inhabit/inhabit-findings-document-presentation";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { DEFAULT_FINDING_JOB_VIEW, resolveEffectiveFindingJobView } from "@/lib/findings/finding-job-view";
 import {
   resolveFindingsQueueTriageEmphasizedStepId,
@@ -60,6 +61,7 @@ export type UseGovernanceFindingsQueueSynopsisInput = {
 };
 
 export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQueueSynopsisInput) {
+  const { productLine } = useProductLine();
   const {
     isAssignedToMe,
     buyerPolishedShell,
@@ -86,8 +88,9 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
         workingMode: isWorkingMode,
         pathname,
         scopedArchitectureId,
+        productLineId: productLine,
       }),
-    [isWorkingMode, pathname, scopedArchitectureId],
+    [isWorkingMode, pathname, productLine, scopedArchitectureId],
   );
   const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
   const workspaceScopeTeaching =

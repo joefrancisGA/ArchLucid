@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   readGroupByResourcePreference,
   writeGroupByResourcePreference,
@@ -27,6 +28,7 @@ import {
   resolveGovernanceFindingsArchitectureScopeFromUrl,
   scopedArchitectureIdFromQuery,
 } from "@/lib/governance/governance-findings-architecture-scope";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 import {
   GOVERNANCE_FINDINGS_FILTER_PRESET_LABELS,
@@ -64,10 +66,13 @@ export type UseGovernanceFindingsFilterOptions = {
 export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilterOptions) {
   const mode = options?.mode ?? "tenant";
   const isWorkingMode = options?.isWorkingMode === true;
+  const { productLine } = useProductLine();
+  const isSecureNowFindingsQueue = isSecureNowProductLine(productLine);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const defaultArchitectureId = isWorkingMode ? readCachedLastOpenArchitectureId() : null;
+  const defaultArchitectureId =
+    isWorkingMode && !isSecureNowFindingsQueue ? readCachedLastOpenArchitectureId() : null;
   const [registerFilter, setRegisterFilterState] = useState<RiskRegisterFilter>(() =>
     initialRegisterFilterFromUrlOrStorage(searchParams.get("filter"), mode),
   );
@@ -75,6 +80,10 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     scopedRunIdFromQuery(searchParams.get("runId")),
   );
   const [scopedArchitectureId, setScopedArchitectureIdState] = useState<string | null>(() => {
+    if (isSecureNowFindingsQueue) {
+      return null;
+    }
+
     const resolved = resolveGovernanceFindingsArchitectureScopeFromUrl(
       searchParams.get("architectureId"),
       defaultArchitectureId,
@@ -101,11 +110,15 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
 
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
 
-    const resolvedArchitecture = resolveGovernanceFindingsArchitectureScopeFromUrl(
-      searchParams.get("architectureId"),
-      isWorkingMode ? readCachedLastOpenArchitectureId() : null,
-    );
-    setScopedArchitectureIdState(scopedArchitectureIdFromQuery(resolvedArchitecture.architectureId));
+    if (isSecureNowFindingsQueue) {
+      setScopedArchitectureIdState(null);
+    } else {
+      const resolvedArchitecture = resolveGovernanceFindingsArchitectureScopeFromUrl(
+        searchParams.get("architectureId"),
+        isWorkingMode ? readCachedLastOpenArchitectureId() : null,
+      );
+      setScopedArchitectureIdState(scopedArchitectureIdFromQuery(resolvedArchitecture.architectureId));
+    }
 
     const rawGroupBy = searchParams.get("groupBy");
 
@@ -114,10 +127,10 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     } else {
       setGroupByResource(readGroupByResourcePreference());
     }
-  }, [isWorkingMode, mode, searchParams]);
+  }, [isSecureNowFindingsQueue, isWorkingMode, mode, searchParams]);
 
   useEffect(() => {
-    if (!isWorkingMode) {
+    if (!isWorkingMode || isSecureNowFindingsQueue) {
       return;
     }
 
@@ -141,7 +154,7 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
       ),
       { scroll: false },
     );
-  }, [isWorkingMode, pathname, router, searchParams]);
+  }, [isSecureNowFindingsQueue, isWorkingMode, pathname, router, searchParams]);
 
   const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
     setRegisterFilterState(next);

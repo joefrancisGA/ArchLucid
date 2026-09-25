@@ -38,8 +38,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             return DiagramForestLayoutResult.Failed("Diagram AST contained no renderable nodes.");
         }
 
-        IReadOnlyList<DiagramEdge> visibleEdges = DiagramExecutiveOverflowCanvasExclusion
-            .CanvasVisibleEdges(ast.Nodes, ast.Edges)
+        IReadOnlyList<DiagramEdge> visibleEdges = DiagramCrossGroupFanOutCanvasExclusion
+            .FilterCanvasEdges(
+                renderableNodes,
+                DiagramExecutiveOverflowCanvasExclusion.CanvasVisibleEdges(ast.Nodes, ast.Edges),
+                resolvedOptions.IncludeCrossGroupFanOut)
             .ToList();
         DiagramForestSingletonTailPlanner.Result singletonResult =
             DiagramForestSingletonTailPlanner.Apply(ast.Title, renderableNodes, visibleEdges);

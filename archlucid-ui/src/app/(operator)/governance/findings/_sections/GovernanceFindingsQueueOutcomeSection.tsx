@@ -43,6 +43,8 @@ import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorEr
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { resolveSecureNowGovernanceFindingsEmptyStateCopy } from "@/lib/product-line/securenow-governance-findings-copy";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
@@ -61,7 +63,12 @@ export function GovernanceFindingsQueueOutcomeSection(
     architectureDisplayName: props.architectureDisplayName,
     scopedRunId: props.scopedRunId,
     scopedRunTitle: props.scopedRunContextTitle,
+    productLineId: productLine,
   });
+  const secureNowEmptyState =
+    !props.isAssignedToMe && isSecureNowProductLine(productLine)
+      ? resolveSecureNowGovernanceFindingsEmptyStateCopy()
+      : null;
 
   return (
     <>
@@ -140,6 +147,8 @@ export function GovernanceFindingsQueueOutcomeSection(
                 ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.title
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.title
+                  : secureNowEmptyState !== null
+                    ? secureNowEmptyState.title
                   : props.buyerPolishedShell
                     ? BUYER_RISK_REGISTER_EMPTY_TITLE
                     : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE
@@ -159,6 +168,8 @@ export function GovernanceFindingsQueueOutcomeSection(
                   )
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.description
+                  : secureNowEmptyState !== null
+                    ? secureNowEmptyState.description
                   : props.buyerPolishedShell
                     ? BUYER_RISK_REGISTER_EMPTY_BODY
                     : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
@@ -166,6 +177,10 @@ export function GovernanceFindingsQueueOutcomeSection(
             actions={
               props.isAssignedToMe
                 ? undefined
+                : secureNowEmptyState !== null
+                  ? [
+                      { label: "Open policy packs", href: secureNowEmptyState.policyPacksHref, variant: "primary" },
+                    ]
                 : [
                     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
                     {
@@ -188,6 +203,10 @@ export function GovernanceFindingsQueueOutcomeSection(
                   <PageCapabilityBoundaryStrip surfaceId="assignedFindings" className="mb-0" />
                   <GovernanceAssignedToMeBuildProvenanceStrip />
                 </div>
+              ) : secureNowEmptyState !== null ? (
+                <Link className={OPERATOR_LINK.inline} href={secureNowEmptyState.policyPacksHref}>
+                  View policy packs
+                </Link>
               ) : !props.buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
                   View policy packs

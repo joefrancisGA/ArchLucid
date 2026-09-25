@@ -39,8 +39,9 @@ export function RunExplanationConfidenceBanner(props: {
   const confidence = buildExplanationConfidenceSummary(props.summary);
   const buyerPolished = useProductionEvalChrome();
 
-  if (confidence === null)
+  if (confidence === null) {
     return null;
+  }
 
   const dispositionLabel = buyerPolished
     ? buyerExplanationConfidenceDispositionLabel(confidence.disposition)

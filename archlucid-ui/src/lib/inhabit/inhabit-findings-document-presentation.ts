@@ -1,5 +1,7 @@
 import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 import { parseArchitectureNestedToolArchitectureId } from "@/lib/architecture/architecture-routes";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { deriveWorkingInstrumentReviewHeaderPresentation } from "@/lib/run-detail-workspace-derive/review-presentation";
 
 export const INHABIT_FINDINGS_DOCUMENT_OWNER = "IH-016" as const;
@@ -23,7 +25,14 @@ export type InhabitedFindingsDocumentInput = {
   readonly architectureDisplayName?: string | null;
   readonly scopedRunId?: string | null;
   readonly scopedRunTitle?: string | null;
+  readonly productLineId?: ProductLineId;
 };
+
+function resolveInhabitedFindingsProductLineId(
+  input: Pick<InhabitedFindingsDocumentInput, "productLineId">,
+): ProductLineId {
+  return input.productLineId ?? DEFAULT_PRODUCT_LINE_ID;
+}
 
 export type InhabitedFindingsDocumentPresentation = {
   readonly isInhabitedDocument: true;
@@ -50,6 +59,10 @@ export function resolveInhabitedFindingsArchitectureId(
 }
 
 export function resolveIsInhabitedFindingsDocument(input: InhabitedFindingsDocumentInput): boolean {
+  if (isSecureNowProductLine(resolveInhabitedFindingsProductLineId(input))) {
+    return false;
+  }
+
   if (!input.workingMode) {
     return false;
   }
@@ -59,8 +72,15 @@ export function resolveIsInhabitedFindingsDocument(input: InhabitedFindingsDocum
 
 /** WA-001 — shared inspect options for inhabited nested findings queue surfaces. */
 export function resolveInhabitedFindingsInspectHrefOptions(
-  input: Pick<InhabitedFindingsDocumentInput, "workingMode" | "pathname" | "scopedArchitectureId">,
+  input: Pick<
+    InhabitedFindingsDocumentInput,
+    "workingMode" | "pathname" | "scopedArchitectureId" | "productLineId"
+  >,
 ): GovernanceFindingInspectHrefOptions | undefined {
+  if (isSecureNowProductLine(resolveInhabitedFindingsProductLineId(input))) {
+    return undefined;
+  }
+
   if (!input.workingMode) {
     return undefined;
   }

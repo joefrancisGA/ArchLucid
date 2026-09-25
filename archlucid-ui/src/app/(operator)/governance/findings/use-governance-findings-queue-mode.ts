@@ -61,6 +61,7 @@ export function useGovernanceFindingsQueueMode({
     architectureDisplayName,
     scopedRunId,
     scopedRunTitle,
+    productLineId: productLine,
   };
   const pageTitle = resolveGovernanceFindingsPageTitle(
     isAssignedToMe,

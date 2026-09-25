@@ -10,6 +10,7 @@ import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/vocabulary/architecture-review-vocabulary";
 import {
   mergeLayerGuidanceForBuyerDemoShell,
+  resolveLayerGuidanceForProductLine,
   type LayerGuidancePageKey,
 } from "@/lib/layer-guidance";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -80,9 +81,13 @@ export function LayerHeader({
     );
   }, [layerHeaderCollapsibleGuidanceParam]);
   const surface = useNavSurface(pageKey);
-  const { localize } = useLocalizedProductCopy();
+  const { localize, productLine } = useLocalizedProductCopy();
   const buyerDemoShell = isBuyerPolishedOperatorShellEnv();
-  const block = mergeLayerGuidanceForBuyerDemoShell(pageKey, surface.layerGuidance, buyerDemoShell);
+  const block = mergeLayerGuidanceForBuyerDemoShell(
+    pageKey,
+    resolveLayerGuidanceForProductLine(pageKey, productLine),
+    buyerDemoShell,
+  );
   const headline = localize(block.headline);
   const useWhen = localize(block.useWhen);
   const firstPilotNote = block.firstPilotNote === null ? null : localize(block.firstPilotNote);

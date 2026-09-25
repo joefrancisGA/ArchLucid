@@ -89,7 +89,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
-        bool includeRecoveryServices = false)
+        bool includeRecoveryServices = false,
+        bool includeCrossGroupFanOut = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -173,7 +174,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? hiddenExecutiveTierKeys = null,
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
-        bool includeRecoveryServices = false)
+        bool includeRecoveryServices = false,
+        bool includeCrossGroupFanOut = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -215,7 +217,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 hiddenExecutiveTierKeys,
                 out InfraEvidenceMermaidModeParseResult parsedMode,
                 includePrivateEndpointNodes,
-                includeRecoveryServices))
+                includeRecoveryServices,
+                includeCrossGroupFanOut))
         {
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
@@ -244,10 +247,11 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return CreateResourceGroupPickerResponse(snapshotId, graphResult.Graph);
         }
 
-        DiagramAstCompileOptions? compileOptions = MergeRecoveryServicesCompileOptions(
+        DiagramAstCompileOptions? compileOptions = MergeDisplayCompileOptions(
             parsedMode.CompileOptions,
             graphResult.Snapshot,
-            includeRecoveryServices);
+            includeRecoveryServices,
+            includeCrossGroupFanOut);
 
         InfraEvidenceMermaidRenderResponse renderResponse = await TryRenderModeResponseAsync(
             snapshotId,
@@ -277,7 +281,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? hiddenExecutiveTierKeys = null,
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
-        bool includeRecoveryServices = false)
+        bool includeRecoveryServices = false,
+        bool includeCrossGroupFanOut = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -292,7 +297,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 hiddenExecutiveTierKeys,
                 cancellationToken,
                 includePrivateEndpointNodes,
-                includeRecoveryServices);
+                includeRecoveryServices,
+                includeCrossGroupFanOut);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
         {
@@ -326,6 +332,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             hiddenExecutiveTierKeys,
             mermaidResult.Value,
             brandedMermaid,
+            includePrivateEndpointNodes,
+            includeRecoveryServices,
+            includeCrossGroupFanOut,
             cancellationToken);
 
         if (renderedPng is null || renderedPng.Length == 0)
@@ -447,6 +456,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
 
             InfraEvidenceInventoryLayoutResult layoutResult = await TryRenderInventoryLayoutAsync(
                 renderResult,
+                compileOptions,
                 cancellationToken);
 
             return MapRenderResponse(
@@ -561,6 +571,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? hiddenExecutiveTierKeys,
         InfraEvidenceMermaidRenderResponse renderResponse,
         string brandedMermaid,
+        bool includePrivateEndpointNodes,
+        bool includeRecoveryServices,
+        bool includeCrossGroupFanOut,
         CancellationToken cancellationToken)
     {
         if (string.Equals(renderResponse.LayoutEngine, "inventory-forest", StringComparison.Ordinal)
@@ -574,11 +587,19 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 seedNodeId,
                 includeNeverShowArmTypes,
                 hiddenExecutiveTierKeys,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut,
                 cancellationToken);
 
             if (renderResult?.RepairedAst is not null)
             {
-                string dot = _graphvizDotEmitter.Emit(renderResult.RepairedAst);
+                string dot = _graphvizDotEmitter.Emit(
+                    renderResult.RepairedAst,
+                    new GraphvizDotEmitOptions
+                    {
+                        IncludeCrossGroupFanOut = includeCrossGroupFanOut,
+                    });
                 GraphvizLayoutRenderResult graphvizPng = await _graphvizLayoutRenderer.RenderPngAsync(dot, cancellationToken);
 
                 if (graphvizPng.Succeeded && graphvizPng.Png is { Length: > 0 })
@@ -599,6 +620,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? seedNodeId,
         bool includeNeverShowArmTypes,
         string? hiddenExecutiveTierKeys,
+        bool includePrivateEndpointNodes,
+        bool includeRecoveryServices,
+        bool includeCrossGroupFanOut,
         CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(fallbackKey))
@@ -610,7 +634,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 mode,
                 seedNodeId,
                 hiddenExecutiveTierKeys,
-                out InfraEvidenceMermaidModeParseResult parsedMode))
+                out InfraEvidenceMermaidModeParseResult parsedMode,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut))
         {
             return null;
         }
@@ -632,16 +659,23 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return null;
         }
 
+        DiagramAstCompileOptions? compileOptions = MergeDisplayCompileOptions(
+            parsedMode.CompileOptions,
+            graphResult.Snapshot,
+            includeRecoveryServices,
+            includeCrossGroupFanOut);
+
         return await RenderModeAsync(
             graphResult.Graph,
             parsedMode.DiagramMode,
-            parsedMode.CompileOptions,
+            compileOptions,
             includeNeverShowArmTypes,
             cancellationToken);
     }
 
     private async Task<InfraEvidenceInventoryLayoutResult> TryRenderInventoryLayoutAsync(
         MermaidDiagramRenderResult renderResult,
+        DiagramAstCompileOptions? compileOptions,
         CancellationToken cancellationToken)
     {
         if (renderResult.RepairedAst is null)
@@ -655,7 +689,12 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return InfraEvidenceInventoryLayoutResult.MermaidDagreFallback;
         }
 
-        DiagramForestLayoutResult forestResult = _forestLayoutSvgRenderer.Render(renderResult.RepairedAst);
+        DiagramForestLayoutResult forestResult = _forestLayoutSvgRenderer.Render(
+            renderResult.RepairedAst,
+            new DiagramForestLayoutOptions
+            {
+                IncludeCrossGroupFanOut = compileOptions?.IncludeCrossGroupFanOut ?? false,
+            });
 
         if (forestResult.Succeeded && !string.IsNullOrWhiteSpace(forestResult.Svg))
         {
@@ -672,7 +711,12 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             }
         }
 
-        string dot = _graphvizDotEmitter.Emit(renderResult.RepairedAst);
+        string dot = _graphvizDotEmitter.Emit(
+            renderResult.RepairedAst,
+            new GraphvizDotEmitOptions
+            {
+                IncludeCrossGroupFanOut = compileOptions?.IncludeCrossGroupFanOut ?? false,
+            });
         GraphvizLayoutRenderResult graphvizResult = await _graphvizLayoutRenderer.RenderSvgAsync(dot, cancellationToken);
 
         if (!graphvizResult.Succeeded || string.IsNullOrWhiteSpace(graphvizResult.Svg))
@@ -874,14 +918,15 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             .ToList();
     }
 
-    private static DiagramAstCompileOptions? MergeRecoveryServicesCompileOptions(
+    private static DiagramAstCompileOptions? MergeDisplayCompileOptions(
         DiagramAstCompileOptions? options,
         AzureInventorySnapshotDetailReadModel? snapshot,
-        bool includeRecoveryServices)
+        bool includeRecoveryServices,
+        bool includeCrossGroupFanOut)
     {
         bool collectionIncomplete = HasRecoveryServicesCollectionGap(snapshot);
 
-        if (!includeRecoveryServices && !collectionIncomplete)
+        if (!includeRecoveryServices && !collectionIncomplete && !includeCrossGroupFanOut)
         {
             return options;
         }
@@ -897,6 +942,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
             IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? false,
             IncludeRecoveryServices = includeRecoveryServices,
+            IncludeCrossGroupFanOut = includeCrossGroupFanOut,
             RecoveryServicesCollectionIncomplete = collectionIncomplete,
         };
     }

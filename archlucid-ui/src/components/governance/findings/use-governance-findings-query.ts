@@ -10,6 +10,7 @@ import {
 } from "@/components/governance/findings/governance-findings-query-fetch";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer/buyer-demo-content-gating";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -28,11 +29,12 @@ export type GovernanceFindingsQueryState = {
 
 export function useGovernanceFindingsQuery(enabled = true): GovernanceFindingsQueryState {
   const useCuratedDemoSpine = shouldUseGovernanceCuratedDemoSpine();
+  const { productLine } = useProductLine();
   const scope = useOperatorScopeQueryKey();
 
   const query = useQuery({
-    queryKey: operatorQueryKeys.governanceFindingsQueue(scope, useCuratedDemoSpine),
-    queryFn: () => fetchGovernanceFindingQueueRows(useCuratedDemoSpine),
+    queryKey: operatorQueryKeys.governanceFindingsQueue(scope, useCuratedDemoSpine, productLine),
+    queryFn: () => fetchGovernanceFindingQueueRows(useCuratedDemoSpine, productLine),
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     enabled,
