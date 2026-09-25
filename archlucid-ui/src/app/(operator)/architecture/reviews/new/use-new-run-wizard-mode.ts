@@ -76,15 +76,30 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   );
 
   useEffect(() => {
+    if (urlMode === null) {
+      return;
+    }
+
+    if (wizardModeRef.current !== urlMode) {
+      wizardModeRef.current = urlMode;
+      setWizardMode(urlMode);
+      writeStoredWizardMode(urlMode);
+    }
+
+    modeChosenRef.current = true;
+  }, [urlMode]);
+
+  useEffect(() => {
     const syncModeFromUrl = (): void => {
       const nextMode = parseNewRunWizardModeFromSearch(
-        new URLSearchParams(window.location.search).get("mode"),
+        new URLSearchParams(readWindowLocationSearch()).get("mode"),
       );
 
       if (nextMode !== null) {
         if (wizardModeRef.current !== nextMode) {
           wizardModeRef.current = nextMode;
           setWizardMode(nextMode);
+          writeStoredWizardMode(nextMode);
         }
 
         modeChosenRef.current = true;
