@@ -88,10 +88,10 @@ internal static class InventoryDiagramAvdBoundaryApplier
 
             ast.Edges.Add(new DiagramEdge
             {
-                FromNodeId = boundaryDiagramNodeId,
-                ToNodeId = sharedDiagramNodeId,
+                FromNodeId = fromAvdOnly ? boundaryDiagramNodeId : sharedDiagramNodeId,
+                ToNodeId = fromAvdOnly ? sharedDiagramNodeId : boundaryDiagramNodeId,
                 Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryLabel,
-            });
+            }
         }
 
         foreach (DiagramNode boundaryNode in boundaryNodes.Values.OrderBy(node => node.NodeId, StringComparer.Ordinal))
