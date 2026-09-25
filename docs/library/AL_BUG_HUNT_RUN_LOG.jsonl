@@ -7247,3 +7247,4 @@
 {"at":"2026-09-25T14:12:51.7183137Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only"}
 {"at":"2026-09-25T14:14:46.9781350Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only"}
 {"at":"2026-09-25T14:16:41.6284640Z","zoneId":"core-requests-constraints","outcome":"seed-only"}
+{"at":"2026-09-25T14:18:31.0297107Z","zoneId":"api-governance-stickiness","outcome":"seed-only"}
