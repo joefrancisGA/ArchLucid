@@ -20961,15 +20961,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 44
-- **bugs-found:** 32
+- **hunts:** 45
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-12 — finding feedback POST omitted invalid-Unicode surrogate guard on Comment
+- **last-bug:** 2026-09-25 — disposition/coverage/technology-ledger PATCH free text omitted invalid-Unicode surrogate guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved disposition rationale, coverage exclusion reason, and technology-ledger patch field surrogate guard gaps; shared `UnicodeTextValidation` helper; 24 scoped unit tests passed.
+
+- [x] (proven) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Rationale` omitted invalid-Unicode surrogate guard present on sibling `PostFindingFeedback` comment — **hit 2026-09-25 seed hunt:** reject lone surrogates before service call; regression `RecordRunOperatorGovernanceDisposition_returns_bad_request_when_rationale_contains_invalid_surrogate`.
+- [x] (proven) `RunCoverageController.PutAcknowledgedCoverage` / `PatchRunCoveragePack` — `ExclusionReason` omitted invalid-Unicode surrogate guard present on sibling free-text routes — **hit 2026-09-25 seed hunt:** reject lone surrogates before acknowledgement persist; regressions `PutAcknowledgedCoverage_returns_bad_request_when_exclusion_reason_contains_invalid_surrogate` and `PatchRunCoveragePack_returns_bad_request_when_exclusion_reason_contains_invalid_surrogate`.
+- [x] (proven) `TechnologyLedgerController.PatchTechnologyLedgerEntry` — `Rationale` and `TechnologyName` omitted invalid-Unicode surrogate guard present on sibling `CustomRolesAdminController` create/update — **hit 2026-09-25 seed hunt:** reject lone surrogates before `PatchEntryAsync`; regressions `PatchTechnologyLedgerEntry_returns_bad_request_when_rationale_contains_invalid_surrogate` and `PatchTechnologyLedgerEntry_returns_bad_request_when_technology_name_contains_invalid_surrogate`.
 
 2026-09-12 seed hunts #1965–#1970 (seed-only): reseeded api-authority-admin-controllers; no new hunt-ready rows.
 

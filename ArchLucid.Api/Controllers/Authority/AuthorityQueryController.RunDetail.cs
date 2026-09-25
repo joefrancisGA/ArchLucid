@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
@@ -179,6 +180,13 @@ public sealed partial class AuthorityQueryController
         {
             return this.BadRequestProblem(
                 "Rationale exceeds maximum length (2000).",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.Rationale is not null && !UnicodeTextValidation.IsValidUnicodeText(request.Rationale))
+        {
+            return this.BadRequestProblem(
+                "Rationale must not contain invalid Unicode surrogate pairs.",
                 ProblemTypes.ValidationFailed);
         }
 

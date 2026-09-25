@@ -114,4 +114,32 @@ public sealed class AuthorityQueryControllerDispositionTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task RecordRunOperatorGovernanceDisposition_returns_bad_request_when_rationale_contains_invalid_surrogate()
+    {
+        AuthorityQueryController sut = BuildSut();
+
+        IActionResult result = await sut.RecordRunOperatorGovernanceDisposition(
+            RunGuid,
+            new RecordRunOperatorGovernanceDispositionRequest
+            {
+                Decision = RunOperatorGovernanceDecision.Rejected,
+                Rationale = "\uD800",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _dispositionService.Verify(
+            static s => s.RecordAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<RecordRunOperatorGovernanceDispositionRequest>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }
