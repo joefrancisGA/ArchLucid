@@ -23553,11 +23553,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 10
-- **bugs-found:** 10
+- **hunts:** 11
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — register filter stayed open after URL cleared filter without popstate
+- **last-bug:** 2026-09-25 — NL facet filters stayed active after URL cleared severity/status without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23583,6 +23583,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `useGovernanceFindingsFilter` — register filter stayed `open` after App Router cleared `filter=` without `popstate` — **hit 2026-09-25 seed hunt #3908f (seed→hit):** `registerFilter` lived in `useState` and the `searchParams` effect only applied URL values when `filter` was present, so client navigation that removed the param left the queue on the prior register chip; fixed by resetting to `all` when a prior URL had `filter=` and the param is cleared; regression `follows filter= URL changes without a popstate event`.
 
 2026-09-25 seed hunt #3908f (seed→hit): reseeded ui-governance-findings-queue; proved stale register filter after URL navigation; 9 scoped filter URL-sync and saved-view unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsQueueFacets` — NL facet state (`severity` / `status` / `title`) stayed active after App Router cleared facet params without `popstate` — **hit 2026-09-25 seed hunt:** `nlFacets` `useEffect` only applied URL values when at least one NL param was present, mirroring the pre-#3908f register-filter gap; fixed by resetting to `EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS` when a prior URL had NL params and they are cleared; regression `follows NL facet URL changes without a popstate event`.
+
+2026-09-25 seed hunt (seed→hit): reseeded ui-governance-findings-queue after register-filter URL sync hit; proved stale NL facet filters after URL navigation; 16 scoped governance-findings URL-sync and saved-view unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
