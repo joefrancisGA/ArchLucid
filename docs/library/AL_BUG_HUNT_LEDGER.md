@@ -22705,11 +22705,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 13
-- **bugs-found:** 13
+- **hunts:** 14
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — FindingIacStubGenerator generated IaC stubs for operator-muted findings
+- **last-bug:** 2026-09-25 — curated evidence proposer LLM-called for emission-withheld findings
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -22734,6 +22734,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` generates IaC stubs for muted findings that still carry evidence refs — **hit 2026-09-25 thorough hunt #30:** post-commit generator gated only on `HasEvidenceReferences` and ignored `finding.IsMuted` plus relational `dbo.FindingRecords` mute flags; wasted LLM calls and persisted remediation for operator-muted findings; fixed by applying `FindingMuteFlagApplier` from snapshot mute flags and skipping muted findings; regressions `GenerateAndPersistStubsForRunAsync_skips_muted_findings_with_evidence_refs` and `GenerateAndPersistStubsForRunAsync_skips_findings_muted_in_finding_records`
 
 2026-09-25 thorough hunt #30 (hit): proved muted-finding IaC stub generation gap; 84 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentCuratedEvidenceProposer` / `AgentResultPostExecutionEnricher` — curated evidence LLM ran for prose-only or provenance-hold findings that `AgentArchitectureFindingEmissionEnricher` later withheld — **hit 2026-09-25 seed hunt #31:** post-execution enricher ran before emission gate and `BuildUserPrompt` serialized all `result.Findings`; fixed by running `AgentArchitectureFindingEmissionEnricher` first and gating proposals on `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `EnrichAsync_skips_curated_evidence_when_findings_are_withheld_by_emission_gate`
+
+2026-09-25 seed hunt #31 (seed→hit): reseeded application-agents after muted IaC stub hit; proved curated evidence proposals for emission-withheld findings; 85 scoped Application.Tests.Agents tests passed.
 
 2026-09-11 seed hunt #1717 (seed→hit): reseeded application-agents after master churn; proved null evidence type, catalog slug collision, invisible-only curated text, and partial LLM cost basis; seeded muted-finding IaC stub candidate; 73 scoped Application.Tests.Agents tests passed.
 
