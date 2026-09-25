@@ -8224,11 +8224,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 26
-- **bugs-found:** 18
+- **hunts:** 27
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-11 — confirm-required livelihood 401 resume dropped pending mutation from localStorage before operator confirmed replay
+- **last-bug:** 2026-09-25 — stale BFF cookie blocked anonymous health/trial-status GETs; registration scope lost to stale operator scope
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -8263,6 +8263,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous `POST /api/proxy/v1/register` when BFF session is enabled — **hit 2026-09-10 seed hunt #1584 (seed→hit):** `SignupForm` posts to `[AllowAnonymous]` `RegistrationController` but `v1/register` was missing from `isPublicAnonymousProxyPath`; fixed by extending `isPreAuthSignInAnonymousProxyPath`; regressions in `proxy-route-pre-auth-anonymous.test.ts` and `proxy-anonymous-marketing-paths.test.ts`.
 - [x] (candidate) `post-auth-bootstrap-api.ts` — stale HttpOnly BFF cookie blocks `GET /api/proxy/v1/auth/bootstrap/status` during `/auth/bootstrap` — invalid: bootstrap runs after fresh sign-in when BFF session is established; stale-cookie 401 is intentional recovery unlike pre-auth anonymous routes
 - [x] (proven) `useResumePendingLivelihoodMutation` — confirm-required 401 resume consumed `localStorage` pending mutation before operator confirmed replay — **hit 2026-09-11 seed hunt #1721 (seed→hit):** `consumeLivelihoodPendingMutationForReturnPath` ran for `architecture_draft_patch` and other confirm kinds; refresh or navigation during confirm chrome permanently lost the stored POST; fixed with `peekLivelihoodPendingMutationForReturnPath` and consume-on-confirm; regressions in `livelihood-mutation-401-resume.test.ts` and `use-resume-pending-livelihood-mutation.test.ts`.
+
+- [x] (proven) `enforceProxyBffSessionGuard` — expired/idle BFF cookie blocked anonymous `GET /api/proxy/health/ready`, `/health/live`, `/version`, and post-registration `GET /api/proxy/v1/tenant/trial-status` — **hit 2026-09-25 seed hunt (seed→hit):** paths missing from `isPublicAnonymousProxyPath` unlike pre-auth sign-in routes fixed in #1253/#1584; extended allowlist with infrastructure probes and trial-status; regressions in `proxy-anonymous-marketing-paths.test.ts` and `proxy-route-pre-auth-anonymous.test.ts`
+- [x] (proven) `getEffectiveBrowserProxyScopeHeaders` / `mergeRegistrationScopeForProxy` — stale `archlucid_operator_scope_v1` beat post-registration `archlucid_last_registration` when unsigned after `clearOidcSession()` — **hit 2026-09-25 seed hunt (seed→hit):** signup verify and onboarding trial-status polls sent prior-tenant scope headers; fixed by preferring registration scope before operator storage when unsigned; regression `getEffectiveBrowserProxyScopeHeaders_prefersRegistrationScopeOverStaleOperatorScopeWhenUnsigned`
+
+2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy; proved stale BFF cookie blocked anonymous health/trial-status GETs and registration scope lost to stale operator scope after sign-out; 25 scoped auth/proxy tests passed.
 
 2026-09-11 seed hunt #1721 (seed→hit): reseeded ui-auth-proxy after LW-051–100 livelihood 401 resume churn; cheap-disproved bootstrap stale-BFF bypass candidate; proved confirm-required resume dropped pending mutation from localStorage before replay; 91 scoped auth/proxy tests passed.
 
