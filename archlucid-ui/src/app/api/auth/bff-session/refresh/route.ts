@@ -5,6 +5,7 @@ import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { refreshAccessToken } from "@/lib/oidc/token-client";
 import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
 import {
+  BFF_SESSION_COOKIE_NAME,
   buildBffSessionClearCookieHeaders,
   buildBffSessionCookieHeaders,
   createBffSessionCookieValue,
@@ -61,13 +62,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
+  const cookieValue = request.cookies.get(BFF_SESSION_COOKIE_NAME)?.value ?? null;
   const payload = parseBffSessionPayloadFromRequest(request);
   const refreshToken = payload?.rt?.trim() ?? "";
   const authority = getOidcAuthority();
   const clientId = getOidcClientId();
 
   if (payload === null || refreshToken.length === 0) {
-    return NextResponse.json({ title: "No refreshable BFF session" }, { status: 401 });
+    const response = NextResponse.json({ title: "No refreshable BFF session" }, { status: 401 });
+
+    if (cookieValue !== null && cookieValue.trim().length > 0) {
+      for (const cookieHeader of buildBffSessionClearCookieHeaders()) {
+        response.headers.append("Set-Cookie", cookieHeader);
+      }
+    }
+
+    return response;
   }
 
   const csrfHeader = request.headers.get(BFF_CSRF_HEADER)?.trim() ?? "";
