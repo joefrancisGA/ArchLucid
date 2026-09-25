@@ -16,8 +16,6 @@ public static class InventoryDiagramDataFlowNsgAttachmentIndex
         Dictionary<string, List<InventoryDiagramDataFlowNsgEndpointAttachment>> attachmentsByEndpointArmId =
             new(StringComparer.OrdinalIgnoreCase);
 
-        Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(graph);
-
         foreach (GraphNode graphNode in graph.Nodes)
         {
             string armType = ReadArmType(graphNode);
@@ -41,7 +39,7 @@ public static class InventoryDiagramDataFlowNsgAttachmentIndex
                     continue;
                 }
 
-                string? endpointArmId = ResolveNsgAssociationEndpointArmId(association, nicOwnerArmIdByNicArmId);
+                string? endpointArmId = ResolveNsgAssociationEndpointArmId(association);
 
                 if (string.IsNullOrWhiteSpace(endpointArmId))
                 {
@@ -186,56 +184,11 @@ public static class InventoryDiagramDataFlowNsgAttachmentIndex
         return subnetArmIdByNodeId;
     }
 
-    private static Dictionary<string, string> BuildNicOwnerArmIdMap(GraphSnapshot graph)
-    {
-        Dictionary<string, string> nicOwnerArmIdByNicArmId = new(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, GraphNode> graphNodesById = graph.Nodes
-            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-
-        foreach (GraphEdge edge in graph.Edges)
-        {
-            if (!string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            if (!graphNodesById.TryGetValue(edge.FromNodeId, out GraphNode? ownerNode)
-                || !graphNodesById.TryGetValue(edge.ToNodeId, out GraphNode? nicNode))
-            {
-                continue;
-            }
-
-            string ownerArmId = ArmResourceIdNormalizer.Normalize(ReadArmId(ownerNode));
-            string nicArmId = ArmResourceIdNormalizer.Normalize(ReadArmId(nicNode));
-
-            if (!string.IsNullOrWhiteSpace(ownerArmId) && !string.IsNullOrWhiteSpace(nicArmId))
-            {
-                nicOwnerArmIdByNicArmId[nicArmId] = ownerArmId;
-            }
-        }
-
-        return nicOwnerArmIdByNicArmId;
-    }
-
     private static string? ResolveNsgAssociationEndpointArmId(
-        AzureInventoryNsgAssociation association,
-        IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId)
+        AzureInventoryNsgAssociation association)
     {
-        if (string.Equals(association.TargetKind, AzureInventoryNsgAssociationParser.SubnetKind, StringComparison.OrdinalIgnoreCase))
-        {
-            return association.TargetArmId;
-        }
-
-        if (string.Equals(association.TargetKind, AzureInventoryNsgAssociationParser.NicKind, StringComparison.OrdinalIgnoreCase)
-            && association.TargetArmId is not null
-            && nicOwnerArmIdByNicArmId.TryGetValue(
-                ArmResourceIdNormalizer.Normalize(association.TargetArmId),
-                out string? ownerArmId))
-        {
-            return ownerArmId;
-        }
-
+        // Preserve NIC identity. Collapsing to the VM owner would merge rules from
+        // unrelated NICs when a VM has more than one network interface.
         return association.TargetArmId;
     }
 
