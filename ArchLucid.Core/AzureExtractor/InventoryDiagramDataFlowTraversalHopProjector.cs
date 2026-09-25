@@ -594,7 +594,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
 
         foreach (GraphEdge edge in graph.Edges)
         {
-            if (!string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase))
+            if (!IsVmToNicEdge(edge))
             {
                 continue;
             }
@@ -615,6 +615,12 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         }
 
         return nicOwnerArmIdByNicArmId;
+    }
+
+    private static bool IsVmToNicEdge(GraphEdge edge)
+    {
+        return string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase)
+               || string.Equals(edge.InferenceSource, InventoryDiagramIndirectRelationshipEdgeSources.VmNic, StringComparison.OrdinalIgnoreCase);
     }
 
     private static Dictionary<string, List<InventoryDiagramDataFlowTraversalHopLink>> BuildAdjacency(

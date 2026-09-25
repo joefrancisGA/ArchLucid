@@ -41,7 +41,7 @@ public static class InventoryDiagramAvdScopeResolver
             if (IsAvdOnlySessionHostVirtualMachine(node, graph, avdOnlyNodeIds))
             {
                 avdOnlyNodeIds.Add(node.NodeId);
-                string? hostPoolArmId = ResolveHostPoolArmIdForSessionHostVm(node, graph, armIdToNodeId);
+                string? hostPoolArmId = ResolveHostPoolArmIdForSessionHostVm(node, graph, nodesById);
                 if (!string.IsNullOrWhiteSpace(hostPoolArmId))
                 {
                     nodeIdToHostPoolArmId[node.NodeId] = hostPoolArmId;
@@ -222,7 +222,7 @@ public static class InventoryDiagramAvdScopeResolver
     private static string? ResolveHostPoolArmIdForSessionHostVm(
         GraphNode vmNode,
         GraphSnapshot graph,
-        IReadOnlyDictionary<string, string> armIdToNodeId)
+        IReadOnlyDictionary<string, GraphNode> nodesById)
     {
         foreach (GraphEdge edge in graph.Edges)
         {
@@ -236,12 +236,12 @@ public static class InventoryDiagramAvdScopeResolver
                 continue;
             }
 
-            if (!armIdToNodeId.TryGetValue(ReadArmIdByNodeId(graph, edge.FromNodeId), out _))
+            if (!nodesById.TryGetValue(edge.FromNodeId, out GraphNode? hostNode))
             {
                 continue;
             }
 
-            string? hostPoolArmId = InventoryDiagramAvdClassifier.TryReadHostPoolArmId(ReadArmIdByNodeId(graph, edge.FromNodeId));
+            string? hostPoolArmId = InventoryDiagramAvdClassifier.TryReadHostPoolArmId(ReadArmId(hostNode));
 
             if (!string.IsNullOrWhiteSpace(hostPoolArmId))
             {
@@ -314,14 +314,6 @@ public static class InventoryDiagramAvdScopeResolver
         }
 
         return armIdToNodeId;
-    }
-
-    private static string ReadArmIdByNodeId(GraphSnapshot graph, string nodeId)
-    {
-        GraphNode? node = graph.Nodes.FirstOrDefault(candidate =>
-            string.Equals(candidate.NodeId, nodeId, StringComparison.Ordinal));
-
-        return node is null ? string.Empty : ReadArmId(node);
     }
 
     private static string ReadArmType(GraphNode node)

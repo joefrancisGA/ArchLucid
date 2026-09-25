@@ -89,7 +89,24 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     [Fact]
     public void ProjectPath_places_private_endpoint_between_vm_consumer_and_paas_target_when_attached_via_nic()
     {
-        GraphSnapshot graph = BuildPrivateEndpointViaNicGraph();
+        GraphSnapshot graph = BuildPrivateEndpointViaNicGraph(useInferenceSourceOnlyVmNic: false);
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        InventoryDiagramDataFlowTraversalHopPath path = InventoryDiagramDataFlowTraversalHopProjector.ProjectPath(
+            "vm-node",
+            "storage-node",
+            links,
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+
+        path.OrderedHopNodeIds.Should().Equal("pe-node");
+        path.OrderedLinks.Select(link => link.ToNodeId).Should().Equal("pe-node", "storage-node");
+    }
+
+    [Fact]
+    public void ProjectPath_places_private_endpoint_between_vm_consumer_and_paas_target_when_vm_nic_is_inference_only()
+    {
+        GraphSnapshot graph = BuildPrivateEndpointViaNicGraph(useInferenceSourceOnlyVmNic: true);
         IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
             InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
 
@@ -227,7 +244,7 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
         return CreateGraph(nodes, edges);
     }
 
-    private static GraphSnapshot BuildPrivateEndpointViaNicGraph()
+    private static GraphSnapshot BuildPrivateEndpointViaNicGraph(bool useInferenceSourceOnlyVmNic)
     {
         const string vmArmId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm";
@@ -247,7 +264,11 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             CreateEdge("vm-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PeReachableTarget, GraphEdgeInferenceSources.InventoryPeReachableTarget),
             CreateEdge("pe-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
             CreateEdge("pe-node", "nic-node", AzureInventoryRelationshipAssociationTypes.PeToNic, GraphEdgeInferenceSources.InventoryPeNic),
-            CreateEdge("vm-node", "nic-node", AzureInventoryRelationshipAssociationTypes.VmToNic, GraphEdgeInferenceSources.InventoryVmNic),
+            CreateEdge(
+                "vm-node",
+                "nic-node",
+                useInferenceSourceOnlyVmNic ? "CONNECTS_TO" : AzureInventoryRelationshipAssociationTypes.VmToNic,
+                InventoryDiagramIndirectRelationshipEdgeSources.VmNic),
         ];
 
         return CreateGraph(nodes, edges);
