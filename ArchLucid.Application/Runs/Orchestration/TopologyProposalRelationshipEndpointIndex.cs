@@ -63,7 +63,6 @@ public static partial class TopologyProposalRelationshipEndpointIndex
             endpointKeyToNodeId,
             node.Label,
             node.Category,
-            node.SourceId,
             node.NodeId);
     }
 
