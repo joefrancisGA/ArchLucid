@@ -84,6 +84,12 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       projectId: string;
       scopeProjectId?: string;
       createdUtc: string;
+      /** Legacy display label still returned by some authority read paths. */
+      displayName?: string | null;
+      /** Derived manifest presence flags carried by list and demo read paths. */
+      hasGoldenManifest?: boolean;
+      hasGraphSnapshot?: boolean;
+      hasFindingsSnapshot?: boolean;
       legacyRunStatus?: string | null;
       hasGovernanceWarnings?: boolean;
       lastFailureReason?: string | null;
@@ -94,6 +100,9 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       operatorGovernanceDecisionByUserId?: string | null;
       /** When true, the backing architecture request is archived and hidden from default lists. */
       isArchived?: boolean | null;
+      /** Execution degradation metadata returned by authority read paths. */
+      runDegradedExecution?: boolean;
+      degradedExecutionAgents?: readonly string[];
       /** Stable architecture identity when the authority run record includes it (CA-45 recurrence scope). */
       architectureId?: string | null;
       /** CG-019: Working door captured at first execute start. */

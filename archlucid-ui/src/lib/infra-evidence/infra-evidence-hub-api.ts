@@ -13,6 +13,35 @@ import type {
 
 const CLOUD_RESOURCES_PATH = "/api/proxy/v1/infra-evidence/cloud-resources";
 
+type CloudResourceExplorerApiRow = {
+  cloudResourceId?: string;
+  externalResourceId?: string;
+  displayName?: string | null;
+  resourceType?: string | null;
+  resourceGroup?: string | null;
+  region?: string | null;
+  lastSeenUtc?: string;
+  workCounts?: {
+    openOperationalFindingsCount?: number;
+    openRemediationInstancesCount?: number;
+    inventoryDriftChangeCount?: number;
+  } | null;
+};
+
+type CompleteCloudResourceExplorerApiRow = CloudResourceExplorerApiRow & {
+  cloudResourceId: string;
+  externalResourceId: string;
+  lastSeenUtc: string;
+};
+
+function hasCloudResourceExplorerIdentity(
+  row: CloudResourceExplorerApiRow,
+): row is CompleteCloudResourceExplorerApiRow {
+  return typeof row.cloudResourceId === "string"
+    && typeof row.externalResourceId === "string"
+    && typeof row.lastSeenUtc === "string";
+}
+
 export type CloudResourceExplorerFilters = {
   namePrefix?: string | null;
   resourceType?: string | null;
@@ -46,20 +75,7 @@ export async function fetchCloudResourceExplorerPage(
   }
 
   const raw = await proxyJsonGet<{
-    items?: Array<{
-      cloudResourceId?: string;
-      externalResourceId?: string;
-      displayName?: string | null;
-      resourceType?: string | null;
-      resourceGroup?: string | null;
-      region?: string | null;
-      lastSeenUtc?: string;
-      workCounts?: {
-        openOperationalFindingsCount?: number;
-        openRemediationInstancesCount?: number;
-        inventoryDriftChangeCount?: number;
-      } | null;
-    }>;
+    items?: CloudResourceExplorerApiRow[];
     totalCount?: number;
     page?: number;
     pageSize?: number;
@@ -67,13 +83,7 @@ export async function fetchCloudResourceExplorerPage(
   }>(`${CLOUD_RESOURCES_PATH}?${params.toString()}`);
 
   const items = (raw.items ?? [])
-    .filter(
-      (row) =>
-        row != null
-        && typeof row.cloudResourceId === "string"
-        && typeof row.externalResourceId === "string"
-        && typeof row.lastSeenUtc === "string",
-    )
+    .filter(hasCloudResourceExplorerIdentity)
     .map((row) => ({
       cloudResourceId: row.cloudResourceId,
       externalResourceId: row.externalResourceId,

@@ -1293,6 +1293,7 @@ export async function postGovernanceApproveRaw(
 export type RunDetailsJson = {
   run?: {
     architectureId?: string | null;
+    runId?: string;
     goldenManifestId?: string | null;
     currentManifestVersion?: string | null;
     /** Numeric enum from API JSON, or string name when serialized as string. */

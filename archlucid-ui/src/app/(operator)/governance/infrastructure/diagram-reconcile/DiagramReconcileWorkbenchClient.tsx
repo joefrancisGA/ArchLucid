@@ -140,7 +140,6 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { showSuccess } from "@/lib/toast";
 
-import { DiagramReconcileBreadcrumb } from "./DiagramReconcileBreadcrumb";
 import { DiagramReconcileClaimOrientationStrip } from "./DiagramReconcileClaimOrientationStrip";
 import { DiagramReconcileIngestConfirmDialog } from "./DiagramReconcileIngestConfirmDialog";
 import { useDiagramReconcileWorkbenchShortcuts } from "./use-diagram-reconcile-workbench-shortcuts";
@@ -972,7 +971,6 @@ export function DiagramReconcileWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}
-        eyebrow={<DiagramReconcileBreadcrumb />}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD}
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE}

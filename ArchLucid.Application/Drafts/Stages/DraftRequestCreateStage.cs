@@ -76,6 +76,19 @@ public sealed class DraftRequestCreateStage(
             displayName,
             cancellationToken);
 
+        // Linking the draft to its architecture identity is a persisted mutation that advances UpdatedUtc.
+        // Return that refreshed concurrency token so the caller's immediate PATCH is not falsely rejected as stale.
+        DraftRequestResponse? linkedDraft = await _draftRepository.GetAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            created.DraftId,
+            cancellationToken);
+
+        if (linkedDraft is not null)
+            return linkedDraft;
+
+        // Keep the create response useful for repository implementations that do not expose an immediate read-after-write.
         created.ArchitectureId = identity.ArchitectureId;
 
         return created;
