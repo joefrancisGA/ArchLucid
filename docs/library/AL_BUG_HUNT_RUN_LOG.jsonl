@@ -6956,4 +6956,5 @@
 {"at":"2026-09-25T21:34:48.0565049Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
 {"at":"2026-09-25T21:37:05.9132058Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
 {"at":"2026-09-25T21:40:20.9423567Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
-{"at":"2026-09-25T21:46:52.5619940Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-09-25T21:46:52.561994Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-09-25T21:55:21.1189332Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
