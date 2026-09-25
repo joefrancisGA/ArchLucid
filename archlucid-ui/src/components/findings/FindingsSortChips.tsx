@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
@@ -8,6 +8,7 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reviewFindingsToolbarSortHrefFromSearch } from "@/lib/findings/review-findings-toolbar-sort-url";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import type { RunDetailFindingsSortKind } from "@/components/findings/run-detail-findings-toolbar-presentation";
 
@@ -22,8 +23,7 @@ export function FindingsSortChips(props: {
   readonly sort: RunDetailFindingsSortKind;
 }): React.JSX.Element {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
+  const currentSearch = readWindowLocationSearch();
 
   return (
     <div>

@@ -21,7 +21,7 @@ export function toMockBuyerRunDetailSummary(full: RunDetail): RunDetail {
         title: finding.message ?? finding.category ?? finding.findingId,
         category: finding.category,
         severity: finding.severity,
-        policyRuleId: finding.policyRuleId,
+        policyRuleId: undefined,
       })),
     ) ?? [];
 
@@ -33,15 +33,9 @@ export function toMockBuyerRunDetailSummary(full: RunDetail): RunDetail {
       projectId: run.projectId,
       scopeProjectId: run.scopeProjectId,
       description: run.description,
-      displayName: run.displayName ?? run.description,
       createdUtc: run.createdUtc,
+      structuralExecutionMode: run.structuralExecutionMode ?? "Simulator",
       goldenManifestId,
-      hasGoldenManifest: run.hasGoldenManifest ?? Boolean(goldenManifestId),
-      hasGraphSnapshot: Boolean(run.graphSnapshotId),
-      hasFindingsSnapshot: Boolean(run.findingsSnapshotId),
-      runDegradedExecution: run.runDegradedExecution,
-      degradedExecutionAgents: run.degradedExecutionAgents,
-      isDeadLettered: run.isDeadLettered,
     },
-  } as RunDetail;
+  } as unknown as RunDetail;
 }
