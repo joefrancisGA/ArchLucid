@@ -8224,11 +8224,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 27
-- **bugs-found:** 20
+- **hunts:** 28
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — stale BFF cookie blocked anonymous health/trial-status GETs; registration scope lost to stale operator scope
+- **last-bug:** 2026-09-25 — BFF refresh rejection left stale HttpOnly session cookie
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -8268,6 +8268,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `getEffectiveBrowserProxyScopeHeaders` / `mergeRegistrationScopeForProxy` — stale `archlucid_operator_scope_v1` beat post-registration `archlucid_last_registration` when unsigned after `clearOidcSession()` — **hit 2026-09-25 seed hunt (seed→hit):** signup verify and onboarding trial-status polls sent prior-tenant scope headers; fixed by preferring registration scope before operator storage when unsigned; regression `getEffectiveBrowserProxyScopeHeaders_prefersRegistrationScopeOverStaleOperatorScopeWhenUnsigned`
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy; proved stale BFF cookie blocked anonymous health/trial-status GETs and registration scope lost to stale operator scope after sign-out; 25 scoped auth/proxy tests passed.
+
+- [x] (proven) `POST /api/auth/bff-session/refresh` — rejected refresh (`invalid_grant`) returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** stale expired session cookie persisted and kept blocking proxy reads until explicit DELETE; fixed with `buildBffSessionClearCookieHeaders` on rejection path; regression `clears BFF session cookies when the refresh token is rejected`
+
+2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy after prior hit; proved BFF refresh rejection left stale session cookies; 168 scoped auth/proxy tests passed.
 
 2026-09-11 seed hunt #1721 (seed→hit): reseeded ui-auth-proxy after LW-051–100 livelihood 401 resume churn; cheap-disproved bootstrap stale-BFF bypass candidate; proved confirm-required resume dropped pending mutation from localStorage before replay; 91 scoped auth/proxy tests passed.
 
