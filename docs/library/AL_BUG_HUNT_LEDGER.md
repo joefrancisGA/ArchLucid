@@ -3080,15 +3080,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 25
-- **bugs-found:** 17
+- **hunts:** 26
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — circled-division-slash and OCR double-backslash homoglyphs evaded return-path guard
+- **last-bug:** 2026-09-25 — mathematical diagonal and script dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved mathematical diagonal and script/separator dot homoglyph bypasses; cheap-disproved BLACK LOZENGE (`⧨`) as slash homoglyph; 110 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) MATHEMATICAL RISING DIAGONAL (`⟋`), MATHEMATICAL FALLING DIAGONAL (`⟍`), and SOLIDUS INTEROPERATOR (`⧴`) bypass `IsSlashHomoglyph` — **hit 2026-09-25 seed hunt:** evaded protocol-relative checks; fixed by extending `IsSlashHomoglyph`; regression `TryNormalize_rejects_mathematical_diagonal_and_solidus_interoperator_protocol_relative_paths`
+- [x] (proven) WORD SEPARATOR MIDDLE DOT (`⸱`), RAISED DOT (`⸳`), Z NOTATION SPOT (`⦁`), RUNIC SINGLE PUNCTUATION (`᛫`), CANADIAN SYLLABICS FINAL MIDDLE DOT (`ᐧ`), and MONGOLIAN FULL STOP (`᠃`) bypass `ContainsDotHomoglyph` — **hit 2026-09-25 seed hunt:** parent-segment pairs evaded ASCII `..` checks; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_additional_script_and_separator_dot_homoglyph_path_traversal_segments`
+- [x] (valid-no-repro) BLACK LOZENGE (`⧨`, `U+29E8`) protocol-relative pair accepted — **valid-no-repro 2026-09-25 seed hunt:** lozenge glyph is not a SOLIDUS-named or browser-normalized slash homoglyph; same-origin relative prefix only.
 
 2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved raw lone-surrogate path segments, pipe segments, and hidden-dot segments; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
