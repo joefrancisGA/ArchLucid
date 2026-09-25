@@ -15514,10 +15514,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase Tags/Properties/IsUnknownType fields
 - **related-pd-tb:** none
 - **code-changed-since:** yes
