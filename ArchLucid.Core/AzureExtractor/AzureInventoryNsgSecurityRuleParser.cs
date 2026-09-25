@@ -132,13 +132,17 @@ public static class AzureInventoryNsgSecurityRuleParser
 
     private static string? TryReadString(JsonElement element, string propertyName)
     {
-        if (!element.TryGetProperty(propertyName, out JsonElement value)
-            || value.ValueKind is not JsonValueKind.String)
+        if (!element.TryGetProperty(propertyName, out JsonElement value))
         {
             return null;
         }
 
-        string? parsed = value.GetString();
+        string? parsed = value.ValueKind switch
+        {
+            JsonValueKind.String => value.GetString(),
+            JsonValueKind.Number => value.GetRawText(),
+            _ => null,
+        };
 
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed.Trim();
     }
