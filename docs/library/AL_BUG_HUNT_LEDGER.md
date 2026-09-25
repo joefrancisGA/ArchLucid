@@ -15598,11 +15598,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 26
-- **bugs-found:** 17
+- **hunts:** 27
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — Data Flow evidence catalog registered messaging RBAC inference sources without IE-RF association types
+- **last-bug:** 2026-09-25 — Network connection endpoint parser treated JSON reference blobs as ARM ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15817,6 +15817,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `InventoryDiagramDataFlowNsgAttachmentIndex.GetNicNodesForVm` — ignores `inventory-vm-nic` inference-only edges while traversal-hop projection honors them — **cheap-disproof 2026-09-25 seed hunt #26:** hosted inventory network associations always emit `RelationshipType = vmToNic`; `AzureInventorySnapshotGraphResolver` therefore materializes `vmToNic` edges, not inference-only `CONNECTS_TO` fallbacks.
 
 2026-09-25 seed hunt #26 (seed-only): reseeded core-azure-extractor after messaging RBAC catalog hit; cheap-disproof closed NR-02 JSON fallback key casing, NR-03 parent `.ArmId` suffix casing, and data-flow NSG inference-only VM→NIC edge parity candidates; 1384 scoped `AzureExtractor` tests passed; no new hunt-ready rows.
+
+- [x] (proven) `AzureInventoryNetworkConnectionEndpointParser` — `NormalizeArmId` accepted any value containing `/subscriptions/` and lowercased JSON reference blobs from package inventory serialization — **hit 2026-09-25 seed hunt #27:** `virtualNetworkGateway1`/`localNetworkGateway2` object properties serialized as `{"id":"..."}` were stored as endpoint ARM ids, breaking connection hydration and orphaned-state resolution; fixed by requiring path-shaped values and extracting `id` from JSON blobs; regression `Parse_reads_arm_ids_from_json_reference_property_values`.
+
+2026-09-25 seed hunt #27 (seed→hit): reseeded core-azure-extractor; proved NR-01 network connection endpoint parser mishandled JSON ARM reference property values; 1385 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary

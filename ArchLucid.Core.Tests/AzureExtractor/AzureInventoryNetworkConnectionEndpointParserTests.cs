@@ -31,6 +31,34 @@ public sealed class AzureInventoryNetworkConnectionEndpointParserTests
     }
 
     [Fact]
+    public void Parse_reads_arm_ids_from_json_reference_property_values()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["connectionType"] = "IPsec",
+            ["virtualNetworkGateway1"] =
+                """
+                {"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a"}
+                """,
+            ["localNetworkGateway2"] =
+                """
+                {"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/lng-b"}
+                """,
+        };
+
+        AzureInventoryNetworkConnectionEndpointParseResult result =
+            AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        result.Endpoint1ArmId.Should().Be(
+            ArmResourceIdNormalizer.Normalize(
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a"));
+        result.Endpoint2ArmId.Should().Be(
+            ArmResourceIdNormalizer.Normalize(
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/lng-b"));
+        result.HasBothEndpoints.Should().BeTrue();
+    }
+
+    [Fact]
     public void Parse_returns_partial_result_when_second_endpoint_missing()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
