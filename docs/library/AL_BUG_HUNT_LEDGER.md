@@ -3080,7 +3080,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
@@ -3089,6 +3089,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved raw lone-surrogate path segments, pipe segments, and hidden-dot segments; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Raw lone-surrogate code units in path (`/signin/\uD800/other`) accepted while percent-encoded lone surrogates reject — **valid-no-repro 2026-09-25 seed hunt:** not an open-redirect class; encoded `%ED%A0%80` still fails decode/residual checks; same-origin relative prefix only.
+- [x] (valid-no-repro) Pipe and combining-mark path segments (`/signin/|/other`, `/signin/a\u0301/other`) — **valid-no-repro 2026-09-25 seed hunt:** no protocol-relative `//`, dot-homoglyph traversal, or external host introduced.
+- [x] (valid-no-repro) Dot-prefixed hidden segment (`/signin/.hidden/other`) — **valid-no-repro 2026-09-25 seed hunt:** segment is `.hidden`, not parent `..`; normal relative path normalization.
 
 2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved same-origin pseudo-scheme paths, colon-single-slash segments, and query `://` over-rejection; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
