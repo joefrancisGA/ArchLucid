@@ -23432,11 +23432,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 20
-- **bugs-found:** 14
+- **hunts:** 21
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — detailed wizard advancedConfig opt-in stayed enabled after URL cleared advancedConfig without popstate
+- **last-bug:** 2026-09-25 — guided intake scopeGate stayed open after URL cleared scopeGate without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23481,6 +23481,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `useNewRunWizardClient` — `advancedConfigurationOptIn` stayed enabled after App Router cleared `advancedConfig=` without `popstate` — **hit 2026-09-25 seed hunt #3908c (seed→hit):** pilot/advanced toggles lived in `useState` synced only on `popstate`; deep-linked `advancedConfig=1` showed mode toggle but client navigation clearing the param left advanced chrome mounted; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in the popstate handler; regression `follows advancedConfig= URL changes without a popstate event`.
 
 2026-09-25 seed hunt #3908c (seed→hit): reseeded ui-review-intake-wizards after mode URL sync hit; proved stale advancedConfig opt-in after URL navigation; 10 scoped intake URL-sync unit tests passed.
+
+- [x] (proven) `useGuidedIntakeBriefForm` / `useFirstPilotIntakeWizard` — `scopeGateOpen` stayed true after App Router cleared `scopeGate=` without `popstate` — **hit 2026-09-25 seed hunt #3908d (seed→hit):** scope gate lived in `useState` synced only on `popstate`; deep-linked `scopeGate=1` left scope confirmation chrome mounted after client navigation cleared the param; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in popstate handlers; regressions `follows scopeGate= URL changes without a popstate event`.
+
+2026-09-25 seed hunt #3908d (seed→hit): reseeded ui-review-intake-wizards after advancedConfig URL sync hit; proved stale scopeGate after URL navigation; 13 scoped intake scopeGate + URL-sync unit tests passed.
 
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 
