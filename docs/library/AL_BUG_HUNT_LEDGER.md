@@ -22705,11 +22705,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 12
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-11 — run-level model label duplicated deployment names that differed only by case
+- **last-hunt:** 2026-09-25
+- **last-bug:** 2026-09-25 — FindingIacStubGenerator generated IaC stubs for operator-muted findings
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -22731,7 +22731,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `EvidenceProposalPromoter.PromoteAsync` surfaces SQL unique-index failure when distinct titles slug to the same `CatalogEntryId` — **hit 2026-09-11 seed hunt #1717:** titles `Encrypt Data` and `encrypt-data` both map to `policy-encrypt-data`; fixed with pre-insert `EnsureCatalogEntryIdAvailableAsync`; regression `PromoteAsync_WhenCatalogEntryIdCollidesWithExistingEntry_ThrowsBeforeInsert`
 - [x] (proven) Curated evidence title/description accept invisible-only Unicode (U+200B) that passes `IsNullOrWhiteSpace` — **hit 2026-09-11 seed hunt #1717:** `AgentCuratedEvidenceProposer.NormalizeResponse` and promotion validator accepted format/control-only strings; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`, `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports summed USD when only some token-bearing trace slices have configured rates — **hit 2026-09-11 seed hunt #1717:** mixed priced/unpriced deployments still set `EstimatedFromConfiguredRates`; fixed by tracking `anyUnpricedTokenSlice`; regression `Compute_WhenMixedDeploymentsHavePartialRates_OmitsUsdAndUsesProviderTokensWithoutRateBasis`
-- [ ] (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` generates IaC stubs for muted findings that still carry evidence refs — may waste LLM calls or surface remediation for operator-muted findings; reachability depends on post-mute enrichment path
+- [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` generates IaC stubs for muted findings that still carry evidence refs — **hit 2026-09-25 thorough hunt #30:** post-commit generator gated only on `HasEvidenceReferences` and ignored `finding.IsMuted` plus relational `dbo.FindingRecords` mute flags; wasted LLM calls and persisted remediation for operator-muted findings; fixed by applying `FindingMuteFlagApplier` from snapshot mute flags and skipping muted findings; regressions `GenerateAndPersistStubsForRunAsync_skips_muted_findings_with_evidence_refs` and `GenerateAndPersistStubsForRunAsync_skips_findings_muted_in_finding_records`
+
+2026-09-25 thorough hunt #30 (hit): proved muted-finding IaC stub generation gap; 84 scoped Application.Tests.Agents tests passed.
 
 2026-09-11 seed hunt #1717 (seed→hit): reseeded application-agents after master churn; proved null evidence type, catalog slug collision, invisible-only curated text, and partial LLM cost basis; seeded muted-finding IaC stub candidate; 73 scoped Application.Tests.Agents tests passed.
 

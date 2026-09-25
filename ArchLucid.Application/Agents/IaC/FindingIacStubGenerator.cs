@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
@@ -8,6 +9,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +19,8 @@ public sealed class FindingIacStubGenerator(
     IAgentCompletionClient completionClient,
     IAgentResultRepository agentResultRepository,
     IAgentResultEnrichmentRepository agentResultEnrichmentRepository,
+    IRunRepository runRepository,
+    IFindingRecordMuteRepository findingRecordMuteRepository,
     IScopeContextProvider scopeContextProvider,
     ILogger<FindingIacStubGenerator> logger) : IFindingIacStubGenerator
 {
@@ -37,6 +41,12 @@ public sealed class FindingIacStubGenerator(
     private readonly IAgentResultEnrichmentRepository _agentResultEnrichmentRepository =
         agentResultEnrichmentRepository ?? throw new ArgumentNullException(nameof(agentResultEnrichmentRepository));
 
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IFindingRecordMuteRepository _findingRecordMuteRepository =
+        findingRecordMuteRepository ?? throw new ArgumentNullException(nameof(findingRecordMuteRepository));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -52,9 +62,12 @@ public sealed class FindingIacStubGenerator(
         if (existingResults.Count == 0)
             return;
 
+        List<AgentResult> results = existingResults.Select(CloneResult).ToList();
+        await ApplyRelationalMuteFlagsAsync(scope, runId, results, cancellationToken).ConfigureAwait(false);
+
         List<AgentResult> updatedResults = [];
 
-        foreach (AgentResult result in existingResults)
+        foreach (AgentResult result in results)
         {
             AgentResult updatedResult = CloneResult(result);
             bool anyFindingUpdated = false;
@@ -63,7 +76,7 @@ public sealed class FindingIacStubGenerator(
             foreach (ArchitectureFinding finding in updatedResult.Findings)
             {
 
-                if (!HasEvidenceReferences(finding))
+                if (finding.IsMuted || !HasEvidenceReferences(finding))
                     continue;
 
                 string userPrompt = BuildPrompt(finding);
@@ -100,6 +113,32 @@ public sealed class FindingIacStubGenerator(
             return stub;
 
         return IacStubDisclaimerLine + Environment.NewLine + stub;
+    }
+
+    private async Task ApplyRelationalMuteFlagsAsync(
+        ScopeContext scope,
+        string runId,
+        List<AgentResult> results,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
+            return;
+
+        Persistence.Models.RunRecord? run = await _runRepository
+            .GetByRunIdAdminAsync(runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run?.FindingsSnapshotId is not Guid snapshotId)
+            return;
+
+        IReadOnlyDictionary<string, FindingMuteFlag> muteFlags = await _findingRecordMuteRepository
+            .GetMuteFlagsAsync(snapshotId, scope, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (muteFlags.Count == 0)
+            return;
+
+        FindingMuteFlagApplier.Apply(results, muteFlags);
     }
 
     private static bool HasEvidenceReferences(ArchitectureFinding finding)
