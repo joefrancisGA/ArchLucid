@@ -21,16 +21,15 @@ export function mockArchlucidApiBaseUrl(): string {
 function operatorDemoFinding(
   findingId: string,
   message: string,
-  severity: number,
-  policyRuleId: string,
+  severity: "Critical" | "Error" | "Warning" | "Info",
+  policyRuleKey: string,
 ): NonNullable<NonNullable<RunDetail["results"]>[number]["findings"]>[number] {
   return {
     findingId,
-    message,
+    message: `${message} (${policyRuleKey})`,
     category: "Security",
     severity,
-    policyRuleId,
-    reasoningTrace: `Remediate ${message.toLowerCase()} to satisfy ${policyRuleId}.`,
+    reasoningTrace: `Remediate ${message.toLowerCase()} to satisfy ${policyRuleKey}.`,
   };
 }
 
@@ -44,12 +43,13 @@ export function fixtureOperatorDemoReviewRunDetail(
     run: {
       runId,
       projectId: FIXTURE_PROJECT_ID,
-      description: `${OPERATOR_DEMO_REVIEW_ARCHITECTURE_DESCRIPTION_PREFIX} ${OPERATOR_DEMO_REVIEW_ONE_CLICK_CONSTRAINT_MARKER}`,
-      displayName: OPERATOR_DEMO_REVIEW_SYSTEM_DISPLAY_NAME,
+      architectureRequestId: `${runId}-request`,
+      legacyRunStatus: "Committed",
+      structuralExecutionMode: "Simulator",
+      description: `${OPERATOR_DEMO_REVIEW_ARCHITECTURE_DESCRIPTION_PREFIX} ${OPERATOR_DEMO_REVIEW_ONE_CLICK_CONSTRAINT_MARKER} ${OPERATOR_DEMO_REVIEW_SYSTEM_DISPLAY_NAME}`,
       createdUtc: "2026-06-23T04:00:00.000Z",
       completedUtc: "2026-06-23T04:01:00.000Z",
       goldenManifestId: FIXTURE_MANIFEST_ID,
-      hasGoldenManifest: true,
     },
     contextSnapshot: { fixture: true },
     graphSnapshot: { fixture: true },
@@ -62,11 +62,13 @@ export function fixtureOperatorDemoReviewRunDetail(
         resultId: `${runId}-policy-demo`,
         taskId: `${runId}-compliance`,
         runId,
-        agentType: 3,
+        agentType: "Compliance",
+        claims: [],
+        evidenceRefs: [],
         findings: [
-          operatorDemoFinding("demo-finding-1", "Public SQL endpoint without private link", 3, "sec-base-001"),
-          operatorDemoFinding("demo-finding-2", "Storage account allows anonymous blob read", 3, "sec-base-010"),
-          operatorDemoFinding("demo-finding-3", "Application secrets stored in plain settings", 2, "sec-base-020"),
+          operatorDemoFinding("demo-finding-1", "Public SQL endpoint without private link", "Critical", "sec-base-001"),
+          operatorDemoFinding("demo-finding-2", "Storage account allows anonymous blob read", "Critical", "sec-base-010"),
+          operatorDemoFinding("demo-finding-3", "Application secrets stored in plain settings", "Error", "sec-base-020"),
         ],
         confidence: 0.9,
       },

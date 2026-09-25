@@ -111,6 +111,14 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string RecoveryServicesReplicates = "recoveryServicesReplicates";
 
+    public const string InventoryEventHubMayPublish = "inventory-event-hub-may-publish";
+
+    public const string InventoryEventHubMayConsume = "inventory-event-hub-may-consume";
+
+    public const string InventoryServiceBusMaySend = "inventory-service-bus-may-send";
+
+    public const string InventoryServiceBusMayReceive = "inventory-service-bus-may-receive";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -177,6 +185,34 @@ public static class AzureInventoryRelationshipAssociationTypes
             AzureInventoryRelationshipArmKind.VirtualMachine,
             "PROTECTS",
             "inventory-recovery-services-replicates"),
+        Inferred(
+            InventoryEventHubMayPublish,
+            AzureInventoryRelationshipArmKind.Compute,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "MAY_ACCESS",
+            "inventory-event-hub-may-publish",
+            ProvenanceKind.DerivedFact),
+        Inferred(
+            InventoryEventHubMayConsume,
+            AzureInventoryRelationshipArmKind.Compute,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "MAY_ACCESS",
+            "inventory-event-hub-may-consume",
+            ProvenanceKind.DerivedFact),
+        Inferred(
+            InventoryServiceBusMaySend,
+            AzureInventoryRelationshipArmKind.Compute,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "MAY_ACCESS",
+            "inventory-service-bus-may-send",
+            ProvenanceKind.DerivedFact),
+        Inferred(
+            InventoryServiceBusMayReceive,
+            AzureInventoryRelationshipArmKind.Compute,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "MAY_ACCESS",
+            "inventory-service-bus-may-receive",
+            ProvenanceKind.DerivedFact),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =

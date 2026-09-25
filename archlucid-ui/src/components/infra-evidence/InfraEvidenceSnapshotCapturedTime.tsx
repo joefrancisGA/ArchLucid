@@ -31,7 +31,7 @@ export function InfraEvidenceSnapshotCapturedTime(props: {
   return (
     <time
       dateTime={dateTimeAttribute ?? undefined}
-      title={formatInfraEvidenceSnapshotCapturedTimeTitle(props.capturedUtc)}
+      aria-label={formatInfraEvidenceSnapshotCapturedTimeTitle(props.capturedUtc) ?? undefined}
       className={cn(props.className, OPERATOR_TYPOGRAPHY.helper)}
       data-testid={props.testId}
     >

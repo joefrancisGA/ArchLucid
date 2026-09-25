@@ -21,7 +21,7 @@ export function toMockBuyerRunDetailSummary(full: RunDetail): RunDetail {
         title: finding.message ?? finding.category ?? finding.findingId,
         category: finding.category,
         severity: finding.severity,
-        policyRuleId: finding.policyRuleId,
+        policyRuleId: undefined,
       })),
     ) ?? [];
 
