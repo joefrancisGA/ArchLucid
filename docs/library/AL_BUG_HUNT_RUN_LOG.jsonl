@@ -7259,3 +7259,4 @@
 {"at":"2026-09-25T14:38:33.1782860Z","zoneId":"run-execute-ownership","outcome":"seed-only"}
 {"at":"2026-09-25T14:40:53.3257040Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only"}
 {"at":"2026-09-25T14:44:16.0944507Z","zoneId":"archlucid-core","outcome":"dry"}
+{"at":"2026-09-25T14:50:24.7463473Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only"}
