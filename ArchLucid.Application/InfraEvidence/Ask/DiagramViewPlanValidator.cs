@@ -14,6 +14,7 @@ public static class DiagramViewPlanValidator
         "data",
         "dataFlow",
         "dataArchitecture",
+        "avd",
         "full",
         "resourceGroup",
         "dependencyNeighborhood",

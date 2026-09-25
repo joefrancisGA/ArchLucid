@@ -49,6 +49,11 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddJsonArrayProperty(propertiesElement, properties, "securityRules");
         }
 
+        if (resourceType.Contains("routeTables", StringComparison.OrdinalIgnoreCase))
+        {
+            AddJsonArrayProperty(propertiesElement, properties, "routes");
+        }
+
         if (resourceType.EndsWith("/virtualNetworks", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "subnets");
@@ -71,6 +76,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         if (resourceType.Contains("loadBalancers", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");
+            AddJsonArrayProperty(propertiesElement, properties, "frontendIPConfigurations");
         }
 
         if (resourceType.Contains("virtualNetworkLinks", StringComparison.OrdinalIgnoreCase))
@@ -130,7 +136,116 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddManagedIdentityPrincipalProperties(propertiesElement, properties);
         }
 
+        if (resourceType.Equals("Microsoft.Network/connections", StringComparison.OrdinalIgnoreCase))
+        {
+            AddNetworkConnectionProperties(propertiesElement, properties);
+        }
+
+        if (resourceType.Equals("Microsoft.Logic/workflows", StringComparison.OrdinalIgnoreCase))
+        {
+            AddWorkflowDefinitionProperty(propertiesElement, properties);
+        }
+
+        if (resourceType.Equals("Microsoft.Compute/restorePointCollections", StringComparison.OrdinalIgnoreCase))
+        {
+            AddRestorePointCollectionProperties(propertiesElement, properties);
+        }
+
+        if (resourceType.Equals("Microsoft.VirtualMachineImages/imageTemplates", StringComparison.OrdinalIgnoreCase))
+        {
+            AddImageTemplateProperties(propertiesElement, properties);
+        }
+
+        if (resourceType.Contains("accessConnectors", StringComparison.OrdinalIgnoreCase))
+        {
+            AddAccessConnectorProperties(propertiesElement, properties);
+        }
+
         return properties;
+    }
+
+    private static void AddRestorePointCollectionProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        AddArmReferenceProperty(propertiesElement, properties, "source");
+    }
+
+    private static void AddImageTemplateProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        AddArmReferenceProperty(propertiesElement, properties, "source");
+        AddJsonArrayProperty(propertiesElement, properties, "distribute");
+    }
+
+    private static void AddAccessConnectorProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        AddArmReferenceProperty(propertiesElement, properties, "targetResourceId");
+        AddArmReferenceProperty(propertiesElement, properties, "externalResourceId");
+        AddArmReferenceProperty(propertiesElement, properties, "storageAccountResourceId");
+    }
+
+    private static void AddNetworkConnectionProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        AddArmReferenceProperty(propertiesElement, properties, "connectionType");
+        AddArmReferenceProperty(propertiesElement, properties, "virtualNetworkGateway1");
+        AddArmReferenceProperty(propertiesElement, properties, "virtualNetworkGateway2");
+        AddArmReferenceProperty(propertiesElement, properties, "localNetworkGateway2");
+        AddArmReferenceProperty(propertiesElement, properties, "remoteVirtualNetwork");
+        AddArmReferenceProperty(propertiesElement, properties, "expressRouteCircuit");
+        AddArmReferenceProperty(propertiesElement, properties, "peer");
+    }
+
+    private static void AddWorkflowDefinitionProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (propertiesElement.TryGetProperty("definition", out JsonElement definitionElement)
+            && definitionElement.ValueKind is not JsonValueKind.Null
+            && definitionElement.ValueKind is not JsonValueKind.Undefined)
+        {
+            properties["definition"] = definitionElement.GetRawText();
+        }
+    }
+
+    private static void AddArmReferenceProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties,
+        string propertyName)
+    {
+        if (!propertiesElement.TryGetProperty(propertyName, out JsonElement valueElement))
+        {
+            return;
+        }
+
+        if (valueElement.ValueKind is JsonValueKind.String)
+        {
+            string? directValue = valueElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(directValue))
+            {
+                properties[propertyName] = directValue.Trim();
+            }
+
+            return;
+        }
+
+        if (valueElement.ValueKind is JsonValueKind.Object
+            && valueElement.TryGetProperty("id", out JsonElement idElement)
+            && idElement.ValueKind is JsonValueKind.String)
+        {
+            string? armId = idElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(armId))
+            {
+                properties[$"{propertyName}.id"] = armId.Trim();
+            }
+        }
     }
 
     private static void AddRemoteVirtualNetworkIdProperty(

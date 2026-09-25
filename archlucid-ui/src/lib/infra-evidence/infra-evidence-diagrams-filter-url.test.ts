@@ -28,6 +28,7 @@ describe("infra-evidence-diagrams-filter-url", () => {
     expect(parseInfraDiagramsMermaidModeFromSearch("network")).toBe("network");
     expect(parseInfraDiagramsMermaidModeFromSearch("dataFlow")).toBe("dataFlow");
     expect(parseInfraDiagramsMermaidModeFromSearch("dataArchitecture")).toBe("dataArchitecture");
+    expect(parseInfraDiagramsMermaidModeFromSearch("avd")).toBe("avd");
     expect(parseInfraDiagramsMermaidModeFromSearch("resourceGroup")).toBe("resourceGroup");
     expect(parseInfraDiagramsMermaidModeFromSearch("dependencyNeighborhood")).toBe("dependencyNeighborhood");
     expect(parseInfraDiagramsMermaidModeFromSearch("bogus")).toBe("");

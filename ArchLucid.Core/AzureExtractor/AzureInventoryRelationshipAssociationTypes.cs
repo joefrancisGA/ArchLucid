@@ -54,6 +54,10 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string LogicAppConnection = "logicAppConnection";
 
+    public const string NetworkConnection = "networkConnection";
+
+    public const string WorkflowAction = "workflowAction";
+
     public const string IdentityToRoleAssignment = "identityToRoleAssignment";
 
     public const string AppAuthorizedAccess = "appAuthorizedAccess";
@@ -136,6 +140,8 @@ public static class AzureInventoryRelationshipAssociationTypes
         Observed(DiagnosticToDestination, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.DiagnosticDestination, "CONNECTS_TO", "inventory-diagnostic-destination"),
         Observed(EventGridToDestination, AzureInventoryRelationshipArmKind.EventGridTopic, AzureInventoryRelationshipArmKind.DiagnosticDestination, "CONNECTS_TO", "inventory-event-grid-destination"),
         Inferred(LogicAppConnection, AzureInventoryRelationshipArmKind.LogicApp, AzureInventoryRelationshipArmKind.ServiceConnectorTarget, "CONNECTS_TO", "inventory-logic-app-connection", ProvenanceKind.DerivedFact),
+        Observed(NetworkConnection, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.Compute, "CONNECTS_TO", "inventory-network-connection"),
+        Observed(WorkflowAction, AzureInventoryRelationshipArmKind.LogicApp, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-workflow-action"),
         Observed(IdentityToRoleAssignment, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.Compute, "USES_IDENTITY", "inventory-identity-role-assignment"),
         Inferred(AppAuthorizedAccess, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "MAY_ACCESS", "inventory-app-authorized-access", ProvenanceKind.DerivedFact),
         Observed(ObservedDependency, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-observed-dependency"),
