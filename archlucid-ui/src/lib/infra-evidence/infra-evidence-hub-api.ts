@@ -83,7 +83,7 @@ export async function fetchCloudResourceExplorerPage(
   }>(`${CLOUD_RESOURCES_PATH}?${params.toString()}`);
 
   const items = (raw.items ?? [])
-    .filter(hasCloudResourceExplorerIdentity)
+.filter((row): row is CompleteCloudResourceExplorerApiRow => row != null && hasCloudResourceExplorerIdentity(row))
     .map((row) => ({
       cloudResourceId: row.cloudResourceId,
       externalResourceId: row.externalResourceId,
