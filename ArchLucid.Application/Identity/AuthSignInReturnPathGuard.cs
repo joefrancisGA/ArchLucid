@@ -252,7 +252,8 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u27C9' // ⟉ SUPERSET PRECEDING SOLIDUS
         || ch == '\u27CB' // ⟋ MATHEMATICAL RISING DIAGONAL
         || ch == '\u27CD' // ⟍ MATHEMATICAL FALLING DIAGONAL
-        || ch == '\u29F4'; // ⧴ SOLIDUS INTEROPERATOR
+        || ch == '\u29F4' // ⧴ SOLIDUS INTEROPERATOR
+        || ch == '\u2AFF'; // ⫿ DOUBLE REVERSE SOLIDUS OPERATOR
 
     // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
     private static bool IsDotHomoglyph(char ch) =>
@@ -274,5 +275,10 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u2981' // ⦁ Z NOTATION SPOT
         || ch == '\u16EB' // ᛫ RUNIC SINGLE PUNCTUATION
         || ch == '\u1427' // ᐧ CANADIAN SYLLABICS FINAL MIDDLE DOT
-        || ch == '\u1803'; // ᠃ MONGOLIAN FULL STOP
+        || ch == '\u1803' // ᠃ MONGOLIAN FULL STOP
+        || ch == '\u166E' // ᙮ CANADIAN SYLLABICS FULL STOP
+        || ch == '\u2E30' // ⸰ RING POINT
+        || ch == '\uA78F' // ꞏ LATIN LETTER SINOLOGICAL DOT
+        || ch == '\u0701' // ܁ SYRIAC SUPRALINEAR FULL STOP
+        || ch == '\u0702'; // ܂ SYRIAC SUBLINEAR FULL STOP
 }
