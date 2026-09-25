@@ -125,6 +125,7 @@ function buildRenderResponse(
       layoutEstimate: nodeCount + edgeCount,
     },
     fallbackArtifacts: [],
+    collapseReport: null,
   };
 }
 
@@ -297,5 +298,6 @@ export function executiveMayAccessRenderResponse(): InfraEvidenceMermaidRenderRe
     },
     fallbackArtifacts: [],
     completenessWarnings: [],
+    collapseReport: null,
   };
 }

@@ -114,7 +114,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
         if (_logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
-                "Azure OpenAI batch job {BatchJobId} completed with {RequestCount} requests, promptTokens={PromptTokens}, completionTokens={CompletionTokens}, estimatedSavingsUsd={EstimatedSavingsUsd}",
+                "Azure OpenAI batch job {BatchJobId} completed with {RequestCount} requests, promptUnits={PromptUnits}, completionUnits={CompletionUnits}, estimatedSavingsUsd={EstimatedSavingsUsd}",
                 batchJobId,
                 requests.Count,
                 promptTokens,
