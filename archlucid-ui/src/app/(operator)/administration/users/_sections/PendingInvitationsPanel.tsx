@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -40,7 +40,7 @@ import {
 } from "@/lib/administration/settings-invites-show-resolved-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
 import {
@@ -90,14 +90,15 @@ export function PendingInvitationsPanel({
 }: Props) {
   const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
-  const searchParams = useSearchParams();
-  const revokeInviteIdParam = searchParams.get("revokeInviteId");
-  const settingsInvitesShowResolvedParam = searchParams.get("settingsInvitesShowResolved");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
   const [showResolved, setShowResolvedState] = useState(() =>
-    parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam),
+    parseSettingsInvitesShowResolvedFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("settingsInvitesShowResolved"),
+    ),
   );
   const showResolvedRef = useRef(showResolved);
   const [revokingId, setRevokingId] = useState<string | null>(null);
@@ -113,7 +114,7 @@ export function PendingInvitationsPanel({
   const syncShowResolvedToUrl = useCallback(
     (resolvedVisible: boolean) => {
       commitHrefIfChanged(
-        settingsInvitesShowResolvedHrefFromSearch(window.location.search.slice(1), resolvedVisible, pathname),
+        settingsInvitesShowResolvedHrefFromSearch(readWindowLocationSearch(), resolvedVisible, pathname),
         { notify: false },
       );
     },
@@ -164,7 +165,7 @@ export function PendingInvitationsPanel({
   const syncRevokeInviteToUrl = useCallback(
     (invitationId: string | null) => {
       commitHrefIfChanged(
-        settingsUsersInviteRevokeHrefFromSearch(window.location.search.slice(1), invitationId, pathname),
+        settingsUsersInviteRevokeHrefFromSearch(readWindowLocationSearch(), invitationId, pathname),
         { notify: false },
       );
     },

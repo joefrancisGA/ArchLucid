@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -28,14 +28,10 @@ import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings
 import type {
   RunDetailFindingsFilterKind,
   RunDetailFindingsSortKind} from "@/components/findings/run-detail-findings-toolbar-presentation";
-import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 function readCommittedSearchParams(): URLSearchParams {
-  if (typeof window === "undefined") {
-    return new URLSearchParams();
-  }
-
-  return new URLSearchParams(window.location.search);
+  return new URLSearchParams(readWindowLocationSearch());
 }
 
 function readToolbarStateFromCommittedUrl(): {
@@ -81,10 +77,11 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
   const initialFilter =
     options?.initialFilter ??
-    resolveReviewFindingsToolbarFilterFromSearchParam(searchParams?.get("findingsFilter"));
+    resolveReviewFindingsToolbarFilterFromSearchParam(
+      readCommittedSearchParams().get("findingsFilter"),
+    );
   const initialFromUrl = readToolbarStateFromCommittedUrl();
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
   const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
@@ -137,6 +134,7 @@ export function useRunDetailFindingsToolbarState(options?: {
           pathname,
           searchQuery,
         ),
+        { notify: false },
       );
     }, 250);
 
@@ -157,6 +155,7 @@ export function useRunDetailFindingsToolbarState(options?: {
           pathname,
           ownerFilter,
         ),
+        { notify: false },
       );
     }, 250);
 
@@ -177,6 +176,7 @@ export function useRunDetailFindingsToolbarState(options?: {
           pathname,
           domainFilter,
         ),
+        { notify: false },
       );
     }, 250);
 
@@ -202,6 +202,7 @@ export function useRunDetailFindingsToolbarState(options?: {
 
     commitHrefIfChanged(
       reviewFindingsToolbarClearOwnerHrefFromSearch(readCommittedSearchParams().toString(), pathname),
+      { notify: false },
     );
   }, [pathname]);
 
@@ -218,6 +219,7 @@ export function useRunDetailFindingsToolbarState(options?: {
 
     commitHrefIfChanged(
       reviewFindingsToolbarClearDomainHrefFromSearch(readCommittedSearchParams().toString(), pathname),
+      { notify: false },
     );
   }, [pathname]);
 
