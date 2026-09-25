@@ -53,7 +53,6 @@ import {
   waitForLiveApiReady,
   warmPrivateBetaCreateRunPipeline,
 } from "./helpers/live-api-client";
-
 const expectedScope = {
   tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
   workspaceId: LIVE_E2E_DEFAULT_WORKSPACE_ID,

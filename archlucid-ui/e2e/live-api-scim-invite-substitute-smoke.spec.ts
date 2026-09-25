@@ -4,10 +4,10 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
-import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/scim-provisioning-page-copy";
 
 test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] }, () => {

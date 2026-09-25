@@ -8,7 +8,7 @@ import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-rev
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_FINDING_PARAM,
-  REVIEW_DETAIL_TAB_PARAM,
+  REVIEW_DETAIL_TAB_PARAM, 
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
   readPresenterModeFromSearchParams,
@@ -16,8 +16,7 @@ import {
   resolveReviewDetailTabFromHash,
   resolveReviewDetailTabFromLocation,
   resolveReviewWorkbenchFocusColumn,
-  writeReviewDetailTabToUrl,
-} from "@/lib/review-detail-workspace-tabs";
+  writeReviewDetailTabToUrl} from "@/lib/review-detail-workspace-tabs";
 import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import {
