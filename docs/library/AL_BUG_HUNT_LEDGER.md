@@ -3080,7 +3080,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
@@ -3089,6 +3089,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved same-origin pseudo-scheme paths, colon-single-slash segments, and query `://` over-rejection; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Same-origin pseudo-scheme paths (`/javascript:alert(1)`, `/data:text/html,hi`, `/vbscript:msgbox`) accepted — **valid-no-repro 2026-09-25 seed hunt:** leading `/` keeps navigation relative; guard blocks literal `://` and absolute schemes; no external host introduced.
+- [x] (valid-no-repro) Colon-single-slash segment (`/redirect:/evil.example`) accepted — **valid-no-repro 2026-09-25 seed hunt:** not contiguous `//` protocol-relative traversal; encoded `:%2f%2f` variants still rejected after decode.
+- [x] (valid-no-repro) Query substring containing `https://` rejects entire return path (`/safe?url=https://evil`) — **valid-no-repro 2026-09-25 seed hunt:** conservative `://` scan on full candidate; redirect target is path prefix only.
 
 2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved line/paragraph separators, fragment-only dot-dot, and dot-homoglyph-in-query over-rejection; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
