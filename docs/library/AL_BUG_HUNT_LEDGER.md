@@ -8661,10 +8661,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
