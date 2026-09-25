@@ -95,7 +95,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                 edgesToAdd,
                 addedEdgeKeys,
                 includeTerminalHopToTarget: true,
-                targetDiagramNodeId);
+                targetDiagramNodeId: targetDiagramNodeId);
         }
 
         if (edgesToRemove.Count == 0 && edgesToAdd.Count == 0)
