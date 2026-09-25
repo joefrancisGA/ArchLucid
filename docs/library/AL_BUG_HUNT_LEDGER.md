@@ -20961,15 +20961,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 47
-- **bugs-found:** 41
+- **hunts:** 48
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — rephrase intake, suggestion explain, and quick-scan safety override validation gaps
+- **last-bug:** 2026-09-25 — custom-role description max-length and legal-hold reason surrogate gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved custom-role description max-length and legal-hold reason surrogate gaps; 85 scoped unit tests passed.
+
+- [x] (proven) `CustomRolesAdminController` create/update — `Description` reached `dbo.CustomRoles.Description` (`NVARCHAR(512)`) without max-length guard while `Name` was capped at 128 in service — **hit 2026-09-25 seed hunt:** reject over-512-char descriptions before `CreateAsync`/`UpdateAsync`; regression `CreateAsync_returns_bad_request_when_description_exceeds_max_length`.
+- [x] (proven) `AdminTenantsController.SetTenantErasureLegalHoldPlatformAsync` — `Reason` omitted invalid-Unicode surrogate guard present on sibling persisted free-text routes — **hit 2026-09-25 seed hunt:** extend `TenantErasureLegalHoldHttpMapper` with `UnicodeTextValidation`; regressions `SetTenantErasureLegalHoldPlatformAsync_returns_bad_request_when_reason_contains_invalid_surrogate` and `SetLegalHoldAsync_returns_bad_request_when_reason_contains_invalid_surrogate`.
 
 2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved rephrase intake surrogate, suggestion explain surrogate, and quick-scan safety override max-length gaps; 69 scoped unit tests passed.
 

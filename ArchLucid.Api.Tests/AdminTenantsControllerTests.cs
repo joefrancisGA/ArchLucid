@@ -59,6 +59,32 @@ public sealed class AdminTenantsControllerTests
         commands.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task SetTenantErasureLegalHoldPlatformAsync_returns_bad_request_when_reason_contains_invalid_surrogate()
+    {
+        Mock<ITenantErasureCommandService> commands = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+
+        AdminTenantsController controller = CreateController(commands.Object, tenants.Object);
+
+        TenantErasureLegalHoldRequest body = new()
+        {
+            UntilUtc = FixedNow.AddDays(30),
+            Reason = "\uD800",
+        };
+
+        IActionResult action = await controller.SetTenantErasureLegalHoldPlatformAsync(
+            TenantId,
+            body,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        commands.VerifyNoOtherCalls();
+        tenants.VerifyNoOtherCalls();
+    }
+
     private static AdminTenantsController CreateController(
         ITenantErasureCommandService tenantErasureCommands,
         ITenantRepository tenantRepository)
