@@ -52,4 +52,15 @@ public sealed class InventoryDiagramAvdClassifierTests
             .Should()
             .BeEquivalentTo("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DesktopVirtualization/hostPools/pool");
     }
+
+    [Fact]
+    public void TryReadHostPoolArmId_returns_host_pool_for_host_pool_resource()
+    {
+        const string hostPoolArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DesktopVirtualization/hostPools/pool";
+
+        InventoryDiagramAvdClassifier.TryReadHostPoolArmId(hostPoolArmId)
+            .Should()
+            .BeEquivalentTo(hostPoolArmId);
+    }
 }

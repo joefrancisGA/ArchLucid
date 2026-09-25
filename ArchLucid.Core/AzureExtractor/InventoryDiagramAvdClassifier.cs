@@ -131,13 +131,10 @@ public static class InventoryDiagramAvdClassifier
             }
         }
 
-        if (armResourceId.Contains("/hostPools/", StringComparison.OrdinalIgnoreCase)
-            && armResourceId.EndsWith("/hostPools", StringComparison.OrdinalIgnoreCase) == false
-            && TryClassify(
+        if (string.Equals(
                 ReadArmTypeFromArmId(armResourceId),
-                armResourceId,
-                out InventoryDiagramAvdCategory category)
-            && category == InventoryDiagramAvdCategory.HostPool)
+                "Microsoft.DesktopVirtualization/hostPools",
+                StringComparison.OrdinalIgnoreCase))
         {
             return ArmResourceIdNormalizer.Normalize(armResourceId);
         }

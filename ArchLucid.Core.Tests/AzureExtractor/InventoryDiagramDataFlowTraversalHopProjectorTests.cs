@@ -87,6 +87,41 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     }
 
     [Fact]
+    public void ProjectPath_places_private_endpoint_between_vm_consumer_and_paas_target_when_attached_via_nic()
+    {
+        GraphSnapshot graph = BuildPrivateEndpointViaNicGraph();
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        InventoryDiagramDataFlowTraversalHopPath path = InventoryDiagramDataFlowTraversalHopProjector.ProjectPath(
+            "vm-node",
+            "storage-node",
+            links,
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+
+        path.OrderedHopNodeIds.Should().Equal("pe-node");
+        path.OrderedLinks.Select(link => link.ToNodeId).Should().Equal("pe-node", "storage-node");
+    }
+
+    [Fact]
+    public void ProjectPath_does_not_place_private_endpoint_when_consumer_nic_uses_different_subnet()
+    {
+        GraphSnapshot graph = BuildPrivateEndpointDifferentSubnetGraph();
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        InventoryDiagramDataFlowTraversalHopPath path = InventoryDiagramDataFlowTraversalHopProjector.ProjectPath(
+            "nic-node",
+            "storage-node",
+            links,
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+
+        path.OrderedHopNodeIds.Should().BeEmpty();
+        path.OrderedLinks.Should().BeEmpty();
+        path.ReachesTarget.Should().BeFalse();
+    }
+
+    [Fact]
     public void CollectTraversalLinks_ignores_nsg_associations()
     {
         GraphSnapshot graph = BuildNsgGraph();
@@ -187,6 +222,61 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             CreateEdge("app-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PeReachableTarget, GraphEdgeInferenceSources.InventoryPeReachableTarget),
             CreateEdge("pe-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
             CreateEdge("pe-node", "app-node", AzureInventoryRelationshipAssociationTypes.PeToSubnet, GraphEdgeInferenceSources.InventoryPeSubnet),
+        ];
+
+        return CreateGraph(nodes, edges);
+    }
+
+    private static GraphSnapshot BuildPrivateEndpointViaNicGraph()
+    {
+        const string vmArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm";
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic";
+
+        List<GraphNode> nodes =
+        [
+            CreateNode("vm-node", vmArmId, "Microsoft.Compute/virtualMachines"),
+            CreateNode("nic-node", nicArmId, "Microsoft.Network/networkInterfaces"),
+            CreateNode("pe-node", PrivateEndpointArmId, "Microsoft.Network/privateEndpoints"),
+            CreateNode("storage-node", StorageArmId, "Microsoft.Storage/storageAccounts"),
+        ];
+
+        List<GraphEdge> edges =
+        [
+            CreateEdge("vm-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PeReachableTarget, GraphEdgeInferenceSources.InventoryPeReachableTarget),
+            CreateEdge("pe-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            CreateEdge("pe-node", "nic-node", AzureInventoryRelationshipAssociationTypes.PeToNic, GraphEdgeInferenceSources.InventoryPeNic),
+            CreateEdge("vm-node", "nic-node", AzureInventoryRelationshipAssociationTypes.VmToNic, GraphEdgeInferenceSources.InventoryVmNic),
+        ];
+
+        return CreateGraph(nodes, edges);
+    }
+
+    private static GraphSnapshot BuildPrivateEndpointDifferentSubnetGraph()
+    {
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic";
+        const string peSubnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/pe-subnet";
+        const string consumerSubnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/consumer-subnet";
+
+        List<GraphNode> nodes =
+        [
+            CreateNode("nic-node", nicArmId, "Microsoft.Network/networkInterfaces"),
+            CreateNode("pe-node", PrivateEndpointArmId, "Microsoft.Network/privateEndpoints"),
+            CreateNode("storage-node", StorageArmId, "Microsoft.Storage/storageAccounts"),
+            CreateNode("pe-subnet-node", peSubnetArmId, "Microsoft.Network/virtualNetworks/subnets"),
+            CreateNode("consumer-subnet-node", consumerSubnetArmId, "Microsoft.Network/virtualNetworks/subnets"),
+        ];
+
+        List<GraphEdge> edges =
+        [
+            CreateEdge("nic-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PeReachableTarget, GraphEdgeInferenceSources.InventoryPeReachableTarget),
+            CreateEdge("pe-node", "storage-node", AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            CreateEdge("pe-node", "pe-subnet-node", AzureInventoryRelationshipAssociationTypes.PeToSubnet, GraphEdgeInferenceSources.InventoryPeSubnet),
+            CreateEdge("nic-node", "consumer-subnet-node", AzureInventoryRelationshipAssociationTypes.NicToSubnet, GraphEdgeInferenceSources.InventoryNicSubnet),
         ];
 
         return CreateGraph(nodes, edges);

@@ -426,8 +426,11 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             }
 
             if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToNic, StringComparison.OrdinalIgnoreCase)
-                && graphNodeIdByArmId.TryGetValue(
+                && nicOwnerArmIdByNicArmId.TryGetValue(
                     ArmResourceIdNormalizer.Normalize(ReadArmIdFromNodeId(graph, edge.ToNodeId)),
+                    out string? ownerArmId)
+                && graphNodeIdByArmId.TryGetValue(
+                    ownerArmId,
                     out string? ownerNodeId)
                 && string.Equals(ownerNodeId, consumerNodeId, StringComparison.Ordinal))
             {
@@ -461,8 +464,8 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             }
 
             if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
-                && (string.Equals(edge.FromNodeId, consumerNodeId, StringComparison.Ordinal)
-                    || string.Equals(edge.ToNodeId, subnetNodeId, StringComparison.Ordinal)))
+                && string.Equals(edge.FromNodeId, consumerNodeId, StringComparison.Ordinal)
+                && string.Equals(edge.ToNodeId, subnetNodeId, StringComparison.Ordinal))
             {
                 return true;
             }
