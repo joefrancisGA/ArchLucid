@@ -23432,11 +23432,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 19
-- **bugs-found:** 13
+- **hunts:** 20
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — detailed wizard quick/full mode stayed on quick after mode= URL navigation without popstate
+- **last-bug:** 2026-09-25 — detailed wizard advancedConfig opt-in stayed enabled after URL cleared advancedConfig without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23477,6 +23477,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `useNewRunWizardMode` — quick/full mode stayed on quick after App Router `mode=` navigation without `popstate` — **hit 2026-09-25 seed hunt #3908b (seed→hit):** `wizardMode` lived in `useState` synced only on `popstate`; deep-linked `mode=full` after client navigation left quick-start chrome active; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in the popstate handler; regression `follows mode= URL changes without a popstate event`.
 
 2026-09-25 seed hunt #3908b (seed→hit): reseeded ui-review-intake-wizards after step URL sync hit; proved stale wizard mode after mode= URL navigation; 9 scoped intake mode + step unit tests passed.
+
+- [x] (proven) `useNewRunWizardClient` — `advancedConfigurationOptIn` stayed enabled after App Router cleared `advancedConfig=` without `popstate` — **hit 2026-09-25 seed hunt #3908c (seed→hit):** pilot/advanced toggles lived in `useState` synced only on `popstate`; deep-linked `advancedConfig=1` showed mode toggle but client navigation clearing the param left advanced chrome mounted; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in the popstate handler; regression `follows advancedConfig= URL changes without a popstate event`.
+
+2026-09-25 seed hunt #3908c (seed→hit): reseeded ui-review-intake-wizards after mode URL sync hit; proved stale advancedConfig opt-in after URL navigation; 10 scoped intake URL-sync unit tests passed.
 
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 
