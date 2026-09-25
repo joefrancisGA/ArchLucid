@@ -18,7 +18,7 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodes);
 
-        if (nodes.Count == 0 || snapshot.Properties.Count == 0)
+        if (nodes.Count == 0)
         {
             return;
         }
