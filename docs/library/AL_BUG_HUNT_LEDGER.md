@@ -23567,11 +23567,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 13
-- **bugs-found:** 13
+- **hunts:** 14
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — findingJobView filter stayed on default after URL cleared findingJobView without popstate
+- **last-bug:** 2026-09-25 — search field cleared storage-backed q on mount when URL had no q param
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23609,6 +23609,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `useGovernanceFindingsQueueFacets` — `jobView` stayed on `needs-my-decision` after App Router cleared `findingJobView=` without `popstate` instead of restoring storage-backed job view — **hit 2026-09-25 seed hunt #30:** unconditional `setJobViewState(urlJobView)` overwrote storage on mount and reset to default when the URL param cleared; fixed with `hadJobViewInUrlRef` mirroring NL-facet/hideGeneric URL sync; regressions `follows findingJobView URL changes without a popstate event` and `restores storage jobView when findingJobView URL param is cleared`.
 
 2026-09-25 seed hunt #30 (seed→hit): reseeded ui-governance-findings-queue after hideGeneric URL sync hit; proved stale findingJobView after URL navigation; cheap-disproof closed groupBy URL-sync gap; 20 scoped governance-findings URL-sync and saved-view unit tests passed.
+
+- [x] (proven) `GovernanceFindingsQueueSearchField` — storage-backed search query cleared on mount when URL had no `q=` param — **hit 2026-09-25 seed hunt #31:** unconditional `setSearchQuery(urlSearchQuery)` on every `urlSearchQuery` change overwrote `readGovernanceFindingsQueueFacets(mode).searchQuery` before the debounced URL sync could restore it; fixed with `hadSearchQueryInUrlRef` mirroring other queue URL-sync hooks; regressions `preserves storage search query when URL has no q param` and `follows q= URL changes without a popstate event`
+
+2026-09-25 seed hunt #31 (seed→hit): reseeded ui-governance-findings-queue after findingJobView URL sync hit; proved search field mount overwrite of storage-backed query; 22 scoped governance-findings URL-sync and saved-view unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
