@@ -15598,11 +15598,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 24
-- **bugs-found:** 16
+- **hunts:** 25
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — NSG association explicit flattened property parser ignored PascalCase suffix keys
+- **last-bug:** 2026-09-25 — Data Flow evidence catalog registered messaging RBAC inference sources without IE-RF association types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15807,6 +15807,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureInventoryNsgAssociationParser` — explicit flattened NR-02 association index discovery used case-insensitive prefix/suffix matching but `ReadAssociationProperty` required ordinal key equality — **hit 2026-09-25 seed hunt:** PascalCase `.TargetArmId`/`.Kind` suffix keys dropped subnet/NIC associations after #NSG/route casing fix; fixed with case-insensitive flattened property lookup; regression `Parse_reads_explicit_flattened_association_properties_when_suffix_casing_differs`.
 
 2026-09-25 seed hunt (seed→hit): reseeded core-azure-extractor after NSG/route casing fix; proved NR-02 NSG association parser ignored PascalCase flattened suffix keys; 1379 scoped `AzureExtractor` tests passed (1 unrelated pre-existing catalog association-type failure).
+
+- [x] (proven) `AzureInventoryDataFlowEvidenceCatalog` — Event Hub and Service Bus messaging RBAC verb rows used raw inference-source strings (`inventory-event-hub-may-publish`, etc.) as `associationType` without registering matching IE-RF catalog entries — **hit 2026-09-25 seed hunt:** `AllIncludedOnDataFlow_types_are_known_association_types` failed; Data Flow humanizer lookup by inference source worked but IE-RF `IsKnown` rejected the rows; fixed by adding `eventHubMayPublish`/`eventHubMayConsume`/`serviceBusMaySend`/`serviceBusMayReceive` to `AzureInventoryRelationshipAssociationTypes` and wiring catalog constants; regressions `Messaging_rbac_verbs_resolve_by_association_type_and_inference_source`.
+
+2026-09-25 seed hunt (seed→hit): reseeded core-azure-extractor after NSG association casing fix; proved messaging RBAC Data Flow catalog rows omitted IE-RF association types; 1384 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary

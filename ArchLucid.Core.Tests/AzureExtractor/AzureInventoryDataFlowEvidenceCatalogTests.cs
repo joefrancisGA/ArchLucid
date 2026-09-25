@@ -2,6 +2,7 @@ using System.Reflection;
 
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -77,6 +78,52 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence!.IncludeOnDataFlow.Should().BeTrue();
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath);
         evidence.DiagramLabel.Should().Be("Private network path");
+    }
+
+    [Theory]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubMayPublish,
+        GraphEdgeInferenceSources.InventoryEventHubMayPublish,
+        AzureInventoryDataFlowEdgeDirection.MayWrite,
+        "May publish")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubMayConsume,
+        GraphEdgeInferenceSources.InventoryEventHubMayConsume,
+        AzureInventoryDataFlowEdgeDirection.MayRead,
+        "May consume")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend,
+        GraphEdgeInferenceSources.InventoryServiceBusMaySend,
+        AzureInventoryDataFlowEdgeDirection.MayWrite,
+        "May send")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive,
+        GraphEdgeInferenceSources.InventoryServiceBusMayReceive,
+        AzureInventoryDataFlowEdgeDirection.MayRead,
+        "May receive")]
+    public void Messaging_rbac_verbs_resolve_by_association_type_and_inference_source(
+        string associationType,
+        string inferenceSource,
+        AzureInventoryDataFlowEdgeDirection expectedDirection,
+        string expectedLabel)
+    {
+        AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
+
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            associationType,
+            out AzureInventoryDataFlowEvidenceAssociation? fromType).Should().BeTrue();
+
+        fromType!.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess);
+        fromType.Direction.Should().Be(expectedDirection);
+        fromType.DiagramLabel.Should().Be(expectedLabel);
+        fromType.IncludeOnDataFlow.Should().BeTrue();
+
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            inferenceSource,
+            out AzureInventoryDataFlowEvidenceAssociation? fromInference).Should().BeTrue();
+
+        fromInference.Should().BeSameAs(fromType);
+        AzureInventoryDataFlowEvidenceCatalog.IncludeOnDataFlow(null, inferenceSource).Should().BeTrue();
     }
 
     [Theory]
