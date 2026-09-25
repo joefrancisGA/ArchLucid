@@ -27,8 +27,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const cookieValue = request.cookies.get(BFF_SESSION_COOKIE_NAME)?.value ?? null;
   const payload = cookieValue !== null ? parseBffSessionCookieValue(cookieValue) : null;
 
-  if (payload === null || Date.now() >= payload.exp) {
+  if (payload === null) {
     return NextResponse.json({ title: "No active BFF session" }, { status: 401 });
+  }
+
+  if (Date.now() >= payload.exp) {
+    const response = NextResponse.json({ title: "BFF session expired" }, { status: 401 });
+
+    for (const cookieHeader of buildBffSessionClearCookieHeaders()) {
+      response.headers.append("Set-Cookie", cookieHeader);
+    }
+
+    return response;
   }
 
   if (isBffSessionIdleExpired(payload)) {
