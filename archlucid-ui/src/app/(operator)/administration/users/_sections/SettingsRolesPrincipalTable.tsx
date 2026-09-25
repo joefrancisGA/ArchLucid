@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
@@ -27,6 +27,8 @@ import type { ArchLucidAppRole } from "@/lib/current-principal";
 import {
   parseSettingsUsersRoleConfirmNextRoleFromSearch,
   parseSettingsUsersRoleConfirmPrincipalIdFromSearch,
+  SETTINGS_USERS_ROLE_CONFIRM_NEXT_ROLE_PARAM,
+  SETTINGS_USERS_ROLE_CONFIRM_PRINCIPAL_ID_PARAM,
   settingsUsersRoleConfirmHrefFromSearch,
 } from "@/lib/administration/settings-users-role-confirm-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -66,9 +68,6 @@ export function SettingsRolesPrincipalTable({
   onRoleChange,
 }: Props) {
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
-  const searchParams = useSearchParams();
-  const roleConfirmPrincipalIdParam = searchParams.get("roleConfirmPrincipalId");
-  const roleConfirmNextRoleParam = searchParams.get("roleConfirmNextRole");
   const { currentPrincipal } = useOperatorNavAuthority();
   const [pendingChange, setPendingChangeState] = useState<PendingRoleChange | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
@@ -112,39 +111,53 @@ export function SettingsRolesPrincipalTable({
   );
 
   useEffect(() => {
-    const principalId = parseSettingsUsersRoleConfirmPrincipalIdFromSearch(roleConfirmPrincipalIdParam);
-    const nextRoleRaw = parseSettingsUsersRoleConfirmNextRoleFromSearch(roleConfirmNextRoleParam);
+    const syncPendingChangeFromUrl = (): void => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const principalId = parseSettingsUsersRoleConfirmPrincipalIdFromSearch(
+        urlParams.get(SETTINGS_USERS_ROLE_CONFIRM_PRINCIPAL_ID_PARAM),
+      );
+      const nextRoleRaw = parseSettingsUsersRoleConfirmNextRoleFromSearch(
+        urlParams.get(SETTINGS_USERS_ROLE_CONFIRM_NEXT_ROLE_PARAM),
+      );
 
-    if (principalId.length === 0 || nextRoleRaw.length === 0) {
-      setPendingChangeState((current) => (current === null ? current : null));
+      if (principalId.length === 0 || nextRoleRaw.length === 0) {
+        setPendingChangeState((current) => (current === null ? current : null));
 
-      return;
-    }
-
-    if (rows.length === 0) {
-      return;
-    }
-
-    const nextRole = SETTINGS_ROLES_ASSIGNABLE.find((role) => role === nextRoleRaw);
-
-    if (nextRole === undefined) {
-      return;
-    }
-
-    const row = rows.find((candidate) => candidate.id === principalId);
-
-    if (row === undefined) {
-      return;
-    }
-
-    setPendingChangeState((current) => {
-      if (current?.row.id === principalId && current.nextRole === nextRole) {
-        return current;
+        return;
       }
 
-      return { row, previousRole: row.role, nextRole };
-    });
-  }, [roleConfirmNextRoleParam, roleConfirmPrincipalIdParam, rows]);
+      if (rows.length === 0) {
+        return;
+      }
+
+      const nextRole = SETTINGS_ROLES_ASSIGNABLE.find((role) => role === nextRoleRaw);
+
+      if (nextRole === undefined) {
+        return;
+      }
+
+      const row = rows.find((candidate) => candidate.id === principalId);
+
+      if (row === undefined) {
+        return;
+      }
+
+      setPendingChangeState((current) => {
+        if (current?.row.id === principalId && current.nextRole === nextRole) {
+          return current;
+        }
+
+        return { row, previousRole: row.role, nextRole };
+      });
+    };
+
+    syncPendingChangeFromUrl();
+    window.addEventListener("popstate", syncPendingChangeFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPendingChangeFromUrl);
+    };
+  }, [rows]);
 
   const rowStateKey = useCallback((row: SettingsRolesAssignablePrincipalRow) => `${row.kind}:${row.id}`, []);
 
