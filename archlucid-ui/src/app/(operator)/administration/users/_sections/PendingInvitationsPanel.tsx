@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -88,19 +88,12 @@ export function PendingInvitationsPanel({
   suppressEmptyPresentation = false,
   readOnly = false,
 }: Props) {
-  const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [showResolved, setShowResolvedState] = useState(() =>
-    parseSettingsInvitesShowResolvedFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("settingsInvitesShowResolved"),
-    ),
-  );
-  const showResolvedRef = useRef(showResolved);
+  const [showResolved, setShowResolvedState] = useState(false);
+  const showResolvedRef = useRef(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [copiedReferenceId, setCopiedReferenceId] = useState<string | null>(null);
   const [copiedAcceptLinkId, setCopiedAcceptLinkId] = useState<string | null>(null);
@@ -118,7 +111,7 @@ export function PendingInvitationsPanel({
         { notify: false },
       );
     },
-    [pathname, router],
+    [pathname],
   );
 
   const setShowResolved = useCallback(
@@ -126,19 +119,18 @@ export function PendingInvitationsPanel({
       setShowResolvedState((current) => {
         const next = typeof value === "function" ? value(current) : value;
 
-        return next === current ? current : next;
+        if (next === current) {
+          return current;
+        }
+
+        showResolvedRef.current = next;
+        syncShowResolvedToUrl(next);
+
+        return next;
       });
     },
-    [],
+    [syncShowResolvedToUrl],
   );
-
-  useEffect(() => {
-    if (showResolvedRef.current === showResolved) {
-      return;
-    }
-
-    syncShowResolvedToUrl(showResolved);
-  }, [showResolved, syncShowResolvedToUrl]);
 
   useEffect(() => {
     const syncShowResolvedFromUrl = (): void => {
@@ -169,29 +161,28 @@ export function PendingInvitationsPanel({
         { notify: false },
       );
     },
-    [pathname, router],
+    [pathname],
   );
 
   const setPendingRevoke = useCallback(
     (value: SetStateAction<AdminUserInvitationRow | null>) => {
       setPendingRevokeState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+        const nextId = next?.id ?? null;
+        const currentId = current?.id ?? null;
 
-        return (next?.id ?? null) === (current?.id ?? null) ? current : next;
+        if (nextId === currentId) {
+          return current;
+        }
+
+        pendingRevokeIdRef.current = nextId;
+        syncRevokeInviteToUrl(nextId);
+
+        return next;
       });
     },
-    [],
+    [syncRevokeInviteToUrl],
   );
-
-  useEffect(() => {
-    const nextId = pendingRevoke?.id ?? null;
-
-    if (pendingRevokeIdRef.current === nextId) {
-      return;
-    }
-
-    syncRevokeInviteToUrl(nextId);
-  }, [pendingRevoke?.id, syncRevokeInviteToUrl]);
 
   useEffect(() => {
     const syncPendingRevokeFromUrl = (): void => {

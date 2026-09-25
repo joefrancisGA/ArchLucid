@@ -119,12 +119,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     isWorkingMode && parentArchitectureId.length > 0
       ? { architectureId: parentArchitectureId, isWorkingMode: true as const }
       : undefined;
-  const initialJobView = resolveFindingJobViewFromSearchParam(
-    typeof window === "undefined"
-      ? null
-      : new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
-  );
-  const toolbar = useRunDetailFindingsToolbarState({ initialJobView });
+  const toolbar = useRunDetailFindingsToolbarState();
   const {
     showLowConfidence,
     showAdvisory,
@@ -151,12 +146,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     toolbar.setSearchQuery(facets.titleKeywords.join(" "));
   }
 
-  const [classificationBand, setClassificationBandState] = useState<ReviewFindingsClassificationBandId>(() =>
-    parseReviewFindingsClassificationBandFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM),
-    ),
+  const [classificationBand, setClassificationBandState] = useState<ReviewFindingsClassificationBandId>(
+    "decision-grade",
   );
 
   const setClassificationBand = useCallback(
@@ -194,13 +185,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     };
   }, []);
 
-  const [listView, setListViewState] = useState(() =>
-    parseReviewFindingsListViewFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_LIST_VIEW_PARAM),
-    ) ?? defaultReviewFindingsListView(architectWorkspaceChrome),
-  );
+  const [listView, setListViewState] = useState(() => defaultReviewFindingsListView(architectWorkspaceChrome));
 
   useEffect(() => {
     const syncListViewFromUrl = (): void => {

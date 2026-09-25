@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -47,7 +47,7 @@ import {
   settingsUsersInviteHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-url";
 import type { ArchLucidAppRole } from "@/lib/current-principal";
-import { commitHrefIfChanged, readWindowLocationSearch, replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -119,7 +119,6 @@ type Props = {
 export function SettingsRolesPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const router = useRouter();
   const pathname = usePathname();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const inviteEmailInputRef = useRef<HTMLInputElement | null>(null);
@@ -127,30 +126,18 @@ export function SettingsRolesPageView(props: Props) {
     isApiKeysSettingsSurfaceEnabled() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const tabs = visibleTabs(canManageApiKeys);
   const hubPathname = settingsUsersNavigationPathname(pathname);
-  const initialMemberFilters = readSettingsRolesMemberFiltersFromUrl();
   const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(() =>
-    settingsUsersTabFromLocation(
-      hubPathname,
-      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("tab"),
-      canManageApiKeys,
-    ),
+    settingsUsersTabFromLocation(hubPathname, null, canManageApiKeys),
   );
-  const [activeMemberRole, setActiveMemberRoleState] = useState<ArchLucidAppRole | null>(
-    initialMemberFilters.activeMemberRole,
-  );
-  const [activeMemberStatus, setActiveMemberStatusState] = useState<SettingsRolesMemberStatusFilter | null>(
-    initialMemberFilters.activeMemberStatus,
-  );
-  const [currentSearch, setCurrentSearchState] = useState(initialMemberFilters.currentSearch);
+  const [activeMemberRole, setActiveMemberRoleState] = useState<ArchLucidAppRole | null>(null);
+  const [activeMemberStatus, setActiveMemberStatusState] = useState<SettingsRolesMemberStatusFilter | null>(null);
+  const [currentSearch, setCurrentSearchState] = useState("");
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
   const [seededInvitations, setSeededInvitations] = useState<AdminUserInvitationRow[]>([]);
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
   const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
-  const initialInviteOpen = parseSettingsUsersInviteOpenFromSearch(
-    typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("invite"),
-  );
-  const [inviteSectionOpen, setInviteSectionOpenState] = useState(initialInviteOpen);
-  const inviteSectionOpenRef = useRef(initialInviteOpen);
+  const [inviteSectionOpen, setInviteSectionOpenState] = useState(false);
+  const inviteSectionOpenRef = useRef(false);
   const rolesTabBuyerPolished = buyerPolishedShell && activeTab === "roles";
   const usersTabBuyerPolished = buyerPolishedShell && activeTab === "users";
   const buyerPolishedMutationTab = rolesTabBuyerPolished || usersTabBuyerPolished;
@@ -343,7 +330,7 @@ export function SettingsRolesPageView(props: Props) {
   function openPrincipal(principalId: string): void {
     writeSettingsPrincipalLastViewedId("user", principalId);
     setActiveTab("users");
-    replaceIfHrefChanged(router, SETTINGS_USERS_USERS_TAB_PATH);
+    commitHrefIfChanged(SETTINGS_USERS_USERS_TAB_PATH, { notify: false });
     window.setTimeout(() => {
       document
         .querySelector(`[data-principal-id="${CSS.escape(principalId)}"]`)
