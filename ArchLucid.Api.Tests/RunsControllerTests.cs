@@ -98,6 +98,28 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task DraftRequest_returns_bad_request_when_description_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        DraftArchitectureRequestInput input = new()
+        {
+            FreeTextDescription = new string('a', 19) + "\uD800",
+        };
+
+        IActionResult action = await controller.DraftRequest(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RewriteArchitectureOverview_returns_rewritten_overview_when_valid()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

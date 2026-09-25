@@ -20961,15 +20961,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 45
-- **bugs-found:** 35
+- **hunts:** 46
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — disposition/coverage/technology-ledger PATCH free text omitted invalid-Unicode surrogate guards
+- **last-bug:** 2026-09-25 — clarification answers, draft intake, and platform legal-hold reason validation gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved clarification answer surrogate, draft intake surrogate, and platform legal-hold reason max-length gaps; 63 scoped unit tests passed.
+
+- [x] (proven) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — answer values omitted invalid-Unicode surrogate guard present on sibling persisted free-text routes — **hit 2026-09-25 seed hunt:** reject lone surrogates before `ApplyAnswersAsync`; regression `ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answer_contains_invalid_surrogate`.
+- [x] (proven) `RunsController.ValidateDraftFreeText` — draft/chat intake free text omitted invalid-Unicode surrogate guard present on sibling `PostFindingFeedback` comment — **hit 2026-09-25 seed hunt:** reject lone surrogates before advisory intake facade calls; regression `DraftRequest_returns_bad_request_when_description_contains_invalid_surrogate`.
+- [x] (proven) `AdminTenantsController.SetTenantErasureLegalHoldPlatformAsync` — `Reason` reached `TrySetLegalHoldAsync` without `TenantErasureLegalHoldHttpMapper.ValidateSetLegalHold` present on tenant-scoped sibling — **hit 2026-09-25 seed hunt:** reject over-500-char reasons before platform legal-hold persist; regression `SetTenantErasureLegalHoldPlatformAsync_returns_bad_request_when_reason_exceeds_max_length`.
 
 2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved disposition rationale, coverage exclusion reason, and technology-ledger patch field surrogate guard gaps; shared `UnicodeTextValidation` helper; 24 scoped unit tests passed.
 
