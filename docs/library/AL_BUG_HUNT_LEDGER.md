@@ -20955,10 +20955,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-12 — finding feedback POST omitted invalid-Unicode surrogate guard on Comment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
