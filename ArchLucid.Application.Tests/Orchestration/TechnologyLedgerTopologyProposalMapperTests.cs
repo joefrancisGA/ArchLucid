@@ -100,6 +100,7 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     {
         TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
         TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = null;
 
         TechnologyLedgerEntry? resolved =
             TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
