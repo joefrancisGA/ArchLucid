@@ -127,9 +127,11 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Edges.Should().ContainSingle(edge =>
+        DiagramEdge edge = ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
-            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget);
+            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget).Subject;
+        edge.Label.Should().Contain("mpe");
+        edge.Label.Should().Contain("mpe-2");
     }
 
     [Fact]

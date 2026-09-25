@@ -657,7 +657,7 @@ public static class InventoryDiagramOrphanedStateClassifier
                     continue;
                 }
 
-                foreach (string propertyName in new[] { "privateLinkServiceId", "groupIds" })
+                foreach (string propertyName in new[] { "privateLinkServiceId" })
                 {
                     if (!propertiesElement.TryGetProperty(propertyName, out System.Text.Json.JsonElement valueElement))
                     {

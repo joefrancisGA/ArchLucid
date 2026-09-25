@@ -437,7 +437,13 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             }
 
             if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
-                && ConsumerUsesSubnet(graph, consumerNodeId, edge.ToNodeId))
+                && ConsumerUsesSubnet(
+                    graph,
+                    consumerNodeId,
+                    edge.ToNodeId,
+                    graphNodesById,
+                    nicOwnerArmIdByNicArmId,
+                    graphNodeIdByArmId))
             {
                 return true;
             }
@@ -446,7 +452,13 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         return false;
     }
 
-    private static bool ConsumerUsesSubnet(GraphSnapshot graph, string consumerNodeId, string subnetNodeId)
+    private static bool ConsumerUsesSubnet(
+        GraphSnapshot graph,
+        string consumerNodeId,
+        string subnetNodeId,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
+        IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId,
+        IReadOnlyDictionary<string, string> graphNodeIdByArmId)
     {
         foreach (GraphEdge edge in graph.Edges)
         {
@@ -465,6 +477,29 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(edge.FromNodeId, consumerNodeId, StringComparison.Ordinal)
                 && string.Equals(edge.ToNodeId, subnetNodeId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (!string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(edge.ToNodeId, subnetNodeId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            string nicArmId = ReadArmIdFromNodeId(graphNodesById, edge.FromNodeId);
+
+            if (string.IsNullOrWhiteSpace(nicArmId)
+                || !nicOwnerArmIdByNicArmId.TryGetValue(nicArmId, out string? ownerArmId)
+                || !graphNodeIdByArmId.TryGetValue(ownerArmId, out string? ownerNodeId))
+            {
+                continue;
+            }
+
+            if (string.Equals(ownerNodeId, consumerNodeId, StringComparison.Ordinal))
             {
                 return true;
             }
