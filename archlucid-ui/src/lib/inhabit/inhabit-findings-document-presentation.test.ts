@@ -61,4 +61,24 @@ describe("inhabit findings document presentation (IH-016 / IH-021 / IH-023)", ()
       }),
     ).toBeNull();
   });
+
+  it("does not inhabit SecureNow compliance findings even with architecture scope", () => {
+    expect(
+      resolveIsInhabitedFindingsDocument({
+        workingMode: true,
+        pathname: "/compliance/findings",
+        scopedArchitectureId: architectureId,
+        productLineId: "security",
+      }),
+    ).toBe(false);
+    expect(
+      resolveInhabitedFindingsDocumentPresentation({
+        workingMode: true,
+        pathname: "/compliance/findings",
+        scopedArchitectureId: architectureId,
+        architectureDisplayName: "Customer intake",
+        productLineId: "security",
+      }),
+    ).toBeNull();
+  });
 });

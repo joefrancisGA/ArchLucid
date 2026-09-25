@@ -120,4 +120,11 @@ public sealed class DiagramForestLayoutOptions
     public const int DefaultDataFlowStageLabelBand = 28;
 
     public const int DefaultDataFlowSkyLaneHeight = 36;
+
+    /// <summary>When true, cross-group <c>applies</c> and <c>likely ·</c> edges are painted on the forest canvas.</summary>
+    public bool IncludeCrossGroupFanOut
+    {
+        get;
+        init;
+    }
 }

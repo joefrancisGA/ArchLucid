@@ -7,6 +7,8 @@ import {
   parseInfraDiagramsCloudResourceIdFromSearch,
   parseInfraDiagramsIncludePrivateEndpointsFromSearch,
   parseInfraDiagramsIncludeRecoveryServicesFromSearch,
+  parseInfraDiagramsIncludeCrossGroupFanOutFromSearch,
+  INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM,
   INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
@@ -145,6 +147,8 @@ describe("infra-evidence-diagrams-filter-url", () => {
     expect(parseInfraDiagramsIncludePrivateEndpointsFromSearch(null)).toBe(false);
     expect(parseInfraDiagramsIncludeRecoveryServicesFromSearch("1")).toBe(true);
     expect(parseInfraDiagramsIncludeRecoveryServicesFromSearch(null)).toBe(false);
+    expect(parseInfraDiagramsIncludeCrossGroupFanOutFromSearch("1")).toBe(true);
+    expect(parseInfraDiagramsIncludeCrossGroupFanOutFromSearch(null)).toBe(false);
   });
 
   it("round-trips includeRecoveryServices without touching includeNeverShow", () => {

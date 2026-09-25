@@ -1,5 +1,5 @@
 > **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw each Azure virtual network as a bounding box inside the resource group that owns it. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/vnet-box-01-cited-membership.md`](../../.cursor/prompts/vnet-box-01-cited-membership.md), [`.cursor/prompts/vnet-box-02-pack-inside-resource-group.md`](../../.cursor/prompts/vnet-box-02-pack-inside-resource-group.md), [`.cursor/prompts/vnet-box-03-cross-group-and-edges.md`](../../.cursor/prompts/vnet-box-03-cross-group-and-edges.md), [`.cursor/prompts/vnet-box-04-png-cluster-parity.md`](../../.cursor/prompts/vnet-box-04-png-cluster-parity.md), [`.cursor/prompts/vnet-box-05-mode-ratchet.md`](../../.cursor/prompts/vnet-box-05-mode-ratchet.md)
+> **Paste-ready files:** [`.cursor/prompts/vnet-box-01-cited-membership.md`](../../.cursor/prompts/vnet-box-01-cited-membership.md), [`.cursor/prompts/vnet-box-02-pack-inside-resource-group.md`](../../.cursor/prompts/vnet-box-02-pack-inside-resource-group.md), [`.cursor/prompts/vnet-box-03-cross-group-and-edges.md`](../../.cursor/prompts/vnet-box-03-cross-group-and-edges.md), [`.cursor/prompts/vnet-box-04-png-cluster-parity.md`](../../.cursor/prompts/vnet-box-04-png-cluster-parity.md), [`.cursor/prompts/vnet-box-05-mode-ratchet.md`](../../.cursor/prompts/vnet-box-05-mode-ratchet.md), [`.cursor/prompts/vnet-box-06-frame-caption-icons.md`](../../.cursor/prompts/vnet-box-06-frame-caption-icons.md)
 
 # Inventory diagram VNet boxes — Luna prompts
 
@@ -16,8 +16,9 @@ Resource-group frames already pack and paint. A VNet is still a card. `DiagramFo
 | **VN-03** | [vnet-box-03-cross-group-and-edges.md](../../.cursor/prompts/vnet-box-03-cross-group-and-edges.md) | Members in another resource group stay there. Drop `in` edges whose both ends sit inside the box. |
 | **VN-04** | [vnet-box-04-png-cluster-parity.md](../../.cursor/prompts/vnet-box-04-png-cluster-parity.md) | One Graphviz cluster per VNet, labeled with the VNet name, members inside. |
 | **VN-05** | [vnet-box-05-mode-ratchet.md](../../.cursor/prompts/vnet-box-05-mode-ratchet.md) | Identity, Data, Data flow, and neighborhood keep the mode rules. Tests only, plus a fix when a test fails. |
+| **VN-06** | [vnet-box-06-frame-caption-icons.md](../../.cursor/prompts/vnet-box-06-frame-caption-icons.md) | Bold frame captions, a leading icon sized to the text, and no VNet card once the box exists. |
 
-Run **VN-01**, then **VN-02**, then **VN-03**. **VN-04** after **VN-02**. **VN-05** last.
+Run **VN-01**, then **VN-02**, then **VN-03**. **VN-04** after **VN-02**. **VN-05** after **VN-04**. **VN-06** last, after the box and the PNG cluster exist.
 
 ## Do not pull into these sessions
 
