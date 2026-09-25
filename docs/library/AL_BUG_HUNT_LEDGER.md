@@ -15728,13 +15728,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — compound ConnectionString config paths leaked through config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-25 seed hunt (seed-only): reseeded core-configuration-summary; no new hunt-ready hypotheses — compound Secret/Token/Password/ApiKey/ConnectionString segment redaction, key-material Salt/Pepper suffixes, certificate/signing paths, and production-like Quick Scan / Email OTP validators remain covered; 844 scoped ConfigurationEffectiveValueResolver + safety validator tests passed.
 
 2026-09-13 seed hunt #2278 (seed-only): reseeded core-configuration-summary with `-Hint archlucid-core` `-Refresh`; no new hunt-ready rows.
 
