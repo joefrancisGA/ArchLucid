@@ -23432,11 +23432,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 18
-- **bugs-found:** 12
+- **hunts:** 19
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — detailed/guided intake wizard step stayed on step 0 after step= / intakeStep= URL navigation without popstate
+- **last-bug:** 2026-09-25 — detailed wizard quick/full mode stayed on quick after mode= URL navigation without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23473,6 +23473,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `rerun=` survives switch to guided intake and prefills Socratic intake — **cheap-disproof 2026-09-25 seed hunt #3908:** guided intake intentionally consumes `rerun=` via `useGuidedIntakePriorRunPrefill`; regression `prefills guided intake from rerun= when the prior package intake is available`.
 
 2026-09-25 seed hunt #3908 (seed→hit): reseeded ui-review-intake-wizards after #1684; proved stale wizard step after URL navigation; cheap-disproof closed guided-intake rerun prefill as intentional; 13 scoped intake step + path-switcher unit tests passed.
+
+- [x] (proven) `useNewRunWizardMode` — quick/full mode stayed on quick after App Router `mode=` navigation without `popstate` — **hit 2026-09-25 seed hunt #3908b (seed→hit):** `wizardMode` lived in `useState` synced only on `popstate`; deep-linked `mode=full` after client navigation left quick-start chrome active; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in the popstate handler; regression `follows mode= URL changes without a popstate event`.
+
+2026-09-25 seed hunt #3908b (seed→hit): reseeded ui-review-intake-wizards after step URL sync hit; proved stale wizard mode after mode= URL navigation; 9 scoped intake mode + step unit tests passed.
 
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 
