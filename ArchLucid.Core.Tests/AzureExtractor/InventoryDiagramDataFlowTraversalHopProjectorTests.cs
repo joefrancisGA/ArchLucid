@@ -45,7 +45,8 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             "fd-node",
             "app-node",
             links,
-            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph);
 
         path.OrderedHopNodeIds.Should().Equal("agw-node", "fw-node");
         path.OrderedLinks.Select(link => link.FromNodeId).Should().Equal("fd-node", "agw-node", "fw-node");
@@ -63,7 +64,8 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             "agw-node",
             "app-node",
             links,
-            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph);
 
         path.OrderedHopNodeIds.Should().Equal("lb-node");
         path.OrderedLinks.Select(link => link.ToNodeId).Should().Equal("lb-node", "app-node");
@@ -80,7 +82,8 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             "app-node",
             "storage-node",
             links,
-            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph);
 
         path.OrderedHopNodeIds.Should().Equal("pe-node");
         path.OrderedLinks.Select(link => link.ToNodeId).Should().Equal("pe-node", "storage-node");
@@ -179,12 +182,106 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             "fd-node",
             "app-node",
             links,
-            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph);
 
         path.HasUnresolvedGap.Should().BeTrue();
         path.OrderedHopNodeIds.Should().Equal("agw-node", "fw-node");
         path.ReachesTarget.Should().BeFalse();
         path.MissingHopDescription.Should().Contain("missing hop after fw");
+    }
+
+    [Fact]
+    public void ProjectPath_prefers_target_constrained_partial_path_over_longer_unrelated_branch()
+    {
+        GraphSnapshot graph = BuildBranchingIngressGraph();
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        InventoryDiagramDataFlowTraversalHopPath path = InventoryDiagramDataFlowTraversalHopProjector.ProjectPath(
+            "fd-node",
+            "app-node",
+            links,
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph);
+
+        path.HasUnresolvedGap.Should().BeTrue();
+        path.OrderedHopNodeIds.Should().Equal("agw-node", "fw-node");
+        path.OrderedHopNodeIds.Should().NotContain("unrel-lb-node");
+        path.MissingHopDescription.Should().Contain("missing hop after fw");
+    }
+
+    [Fact]
+    public void ProjectPath_without_target_constrained_partial_returns_no_hop_chain()
+    {
+        GraphSnapshot graph = BuildUnrelatedBranchOnlyGraph();
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        InventoryDiagramDataFlowTraversalHopPath path = InventoryDiagramDataFlowTraversalHopProjector.ProjectPath(
+            "fd-node",
+            "app-node",
+            links,
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph);
+
+        path.OrderedHopNodeIds.Should().BeEmpty();
+        path.OrderedLinks.Should().BeEmpty();
+        path.HasUnresolvedGap.Should().BeFalse();
+    }
+
+    private static GraphSnapshot BuildBranchingIngressGraph()
+    {
+        const string UnrelLbArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/loadBalancers/unrel-lb";
+
+        const string WrongAppArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/wrong-app";
+
+        List<GraphNode> nodes =
+        [
+            CreateNode("fd-node", FrontDoorArmId, "Microsoft.Network/frontDoors"),
+            CreateNode("agw-node", AgwArmId, "Microsoft.Network/applicationGateways"),
+            CreateNode("fw-node", FirewallArmId, "Microsoft.Network/azureFirewalls"),
+            CreateNode("unrel-lb-node", UnrelLbArmId, "Microsoft.Network/loadBalancers"),
+            CreateNode("wrong-app-node", WrongAppArmId, "Microsoft.Web/sites"),
+            CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
+        ];
+
+        List<GraphEdge> edges =
+        [
+            CreateEdge("fd-node", "agw-node", AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, GraphEdgeInferenceSources.InventoryFrontDoorOrigin),
+            CreateEdge("agw-node", "fw-node", AzureInventoryRelationshipAssociationTypes.AgwToBackend, GraphEdgeInferenceSources.InventoryAgwBackend),
+            CreateEdge("fd-node", "unrel-lb-node", AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, GraphEdgeInferenceSources.InventoryFrontDoorOrigin),
+            CreateEdge("unrel-lb-node", "wrong-app-node", AzureInventoryRelationshipAssociationTypes.LbToBackend, GraphEdgeInferenceSources.InventoryLbBackend),
+        ];
+
+        return CreateGraph(nodes, edges);
+    }
+
+    private static GraphSnapshot BuildUnrelatedBranchOnlyGraph()
+    {
+        const string UnrelLbArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/loadBalancers/unrel-lb";
+
+        const string WrongAppArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/wrong-app";
+
+        List<GraphNode> nodes =
+        [
+            CreateNode("fd-node", FrontDoorArmId, "Microsoft.Network/frontDoors"),
+            CreateNode("unrel-lb-node", UnrelLbArmId, "Microsoft.Network/loadBalancers"),
+            CreateNode("wrong-app-node", WrongAppArmId, "Microsoft.Web/sites"),
+            CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
+        ];
+
+        List<GraphEdge> edges =
+        [
+            CreateEdge("fd-node", "unrel-lb-node", AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, GraphEdgeInferenceSources.InventoryFrontDoorOrigin),
+            CreateEdge("unrel-lb-node", "wrong-app-node", AzureInventoryRelationshipAssociationTypes.LbToBackend, GraphEdgeInferenceSources.InventoryLbBackend),
+        ];
+
+        return CreateGraph(nodes, edges);
     }
 
     private static GraphSnapshot BuildIngressChainGraph(bool includeAgwToApp, bool includeFirewallToApp)
