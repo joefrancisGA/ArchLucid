@@ -23512,11 +23512,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-08 — pick-review and show-all-filtered URL sync gaps
+- **last-bug:** 2026-09-25 — register filter stayed open after URL cleared filter without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23538,6 +23538,10 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `onLoadFindingsSavedView` workspace/run helpers carry stale bulk params — **cheap-disproof 2026-09-08 seed hunt #1375:** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` rebuild URL from saved-view filters only; never merge current query bulk state
 
 2026-09-08 seed hunt #1375 (hit): reseeded ui-governance-findings-queue; proved pick-review bulk URL carryover and show-all-filtered hideGeneric restore race; cheap-disproof closed saved-view bulk merge; 19 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsFilter` — register filter stayed `open` after App Router cleared `filter=` without `popstate` — **hit 2026-09-25 seed hunt #3908f (seed→hit):** `registerFilter` lived in `useState` and the `searchParams` effect only applied URL values when `filter` was present, so client navigation that removed the param left the queue on the prior register chip; fixed by resetting to `all` when a prior URL had `filter=` and the param is cleared; regression `follows filter= URL changes without a popstate event`.
+
+2026-09-25 seed hunt #3908f (seed→hit): reseeded ui-governance-findings-queue; proved stale register filter after URL navigation; 9 scoped filter URL-sync and saved-view unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
