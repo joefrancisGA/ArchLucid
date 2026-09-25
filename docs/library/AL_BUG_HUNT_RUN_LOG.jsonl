@@ -7290,3 +7290,4 @@
 {"at":"2026-09-25T16:31:00.1367264Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only"}
 {"at":"2026-09-25T16:34:35.5744634Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only"}
 {"at":"2026-09-25T16:40:07.3399638Z","zoneId":"decisioning","outcome":"seed-only"}
+{"at":"2026-09-25T16:46:03.0218513Z","zoneId":"ui-auth-proxy","outcome":"seed-only"}
