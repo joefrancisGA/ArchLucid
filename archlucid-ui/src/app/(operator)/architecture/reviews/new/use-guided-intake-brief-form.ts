@@ -90,9 +90,16 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   );
 
   useEffect(() => {
+    if (scopeGateOpenRef.current !== urlScopeGateOpen) {
+      scopeGateOpenRef.current = urlScopeGateOpen;
+      setScopeGateOpenState(urlScopeGateOpen);
+    }
+  }, [urlScopeGateOpen]);
+
+  useEffect(() => {
     const syncScopeGateFromUrl = (): void => {
       const next = parseScopeGateOpenFromSearch(
-        new URLSearchParams(window.location.search).get("scopeGate"),
+        new URLSearchParams(readWindowLocationSearch()).get("scopeGate"),
       );
 
       if (scopeGateOpenRef.current === next) {
