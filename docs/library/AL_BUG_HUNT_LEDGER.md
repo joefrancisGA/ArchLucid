@@ -8224,11 +8224,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 30
-- **bugs-found:** 23
+- **hunts:** 31
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — BFF refresh no-RT/expired cookie left stale HttpOnly session cookie
+- **last-bug:** 2026-09-25 — unparseable BFF session cookie left stale HttpOnly cookie on proxy guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -8272,6 +8272,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `POST /api/auth/bff-session/refresh` — rejected refresh (`invalid_grant`) returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** stale expired session cookie persisted and kept blocking proxy reads until explicit DELETE; fixed with `buildBffSessionClearCookieHeaders` on rejection path; regression `clears BFF session cookies when the refresh token is rejected`
 - [x] (proven) `POST /api/auth/bff-session/activity` — absolute expiry (`Date.now() >= payload.exp`) returned 401 without clearing cookies while idle-timeout path already cleared — **hit 2026-09-25 seed hunt (seed→hit):** presenter/print keepalive on expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` on absolute-expiry path; regression `clears BFF session cookies when the session is past absolute expiry`
 - [x] (proven) `POST /api/auth/bff-session/refresh` — no refresh token or expired session cookie returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** refresh probe on access-only or expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` when cookie present but not refreshable; regressions `clears BFF session cookies when the session has no refresh token` and `clears BFF session cookies when the session cookie is expired`
+- [x] (proven) `enforceProxyBffSessionGuard` / `POST /api/auth/bff-session/activity` — present but unparseable BFF session cookie returned 401 or forwarded anonymously without clearing HttpOnly cookies — **hit 2026-09-25 seed hunt (seed→hit):** signing-secret rotation or corrupted cookie left stale value blocking operator mutations; consolidated with `hasPresentButUnparseableBffSessionCookie`; regressions `clears BFF cookies when a mutating proxy call has an unparseable session cookie`, `clears unparseable BFF cookies on anonymous marketing mutations`, `clears BFF session cookies when the session cookie cannot be parsed`, and `forwards anonymous marketing early-access POST and clears an unparseable BFF session cookie`
+
+2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy after prior hit; proved unparseable BFF session cookie left stale HttpOnly cookie on proxy guard and activity route; 147 scoped auth/proxy tests passed.
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy after prior hit; proved BFF refresh no-RT/expired cookie left stale session cookies; 143 scoped auth/proxy tests passed.
 
