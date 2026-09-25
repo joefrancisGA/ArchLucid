@@ -98,15 +98,6 @@ public static class InventoryDiagramIndirectRelationshipResolver
             return parsedEdgeCurrency;
         }
 
-        if (fromNode is not null
-            && fromNode.Properties.TryGetValue(
-                InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
-                out string? nodeCurrency)
-            && Enum.TryParse(nodeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedNodeCurrency))
-        {
-            return parsedNodeCurrency;
-        }
-
         if (string.Equals(
                 edge.InferenceSource,
                 InventoryDiagramIndirectRelationshipEdgeSources.ObservedDependency,
@@ -119,6 +110,15 @@ public static class InventoryDiagramIndirectRelationshipResolver
             && IsDerivedInferenceSource(edge.InferenceSource))
         {
             return InventoryDiagramEvidenceCurrency.Derived;
+        }
+
+        if (fromNode is not null
+            && fromNode.Properties.TryGetValue(
+                InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
+                out string? nodeCurrency)
+            && Enum.TryParse(nodeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedNodeCurrency))
+        {
+            return parsedNodeCurrency;
         }
 
         return InventoryDiagramEvidenceCurrency.Current;
