@@ -20961,15 +20961,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 46
-- **bugs-found:** 38
+- **hunts:** 47
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — clarification answers, draft intake, and platform legal-hold reason validation gaps
+- **last-bug:** 2026-09-25 — rephrase intake, suggestion explain, and quick-scan safety override validation gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved rephrase intake surrogate, suggestion explain surrogate, and quick-scan safety override max-length gaps; 69 scoped unit tests passed.
+
+- [x] (proven) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` and `ExtractedAnswer` omitted invalid-Unicode surrogate guard present on sibling `ValidateDraftFreeText` — **hit 2026-09-25 seed hunt:** reject lone surrogates before advisory rephrase facade call; regressions `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_contains_invalid_surrogate` and `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_contains_invalid_surrogate`.
+- [x] (proven) `RunsController.ExplainStructuredBriefSuggestion` — `SuggestionText` omitted invalid-Unicode surrogate guard present on sibling `ValidateDraftFreeText` `SourceText` path — **hit 2026-09-25 seed hunt:** reject lone surrogates before explain facade call; regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_suggestion_text_contains_invalid_surrogate`.
+- [x] (proven) `AdminQuickScanSafetyController.PutAsync` — `Reason` and `PublicMessage` reached `dbo.QuickScanSafetyOperationalOverride` (`NVARCHAR(500)`) without max-length guard — **hit 2026-09-25 seed hunt:** reject over-500-char fields before `SetOverrideAsync`; regressions `PutAsync_returns_bad_request_when_reason_exceeds_max_length`, `PutAsync_returns_bad_request_when_public_message_exceeds_max_length`, and `PutAsync_returns_bad_request_when_reason_contains_invalid_surrogate`.
 
 2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved clarification answer surrogate, draft intake surrogate, and platform legal-hold reason max-length gaps; 63 scoped unit tests passed.
 

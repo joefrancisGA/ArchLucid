@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Planning;
 using ArchLucid.Contracts.Drafts;
@@ -70,10 +71,14 @@ public sealed partial class RunsController
                 return this.BadRequestProblem("Each item must include QuestionPrompt with at least 10 characters.", ProblemTypes.ValidationFailed);
             if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(item.QuestionPrompt))
                 return this.BadRequestProblem($"Each item QuestionPrompt must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.", ProblemTypes.ValidationFailed);
+            if (!UnicodeTextValidation.IsValidUnicodeText(item.QuestionPrompt))
+                return this.BadRequestProblem("Each item QuestionPrompt must not contain invalid Unicode surrogate pairs.", ProblemTypes.ValidationFailed);
             if (string.IsNullOrWhiteSpace(item.ExtractedAnswer) || item.ExtractedAnswer.Trim().Length < 3)
                 return this.BadRequestProblem("Each item must include ExtractedAnswer with at least 3 characters.", ProblemTypes.ValidationFailed);
             if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(item.ExtractedAnswer))
                 return this.BadRequestProblem($"Each item ExtractedAnswer must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.", ProblemTypes.ValidationFailed);
+            if (!UnicodeTextValidation.IsValidUnicodeText(item.ExtractedAnswer))
+                return this.BadRequestProblem("Each item ExtractedAnswer must not contain invalid Unicode surrogate pairs.", ProblemTypes.ValidationFailed);
         }
 
         return Ok(await intakeFacade.RephraseClarificationAnswersAsync(input, cancellationToken));
@@ -100,6 +105,10 @@ public sealed partial class RunsController
         if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(input.SuggestionText))
             return this.BadRequestProblem(
                 $"SuggestionText must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        if (!UnicodeTextValidation.IsValidUnicodeText(input.SuggestionText))
+            return this.BadRequestProblem(
+                "SuggestionText must not contain invalid Unicode surrogate pairs.",
                 ProblemTypes.ValidationFailed);
 
         return Ok(await intakeFacade.ExplainStructuredBriefSuggestionAsync(input, cancellationToken));

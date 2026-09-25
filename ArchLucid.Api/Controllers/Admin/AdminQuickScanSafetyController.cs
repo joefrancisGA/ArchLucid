@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
@@ -27,6 +28,9 @@ public sealed class AdminQuickScanSafetyController(
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService) : ControllerBase
 {
+    private const int MaxReasonLength = 500;
+    private const int MaxPublicMessageLength = 500;
+
     private readonly IQuickScanSafetyOperationalAdminService _adminService =
         adminService ?? throw new ArgumentNullException(nameof(adminService));
 
@@ -59,6 +63,46 @@ public sealed class AdminQuickScanSafetyController(
         if (request is null)
         {
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Reason))
+        {
+            return this.BadRequestProblem("Reason is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string trimmedReason = request.Reason.Trim();
+
+        if (trimmedReason.Length > MaxReasonLength)
+        {
+            return this.BadRequestProblem(
+                $"Reason must be at most {MaxReasonLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!UnicodeTextValidation.IsValidUnicodeText(trimmedReason))
+        {
+            return this.BadRequestProblem(
+                "Reason must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.PublicMessage is not null)
+        {
+            string trimmedPublicMessage = request.PublicMessage.Trim();
+
+            if (trimmedPublicMessage.Length > MaxPublicMessageLength)
+            {
+                return this.BadRequestProblem(
+                    $"PublicMessage must be at most {MaxPublicMessageLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (!UnicodeTextValidation.IsValidUnicodeText(trimmedPublicMessage))
+            {
+                return this.BadRequestProblem(
+                    "PublicMessage must not contain invalid Unicode surrogate pairs.",
+                    ProblemTypes.ValidationFailed);
+            }
         }
 
         QuickScanSafetyOperationalOverrideRow? previous =
