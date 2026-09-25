@@ -10779,10 +10779,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 446
+- **hunts:** 447
 - **bugs-found:** 3499
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — `GraphSnapshotKnowledgeModelMerger` duplicate nodes when context/model node ids differ only by case
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -14716,7 +14716,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1163 (hit): reseeded after #1162 closure; proved twelve hunt-ready rows — DustAccessKey/DutchAccessKey/DutyAccessKey redaction parity and advice doesntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — ordinal `modelNodeIds` / edge keys allowed duplicate nodes and edges when context ids differed only by case from κ-projected model graph — **hit 2026-09-08 seed hunt #1290:** `modelNodeIds` and edge dedup used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; context node `SHARED` merged alongside model node `shared`; fixed with `OrdinalIgnoreCase`; regression `Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_model_graph`
-- [ ] (candidate) `GraphSnapshotPagination.CreatePage` — ordinal page node id set may omit edges when `FromNodeId`/`ToNodeId` casing differs from paged node `NodeId` (same parity family as #713 truncation filter)
+- [x] (valid-no-repro) `GraphSnapshotPagination.CreatePage` — ordinal page node id set may omit edges when `FromNodeId`/`ToNodeId` casing differs from paged node `NodeId` — **cheap-disproof 2026-09-25:** implementation uses `StringComparer.OrdinalIgnoreCase`; existing regression `GraphSnapshotPaginationTests` covers the pagination edge slice parity.
 
 2026-09-08 seed hunt #1290 (hit): reseeded after git-churn reopen; promoted and proved κ→Γ merge node-id casing parity gap; 5937 scoped ArchLucid.Core + merger tests passed.
 
