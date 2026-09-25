@@ -91,7 +91,7 @@ internal static class InventoryDiagramAvdBoundaryApplier
                 FromNodeId = fromAvdOnly ? boundaryDiagramNodeId : sharedDiagramNodeId,
                 ToNodeId = fromAvdOnly ? sharedDiagramNodeId : boundaryDiagramNodeId,
                 Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryLabel,
-            }
+            });
         }
 
         foreach (DiagramNode boundaryNode in boundaryNodes.Values.OrderBy(node => node.NodeId, StringComparer.Ordinal))
