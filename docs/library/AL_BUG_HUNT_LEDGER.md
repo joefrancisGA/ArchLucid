@@ -3076,10 +3076,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 15
+- **hunts:** 17
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-10 — box-diagonal and ideographic/Arabic dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -8179,7 +8179,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 21
+- **hunts:** 25
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
@@ -10779,10 +10779,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 446
+- **hunts:** 447
 - **bugs-found:** 3499
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — `GraphSnapshotKnowledgeModelMerger` duplicate nodes when context/model node ids differ only by case
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -14716,7 +14716,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1163 (hit): reseeded after #1162 closure; proved twelve hunt-ready rows — DustAccessKey/DutchAccessKey/DutyAccessKey redaction parity and advice doesntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — ordinal `modelNodeIds` / edge keys allowed duplicate nodes and edges when context ids differed only by case from κ-projected model graph — **hit 2026-09-08 seed hunt #1290:** `modelNodeIds` and edge dedup used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; context node `SHARED` merged alongside model node `shared`; fixed with `OrdinalIgnoreCase`; regression `Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_model_graph`
-- [ ] (candidate) `GraphSnapshotPagination.CreatePage` — ordinal page node id set may omit edges when `FromNodeId`/`ToNodeId` casing differs from paged node `NodeId` (same parity family as #713 truncation filter)
+- [x] (valid-no-repro) `GraphSnapshotPagination.CreatePage` — ordinal page node id set may omit edges when `FromNodeId`/`ToNodeId` casing differs from paged node `NodeId` — **cheap-disproof 2026-09-25:** implementation uses `StringComparer.OrdinalIgnoreCase`; existing regression `GraphSnapshotPaginationTests` covers the pagination edge slice parity.
 
 2026-09-08 seed hunt #1290 (hit): reseeded after git-churn reopen; promoted and proved κ→Γ merge node-id casing parity gap; 5937 scoped ArchLucid.Core + merger tests passed.
 
@@ -15514,10 +15514,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase Tags/Properties/IsUnknownType fields
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15726,10 +15726,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 9
+- **hunts:** 12
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — compound ConnectionString config paths leaked through config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15809,10 +15809,10 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — pipe/plus-delimited product names false-positive phrase and token constraints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17860,10 +17860,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 935
+- **hunts:** 936
 - **bugs-found:** 223
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-14
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-15 — hunt #3528: spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -20393,10 +20393,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-11 — duplicate parallel edges after AS-018 diagram canonical bind remap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -20684,10 +20684,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-11
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -20815,10 +20815,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -20955,10 +20955,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 37
+- **hunts:** 42
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-12 — finding feedback POST omitted invalid-Unicode surrogate guard on Comment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -21058,10 +21058,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 278
+- **hunts:** 279
 - **bugs-found:** 506
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — pre-finalize checklist disposition lookback and evidence-linkage disposition parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -22463,10 +22463,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-10 — waiver guard allowed create on findings closed as RejectedAsNotApplicable
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -22695,10 +22695,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 14
+- **hunts:** 19
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-12 — `TenantTrialAbuseGuard` rejected link-entra on OID casing-only mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23130,10 +23130,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 9
+- **hunts:** 13
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-09 — full execute acquired ownership before no-scheduled-tasks gate
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -23261,10 +23261,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 5
+- **hunts:** 9
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-10 — outcome cards omitted detail snapshot finding counts when explanation deferred
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23306,10 +23306,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 10
+- **hunts:** 16
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-11 — orphan rerun= from guided-intake deep links prefilled quick-start run title
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23364,10 +23364,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — pick-review and show-all-filtered URL sync gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23407,10 +23407,10 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — inventory diagrams and terraform workbench links dropped review runId while diagram reconcile and hub tab links preserved it
 - **related-pd-tb:** none
 - **code-changed-since:** yes
