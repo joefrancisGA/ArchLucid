@@ -60,23 +60,6 @@ public static class AzureInventoryRouteTableNextHopResolver
             return ArmResourceIdNormalizer.Normalize(nextHopValue);
         }
 
-        foreach (GraphNode node in topologyNodes)
-        {
-            string armType = ReadArmType(node);
-
-            if (!armType.Contains("virtualNetworkGateways", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            string armId = ReadArmId(node);
-
-            if (!string.IsNullOrWhiteSpace(armId))
-            {
-                return ArmResourceIdNormalizer.Normalize(armId);
-            }
-        }
-
         return null;
     }
 
