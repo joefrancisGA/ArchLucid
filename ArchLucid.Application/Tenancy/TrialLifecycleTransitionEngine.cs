@@ -58,10 +58,17 @@ public sealed class TrialLifecycleTransitionEngine(
         TrialLifecycleAdvancement? advancement = TrialLifecyclePolicy.TryGetNextAdvancement(tenant, _timeProvider.GetUtcNow(), options);
         if (advancement is null)
             return false;
+
+        string persistedTrialStatus = tenant.TrialStatus!;
+
         if (string.Equals(advancement.ToStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
         {
-            bool recorded = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(tenantId, advancement.FromStatus, advancement.ToStatus,
-                advancement.Reason, cancellationToken);
+            bool recorded = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
+                tenantId,
+                persistedTrialStatus,
+                advancement.ToStatus,
+                advancement.Reason,
+                cancellationToken);
             if (!recorded)
                 return false;
             await EmitAuditAsync(tenant, advancement, cancellationToken);
@@ -72,7 +79,11 @@ public sealed class TrialLifecycleTransitionEngine(
             return true;
         }
 
-        bool ok = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(tenantId, advancement.FromStatus, advancement.ToStatus, advancement.Reason,
+        bool ok = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
+            tenantId,
+            persistedTrialStatus,
+            advancement.ToStatus,
+            advancement.Reason,
             cancellationToken);
         if (!ok)
             return false;

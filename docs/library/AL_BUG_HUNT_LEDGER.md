@@ -22815,11 +22815,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 21
-- **bugs-found:** 15
+- **hunts:** 22
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — `TenantTrialFacade.LinkEntraAsync` bound Entra on post-active lifecycle statuses without conversion
+- **last-bug:** 2026-09-25 — `TrialLifecycleTransitionEngine` used canonical FromStatus for optimistic lock on non-canonical persisted labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22851,6 +22851,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantTrialFacade.LinkEntraAsync` — bound Entra directory while `TrialStatus` is still `Active`, skipping `POST /v1/tenant/convert` — **hit 2026-09-11 hunt #1708 (seed→hit):** runbook requires convert before link-entra; fixed with `TrialLifecycleStatus.EqualsStatus` Active guard before abuse precheck; regressions `LinkEntraAsync_when_trial_status_is_active_returns_conflict_without_binding_directory` and `LinkEntraAsync_when_trial_status_is_lowercase_active_returns_conflict`
 - [x] (proven) `TenantTrialAbuseGuard.ValidateIdentityLinkAsync` — Ordinal `LinkedEntraOid` compare rejected idempotent link-entra retries when request OID differed only by casing — **hit 2026-09-12 thorough hunt #1859:** handoff stage already treats OID as case-insensitive but abuse precheck returned Conflict; fixed with `OrdinalIgnoreCase` parity; regression `ValidateIdentityLinkAsync_allows_same_entra_oid_when_casing_differs_from_linked_row`
 - [x] (proven) `TenantTrialFacade.LinkEntraAsync` — post-active lifecycle statuses (`Expired`, `ReadOnly`, `ExportOnly`, `Deleted`) bound Entra directory without `POST /v1/tenant/convert` — **hit 2026-09-25 seed hunt:** #1708 Active-only guard left expired trials able to skip conversion per `TRIAL_TO_PAID_IDENTITY_MIGRATION.md`; fixed by requiring `Converted` (or empty commercial status) before abuse precheck; regression `LinkEntraAsync_when_trial_status_is_expired_returns_conflict_without_binding_directory`
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — passed canonical `advancement.FromStatus` to `TryRecordTrialLifecycleTransitionAsync` so legacy lowercase/padded `TrialStatus` rows stalled after #808 policy parity — **hit 2026-09-25 seed hunt:** scheduler advanced policy but repository optimistic lock failed on ordinal mismatch; fixed by recording transitions against persisted `tenant.TrialStatus`; regressions `TryAdvanceTenantAsync_when_persisted_trial_status_differs_only_by_casing_records_transition_against_stored_label` and updated lowercase-active mock expectation
+
+2026-09-25 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved lifecycle scheduler could not persist transitions for non-canonical stored TrialStatus labels; 121 scoped tenancy tests passed.
 
 2026-09-25 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved link-entra allowed on Expired trial without conversion; tightened facade guard to Converted-or-commercial; 120 scoped tenancy tests passed.
 
