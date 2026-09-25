@@ -6945,3 +6945,4 @@
 {"at":"2026-09-25T20:18:04.8645019Z","zoneId":"auth-return-path","outcome":"seed-only"}
 {"at":"2026-09-25T20:21:58.8061473Z","zoneId":"auth-return-path","outcome":"seed-only"}
 {"at":"2026-09-25T20:29:38.0395749Z","zoneId":"artifact-synthesis","outcome":"hit"}
+{"at":"2026-09-25T20:34:08.5749312Z","zoneId":"ui-operator-routes","outcome":"hit"}
