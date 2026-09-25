@@ -7279,3 +7279,4 @@
 {"at":"2026-09-25T15:45:07.3000701Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only"}
 {"at":"2026-09-25T15:48:33.2745880Z","zoneId":"run-execute-ownership","outcome":"seed-only"}
 {"at":"2026-09-25T15:55:20.3963923Z","zoneId":"core-configuration-summary","outcome":"seed-only"}
+{"at":"2026-09-25T15:59:28.4514898Z","zoneId":"core-costing","outcome":"seed-only"}
