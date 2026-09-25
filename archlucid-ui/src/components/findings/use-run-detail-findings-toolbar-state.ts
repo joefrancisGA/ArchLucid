@@ -6,9 +6,13 @@ import { useCallback, useEffect, useState } from "react";
 import {
   DEFAULT_FINDING_JOB_VIEW,
   type FindingJobView} from "@/lib/findings/finding-job-view";
-import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
+import {
+  resolveFindingJobViewFromSearchParam,
+  REVIEW_FINDINGS_JOB_VIEW_PARAM,
+  writeFindingJobViewToUrl} from "@/lib/findings/review-findings-job-view-url";
 import {
   resolveReviewFindingsToolbarFilterFromSearchParam,
+  REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM,
   writeReviewFindingsToolbarFilterToUrl} from "@/lib/findings/review-findings-toolbar-filter-url";
 import {
   parseReviewFindingsToolbarSearchQuery,
@@ -35,6 +39,8 @@ function readCommittedSearchParams(): URLSearchParams {
 }
 
 function readToolbarStateFromCommittedUrl(): {
+  readonly filter: RunDetailFindingsFilterKind;
+  readonly jobView: FindingJobView;
   readonly searchQuery: string;
   readonly originFilter: FindingOriginFilter;
   readonly groundingFilter: FindingGroundingFilter;
@@ -45,6 +51,8 @@ function readToolbarStateFromCommittedUrl(): {
   const params = readCommittedSearchParams();
 
   return {
+    filter: resolveReviewFindingsToolbarFilterFromSearchParam(params.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM)),
+    jobView: resolveFindingJobViewFromSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM)),
     searchQuery: parseReviewFindingsToolbarSearchQuery(params.get("q")),
     originFilter: parseFindingsOriginFilterFromSearch(params.get("origin")),
     groundingFilter: parseFindingsGroundingFilterFromSearch(params.get("grounding")),
@@ -77,12 +85,7 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
   const pathname = usePathname() ?? "";
-  const initialFilter =
-    options?.initialFilter ??
-    resolveReviewFindingsToolbarFilterFromSearchParam(
-      readCommittedSearchParams().get("findingsFilter"),
-    );
-  const initialFromUrl = readToolbarStateFromCommittedUrl();
+  const initialFilter = options?.initialFilter ?? "all";
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
   const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
     setFilterState(next);
@@ -95,17 +98,19 @@ export function useRunDetailFindingsToolbarState(options?: {
     setJobViewState(next);
     writeFindingJobViewToUrl(next);
   }, []);
-  const [ownerFilter, setOwnerFilterState] = useState(initialFromUrl.ownerFilter);
-  const [domainFilter, setDomainFilterState] = useState(initialFromUrl.domainFilter);
-  const [searchQuery, setSearchQueryState] = useState(initialFromUrl.searchQuery);
-  const [sort, setSortState] = useState<RunDetailFindingsSortKind>(initialFromUrl.sort);
-  const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>(initialFromUrl.originFilter);
-  const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>(initialFromUrl.groundingFilter);
+  const [ownerFilter, setOwnerFilterState] = useState("");
+  const [domainFilter, setDomainFilterState] = useState("");
+  const [searchQuery, setSearchQueryState] = useState("");
+  const [sort, setSortState] = useState<RunDetailFindingsSortKind>("severity-desc");
+  const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>("all");
+  const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>("all");
 
   useEffect(() => {
     const syncFromCommittedUrl = (): void => {
       const next = readToolbarStateFromCommittedUrl();
 
+      setFilterState((current) => (current === next.filter ? current : next.filter));
+      setJobViewState((current) => (current === next.jobView ? current : next.jobView));
       setSearchQueryState((current) => (current === next.searchQuery ? current : next.searchQuery));
       setOriginFilterState((current) => (current === next.originFilter ? current : next.originFilter));
       setGroundingFilterState((current) => (current === next.groundingFilter ? current : next.groundingFilter));

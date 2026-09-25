@@ -135,17 +135,9 @@ export function RunDetailArtifactsExportsSection(
     deliverablesDefaultOpen ?? !buyerPolishedArtifactTable;
   const readDeliverablesOpenFromUrl = (): boolean | null =>
     parseRunDeliverablesOpenFromSearch(
-      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("runDeliverablesOpen"),
+      new URLSearchParams(window.location.search).get("runDeliverablesOpen"),
     );
-  const [deliverablesOpen, setDeliverablesOpenState] = useState(() => {
-    const fromUrl = readDeliverablesOpenFromUrl();
-
-    if (fromUrl !== null) {
-      return fromUrl;
-    }
-
-    return deliverablesSectionDefaultOpen;
-  });
+  const [deliverablesOpen, setDeliverablesOpenState] = useState(deliverablesSectionDefaultOpen);
   const deliverablesOpenRef = useRef(deliverablesOpen);
   deliverablesOpenRef.current = deliverablesOpen;
   const sealedManifestVersion = manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary);

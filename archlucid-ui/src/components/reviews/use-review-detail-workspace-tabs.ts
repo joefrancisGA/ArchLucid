@@ -11,7 +11,6 @@ import {
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
   readPresenterModeFromWindowLocation,
-  readReviewDetailFindingIdFromWindowLocation,
   readReviewDetailTabFromWindowLocation,
   resolveReviewDetailTabFromHash,
   resolveReviewDetailTabFromLocation,
@@ -28,7 +27,6 @@ import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkben
 import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProfessionalWorkbenchEnabled } from "@/lib/workspace-mode/use-professional-workbench-enabled";
-import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import type { ReviewDetailWorkspaceProps } from "@/components/reviews/ReviewDetailWorkspace";
 
@@ -82,13 +80,9 @@ export function useReviewDetailWorkspaceTabs(
   props: ReviewDetailWorkspaceProps,
 ): UseReviewDetailWorkspaceTabsResult {
   const { isWorkingMode } = useWorkspaceMode();
-  const initialFindingId = readReviewDetailFindingIdFromWindowLocation();
-  const initialWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
-    typeof window === "undefined"
-      ? null
-      : new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
-  );
-  const [presenterMode, setPresenterModeState] = useState(() => readPresenterModeFromWindowLocation());
+  const initialFindingId = null;
+  const initialWorkbenchFocus = null;
+  const [presenterMode, setPresenterModeState] = useState(false);
   const presenterModeRef = useRef(presenterMode);
   presenterModeRef.current = presenterMode;
   const [hashResolved, setHashResolved] = useState(false);
@@ -108,32 +102,12 @@ export function useReviewDetailWorkspaceTabs(
 
     return resolveReviewWorkspaceVisibleTabs({ ...fallbackInput, lifecycle, workingDesk: isWorkingMode });
   }, [isWorkingMode, lifecycle, props.tabLifecycle]);
-  const rawReviewTabParam =
-    typeof window === "undefined"
-      ? null
-      : new URLSearchParams(window.location.search).get(REVIEW_DETAIL_TAB_PARAM);
-  const rawArchTabParam =
-    typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("archTab");
   const searchParamTab =
     props.tabLifecycle !== undefined
-      ? resolveReviewWorkspaceTabFromSearchParams(new URLSearchParams(readWindowLocationSearch()), resolved, lifecycle)
-      : resolveReviewDetailTabFromLocation(rawReviewTabParam, rawArchTabParam);
+      ? resolveReviewWorkspaceTabFromSearchParams(new URLSearchParams(), resolved, lifecycle)
+      : resolveReviewDetailTabFromLocation(null, null);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
-  const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(
-    () => {
-      const fromUrl = resolveReviewWorkbenchFocusColumn(
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
-      );
-
-      if (fromUrl !== null) {
-        return fromUrl;
-      }
-
-      return isWorkbenchTab(searchParamTab) ? searchParamTab : null;
-    },
-  );
+  const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(null);
   const workbenchFocusColumnRef = useRef(workbenchFocusColumn);
   workbenchFocusColumnRef.current = workbenchFocusColumn;
   const tabActivityAt = props.tabActivityAt ?? {};
