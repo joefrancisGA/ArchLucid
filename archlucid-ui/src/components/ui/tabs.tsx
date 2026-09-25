@@ -296,7 +296,7 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
       aria-controls={panelId}
       tabIndex={selected ? 0 : -1}
       disabled={props.disabled}
-      title={props.title}
+      aria-label={props.title}
       data-tabs-value={props.value}
       data-tabs-trigger
       data-state={selected ? "active" : "inactive"}

@@ -927,7 +927,7 @@ export function InfrastructureAskClient() {
         }
         claimDisciplineTestId="infra-ask-claim-discipline"
         titleTestId="infra-ask-page-title"
-        breadcrumb={buyerPolishedShell ? <InfrastructureAskBreadcrumb /> : undefined}
+        breadcrumb={<InfrastructureAskBreadcrumb />}
         actions={headerActions}
       />
 

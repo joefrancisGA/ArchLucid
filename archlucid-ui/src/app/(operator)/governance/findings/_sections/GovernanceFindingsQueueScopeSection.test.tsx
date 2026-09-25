@@ -124,6 +124,12 @@ describe("GovernanceFindingsQueueScopeSection", () => {
     expect(screen.queryByRole("link", { name: "Open review" })).toBeNull();
   });
 
+  it("hides architecture posture when the findings queue load failed", () => {
+    render(<GovernanceFindingsQueueScopeSection {...buildProps({ loadFailed: true })} />);
+
+    expect(screen.queryByTestId("architecture-posture-pillar-overview")).not.toBeInTheDocument();
+  });
+
   it("clear review scope link preserves register filters", () => {
     render(
       <GovernanceFindingsQueueScopeSection

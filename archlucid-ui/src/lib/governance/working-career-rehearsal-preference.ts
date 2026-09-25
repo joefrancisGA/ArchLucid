@@ -24,7 +24,11 @@ export function writeWorkingCareerRehearsalIntentToStorage(intent: WorkingCareer
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, intent);
+  try {
+    window.localStorage.setItem(STORAGE_KEY, intent);
+  } catch {
+    /* private/restricted storage */
+  }
 }
 
 /** AS-080: first-run Working defaults to Career intent; existing stored Rehearsal is grandfathered. */

@@ -6,6 +6,7 @@ import { getArchitectureIdentity } from "@/lib/api/architecture-identity-api";
 import { getDraftRequest } from "@/lib/api/draft-intake-api";
 import { isArchitectureNewDraftSegment } from "@/lib/architecture/architecture-routes";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { resolveSampleScenarioBySlug } from "@/lib/samples/registry";
 import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
 
 export type ResolvedArchitectureRouteSegment =
@@ -51,6 +52,12 @@ export async function resolveArchitectureRouteSegment(
     return { kind: "legacy-draft", draftId: trimmed };
   } catch (error: unknown) {
     if (isApiRequestError(error) && error.httpStatus === 404) {
+      const registeredSampleScenario = resolveSampleScenarioBySlug(trimmed);
+
+      if (registeredSampleScenario !== null) {
+        return { kind: "identity", architectureId: registeredSampleScenario.slug };
+      }
+
       notFound();
     }
 

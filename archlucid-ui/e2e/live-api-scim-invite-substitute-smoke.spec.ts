@@ -7,7 +7,7 @@ import { expect, test } from "@playwright/test";
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
-import { resolveLiveJwtMode } from "./helpers/live-api-client";
+import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
 import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/scim-provisioning-page-copy";
 
 test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] }, () => {
@@ -24,6 +24,10 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+    if ((await page.getByText(/Something went wrong/i).count()) > 0) {
+      await primePrivateBetaBrowserPage(page, accessToken);
+      await page.reload({ waitUntil: "domcontentloaded" });
+    }
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("scim-identity-providers-vocabulary")).toBeVisible({ timeout: 60_000 });
@@ -32,17 +36,37 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     });
   });
 
-  test("SCIM admin can issue, list, and revoke a provisioning token", async ({ page }) => {
+  test("SCIM admin can issue, list, and revoke a provisioning token", async ({ page, request }) => {
     test.setTimeout(180_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
     await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+    if ((await page.getByText(/Something went wrong/i).count()) > 0) {
+      await primePrivateBetaBrowserPage(page, accessToken);
+      await page.reload({ waitUntil: "domcontentloaded" });
+    }
 
+    await expect(page).toHaveURL(/\/administration\/scim-provisioning(?:[/?#]|$)/, { timeout: 30_000 });
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
 
-    await clickThroughBlockingOverlays(page, page.getByTestId("scim-create-token"));
+    const existingDialog = page.getByRole("alertdialog");
+
+    if (await existingDialog.isVisible().catch(() => false)) {
+      await page.keyboard.press("Escape");
+      await expect(existingDialog).toBeHidden({ timeout: 15_000 });
+    }
+
+    try {
+      await clickThroughBlockingOverlays(page, page.getByTestId("scim-create-token"));
+    } catch (error) {
+      const scimResponse = await request.get(`${liveApiBase}/v1/admin/scim/tokens`).catch(() => null);
+      const scimStatus = scimResponse === null ? "unreachable" : String(scimResponse.status());
+      throw new Error(
+        `SCIM create-token control was not clickable at ${page.url()} (API GET /v1/admin/scim/tokens status=${scimStatus}). ${String(error)}`,
+      );
+    }
 
     const createDialog = page.getByRole("alertdialog");
     await expect(createDialog).toBeVisible({ timeout: 15_000 });

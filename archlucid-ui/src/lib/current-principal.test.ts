@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import {
+  AUTH_ME_FETCH_TIMEOUT_MS,
   invalidateCurrentPrincipalCache,
   loadCurrentPrincipal,
   normalizeAuthMeResponse,
@@ -212,6 +213,30 @@ describe("loadCurrentPrincipal", () => {
     await loadCurrentPrincipal();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns me-timeout synthetic principal when /me exceeds the fetch timeout", async () => {
+    vi.useFakeTimers();
+
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => {
+          reject(new DOMException("The operation was aborted.", "AbortError"));
+        });
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const principalPromise = loadCurrentPrincipal();
+    await vi.advanceTimersByTimeAsync(AUTH_ME_FETCH_TIMEOUT_MS + 1);
+    const principal = await principalPromise;
+
+    expect(principal.provenance).toBe("synthetic");
+    expect(principal.syntheticReason).toBe("me-timeout");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 
   it("bypasses cache when bypassCache is true", async () => {

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { AskPageContent } from "@/app/(operator)/insights/ask-review-questions/_sections/AskPageContent";
 import { AskSuspenseFallback } from "@/app/(operator)/insights/ask-review-questions/_sections/AskSuspenseFallback";
+import { WorkingArchitectureNestedToolShell } from "@/components/architecture/WorkingArchitectureNestedToolShell";
 import { architectureNestedAskPath } from "@/lib/architecture/architecture-routes";
 
 export type ArchitectureNestedAskPageClientProps = {
@@ -17,11 +18,13 @@ export function ArchitectureNestedAskPageClient(
   const architectureId = props.architectureId.trim();
 
   return (
-    <Suspense fallback={<AskSuspenseFallback />}>
-      <AskPageContent
-        basePathname={architectureNestedAskPath(architectureId)}
-        pinnedArchitectureId={architectureId}
-      />
-    </Suspense>
+    <WorkingArchitectureNestedToolShell architectureId={architectureId} toolLabel="Ask">
+      <Suspense fallback={<AskSuspenseFallback />}>
+        <AskPageContent
+          basePathname={architectureNestedAskPath(architectureId)}
+          pinnedArchitectureId={architectureId}
+        />
+      </Suspense>
+    </WorkingArchitectureNestedToolShell>
   );
 }

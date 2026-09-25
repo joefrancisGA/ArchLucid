@@ -1,4 +1,5 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { tryWorkbookPlatformBundledPolicyPacksDemoFallback } from "@/lib/internal/platform-bundled-policy-packs-demo-fallback";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
@@ -68,5 +69,15 @@ export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocu
 
 /** Lists bundled platform policy packs and global activation flags (internal admin). */
 export async function listPlatformBundledPolicyPacks(): Promise<PlatformBundledPolicyPackRegistryEntry[]> {
-  return apiGet("/v1/admin/platform-bundled-policy-packs");
+  try {
+    return await apiGet("/v1/admin/platform-bundled-policy-packs");
+  } catch {
+    const demoFallback = tryWorkbookPlatformBundledPolicyPacksDemoFallback();
+
+    if (demoFallback !== null) {
+      return demoFallback;
+    }
+
+    throw new Error("platform-bundled-policy-packs unavailable");
+  }
 }

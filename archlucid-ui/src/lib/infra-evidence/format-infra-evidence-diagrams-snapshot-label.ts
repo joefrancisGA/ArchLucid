@@ -1,5 +1,5 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
-import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
+import { formatInstantInPreferredTimeZoneMilitary } from "@/lib/locale-datetime";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 
@@ -10,7 +10,7 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
 ): string {
   const captured =
     snapshot.capturedUtc != null && snapshot.capturedUtc.trim().length > 0
-      ? formatInstantInPreferredTimeZone(snapshot.capturedUtc, ianaTimeZoneId)
+      ? formatInstantInPreferredTimeZoneMilitary(snapshot.capturedUtc, ianaTimeZoneId)
       : "unknown capture time";
   const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
   const parts: string[] = [];
@@ -19,7 +19,7 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
     parts.push(subscription);
   }
 
-  parts.push(`captured ${captured}`);
+  parts.push(captured);
   parts.push(`${snapshot.resourceCount} resources`);
 
   return parts.join(" · ");

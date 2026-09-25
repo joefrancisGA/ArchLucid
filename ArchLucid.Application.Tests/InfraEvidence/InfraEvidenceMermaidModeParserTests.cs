@@ -81,4 +81,57 @@ public sealed class InfraEvidenceMermaidModeParserTests
         result.DiagramMode.Should().Be(DiagramMode.DataArchitecture);
         result.ModeKey.Should().Be("dataArchitecture");
     }
+
+    [Fact]
+    public void TryParse_supports_new_modes_and_private_endpoint_opt_in()
+    {
+        InfraEvidenceMermaidModeParser.TryParse(
+            "security",
+            null,
+            null,
+            out InfraEvidenceMermaidModeParseResult security,
+            includePrivateEndpointNodes: true);
+
+        security.DiagramMode.Should().Be(DiagramMode.Security);
+        security.CompileOptions!.IncludePrivateEndpointNodes.Should().BeTrue();
+
+        InfraEvidenceMermaidModeParser.TryParse(
+            "selectedResources",
+            "resource-a,resource-b",
+            null,
+            out InfraEvidenceMermaidModeParseResult selected);
+
+        selected.DiagramMode.Should().Be(DiagramMode.SelectedResources);
+        selected.CompileOptions!.SelectedNodeIds.Should().Equal("resource-a", "resource-b");
+    }
+
+    [Fact]
+    public void TryParse_maps_include_recovery_services_into_compile_options()
+    {
+        InfraEvidenceMermaidModeParser.TryParse(
+            "full",
+            null,
+            null,
+            out InfraEvidenceMermaidModeParseResult result,
+            includePrivateEndpointNodes: false,
+            includeRecoveryServices: true);
+
+        result.DiagramMode.Should().Be(DiagramMode.FullSubscription);
+        result.CompileOptions!.IncludeRecoveryServices.Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryParse_business_continuity_ignores_include_recovery_services_flag()
+    {
+        InfraEvidenceMermaidModeParser.TryParse(
+            "businessContinuity",
+            null,
+            null,
+            out InfraEvidenceMermaidModeParseResult result,
+            includePrivateEndpointNodes: false,
+            includeRecoveryServices: true);
+
+        result.DiagramMode.Should().Be(DiagramMode.BusinessContinuity);
+        result.CompileOptions.Should().BeNull();
+    }
 }

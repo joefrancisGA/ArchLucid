@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import {
@@ -20,6 +21,7 @@ export function useErrorRecoveryCareerHonesty(
   input: UseErrorRecoveryCareerHonestyInput,
 ): ErrorRecoveryCareerHonestyPresentation | null {
   const { isWorkingMode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const scope = useOperatorScopeQueryKey();
   const trimmedRunId = (input.scopedRunId ?? "").trim();
@@ -34,6 +36,7 @@ export function useErrorRecoveryCareerHonesty(
 
     return resolveErrorRecoveryCareerHonesty({
       workingDesk: true,
+      productLineId: productLine,
       structuralExecutionMode: cachedStamp?.structuralExecutionMode,
       stampedWorkingCareerRehearsalDoor: cachedStamp?.workingCareerRehearsalDoor ?? null,
       liveWorkingCareerRehearsalDoor: effectiveDoor,
@@ -41,6 +44,7 @@ export function useErrorRecoveryCareerHonesty(
   }, [
     effectiveDoor,
     isWorkingMode,
+    productLine,
     scope,
     trimmedRunId,
   ]);

@@ -38,7 +38,6 @@ import { draftStatusAllowsWhatIfBranch } from "@/lib/draft-intake-branch-eligibi
 import type {
   BranchDraftResponse,
   DraftBranchOverrideKind,
-  DraftBranchQuotaResponse,
   DraftElicitationQuestion,
   DraftRequestStatus,
 } from "@/types/draft-intake";
@@ -98,13 +97,17 @@ function resolveInitialOverrideKind(
 }
 
 export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanelProps) {
-  const branchAllowed = draftStatusAllowsWhatIfBranch(props.draftStatus);
-  const defaultQuestionKey = props.questionOptions[0]?.questionKey ?? "";
-  const suppressQuestionAnswerOverride = props.suppressQuestionAnswerOverride === true;
-
-  if (!branchAllowed) {
+  if (!draftStatusAllowsWhatIfBranch(props.draftStatus)) {
     return null;
   }
+
+  return <DraftIntakeWhatIfBranchPanelContent {...props} />;
+}
+
+function DraftIntakeWhatIfBranchPanelContent(props: DraftIntakeWhatIfBranchPanelProps) {
+  const branchAllowed = true;
+  const defaultQuestionKey = props.questionOptions[0]?.questionKey ?? "";
+  const suppressQuestionAnswerOverride = props.suppressQuestionAnswerOverride === true;
 
   const availableOverrideKinds = useMemo(() => {
     if (!suppressQuestionAnswerOverride) {

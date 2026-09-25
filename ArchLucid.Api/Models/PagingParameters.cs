@@ -25,7 +25,8 @@ public sealed class PagingParameters
         if (PageSize > MaxPageSize)
             PageSize = MaxPageSize;
 
-        int skip = (PageNumber - 1) * PageSize;
+        long offset = ((long)PageNumber - 1) * PageSize;
+        int skip = (int)Math.Min(offset, int.MaxValue);
         return (skip, PageSize);
     }
 }

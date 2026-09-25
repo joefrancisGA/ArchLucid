@@ -20,6 +20,9 @@
  * buyers, updating **PRODUCT_PACKAGING.md** — see §3 *Contributor drift guard* (*Guidance strip* step).
  */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { SECURENOW_GOVERNANCE_FINDINGS_LAYER_GUIDANCE } from "@/lib/product-line/securenow-governance-findings-copy";
+
 export type LayerGuidancePageKey =
   | "compare"
   | "replay"
@@ -461,4 +464,16 @@ export function mergeLayerGuidanceForGraphDisclosure(base: LayerGuidanceBlock): 
   }
 
   return { ...base, ...extra };
+}
+
+/** Product-line-aware layer guidance — SecureNow findings queue uses cloud-security copy. */
+export function resolveLayerGuidanceForProductLine(
+  pageKey: LayerGuidancePageKey,
+  productLineId: ProductLineId = "architecture",
+): LayerGuidanceBlock {
+  if (pageKey === "governance-findings" && productLineId === "security") {
+    return SECURENOW_GOVERNANCE_FINDINGS_LAYER_GUIDANCE;
+  }
+
+  return LAYER_PAGE_GUIDANCE[pageKey];
 }

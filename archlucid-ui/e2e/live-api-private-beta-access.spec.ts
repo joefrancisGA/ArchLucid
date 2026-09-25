@@ -42,17 +42,17 @@ import {
   enrichArchitectureRequestBody,
   getRunDetailsWithTransientRetries,
   liveApiBase,
+  liveE2eArchitectureDescription,
   liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
   resolveArchitectureIdentityIdForRun,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
+  uniquePrivateBetaSystemName,
   liveJsonHeaders,
   waitForArchitectureRunListIncludesRun,
   waitForLiveApiReady,
   warmPrivateBetaCreateRunPipeline,
 } from "./helpers/live-api-client";
-import { liveE2eSimulatorFriendlyArchitectureCreateBody } from "./helpers/live-api-payloads";
-
 const expectedScope = {
   tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
   workspaceId: LIVE_E2E_DEFAULT_WORKSPACE_ID,
@@ -297,6 +297,11 @@ test.describe(
       const fakeRunId = "00000000-0000-4000-8000-000000000000";
 
       await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+      const errorShell = page.getByText(/Something went wrong/i);
+      if ((await errorShell.count()) > 0) {
+        await primePrivateBetaBrowserPage(page, accessToken);
+        await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+      }
 
       await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 30_000 });
       await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 30_000 });
@@ -351,10 +356,16 @@ test.describe(
 
     const { runId } = await createRun(
       request,
-      liveE2eSimulatorFriendlyArchitectureCreateBody({
-        requestIdPrefix: "E2E-BETA-ACCESS",
-        systemNamePrefix: "PrivateBetaAccessSmoke",
-        intent: "Private beta access-path smoke architecture review for secure Azure enterprise RAG.",
+      enrichArchitectureRequestBody({
+        requestId: `E2E-BETA-ACCESS-${Date.now()}`,
+        description: liveE2eArchitectureDescription("Private beta access-path smoke architecture review."),
+        systemName: uniquePrivateBetaSystemName("PrivateBetaAccessSmoke"),
+        environment: "prod",
+        cloudProvider: 1,
+        constraints: [] as string[],
+        requiredCapabilities: ["SQL"],
+        assumptions: [] as string[],
+        priorManifestVersion: null as string | null,
       }),
       scope,
     );

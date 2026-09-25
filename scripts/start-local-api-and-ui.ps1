@@ -257,7 +257,7 @@ if (-not $SkipPreflight) {
     if (-not $apiAlreadyHealthy) {
         $apiListeners = Get-NetTCPConnection -LocalPort $ApiPort -State Listen -ErrorAction SilentlyContinue
 
-        if ($null -ne $apiListeners -and $apiListeners.Count -gt 0) {
+        if ($null -ne $apiListeners -and @($apiListeners).Count -gt 0) {
             Write-StageError -Stage "preflight" -Message "Port $ApiPort is in use but /health/live did not return 200."
         }
     }
@@ -278,7 +278,7 @@ if (-not $SkipPreflight) {
 
         $uiListeners = Get-NetTCPConnection -LocalPort $site.Port -State Listen -ErrorAction SilentlyContinue
 
-        if ($null -ne $uiListeners -and $uiListeners.Count -gt 0) {
+        if ($null -ne $uiListeners -and @($uiListeners).Count -gt 0) {
             Write-StageError -Stage "preflight" -Message ("Port {0} is in use but {1} UI root did not return 200." -f $site.Port, $site.Name)
         }
     }

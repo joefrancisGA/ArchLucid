@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
+import { HelpTopicProductLineExclusionView } from "../_sections/HelpTopicProductLineExclusionView";
 import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
 import { SPONSOR_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/sponsor/sponsor-report-help-route-metadata";
@@ -28,6 +29,7 @@ import { loadHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 import { resolveHelpTopicView } from "@/lib/help/help-topic-view-resolver";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
+import { resolveHelpTopicProductLineExclusionContent } from "@/lib/help/help-topic-product-line-exclusion-copy";
 import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 /** ISR for buyer help topics — keep in sync with `HELP_TOPIC_ROUTE_REVALIDATE_SECONDS` (TB-1600). */
@@ -57,9 +59,16 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
 
 export async function generateMetadata(props: HelpTopicPageProps): Promise<Metadata> {
   const { topic } = await props.params;
-  const entry = getProductDocumentationEntry(helpSlugFromTopicSegments(topic));
+  const slug = helpSlugFromTopicSegments(topic);
+  const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {
+    return { title: "Help topic not found" };
+  }
+
+  const productLineId = await resolveProductLineIdForServer();
+
+  if (isHelpTopicExcludedForProductLine(entry.slug, productLineId)) {
     return { title: "Help topic not found" };
   }
 
@@ -131,7 +140,15 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
     return <HelpTopicNotFoundView />;
   }
 
-  if (isHelpTopicExcludedForProductLine(entry.slug, await resolveProductLineIdForServer())) {
+  const productLineId = await resolveProductLineIdForServer();
+
+  if (isHelpTopicExcludedForProductLine(entry.slug, productLineId)) {
+    const exclusionContent = resolveHelpTopicProductLineExclusionContent(entry.slug, productLineId);
+
+    if (exclusionContent !== null) {
+      return <HelpTopicProductLineExclusionView content={exclusionContent} />;
+    }
+
     return <HelpTopicNotFoundView />;
   }
 

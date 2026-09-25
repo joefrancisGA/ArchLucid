@@ -6,6 +6,7 @@ import { SecurityEvidencePathInspectPanel } from "@/components/security/Security
 import {
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
+  SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 
 vi.mock("@/hooks/use-operational-security-finding-detail-query", () => ({
@@ -41,19 +42,50 @@ import {
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 
-function renderPanel(findingId: string | null) {
+function renderPanel(
+  findingId: string | null,
+  extraProps: Partial<React.ComponentProps<typeof SecurityEvidencePathInspectPanel>> = {},
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <SecurityEvidencePathInspectPanel findingId={findingId} />
+      <SecurityEvidencePathInspectPanel findingId={findingId} {...extraProps} />
     </QueryClientProvider>,
   );
 }
 
 describe("SecurityEvidencePathInspectPanel", () => {
+  it("shows subject identity and compact empty copy when nothing is selected", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, {
+      selectPromptPreset: {
+        title: "Select a queue row",
+        description: SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
+        testId: "security-evidence-path-inspect-select-prompt",
+      },
+    });
+
+    expect(screen.getByTestId("security-evidence-path-inspect-select-prompt")).toBeInTheDocument();
+  });
+
   it("shows resource-scoped empty copy when finding has no pathId", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: null, title: "Test finding" },
@@ -71,8 +103,18 @@ describe("SecurityEvidencePathInspectPanel", () => {
       isError: false,
     } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
 
-    renderPanel("finding-1");
+    renderPanel("finding-1", {
+      selectedFinding: {
+        findingId: "finding-1",
+        totalScore: 0.5,
+        explanationSummary: "Sample",
+        breakdownJson: "[]",
+        controlId: "AC-2",
+        patternKey: "storage.encrypt",
+      },
+    });
 
+    expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent("AC-2");
     expect(screen.getByTestId("security-evidence-path-inspect-empty")).toHaveTextContent(
       SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
     );

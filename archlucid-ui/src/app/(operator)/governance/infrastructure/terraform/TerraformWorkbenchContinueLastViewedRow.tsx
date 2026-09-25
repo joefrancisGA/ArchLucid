@@ -9,16 +9,30 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_RESUME, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ContinueLastInfraEvidenceTerraformWorkbenchTarget } from "@/lib/resolve-continue-last-infra-evidence-terraform-workbench";
+import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 export type TerraformWorkbenchContinueLastViewedRowProps = {
   readonly target: ContinueLastInfraEvidenceTerraformWorkbenchTarget;
 };
 
+function formatSnapshotShortId(snapshotId: string): string {
+  const trimmed = snapshotId.trim();
+
+  if (trimmed.length === 0) {
+    return "default snapshot";
+  }
+
+  return trimmed.length > 8 ? `${trimmed.slice(0, 8)}…` : trimmed;
+}
+
 /** Resume the most recent scoped Terraform mapping visit from operator recent views. */
 export function TerraformWorkbenchContinueLastViewedRow(
   props: TerraformWorkbenchContinueLastViewedRowProps,
 ): React.JSX.Element {
+  const snapshotLabel = formatSnapshotShortId(props.target.snapshotId);
+  const viewedLabel = formatRelativeTime(props.target.viewedAtUtc);
+
   return (
     <section
       aria-labelledby="infra-terraform-continue-last-heading"
@@ -35,6 +49,12 @@ export function TerraformWorkbenchContinueLastViewedRow(
           </h2>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium text-al-text-primary">{props.target.label}</span>
+            {" · "}
+            Snapshot {snapshotLabel}
+            {" · "}
+            <time dateTime={props.target.viewedAtUtc} title={formatAbsoluteUpdatedAtTitle(props.target.viewedAtUtc)}>
+              {viewedLabel}
+            </time>
           </p>
         </div>
         <Button

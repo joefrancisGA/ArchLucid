@@ -13,6 +13,12 @@ import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  resolveSecureNowGovernanceFindingsClaimDiscipline,
+  resolveSecureNowGovernanceFindingsPageSubtitle,
+  resolveSecureNowGovernanceFindingsPageTitle,
+} from "@/lib/product-line/securenow-governance-findings-copy";
 import {
   resolveGovernanceAssignedToMeClaimDiscipline,
   resolveGovernanceAssignedToMePageSubtitle,
@@ -263,6 +269,7 @@ export type ResolveGovernanceFindingsPresentationOptions = {
   readonly architectureDisplayName?: string | null;
   readonly scopedRunId?: string | null;
   readonly scopedRunTitle?: string | null;
+  readonly productLineId?: ProductLineId;
 };
 
 function resolveInhabitedPresentationInput(
@@ -275,6 +282,7 @@ function resolveInhabitedPresentationInput(
     architectureDisplayName: options.architectureDisplayName ?? null,
     scopedRunId: options.scopedRunId ?? null,
     scopedRunTitle: options.scopedRunTitle ?? null,
+    productLineId: options.productLineId,
   };
 }
 
@@ -285,6 +293,10 @@ export function resolveGovernanceFindingsPageTitle(
 ): string {
   if (isAssignedToMe) {
     return "Assigned to me";
+  }
+
+  if (isSecureNowProductLine(options.productLineId ?? "architecture")) {
+    return resolveSecureNowGovernanceFindingsPageTitle();
   }
 
   const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
@@ -306,7 +318,15 @@ export function resolveGovernanceFindingsPageSubtitle(
     return resolveGovernanceAssignedToMePageSubtitle(productLineId, buyerPolishedShell);
   }
 
-  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+  const presentationOptions = { ...options, productLineId };
+
+  if (isSecureNowProductLine(productLineId)) {
+    return resolveSecureNowGovernanceFindingsPageSubtitle();
+  }
+
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(
+    resolveInhabitedPresentationInput(presentationOptions),
+  );
 
   if (inhabited !== null) {
     return inhabited.pageSubtitle;
@@ -333,7 +353,15 @@ export function resolveGovernanceFindingsClaimDiscipline(
     return resolveGovernanceAssignedToMeClaimDiscipline(productLineId, buyerPolishedShell);
   }
 
-  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+  const presentationOptions = { ...options, productLineId };
+
+  if (isSecureNowProductLine(productLineId)) {
+    return resolveSecureNowGovernanceFindingsClaimDiscipline();
+  }
+
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(
+    resolveInhabitedPresentationInput(presentationOptions),
+  );
 
   if (inhabited !== null) {
     return inhabited.claimDiscipline;

@@ -22,7 +22,9 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_ADMIN: readonly ProductDocum
     "audience": "developer",
     "sourcePaths": [
       "docs/library/CONFIGURATION_REFERENCE.md"
-    ]
+    ],
+    "lastReviewed": "2026-09-22",
+    "releaseApplicability": "Admin identity, SSO, and hosting configuration"
   },
   {
     "slug": "engineering-troubleshooting",

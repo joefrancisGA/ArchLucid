@@ -15,7 +15,7 @@ public static partial class SponsorPacketBuyerDecisionBriefBuilder
         string? executionProvenance)
     {
         StringBuilder sb = new();
-        string generatedUtc = manifest.GeneratedUtc ?? DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
+        string generatedUtc = manifest.GeneratedUtc ?? TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture);
 
         sb.AppendLine("> Buyer-safe. No internal diagnostics, secrets, or raw prompts. Review `limitations.md` before external circulation.");
         sb.AppendLine();

@@ -98,6 +98,36 @@ internal static class AzureInventoryAppAuthorizedAccessEdgeMapper
 
             foreach (string computeArmId in computeArmIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
+                if (TryResolveMessagingOwnerSources(
+                        roleName,
+                        attestedScope,
+                        resources,
+                        out string writeSource,
+                        out string readSource))
+                {
+                    AddRelationship(
+                        relationships,
+                        relationshipKeys,
+                        computeArmId,
+                        attestedScope,
+                        GraphEdgeTypes.CanWrite,
+                        definition.DefaultProvenanceKind,
+                        DerivedFactConfidence,
+                        writeSource);
+
+                    AddRelationship(
+                        relationships,
+                        relationshipKeys,
+                        computeArmId,
+                        attestedScope,
+                        GraphEdgeTypes.CanRead,
+                        definition.DefaultProvenanceKind,
+                        DerivedFactConfidence,
+                        readSource);
+
+                    continue;
+                }
+
                 string relationshipType = ResolveAuthorizedAccessRelationshipType(permission);
 
                 AddRelationship(
@@ -108,7 +138,7 @@ internal static class AzureInventoryAppAuthorizedAccessEdgeMapper
                     relationshipType,
                     definition.DefaultProvenanceKind,
                     DerivedFactConfidence,
-                    definition.DefaultInferenceSource);
+                    ResolveInferenceSource(roleName, attestedScope, resources, definition.DefaultInferenceSource));
             }
         }
     }
@@ -127,6 +157,88 @@ internal static class AzureInventoryAppAuthorizedAccessEdgeMapper
         }
 
         return GraphEdgeTypes.MayAccess;
+    }
+
+    private static string ResolveInferenceSource(
+        string? roleName,
+        string attestedScope,
+        IReadOnlyList<AzureExtractorExtendedResourceRow> resources,
+        string fallback)
+    {
+        AzureExtractorExtendedResourceRow? target = resources.FirstOrDefault(resource =>
+            ArmResourceIdNormalizer.Normalize(resource.AzureResourceId)
+                .Equals(attestedScope, StringComparison.OrdinalIgnoreCase));
+
+        bool isEventHub = target?.ResourceType.Contains("Microsoft.EventHub/", StringComparison.OrdinalIgnoreCase) is true
+                          || attestedScope.Contains("/providers/Microsoft.EventHub/", StringComparison.OrdinalIgnoreCase);
+        bool isServiceBus = target?.ResourceType.Contains("Microsoft.ServiceBus/", StringComparison.OrdinalIgnoreCase) is true
+                            || attestedScope.Contains("/providers/Microsoft.ServiceBus/", StringComparison.OrdinalIgnoreCase);
+
+        if (isEventHub)
+        {
+            if (roleName?.Equals("Azure Event Hubs Data Sender", StringComparison.OrdinalIgnoreCase) is true)
+            {
+                return GraphEdgeInferenceSources.InventoryEventHubMayPublish;
+            }
+
+            if (roleName?.Equals("Azure Event Hubs Data Receiver", StringComparison.OrdinalIgnoreCase) is true)
+            {
+                return GraphEdgeInferenceSources.InventoryEventHubMayConsume;
+            }
+        }
+
+        if (isServiceBus)
+        {
+            if (roleName?.Equals("Azure Service Bus Data Sender", StringComparison.OrdinalIgnoreCase) is true)
+            {
+                return GraphEdgeInferenceSources.InventoryServiceBusMaySend;
+            }
+
+            if (roleName?.Equals("Azure Service Bus Data Receiver", StringComparison.OrdinalIgnoreCase) is true)
+            {
+                return GraphEdgeInferenceSources.InventoryServiceBusMayReceive;
+            }
+        }
+
+        return fallback;
+    }
+
+    private static bool TryResolveMessagingOwnerSources(
+        string? roleName,
+        string attestedScope,
+        IReadOnlyList<AzureExtractorExtendedResourceRow> resources,
+        out string writeSource,
+        out string readSource)
+    {
+        writeSource = string.Empty;
+        readSource = string.Empty;
+
+        AzureExtractorExtendedResourceRow? target = resources.FirstOrDefault(resource =>
+            ArmResourceIdNormalizer.Normalize(resource.AzureResourceId)
+                .Equals(attestedScope, StringComparison.OrdinalIgnoreCase));
+
+        bool isEventHub = target?.ResourceType.Contains("Microsoft.EventHub/", StringComparison.OrdinalIgnoreCase) is true
+                          || attestedScope.Contains("/providers/Microsoft.EventHub/", StringComparison.OrdinalIgnoreCase);
+        bool isServiceBus = target?.ResourceType.Contains("Microsoft.ServiceBus/", StringComparison.OrdinalIgnoreCase) is true
+                            || attestedScope.Contains("/providers/Microsoft.ServiceBus/", StringComparison.OrdinalIgnoreCase);
+
+        if (isEventHub && roleName?.Equals("Azure Event Hubs Data Owner", StringComparison.OrdinalIgnoreCase) is true)
+        {
+            writeSource = GraphEdgeInferenceSources.InventoryEventHubMayPublish;
+            readSource = GraphEdgeInferenceSources.InventoryEventHubMayConsume;
+
+            return true;
+        }
+
+        if (isServiceBus && roleName?.Equals("Azure Service Bus Data Owner", StringComparison.OrdinalIgnoreCase) is true)
+        {
+            writeSource = GraphEdgeInferenceSources.InventoryServiceBusMaySend;
+            readSource = GraphEdgeInferenceSources.InventoryServiceBusMayReceive;
+
+            return true;
+        }
+
+        return false;
     }
 
     private static bool IsPimEligibilityUnknown(string? pimEligibilityKind)

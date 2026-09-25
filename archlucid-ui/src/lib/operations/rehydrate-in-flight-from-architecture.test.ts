@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getArchitectureIdentity } from "@/lib/api/architecture-identity-api";
+import { ApiRequestError } from "@/lib/api-request-error";
 import { getOperation } from "@/lib/api/operations-api";
 import {
   getInFlightOperations,
@@ -51,14 +52,14 @@ describe("rehydrateInFlightOperationsFromArchitecture (DA-10)", () => {
     });
 
     const restored = await rehydrateInFlightOperationsFromArchitecture({
-      architectureId: "arch-1",
+      architectureId: "11111111-1111-1111-1111-111111111111",
       tenantId: "tenant-a",
     });
 
     expect(restored).toBe(1);
     expect(getInFlightOperations()).toHaveLength(1);
     expect(getInFlightOperations()[0]?.runId).toBe("run-active");
-    expect(getInFlightOperations()[0]?.architectureId).toBe("arch-1");
+    expect(getInFlightOperations()[0]?.architectureId).toBe("11111111-1111-1111-1111-111111111111");
   });
 
   it("skips terminal child operations", async () => {
@@ -81,11 +82,51 @@ describe("rehydrateInFlightOperationsFromArchitecture (DA-10)", () => {
     });
 
     const restored = await rehydrateInFlightOperationsFromArchitecture({
-      architectureId: "arch-2",
+      architectureId: "22222222-2222-2222-2222-222222222222",
       tenantId: "tenant-b",
     });
 
     expect(restored).toBe(0);
     expect(getInFlightOperations()).toHaveLength(0);
+  });
+
+  it("skips non-UUID continuity ids without probing the identity API", async () => {
+    const restored = await rehydrateInFlightOperationsFromArchitecture({
+      architectureId: "customer-intake-modernization",
+    });
+
+    expect(restored).toBe(0);
+    expect(getArchitectureIdentity).not.toHaveBeenCalled();
+  });
+
+  it("skips a missing architecture identity", async () => {
+    vi.mocked(getArchitectureIdentity).mockRejectedValue(
+      new ApiRequestError("Not Found", {
+        problem: null,
+        correlationId: null,
+        httpStatus: 404,
+      }),
+    );
+
+    const restored = await rehydrateInFlightOperationsFromArchitecture({
+      architectureId: "33333333-3333-3333-3333-333333333333",
+    });
+
+    expect(restored).toBe(0);
+  });
+
+  it("rethrows non-404 identity failures", async () => {
+    const error = new ApiRequestError("Service unavailable", {
+      problem: null,
+      correlationId: null,
+      httpStatus: 503,
+    });
+    vi.mocked(getArchitectureIdentity).mockRejectedValue(error);
+
+    await expect(
+      rehydrateInFlightOperationsFromArchitecture({
+        architectureId: "44444444-4444-4444-4444-444444444444",
+      }),
+    ).rejects.toBe(error);
   });
 });

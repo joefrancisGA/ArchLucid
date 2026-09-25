@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUDIT_EVIDENCE_CONTROL_LINEAGE_IDENTIFIERS_TITLE } from "@/lib/audit-evidence-page-copy";
@@ -18,6 +19,24 @@ type AuditEvidenceLineageRouteIdentifiersDisclosureProps = {
   readonly snapshotId: string;
   readonly controlId: string;
 };
+
+function IdentifierRow(props: {
+  readonly label: string;
+  readonly value: string;
+  readonly copyLabel: string;
+}): React.JSX.Element {
+  return (
+    <div className="flex items-start gap-2">
+      <div className="min-w-0 flex-1">
+        <dt className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</dt>
+        <dd className={cn("m-0 mt-1 break-all font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+          {props.value}
+        </dd>
+      </div>
+      <CopyIdButton value={props.value} aria-label={props.copyLabel} />
+    </div>
+  );
+}
 
 /** Progressive disclosure for route UUIDs on control lineage (GOO). */
 export function AuditEvidenceLineageRouteIdentifiersDisclosure(
@@ -61,25 +80,10 @@ export function AuditEvidenceLineageRouteIdentifiersDisclosure(
       open={routeIdentifiersOpen}
       onToggle={setRouteIdentifiersOpen}
     >
-      <dl className="m-0 grid gap-2">
-        <div>
-          <dt className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.helper)}>Assessment ID</dt>
-          <dd className={cn("m-0 mt-1 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.assessmentId}
-          </dd>
-        </div>
-        <div>
-          <dt className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.helper)}>Snapshot ID</dt>
-          <dd className={cn("m-0 mt-1 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.snapshotId}
-          </dd>
-        </div>
-        <div>
-          <dt className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.helper)}>Control ID</dt>
-          <dd className={cn("m-0 mt-1 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.controlId}
-          </dd>
-        </div>
+      <dl className="m-0 grid gap-3">
+        <IdentifierRow label="Assessment ID" value={props.assessmentId} copyLabel="Copy assessment ID" />
+        <IdentifierRow label="Snapshot ID" value={props.snapshotId} copyLabel="Copy snapshot ID" />
+        <IdentifierRow label="Control ID" value={props.controlId} copyLabel="Copy control ID" />
       </dl>
     </CollapsibleSection>
   );

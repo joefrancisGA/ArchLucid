@@ -32,7 +32,7 @@ describe("WorkingNestedArchitectureIdentityChrome (AO-34)", () => {
       "href",
       "/architecture/architectures/architecture-identity-001",
     );
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByTestId("working-nested-architecture-identity-status")).toHaveTextContent("Active");
     expect(screen.getByTestId("working-nested-back-to-architecture-desk")).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001",

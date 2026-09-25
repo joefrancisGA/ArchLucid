@@ -72,13 +72,25 @@ public static class DiagramForestNodeSvgEmitter
                     contentHeight));
         }
 
-        group.Add(
-            DiagramInventoryPictogramSvgEmitter.Emit(
+        if (metrics.AzureIcon is not null)
+        {
+            group.Add(EmitAzureIcon(
                 svgNamespace,
-                metrics.PictogramKind,
+                metrics.AzureIcon,
                 options.PictogramSize,
                 pictogramX,
                 pictogramY));
+        }
+        else
+        {
+            group.Add(
+                DiagramInventoryPictogramSvgEmitter.Emit(
+                    svgNamespace,
+                    metrics.PictogramKind,
+                    options.PictogramSize,
+                    pictogramX,
+                    pictogramY));
+        }
 
         XElement text = new(
             svgNamespace + "text",
@@ -146,6 +158,42 @@ public static class DiagramForestNodeSvgEmitter
     private static string Escape(string value)
     {
         return SecurityElement.Escape(value) ?? string.Empty;
+    }
+
+    public static XElement EmitAzureIcon(
+        XNamespace svgNamespace,
+        AzureArchitectureIconCatalogEntry icon,
+        double size,
+        double x,
+        double y)
+    {
+        XElement sourceSvg = XElement.Parse(icon.SvgMarkup, LoadOptions.PreserveWhitespace);
+        double sourceWidth = ParseCoordinate(sourceSvg.Attribute("width")?.Value, 18.0d);
+        double sourceHeight = ParseCoordinate(sourceSvg.Attribute("height")?.Value, 18.0d);
+        XElement group = new(
+            svgNamespace + "g",
+            new XAttribute("class", "azure-icon"),
+            new XAttribute("data-file", icon.File),
+            new XAttribute(
+                "transform",
+                string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"translate({x:0.###},{y:0.###}) scale({size / sourceWidth:0.######},{size / sourceHeight:0.######})")));
+
+        foreach (XElement child in sourceSvg.Elements())
+        {
+            group.Add(new XElement(child));
+        }
+
+        return group;
+    }
+
+    private static double ParseCoordinate(string? value, double fallback)
+    {
+        return double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+            && parsed > 0
+            ? parsed
+            : fallback;
     }
 
     private static string Format(double value)

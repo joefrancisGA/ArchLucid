@@ -65,10 +65,18 @@ export function parseOperatorScopeCookieValue(raw: string | null | undefined): O
 
     const row = parsed as Record<string, unknown>;
 
+    if (
+      typeof row.tenantId !== "string"
+      || typeof row.workspaceId !== "string"
+      || typeof row.projectId !== "string"
+    ) {
+      return null;
+    }
+
     return operatorScopeCookiePayloadFromHeaders({
-      "x-tenant-id": String(row.tenantId ?? ""),
-      "x-workspace-id": String(row.workspaceId ?? ""),
-      "x-project-id": String(row.projectId ?? ""),
+      "x-tenant-id": row.tenantId,
+      "x-workspace-id": row.workspaceId,
+      "x-project-id": row.projectId,
     });
   } catch {
     return null;

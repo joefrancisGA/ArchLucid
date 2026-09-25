@@ -55,6 +55,24 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
     expect(showSuccess).not.toHaveBeenCalled();
   });
 
+  it("keeps the entered email when the role changes", () => {
+    render(<SettingsRolesInvitePanel />);
+
+    const email = screen.getByTestId("settings-roles-invite-email");
+    fireEvent.change(email, { target: { value: "reviewer@example.com" } });
+
+    const hiddenSelect = screen.getByTestId("settings-roles-invite-role").parentElement?.querySelector("select");
+
+    if (hiddenSelect === null) {
+      throw new Error("expected hidden role select");
+    }
+
+    fireEvent.change(hiddenSelect, { target: { value: "Reader" } });
+
+    expect(email).toHaveValue("reviewer@example.com");
+    expect(screen.getByTestId("settings-roles-invite-submit")).toBeEnabled();
+  });
+
   it("shows back-to-review-package handoff after invite when reviewId is provided", async () => {
     vi.mocked(sendAdminUserInvitation).mockResolvedValue({
       ok: true,

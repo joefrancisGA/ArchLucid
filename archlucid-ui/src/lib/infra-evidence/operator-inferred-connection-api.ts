@@ -8,25 +8,30 @@ import type {
 
 function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
   return {
-    connectionId: String(raw.connectionId ?? ""),
-    snapshotId: String(raw.snapshotId ?? ""),
-    status: String(raw.status ?? "Proposed") as OperatorInferredConnectionRow["status"],
-    source: String(raw.source ?? "upload") as OperatorInferredConnectionRow["source"],
-    ruleName: raw.ruleName != null ? String(raw.ruleName) : null,
-    questionText: raw.questionText != null ? String(raw.questionText) : null,
-    fromArmId: raw.fromArmId != null ? String(raw.fromArmId) : null,
-    fromLabel: raw.fromLabel != null ? String(raw.fromLabel) : null,
-    fromCloudResourceId: raw.fromCloudResourceId != null ? String(raw.fromCloudResourceId) : null,
-    toHost: raw.toHost != null ? String(raw.toHost) : null,
-    toCatalog: raw.toCatalog != null ? String(raw.toCatalog) : null,
-    toArmId: raw.toArmId != null ? String(raw.toArmId) : null,
-    toCloudResourceId: raw.toCloudResourceId != null ? String(raw.toCloudResourceId) : null,
-    settingName: raw.settingName != null ? String(raw.settingName) : null,
-    sourceFileFormat: raw.sourceFileFormat != null ? String(raw.sourceFileFormat) : null,
-    provenanceKind: String(raw.provenanceKind ?? "DeterministicInference"),
-    createdUtc: String(raw.createdUtc ?? ""),
-    updatedUtc: String(raw.updatedUtc ?? ""),
+    connectionId: typeof raw.connectionId === "string" ? raw.connectionId : "",
+    snapshotId: typeof raw.snapshotId === "string" ? raw.snapshotId : "",
+    status: (typeof raw.status === "string" ? raw.status : "Proposed") as OperatorInferredConnectionRow["status"],
+    source: (typeof raw.source === "string" ? raw.source : "upload") as OperatorInferredConnectionRow["source"],
+    ruleName: typeof raw.ruleName === "string" ? raw.ruleName : null,
+    questionText: typeof raw.questionText === "string" ? raw.questionText : null,
+    fromArmId: typeof raw.fromArmId === "string" ? raw.fromArmId : null,
+    fromLabel: typeof raw.fromLabel === "string" ? raw.fromLabel : null,
+    fromCloudResourceId: typeof raw.fromCloudResourceId === "string" ? raw.fromCloudResourceId : null,
+    toHost: typeof raw.toHost === "string" ? raw.toHost : null,
+    toCatalog: typeof raw.toCatalog === "string" ? raw.toCatalog : null,
+    toArmId: typeof raw.toArmId === "string" ? raw.toArmId : null,
+    toCloudResourceId: typeof raw.toCloudResourceId === "string" ? raw.toCloudResourceId : null,
+    settingName: typeof raw.settingName === "string" ? raw.settingName : null,
+    sourceFileFormat: typeof raw.sourceFileFormat === "string" ? raw.sourceFileFormat : null,
+    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : "DeterministicInference",
+    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
+    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
   };
+}
+
+function finiteNumberOrDefault(value: unknown, fallback: number): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function snapshotBasePath(snapshotId: string): string {
@@ -50,9 +55,9 @@ export async function listInferenceQuestionnaireItems(
 
   return {
     items,
-    totalCount: Number(raw.totalCount ?? items.length),
-    cap: Number(raw.cap ?? 50),
-    capReached: Boolean(raw.capReached),
+    totalCount: finiteNumberOrDefault(raw.totalCount, items.length),
+    cap: finiteNumberOrDefault(raw.cap, 50),
+    capReached: raw.capReached === true,
   };
 }
 

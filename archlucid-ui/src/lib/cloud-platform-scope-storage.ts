@@ -29,10 +29,11 @@ function normalizeCloudPlatformScope(
   parsed: Partial<Record<CloudPlatformId, boolean>> | null | undefined,
 ): CloudPlatformScope {
   return {
-    "evidence-only": parsed?.["evidence-only"] ?? true,
-    azure: parsed?.azure ?? true,
-    aws: parsed?.aws ?? true,
-    gcp: parsed?.gcp ?? true,
+    "evidence-only":
+      typeof parsed?.["evidence-only"] === "boolean" ? parsed["evidence-only"] : true,
+    azure: typeof parsed?.azure === "boolean" ? parsed.azure : true,
+    aws: typeof parsed?.aws === "boolean" ? parsed.aws : true,
+    gcp: typeof parsed?.gcp === "boolean" ? parsed.gcp : true,
   };
 }
 
@@ -75,8 +76,12 @@ export function writeCloudPlatformScopeToStorage(scope: CloudPlatformScope): voi
     return;
   }
 
-  window.localStorage.setItem(PERSONAL_SCOPE_STORAGE_KEY, JSON.stringify(scope));
-  dispatchCloudPlatformScopeChanged();
+  try {
+    window.localStorage.setItem(PERSONAL_SCOPE_STORAGE_KEY, JSON.stringify(scope));
+    dispatchCloudPlatformScopeChanged();
+  } catch {
+    // Local storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export function persistCloudPlatformScopeLocally(scope: CloudPlatformScope): void {

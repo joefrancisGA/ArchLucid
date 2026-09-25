@@ -9,6 +9,14 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PLATFORM_BUNDLED_POLICY_PACKS_CANONICAL_PATH = INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH;
 
+export const PLATFORM_BUNDLED_POLICY_PACKS_PRIMARY_CONTENT_ID =
+  "platform-bundled-policy-packs-primary-content" as const;
+
+export const PLATFORM_BUNDLED_POLICY_PACKS_SKIP_LINK_LABEL = "Skip to platform policy packs" as const;
+
+export const PLATFORM_BUNDLED_POLICY_PACKS_CLAIM_DISCIPLINE =
+  "Global activation changes tenant pack visibility — confirm blast radius before deactivating bundled packs." as const;
+
 export const PLATFORM_BUNDLED_POLICY_PACKS_HELP_TOPIC_LABEL = "How platform bundled policy packs work" as const;
 
 export const PLATFORM_BUNDLED_POLICY_PACKS_FOLLOW_UPS_TITLE = "Where to go next";

@@ -29,6 +29,34 @@ Azure + optional adapters (Entra / CI federated identity)
 
 **AI explains cited paths. AI is not the evidence.**
 
+### Diagnostic hypotheses
+
+The architect plane may expose deterministic diagnostic hypotheses before or alongside
+operational findings. A hypothesis is an investigation claim, not a finding, graph node, or
+`IFindingEngine` result.
+
+- `ExternalReachability` is eliminated when the cited path has no public-exposure, route, or
+  public-network-access edge.
+- `PrivilegeEscalation` remains open only when the cited privilege path contains an identity or
+  role edge; a path without either is eliminated.
+- `SensitiveExposure` may remain open when public exposure reaches a storage, SQL, or Key Vault
+  resource, but data sensitivity is never inferred without classification or assertion evidence.
+- A hypothesis may be `Concluded` only when an existing operational finding already cites its
+  path. Otherwise it remains `Open` or `Eliminated`.
+
+Every hypothesis carries cited path ids, evidence references, tenant/snapshot scope, and the
+weakest-link ordinal confidence band. Deterministic elimination does not create an
+`ObservedFact` and does not silently create an operational finding.
+
+### Common-mode dependency boundary
+
+When shared-control fan-out evidence identifies at least two separated dependents, the plane may
+emit an open `CommonModeDependency` hypothesis. It names the shared dependency, every cited
+dependent, the separation dimension (`Region` or `Application`), and the weakest supporting
+confidence band. Missing dependency evidence and a single dependent remain silent. This is a
+diagnostic warning about independence, not proof of an outage, compromise, or total loss of
+redundancy.
+
 ## 2. Hard invariants
 
 | Invariant | Meaning |

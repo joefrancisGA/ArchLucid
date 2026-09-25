@@ -10,8 +10,15 @@ import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobR
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
+import { ShortcutHint } from "@/components/ShortcutHint";
+import { RefreshButton } from "@/components/ui/refresh-button";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import {
   GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
@@ -27,6 +34,7 @@ import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { resolveGovernanceFindingsClaimDiscipline } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { resolvePageCapabilityBoundary } from "@/lib/page-capability-boundary";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;
@@ -53,6 +61,9 @@ export type GovernanceFindingsQueueHeaderProps = {
   readonly scopedArchitectureId?: string | null;
   readonly architectureDisplayName?: string | null;
   readonly scopedRunTitle?: string | null;
+  readonly onRefresh?: () => void;
+  readonly queueRefreshing?: boolean;
+  readonly queueLastRefreshedAt?: Date | null;
 };
 
 export function GovernanceFindingsQueueHeader({
@@ -75,6 +86,9 @@ export function GovernanceFindingsQueueHeader({
   scopedArchitectureId = null,
   architectureDisplayName = null,
   scopedRunTitle = null,
+  onRefresh,
+  queueRefreshing = false,
+  queueLastRefreshedAt = null,
 }: GovernanceFindingsQueueHeaderProps) {
   const { productLine } = useProductLine();
   const skipLinkTargetId = isAssignedToMe
@@ -94,6 +108,7 @@ export function GovernanceFindingsQueueHeader({
       architectureDisplayName,
       scopedRunId,
       scopedRunTitle,
+      productLineId: productLine,
     },
   );
   const claimDisciplineTestId = isAssignedToMe
@@ -122,7 +137,7 @@ export function GovernanceFindingsQueueHeader({
         <LayerHeader pageKey="governance-findings" density="compact" />
       ) : null}
 
-      {!buyerPolishedShell ? <FindingsKeyboardTriageCoach /> : null}
+      {workingMode || !buyerPolishedShell ? <FindingsKeyboardTriageCoach /> : null}
 
       <OperatorPageHeader
         navHref={navHref}
@@ -144,6 +159,18 @@ export function GovernanceFindingsQueueHeader({
             assignedToMeHeaderMetadata
           ) : !loading ? (
             <>
+              {!isAssignedToMe && buyerPolishedShell ? (
+                <OperatorPageFreshnessMetadata
+                  testId="governance-findings-queue-last-refreshed"
+                  lastRefreshedAt={queueLastRefreshedAt}
+                >
+                  {operatorFreshnessMetadataWithClockLabel({
+                    prefix: "Last refreshed",
+                    lastRefreshedAt: queueLastRefreshedAt,
+                    refreshingLabel: queueRefreshing ? "Refreshing findings queue…" : null,
+                  })}
+                </OperatorPageFreshnessMetadata>
+              ) : null}
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-open"
@@ -188,7 +215,33 @@ export function GovernanceFindingsQueueHeader({
             </>
           ) : undefined
         }
-        actions={assignedToMeHeaderActions}
+        actions={
+          isAssignedToMe ? (
+            assignedToMeHeaderActions
+          ) : (
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <PageContextualHelpButton />
+                {(buyerPolishedShell || workingMode) && onRefresh !== undefined ? (
+                  <RefreshButton
+                    busy={queueRefreshing}
+                    data-testid="governance-findings-queue-refresh-button"
+                    onClick={onRefresh}
+                  />
+                ) : null}
+              </div>
+              {workingMode && !buyerPolishedShell ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="governance-findings-queue-keyboard-affordance"
+                >
+                  <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search; use job router
+                  chips to resume triage context.
+                </p>
+              ) : null}
+            </div>
+          )
+        }
       />
       {!isAssignedToMe ? <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" /> : null}
       {!isAssignedToMe && !buyerPolishedShell ? (
@@ -197,7 +250,10 @@ export function GovernanceFindingsQueueHeader({
           <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
           <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
           <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
-          <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
+          <PageCapabilityBoundaryStrip
+            surfaceId="governanceFindings"
+            boundary={resolvePageCapabilityBoundary("governanceFindings", productLine)}
+          />
         </>
       ) : null}
     </>

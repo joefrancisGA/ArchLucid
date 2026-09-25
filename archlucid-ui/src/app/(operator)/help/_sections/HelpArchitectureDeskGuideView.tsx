@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicRegistryProvenanceFooter } from "@/components/help/HelpTopicRegistryProvenanceFooter";
+import { HelpTopicRegistrySourcesDisclosure } from "@/components/help/HelpTopicRegistrySourcesDisclosure";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
@@ -65,13 +67,19 @@ export function HelpArchitectureDeskGuideView(props: HelpArchitectureDeskGuideVi
     >
       <HelpTopicHashScroll />
 
+      <HelpTopicBreadcrumb topicTitle={SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL} />
+
       <HelpTopicGuidePageHeader
         title={SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_PAGE_TITLE}
         titleTestId="help-architecture-desk-page-title"
         subtitle={SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_PAGE_SUBTITLE}
         navHref={SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CANONICAL_PATH}
         headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        metadata={
+          <div className="space-y-2" data-testid="help-architecture-desk-header-metadata">
+            <HelpTopicRegistrySourcesDisclosure entry={entry} />
+          </div>
+        }
       />
 
       <div
@@ -124,6 +132,8 @@ export function HelpArchitectureDeskGuideView(props: HelpArchitectureDeskGuideVi
           </section>
 
           <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-desk" showSsoOptional={false} />
+
+          <HelpTopicRegistryProvenanceFooter entry={entry} />
         </div>
 
         <aside className={HELP_PAGE_TOC.nav}>

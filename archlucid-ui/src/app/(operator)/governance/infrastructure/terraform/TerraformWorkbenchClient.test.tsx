@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TerraformWorkbenchClient } from "@/app/(operator)/governance/infrastructure/terraform/TerraformWorkbenchClient";
 
-let searchParams = new URLSearchParams(
+const searchParams = new URLSearchParams(
   "snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
 );
 
@@ -86,6 +86,11 @@ describe("TerraformWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-terraform-audit-unavailable")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-copy-snippet")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-download-advisory-zip")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-open-drift-workbench")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-open-drift-export")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-advisory-reconstructed-tag")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-scope-status")).toHaveTextContent("Scoped");
   });
 
   it("shows empty state when terraform address is missing", async () => {

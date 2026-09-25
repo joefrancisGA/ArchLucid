@@ -1,3 +1,5 @@
+import { tryWorkbookAgentModelCatalogDemoFallback } from "@/lib/internal/agent-model-catalog-demo-fallback";
+
 export type AgentModelCatalogEvaluationRow = {
   readonly taskType: string;
   readonly evaluationState: string;
@@ -26,15 +28,25 @@ export type RecordAgentModelCatalogEvaluationRequest = {
 };
 
 export async function fetchAdminAgentModelCatalog(): Promise<AgentModelCatalogRow[]> {
-  const res = await fetch("/api/proxy/v1/admin/agent-model-catalog", {
-    credentials: "include",
-  });
+  try {
+    const res = await fetch("/api/proxy/v1/admin/agent-model-catalog", {
+      credentials: "include",
+    });
 
-  if (!res.ok) {
-    throw new Error(`agent-model-catalog ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`agent-model-catalog ${res.status}`);
+    }
+
+    return (await res.json()) as AgentModelCatalogRow[];
+  } catch {
+    const demoFallback = tryWorkbookAgentModelCatalogDemoFallback();
+
+    if (demoFallback !== null) {
+      return demoFallback;
+    }
+
+    throw new Error("agent-model-catalog unavailable");
   }
-
-  return (await res.json()) as AgentModelCatalogRow[];
 }
 
 export async function upsertAdminAgentModelCatalogRow(row: AgentModelCatalogRow): Promise<AgentModelCatalogRow> {

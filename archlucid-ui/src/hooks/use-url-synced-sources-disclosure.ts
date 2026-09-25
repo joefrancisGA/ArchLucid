@@ -1,9 +1,10 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   readOrientationSourcesAutoOpenDismissed,
   resolveOrientationSourcesInitialOpen,
@@ -27,35 +28,57 @@ export function useUrlSyncedSourcesDisclosure(
   readonly sourcesOpen: boolean;
   readonly setSourcesOpen: (open: boolean) => void;
 } {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const sourcesOpenParam = searchParams.get(input.searchParamKey);
   const hasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
   const workspacePreCommit = !hasCommittedArchitectureReview;
   const userDismissed = useMemo(
     () => readOrientationSourcesAutoOpenDismissed(input.surfaceId),
     [input.surfaceId],
   );
-  const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    resolveOrientationSourcesInitialOpen({
-      urlParamOpen: input.parseOpenFromSearch(sourcesOpenParam),
+  const readSourcesOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      input.searchParamKey,
+    );
+
+    if (param === null) {
+      return null;
+    }
+
+    return input.parseOpenFromSearch(param);
+  };
+  const [sourcesOpen, setSourcesOpenState] = useState(() => {
+    const fromUrl = readSourcesOpenFromUrl();
+
+    if (fromUrl !== null) {
+      return fromUrl;
+    }
+
+    return resolveOrientationSourcesInitialOpen({
+      urlParamOpen: input.parseOpenFromSearch(null),
       userDismissed,
       workspacePreCommit,
-    }),
-  );
+    });
+  });
+  const sourcesOpenRef = useRef(sourcesOpen);
+  sourcesOpenRef.current = sourcesOpen;
 
   const syncSourcesOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(input.disclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        input.disclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [input, pathname, router, searchParams],
+    [input, pathname],
   );
 
   const setSourcesOpen = useCallback(
     (open: boolean) => {
+      if (sourcesOpenRef.current === open) {
+        return;
+      }
+
+      sourcesOpenRef.current = open;
       setSourcesOpenState(open);
       syncSourcesOpenToUrl(open);
 
@@ -67,14 +90,37 @@ export function useUrlSyncedSourcesDisclosure(
   );
 
   useEffect(() => {
-    setSourcesOpenState(
-      resolveOrientationSourcesInitialOpen({
-        urlParamOpen: input.parseOpenFromSearch(sourcesOpenParam),
+    const syncSourcesOpenFromUrl = (): void => {
+      const fromUrl = readSourcesOpenFromUrl();
+
+      if (fromUrl !== null) {
+        if (sourcesOpenRef.current !== fromUrl) {
+          sourcesOpenRef.current = fromUrl;
+          setSourcesOpenState(fromUrl);
+        }
+
+        return;
+      }
+
+      const next = resolveOrientationSourcesInitialOpen({
+        urlParamOpen: input.parseOpenFromSearch(null),
         userDismissed: readOrientationSourcesAutoOpenDismissed(input.surfaceId),
         workspacePreCommit,
-      }),
-    );
-  }, [input, sourcesOpenParam, workspacePreCommit]);
+      });
+
+      if (sourcesOpenRef.current !== next) {
+        sourcesOpenRef.current = next;
+        setSourcesOpenState(next);
+      }
+    };
+
+    syncSourcesOpenFromUrl();
+    window.addEventListener("popstate", syncSourcesOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSourcesOpenFromUrl);
+    };
+  }, [input, workspacePreCommit]);
 
   return {
     sourcesOpen,

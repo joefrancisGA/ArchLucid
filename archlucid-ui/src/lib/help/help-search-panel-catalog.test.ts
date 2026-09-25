@@ -129,8 +129,12 @@ describe("help-search-panel-catalog", () => {
     for (const query of ["simulator", "career door", "rehearsal", "career-complete"]) {
       const hits = filterHelpSearchPanelTopics(topics, query);
 
-      expect(hits.map((topic) => topic.id), query).toContain("career-rehearsal-doors");
+      expect(hits.map((topic) => topic.id), query).toContain("career-vs-rehearsal");
     }
+
+    expect(filterHelpSearchPanelTopics(topics, "record vs practice").map((topic) => topic.id)).toContain(
+      "career-vs-rehearsal",
+    );
   });
 
   it("hides admin-only topics for non-admin callers", () => {

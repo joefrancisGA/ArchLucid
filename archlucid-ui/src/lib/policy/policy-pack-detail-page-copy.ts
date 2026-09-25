@@ -17,3 +17,6 @@ export const POLICY_PACK_DETAIL_LOAD_ERROR =
 export const POLICY_PACK_DETAIL_LOAD_ERROR_RETRY_LABEL = "Try again" as const;
 
 export const POLICY_PACK_DETAIL_LOADING_STATUS = "Loading policy pack…" as const;
+
+export const POLICY_PACK_DETAIL_KEYBOARD_AFFORDANCE =
+  "F1 opens page help; Ctrl+K opens search; use browser back or the pack library link to return to the hub." as const;

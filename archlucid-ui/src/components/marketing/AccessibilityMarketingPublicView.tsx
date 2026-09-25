@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { AccessibilityBreadcrumb } from "@/components/marketing/AccessibilityBreadcrumb";
 import { AccessibilityMarketingClaimOrientationStrip } from "@/components/marketing/AccessibilityMarketingClaimOrientationStrip";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { AccessibilityAtGlanceSummary } from "@/components/marketing/accessibility/AccessibilityAtGlanceSummary";
@@ -64,6 +65,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
         className="space-y-10"
       >
         <header className={ACCESSIBILITY_PUBLIC_LAYOUT.header}>
+          <AccessibilityBreadcrumb />
           <h1 className={ACCESSIBILITY_PUBLIC_LAYOUT.title}>Accessibility</h1>
           <p className={ACCESSIBILITY_PUBLIC_LAYOUT.lede}>{ACCESSIBILITY_PUBLIC_INTRO}</p>
           <p

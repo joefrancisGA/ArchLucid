@@ -181,7 +181,7 @@ function ActionCard({
         </div>
       </div>
       <div className="flex items-center gap-2">
-    "h-7 w-7 shrink-0 text-neutral-700 dark:text-neutral-400",
+        <Icon className="h-7 w-7 shrink-0 text-neutral-700 dark:text-neutral-400" aria-hidden />
         <span className={cn("font-bold text-neutral-900 group-hover:text-al-text-primary dark:text-neutral-100 dark:group-hover:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           {label}
         </span>

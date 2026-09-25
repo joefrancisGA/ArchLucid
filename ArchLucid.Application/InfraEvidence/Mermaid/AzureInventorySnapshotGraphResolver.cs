@@ -235,6 +235,12 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotDatabricksAccessConnectorEdgeHydrator.AddMissingAccessConnectorEdges(
+            snapshot,
+            nodeIdByArmId,
+            nodes,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotSameResourceGroupEdgeHydrator.AddMissingCollocationEdges(
             snapshot,
             nodeIdByArmId,
@@ -245,8 +251,17 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotRecoveryServicesEdgeHydrator.AddMissingProtectionEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotParentChildEdgeHydrator.AddMissingContainsEdges(
             nodeIdByArmId,
+            edges,
+            edgeKeys);
+        AzureInventorySnapshotHiddenHopComposer.AddComposedEdges(
+            nodes,
             edges,
             edgeKeys);
 

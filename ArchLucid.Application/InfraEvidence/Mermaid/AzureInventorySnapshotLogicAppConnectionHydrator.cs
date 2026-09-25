@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
@@ -13,6 +15,10 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 /// </summary>
 internal static class AzureInventorySnapshotLogicAppConnectionHydrator
 {
+    private static readonly Regex ArmResourceIdRegex = new(
+        @"/subscriptions/[^/""'\s]+/resource[Gg]roups/[^/""'\s]+/providers/[A-Za-z0-9.]+(?:/[^/""'\s]+)+",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     public static void AddMissingConnectionEdges(
         AzureInventorySnapshotDetailReadModel snapshot,
         Dictionary<string, string> nodeIdByArmId,
@@ -58,11 +64,18 @@ internal static class AzureInventorySnapshotLogicAppConnectionHydrator
                 continue;
             }
 
-            string logicAppGroup = logicApp.ResourceGroup ?? string.Empty;
+            HashSet<string> citedConnectionIds = EnumerateCitedConnectionIds(
+                    logicApp,
+                    propertiesByRowId)
+                .Select(ArmResourceIdNormalizer.Normalize)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             foreach (AzureInventoryResourceRecord connection in connections)
             {
-                if (!ResourceGroupsMatch(logicAppGroup, connection.ResourceGroup))
+                string connectionId = ArmResourceIdNormalizer.Normalize(connection.AzureResourceId);
+
+                if (!citedConnectionIds.Contains(connectionId))
                 {
                     continue;
                 }
@@ -77,7 +90,7 @@ internal static class AzureInventorySnapshotLogicAppConnectionHydrator
                     edgeKeys,
                     fromNodeId,
                     toNodeId,
-                    GraphEdgeTypes.ConnectsTo,
+                    AzureInventoryRelationshipAssociationTypes.LogicAppConnection,
                     GraphEdgeInferenceSources.InventoryLogicAppConnection,
                     provenanceKind: ProvenanceKind.DerivedFact.ToString());
             }
@@ -139,14 +152,29 @@ internal static class AzureInventorySnapshotLogicAppConnectionHydrator
             out nodeId);
     }
 
-    private static bool ResourceGroupsMatch(string left, string? right)
+    private static IEnumerable<string> EnumerateCitedConnectionIds(
+        AzureInventoryResourceRecord logicApp,
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId)
     {
-        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+        if (!propertiesByRowId.TryGetValue(
+                logicApp.ResourceRowId,
+                out List<AzureInventoryResourcePropertyReadModel>? properties))
         {
-            return false;
+            yield break;
         }
 
-        return left.Equals(right, StringComparison.OrdinalIgnoreCase);
+        foreach (AzureInventoryResourcePropertyReadModel property in properties)
+        {
+            if (property.IsRedacted || string.IsNullOrWhiteSpace(property.PropertyValue))
+            {
+                continue;
+            }
+
+            foreach (Match match in ArmResourceIdRegex.Matches(property.PropertyValue))
+            {
+                yield return match.Value;
+            }
+        }
     }
 
     private static string ReadResourceName(string? azureResourceId)

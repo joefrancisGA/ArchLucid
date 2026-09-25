@@ -247,9 +247,8 @@ export function sidebarMoreLinksAccessibleLabel(
   count: number,
   expanded = false,
 ): string {
-  const visible = sidebarMoreLinksLabel(groupId, count, expanded);
   const destination =
-    SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
+    SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar"
 
   return expanded
     ? `Collapse additional ${destination} links in the sidebar`

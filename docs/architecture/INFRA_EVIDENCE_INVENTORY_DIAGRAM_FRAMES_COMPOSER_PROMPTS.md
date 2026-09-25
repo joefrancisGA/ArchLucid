@@ -2,7 +2,7 @@
 > **Index:** [`INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS.md). **Contract:** [`../library/INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md).
 > **Paste files:** [`.cursor/prompts/inventory-diagram-frames-00-index.md`](../../.cursor/prompts/inventory-diagram-frames-00-index.md) (one numbered file per session).
 >
-> **Do not** re-run **IDL / IDS / IDT / IDH / IDG / IDR / IDA / IDP**. **Do not** retune Mermaid `nodeSpacing`. **Do not** bump global `ComponentHorizontalGap` / `ComponentVerticalGap`. Nested VNet/subnet frames stay **IDA-HOLD**. Boxes from **IDR** chats stay **IDR-HOLD**.
+> **Do not** re-run **IDL / IDS / IDT / IDH / IDG / IDR / IDA / IDP**. **Do not** retune Mermaid `nodeSpacing`. **Do not** bump global `ComponentHorizontalGap` / `ComponentVerticalGap`. Nested VNet/subnet frames stay **IDA-HOLD / IDF-HOLD in those waves**. Authorized nesting is **IDX-05 / IDX-06**. Boxes from **IDR** chats stay **IDR-HOLD**.
 
 # IDF-01–IDF-07 — Inventory-diagram resource-group frame visibility
 
@@ -297,4 +297,4 @@ Tests: as named in the paste file (dotnet filter + vitest + MOCK_E2E_SKIP_NEXT_B
 
 ## Follow-on (not this wave)
 
-Nested subscription → RG → VNet → subnet frames stay **IDA-HOLD**. Merging disconnected components into one RG island is a later layout engine, not IDF-01.
+Nested subscription → RG → VNet → subnet frames stay **IDA-HOLD / IDF-HOLD** when started from those waves. Authorized nesting is **IDX-05 / IDX-06** ([`INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md)). Merging disconnected components into one RG island is a later layout engine, not IDF-01.

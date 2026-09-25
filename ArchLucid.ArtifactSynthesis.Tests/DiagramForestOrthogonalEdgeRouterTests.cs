@@ -97,6 +97,144 @@ public sealed class DiagramForestOrthogonalEdgeRouterTests
     }
 
     [Fact]
+    public void Route_prefers_the_candidate_with_fewer_already_routed_crossings()
+    {
+        List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted =
+        [
+            [(50, 0, 50, 75)],
+        ];
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult route = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 0,
+            fromY: 0,
+            toX: 100,
+            toY: 100,
+            obstacles: [],
+            alreadyRouted);
+
+        DiagramEdgeCrossingCounter.CountAgainst(route.Segments, alreadyRouted).Should().Be(0);
+        route.UsedFallback.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Route_picks_the_smaller_crossing_count_when_both_elbows_clear_obstacles()
+    {
+        List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted =
+        [
+            [(50, 25, 50, 75)],
+        ];
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult route = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 0,
+            fromY: 0,
+            toX: 100,
+            toY: 100,
+            obstacles: [],
+            alreadyRouted);
+
+        DiagramEdgeCrossingCounter.CountAgainst(route.Segments, alreadyRouted).Should().Be(0);
+        route.UsedFallback.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Route_with_extra_vertical_channel_does_not_increase_crossings()
+    {
+        List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted =
+        [
+            [(50, 25, 50, 75)],
+        ];
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult baseline = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 0,
+            fromY: 0,
+            toX: 100,
+            toY: 100,
+            obstacles: [],
+            alreadyRouted);
+        DiagramForestOrthogonalEdgeRouter.RouteResult withChannel = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 0,
+            fromY: 0,
+            toX: 100,
+            toY: 100,
+            obstacles: [],
+            alreadyRouted,
+            extraVerticalChannelX: 28.0d);
+
+        DiagramEdgeCrossingCounter.CountAgainst(withChannel.Segments, alreadyRouted)
+            .Should()
+            .BeLessThanOrEqualTo(DiagramEdgeCrossingCounter.CountAgainst(baseline.Segments, alreadyRouted));
+    }
+
+    [Fact]
+    public void Route_three_card_row_uses_gutter_without_fallback()
+    {
+        List<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
+        [
+            new DiagramForestOrthogonalEdgeRouter.Rect(108, 0, 40, 40),
+        ];
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult route = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 20,
+            fromY: 20,
+            toX: 220,
+            toY: 20,
+            obstacles,
+            alreadyRouted: [],
+            extraVerticalChannelX: 128,
+            gutterVerticalChannelXs: [128]);
+
+        route.UsedFallback.Should().BeFalse();
+        route.Segments.Should().NotBeEmpty();
+        SegmentIntersectsRect(route.Segments, obstacles[0]).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Route_prefers_clear_gutter_over_fallback_that_crosses_obstacle()
+    {
+        List<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
+        [
+            new DiagramForestOrthogonalEdgeRouter.Rect(90, -10, 40, 60),
+        ];
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult route = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 0,
+            fromY: 0,
+            toX: 160,
+            toY: 0,
+            obstacles,
+            alreadyRouted: [],
+            gutterVerticalChannelXs: [180]);
+
+        route.UsedFallback.Should().BeFalse();
+        SegmentIntersectsRect(route.Segments, obstacles[0]).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Route_returns_clear_detour_when_interior_gutter_lanes_are_blocked()
+    {
+        List<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
+        [
+            new DiagramForestOrthogonalEdgeRouter.Rect(40, -20, 40, 40),
+            new DiagramForestOrthogonalEdgeRouter.Rect(40, 20, 40, 40),
+            new DiagramForestOrthogonalEdgeRouter.Rect(90, -20, 40, 40),
+            new DiagramForestOrthogonalEdgeRouter.Rect(90, 20, 40, 40),
+        ];
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult route = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 0,
+            fromY: 0,
+            toX: 160,
+            toY: 0,
+            obstacles,
+            alreadyRouted: [],
+            gutterVerticalChannelXs: [60, 110]);
+
+        route.Segments.Should().NotBeEmpty();
+        route.UsedFallback.Should().BeFalse();
+        SegmentIntersectsRect(route.Segments, obstacles[0]).Should().BeFalse();
+    }
+
+    [Fact]
     public void BuildObstacles_excludes_endpoint_nodes()
     {
         List<DiagramResourceGroupPacker.NodePlacementBounds> placements =
@@ -126,5 +264,39 @@ public sealed class DiagramForestOrthogonalEdgeRouterTests
 
         obstacles.Should().ContainSingle();
         obstacles[0].X.Should().BeApproximately(56.0d, 0.001d);
+    }
+
+    private static bool SegmentIntersectsRect(
+        IReadOnlyList<(double X1, double Y1, double X2, double Y2)> segments,
+        DiagramForestOrthogonalEdgeRouter.Rect rect)
+    {
+        foreach ((double x1, double y1, double x2, double y2) in segments)
+        {
+            if (Math.Abs(y1 - y2) < 0.001d)
+            {
+                double minX = Math.Min(x1, x2);
+                double maxX = Math.Max(x1, x2);
+                double y = y1;
+
+                if (y > rect.Y && y < rect.Y + rect.Height && maxX > rect.X && minX < rect.X + rect.Width)
+                {
+                    return true;
+                }
+            }
+
+            if (Math.Abs(x1 - x2) < 0.001d)
+            {
+                double minY = Math.Min(y1, y2);
+                double maxY = Math.Max(y1, y2);
+                double x = x1;
+
+                if (x > rect.X && x < rect.X + rect.Width && maxY > rect.Y && minY < rect.Y + rect.Height)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

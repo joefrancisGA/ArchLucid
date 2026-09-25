@@ -18,6 +18,104 @@ def _payload(**tag_p95: float) -> dict:
 
 
 class AssertK6CiSmokeSummaryTests(unittest.TestCase):
+    def test_present_tag_without_p95_cannot_pass(self):
+        data = _payload(**{"http_req_duration{k6ci:list_runs}": 100})
+        data["metrics"]["http_req_duration{k6ci:version}"] = {"values": {}}
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(data, tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run(
+                [PYTHON, str(SCRIPT), str(tmp_path), "--per-tag-ci-smoke"],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 1, proc.stderr)
+            self.assertIn("version} p(95) missing", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    def test_ci_smoke_uses_same_tier2_override_as_k6(self):
+        data = _payload(**{"http_req_duration{k6ci:list_runs}": 1000})
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(data, tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run(
+                [PYTHON, str(SCRIPT), str(tmp_path), "--per-tag-ci-smoke"],
+                capture_output=True, text=True,
+                env={**os.environ, "ARCHLUCID_K6_P95_TIER2_MS": "1200"},
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    def test_nonfinite_environment_cap_is_rejected(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(_payload(**{"http_req_duration{k6api:version}": 999999}), tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run(
+                [PYTHON, str(SCRIPT), str(tmp_path), "--per-tag-k6-api-smoke"],
+                capture_output=True, text=True,
+                env={**os.environ, "ARCHLUCID_K6_P95_TIER2_MS": "nan"},
+            )
+            self.assertEqual(proc.returncode, 1, proc.stderr)
+            self.assertIn("invalid k6 p95 cap", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    def test_nonfinite_latency_cap_is_rejected(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(_payload(**{"http_req_duration": 999999}), tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run(
+                [PYTHON, str(SCRIPT), str(tmp_path), "--max-p95-ms", "nan"],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 2, proc.stderr)
+            self.assertIn("finite positive", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    def test_nonfinite_tagged_latency_cannot_pass(self):
+        data = _payload(**{"http_req_duration{k6api:version}": float("nan")})
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(data, tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run(
+                [PYTHON, str(SCRIPT), str(tmp_path), "--per-tag-k6-api-smoke"],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 1, proc.stderr)
+            self.assertIn("invalid k6 metric", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    def test_missing_global_duration_cannot_pass(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump(_payload(), tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            for mode in ([], ["--per-tag-ci-smoke"], ["--per-tag-k6-api-smoke"]):
+                proc = subprocess.run([PYTHON, str(SCRIPT), str(tmp_path), *mode], capture_output=True, text=True)
+                self.assertEqual(proc.returncode, 1, proc.stderr)
+                self.assertIn("http_req_duration p(95) missing", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    def test_missing_failure_rate_cannot_pass(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+            json.dump({"metrics": {"http_req_duration": {"values": {"p(95)": 100}}}}, tmp)
+            tmp_path = Path(tmp.name)
+        try:
+            proc = subprocess.run([PYTHON, str(SCRIPT), str(tmp_path)], capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 1, proc.stderr)
+            self.assertIn("http_req_failed rate missing", proc.stderr)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
     def test_mutually_exclusive_flags_exit_code_two(self):
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
             json.dump({"metrics": {}}, tmp)

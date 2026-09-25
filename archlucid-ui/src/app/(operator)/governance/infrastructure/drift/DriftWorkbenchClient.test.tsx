@@ -159,6 +159,7 @@ const defaultMockChanges = () => ({
 
 describe("DriftWorkbenchClient", () => {
   beforeEach(() => {
+    window.localStorage.clear();
     evalChrome.enabled = true;
     mockFetchDiffs.mockReset();
     mockFetchDiffs.mockImplementation(async () => defaultMockDiffs());
@@ -211,30 +212,26 @@ describe("DriftWorkbenchClient", () => {
     );
   });
 
-  it("does not select an inventory file on landing and shows picker placeholder", async () => {
-    searchParams = new URLSearchParams();
-    render(<DriftWorkbenchClient />);
-
-    const snapshotPicker = await screen.findByTestId("infra-drift-snapshot-picker");
-    expect(snapshotPicker).toHaveValue("");
-    expect(within(snapshotPicker).getByRole("option", { name: "Select an inventory…" })).toBeInTheDocument();
-    expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("infra-drift-diff-picker")).not.toBeInTheDocument();
-  });
-
-  it("renders snapshot table and export button after selecting an inventory file", async () => {
+  it("does not select an inventory file on landing and hides export until a table row is selected", async () => {
     searchParams = new URLSearchParams();
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
-    const snapshotPicker = await screen.findByTestId("infra-drift-snapshot-picker");
-    fireEvent.change(snapshotPicker, {
-      target: { value: "11111111-1111-1111-1111-111111111111" },
-    });
+    expect(screen.queryByTestId("infra-drift-snapshot-picker")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-diff-picker")).not.toBeInTheDocument();
+  });
+
+  it("renders snapshot table and export button after selecting an inventory file from the table", async () => {
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-drift-snapshot-row-11111111-1111-1111-1111-111111111111"));
 
     expect(await screen.findByTestId("infra-drift-export-terraform")).not.toBeDisabled();
     expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
-    expect(snapshotPicker).toHaveValue("11111111-1111-1111-1111-111111111111");
+    expect(screen.getByTestId("infra-drift-clear-snapshot-selection")).toBeInTheDocument();
   });
 
   it("loads snapshot inventory rows when no diff is selected", async () => {
@@ -915,5 +912,51 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-export-error")).toHaveTextContent(
       "Export unavailable in this environment.",
     );
+  });
+
+  it("shows later capture availability for same and cross subscription snapshots", async () => {
+    mockSnapshotItems.push({
+      snapshotId: "44444444-4444-4444-4444-444444444444",
+      subscriptionId: "sub-1",
+      subscriptionName: "Prod later",
+      capturedUtc: "2026-09-20T12:00:00Z",
+      captureStatus: 1,
+      resourceCount: 50,
+      relationshipCount: 12,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-drift-later-captures-summary")).toHaveTextContent(
+      "1 later capture available in the same subscription.",
+    );
+    expect(screen.getByTestId("infra-drift-later-captures-summary")).toHaveTextContent(
+      "1 later capture available in other subscriptions.",
+    );
+  });
+
+  it("offers resume last comparison when unselected and stored selection is valid", async () => {
+    window.localStorage.setItem(
+      "archlucid_drift_last_comparison_selection_v1",
+      JSON.stringify({
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        diffId: "diff-1",
+        changeId: "change-1",
+      }),
+    );
+
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-drift-resume-last-comparison-row")).toBeInTheDocument();
+  });
+
+  it("hides duplicate build provenance strip when shell footer is visible on SecureNow drift", async () => {
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    await screen.findByTestId("infra-drift-workbench");
+    expect(screen.queryByTestId("infra-drift-build-provenance-limitation")).not.toBeInTheDocument();
   });
 });

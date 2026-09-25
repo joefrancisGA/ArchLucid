@@ -6,7 +6,7 @@ import { GovernanceFindingsQueueSkeleton } from "../GovernanceFindingsQueueSkele
 import { GovernanceFindingsQueueClientDeferred } from "../governance-findings-deferred-chunks";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
 
 type AssignedToMeFindingsPageProps = {
   readonly searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -14,7 +14,7 @@ type AssignedToMeFindingsPageProps = {
 
 /** Personal assigned-to-me findings queue (TB-2195). */
 export default async function AssignedToMeFindingsPage(props: AssignedToMeFindingsPageProps) {
-  const canonicalPath = assignedToMeFindingsPathForProductLine(resolveProductLineIdFromEnv());
+  const canonicalPath = assignedToMeFindingsPathForProductLine(await resolveProductLineIdForServer());
 
   if (canonicalPath !== GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
     const searchParams = props.searchParams !== undefined ? await props.searchParams : {};

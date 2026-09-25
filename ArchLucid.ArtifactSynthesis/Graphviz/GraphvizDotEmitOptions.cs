@@ -18,4 +18,11 @@ public sealed class GraphvizDotEmitOptions
         get;
         set;
     } = "Inventory";
+
+    /// <summary>When true, cross-group <c>applies</c> and <c>likely ·</c> edges are emitted in Graphviz exports.</summary>
+    public bool IncludeCrossGroupFanOut
+    {
+        get;
+        set;
+    }
 }

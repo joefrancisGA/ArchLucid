@@ -49,7 +49,7 @@ describe("SecureNow governance contextual help rows", () => {
       { productLineId: "security" },
     );
 
-    expect(lookup?.whatIsThisPage).toContain("chain of custody");
+    expect(lookup?.whatIsThisPage).toContain("evidence lineage");
     expect(lookup?.whatIsThisPage).not.toContain("Approval");
     expect(lookup?.whatIsThisPage).not.toContain("audit trail activity");
     expect(nested?.whatIsThisPage).toContain("Control chain of custody");

@@ -29,6 +29,7 @@ import {
   mergeTenantScope,
   type LiveTenantScopeHeaders,
 } from "./live-api-headers";
+import { parsePrivateBetaCommittedRunId } from "./private-beta-create-identity";
 import {
   isPrivateBetaCreateIdentityConflict,
   refreshPrivateBetaArchitectureCreateBody,
@@ -39,7 +40,7 @@ import {
   getMaxInfrastructureMutationAttempts,
   InfraTransientError,
 } from "./live-api-infra-retry";
-import { normalizeRunIdForCompare, unwrapCursorPagedResponseItems } from "./live-api-payloads";
+import { normalizeRunIdForCompare, unwrapCursorPagedResponseItems, enrichArchitectureRequestBody, liveE2eArchitectureDescription } from "./live-api-payloads";
 import {
   delayAfterRateLimitedResponse,
   replayBufferedApiResponse,
@@ -88,8 +89,14 @@ function privateBetaCreateRunTimeoutError(error: unknown): Error {
     `${process.env.RUNNER_TEMP ?? "<runner-temp>"}/live-api-beta-access.log`;
 
   return new Error(
-    `Private-beta create-run timed out after one 600s attempt: ${message}. Inspect API logs at ${apiLog} and the Playwright test-results directory.`,
+    `Private-beta create-run timed out after one ${architectureRequestAttemptHttpTimeoutMs()}ms attempt: ${message}. Inspect API logs at ${apiLog} and the Playwright test-results directory.`,
   );
+}
+
+/** Keep private-beta create requests unique so a prior failed run cannot cause a 409 name conflict. */
+export function uniquePrivateBetaSystemName(prefix: string): string {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `${prefix}-${suffix}`;
 }
 
 async function ensurePrivateBetaApiReadyBeforeCreateRun(request: APIRequestContext): Promise<void> {
@@ -216,6 +223,12 @@ export async function createRun(
     if (!res.ok()) {
       const responseBody = await res.text();
 
+      const committedRunId = parsePrivateBetaCommittedRunId(status, responseBody);
+
+      if (committedRunId !== null) {
+        return { runId: committedRunId };
+      }
+
       if (
         isPrivateBetaCreateIdentityConflict(status, responseBody) &&
         attempt < maxArchitectureMutationAttempts() - 1
@@ -243,7 +256,14 @@ export async function createRun(
           " Hint: use auth lane matching the API — DevelopmentBypass expects no Bearer/X-Api-Key (omit LIVE_JWT_TOKEN and LIVE_API_KEY); JwtBearer CI needs LIVE_JWT_TOKEN; ApiKey needs LIVE_API_KEY. Confirm LIVE_API_URL points at ArchLucid.Api.";
       }
 
-      throw new Error(`POST /v1/architecture/request failed ${status}: ${responseBody.slice(0, 500)}${hint}`);
+      if (status === 400 && /partial findings|partial finding/i.test(responseBody)) {
+        hint =
+          " Hint: the API rejected a partial-findings payload; use a fresh requestId/systemName and inspect the findings/constraints fields.";
+      }
+
+      throw new Error(
+        `POST /v1/architecture/request failed ${status}: ${responseBody.slice(0, 1000)}${hint}`,
+      );
     }
 
     const created = (await res.json()) as { run?: { runId?: string } };
@@ -565,10 +585,16 @@ export async function warmPrivateBetaCreateRunPipeline(
   try {
     await createRun(
       request,
-      liveE2eSimulatorFriendlyArchitectureCreateBody({
-        requestIdPrefix: "E2E-BETA-PIPELINE-WARM",
-        systemNamePrefix: "PrivateBetaPipelineWarm",
-        intent: "Private beta create-run pipeline warm-up for secure Azure enterprise RAG.",
+      enrichArchitectureRequestBody({
+        requestId: `E2E-BETA-PIPELINE-WARM-${Date.now()}`,
+        description: liveE2eArchitectureDescription("Private beta create-run pipeline warm-up."),
+        systemName: uniquePrivateBetaSystemName("PrivateBetaPipelineWarm"),
+        environment: "prod",
+        cloudProvider: 1,
+        constraints: [] as string[],
+        requiredCapabilities: ["SQL"],
+        assumptions: [] as string[],
+        priorManifestVersion: null as string | null,
       }),
       tenantScope,
     );

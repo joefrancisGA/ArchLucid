@@ -51,11 +51,20 @@ export function readWizardSessionSnapshot<TState>(wizardId: WizardSessionId): Wi
       return null;
     }
 
-    if (typeof snapshot.stepIndex !== "number" || !Number.isFinite(snapshot.stepIndex)) {
+    if (
+      typeof snapshot.stepIndex !== "number"
+      || !Number.isInteger(snapshot.stepIndex)
+      || snapshot.stepIndex < 0
+    ) {
       return null;
     }
 
-    if (snapshot.state === undefined || typeof snapshot.savedAtUtc !== "string") {
+    if (
+      snapshot.state === undefined
+      || typeof snapshot.savedAtUtc !== "string"
+      || snapshot.savedAtUtc.trim().length === 0
+      || Number.isNaN(Date.parse(snapshot.savedAtUtc))
+    ) {
       return null;
     }
 
@@ -86,7 +95,11 @@ export function writeWizardSessionSnapshot<TState>(
   };
 
   if (typeof window !== "undefined") {
-    window.sessionStorage.setItem(buildWizardSessionStorageKey(wizardId), JSON.stringify(snapshot));
+    try {
+      window.sessionStorage.setItem(buildWizardSessionStorageKey(wizardId), JSON.stringify(snapshot));
+    } catch {
+      /* private/restricted storage */
+    }
   }
 
   return savedAtUtc;
@@ -97,7 +110,11 @@ export function clearWizardSessionSnapshot(wizardId: WizardSessionId): void {
     return;
   }
 
-  window.sessionStorage.removeItem(buildWizardSessionStorageKey(wizardId));
+  try {
+    window.sessionStorage.removeItem(buildWizardSessionStorageKey(wizardId));
+  } catch {
+    /* private/restricted storage */
+  }
 }
 
 export function wizardSessionHasTextContent(value: string | null | undefined): boolean {

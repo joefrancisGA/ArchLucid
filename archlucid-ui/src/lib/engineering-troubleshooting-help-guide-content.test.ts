@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+import { buildEngineeringTroubleshootingHelpGuideHeadings } from "@/lib/engineering-troubleshooting-help-guide-headings";
 import {
   ENGINEERING_TROUBLESHOOTING_HELP_CANONICAL_PATH,
   ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO,
+  ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_INDEX_ANCHOR,
   ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 
@@ -46,6 +48,13 @@ describe("engineering-troubleshooting-help-guide-content", () => {
     }
   });
 
+  it("uses sealed review record language for 409 commit conflicts", () => {
+    const conflictRow = ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS.find((row) => row.symptom === "409 on commit");
+
+    expect(conflictRow?.firstCheck.toLowerCase()).toContain("sealed review record");
+    expect(conflictRow?.firstCheck.toLowerCase()).not.toContain("run status");
+  });
+
   it("TB-1248: canonical path matches engineering-troubleshooting slug", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_CANONICAL_PATH).toBe("/help/engineering-troubleshooting");
   });
@@ -58,5 +67,15 @@ describe("engineering-troubleshooting-help-guide-content", () => {
   it("names admin-diagnostics and system health in the Sources strip intro", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("admin diagnostics");
     expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("system health");
+  });
+
+  it("orders guide headings with orientation sections before markdown appendices", () => {
+    const headings = buildEngineeringTroubleshootingHelpGuideHeadings([
+      { id: "quick-matrix", title: "Quick matrix", level: 2 },
+    ]);
+
+    expect(headings[0]?.id).toBe(ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_INDEX_ANCHOR);
+    expect(headings.some((heading) => heading.id === "quick-matrix")).toBe(true);
+    expect(headings.at(-1)?.id).toBe("help-engineering-troubleshooting-related-heading");
   });
 });

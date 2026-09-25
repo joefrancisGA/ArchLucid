@@ -41,6 +41,8 @@ function runRehydrateForArchitectureId(architectureId: string | null | undefined
     workspaceId: scopeRecord?.workspaceId,
     projectId: scopeRecord?.projectId,
     architectureId: trimmedArchitectureId,
+  }).catch(() => {
+    // Background continuity rehydration must not become an unhandled rejection.
   });
 }
 

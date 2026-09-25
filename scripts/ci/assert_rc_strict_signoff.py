@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,11 @@ _STRICT_ARTIFACTS: tuple[tuple[str, str], ...] = (
     ("rc-evidence-signoff-bundle.json", "overallDisposition"),
     ("rc-go-no-go-verdict.json", "verdict"),
 )
+_ARTIFACT_SCHEMAS = {
+    "release-confidence-rollup.json": "archlucid.release-confidence-rollup.v1",
+    "rc-evidence-signoff-bundle.json": "archlucid.rc-evidence-signoff-bundle.v1",
+    "rc-go-no-go-verdict.json": "archlucid.rc-go-no-go-verdict.v1",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any] | None:
@@ -33,7 +39,7 @@ def _load_json(path: Path) -> dict[str, Any] | None:
 
 def _normalize_pass(raw: object | None) -> bool:
     value = str(raw or "").strip().upper()
-    return value in {"PASS", "READY", "GO", "APPROVE"}
+    return value == "PASS"
 
 
 def _blocking_reason(
@@ -70,6 +76,41 @@ def evaluate_bundle(
                 )
             )
             continue
+
+        expected_schema = _ARTIFACT_SCHEMAS[artifact_name]
+        if payload.get("schema") != expected_schema:
+            blockers.append(
+                _blocking_reason(
+                    artifact=artifact_name,
+                    field="schema",
+                    detail=f"expected {expected_schema}, got {payload.get('schema')!r}",
+                )
+            )
+
+        if require_pass:
+            raw_generated = payload.get("generatedUtc")
+            try:
+                generated = datetime.fromisoformat(str(raw_generated).replace("Z", "+00:00"))
+                if generated.tzinfo is None:
+                    raise ValueError("timestamp lacks timezone")
+            except ValueError:
+                generated = None
+            if generated is None or datetime.now(timezone.utc) - generated > timedelta(days=_STALE_AFTER_DAYS):
+                blockers.append(
+                    _blocking_reason(
+                        artifact=artifact_name,
+                        field="generatedUtc",
+                        detail=f"missing or older than {_STALE_AFTER_DAYS} days: {raw_generated!r}",
+                    )
+                )
+            elif generated > datetime.now(timezone.utc) + timedelta(minutes=5):
+                blockers.append(
+                    _blocking_reason(
+                        artifact=artifact_name,
+                        field="generatedUtc",
+                        detail=f"timestamp is in the future: {raw_generated!r}",
+                    )
+                )
 
         disposition = payload.get(disposition_field)
 
@@ -115,6 +156,14 @@ def evaluate_bundle(
                 )
             )
         else:
+            if parity.get("schema") != "archlucid.release-smoke-result.v1":
+                blockers.append(
+                    _blocking_reason(
+                        artifact="release-smoke-live-ui-sql-result.json",
+                        field="schema",
+                        detail=f"expected archlucid.release-smoke-result.v1, got {parity.get('schema')!r}",
+                    )
+                )
             evidence_kind = str(parity.get("evidenceKind") or "").lower()
             verdict = str(parity.get("verdict") or parity.get("status") or "").strip().upper()
 
@@ -136,6 +185,16 @@ def evaluate_bundle(
                     )
                 )
 
+            status = parity.get("status")
+            if status is not None and str(status).strip().upper() != "PASS":
+                blockers.append(
+                    _blocking_reason(
+                        artifact="release-smoke-live-ui-sql-result.json",
+                        field="status",
+                        detail=f"expected PASS status, got {status!r}",
+                    )
+                )
+
             profile = str(parity.get("profile") or "")
             if profile not in {"LiveUiSql", "ReleaseCandidate"}:
                 blockers.append(
@@ -153,12 +212,12 @@ def evaluate_bundle(
         ("releaseConfidenceRollup", "release-confidence-rollup.json"),
         ("rcGoNoGoVerdict", "rc-go-no-go-verdict.json"),
     ):
-        if ref_key not in references:
+        if references.get(ref_key) != ref_name:
             blockers.append(
                 _blocking_reason(
                     artifact="rc-evidence-signoff-bundle.json",
                     field=f"references.{ref_key}",
-                    detail=f"signoff bundle must reference {ref_name} for machine-readable RC handoff",
+                    detail=f"signoff bundle must reference {ref_name} for machine-readable RC handoff (got {references.get(ref_key)!r})",
                 )
             )
 

@@ -36,6 +36,6 @@ export function digestIdFromLocationHash(hash: string | null | undefined): strin
   try {
     return decodeURIComponent(rawId);
   } catch {
-    return rawId;
+    return null;
   }
 }

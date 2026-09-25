@@ -1,24 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  POLICY_PACK_DETAIL_CLAIM_DISCIPLINE,
-  POLICY_PACK_DETAIL_FOLLOW_UPS_TITLE,
-  POLICY_PACK_DETAIL_ORIENTATION_SOURCES,
-  POLICY_PACK_DETAIL_PATH_PREFIX,
-  POLICY_PACK_DETAIL_SOURCES,
-  POLICY_PACK_DETAIL_SOURCES_INTRO,
-} from "@/lib/policy/policy-pack-detail-evidence-copy";
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPackDetailSourcesForProductLine } from "@/lib/policy/policy-pack-detail-evidence-copy";
 
-describe("policy-pack-detail-evidence-copy", () => {
-  it("exports non-empty claim discipline and orientation Sources for GPI", () => {
-    expect(POLICY_PACK_DETAIL_FOLLOW_UPS_TITLE.length).toBeGreaterThan(0);
-    expect(POLICY_PACK_DETAIL_CLAIM_DISCIPLINE).toContain("published rules");
-    expect(POLICY_PACK_DETAIL_SOURCES_INTRO.length).toBeGreaterThan(0);
-    expect(POLICY_PACK_DETAIL_SOURCES.length).toBeGreaterThan(0);
-    expect(POLICY_PACK_DETAIL_ORIENTATION_SOURCES.length).toBeGreaterThan(0);
+describe("policyPackDetailSourcesForProductLine", () => {
+  it("uses compliance policy pack hub for the security product line", () => {
+    const sources = policyPackDetailSourcesForProductLine("security");
+    const library = sources.find((source) => source.label === "Policy pack library");
 
-    for (const link of POLICY_PACK_DETAIL_ORIENTATION_SOURCES) {
-      expect(link.href.startsWith(POLICY_PACK_DETAIL_PATH_PREFIX)).toBe(false);
-    }
+    expect(library?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+    expect(sources.some((source) => source.href === "/architecture/reviews")).toBe(false);
+  });
+
+  it("keeps architecture reviews for the architecture product line", () => {
+    const sources = policyPackDetailSourcesForProductLine("architecture");
+
+    expect(sources.some((source) => source.href === "/architecture/reviews")).toBe(true);
   });
 });

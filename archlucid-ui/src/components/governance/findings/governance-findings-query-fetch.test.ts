@@ -1,23 +1,68 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { RunSummary } from "@/types/authority";
-
 import {
+  fetchGovernanceFindingQueueRows,
   collectTraceRowsWithConcurrencyCap,
   GOVERNANCE_FINDINGS_FALLBACK_MAX_CONCURRENT,
 } from "@/components/governance/findings/governance-findings-query-fetch";
 
-const { getRunExplanationSummaryMock } = vi.hoisted(() => ({
+const {
+  getRunExplanationSummaryMock,
+  listRunsByProjectPagedMock,
+  fetchGovernanceFindingsRegistersBundleMock,
+} = vi.hoisted(() => ({
   getRunExplanationSummaryMock: vi.fn(),
+  listRunsByProjectPagedMock: vi.fn(),
+  fetchGovernanceFindingsRegistersBundleMock: vi.fn(),
 }));
 
 vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: getRunExplanationSummaryMock,
+  listRunsByProjectPaged: listRunsByProjectPagedMock,
+}));
+
+vi.mock("@/lib/api/governance-stickiness-api", () => ({
+  fetchGovernanceFindingsRegistersBundle: fetchGovernanceFindingsRegistersBundleMock,
 }));
 
 vi.mock("@/components/governance/findings/governance-findings-row-mappers", () => ({
-  traceRowsForRun: (run: RunSummary) => [{ id: run.runId, title: run.title ?? run.runId }],
+  dedupeGovernanceFindingRows: (rows: unknown[]) => rows,
+  riskRegisterRows: () => [],
+  decisionRegisterRows: () => [],
+  traceRowsForRun: (run: { runId: string; title?: string }) => [{ id: run.runId, title: run.title ?? run.runId }],
 }));
+
+import type { RunSummary } from "@/types/authority";
+
+describe("fetchGovernanceFindingQueueRows", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    fetchGovernanceFindingsRegistersBundleMock.mockResolvedValue({
+      riskRegister: { entries: [] },
+      decisionRegister: { decisions: [] },
+    });
+    listRunsByProjectPagedMock.mockResolvedValue({ items: [{ runId: "run-fallback" }] });
+    getRunExplanationSummaryMock.mockResolvedValue({
+      findingTraceConfidences: [{ findingId: "finding-1", findingTitle: "Finding" }],
+    });
+  });
+
+  it("returns successful empty for SecureNow without review fallback", async () => {
+    const result = await fetchGovernanceFindingQueueRows(false, "security");
+
+    expect(result).toEqual({ rows: [], loadFailed: false, failure: null });
+    expect(listRunsByProjectPagedMock).not.toHaveBeenCalled();
+    expect(getRunExplanationSummaryMock).not.toHaveBeenCalled();
+  });
+
+  it("falls back to review traces for Architecture when register is empty", async () => {
+    const result = await fetchGovernanceFindingQueueRows(false, "architecture");
+
+    expect(result.loadFailed).toBe(false);
+    expect(listRunsByProjectPagedMock).toHaveBeenCalledTimes(1);
+    expect(getRunExplanationSummaryMock).toHaveBeenCalled();
+  });
+});
 
 function buildRuns(count: number): RunSummary[] {
   return Array.from({ length: count }, (_, index) => ({

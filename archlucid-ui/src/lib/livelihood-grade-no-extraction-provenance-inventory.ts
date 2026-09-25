@@ -16,9 +16,19 @@ export const LIVELIHOOD_GRADE_NO_EXTRACTION_PROVENANCE_ROWS: readonly Livelihood
       ownerPrompt: "LN-005",
     },
     {
+      surface: "Specialist review factory",
+      provenanceGap: "ClaimOrigin.DirectlyExtracted without passage",
+      ownerPrompt: "LN-005",
+    },
+    {
       surface: "Finding inspect desk",
       provenanceGap: "Citation chips on decision-grade rows",
       ownerPrompt: "LN-028",
+    },
+    {
+      surface: "Trust label bands",
+      provenanceGap: "Heuristic vs evidence-backed (AS-056+)",
+      ownerPrompt: "LN-005",
     },
     {
       surface: "Pixel diagram intake",

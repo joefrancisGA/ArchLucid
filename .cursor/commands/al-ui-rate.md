@@ -1,5 +1,5 @@
 ---
-description: Rate a UI screenshot with Opus High, ship every fix in the backlog with Composer 2.5, commit to master, and update traffic estimates
+description: Rate a UI screenshot with Opus 5.5, ship every fix in the backlog with Composer 2.5, commit to master, and update traffic estimates
 ---
 
 # Rate UI from screenshot (`/al-ui-rate`)
@@ -10,7 +10,7 @@ One invocation runs four phases end to end, with **no owner approval gate betwee
 
 | Phase | Who runs it | Output |
 |-------|-------------|--------|
-| **1 — Rate** | **Opus High** subagent (`claude-opus-5-thinking-high`) | Critique + full prioritized fix backlog + current/projected scores |
+| **1 — Rate** | **Opus 5.5** subagent (prefer High; use `claude-opus-5-5-medium` when High is unavailable) | Critique + full prioritized fix backlog + current/projected scores |
 | **2 — Implement** | **Composer 2.5** subagent (`composer-2.5`) | Code changes for the **entire** fix backlog + scoped verification |
 | **3 — Ship** | Parent agent | Commit + push to **`master`**, CI gate |
 | **4 — Score** | Parent agent | UX + Evidence scores and Note in the owner traffic workbook |
@@ -53,7 +53,7 @@ If **no screenshot** is attached, stop:
 
 ## Guardrails (read first)
 
-- **The parent agent must not rate the screen itself.** Phase 1 is always delegated to an **Opus High** subagent, regardless of which model the parent is running. Do not skip delegation because the parent "can see" the screenshot.
+- **The parent agent must not rate the screen itself.** Phase 1 is always delegated to an **Opus 5.5** subagent, preferring High strength and falling back to `claude-opus-5-5-medium` when High is unavailable, regardless of which model the parent is running. Do not skip delegation because the parent "can see" the screenshot.
 - **Screenshot-derived facts are inferred** — label route, tenant, error text, and mode as **(inferred from screenshot)** unless the user confirmed them in text.
 - Follow ArchLucid product language (`docs/library/UI_DESIGN_SYSTEM.md`, `archlucid-ui/AGENTS.md`): *architecture package*, *finding*, *evidence trail*, *sealed review record*, *decision*, *governance approval*, *audit trail* — not *run* / *job* / *alert* (unless it is an alert) / *log*. Never call the package a *signed decision record*.
 - Ground visual judgment in **IBM Carbon + Fluent 2 shell** standards in `docs/library/UI_DESIGN_SYSTEM.md` (neutral surfaces, restrained teal accent, compact enterprise spacing, `StatusTag` / `SeverityTag`, disclosure for technical IDs).
@@ -85,7 +85,7 @@ Record the resolved mode in chat before Phase 1. Label as **(inferred from scree
 
 ## Critique briefs (use verbatim — pick one by mode)
 
-Pass **exactly one** brief to the Opus High subagent — **without paraphrase or softening**. **Default to Working** unless Step 0 resolved Guided/demo.
+Pass **exactly one** brief to the Opus 5.5 subagent — **without paraphrase or softening**. **Default to Working** unless Step 0 resolved Guided/demo.
 
 ### Working brief (default)
 
@@ -111,14 +111,14 @@ Apply the chosen brief to **each** attached screenshot. If multiple images show 
 
 ---
 
-### Phase 1 — Rate (Opus High subagent, always)
+### Phase 1 — Rate (Opus 5.5 subagent, always)
 
 Launch **one** `Task` subagent:
 
 | Setting | Value |
 |---------|-------|
 | `subagent_type` | `generalPurpose` |
-| `model` | **`claude-opus-5-thinking-high`** |
+| `model` | **Prefer Opus 5.5 High; use `claude-opus-5-5-medium` when High is unavailable** |
 | `run_in_background` | `false` |
 | `file_attachments` | Every attached screenshot path |
 | `description` | `UI rating (Opus High)` |
@@ -309,14 +309,14 @@ Use `--replace` only when the user asks; the default append keeps prior owner no
 | Path | `<path or inferred>` |
 | Context | `<user text or none>` |
 | Screenshots | `<filenames>` |
-| Rating model | `claude-opus-5-thinking-high` |
+| Rating model | `Opus 5.5 High preferred; `claude-opus-5-5-medium` fallback |
 | Implementation model | `composer-2.5` |
 | Workspace mode | `Working` / `Guided/demo` |
 | Stance | Working instrument (default; ADR **0094** — density flags are not execute gravity) / Azure Portal buyer-confidence (Guided/demo only) |
 
 ### Critique
 
-<Opus High critique across the seven lenses; brutal, specific, pixel-grounded>
+<Opus 5.5 critique across the seven lenses; brutal, specific, pixel-grounded>
 
 ### Fix backlog and disposition
 
@@ -359,7 +359,7 @@ When a phase is skipped (rate-only, zero fix items, blocked path, unresolvable I
 | Situation | Action |
 |-----------|--------|
 | No screenshot | Stop at Step 0 with the usage line |
-| Opus High subagent unavailable | Stop and tell the user; do **not** rate with a substitute model |
+| Opus 5.5 unavailable | Stop and tell the user; do not rate with a substitute model |
 | Composer 2.5 unavailable | Report the rating, skip Phases 2–3, run Phase 4 with `shipped = 0` |
 | Quality gate cannot go green | Do not commit; report the failing gate and leave changes uncommitted for the owner |
 | Target path dirty at session start | Per `Agent-Working-Tree-Safety.mdc`, skip that backlog item as `blocked` and name the path |

@@ -19,11 +19,15 @@ import { replaceGovernanceEnvironmentCatalog } from "@/lib/api/policy-governance
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { governanceEnvironmentCatalogMutationBlockedReason } from "@/lib/governance/governance-environment-catalog-mutation-blocked-reason";
 import {
+  GOVERNANCE_ENVIRONMENTS_CLAIM_DISCIPLINE,
   GOVERNANCE_ENVIRONMENTS_PAGE_SUBTITLE,
   GOVERNANCE_ENVIRONMENTS_PAGE_TITLE,
   GOVERNANCE_ENVIRONMENTS_PATH,
+  GOVERNANCE_ENVIRONMENTS_PRIMARY_CONTENT_ID,
   GOVERNANCE_ENVIRONMENTS_SAVE_ERROR_TITLE,
+  GOVERNANCE_ENVIRONMENTS_SKIP_LINK_LABEL,
 } from "@/lib/governance/governance-environments-route";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 import {
   governanceEnvironmentOptionsFromCatalog,
@@ -255,13 +259,27 @@ export default function GovernanceEnvironmentsClient() {
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="governance-environments-page">
+      <a
+        href={`#${GOVERNANCE_ENVIRONMENTS_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_ENVIRONMENTS_SKIP_LINK_LABEL}
+      </a>
+
       <OperatorPageHeader
         navHref={GOVERNANCE_ENVIRONMENTS_PATH}
         title={GOVERNANCE_ENVIRONMENTS_PAGE_TITLE}
         subtitle={GOVERNANCE_ENVIRONMENTS_PAGE_SUBTITLE}
+        claimDiscipline={GOVERNANCE_ENVIRONMENTS_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="governance-environments-claim-discipline"
         actions={<PageContextualHelpButton />}
       />
 
+      <main
+        id={GOVERNANCE_ENVIRONMENTS_PRIMARY_CONTENT_ID}
+        className="scroll-mt-24 space-y-4"
+        data-testid="governance-environments-primary-content"
+      >
       <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Environment slots</CardTitle>
@@ -429,6 +447,7 @@ export default function GovernanceEnvironmentsClient() {
           Preview: {governanceEnvironmentOptionsFromCatalog(draft).map((option) => option.label).join(" → ")}
         </p>
       ) : null}
+      </main>
     </OperatorPageContainer>
   );
 }

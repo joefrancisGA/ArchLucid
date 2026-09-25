@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Live-e2e API start steps in Simulator mode must clear AzureOpenAI__* (Pilot overlay)."""
+"""Live-e2e API start steps in Simulator mode must clear AzureOpenAI__* (defense-in-depth)."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -42,8 +43,58 @@ def _check_workflow(rel_path: str, text: str, errors: list[str]) -> None:
                 errors.append(
                     f"{rel_path}: Start ArchLucid.Api Simulator step must set "
                     f"{required.split(':')[0]} to empty string "
-                    "(appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI)",
+                    "(empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI)",
                 )
+
+
+def _check_pilot_overlay(root: Path, errors: list[str]) -> None:
+    rel_path = "ArchLucid.Api/appsettings.Pilot.json"
+    path = root / rel_path
+
+    if not path.is_file():
+        errors.append(f"missing {rel_path}")
+        return
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        errors.append(f"{rel_path}: invalid JSON ({exc})")
+        return
+
+    if not isinstance(data, dict):
+        errors.append(f"{rel_path}: expected a JSON object")
+        return
+
+    normalized_data = {key.casefold(): value for key, value in data.items()}
+    agent_execution = normalized_data.get("agentexecution")
+    normalized_agent_execution = (
+        {key.casefold(): value for key, value in agent_execution.items()}
+        if isinstance(agent_execution, dict)
+        else {}
+    )
+    mode = normalized_agent_execution.get("mode")
+
+    if isinstance(mode, str) and mode.strip().lower() == "real":
+        errors.append(
+            f"{rel_path} must not set AgentExecution.Mode=Real "
+            "(local dotnet run would require Azure OpenAI; use appsettings.Real.sample.json)"
+        )
+
+    azure_value = normalized_data.get("azureopenai")
+    azure = (
+        {key.casefold(): value for key, value in azure_value.items()}
+        if isinstance(azure_value, dict)
+        else {}
+    )
+
+    for key in ("Endpoint", "DeploymentName", "EmbeddingDeploymentName", "ApiKey"):
+        value = azure.get(key.casefold())
+
+        if isinstance(value, str) and value.strip():
+            errors.append(
+                f"{rel_path} must not set AzureOpenAI.{key} "
+                "(partial Azure OpenAI fails Simulator startup)"
+            )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -52,6 +103,7 @@ def main(argv: list[str] | None = None) -> int:
 
     root = repo_root()
     errors: list[str] = []
+    _check_pilot_overlay(root, errors)
 
     for rel_path in _WORKFLOW_PATHS:
         path = root / rel_path

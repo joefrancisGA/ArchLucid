@@ -17,6 +17,28 @@ namespace ArchLucid.Application.Tests.Evidence;
 public sealed class ZipEvidenceExpanderServiceTests
 {
     [Fact]
+    public void Expand_disambiguates_colliding_flattened_file_names()
+    {
+        using MemoryStream zipStream = new();
+        using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (string name in new[] { "a/b_c.txt", "a_b/c.txt" })
+            {
+                using StreamWriter writer = new(archive.CreateEntry(name).Open());
+                writer.Write("content");
+            }
+        }
+        zipStream.Position = 0;
+        ZipEvidenceExpanderService sut = new(
+            Options.Create(new ZipEvidenceExpanderOptions()),
+            NullLogger<ZipEvidenceExpanderService>.Instance);
+
+        ZipEvidenceExpansionResult result = sut.Expand(zipStream, "evidence.zip");
+
+        result.Files.Select(file => file.FileName).Should().Equal("a_b_c.txt", "a_b_c-2.txt");
+    }
+
+    [Fact]
     public void Expand_flattens_nested_directories_into_unique_file_names()
     {
         string tempRoot = Path.Combine(Path.GetTempPath(), "archlucid-zip-test-" + Guid.NewGuid().ToString("N"));

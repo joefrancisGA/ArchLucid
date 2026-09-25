@@ -71,4 +71,10 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews?status=open")).toBe(true);
     expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews?status=open#top")).toBe(true);
   });
+
+  it("highlights Help and Administration for configuration reference shell context", () => {
+    expect(isNavLinkActive("/help/configuration-reference", "/help")).toBe(true);
+    expect(isNavLinkActive("/help/configuration-reference", "/administration")).toBe(true);
+    expect(isNavLinkActive("/help/configuration-reference", "/help/getting-started")).toBe(false);
+  });
 });

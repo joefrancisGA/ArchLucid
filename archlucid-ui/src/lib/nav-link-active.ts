@@ -15,6 +15,7 @@ import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { helpTopicShellSidebarNavHrefs } from "@/lib/help/help-topic-shell-sidebar-nav-config";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
@@ -67,6 +68,12 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
       pathname === "/governance/approval-queue" ||
       pathname.startsWith("/governance/approval-requests/")
     );
+  }
+
+  const shellSidebarActiveHrefs = helpTopicShellSidebarNavHrefs(pathname);
+
+  if (shellSidebarActiveHrefs.some((activeHref) => activeHref === pathPart)) {
+    return true;
   }
 
   if (pathPart === SETTINGS_ROOT_PATH) {

@@ -7,16 +7,21 @@ import sys
 from pathlib import Path
 
 # Inline markdown links [text](url) — excludes bare URLs and reference-style [ref][id].
-_LINK_RE = re.compile(r"\[[^\]]*\]\([^)\s]+\)")
+_LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\([^()\s]*(?:\([^()]*\)[^()\s]*)*\)")
 
 
 def count_links_before_first_details(text: str) -> tuple[int, str | None]:
-    lower = text.lower()
-    idx = lower.find("<details")
-    if idx == -1:
+    # Comments can contain documentation examples of <details>; they are not collapsible blocks.
+    visible = re.sub(r"<!--[\s\S]*?-->", "", text)
+    visible = re.sub(
+        r"(?ms)^[ \t]*(```|~~~)[^\n]*\n.*?^[ \t]*\1[ \t]*(?:\r?\n|$)", "", visible
+    )
+    visible = re.sub(r"`[^`\n]*`", "", visible)
+    match = re.search(r"<details(?:\s|>)", visible, re.IGNORECASE)
+    if match is None:
         return -1, "No <details> block found in README.md — opener must stay collapsible."
 
-    prefix = text[:idx]
+    prefix = visible[:match.start()]
     return len(_LINK_RE.findall(prefix)), None
 
 

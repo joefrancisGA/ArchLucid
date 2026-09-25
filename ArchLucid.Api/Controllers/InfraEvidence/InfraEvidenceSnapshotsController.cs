@@ -178,6 +178,9 @@ public sealed partial class InfraEvidenceSnapshotsController(
     public async Task<IActionResult> GetMermaidPreview(
         Guid snapshotId,
         [FromQuery] bool includeNeverShow = false,
+        [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
+        [FromQuery] bool includeCrossGroupFanOut = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -189,7 +192,10 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     scope,
                     snapshotId,
                     includeNeverShow,
-                    cancellationToken);
+                    cancellationToken,
+                    includePrivateEndpointNodes,
+                    includeRecoveryServices,
+                    includeCrossGroupFanOut);
 
             if (result.IsNotFound)
             {
@@ -225,6 +231,9 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] string? seedNodeId,
         [FromQuery] bool includeNeverShow = false,
         [FromQuery] string? hideTiers = null,
+        [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
+        [FromQuery] bool includeCrossGroupFanOut = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -240,7 +249,10 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     seedNodeId,
                     includeNeverShow,
                     hideTiers,
-                    cancellationToken);
+                    cancellationToken,
+                    includePrivateEndpointNodes,
+                    includeRecoveryServices,
+                    includeCrossGroupFanOut);
 
             if (result.IsNotFound)
             {
@@ -284,6 +296,9 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] string? seedNodeId,
         [FromQuery] bool includeNeverShow = false,
         [FromQuery] string? hideTiers = null,
+        [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
+        [FromQuery] bool includeCrossGroupFanOut = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -298,7 +313,10 @@ public sealed partial class InfraEvidenceSnapshotsController(
                 seedNodeId,
                 includeNeverShow,
                 hideTiers,
-                cancellationToken);
+                cancellationToken,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut);
 
             if (result.IsNotFound)
             {

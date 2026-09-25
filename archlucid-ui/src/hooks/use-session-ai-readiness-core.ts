@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { useWorkspaceAiAvailabilityCheck } from "@/hooks/useWorkspaceAiAvailabilityCheck";
@@ -14,6 +15,7 @@ import {
 import { isLiveAiProbeReady } from "@/lib/session-ai-readiness/is-live-ai-probe-ready";
 import {
   workspaceAiUnavailableDetail,
+  workspaceAiSummary,
   type WorkspaceAiAvailabilityResult,
 } from "@/lib/workspace-ai-availability";
 
@@ -48,6 +50,7 @@ export function useSessionAiReadinessCore(
   const requireLiveProbe = options?.requireLiveProbe === true;
   const probeSuppressed = options?.probeSuppressed === true;
   const { mode: sessionMode, isSimulator, isLoading: modeLoading } = useAgentExecutionMode();
+  const { productLine } = useProductLine();
   const healthQuery = useHealthReadySummaryQuery();
   const hostMode = parseAgentExecutionModeWire(healthQuery.data?.agentExecutionMode);
   const hasDevOverride =
@@ -141,7 +144,9 @@ export function useSessionAiReadinessCore(
         isLoading: false,
         isReady,
         blocksExecute: false,
-        detail: isReady ? availability.summary : workspaceAiUnavailableDetail(availability),
+        detail: isReady
+          ? workspaceAiSummary(availability, productLine)
+          : workspaceAiUnavailableDetail(availability, productLine),
         availability,
         probeState: state,
         checkAvailability,
@@ -191,7 +196,9 @@ export function useSessionAiReadinessCore(
       isLoading: false,
       isReady,
       blocksExecute: !isReady,
-      detail: isReady ? availability.summary : workspaceAiUnavailableDetail(availability),
+      detail: isReady
+        ? workspaceAiSummary(availability, productLine)
+        : workspaceAiUnavailableDetail(availability, productLine),
       availability,
       probeState: state,
       checkAvailability,
@@ -203,6 +210,7 @@ export function useSessionAiReadinessCore(
     hostMode,
     isSessionReal,
     modeLoading,
+    productLine,
     sessionMode,
     shouldProbe,
     state,

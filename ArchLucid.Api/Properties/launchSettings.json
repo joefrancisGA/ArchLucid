@@ -24,6 +24,19 @@
         "DataConsistency__InitialDelaySeconds": "0",
         "HostLeaderElection__Enabled": "false"
       }
+    },
+    "http-real": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5128",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ArchLucidAuth__AllowTestActorHeaders": "true",
+        "DataConsistency__InitialDelaySeconds": "0",
+        "HostLeaderElection__Enabled": "false",
+        "AgentExecution__Mode": "Real"
+      }
     }
   }
 }

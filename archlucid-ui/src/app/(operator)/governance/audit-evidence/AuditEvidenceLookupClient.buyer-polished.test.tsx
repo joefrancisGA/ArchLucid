@@ -30,6 +30,7 @@ import {
   AUDIT_EVIDENCE_PRIMARY_CONTENT_ID,
   AUDIT_EVIDENCE_SKIP_LINK_LABEL,
 } from "@/lib/audit-evidence-page-copy";
+import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { AuditEvidenceLookupClient } from "./AuditEvidenceLookupClient";
 
 const VALID_ASSESSMENT = "11111111-1111-1111-1111-111111111111";
@@ -44,12 +45,14 @@ describe("AuditEvidenceLookupClient buyer-polished chrome", () => {
       "href",
       `#${AUDIT_EVIDENCE_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("audit-evidence-inventory-start-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-browse-inventory-link")).toBeInTheDocument();
+    expect(screen.queryByTestId("audit-evidence-inventory-start-panel")).not.toBeInTheDocument();
     expect(screen.getByTestId("audit-evidence-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("audit-evidence-lineage-sources")).toBeInTheDocument();
     expect(screen.getByTestId("audit-evidence-lookup-scope-banner")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("audit-evidence-lookup-build-provenance-limitation")).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
 
     const submit = screen.getByRole("button", { name: AUDIT_EVIDENCE_OPEN_LINEAGE_ACTION });
     expect(submit).toBeDisabled();
@@ -74,5 +77,6 @@ describe("AuditEvidenceLookupClient buyer-polished chrome", () => {
     expect(screen.getByTestId("audit-evidence-assessment-id")).toHaveValue("assess-1");
     expect(screen.getByTestId("audit-evidence-snapshot-id")).toHaveValue("snap-2");
     expect(screen.getByTestId("audit-evidence-control-id")).toHaveValue("ctrl-3");
+    expect(screen.getByTestId("audit-evidence-lineage-url-applied-confirmation")).toBeInTheDocument();
   });
 });

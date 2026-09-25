@@ -64,7 +64,8 @@ function readOptionalSeverityOrdinal(value: unknown): number | null {
   }
 
   if (typeof value === "string") {
-    const parsed = Number.parseInt(value, 10);
+    const trimmed = value.trim();
+    const parsed = /^-?\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : Number.NaN;
 
     if (!Number.isNaN(parsed)) {
       return parsed;

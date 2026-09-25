@@ -5,20 +5,21 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { LayerHeader } from "@/components/LayerHeader";
+import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
+import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { InfrastructureResourcesSavedViewsBar } from "@/components/governance/infrastructure/InfrastructureResourcesSavedViewsBar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { StatusTag } from "@/components/ui/status-tag";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
   EnterpriseTableCell,
   EnterpriseTableHead,
+  EnterpriseTableHeadRow,
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
@@ -26,11 +27,13 @@ import {
   fetchCloudResourceExplorerPage,
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
+import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
 import {
   buildInfrastructureAskHref,
   buildResourceHubExplorerHref,
   buildResourceHubOverviewHref,
-  buildResourceExplorerWorkCountHref,
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceExplorerNamePrefixFromSearch,
   parseResourceExplorerResourceGroupFromSearch,
@@ -55,34 +58,39 @@ import {
 } from "@/lib/infra-evidence/format-azure-resource-display";
 import { formatInstantCompactMilitary } from "@/lib/locale-datetime";
 import {
-  CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
-  formatCloudResourceExplorerWorkQueueLabel,
   formatResourceHubTabActionLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
   resolveResourceHubTabFromExplorerWorkQueue,
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
-import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
 import type { CloudResourceSummary, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_SCOPE_ALL_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_SORT_PAGE_LOCAL_DISCLOSURE,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_MARKERS_KEY_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import {
+  formatResourcesExplorerPageRangeLabel,
+  parseResourceExplorerPageFromSearch,
+  parseResourcesExplorerSortAscFromSearch,
+  parseResourcesExplorerSortKeyFromSearch,
+  RESOURCE_EXPLORER_PAGE_PARAM,
+  RESOURCE_EXPLORER_SORT_DIR_PARAM,
+  RESOURCE_EXPLORER_SORT_PARAM,
+  resourceExplorerListStateHrefFromSearch,
+} from "@/lib/infra-evidence/resources-explorer-url";
 
 import {
   RESOURCES_EXPLORER_DEFAULT_SORT_ASC,
@@ -94,17 +102,10 @@ import {
 
 import { ResourcesExplorerBreadcrumb } from "./ResourcesExplorerBreadcrumb";
 import { ResourcesExplorerClaimOrientationStrip } from "./ResourcesExplorerClaimOrientationStrip";
+import { ResourcesExplorerCommandBar } from "./ResourcesExplorerCommandBar";
+import { ResourcesExplorerSnapshotStrip } from "./ResourcesExplorerSnapshotStrip";
 import { ResourcesExplorerSortHeaderCell } from "./ResourcesExplorerSortHeaderCell";
-
-const cnCard =
-  "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
-
-const cnField =
-  "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
-
-function clampResourceExplorerTopFilterDraft(raw: string): string {
-  return raw.slice(0, GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH);
-}
+import { ResourcesExplorerWorkCountCell } from "./ResourcesExplorerWorkCountCell";
 
 function resolveExplorerAskHubTab(
   workQueue: CloudResourceExplorerWorkQueue,
@@ -112,8 +113,20 @@ function resolveExplorerAskHubTab(
   return resolveResourceHubTabFromExplorerWorkQueue(workQueue) ?? undefined;
 }
 
+function resolveNewestLastSeenUtc(rows: readonly CloudResourceSummary[]): string {
+  let newest = "";
+
+  for (const row of rows) {
+    if (row.lastSeenUtc.length > 0 && row.lastSeenUtc.localeCompare(newest) > 0) {
+      newest = row.lastSeenUtc;
+    }
+  }
+
+  return newest;
+}
+
 export function ResourcesExplorerClient() {
-  const buyerPolishedShell = useProductionEvalChrome();
+  useProductionEvalChrome();
   const { productLine } = useProductLine();
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const router = useRouter();
@@ -137,6 +150,9 @@ export function ResourcesExplorerClient() {
   const urlSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM),
   );
+  const urlPage = parseResourceExplorerPageFromSearch(searchParams.get(RESOURCE_EXPLORER_PAGE_PARAM));
+  const urlSortKey = parseResourcesExplorerSortKeyFromSearch(searchParams.get(RESOURCE_EXPLORER_SORT_PARAM));
+  const urlSortAsc = parseResourcesExplorerSortAscFromSearch(searchParams.get(RESOURCE_EXPLORER_SORT_DIR_PARAM));
   const infraResourceRowArmIdKeyParam = searchParams.get(INFRA_RESOURCE_ROW_ARM_ID_DISCLOSURE_KEY_PARAM);
   const [infraResourceRowArmIdKey, setInfraResourceRowArmIdKeyState] = useState(() =>
     parseInfraResourceRowArmIdDisclosureKeyFromSearch(infraResourceRowArmIdKeyParam),
@@ -158,15 +174,32 @@ export function ResourcesExplorerClient() {
     setInfraResourceRowArmIdKeyState(parseInfraResourceRowArmIdDisclosureKeyFromSearch(infraResourceRowArmIdKeyParam));
   }, [infraResourceRowArmIdKeyParam]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && infraResourceRowArmIdKey.length > 0) {
+        setInfraResourceRowArmIdKey(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [infraResourceRowArmIdKey.length, setInfraResourceRowArmIdKey]);
+
   const [namePrefix, setNamePrefix] = useState(urlNamePrefix);
   const [resourceType, setResourceType] = useState(urlResourceType);
   const [resourceGroup, setResourceGroup] = useState(urlResourceGroup);
   const [workQueue, setWorkQueue] = useState<CloudResourceExplorerWorkQueue>(urlWorkQueue);
   const [rows, setRows] = useState<CloudResourceSummary[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(urlPage);
+  const [pageSize, setPageSize] = useState(50);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [sortKey, setSortKey] = useState<ResourcesExplorerTableSortKey>(RESOURCES_EXPLORER_DEFAULT_SORT_KEY);
-  const [sortAsc, setSortAsc] = useState(RESOURCES_EXPLORER_DEFAULT_SORT_ASC);
+  const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
 
   useEffect(() => {
     if (urlCloudResourceId.length === 0) {
@@ -181,27 +214,38 @@ export function ResourcesExplorerClient() {
     setResourceType(urlResourceType);
     setResourceGroup(urlResourceGroup);
     setWorkQueue(urlWorkQueue);
-  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlWorkQueue]);
+    setPage(urlPage);
+  }, [urlNamePrefix, urlPage, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
   const loadResources = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
 
     try {
-      const response = await fetchCloudResourceExplorerPage({
-        namePrefix: urlNamePrefix,
-        resourceType: urlResourceType,
-        resourceGroup: urlResourceGroup,
-        workQueue: urlWorkQueue,
-      });
+      const response = await fetchCloudResourceExplorerPage(
+        {
+          namePrefix: urlNamePrefix,
+          resourceType: urlResourceType,
+          resourceGroup: urlResourceGroup,
+          workQueue: urlWorkQueue,
+        },
+        urlPage,
+        50,
+      );
       setRows(response.items);
+      setTotalCount(response.totalCount);
+      setPage(response.page);
+      setPageSize(response.pageSize);
+      setHasMore(response.hasMore);
     } catch (error: unknown) {
       setLoadError(formatInfraEvidenceHubApiError(error));
       setRows([]);
+      setTotalCount(0);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
-  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlWorkQueue, urlCloudResourceId]);
+  }, [urlNamePrefix, urlPage, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
   useEffect(() => {
     if (urlCloudResourceId.length > 0) {
@@ -211,20 +255,67 @@ export function ResourcesExplorerClient() {
     void loadResources();
   }, [loadResources, urlCloudResourceId]);
 
+  useEffect(() => {
+    if (urlCloudResourceId.length > 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadSnapshots() {
+      try {
+        const response = await fetchInfraEvidenceSnapshots(1, 20);
+        if (!cancelled) {
+          setSnapshots(response.items);
+        }
+      } catch {
+        if (!cancelled) {
+          setSnapshots([]);
+        }
+      }
+    }
+
+    void loadSnapshots();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [urlCloudResourceId]);
+
   const sortedRows = useMemo(
-    () => sortResourceExplorerRows(rows, sortKey, sortAsc),
-    [rows, sortAsc, sortKey],
+    () => sortResourceExplorerRows(rows, urlSortKey, urlSortAsc),
+    [rows, urlSortAsc, urlSortKey],
+  );
+
+  const newestLastSeenUtc = useMemo(() => resolveNewestLastSeenUtc(rows), [rows]);
+
+  const resolvedSnapshot = useMemo(() => {
+    if (urlSnapshotId.length > 0) {
+      return snapshots.find((snapshot) => snapshot.snapshotId === urlSnapshotId) ?? null;
+    }
+
+    return snapshots[0] ?? null;
+  }, [snapshots, urlSnapshotId]);
+
+  const replaceListState = useCallback(
+    (patch: {
+      readonly page?: number;
+      readonly sortKey?: ResourcesExplorerTableSortKey;
+      readonly sortAsc?: boolean;
+    }) => {
+      router.replace(resourceExplorerListStateHrefFromSearch(searchParams.toString(), patch, resourcesPath));
+    },
+    [resourcesPath, router, searchParams],
   );
 
   const onSort = (nextSortKey: ResourcesExplorerTableSortKey) => {
-    if (sortKey === nextSortKey) {
-      setSortAsc((current) => !current);
+    if (urlSortKey === nextSortKey) {
+      replaceListState({ sortKey: nextSortKey, sortAsc: !urlSortAsc });
 
       return;
     }
 
-    setSortKey(nextSortKey);
-    setSortAsc(true);
+    replaceListState({ sortKey: nextSortKey, sortAsc: true });
   };
 
   const applyFilters = () => {
@@ -234,14 +325,22 @@ export function ResourcesExplorerClient() {
       resourceGroup,
       workQueue,
     }, resourcesPath);
-    router.replace(nextHref);
+    router.replace(resourceExplorerListStateHrefFromSearch(nextHref.split("?")[1] ?? "", { page: 1 }, resourcesPath));
+  };
+
+  const clearFilters = () => {
+    setNamePrefix("");
+    setResourceType("");
+    setResourceGroup("");
+    setWorkQueue("all");
+    router.replace(resourceExplorerListStateHrefFromSearch("", { page: 1 }, resourcesPath));
   };
 
   const applyWorkQueue = (nextWorkQueue: CloudResourceExplorerWorkQueue) => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), {
       workQueue: nextWorkQueue,
     }, resourcesPath);
-    router.replace(nextHref);
+    router.replace(resourceExplorerListStateHrefFromSearch(nextHref.split("?")[1] ?? "", { page: 1 }, resourcesPath));
   };
 
   const loadSavedView = (filters: {
@@ -249,9 +348,21 @@ export function ResourcesExplorerClient() {
     readonly resourceType: string;
     readonly resourceGroup: string;
     readonly workQueue: CloudResourceExplorerWorkQueue;
+    readonly sortKey?: ResourcesExplorerTableSortKey;
+    readonly sortAsc?: boolean;
   }) => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), filters, resourcesPath);
-    router.replace(nextHref);
+    router.replace(
+      resourceExplorerListStateHrefFromSearch(nextHref.split("?")[1] ?? "", {
+        page: 1,
+        sortKey: filters.sortKey ?? RESOURCES_EXPLORER_DEFAULT_SORT_KEY,
+        sortAsc: filters.sortAsc ?? RESOURCES_EXPLORER_DEFAULT_SORT_ASC,
+      }, resourcesPath),
+    );
+  };
+
+  const goToPage = (nextPage: number) => {
+    replaceListState({ page: nextPage });
   };
 
   if (urlCloudResourceId.length > 0) {
@@ -267,7 +378,6 @@ export function ResourcesExplorerClient() {
           subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
           titleTestId="infra-resource-explorer-page-title"
         />
-        {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-resources" /> : null}
         <p className={cn("m-0 inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
           {GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL}
@@ -277,6 +387,28 @@ export function ResourcesExplorerClient() {
   }
 
   const scopedHubTabLabel = formatResourceHubTabActionLabelFromExplorerWorkQueue(urlWorkQueue);
+  const appliedFilterCount = [urlNamePrefix, urlResourceType, urlResourceGroup].filter((value) => value.length > 0).length;
+  const hasAppliedFilters = appliedFilterCount > 0 || workQueueExplicitlySet;
+  const hasUnappliedFilterChanges =
+    namePrefix !== urlNamePrefix
+    || resourceType !== urlResourceType
+    || resourceGroup !== urlResourceGroup
+    || workQueue !== urlWorkQueue;
+  const showPageLocalSortDisclosure = totalCount > pageSize || hasMore;
+
+  const scopeStatusBadge = (
+    <StatusTag
+      kind={hasAppliedFilters ? "ready" : "neutral"}
+      label={
+        hasAppliedFilters
+          ? `${appliedFilterCount + (workQueueExplicitlySet ? 1 : 0)} filter${appliedFilterCount + (workQueueExplicitlySet ? 1 : 0) === 1 ? "" : "s"} active`
+          : GOVERNANCE_INFRASTRUCTURE_RESOURCES_SCOPE_ALL_LABEL
+      }
+      data-testid="infra-resource-explorer-scope-status"
+    />
+  );
+
+  const pageRangeLabel = formatResourcesExplorerPageRangeLabel({ page, pageSize, totalCount });
 
   return (
     <OperatorPageContainer
@@ -284,290 +416,251 @@ export function ResourcesExplorerClient() {
       className="py-4"
       data-testid="infra-resource-explorer-workbench"
     >
-      {buyerPolishedShell ? (
-        <a
-          href={`#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL}
+      </a>
 
       <OperatorPageHeader
         navHref={resourcesPath}
         title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
         titleTestId="infra-resource-explorer-page-title"
-        breadcrumb={buyerPolishedShell ? <ResourcesExplorerBreadcrumb /> : undefined}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="infra-resource-explorer-claim-discipline"
+        metadata={
+          <div className="flex flex-col gap-2">
+            <ResourcesExplorerBreadcrumb />
+            <ResourcesExplorerSnapshotStrip
+              snapshot={resolvedSnapshot}
+              snapshotPinned={urlSnapshotId.length > 0}
+              newestLastSeenUtc={newestLastSeenUtc}
+            />
           </div>
+        }
+        actions={
+          <InfraEvidenceWorkbenchHeaderActions
+            shortcutsTestId="infra-resource-explorer-page-shortcuts"
+            shortcuts={RESOURCES_EXPLORER_PAGE_SHORTCUTS}
+            scopeStatusBadge={scopeStatusBadge}
+          />
         }
       />
 
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-resources" /> : null}
-
       <main
-        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID : undefined}
-        className={cn(
-          "flex w-full flex-col gap-4",
-          buyerPolishedShell ? "scroll-mt-24" : undefined,
-        )}
+        id={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}
+        className="flex w-full flex-col gap-4 scroll-mt-24"
         data-testid="infra-resource-explorer-primary-content"
       >
-      <InfrastructureResourcesSavedViewsBar
-        namePrefix={urlNamePrefix}
-        resourceType={urlResourceType}
-        resourceGroup={urlResourceGroup}
-        workQueue={urlWorkQueue}
-        onLoadView={loadSavedView}
+      <ResourcesExplorerCommandBar
+        namePrefix={namePrefix}
+        resourceType={resourceType}
+        resourceGroup={resourceGroup}
+        workQueue={workQueue}
+        urlNamePrefix={urlNamePrefix}
+        urlResourceType={urlResourceType}
+        urlResourceGroup={urlResourceGroup}
+        urlWorkQueue={urlWorkQueue}
+        sortKey={urlSortKey}
+        sortAsc={urlSortAsc}
+        workQueueExplicitlySet={workQueueExplicitlySet}
+        activeWorkQueueCount={totalCount}
+        hasAppliedFilters={hasAppliedFilters}
+        hasUnappliedFilterChanges={hasUnappliedFilterChanges}
+        onNamePrefixChange={setNamePrefix}
+        onResourceTypeChange={setResourceType}
+        onResourceGroupChange={setResourceGroup}
+        onApplyFilters={applyFilters}
+        onClearFilters={clearFilters}
+        onApplyWorkQueue={applyWorkQueue}
+        onLoadSavedView={loadSavedView}
       />
 
-      <section className={cn("grid gap-3", cnCard)} aria-label="Resource explorer filters">
-        <div className="flex flex-wrap gap-2" aria-label="Resource explorer work queues">
-          {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.map((option) => (
-            <Button
-              key={option.id}
-              type="button"
-              size="sm"
-              variant={workQueueExplicitlySet && urlWorkQueue === option.id ? "default" : "outline"}
-              data-testid={`infra-resource-explorer-work-queue-${option.id}`}
-              onClick={() => applyWorkQueue(option.id)}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-        {workQueueExplicitlySet ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((option) => option.id === urlWorkQueue)?.summary}
-          </p>
-        ) : null}
-        <div className="grid gap-3 md:grid-cols-3">
-          {buyerPolishedShell ? (
-            <>
-              <div className="grid gap-2 text-sm">
-                <Label
-                  htmlFor="infra-resource-explorer-name-prefix"
-                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
-                >
-                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}
-                </Label>
-                <Input
-                  id="infra-resource-explorer-name-prefix"
-                  data-testid="infra-resource-explorer-name-prefix"
-                  value={namePrefix}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setNamePrefix(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </div>
-              <div className="grid gap-2 text-sm">
-                <Label
-                  htmlFor="infra-resource-explorer-resource-type"
-                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
-                >
-                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}
-                </Label>
-                <Input
-                  id="infra-resource-explorer-resource-type"
-                  data-testid="infra-resource-explorer-resource-type"
-                  value={resourceType}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setResourceType(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </div>
-              <div className="grid gap-2 text-sm">
-                <Label
-                  htmlFor="infra-resource-explorer-resource-group"
-                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
-                >
-                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}
-                </Label>
-                <Input
-                  id="infra-resource-explorer-resource-group"
-                  data-testid="infra-resource-explorer-resource-group"
-                  value={resourceGroup}
-                  onChange={(event) => setResourceGroup(event.target.value)}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <label className="grid gap-1 text-sm">
-                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}</span>
-                <input
-                  className={cnField}
-                  data-testid="infra-resource-explorer-name-prefix"
-                  value={namePrefix}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setNamePrefix(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </label>
-              <label className="grid gap-1 text-sm">
-                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}</span>
-                <input
-                  className={cnField}
-                  data-testid="infra-resource-explorer-resource-type"
-                  value={resourceType}
-                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
-                  onChange={(event) => setResourceType(clampResourceExplorerTopFilterDraft(event.target.value))}
-                />
-              </label>
-              <label className="grid gap-1 text-sm">
-                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}</span>
-                <input
-                  className={cnField}
-                  data-testid="infra-resource-explorer-resource-group"
-                  value={resourceGroup}
-                  onChange={(event) => setResourceGroup(event.target.value)}
-                />
-              </label>
-            </>
-          )}
-        </div>
-        <div>
-          <Button type="button" size="sm" data-testid="infra-resource-explorer-apply" onClick={applyFilters}>
-            Apply filters
-          </Button>
-        </div>
-      </section>
-
       {loadError != null ? (
-        buyerPolishedShell ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-resource-explorer-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
-                Retry load
-              </Button>
-            }
-          />
-        ) : (
-          <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
-        )
+        <EnterpriseCompactEmptyState
+          role="alert"
+          title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
+          description={loadError}
+          testId="infra-resource-explorer-load-error-panel"
+          footer={
+            <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
+              Retry load
+            </Button>
+          }
+        />
       ) : null}
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusTag kind="neutral" label={pageRangeLabel} data-testid="infra-resource-explorer-page-range" />
+          {showPageLocalSortDisclosure ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-sort-page-local">
+              {GOVERNANCE_INFRASTRUCTURE_RESOURCES_SORT_PAGE_LOCAL_DISCLOSURE}
+            </span>
+          ) : null}
+        </div>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-work-markers-key">
+          {GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_MARKERS_KEY_LABEL}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          data-testid="infra-resource-explorer-page-previous"
+          disabled={loading || page <= 1}
+          onClick={() => goToPage(page - 1)}
+        >
+          Previous page
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          data-testid="infra-resource-explorer-page-next"
+          disabled={loading || (!hasMore && page * pageSize >= totalCount)}
+          onClick={() => goToPage(page + 1)}
+        >
+          Next page
+        </Button>
+      </div>
 
       <EnterpriseTable ariaLabel="Cloud resources">
         <EnterpriseTableHead>
-          <EnterpriseTableRow>
+          <EnterpriseTableHeadRow>
             <ResourcesExplorerSortHeaderCell
               label="Name"
               sortKey="name"
-              activeSortKey={sortKey}
-              sortAsc={sortAsc}
-              sortDirection={resourcesExplorerTableSortDirection("name", sortKey, sortAsc)}
+              activeSortKey={urlSortKey}
+              sortAsc={urlSortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("name", urlSortKey, urlSortAsc)}
               onSort={onSort}
             />
             <ResourcesExplorerSortHeaderCell
               label="Work"
               sortKey="work"
-              activeSortKey={sortKey}
-              sortAsc={sortAsc}
-              sortDirection={resourcesExplorerTableSortDirection("work", sortKey, sortAsc)}
+              activeSortKey={urlSortKey}
+              sortAsc={urlSortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("work", urlSortKey, urlSortAsc)}
               onSort={onSort}
             />
             <ResourcesExplorerSortHeaderCell
               label="Type"
               sortKey="type"
-              activeSortKey={sortKey}
-              sortAsc={sortAsc}
-              sortDirection={resourcesExplorerTableSortDirection("type", sortKey, sortAsc)}
+              activeSortKey={urlSortKey}
+              sortAsc={urlSortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("type", urlSortKey, urlSortAsc)}
               onSort={onSort}
             />
             <ResourcesExplorerSortHeaderCell
               label="Resource group"
               sortKey="resourceGroup"
-              activeSortKey={sortKey}
-              sortAsc={sortAsc}
-              sortDirection={resourcesExplorerTableSortDirection("resourceGroup", sortKey, sortAsc)}
+              activeSortKey={urlSortKey}
+              sortAsc={urlSortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("resourceGroup", urlSortKey, urlSortAsc)}
               onSort={onSort}
             />
             <ResourcesExplorerSortHeaderCell
               label="Region"
               sortKey="region"
-              activeSortKey={sortKey}
-              sortAsc={sortAsc}
-              sortDirection={resourcesExplorerTableSortDirection("region", sortKey, sortAsc)}
+              activeSortKey={urlSortKey}
+              sortAsc={urlSortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("region", urlSortKey, urlSortAsc)}
               onSort={onSort}
             />
             <ResourcesExplorerSortHeaderCell
               label="Last seen"
               sortKey="lastSeen"
-              activeSortKey={sortKey}
-              sortAsc={sortAsc}
-              sortDirection={resourcesExplorerTableSortDirection("lastSeen", sortKey, sortAsc)}
+              activeSortKey={urlSortKey}
+              sortAsc={urlSortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("lastSeen", urlSortKey, urlSortAsc)}
               onSort={onSort}
             />
             <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-          </EnterpriseTableRow>
+          </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
           {loading ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={7}>Loading resources…</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={7}>
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Loading resources…
+                </span>
+              </EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
-          {!loading && rows.length === 0 ? (
+          {!loading && rows.length === 0 && loadError == null ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={7}>No cloud resources match the current filters.</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={7}>
+                <EnterpriseCompactEmptyState
+                  title="No matching resources"
+                  description="Adjust filters or clear the work queue to widen the explorer results."
+                  testId="infra-resource-explorer-empty-state"
+                />
+              </EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
           {sortedRows.map((row) => {
-            const workCountBadges = buildCloudResourceExplorerWorkCountBadges(row.workCounts);
             const isResourceIdDisclosed = infraResourceRowArmIdKey === row.cloudResourceId;
+            const displayName = formatCloudResourceDisplayName(row);
+            const disclosureId = `infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`;
 
             return (
             <EnterpriseTableRow
               key={row.cloudResourceId}
               data-testid={`infra-resource-row-${row.cloudResourceId}`}
               selected={isResourceIdDisclosed}
-              onClick={() => setInfraResourceRowArmIdKey(isResourceIdDisclosed ? null : row.cloudResourceId)}
             >
               <EnterpriseTableCell>
-                <Link
-                  className="font-medium text-al-link hover:underline"
-                  href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
-                  data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                  }}
-                >
-                  {formatCloudResourceDisplayName(row)}
-                </Link>
-                {isResourceIdDisclosed ? (
-                  <p
-                    className={cn("m-0 truncate font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid={`infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`}
-                  >
-                    resource id: {row.externalResourceId}
-                  </p>
-                ) : null}
+                <div className="flex flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      className="font-medium text-al-link hover:underline"
+                      href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
+                      data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
+                    >
+                      {displayName}
+                    </Link>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      aria-expanded={isResourceIdDisclosed}
+                      aria-controls={disclosureId}
+                      data-testid={`infra-resource-row-arm-id-toggle-${row.cloudResourceId}`}
+                      aria-label={
+                        isResourceIdDisclosed
+                          ? `Hide resource id for ${displayName}`
+                          : `Show resource id for ${displayName}`
+                      }
+                      onClick={() => setInfraResourceRowArmIdKey(isResourceIdDisclosed ? null : row.cloudResourceId)}
+                    >
+                      {isResourceIdDisclosed ? "Hide id" : "Show id"}
+                    </Button>
+                  </div>
+                  {isResourceIdDisclosed ? (
+                    <div
+                      id={disclosureId}
+                      className={cn("m-0 flex flex-wrap items-center gap-2 break-all font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid={`infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`}
+                    >
+                      <span>resource id: {row.externalResourceId}</span>
+                      <CopyIdButton value={row.externalResourceId} aria-label={`Copy resource id for ${displayName}`} />
+                    </div>
+                  ) : null}
+                </div>
               </EnterpriseTableCell>
               <EnterpriseTableCell data-testid={`infra-resource-work-counts-${row.cloudResourceId}`}>
-                {workCountBadges.length === 0 ? (
-                  <span className="text-sm text-al-text-secondary">{GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL}</span>
-                ) : (
-                  <div className="flex flex-wrap gap-1">
-                    {workCountBadges.map((badge) => (
-                      <Link
-                        key={badge.kind}
-                        className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs text-neutral-900 hover:bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-                        title={badge.label}
-                        href={buildResourceExplorerWorkCountHref(row.cloudResourceId, badge.kind, urlWorkQueue, urlSnapshotId)}
-                        data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                        }}
-                      >
-                        {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                <ResourcesExplorerWorkCountCell
+                  row={row}
+                  workQueue={urlWorkQueue}
+                  snapshotId={urlSnapshotId}
+                />
               </EnterpriseTableCell>
               <EnterpriseTableCell data-testid={`infra-resource-type-${row.cloudResourceId}`}>
                 {formatAzureResourceTypeForDisplay(row.resourceType)}
@@ -577,11 +670,7 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell data-testid={`infra-resource-last-seen-${row.cloudResourceId}`}>
                 {row.lastSeenUtc.length > 0 ? formatInstantCompactMilitary(row.lastSeenUtc) : "—"}
               </EnterpriseTableCell>
-              <EnterpriseTableCell
-                onClick={(event) => {
-                  event.stopPropagation();
-                }}
-              >
+              <EnterpriseTableCell>
                 <div className="flex flex-wrap gap-2">
                   {urlWorkQueue !== "all" ? (
                     <Button asChild size="sm" variant="outline">
@@ -591,6 +680,7 @@ export function ResourcesExplorerClient() {
                           workQueue: urlWorkQueue,
                         })}
                         data-testid={`infra-resource-explorer-overview-${row.cloudResourceId}`}
+                        aria-label={`Open overview for ${displayName}`}
                       >
                         Overview
                       </Link>
@@ -615,6 +705,7 @@ export function ResourcesExplorerClient() {
                         hubTab: resolveExplorerAskHubTab(urlWorkQueue),
                       })}
                       data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
+                      aria-label={`Ask about ${displayName}`}
                     >
                       Ask
                     </Link>
@@ -627,7 +718,8 @@ export function ResourcesExplorerClient() {
         </EnterpriseTableBody>
       </EnterpriseTable>
 
-        {buyerPolishedShell ? <ResourcesExplorerClaimOrientationStrip /> : null}
+        <ResourcesExplorerClaimOrientationStrip />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-resource-explorer-build-provenance-limitation" />
       </main>
     </OperatorPageContainer>
   );

@@ -78,4 +78,19 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath);
         evidence.DiagramLabel.Should().Be("Private network path");
     }
+
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AgwToBackend)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin)]
+    public void Ingress_routes_are_declared_movement_on_data_flow(string associationType)
+    {
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            associationType,
+            out AzureInventoryDataFlowEvidenceAssociation? evidence).Should().BeTrue();
+
+        evidence!.IncludeOnDataFlow.Should().BeTrue();
+        evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.DeclaredMovement);
+        evidence.Direction.Should().Be(AzureInventoryDataFlowEdgeDirection.DeclaredWrite);
+        evidence.DiagramLabel.Should().Be("Routes to");
+    }
 }

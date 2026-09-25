@@ -36,6 +36,7 @@ vi.mock("@/hooks/use-architecture-identities-list-query", () => ({
 
 vi.mock("./reviews-new-path-switcher-deferred-chunks", () => ({
   ReviewsNewPathSwitcherDeferred: () => <div data-testid="reviews-new-path-switcher-stub" />,
+  ReviewsNewSocraticIntakeWizardDeferred: () => <div data-testid="socratic-intake-wizard-stub" />,
 }));
 
 import { ReviewsNewRouteBody } from "./ReviewsNewRouteBody";
@@ -93,5 +94,23 @@ describe("ReviewsNewRouteBody (AO-22)", () => {
       "/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake",
     );
     expect(screen.queryByTestId("reviews-new-path-switcher-stub")).toBeNull();
+  });
+
+  it("opens guided questions when Working guided-intake has no architectures", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
+    useArchitectureIdentitiesListQuery.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { items: [], totalCount: 0 },
+    });
+
+    render(<ReviewsNewRouteBody />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("reviews-new-working-architecture-picker")).toBeNull();
+    expect(screen.queryByText("Pick an architecture to start a review")).toBeNull();
+    expect(screen.queryByText("No architectures in this workspace yet.")).toBeNull();
   });
 });

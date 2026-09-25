@@ -172,13 +172,28 @@ public sealed class ZipEvidenceExpanderService(
 
             files.Add(new ZipEvidenceExpandedFile
             {
-                FileName = fileName,
+                FileName = MakeUniqueFileName(fileName, files),
                 Content = regularContent
             });
         }
     }
 
     /// <summary>Flattens nested ZIP paths so folder recursion becomes unique leaf file names.</summary>
+    private static string MakeUniqueFileName(string fileName, IReadOnlyList<ZipEvidenceExpandedFile> files)
+    {
+        if (!files.Any(file => string.Equals(file.FileName, fileName, StringComparison.OrdinalIgnoreCase)))
+            return fileName;
+
+        string stem = Path.GetFileNameWithoutExtension(fileName);
+        string extension = Path.GetExtension(fileName);
+        for (int suffix = 2; ; suffix++)
+        {
+            string candidate = $"{stem}-{suffix}{extension}";
+            if (!files.Any(file => string.Equals(file.FileName, candidate, StringComparison.OrdinalIgnoreCase)))
+                return candidate;
+        }
+    }
+
     private static string NormalizeZipEntryFileName(string fullName)
     {
         if (string.IsNullOrWhiteSpace(fullName))

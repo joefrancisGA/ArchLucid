@@ -21,8 +21,6 @@ public static class AzureInventoryDataFlowStageResolver
 
     private const string MicrosoftEventHubProviderPrefix = "Microsoft.EventHub/";
 
-    private const string MicrosoftKeyVaultProviderPrefix = "Microsoft.KeyVault/";
-
     private const string MicrosoftDataFactoryProviderPrefix = "Microsoft.DataFactory/";
 
     private const string MicrosoftSynapseProviderPrefix = "Microsoft.Synapse/";
@@ -49,6 +47,16 @@ public static class AzureInventoryDataFlowStageResolver
             return null;
         }
 
+        if (AzureInventoryDataFlowDiagramExclusions.ShouldOmitResourceType(resourceType))
+        {
+            return null;
+        }
+
+        if (IsDataFlowIngressArmType(resourceType))
+        {
+            return AzureInventoryDataFlowStageNames.Application;
+        }
+
         if (resourceType.StartsWith(MicrosoftNetworkProviderPrefix, StringComparison.OrdinalIgnoreCase))
         {
             return null;
@@ -67,8 +75,7 @@ public static class AzureInventoryDataFlowStageResolver
         }
 
         if (resourceType.StartsWith(MicrosoftServiceBusProviderPrefix, StringComparison.OrdinalIgnoreCase)
-            || resourceType.StartsWith(MicrosoftEventHubProviderPrefix, StringComparison.OrdinalIgnoreCase)
-            || resourceType.StartsWith(MicrosoftKeyVaultProviderPrefix, StringComparison.OrdinalIgnoreCase))
+            || resourceType.StartsWith(MicrosoftEventHubProviderPrefix, StringComparison.OrdinalIgnoreCase))
         {
             return AzureInventoryDataFlowStageNames.Storage;
         }
@@ -124,6 +131,11 @@ public static class AzureInventoryDataFlowStageResolver
             return AzureInventoryDataFlowStageNames.Source;
         }
 
+        if (AzureInventoryDataFlowDiagramExclusions.ShouldOmit(node))
+        {
+            return null;
+        }
+
         string armType = ReadArmType(node);
 
         return Resolve(armType, isExternalSource: false);
@@ -146,5 +158,17 @@ public static class AzureInventoryDataFlowStageResolver
         }
 
         return node.NodeType;
+    }
+
+    /// <summary>
+    ///     Ingress resources that move traffic into applications. Child types stay off the diagram.
+    ///     Front Door Standard/Premium is <c>Microsoft.Cdn/profiles</c>.
+    /// </summary>
+    private static bool IsDataFlowIngressArmType(string resourceType)
+    {
+        return resourceType.Equals("Microsoft.Network/applicationGateways", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.Network/azureFirewalls", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.Network/frontDoors", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.Cdn/profiles", StringComparison.OrdinalIgnoreCase);
     }
 }

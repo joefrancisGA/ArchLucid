@@ -3,7 +3,6 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { StructuredBriefHelpClaimDisciplineStrip } from "@/components/help/StructuredBriefHelpClaimDisciplineStrip";
 import { StructuredBriefHelpEvidenceOrientationStrip } from "@/components/help/StructuredBriefHelpEvidenceOrientationStrip";
-import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -12,21 +11,31 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
+  STRUCTURED_BRIEF_HELP_APPLICABILITY,
+  STRUCTURED_BRIEF_HELP_BREADCRUMB_TOPIC_TITLE,
   STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID,
   STRUCTURED_BRIEF_HELP_CONCEPT_ITEMS,
+  STRUCTURED_BRIEF_HELP_ERROR_RECOVERY,
+  STRUCTURED_BRIEF_HELP_ERROR_RECOVERY_HEADING,
   STRUCTURED_BRIEF_HELP_GUIDE_HEADINGS,
+  STRUCTURED_BRIEF_HELP_HELP_RETURN,
   STRUCTURED_BRIEF_HELP_HOW_TO_READ_STEPS,
   STRUCTURED_BRIEF_HELP_OVERVIEW,
   STRUCTURED_BRIEF_HELP_PAGE_EYEBROW,
   STRUCTURED_BRIEF_HELP_PAGE_TITLE,
   STRUCTURED_BRIEF_HELP_PRIMARY_ACTION,
   STRUCTURED_BRIEF_HELP_PRIMARY_CONTENT_ID,
+  STRUCTURED_BRIEF_HELP_RELATED_LINKS,
+  STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING,
+  STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING_ID,
   STRUCTURED_BRIEF_HELP_SKIP_LINK_LABEL,
   structuredBriefHelpPageSubtitle,
 } from "@/lib/structured-brief-help-guide-content";
@@ -59,7 +68,7 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
     STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
-  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -74,6 +83,24 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
       </a>
 
       <HelpTopicHashScroll />
+
+      <nav
+        aria-label="Breadcrumb"
+        className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="help-topic-breadcrumb"
+      >
+        <ol className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0">
+          <li>
+            <Link className={OPERATOR_LINK.inline} href={HELP_HUB_CANONICAL_PATH}>
+              {HELP_TOPIC_BREADCRUMB_HUB_LABEL}
+            </Link>
+          </li>
+          <li aria-hidden="true" className="text-al-text-secondary">/</li>
+          <li aria-current="page" className="text-al-text-primary">
+            {STRUCTURED_BRIEF_HELP_BREADCRUMB_TOPIC_TITLE}
+          </li>
+        </ol>
+      </nav>
 
       <HelpTopicGuidePageHeader
         eyebrow={buyerPolishedShell ? undefined : STRUCTURED_BRIEF_HELP_PAGE_EYEBROW}
@@ -147,7 +174,68 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
             </ol>
           </section>
 
-          <SponsorSendPathHonestyPanel testIdPrefix="help-structured-brief" showSsoOptional={false} />
+          <section
+            aria-labelledby="help-structured-brief-applicability"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-structured-brief-applicability"
+          >
+            <HelpSectionHeading id="help-structured-brief-applicability">Scope and applicability</HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-structured-brief-applicability-body">
+              {STRUCTURED_BRIEF_HELP_APPLICABILITY}
+            </p>
+          </section>
+
+          <section
+            aria-labelledby="help-structured-brief-error-recovery"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-structured-brief-error-recovery"
+          >
+            <HelpSectionHeading id="help-structured-brief-error-recovery">
+              {STRUCTURED_BRIEF_HELP_ERROR_RECOVERY_HEADING}
+            </HelpSectionHeading>
+            <dl className={cn("m-0 grid gap-2", HELP_PAGE_LAYOUT.readingBody)}>
+              <div>
+                <dt className="font-medium text-al-text-primary">What failed</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">{STRUCTURED_BRIEF_HELP_ERROR_RECOVERY.whatFailed}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-al-text-primary">What stayed intact</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">{STRUCTURED_BRIEF_HELP_ERROR_RECOVERY.whatIsIntact}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-al-text-primary">Next step</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">{STRUCTURED_BRIEF_HELP_ERROR_RECOVERY.nextStep}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section
+            aria-labelledby={STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING_ID}
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-structured-brief-related-topics"
+          >
+            <HelpSectionHeading id={STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING_ID}>
+              {STRUCTURED_BRIEF_HELP_RELATED_TOPICS_HEADING}
+            </HelpSectionHeading>
+            <ul className={cn("m-0 list-none space-y-2 p-0", HELP_PAGE_LAYOUT.readingBody)}>
+              {STRUCTURED_BRIEF_HELP_RELATED_LINKS.map((topic) => (
+                <li key={topic.href}>
+                  <Link className={OPERATOR_LINK.nav} href={topic.href}>
+                    {topic.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <p className={readingBodyClass}>
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={STRUCTURED_BRIEF_HELP_HELP_RETURN.href}
+                data-testid="help-structured-brief-return-to-help"
+              >
+                {STRUCTURED_BRIEF_HELP_HELP_RETURN.label} →
+              </Link>
+            </p>
+          </section>
         </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />

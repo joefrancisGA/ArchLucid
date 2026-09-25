@@ -42,6 +42,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryLogicAppConnection = "inventory-logic-app-connection";
 
+    public const string InventoryDatabricksAccessConnector = "inventory-databricks-access-connector";
+
     public const string InventoryIdentityRoleAssignment = "inventory-identity-role-assignment";
 
     public const string InventoryAppAuthorizedAccess = "inventory-app-authorized-access";
@@ -51,6 +53,8 @@ public static class GraphEdgeInferenceSources
     public const string InventorySqlDatabasePrincipal = "inventory-sql-database-principal";
 
     public const string InventoryAppKeyVaultRef = "inventory-app-key-vault-ref";
+
+    public const string InventoryPropertyArmId = "inventory-property-arm-id";
 
     public const string InventoryHostnameInferredTarget = "inventory-hostname-inferred-target";
 
@@ -70,6 +74,13 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryEventHubCapture = "inventory-event-hub-capture";
 
+    public const string InventoryEventHubMayPublish = "inventory-event-hub-may-publish";
+    public const string InventoryEventHubMayConsume = "inventory-event-hub-may-consume";
+    public const string InventoryServiceBusMaySend = "inventory-service-bus-may-send";
+    public const string InventoryServiceBusMayReceive = "inventory-service-bus-may-receive";
+    public const string InventoryServiceBusForwardTo = "inventory-service-bus-forward-to";
+    public const string InventoryServiceBusForwardDeadLetter = "inventory-service-bus-forward-dead-letter";
+
     public const string InventoryNatGatewaySubnet = "inventory-nat-gateway-subnet";
 
     public const string InventoryFirewallSubnet = "inventory-firewall-subnet";
@@ -87,6 +98,10 @@ public static class GraphEdgeInferenceSources
     public const string InventoryVmNic = "inventory-vm-nic";
 
     public const string InventoryAvdSessionHostToVm = "inventory-avd-session-host-to-vm";
+
+    public const string InventoryRecoveryServicesProtects = "inventory-recovery-services-protects";
+
+    public const string InventoryRecoveryServicesReplicates = "inventory-recovery-services-replicates";
 
     public const string InventoryNicNsg = "inventory-nic-nsg";
 

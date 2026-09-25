@@ -19,9 +19,9 @@ const GOVERNANCE_AUDIT_EVIDENCE_CONTROL_LINEAGE_PREFIX =
 const GOVERNANCE_AUDIT_EVIDENCE_LINEAGE_LOOKUP_CONTEXTUAL_HELP = {
   whatIsThisPage: `Audit evidence lineage — ${AUDIT_EVIDENCE_PAGE_LEAD}`,
   whatToDoNext:
-    "Paste assessment, snapshot, and control IDs or a lineage URL, then open chain of custody — or start from the resource explorer to copy IDs from a hub.",
+    "Paste assessment, snapshot, and control IDs or a lineage URL, then open evidence lineage — or start from the resource explorer to copy IDs from a hub.",
   whyEmpty:
-    "The lookup form is always available; chain-of-custody results appear after valid assessment snapshot IDs are entered.",
+    "The lookup form is always available; evidence lineage results appear after valid assessment snapshot IDs are entered.",
   whereToConfigurePrerequisite:
     "You need an assessment snapshot from inventory capture, extract and upload, or a connector integration before lineage resolves.",
   whatToDoNextAction: {
@@ -34,7 +34,7 @@ const GOVERNANCE_AUDIT_EVIDENCE_LINEAGE_LOOKUP_CONTEXTUAL_HELP = {
   },
   taskSteps: [
     "Paste assessment, snapshot, and control IDs from an export — not an AI summary.",
-    "Open chain of custody when IDs are valid, or browse resource inventory to copy linked IDs.",
+    "Open evidence lineage when IDs are valid, or browse resource inventory to copy linked IDs.",
     "Return to policy packs when assessment scope or ARC-AMPE packs need configuration.",
   ],
 } as const;

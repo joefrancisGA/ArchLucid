@@ -8,6 +8,8 @@ import {
 } from "@/lib/wizard-session-persistence";
 
 const searchParamsGet = vi.fn<(key: string) => string | null>();
+const workspaceModeMock = vi.hoisted(() => ({ value: "guided" as "guided" | "working" }));
+const buyerPolishedShellMock = vi.hoisted(() => ({ value: true }));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -29,7 +31,23 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+    isBuyerPolishedOperatorShellEnv: (): boolean => buyerPolishedShellMock.value,
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceModeOrDefault: () => workspaceModeMock.value,
+    useWorkspaceMode: () => ({
+      mode: workspaceModeMock.value,
+      mounted: true,
+      accountSyncState: "synced" as const,
+      isWorkingMode: workspaceModeMock.value === "working",
+      setAndPersist: vi.fn(),
+    }),
   };
 });
 
@@ -41,6 +59,8 @@ describe("reviews-new resume hero coordination", () => {
     sessionStorage.clear();
     localStorage.clear();
     searchParamsGet.mockImplementation(() => null);
+    workspaceModeMock.value = "guided";
+    buyerPolishedShellMock.value = true;
   });
 
   it("renders only the hub resume strip when both hub and wizard would resume the same session", () => {
@@ -74,5 +94,30 @@ describe("reviews-new resume hero coordination", () => {
     );
 
     expect(screen.queryByTestId("reviews-new-wizard-resume-strip")).not.toBeInTheDocument();
+  });
+
+  it("suppresses the vocabulary rail on the working desk", () => {
+    workspaceModeMock.value = "working";
+    buyerPolishedShellMock.value = false;
+
+    render(
+      <ReviewsNewPageShell>
+        <div data-testid="reviews-new-path-switcher" />
+      </ReviewsNewPageShell>,
+    );
+
+    expect(screen.queryByTestId("path-chooser-create-object-vocabulary")).not.toBeInTheDocument();
+  });
+
+  it("renders the vocabulary rail for eval chrome outside path tabs", () => {
+    buyerPolishedShellMock.value = false;
+
+    render(
+      <ReviewsNewPageShell>
+        <div data-testid="reviews-new-path-switcher" />
+      </ReviewsNewPageShell>,
+    );
+
+    expect(screen.getByTestId("path-chooser-create-object-vocabulary")).toBeInTheDocument();
   });
 });

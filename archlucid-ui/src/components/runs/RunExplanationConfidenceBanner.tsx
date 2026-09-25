@@ -42,6 +42,7 @@ export function RunExplanationConfidenceBanner(props: {
   if (confidence === null) {
     return null;
   }
+
   const dispositionLabel = buyerPolished
     ? buyerExplanationConfidenceDispositionLabel(confidence.disposition)
     : confidence.disposition;

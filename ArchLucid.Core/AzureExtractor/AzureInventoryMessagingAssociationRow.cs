@@ -41,6 +41,18 @@ public sealed class AzureInventoryMessagingAssociationRow
         init;
     }
 
+    public string? ForwardToName
+    {
+        get;
+        init;
+    }
+
+    public string? ForwardDeadLetteredMessagesToName
+    {
+        get;
+        init;
+    }
+
     public string CollectionStatus
     {
         get;

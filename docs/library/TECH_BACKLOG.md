@@ -2472,6 +2472,21 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-922 | **Done** (2026-08-14) â€” CI smoke coverage for the dormant DTF orchestrator seam; see `## TB-922` below | Reliability P2 ? **V1**; TB-302/DTF follow-up 2026-07-20 | S |
 | TB-923 | Governance approval SLA breach ? notify-only vs auto-act decision (assessment-only) ? **Done** 2026-08-14 ? owner **(a) keep notify-only** recorded **PENDING_QUESTIONS #41**; see `## TB-923` below | Reliability P3 ? **V1**; TB-302/DTF follow-up 2026-07-20 | XS |
 | TB-924 | DTF cutover for authority-pipeline orchestration (gated epic) ? move `AuthorityRunOrchestrator` to the Durable Task Framework via the existing `DtfAuthorityRunOrchestrator` seam; **blocked until TB-921's gate fires**; see `## TB-924` below | Architectural integrity P1-when-gated ? **V1.1 contingent**; not required for V1 GA per `V1_DEFERRED.md` ?6f | L |
+| TB-2402 | V2 ? verifier kind on decision-grade findings; model self-check, independent model, deterministic rule/policy, inventory/IaC match, or human approval | Trustworthiness P1 ? **V2**; follows the V1 claim/disproof discipline; size M |
+| TB-2403 | V2 ? package-level verification-independence summary in review UI and DOCX/Markdown export | Trustworthiness P1 ? **V2**; depends on **TB-2402**; size S |
+| TB-2404 | V2 ? execute falsification tests for adversarial challenges and record refuted/survived/not-testable/human-input outcomes | AI/Agent readiness P1 ? **V2**; extends **TB-1983**; size L |
+| TB-2405 | V2 ? per-finding evidence scope statement showing examined and unexamined coverage | Explainability P1 ? **V2**; pairs **TB-2402** and main-package provenance surfacing; size M |
+| TB-2406 | V2 ? surface origin, support, verifier, and evidence scope on the main review package and exports | Trustworthiness P1 ? **V2**; depends on **TB-2402**/**TB-2405**; size M |
+| TB-2407 | V2 ? independent critic/escalation engine identity and model-independence configuration | AI/Agent readiness P2 ? **V2**; depends on **TB-2402** and **TB-2106**; size M |
+| TB-2408 | V2 ? paired engine-strength evaluation for candidate versus baseline analysis across deterministic cohorts; report win/draw/loss and per-agent-family regressions without buyer-facing Elo claims | AI/Agent readiness P2 ? **V2**; extends the synthetic/golden evaluation corpus; size L |
+| TB-2409 | V2 ? stable-conclusion gate for decision-grade findings; keep high-severity dependency, mitigation, contradiction, or evidence gaps unresolved until falsification and scope checks complete | Trustworthiness P1 ? **V2**; depends on **TB-2404**/**TB-2405**; size M |
+| TB-2410 | V2 ? ordered SecureNow remediation paths; apply the highest-leverage cut point, recompute, and show the sequence of path-collapse effects | Security P1 ? **V2**; extends **SA-10**/**SA-13**; size L |
+| TB-2411 | V2 ? adaptive analysis depth and compute budget; extend only branches triggered by internet exposure, privileged identity, regulated data, cross-region dependency, or cascading failure | AI/Agent readiness P2 ? **V2**; depends on **TB-2409** and verifier/coverage semantics; size L |
+| TB-2412 | V2 ? proposed-state what-if planning; compare a proposed architecture snapshot with the observed state, including improvements, newly introduced risks, and evidence limits | Security P2 ? **V2**; depends on **TB-2410**, **SA-12**, and **SA-13**; size XL |
+| TB-2413 | V2 ? N-1 and selective N-2 contingency propagation over the SecureNow evidence graph; simulate loss of a critical identity, region, hub, DNS zone, Key Vault, or broker and record downstream consequences | Security P1 ? **V2**; depends on **TB-2410** and common-mode hypotheses; size L |
+| TB-2414 | V2 ? information-gain investigation order; choose the next evidence question that can change an open hypothesis, without multiplying severity and confidence into one priority | AI/Agent readiness P2 ? **V2**; depends on **TB-2411** and diagnostic hypotheses; size M |
+| TB-2415 | V2 ? Pareto alternatives for architecture mutations; retain nondominated options across named dimensions and refuse a single fitness score | Security P2 ? **V2**; depends on **TB-2412**; size XL |
+| TB-2416 | V2 ? requirements-constrained architecture synthesis; search candidates against budget, RTO, RPO, and exposure constraints, then explain why each survivor remains | Security P3 ? **V2**; depends on **TB-2415**; size XL |
 | | **Done V2 (kept for grep; not shippable)** | | |
 | TB-397 | `IExternalTicketConnector` plugin boundary ??? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite | M |
 | TB-689 | ~~Multi-vendor LLM routing decision gate~~ **Done** (2026-07-18) ? ADR 0060 Accepted: Azure-native managed path; BYO via **TB-872**/**TB-873**; no third-party vendor SDK adapters under this ADR; see `## TB-689` below | Cutting-edge AI P3 ? **V2**; decision gate closed | XS |
@@ -47131,9 +47146,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-2034 ? Finding verification loop ? re-ingest + scoring pass (P2)
+## TB-2034 ? Finding verification loop ? re-ingest + scoring pass (P2) ? **V2**
 
-**Window:** V1.1 ? Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+**Window:** V2 ? Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)); intentionally deferred from the V1/V1.1 claim-honesty slice.
 
 **Status:** Open.
 
@@ -52276,3 +52291,135 @@ If the brief is short, `buildEvidenceBackedIntakeBrief` writes boilerplate from 
 ## TB-2401 — Product-line catalog / DDL split (OP-08) (P2) — **Open**
 
 **Ship:** V2 (last). Details: [`TECH_BACKLOG_TB2400_INDEX.md`](TECH_BACKLOG_TB2400_INDEX.md). Not implied by **TB-2400**; requires named integration contract before any second DDL file.
+
+## TB-2402 — Verifier kind on decision-grade findings (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** The V1 claim/disproof reporting discipline protects agent work, but buyer-facing findings still need a structured answer to “what verified this?” Support status alone does not distinguish model self-check from deterministic or human verification.
+
+**Approach:** Add one or more verifier records to each decision-grade finding: model self-check, independent model, deterministic rule/policy pack, inventory/IaC match, or human approval. Store a reference to the check or approval where available. A missing verifier is not silently treated as independent verification.
+
+**Acceptance:** Every decision-grade finding has an explicit verifier state. Model-self-check-only findings are labeled as such; “independent” requires a distinct verifier record.
+
+**Depends on:** **TB-1981**, **TB-1984**. Follow-on to V1 honesty guard.
+
+## TB-2403 — Package verification-independence summary (P1) — **Open**
+
+**Window:** V2. **Size:** S.
+
+**Why:** Buyers need a package-level answer to whether findings were independently checked.
+
+**Approach:** Add a review-package summary and DOCX/Markdown export section that counts deterministic, independently reviewed, human-approved, and model-only findings. Use evidence-basis labeling and an empty state when no verification pass exists.
+
+**Acceptance:** Counts reconcile to the findings list; model-only findings never count as verified; no summary is shown as a quality percentage without its denominator and evidence basis.
+
+**Depends on:** **TB-2402**.
+
+## TB-2404 — Execute falsification tests for adversarial challenges (P1) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** **TB-1983** requires every adversarial challenge to state what would confirm or refute it, but a falsification statement is currently only a proposed check.
+
+**Approach:** Run deterministic probes against the knowledge model, extracted inventory, or policy packs where possible. Record `Refuted`, `Survived`, `NotTestable`, or `NeedsHumanInput` with the probe inputs and trace. Preserve refuted challenges as evidence that the counterexample path ran.
+
+**Acceptance:** Every challenge has a run result or an explicit not-testable reason. Survived challenges can enter the substantiated-finding lane only through existing evidence validation.
+
+**Depends on:** **TB-1983**, **TB-1977**, **TB-1981**.
+
+## TB-2405 — Per-finding evidence scope statement (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** A finding can be correct for the examined API path, resource set, or evidence snapshot without establishing a system-wide conclusion.
+
+**Approach:** Add structured `EvidenceScope` information describing the examined set, omitted set, snapshot/version, and resulting coverage limitation. Generate a concise scope statement beside high-severity findings and in exports.
+
+**Acceptance:** High-severity findings cannot be exported without a scope statement or an explicit “scope unavailable” limitation. Scope is derived from evidence references and does not imply unexamined coverage.
+
+**Depends on:** **TB-1981**, **TB-1985**.
+
+## TB-2406 — Main review-package provenance and verification presentation (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** Provenance foundations are not useful to buyers if origin, support, verifier, and scope are available only on a specialist route.
+
+**Approach:** Reuse the compact presentation from **TB-1984** and render origin, support, verifier, and evidence scope in the main review package and DOCX/Markdown exports. Keep detailed traces available without making the primary finding unreadable.
+
+**Acceptance:** A buyer can inspect these four attributes from the main package and its export. The UI uses the existing small presentation taxonomy rather than exposing every internal combination.
+
+**Depends on:** **TB-2402**, **TB-2405**, **TB-1984**.
+
+## TB-2407 — Independent critic and escalation engine identity (P2) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** A critic or escalation pass using the same model and prompt lineage as generation can share the same blind spot.
+
+**Approach:** Permit separate generator, critic, and escalation engine configuration where supported. Persist engine identity on each judgment, reusing **TB-2106**. Label same-engine review as model self-check; only a distinct engine may be presented as independent model review. Record budget and correlated-failure trade-offs.
+
+**Acceptance:** Every critic/escalation judgment has engine identity and configuration lineage. The independent label is structurally unavailable when identities match.
+
+**Depends on:** **TB-2402**, **TB-2106**, **TB-1981**.
+
+## TB-2408 — Paired engine-strength evaluation (P2) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** Threshold tests show whether a single version clears a floor, but they do not reliably show whether a prompt, evaluator, or model change made architecture reasoning stronger.
+
+**Approach:** Run candidate and baseline analysis against the same deterministic scenario cohort. Score each pair with independent deterministic or human-labelled criteria as win, draw, loss, or inconclusive. Report separate results for topology, cost, compliance, critic, and SecureNow path reasoning. Use sequential testing when the cohort is large enough; never expose an unsupported buyer-facing Elo number.
+
+**Acceptance:** A candidate cannot be called stronger from fewer than the configured minimum cases. Reports include cohort version, engine/prompt identity, scoring basis, confidence or inconclusive status, and regressions by analysis family. No same-model judge is treated as independent evidence without an explicit verifier label.
+
+**Depends on:** **TB-683**, **TB-2225**, **TB-2407**.
+
+## TB-2409 — Stable-conclusion gate for decision-grade findings (P1) — **Open**
+
+**Window:** V2. **Size:** M.
+
+**Why:** A finding should not be sealed as decision-grade while a high-severity dependency, mitigation, contradiction, or evidence gap remains unresolved.
+
+**Approach:** Add a deterministic seal gate that inspects unresolved challenge outcomes, evidence coverage, contradictions, and severity-triggered dependencies. Findings that are not quiescent remain explicitly unresolved and list the required next checks. The gate must preserve uncertainty rather than lowering priority to make the finding disappear.
+
+**Acceptance:** A decision-grade finding with an unresolved high-severity dependency cannot enter the sealed lane. The package records the unresolved condition, attempted checks, coverage boundary, and next action. The gate is fail-closed and does not claim system-wide proof from a configuration-only observation.
+
+**Depends on:** **TB-2404**, **TB-2405**, **TB-1981**.
+
+## TB-2410 — Ordered SecureNow remediation paths (P1) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** A single top cut point does not show the sequence of changes needed to reduce a complex attack-path set.
+
+**Approach:** Starting from ranked SecureNow paths, select the highest-leverage advisory cut point, model its removal as an unapplied mutation, recompute path collapse, and repeat until the configured stopping condition. Return the ordered steps, paths affected at each step, remaining paths, evidence references, and operational-cost class. Never apply changes to Azure.
+
+**Acceptance:** Every step cites the paths it is expected to collapse and the evidence supporting the cut point. The sequence is deterministic for the same snapshot and configuration. The output distinguishes simulated reduction from observed remediation and does not claim that a proposed fix was applied or validated.
+
+**Depends on:** **SA-10**, **SA-13**, **TB-2409**.
+
+## TB-2411 — Adaptive analysis depth and compute budget (P2) — **Open**
+
+**Window:** V2. **Size:** L.
+
+**Why:** Uniform deep analysis wastes inference budget on low-leverage architecture details while high-risk branches need more investigation.
+
+**Approach:** Add explicit analysis-extension triggers for internet exposure, privileged identity, regulated or crown-jewel data, cross-region write dependencies, cascading dependencies, contradictions, and low evidence completeness. Assign bounded budgets and record extension and stop reasons. Deterministic facts may prune a branch only when the conclusion cannot change; model confidence alone cannot prune a security branch.
+
+**Acceptance:** The same input under the same budget produces a reproducible extension trace. High-severity uncertainty increases analysis depth rather than suppressing priority. Every stopped branch has a coverage statement, and cost/latency limits fail honestly when the budget is exhausted.
+
+**Depends on:** **TB-2402**, **TB-2404**, **TB-2405**, **TB-2409**.
+
+## TB-2412 — Proposed-state what-if planning (P2) — **Open**
+
+**Window:** V2. **Size:** XL.
+
+**Why:** Architecture planning requires understanding both the benefits and the new risks introduced by a proposed change, not only reviewing the current snapshot.
+
+**Approach:** Represent a proposed architecture state as an isolated, non-applied snapshot or mutation set. Compare it with the observed state using SecureNow path, control, dependency, resilience, cost, and evidence evaluators. Return improvements, regressions, newly introduced risks, migration dependencies, and unresolved assumptions. Keep tenant scope and evidence lineage explicit.
+
+**Acceptance:** A what-if run cannot mutate Azure or the observed snapshot. Each delta identifies the changed premise and affected evaluation dimension. Proposed-state conclusions are never presented as observed facts, and stale or missing evidence produces an explicit limitation.
+
+**Depends on:** **TB-2410**, **SA-12**, **SA-13**, **TB-2409**.

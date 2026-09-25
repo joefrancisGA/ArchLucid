@@ -41,7 +41,7 @@ internal static class SupportIncidentReadinessDrillCommand
         var summary = new
         {
             schema = "archlucid.support.incident-readiness-drill.v1",
-            generatedUtc = DateTime.UtcNow,
+            generatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             disposition = "PASS",
             drillCount = SupportBundleTriageDrillCatalog.All.Count,
             artifacts =

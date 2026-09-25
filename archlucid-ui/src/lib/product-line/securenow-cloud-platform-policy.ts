@@ -22,12 +22,13 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "architecture-draft-editing",
   "architecture-sharing",
   "career-rehearsal-doors",
+  "career-vs-rehearsal",
+  "inspect-stored-evidence",
   "slack-integration",
-];
-
-/** Help topic slugs shown only in the SecureNow Security shell. */
-export const ARCHITECTURE_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
-  "security-evidence-paths",
+  "system-gravity",
+  "inhabit-the-architecture",
+  "sketch-a-change",
+  "which-mode-am-i-in",
 ];
 
 /** Help search drawer topic ids hidden in the SecureNow shell. */
@@ -48,6 +49,11 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "billing-and-plans",
   "architecture-desk",
   "career-rehearsal-doors",
+  "career-vs-rehearsal",
+  "system-gravity",
+  "inhabit-the-architecture",
+  "sketch-a-change",
+  "which-mode-am-i-in",
 ];
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
@@ -92,7 +98,7 @@ export function isHelpTopicExcludedForProductLine(slug: string, productLineId: P
     return SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS.includes(slug);
   }
 
-  return ARCHITECTURE_EXCLUDED_HELP_TOPIC_SLUGS.includes(slug);
+  return false;
 }
 
 export function isHelpSearchTopicExcludedForProductLine(topicId: string, productLineId: ProductLineId): boolean {

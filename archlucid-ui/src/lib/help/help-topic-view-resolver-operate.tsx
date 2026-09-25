@@ -19,6 +19,11 @@ const HelpArchitectureDeskGuideView = dynamic(() =>
     (module) => module.HelpArchitectureDeskGuideView,
   ),
 );
+const HelpSecurityEvidencePathsGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSecurityEvidencePathsGuideView").then(
+    (module) => module.HelpSecurityEvidencePathsGuideView,
+  ),
+);
 const HelpInhabitTheArchitectureGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpInhabitTheArchitectureGuideView").then(
     (module) => module.HelpInhabitTheArchitectureGuideView,
@@ -363,10 +368,12 @@ export function tryResolveOperateHelpTopicView(
     return <HelpSealedVsDecisionRegisterGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "sketch-a-change") {
-    return <HelpSketchAChangeGuideView entry={loaded.entry} />;
+    return <HelpSketchAChangeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "impact-preview-vs-architecture-envelope") {
-    return <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} />;
+    return (
+      <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} markdown={loaded.markdown} />
+    );
   }
   if (loaded.entry.slug === "background-wait") {
     return <HelpBackgroundWaitGuideView entry={loaded.entry} />;
@@ -441,7 +448,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "inspect-stored-evidence") {
-    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} />;
+    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
@@ -475,6 +482,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "architecture-sharing") {
     return <HelpArchitectureSharingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "security-evidence-paths") {
+    return <HelpSecurityEvidencePathsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "choose-your-next-step") {
     return <HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />;

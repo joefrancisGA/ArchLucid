@@ -1,10 +1,12 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GovernanceInfrastructureDriftHelpEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-help-infrastructure-strips";
-import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
-import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -15,6 +17,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -23,15 +26,23 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL,
 } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
 import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_APPLICABILITY_SECURENOW,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_APPLICABILITY_WORKING,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_BREADCRUMB_TOPIC_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_HEADING_ID,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY_HEADING,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_HELP_RETURN,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_HOW_IT_WORKS_STEPS,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_OVERVIEW,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PAGE_EYEBROW,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PRIMARY_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_LINKS,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING_ID,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_SNAPSHOT_PRECONDITION_TAG,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_START_HERE_CARD_TITLE,
@@ -44,9 +55,11 @@ import {
   governanceInfrastructureDriftHelpTileItems,
   governanceInfrastructureDriftHelpPageSubtitle,
 } from "@/lib/governance/governance-infrastructure-drift-help-guide-content";
+import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpGovernanceInfrastructureDriftGuideViewProps = {
@@ -62,6 +75,32 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
       {props.children}
     </h2>
   );
+}
+
+function helpTopicSlugFromInAppHref(href: string): string | null {
+  const normalized = href.trim();
+
+  if (!normalized.startsWith("/help/")) {
+    return null;
+  }
+
+  const slug = normalized.slice("/help/".length).split(/[?#]/)[0]?.trim() ?? "";
+
+  return slug.length > 0 ? slug : null;
+}
+
+function filterRelatedLinks(
+  productLineId: ProductLineId,
+): typeof GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_LINKS {
+  return GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_LINKS.filter((link) => {
+    const slug = helpTopicSlugFromInAppHref(link.href);
+
+    if (slug === null) {
+      return true;
+    }
+
+    return !isHelpTopicExcludedForProductLine(slug, productLineId);
+  });
 }
 
 function DriftHelpStartHerePanel(): React.ReactElement {
@@ -150,14 +189,16 @@ export function HelpGovernanceInfrastructureDriftGuideView(
   props: HelpGovernanceInfrastructureDriftGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const relatedLinks = filterRelatedLinks(productLineId);
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-governance-infrastructure-drift",
     GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS,
     GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -173,6 +214,24 @@ export function HelpGovernanceInfrastructureDriftGuideView(
 
       <HelpTopicHashScroll />
 
+      <nav
+        aria-label="Breadcrumb"
+        className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="help-topic-breadcrumb"
+      >
+        <ol className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0">
+          <li>
+            <Link className={OPERATOR_LINK.inline} href={HELP_HUB_CANONICAL_PATH}>
+              {HELP_TOPIC_BREADCRUMB_HUB_LABEL}
+            </Link>
+          </li>
+          <li aria-hidden="true" className="text-al-text-secondary">/</li>
+          <li aria-current="page" className="text-al-text-primary">
+            {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_BREADCRUMB_TOPIC_TITLE}
+          </li>
+        </ol>
+      </nav>
+
       <HelpTopicGuidePageHeader
         eyebrow={buyerPolishedShell ? undefined : GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PAGE_EYEBROW}
         title={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PAGE_TITLE}
@@ -180,7 +239,6 @@ export function HelpGovernanceInfrastructureDriftGuideView(
         subtitle={governanceInfrastructureDriftHelpPageSubtitle(buyerPolishedShell)}
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={<HelpTopicBreadcrumb topicTitle={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
           <div
@@ -208,20 +266,15 @@ export function HelpGovernanceInfrastructureDriftGuideView(
           id={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PRIMARY_CONTENT_ID}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-governance-infrastructure-drift-orientation-top">
-              <GovernanceInfrastructureDriftHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
-
           {!buyerPolishedShell ? <DriftHelpStartHerePanel /> : null}
 
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-governance-infrastructure-drift-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-governance-infrastructure-drift-overview">
             {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_OVERVIEW}
           </p>
+
+          <div data-testid="help-governance-infrastructure-drift-orientation-strip">
+            <GovernanceInfrastructureDriftHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
 
           <section
             aria-labelledby="what-drift-workbench-shows"
@@ -251,7 +304,7 @@ export function HelpGovernanceInfrastructureDriftGuideView(
             <HelpSectionHeading id="reading-the-drift-table">
               {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_SECTION_TITLE}
             </HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-governance-infrastructure-drift-table-body">
+            <p className={readingBodyClass} data-testid="help-governance-infrastructure-drift-table-body">
               {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_SECTION_BODY}
             </p>
             <DriftHelpTileGrid
@@ -260,13 +313,82 @@ export function HelpGovernanceInfrastructureDriftGuideView(
             />
           </section>
 
-          <SponsorSendPathHonestyPanel testIdPrefix="help-governance-infrastructure-drift" showSsoOptional={false} />
+          <section
+            aria-labelledby="help-governance-infrastructure-drift-applicability"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-governance-infrastructure-drift-applicability"
+          >
+            <HelpSectionHeading id="help-governance-infrastructure-drift-applicability">
+              Scope and seat applicability
+            </HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-governance-infrastructure-drift-seat-working">
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_APPLICABILITY_WORKING}
+            </p>
+            <p
+              className={cn(readingBodyClass, "text-al-text-secondary")}
+              data-testid="help-governance-infrastructure-drift-seat-securenow"
+            >
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_APPLICABILITY_SECURENOW}
+            </p>
+          </section>
 
-          {!buyerPolishedShell ? (
-            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-              <GovernanceInfrastructureDriftHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
+          <section
+            aria-labelledby="help-governance-infrastructure-drift-error-recovery"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-governance-infrastructure-drift-error-recovery"
+          >
+            <HelpSectionHeading id="help-governance-infrastructure-drift-error-recovery">
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY_HEADING}
+            </HelpSectionHeading>
+            <dl className={cn("m-0 grid gap-2", HELP_PAGE_LAYOUT.readingBody)}>
+              <div>
+                <dt className="font-medium text-al-text-primary">What failed</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">
+                  {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY.whatFailed}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-al-text-primary">What stayed intact</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">
+                  {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY.whatIsIntact}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-al-text-primary">Next step</dt>
+                <dd className="m-0 mt-1 text-al-text-secondary">
+                  {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ERROR_RECOVERY.nextStep}
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <section
+            aria-labelledby={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING_ID}
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-governance-infrastructure-drift-related-topics"
+          >
+            <HelpSectionHeading id={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING_ID}>
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_RELATED_TOPICS_HEADING}
+            </HelpSectionHeading>
+            <ul className={cn("m-0 list-none space-y-2 p-0", HELP_PAGE_LAYOUT.readingBody)}>
+              {relatedLinks.map((topic) => (
+                <li key={topic.href}>
+                  <Link className={OPERATOR_LINK.nav} href={topic.href}>
+                    {topic.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <p className={readingBodyClass}>
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_HELP_RETURN.href}
+                data-testid="help-governance-infrastructure-drift-return-to-help"
+              >
+                {GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_HELP_RETURN.label} →
+              </Link>
+            </p>
+          </section>
         </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />

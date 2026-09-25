@@ -1,9 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
@@ -18,6 +17,7 @@ import {
 } from "@/lib/architecture/architecture-structured-source-disclosure-url";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type ArchitectureStructuredContentPanelProps = {
   readonly sourceText: string;
@@ -30,34 +30,60 @@ export type ArchitectureStructuredContentPanelProps = {
 export function ArchitectureStructuredContentPanel(
   props: ArchitectureStructuredContentPanelProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureStructuredSourceParam = searchParams.get(ARCHITECTURE_STRUCTURED_SOURCE_OPEN_PARAM);
+  const readArchitectureStructuredSourceOpenFromUrl = (): boolean =>
+    parseArchitectureStructuredSourceOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        ARCHITECTURE_STRUCTURED_SOURCE_OPEN_PARAM,
+      ),
+    );
   const [architectureStructuredSourceOpen, setArchitectureStructuredSourceOpenState] = useState(() =>
-    parseArchitectureStructuredSourceOpenFromSearch(architectureStructuredSourceParam),
+    readArchitectureStructuredSourceOpenFromUrl(),
   );
+  const architectureStructuredSourceOpenRef = useRef(architectureStructuredSourceOpen);
+  architectureStructuredSourceOpenRef.current = architectureStructuredSourceOpen;
   const syncArchitectureStructuredSourceOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        architectureStructuredSourceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureStructuredSourceDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setArchitectureStructuredSourceOpen = useCallback(
     (open: boolean) => {
+      if (architectureStructuredSourceOpenRef.current === open) {
+        return;
+      }
+
+      architectureStructuredSourceOpenRef.current = open;
       setArchitectureStructuredSourceOpenState(open);
       syncArchitectureStructuredSourceOpenToUrl(open);
     },
     [syncArchitectureStructuredSourceOpenToUrl],
   );
+
   useEffect(() => {
-    setArchitectureStructuredSourceOpenState(
-      parseArchitectureStructuredSourceOpenFromSearch(architectureStructuredSourceParam),
-    );
-  }, [architectureStructuredSourceParam]);
+    const syncArchitectureStructuredSourceOpenFromUrl = (): void => {
+      const next = readArchitectureStructuredSourceOpenFromUrl();
+
+      if (architectureStructuredSourceOpenRef.current === next) {
+        return;
+      }
+
+      architectureStructuredSourceOpenRef.current = next;
+      setArchitectureStructuredSourceOpenState(next);
+    };
+
+    syncArchitectureStructuredSourceOpenFromUrl();
+    window.addEventListener("popstate", syncArchitectureStructuredSourceOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncArchitectureStructuredSourceOpenFromUrl);
+    };
+  }, []);
+
   const [parseAttempt, setParseAttempt] = useState(0);
   const parseResult = useMemo(
     () => {
@@ -103,7 +129,10 @@ export function ArchitectureStructuredContentPanel(
           className="rounded-md border border-dashed border-neutral-200 p-3 dark:border-neutral-700"
           data-testid="architecture-structured-source"
           open={architectureStructuredSourceOpen}
-          onToggle={(event) => setArchitectureStructuredSourceOpen(event.currentTarget.open)}
+          onToggle={(event) => {
+            event.preventDefault();
+            setArchitectureStructuredSourceOpen(!architectureStructuredSourceOpenRef.current);
+          }}
         >
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             {ARCHITECTURE_STRUCTURED_VIEW_SOURCE_LABEL}

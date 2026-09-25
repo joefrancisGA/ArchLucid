@@ -101,7 +101,15 @@ export type AuthMeResponse = {
 /** ArchLucid app roles carried in JWT / dev-bypass claims (`ArchLucidRoles` on the server). */
 export type ArchLucidAppRole = "Admin" | "Operator" | "Reader" | "Auditor";
 
-export type CurrentPrincipalSyntheticReason = "jwt-unsigned" | "me-http" | "me-network" | "non-browser";
+export type CurrentPrincipalSyntheticReason =
+  | "jwt-unsigned"
+  | "me-http"
+  | "me-network"
+  | "me-timeout"
+  | "non-browser";
+
+/** Upper bound for `GET /api/auth/me` before returning a conservative synthetic principal. */
+export const AUTH_ME_FETCH_TIMEOUT_MS = 10_000;
 
 /**
  * Compact principal read-model for UI code paths (nav, feature hints, enterprise surfacing).
@@ -196,7 +204,11 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
 }
 
 function createSyntheticPrincipal(reason: CurrentPrincipalSyntheticReason): CurrentPrincipal {
-  const preserveFullNavOnMeFailure = reason === "me-http" || reason === "me-network" || reason === "non-browser";
+  const preserveFullNavOnMeFailure =
+    reason === "me-http"
+    || reason === "me-network"
+    || reason === "me-timeout"
+    || reason === "non-browser";
 
   return {
     provenance: "synthetic",
@@ -303,12 +315,23 @@ export type LoadCurrentPrincipalOptions = {
   readonly bypassCache?: boolean;
 };
 
+async function fetchAuthMeWithTimeout(init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), AUTH_ME_FETCH_TIMEOUT_MS);
+
+  try {
+    return await fetch(ME_PATH, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
 async function fetchCurrentPrincipalFromNetwork(
   options?: LoadCurrentPrincipalOptions,
 ): Promise<CurrentPrincipal> {
   try {
     const init = options?.init ?? (await buildAuthMeProxyRequestInit());
-    const response = await fetch(ME_PATH, init);
+    const response = await fetchAuthMeWithTimeout(init);
 
     if (!response.ok) {
       return createSyntheticPrincipal("me-http");
@@ -317,7 +340,11 @@ async function fetchCurrentPrincipalFromNetwork(
     const body = (await response.json()) as AuthMeResponse;
 
     return normalizeAuthMeResponse(body);
-  } catch {
+  } catch (error: unknown) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return createSyntheticPrincipal("me-timeout");
+    }
+
     return createSyntheticPrincipal("me-network");
   }
 }

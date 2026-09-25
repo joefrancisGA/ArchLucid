@@ -31,11 +31,9 @@ function RunDetailFirstScreenProofStatusLoaded(
   props: RunDetailFirstScreenProofStatusClientProps,
 ): React.JSX.Element | null {
   const { data: payload, isPending, isError, refetch } = usePilotRunDeltasQuery(props.runId);
-
   const retryLoad = useCallback(() => {
     void refetch();
   }, [refetch]);
-
   const summary = useMemo(
     () =>
       payload === undefined
@@ -45,6 +43,15 @@ function RunDetailFirstScreenProofStatusLoaded(
           }),
     [payload, props.assertedTrailEmpty],
   );
+
+  if (
+    !shouldShowRunDetailFirstScreenProofStatus({
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    })
+  ) {
+    return null;
+  }
 
   if (isPending) {
     return null;

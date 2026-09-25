@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { GovernanceFindingsQueueClientDeferred } from "@/app/(operator)/governance/findings/governance-findings-deferred-chunks";
 import { GovernanceFindingsQueueSkeleton } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueSkeleton";
 import { ArchitectureNestedToolScopeSeed } from "@/components/architecture/ArchitectureNestedToolScopeSeed";
+import { WorkingArchitectureNestedToolShell } from "@/components/architecture/WorkingArchitectureNestedToolShell";
 import type { InhabitedFindingsTrailBundleSnapshot } from "@/lib/inhabit/inhabited-findings-trail-bundle";
 
 export type ArchitectureNestedFindingsPageClientProps = {
@@ -19,11 +20,13 @@ export function ArchitectureNestedFindingsPageClient(
   const architectureId = props.architectureId.trim();
 
   return (
-    <Suspense fallback={<GovernanceFindingsQueueSkeleton />}>
-      <ArchitectureNestedToolScopeSeed architectureId={architectureId} queryParam="architectureId" />
-      <GovernanceFindingsQueueClientDeferred
-        inhabitedFindingsInitialTrailBundle={props.inhabitedFindingsInitialTrailBundle ?? null}
-      />
-    </Suspense>
+    <WorkingArchitectureNestedToolShell architectureId={architectureId} toolLabel="Findings">
+      <Suspense fallback={<GovernanceFindingsQueueSkeleton />}>
+        <ArchitectureNestedToolScopeSeed architectureId={architectureId} queryParam="architectureId" />
+        <GovernanceFindingsQueueClientDeferred
+          inhabitedFindingsInitialTrailBundle={props.inhabitedFindingsInitialTrailBundle ?? null}
+        />
+      </Suspense>
+    </WorkingArchitectureNestedToolShell>
   );
 }

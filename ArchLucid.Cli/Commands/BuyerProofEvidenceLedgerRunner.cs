@@ -37,7 +37,7 @@ internal sealed class BuyerProofEvidenceLedgerRunner
         {
             RepositoryRoot = repositoryRoot,
             ProofDirectory = proofDirectory,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             OverallVerdict = overallVerdict,
             Checks = checks,
             NormalizedSlots = slots,

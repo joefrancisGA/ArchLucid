@@ -21,7 +21,7 @@ public static class PilotProofPacketArtifactManifestBuilder
         {
             schema = PilotProofPacketArtifactCatalog.ArtifactManifestSchema,
             runId,
-            capturedUtc = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            capturedUtc = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             artifactIds,
             careerPosture = postureStamp.CareerPosture,
             structuralExecutionMode = postureStamp.StructuralExecutionMode,

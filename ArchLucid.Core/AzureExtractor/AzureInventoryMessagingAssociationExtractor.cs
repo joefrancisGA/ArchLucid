@@ -34,6 +34,7 @@ public static class AzureInventoryMessagingAssociationExtractor
             && propertiesElement.ValueKind is JsonValueKind.Object
             && propertiesElement.TryGetProperty("captureDescription", out JsonElement captureElement)
             && captureElement.ValueKind is JsonValueKind.Object
+            && IsEnabled(captureElement)
             && captureElement.TryGetProperty("destination", out JsonElement destinationElement)
             && destinationElement.ValueKind is JsonValueKind.Object)
         {
@@ -76,6 +77,18 @@ public static class AzureInventoryMessagingAssociationExtractor
             return false;
         }
 
+        string? forwardToName = null;
+        string? forwardDeadLetteredMessagesToName = null;
+
+        if (childResource.TryGetProperty("properties", out JsonElement propertiesElement)
+            && propertiesElement.ValueKind is JsonValueKind.Object)
+        {
+            forwardToName = TryReadString(propertiesElement, "forwardTo");
+            forwardDeadLetteredMessagesToName = TryReadString(
+                propertiesElement,
+                "forwardDeadLetteredMessagesTo");
+        }
+
         row = new AzureInventoryMessagingAssociationRow
         {
             ParentResourceId = namespaceResourceId.Trim(),
@@ -83,6 +96,10 @@ public static class AzureInventoryMessagingAssociationExtractor
             ChildName = childName.Trim(),
             ChildType = childType,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
+            ForwardToName = string.IsNullOrWhiteSpace(forwardToName) ? null : forwardToName.Trim(),
+            ForwardDeadLetteredMessagesToName = string.IsNullOrWhiteSpace(forwardDeadLetteredMessagesToName)
+                ? null
+                : forwardDeadLetteredMessagesToName.Trim(),
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
         };
 
@@ -97,5 +114,15 @@ public static class AzureInventoryMessagingAssociationExtractor
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+    }
+
+    private static bool IsEnabled(JsonElement captureElement)
+    {
+        if (!captureElement.TryGetProperty("enabled", out JsonElement enabledElement))
+        {
+            return true;
+        }
+
+        return enabledElement.ValueKind is JsonValueKind.True;
     }
 }

@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Xml.Linq;
 
+using ArchLucid.Core.Diagrams;
+
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
 /// <summary>Arrow marker definition for directed forest edges.</summary>
@@ -26,7 +28,7 @@ public static class DiagramForestEdgeArrowMarkerSvgEmitter
             new XElement(
                 svgNamespace + "path",
                 new XAttribute("d", "M 0 0 L 10 5 L 0 10 z"),
-                new XAttribute("fill", FormatColor("#94a3b8")))));
+                new XAttribute("fill", FormatColor(ArchitectureDiagramMermaidPalette.LightEdgeStroke)))));
         root.Add(defs);
     }
 

@@ -48,24 +48,24 @@ import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 const ArchitectureDraftAiRefinePanel = dynamic(
   async () => {
-    const module = await import("@/components/architecture/ArchitectureDraftAiRefinePanel");
-    return module.ArchitectureDraftAiRefinePanel;
+    const loaded = await import("@/components/architecture/ArchitectureDraftAiRefinePanel");
+    return loaded.ArchitectureDraftAiRefinePanel;
   },
   { loading: () => null },
 );
 
 const DraftIntakeAdvancedSection = dynamic(
   async () => {
-    const module = await import("@/components/draft-intake/DraftIntakeAdvancedSection");
-    return module.DraftIntakeAdvancedSection;
+    const loaded = await import("@/components/draft-intake/DraftIntakeAdvancedSection");
+    return loaded.DraftIntakeAdvancedSection;
   },
   { loading: () => null },
 );
 
 const DraftIntakeReasoningPanel = dynamic(
   async () => {
-    const module = await import("@/components/draft-intake/DraftIntakeReasoningPanel");
-    return module.DraftIntakeReasoningPanel;
+    const loaded = await import("@/components/draft-intake/DraftIntakeReasoningPanel");
+    return loaded.DraftIntakeReasoningPanel;
   },
   { loading: () => null },
 );
@@ -74,6 +74,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly draftId: string;
   readonly parentArchitectureId?: string | null;
   readonly legacyDraftWithoutIdentity?: boolean;
+  readonly suppressWorkingNestedIdentityAnchors?: boolean;
   readonly loading: boolean;
   readonly loadError: string | null;
   readonly isNewDraft: boolean;
@@ -147,11 +148,12 @@ export type ArchitectureDraftWorkspaceBodyProps = {
 function WorkingNestedDraftIdentityAnchors(props: {
   readonly parentArchitectureId?: string | null;
   readonly handoffEditorLocked?: boolean;
+  readonly suppressWorkingNestedIdentityAnchors?: boolean;
 }): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
   const architectureId = props.parentArchitectureId?.trim() ?? "";
 
-  if (!isWorkingMode || architectureId.length === 0) {
+  if (props.suppressWorkingNestedIdentityAnchors === true || !isWorkingMode || architectureId.length === 0) {
     return null;
   }
 
@@ -249,6 +251,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
         <WorkingNestedDraftIdentityAnchors
           parentArchitectureId={props.parentArchitectureId}
           handoffEditorLocked={handoffEditorLocked}
+          suppressWorkingNestedIdentityAnchors={props.suppressWorkingNestedIdentityAnchors}
         />
         <ArchitectureDraftWorkspaceHeaderChrome {...props} />
         <ArchitectureDraftHandoffPanel
@@ -331,6 +334,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
       <WorkingNestedDraftIdentityAnchors
         parentArchitectureId={props.parentArchitectureId}
         handoffEditorLocked={props.handoffEditorLocked}
+        suppressWorkingNestedIdentityAnchors={props.suppressWorkingNestedIdentityAnchors}
       />
     </>
   );

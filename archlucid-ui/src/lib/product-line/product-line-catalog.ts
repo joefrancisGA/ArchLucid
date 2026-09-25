@@ -70,6 +70,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/administration/billing": "architecture",
   "/administration/security-trust": "both",
   "/administration/connection-status": "both",
+  "/administration/model-governance": "both",
   "/administration/extract-upload": "architecture",
   "/administration/system-health": "both",
   // Support workspace is an Architecture tenant-admin surface — not in SecureNow nav (SN).

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeFeaturedSamplePickerDialog } from "@/components/operator-home/OperatorHomeFeaturedSamplePickerDialog";
@@ -39,27 +41,41 @@ export function OperatorHomeCompletedSampleAction(
 ): React.JSX.Element {
   const sampleQuery = useFeaturedCompletedSampleQuery();
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const samplePickerOpenParam = searchParams.get("samplePickerOpen");
-  const [pickerOpen, setPickerOpenState] = useState(() =>
-    parseOperatorHomeSamplePickerOpenFromSearch(samplePickerOpenParam),
-  );
+  const readPickerOpenFromUrl = (): boolean | null => {
+    const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+      "samplePickerOpen",
+    );
+
+    if (param === null) {
+      return null;
+    }
+
+    return parseOperatorHomeSamplePickerOpenFromSearch(param);
+  };
+  const [pickerOpen, setPickerOpenState] = useState(() => readPickerOpenFromUrl() ?? false);
+  const pickerOpenRef = useRef(pickerOpen);
+  pickerOpenRef.current = pickerOpen;
 
   const syncSamplePickerOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(operatorHomeSamplePickerHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
+      commitHrefIfChanged(operatorHomeSamplePickerHrefFromSearch(readWindowLocationSearch(), open, pathname), {
+        notify: false,
       });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPickerOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setPickerOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (pickerOpenRef.current === next) {
+          return current;
+        }
+
+        pickerOpenRef.current = next;
         syncSamplePickerOpenToUrl(next);
 
         return next;
@@ -67,6 +83,26 @@ export function OperatorHomeCompletedSampleAction(
     },
     [syncSamplePickerOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncPickerOpenFromUrl = (): void => {
+      const fromUrl = readPickerOpenFromUrl();
+
+      if (fromUrl === null || pickerOpenRef.current === fromUrl) {
+        return;
+      }
+
+      pickerOpenRef.current = fromUrl;
+      setPickerOpenState(fromUrl);
+    };
+
+    syncPickerOpenFromUrl();
+    window.addEventListener("popstate", syncPickerOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPickerOpenFromUrl);
+    };
+  }, []);
 
   const canChooseSample = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const sample = sampleQuery.data;

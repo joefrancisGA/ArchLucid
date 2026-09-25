@@ -36,9 +36,26 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine(
             $"    edge [color=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\"];");
 
+        bool emitSubscriptionCluster = DiagramForestSubscriptionFrameResolver.ShouldDraw(ast.Title)
+            && resourceGroupClusters.Count > 0;
+
+        if (emitSubscriptionCluster)
+        {
+            builder.AppendLine("    subgraph cluster_subscription {");
+            builder.AppendLine("        label=\"Subscription\";");
+            builder.AppendLine("        style=\"rounded\";");
+            builder.AppendLine("        color=\"#475569\";");
+            builder.AppendLine("        penwidth=2.5;");
+        }
+
         foreach (DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster in resourceGroupClusters)
         {
-            EmitResourceGroupCluster(builder, cluster, indent: 1);
+            EmitResourceGroupCluster(builder, cluster, emitSubscriptionCluster ? 2 : 1, ast);
+        }
+
+        if (emitSubscriptionCluster)
+        {
+            builder.AppendLine("    }");
         }
 
         if (renderableSubgraphs.Count == 0)
@@ -50,7 +67,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             EmitNestedGraph(ast, builder, renderableSubgraphs, resourceGroupClusteredNodeIds);
         }
 
-        EmitVisibleEdges(ast, builder);
+        EmitVisibleEdges(ast, builder, resolvedOptions.IncludeCrossGroupFanOut);
 
         builder.Append('}');
 
@@ -192,7 +209,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
     private static void EmitResourceGroupCluster(
         StringBuilder builder,
         DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster,
-        int indent)
+        int indent,
+        DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(cluster);
@@ -211,8 +229,34 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}    fillcolor=\"{DiagramForestResourceGroupFrameStyle.Fill}\";");
         builder.AppendLine($"{indentText}    fontcolor=\"{DiagramForestResourceGroupFrameStyle.LabelFill}\";");
 
+        IReadOnlyList<DiagramResourceGroupGraphvizClusterPlanner.VnetClusterPlan> vnetClusters =
+            DiagramResourceGroupGraphvizClusterPlanner.PlanVnetClusters(ast, cluster);
+        HashSet<string> nestedNodeIds = vnetClusters
+            .SelectMany(vnetCluster => vnetCluster.Nodes)
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (DiagramResourceGroupGraphvizClusterPlanner.VnetClusterPlan vnetCluster in vnetClusters)
+        {
+            string nestedClusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(vnetCluster.ClusterId);
+            builder.AppendLine($"{indentText}    subgraph {nestedClusterId} {{");
+            builder.AppendLine($"{indentText}        label={GraphvizIdEscaper.QuoteLabel(vnetCluster.Label)};");
+            builder.AppendLine($"{indentText}        style=\"rounded\";");
+            builder.AppendLine($"{indentText}        color=\"#94a3b8\";");
+            builder.AppendLine($"{indentText}        penwidth=1.5;");
+            builder.AppendLine($"{indentText}        fillcolor=\"white\";");
+
+            foreach (DiagramNode node in vnetCluster.Nodes.Where(node => node.NodeId != vnetCluster.VnetNodeId))
+            {
+                AppendNodeStatement(builder, indentText + "        ", node);
+            }
+
+            builder.AppendLine($"{indentText}    }}");
+        }
+
         foreach (DiagramNode node in cluster.Nodes
                      .Where(candidate => candidate is not null)
+                     .Where(candidate => !nestedNodeIds.Contains(candidate.NodeId))
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {
@@ -231,9 +275,16 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}{graphvizId} [label={label}];");
     }
 
-    private static void EmitVisibleEdges(DiagramAst ast, StringBuilder builder)
+    private static void EmitVisibleEdges(DiagramAst ast, StringBuilder builder, bool includeCrossGroupFanOut)
     {
-        foreach (DiagramEdge edge in DiagramExecutiveOverflowCanvasExclusion.CanvasVisibleEdges(ast.Nodes, ast.Edges))
+        IReadOnlyList<DiagramNode> renderableNodes = ast.Nodes
+            .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
+            .ToList();
+
+        foreach (DiagramEdge edge in DiagramCrossGroupFanOutCanvasExclusion.FilterCanvasEdges(
+                     renderableNodes,
+                     DiagramExecutiveOverflowCanvasExclusion.CanvasVisibleEdges(ast.Nodes, ast.Edges),
+                     includeCrossGroupFanOut))
         {
             string fromId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.FromNodeId));
             string toId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.ToNodeId));

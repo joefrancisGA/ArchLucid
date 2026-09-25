@@ -37,7 +37,7 @@ export function useEnterpriseTableKeyboardNav(
         return;
       }
 
-      if (event.key === "Enter") {
+      if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         options.onActivateRow(focusedRowIndex);
       }

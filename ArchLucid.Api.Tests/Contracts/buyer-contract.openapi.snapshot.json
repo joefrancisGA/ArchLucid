@@ -11023,6 +11023,12 @@
               "string"
             ]
           },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "workflowIntent": {
             "type": [
               "null",
@@ -19165,6 +19171,46 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidCompletenessSummary": {
+        "properties": {
+          "collectedClasses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "connectedComponentCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hiddenHopsUsedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "likelyInCollocationEdgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "missingClasses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "visibleEdgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "visibleNodeCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "InfraEvidenceMermaidComplexityMetrics": {
         "properties": {
           "crossSubgraphEdgeCount": {
@@ -19304,6 +19350,16 @@
               },
               {
                 "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseReport"
+              }
+            ]
+          },
+          "completenessSummary": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidCompletenessSummary"
               }
             ]
           },
@@ -34011,6 +34067,65 @@
         },
         "type": "object"
       },
+      "SecureNowHypothesisResponse": {
+        "properties": {
+          "citedFindingIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "citedPathIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependentResourceIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evidenceReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "hypothesisId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "separationDimension": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sharedDependencyNodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecurityAssessmentPublicationRequest": {
         "properties": {
           "assessmentCode": {
@@ -34422,6 +34537,12 @@
           "hops": {
             "items": {
               "$ref": "#/components/schemas/SecurityEvidencePathHopResponse"
+            },
+            "type": "array"
+          },
+          "hypotheses": {
+            "items": {
+              "$ref": "#/components/schemas/SecureNowHypothesisResponse"
             },
             "type": "array"
           },

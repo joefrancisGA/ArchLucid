@@ -1,3 +1,4 @@
+import { helpTopicShellSidebarExpandedGroupIds } from "@/lib/help/help-topic-shell-sidebar-nav-config";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import {
@@ -21,6 +22,12 @@ export function findSidebarNavGroupIdsForActivePath(
 
     if (hasActiveChild) {
       activeGroupIds.push(row.group.id);
+    }
+  }
+
+  for (const groupId of helpTopicShellSidebarExpandedGroupIds(pathname)) {
+    if (!activeGroupIds.includes(groupId)) {
+      activeGroupIds.push(groupId);
     }
   }
 

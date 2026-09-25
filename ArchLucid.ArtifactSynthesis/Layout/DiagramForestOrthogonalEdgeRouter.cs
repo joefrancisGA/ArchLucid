@@ -22,61 +22,334 @@ public static class DiagramForestOrthogonalEdgeRouter
         double toY,
         IReadOnlyList<Rect> obstacles)
     {
+        return Route(fromX, fromY, toX, toY, obstacles, []);
+    }
+
+    public static RouteResult Route(
+        double fromX,
+        double fromY,
+        double toX,
+        double toY,
+        IReadOnlyList<Rect> obstacles,
+        IReadOnlyList<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted,
+        double? extraVerticalChannelX = null,
+        IReadOnlyList<double>? gutterVerticalChannelXs = null)
+    {
+        ArgumentNullException.ThrowIfNull(obstacles);
+        ArgumentNullException.ThrowIfNull(alreadyRouted);
+
+        List<double> gutterChannelXs = CollectGutterChannelXs(extraVerticalChannelX, gutterVerticalChannelXs);
+        List<RouteCandidate> candidates = BuildCandidates(
+            fromX,
+            fromY,
+            toX,
+            toY,
+            gutterChannelXs,
+            obstacles);
+
+        RouteResult? bestClearRoute = SelectBestClearRoute(candidates, obstacles, alreadyRouted);
+
+        if (bestClearRoute is not null)
+        {
+            return bestClearRoute;
+        }
+
+        RouteResult? bestScoredRoute = SelectBestScoredRoute(candidates, obstacles, alreadyRouted);
+
+        if (bestScoredRoute is not null)
+        {
+            return bestScoredRoute;
+        }
+
+        List<(double X1, double Y1, double X2, double Y2)> fallbackSegments = candidates[0].Segments;
+
+        if (IsAxisAligned(fromX, fromY, toX, toY))
+        {
+            fallbackSegments = [(fromX, fromY, toX, toY)];
+        }
+
+        return new RouteResult(
+            BuildPathData(fallbackSegments),
+            fallbackSegments,
+            UsedFallback: CountObstacleIntersections(fallbackSegments, obstacles) > 0);
+    }
+
+    private static List<double> CollectGutterChannelXs(
+        double? extraVerticalChannelX,
+        IReadOnlyList<double>? gutterVerticalChannelXs)
+    {
+        List<double> channelXs = [];
+
+        if (extraVerticalChannelX is double channelX)
+        {
+            channelXs.Add(channelX);
+        }
+
+        if (gutterVerticalChannelXs is not null)
+        {
+            channelXs.AddRange(gutterVerticalChannelXs);
+        }
+
+        return channelXs
+            .Distinct()
+            .ToList();
+    }
+
+    private sealed record RouteCandidate(
+        List<(double X1, double Y1, double X2, double Y2)> Segments,
+        bool IsGutter);
+
+    private static List<RouteCandidate> BuildCandidates(
+        double fromX,
+        double fromY,
+        double toX,
+        double toY,
+        IReadOnlyList<double> gutterChannelXs,
+        IReadOnlyList<Rect> obstacles)
+    {
+        List<RouteCandidate> candidates = [];
         List<(double X1, double Y1, double X2, double Y2)> straightSegments = [(fromX, fromY, toX, toY)];
 
         if (IsAxisAligned(fromX, fromY, toX, toY))
         {
-            RouteResult? straightResult = TryRoute(straightSegments, obstacles);
-
-            if (straightResult is not null)
-            {
-                return straightResult;
-            }
+            candidates.Add(new RouteCandidate(straightSegments, IsGutter: false));
         }
 
-        List<(double X1, double Y1, double X2, double Y2)> horizontalFirst =
+        candidates.Add(new RouteCandidate(
             [
                 (fromX, fromY, toX, fromY),
                 (toX, fromY, toX, toY),
-            ];
-        RouteResult? horizontalResult = TryRoute(horizontalFirst, obstacles);
-
-        if (horizontalResult is not null)
-        {
-            return horizontalResult;
-        }
-
-        List<(double X1, double Y1, double X2, double Y2)> verticalFirst =
+            ],
+            IsGutter: false));
+        candidates.Add(new RouteCandidate(
             [
                 (fromX, fromY, fromX, toY),
                 (fromX, toY, toX, toY),
-            ];
-        RouteResult? verticalResult = TryRoute(verticalFirst, obstacles);
+            ],
+            IsGutter: false));
+        candidates.AddRange(CollectThreeSegmentCandidates(fromX, fromY, toX, toY)
+            .Select(segments => new RouteCandidate(segments, IsGutter: false)));
 
-        if (verticalResult is not null)
+        IReadOnlyList<double> bypassYs = CollectBypassYCandidates(fromY, toY, obstacles);
+
+        foreach (double channelX in gutterChannelXs)
         {
-            return verticalResult;
+            List<(double X1, double Y1, double X2, double Y2)> gutterSegments =
+                BuildGutterChannelSegments(fromX, fromY, toX, toY, channelX);
+            candidates.Add(new RouteCandidate(gutterSegments, IsGutter: true));
+
+            if (TryRoute(gutterSegments, obstacles) is not null)
+            {
+                continue;
+            }
+
+            foreach (double bypassY in bypassYs)
+            {
+                if (Math.Abs(bypassY - fromY) < AxisEpsilon && Math.Abs(bypassY - toY) < AxisEpsilon)
+                {
+                    continue;
+                }
+
+                candidates.Add(new RouteCandidate(
+                    BuildGutterBypassSegments(fromX, fromY, toX, toY, channelX, bypassY),
+                    IsGutter: true));
+            }
         }
 
-        RouteResult? uRoute = TryThreeSegmentRoute(fromX, fromY, toX, toY, obstacles);
+        return candidates;
+    }
 
-        if (uRoute is not null)
+    private static IReadOnlyList<double> CollectBypassYCandidates(
+        double fromY,
+        double toY,
+        IReadOnlyList<Rect> obstacles)
+    {
+        HashSet<double> bypassYs = [fromY, toY];
+
+        foreach (Rect obstacle in obstacles)
         {
-            return uRoute;
+            bypassYs.Add(obstacle.Y - ObstacleInflation);
+            bypassYs.Add(obstacle.Y + obstacle.Height + ObstacleInflation);
         }
 
-        List<(double X1, double Y1, double X2, double Y2)> fallbackSegments = horizontalFirst;
+        return bypassYs.ToList();
+    }
 
-        if (IsAxisAligned(fromX, fromY, toX, toY))
+    private static List<(double X1, double Y1, double X2, double Y2)> BuildGutterChannelSegments(
+        double fromX,
+        double fromY,
+        double toX,
+        double toY,
+        double channelX)
+    {
+        return
+        [
+            (fromX, fromY, channelX, fromY),
+            (channelX, fromY, channelX, toY),
+            (channelX, toY, toX, toY),
+        ];
+    }
+
+    private static List<(double X1, double Y1, double X2, double Y2)> BuildGutterBypassSegments(
+        double fromX,
+        double fromY,
+        double toX,
+        double toY,
+        double channelX,
+        double bypassY)
+    {
+        if (Math.Abs(bypassY - fromY) < AxisEpsilon && Math.Abs(bypassY - toY) < AxisEpsilon)
         {
-            fallbackSegments = straightSegments;
+            return BuildGutterChannelSegments(fromX, fromY, toX, toY, channelX);
         }
 
-        // Last resort: keep the connector orthogonal even when it crosses a third node.
+        return
+        [
+            (fromX, fromY, fromX, bypassY),
+            (fromX, bypassY, channelX, bypassY),
+            (channelX, bypassY, toX, bypassY),
+            (toX, bypassY, toX, toY),
+        ];
+    }
+
+    private static RouteResult? SelectBestClearRoute(
+        IReadOnlyList<RouteCandidate> candidates,
+        IReadOnlyList<Rect> obstacles,
+        IReadOnlyList<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted)
+    {
+        RouteResult? bestRoute = null;
+        int bestCrossings = int.MaxValue;
+        bool bestIsGutter = false;
+
+        foreach (RouteCandidate candidate in candidates)
+        {
+            RouteResult? candidateRoute = TryRoute(candidate.Segments, obstacles);
+
+            if (candidateRoute is null)
+            {
+                continue;
+            }
+
+            int crossings = DiagramEdgeCrossingCounter.CountAgainst(candidate.Segments, alreadyRouted);
+
+            if (crossings < bestCrossings)
+            {
+                bestCrossings = crossings;
+                bestRoute = candidateRoute;
+                bestIsGutter = candidate.IsGutter;
+                continue;
+            }
+
+            if (crossings == bestCrossings && candidate.IsGutter && !bestIsGutter)
+            {
+                bestRoute = candidateRoute;
+                bestIsGutter = true;
+            }
+        }
+
+        return bestRoute;
+    }
+
+    private static RouteResult? SelectBestScoredRoute(
+        IReadOnlyList<RouteCandidate> candidates,
+        IReadOnlyList<Rect> obstacles,
+        IReadOnlyList<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted)
+    {
+        List<(double X1, double Y1, double X2, double Y2)>? bestSegments = null;
+        int bestObstacleHits = int.MaxValue;
+        int bestCrossings = int.MaxValue;
+        bool bestIsGutter = false;
+
+        foreach (RouteCandidate candidate in candidates)
+        {
+            int obstacleHits = CountObstacleIntersections(candidate.Segments, obstacles);
+            int crossings = DiagramEdgeCrossingCounter.CountAgainst(candidate.Segments, alreadyRouted);
+
+            if (candidate.IsGutter && !bestIsGutter)
+            {
+                bestSegments = candidate.Segments;
+                bestObstacleHits = obstacleHits;
+                bestCrossings = crossings;
+                bestIsGutter = true;
+                continue;
+            }
+
+            if (candidate.IsGutter != bestIsGutter)
+            {
+                continue;
+            }
+
+            if (obstacleHits < bestObstacleHits
+                || (obstacleHits == bestObstacleHits && crossings < bestCrossings))
+            {
+                bestSegments = candidate.Segments;
+                bestObstacleHits = obstacleHits;
+                bestCrossings = crossings;
+            }
+        }
+
+        if (bestSegments is null)
+        {
+            return null;
+        }
+
         return new RouteResult(
-            BuildPathData(fallbackSegments),
-            fallbackSegments,
-            UsedFallback: true);
+            BuildPathData(bestSegments),
+            bestSegments,
+            UsedFallback: bestObstacleHits > 0);
+    }
+
+    private static int CountObstacleIntersections(
+        IReadOnlyList<(double X1, double Y1, double X2, double Y2)> segments,
+        IReadOnlyList<Rect> obstacles)
+    {
+        int hits = 0;
+
+        foreach ((double x1, double y1, double x2, double y2) in segments)
+        {
+            foreach (Rect obstacle in obstacles)
+            {
+                if (SegmentIntersectsRectInterior(x1, y1, x2, y2, obstacle))
+                {
+                    hits++;
+                }
+            }
+        }
+
+        return hits;
+    }
+
+    private static List<List<(double X1, double Y1, double X2, double Y2)>> CollectThreeSegmentCandidates(
+        double fromX,
+        double fromY,
+        double toX,
+        double toY)
+    {
+        List<List<(double X1, double Y1, double X2, double Y2)>> candidates = [];
+        double[] candidateYs = [fromY, toY];
+        double[] candidateXs = [fromX, toX];
+
+        foreach (double midY in candidateYs)
+        {
+            candidates.Add(
+                [
+                    (fromX, fromY, fromX, midY),
+                    (fromX, midY, toX, midY),
+                    (toX, midY, toX, toY),
+                ]);
+        }
+
+        foreach (double midX in candidateXs)
+        {
+            candidates.Add(
+                [
+                    (fromX, fromY, midX, fromY),
+                    (midX, fromY, midX, toY),
+                    (midX, toY, toX, toY),
+                ]);
+        }
+
+        return candidates;
     }
 
     public static IReadOnlyList<Rect> BuildObstacles(
@@ -122,51 +395,6 @@ public static class DiagramForestOrthogonalEdgeRouter
         }
 
         return new RouteResult(BuildPathData(segments), segments, UsedFallback: false);
-    }
-
-    private static RouteResult? TryThreeSegmentRoute(
-        double fromX,
-        double fromY,
-        double toX,
-        double toY,
-        IReadOnlyList<Rect> obstacles)
-    {
-        double[] candidateYs = [fromY, toY];
-        double[] candidateXs = [fromX, toX];
-
-        foreach (double midY in candidateYs)
-        {
-            List<(double X1, double Y1, double X2, double Y2)> segments =
-                [
-                    (fromX, fromY, fromX, midY),
-                    (fromX, midY, toX, midY),
-                    (toX, midY, toX, toY),
-                ];
-            RouteResult? result = TryRoute(segments, obstacles);
-
-            if (result is not null)
-            {
-                return result;
-            }
-        }
-
-        foreach (double midX in candidateXs)
-        {
-            List<(double X1, double Y1, double X2, double Y2)> segments =
-                [
-                    (fromX, fromY, midX, fromY),
-                    (midX, fromY, midX, toY),
-                    (midX, toY, toX, toY),
-                ];
-            RouteResult? result = TryRoute(segments, obstacles);
-
-            if (result is not null)
-            {
-                return result;
-            }
-        }
-
-        return null;
     }
 
     private static bool SegmentIntersectsAnyObstacle(

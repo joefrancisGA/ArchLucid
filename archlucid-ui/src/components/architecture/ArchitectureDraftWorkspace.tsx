@@ -62,6 +62,7 @@ type ArchitectureDraftWorkspaceProps = {
   readonly draftId: string;
   readonly parentArchitectureId?: string | null;
   readonly legacyDraftWithoutIdentity?: boolean;
+  readonly suppressWorkingNestedIdentityAnchors?: boolean;
 };
 
 /** Long-lived architecture draft editor — save and resume without starting a review. */
@@ -467,6 +468,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       draftId={props.draftId}
       parentArchitectureId={props.parentArchitectureId}
       legacyDraftWithoutIdentity={props.legacyDraftWithoutIdentity === true}
+      suppressWorkingNestedIdentityAnchors={props.suppressWorkingNestedIdentityAnchors === true}
       loading={loading}
       loadError={loadError}
       isNewDraft={isNewDraft}

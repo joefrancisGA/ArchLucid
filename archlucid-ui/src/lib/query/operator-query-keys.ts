@@ -74,8 +74,9 @@ export const operatorQueryKeys = {
   governanceFindingsQueue: (
     scope: OperatorScopeQueryKey,
     useCuratedDemoSpine: boolean,
+    productLineId: string = "architecture",
   ) =>
-    ["operator", "governance", "findings-queue", scope, { useCuratedDemoSpine }] as const,
+    ["operator", "governance", "findings-queue", scope, { useCuratedDemoSpine, productLineId }] as const,
   governanceAssignedToMeFindingsQueue: (scope: OperatorScopeQueryKey) =>
     ["operator", "governance", "findings-queue", "assigned-to-me", scope] as const,
   governanceAssignedToMeFindingsCount: (scope: OperatorScopeQueryKey) =>

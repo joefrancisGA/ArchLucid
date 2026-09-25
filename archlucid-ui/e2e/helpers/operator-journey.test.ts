@@ -16,4 +16,5 @@ describe("review detail readiness diagnostics", () => {
     expect(shouldReloadReviewDetailAfterErrorShell(0)).toBe(true);
     expect(shouldReloadReviewDetailAfterErrorShell(1)).toBe(false);
   });
+
 });

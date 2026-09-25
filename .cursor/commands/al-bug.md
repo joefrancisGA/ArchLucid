@@ -359,6 +359,9 @@ If the only fix is an instance-list append and severity is low, **stop and repor
 | Bug | <one-line title, or n/a if dry/seed-only> |
 | Root cause | <short mechanism, or n/a if dry> |
 | Fix | <what changed, or ledger-only if dry/seed-only> |
+| Claim | <one sentence stating the behavior the fix claims to establish> |
+| Disproof check | <the test or check that could disprove the claim, and its result> |
+| Scope | <paths, inputs, and runtime mode covered; state what remains untested> |
 | Tests | <test names> — N passed |
 | Commit | `<sha>` on `origin/bugsmash` |
 | Left unstaged | <paths or none> |

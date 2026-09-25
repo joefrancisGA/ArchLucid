@@ -120,6 +120,30 @@ Implemented in [`use-extract-upload-shortcuts.ts`](../src/app/(operator)/adminis
 | **Ctrl+U** | Focus the inventory upload surface, or activate **Replace inventory** when a package is already accepted |
 | **Ctrl+Shift+C** | Copy the quick-start packager command for the selected cloud provider |
 
+## Page-specific: Remediation patterns (`/governance/remediation-patterns`, `/security/remediation-patterns`)
+
+Implemented in [`use-remediation-patterns-shortcuts.ts`](../src/hooks/use-remediation-patterns-shortcuts.ts) on [`RemediationPatternsClient.tsx`](../src/app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx). **Ctrl+Enter** / **⌘Enter** import only when the YAML import panel is open and import is enabled.
+
+| Combo | Action |
+|-------|--------|
+| **Ctrl+Enter** / **⌘Enter** | Import YAML as Draft (import panel open; valid YAML) |
+| **J** | Select next pattern registry row |
+| **K** | Select previous pattern registry row |
+| **A** | Open approve confirmation when the selected under-review version is approvable |
+
+Focus the pattern registry table (`data-testid="remediation-pattern-registry-table-nav"`) before **J** / **K** row navigation.
+
+## Page-specific: Remediation factory (`/governance/remediation-factory`, `/security/remediation-factory`)
+
+Implemented in [`useRemediationFactoryShortcuts.ts`](../src/hooks/useRemediationFactoryShortcuts.ts) on [`RemediationFactoryClient.tsx`](../src/app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx). The command palette lists row navigation, inspect focus, and score explanation on the same routes.
+
+| Combo | Action |
+|-------|--------|
+| **Alt+J** | Select next row in the priority queue or ranked paths table |
+| **Alt+K** | Select previous row |
+| **Alt+I** | Focus the path inspect panel |
+| **Alt+E** | Explain the selected finding score (simulator) |
+
 ## Discoverability
 
 1. **Shift+?** — Full table in the Radix/shadcn dialog ([`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx)).
@@ -155,6 +179,16 @@ Implemented in [`use-extract-upload-shortcuts.ts`](../src/app/(operator)/adminis
 - **`aria-keyshortcuts`** on shell nav links matches registry combos (e.g. `Alt+N`). Exposes shortcuts to supporting AT; primary instructions remain titles and the help dialog.
 - **Dialog** — Radix Dialog provides focus trap, `DialogTitle` / `DialogDescription`, visible close control, Escape to dismiss.
 - **WCAG 2.1.4 Character Key Shortcuts** — No bare single-letter shortcuts: every shortcut requires **Alt**, **Shift** (for `?`), or **Alt+digit** / **Alt+J/K** on Alerts. Users are not forced to use single printable keys alone.
+
+## Page-specific: Audit evidence lineage lookup (`/governance/audit-evidence`, `/compliance/audit-evidence`)
+
+Implemented in [`AuditEvidenceLookupClient`](../src/app/(operator)/governance/audit-evidence/AuditEvidenceLookupClient.tsx).
+
+| Combo | Action |
+|-------|--------|
+| **Enter** (in Lineage Link field) | Apply pasted lineage URL to identifier fields |
+| **Enter** (with valid identifiers) | Open evidence lineage |
+| **Ctrl+Enter** | Open evidence lineage when identifiers are valid (no-op while primary is disabled) |
 
 ## Component wiring
 

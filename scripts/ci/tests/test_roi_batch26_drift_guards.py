@@ -39,14 +39,15 @@ class TestRoiBatch26DriftGuards(unittest.TestCase):
         self.assertIn("help-impact-preview-vs-envelope", guide)
         self.assertIn("showSsoOptional={false}", guide)
 
-    def test_help_extraction_fidelity_send_path_honesty(self) -> None:
+    def test_help_extraction_fidelity_ln034_extraction_rules(self) -> None:
         guide = (
             _UI / "src/app/(operator)/help/_sections/HelpExtractionFidelityGuideView.tsx"
         ).read_text(encoding="utf-8")
 
-        self.assertIn("SponsorSendPathHonestyPanel", guide)
+        self.assertNotIn("SponsorSendPathHonestyPanel", guide)
         self.assertIn("help-extraction-fidelity", guide)
-        self.assertIn("showSsoOptional={false}", guide)
+        self.assertIn("help-extraction-fidelity-extraction-rules", guide)
+        self.assertIn("LIVELIHOOD_GRADE_NO_EXTRACTION_PROVENANCE_ROWS", guide)
 
     def test_help_false_hard_infeasibility_send_path_honesty(self) -> None:
         guide = (

@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 using InventoryDataFlowStageResolver = ArchLucid.KnowledgeGraph.Inventory.AzureInventoryDataFlowStageResolver;
 
@@ -28,6 +29,20 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
 
+        if (mode != DiagramMode.BusinessContinuity)
+        {
+            topologyNodes = DiagramRecoveryServicesVaultFilter.Exclude(topologyNodes);
+        }
+
+        if (mode == DiagramMode.BusinessContinuity)
+        {
+            topologyNodes = ExpandBusinessContinuityNodes(graph, topologyNodes);
+        }
+        else if (options.IncludeRecoveryServices)
+        {
+            topologyNodes = DiagramRecoveryServicesIncluder.Include(graph, topologyNodes);
+        }
+
         if (isDataFlowMode)
         {
             topologyNodes = DataFlowEvidenceEndpointIncluder.Include(graph, topologyNodes);
@@ -36,11 +51,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         {
             topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
             topologyNodes = InventoryConnectionEndpointIncluder.Include(graph, topologyNodes, mode);
+        }
 
-            if (!options.IncludePrivateEndpointNodes)
-            {
-                topologyNodes = NetworkDiagramNodeFilter.ExcludePrivateEndpoints(topologyNodes);
-            }
+        if (!options.IncludePrivateEndpointNodes)
+        {
+            topologyNodes = NetworkDiagramNodeFilter.ExcludePrivateEndpoints(topologyNodes);
         }
 
         HashSet<string> includedNodeIds = topologyNodes
@@ -64,6 +79,16 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             includedEdges = includedEdges
                 .Where(IsDataArchitectureEdge)
                 .ToList();
+        }
+        else if (mode == DiagramMode.BusinessContinuity)
+        {
+            includedEdges = includedEdges
+                .Where(IsCollectedRecoveryServicesProtectsEdge)
+                .ToList();
+        }
+        else if (options.IncludeRecoveryServices)
+        {
+            includedEdges = DiagramRecoveryServicesIncluder.IncludeEdges(graph, includedEdges, includedNodeIds);
         }
 
         IReadOnlyList<DiagramSubgraph> subgraphs = isDataFlowMode
@@ -117,6 +142,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             });
         }
 
+
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
         if (mode == DiagramMode.Executive)
@@ -128,7 +154,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
 
-        if (mode is not DiagramMode.Network && !isSecureNowDataMode)
+        if (!options.IncludePrivateEndpointNodes)
         {
             HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
                 ast,
@@ -140,6 +166,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             {
                 DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
             }
+
         }
 
         if (DiagramNicCollapseApplier.ShouldCollapseNetworkInterfaces(mode))
@@ -149,13 +176,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
-        if (!isSecureNowDataMode)
-        {
-            DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
-            DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
-            DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
-        }
+        DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
+        DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
+        DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
 
+        DiagramInventoryConnectionRollupApplier.Apply(ast);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
@@ -174,8 +199,74 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 DiagramDataArchitectureHonestyLegend.PrimarySentence,
             ];
         }
+        else if (mode == DiagramMode.BusinessContinuity)
+        {
+            ast.CaptionLines = options.RecoveryServicesCollectionIncomplete
+                ?
+                [
+                    "Protection coverage is incomplete. A vault with no line may still protect resources this snapshot could not read.",
+                ]
+                :
+                [
+                    "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.",
+                ];
+        }
 
         return ast;
+    }
+
+    private static List<GraphNode> ExpandBusinessContinuityNodes(GraphSnapshot graph, List<GraphNode> vaultNodes)
+    {
+        HashSet<string> includedNodeIds = vaultNodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+
+        List<GraphNode> expanded = vaultNodes.ToList();
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (!IsCollectedRecoveryServicesProtectsEdge(edge))
+            {
+                continue;
+            }
+
+            if (!includedNodeIds.Contains(edge.FromNodeId))
+            {
+                continue;
+            }
+
+            if (!nodesById.TryGetValue(edge.ToNodeId, out GraphNode? targetNode))
+            {
+                continue;
+            }
+
+            if (includedNodeIds.Add(targetNode.NodeId))
+            {
+                expanded.Add(targetNode);
+            }
+        }
+
+        return expanded
+            .OrderBy(node => DiagramAstGraphNodeClassifier.ReadArmId(node), StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private static bool IsCollectedRecoveryServicesProtectsEdge(GraphEdge edge)
+    {
+        if (!string.Equals(edge.EdgeType, GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        string? inferenceSource = edge.InferenceSource;
+
+        return !string.IsNullOrWhiteSpace(inferenceSource)
+            && (inferenceSource.Equals(GraphEdgeInferenceSources.InventoryRecoveryServicesProtects, StringComparison.OrdinalIgnoreCase)
+                || inferenceSource.Equals(GraphEdgeInferenceSources.InventoryRecoveryServicesReplicates, StringComparison.OrdinalIgnoreCase));
     }
 
     private DiagramNode BuildDiagramNode(
@@ -204,8 +295,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             SubgraphId = subgraphId,
             OrderKey = orderKey,
             CloudResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadCloudResourceId(node),
+            ArmResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmId(node),
             SeedNodeId = isOverflow ? null : node.NodeId,
             ArmResourceType = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmType(node),
+            ArmResourceKind = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadKind(node),
             ArmResourceGroup = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             IsExecutiveOverflow = isOverflow,
         };
@@ -270,6 +363,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     graph,
                     mode,
                     NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(FilterSecurityNodes(nodes)));
+            case DiagramMode.BusinessContinuity:
+                return nodes
+                    .Where(node => string.Equals(
+                        DiagramAstGraphNodeClassifier.ReadArmType(node),
+                        "Microsoft.RecoveryServices/vaults",
+                        StringComparison.OrdinalIgnoreCase))
+                    .ToList();
             case DiagramMode.Identity:
                 return FilterByCategories(nodes, GraphTopologyCategories.Identity);
             case DiagramMode.Data:
@@ -284,11 +384,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     graph,
                     mode,
                     NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        ExcludeExternalSourceNodes(nodes)));
+                        ExcludeCollapsedAccessConnectors(
+                            ExcludeExternalSourceNodes(nodes))));
             case DiagramMode.ResourceGroup:
-                return FilterByResourceGroup(nodes, options.ResourceGroupName);
+                return FilterByResourceGroup(graph, nodes, options.ResourceGroupName);
             case DiagramMode.SelectedResources:
-                return FilterBySelectedNodes(nodes, options.SelectedNodeIds);
+                return FilterBySelectedNodes(graph, nodes, options.SelectedNodeIds);
             case DiagramMode.DependencyNeighborhood:
                 return FilterByNeighborhood(graph, nodes, options);
             default:
@@ -416,22 +517,33 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .ToList();
     }
 
-    private static List<GraphNode> FilterByResourceGroup(List<GraphNode> nodes, string? resourceGroupName)
+    private static List<GraphNode> FilterByResourceGroup(
+        GraphSnapshot graph,
+        List<GraphNode> nodes,
+        string? resourceGroupName)
     {
         if (string.IsNullOrWhiteSpace(resourceGroupName))
         {
             return [];
         }
 
-        return nodes
+        HashSet<string> selectedIds = nodes
             .Where(node => string.Equals(
                 DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
                 resourceGroupName,
                 StringComparison.OrdinalIgnoreCase))
-            .ToList();
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        AddCitedAttachmentEndpoints(graph, selectedIds);
+
+        return nodes.Where(node => selectedIds.Contains(node.NodeId)).ToList();
     }
 
-    private static List<GraphNode> FilterBySelectedNodes(List<GraphNode> nodes, IReadOnlyList<string>? selectedNodeIds)
+    private static List<GraphNode> FilterBySelectedNodes(
+        GraphSnapshot graph,
+        List<GraphNode> nodes,
+        IReadOnlyList<string>? selectedNodeIds)
     {
         if (selectedNodeIds is null || selectedNodeIds.Count == 0)
         {
@@ -440,9 +552,32 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         HashSet<string> selected = selectedNodeIds.ToHashSet(StringComparer.Ordinal);
 
-        return nodes
-            .Where(node => selected.Contains(node.NodeId))
-            .ToList();
+        AddCitedAttachmentEndpoints(graph, selected);
+
+        return nodes.Where(node => selected.Contains(node.NodeId)).ToList();
+    }
+
+    private static void AddCitedAttachmentEndpoints(GraphSnapshot graph, HashSet<string> selectedIds)
+    {
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (edge.InferenceSource?.Equals(
+                    GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                    StringComparison.OrdinalIgnoreCase) == true)
+            {
+                continue;
+            }
+
+            if (selectedIds.Contains(edge.FromNodeId))
+            {
+                selectedIds.Add(edge.ToNodeId);
+            }
+
+            if (selectedIds.Contains(edge.ToNodeId))
+            {
+                selectedIds.Add(edge.FromNodeId);
+            }
+        }
     }
 
     private static List<GraphNode> FilterByNeighborhood(
@@ -569,6 +704,16 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     {
         return nodes
             .Where(InventoryDataFlowStageResolver.IsDataArchitectureNode)
+            .ToList();
+    }
+
+    private static List<GraphNode> ExcludeCollapsedAccessConnectors(List<GraphNode> nodes)
+    {
+        return nodes
+            .Where(node => !node.Properties.TryGetValue(
+                    AzureInventoryDatabricksAccessConnector.CollapseNodePropertyKey,
+                    out string? collapsed)
+                || !string.Equals(collapsed, "true", StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
 

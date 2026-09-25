@@ -1,12 +1,14 @@
+"use client";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { resolveGettingStartedHelpClaimDiscipline } from "@/lib/getting-started-help-guide-content";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
-/** Claim-discipline orientation for `/help/getting-started` — header info strip (TB-2092). */
 export function GettingStartedHelpClaimDisciplineStrip(): React.JSX.Element {
-  const claimDiscipline = resolveGettingStartedHelpClaimDiscipline(resolveProductLineIdFromEnv());
+  const { productLine } = useProductLine();
+  const claimDiscipline = resolveGettingStartedHelpClaimDiscipline(productLine);
 
   return (
     <aside

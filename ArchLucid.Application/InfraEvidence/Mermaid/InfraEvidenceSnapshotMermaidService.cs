@@ -1,5 +1,6 @@
 using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ContextIngestion.Diagram;
@@ -14,6 +15,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Inventory;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
 
@@ -37,6 +39,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     [
         ("executive", DiagramMode.Executive),
         ("network", DiagramMode.Network),
+        ("businessContinuity", DiagramMode.BusinessContinuity),
         ("identity", DiagramMode.Identity),
         ("data", DiagramMode.Data),
         ("dataFlow", DiagramMode.DataFlow),
@@ -84,7 +87,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         ScopeContext scope,
         Guid snapshotId,
         bool includeNeverShowArmTypes = false,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false,
+        bool includeRecoveryServices = false,
+        bool includeCrossGroupFanOut = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -138,6 +144,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 diagramMode,
                 null,
                 includeNeverShowArmTypes,
+                includePrivateEndpointNodes
+                    ? new DiagramAstCompileOptions { IncludePrivateEndpointNodes = true }
+                    : null,
                 cancellationToken);
 
             modePreviews.Add(modePreview);
@@ -163,7 +172,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? seedNodeId,
         bool includeNeverShowArmTypes = false,
         string? hiddenExecutiveTierKeys = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false,
+        bool includeRecoveryServices = false,
+        bool includeCrossGroupFanOut = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -203,7 +215,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 mode,
                 seedNodeId,
                 hiddenExecutiveTierKeys,
-                out InfraEvidenceMermaidModeParseResult parsedMode))
+                out InfraEvidenceMermaidModeParseResult parsedMode,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut))
         {
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
@@ -232,13 +247,19 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return CreateResourceGroupPickerResponse(snapshotId, graphResult.Graph);
         }
 
+        DiagramAstCompileOptions? compileOptions = MergeDisplayCompileOptions(
+            parsedMode.CompileOptions,
+            graphResult.Snapshot,
+            includeRecoveryServices,
+            includeCrossGroupFanOut);
+
         InfraEvidenceMermaidRenderResponse renderResponse = await TryRenderModeResponseAsync(
             snapshotId,
             parsedMode.ModeKey,
             null,
             graphResult.Graph,
             parsedMode.DiagramMode,
-            parsedMode.CompileOptions,
+            compileOptions,
             includeNeverShowArmTypes,
             graphResult.Snapshot,
             cancellationToken);
@@ -258,7 +279,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? seedNodeId,
         bool includeNeverShowArmTypes = false,
         string? hiddenExecutiveTierKeys = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool includePrivateEndpointNodes = false,
+        bool includeRecoveryServices = false,
+        bool includeCrossGroupFanOut = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -271,7 +295,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 seedNodeId,
                 includeNeverShowArmTypes,
                 hiddenExecutiveTierKeys,
-                cancellationToken);
+                cancellationToken,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
         {
@@ -305,6 +332,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             hiddenExecutiveTierKeys,
             mermaidResult.Value,
             brandedMermaid,
+            includePrivateEndpointNodes,
+            includeRecoveryServices,
+            includeCrossGroupFanOut,
             cancellationToken);
 
         if (renderedPng is null || renderedPng.Length == 0)
@@ -384,6 +414,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         DiagramMode diagramMode,
         DiagramAstCompileOptions? compileOptions,
         bool includeNeverShowArmTypes,
+        DiagramAstCompileOptions? displayOptions,
         CancellationToken cancellationToken)
     {
         try
@@ -391,7 +422,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             MermaidDiagramRenderResult renderResult = await RenderModeAsync(
                 graph,
                 diagramMode,
-                compileOptions,
+                displayOptions ?? compileOptions,
                 includeNeverShowArmTypes,
                 cancellationToken);
 
@@ -425,6 +456,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
 
             InfraEvidenceInventoryLayoutResult layoutResult = await TryRenderInventoryLayoutAsync(
                 renderResult,
+                compileOptions,
                 cancellationToken);
 
             return MapRenderResponse(
@@ -539,6 +571,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? hiddenExecutiveTierKeys,
         InfraEvidenceMermaidRenderResponse renderResponse,
         string brandedMermaid,
+        bool includePrivateEndpointNodes,
+        bool includeRecoveryServices,
+        bool includeCrossGroupFanOut,
         CancellationToken cancellationToken)
     {
         if (string.Equals(renderResponse.LayoutEngine, "inventory-forest", StringComparison.Ordinal)
@@ -552,11 +587,19 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 seedNodeId,
                 includeNeverShowArmTypes,
                 hiddenExecutiveTierKeys,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut,
                 cancellationToken);
 
             if (renderResult?.RepairedAst is not null)
             {
-                string dot = _graphvizDotEmitter.Emit(renderResult.RepairedAst);
+                string dot = _graphvizDotEmitter.Emit(
+                    renderResult.RepairedAst,
+                    new GraphvizDotEmitOptions
+                    {
+                        IncludeCrossGroupFanOut = includeCrossGroupFanOut,
+                    });
                 GraphvizLayoutRenderResult graphvizPng = await _graphvizLayoutRenderer.RenderPngAsync(dot, cancellationToken);
 
                 if (graphvizPng.Succeeded && graphvizPng.Png is { Length: > 0 })
@@ -577,6 +620,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? seedNodeId,
         bool includeNeverShowArmTypes,
         string? hiddenExecutiveTierKeys,
+        bool includePrivateEndpointNodes,
+        bool includeRecoveryServices,
+        bool includeCrossGroupFanOut,
         CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(fallbackKey))
@@ -588,7 +634,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 mode,
                 seedNodeId,
                 hiddenExecutiveTierKeys,
-                out InfraEvidenceMermaidModeParseResult parsedMode))
+                out InfraEvidenceMermaidModeParseResult parsedMode,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut))
         {
             return null;
         }
@@ -610,16 +659,23 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return null;
         }
 
+        DiagramAstCompileOptions? compileOptions = MergeDisplayCompileOptions(
+            parsedMode.CompileOptions,
+            graphResult.Snapshot,
+            includeRecoveryServices,
+            includeCrossGroupFanOut);
+
         return await RenderModeAsync(
             graphResult.Graph,
             parsedMode.DiagramMode,
-            parsedMode.CompileOptions,
+            compileOptions,
             includeNeverShowArmTypes,
             cancellationToken);
     }
 
     private async Task<InfraEvidenceInventoryLayoutResult> TryRenderInventoryLayoutAsync(
         MermaidDiagramRenderResult renderResult,
+        DiagramAstCompileOptions? compileOptions,
         CancellationToken cancellationToken)
     {
         if (renderResult.RepairedAst is null)
@@ -633,7 +689,12 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return InfraEvidenceInventoryLayoutResult.MermaidDagreFallback;
         }
 
-        DiagramForestLayoutResult forestResult = _forestLayoutSvgRenderer.Render(renderResult.RepairedAst);
+        DiagramForestLayoutResult forestResult = _forestLayoutSvgRenderer.Render(
+            renderResult.RepairedAst,
+            new DiagramForestLayoutOptions
+            {
+                IncludeCrossGroupFanOut = compileOptions?.IncludeCrossGroupFanOut ?? false,
+            });
 
         if (forestResult.Succeeded && !string.IsNullOrWhiteSpace(forestResult.Svg))
         {
@@ -650,7 +711,12 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             }
         }
 
-        string dot = _graphvizDotEmitter.Emit(renderResult.RepairedAst);
+        string dot = _graphvizDotEmitter.Emit(
+            renderResult.RepairedAst,
+            new GraphvizDotEmitOptions
+            {
+                IncludeCrossGroupFanOut = compileOptions?.IncludeCrossGroupFanOut ?? false,
+            });
         GraphvizLayoutRenderResult graphvizResult = await _graphvizLayoutRenderer.RenderSvgAsync(dot, cancellationToken);
 
         if (!graphvizResult.Succeeded || string.IsNullOrWhiteSpace(graphvizResult.Svg))
@@ -743,7 +809,101 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CollapseReport = MapCollapseReport(renderResult.CollapseReport),
             IdentityDiagramHints = MapIdentityDiagramHints(modeKey, snapshot),
             CompletenessWarnings = ResolveCompletenessWarnings(snapshot),
+            CompletenessSummary = BuildCompletenessSummary(modeKey, sourceGraph, snapshot),
         };
+    }
+
+    private static InfraEvidenceMermaidCompletenessSummary? BuildCompletenessSummary(
+        string modeKey,
+        GraphSnapshot? graph,
+        AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        if (graph is null)
+        {
+            return null;
+        }
+
+        List<GraphEdge> visibleEdges = graph.Edges
+            .Where(edge => edge.Weight >= 0.5d)
+            .ToList();
+        HashSet<string> collectedClasses = visibleEdges
+            .Select(edge => edge.InferenceSource ?? edge.EdgeType)
+            .Where(source => !string.IsNullOrWhiteSpace(source))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int hiddenHopCount = visibleEdges.Count(edge =>
+            edge.InferenceSource is not null
+            && (edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
+                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase)));
+        int collocationCount = visibleEdges.Count(edge =>
+            string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                StringComparison.OrdinalIgnoreCase));
+
+        return new InfraEvidenceMermaidCompletenessSummary
+        {
+            Mode = modeKey,
+            VisibleNodeCount = graph.Nodes.Count,
+            VisibleEdgeCount = visibleEdges.Count,
+            ConnectedComponentCount = CountConnectedComponents(graph.Nodes, visibleEdges),
+            HiddenHopsUsedCount = hiddenHopCount,
+            LikelyInCollocationEdgeCount = collocationCount,
+            CollectedClasses = collectedClasses.Order(StringComparer.Ordinal).ToList(),
+            MissingClasses = ResolveCompletenessWarnings(snapshot)
+                .Where(warning => warning.Contains("missing", StringComparison.OrdinalIgnoreCase))
+                .ToList(),
+        };
+    }
+
+    private static int CountConnectedComponents(
+        IReadOnlyList<GraphNode> nodes,
+        IReadOnlyList<GraphEdge> edges)
+    {
+        Dictionary<string, List<string>> adjacency = nodes.ToDictionary(
+            node => node.NodeId,
+            _ => new List<string>(),
+            StringComparer.Ordinal);
+
+        foreach (GraphEdge edge in edges)
+        {
+            if (adjacency.TryGetValue(edge.FromNodeId, out List<string>? from)
+                && adjacency.TryGetValue(edge.ToNodeId, out List<string>? to))
+            {
+                from.Add(edge.ToNodeId);
+                to.Add(edge.FromNodeId);
+            }
+        }
+
+        HashSet<string> visited = new(StringComparer.Ordinal);
+        int components = 0;
+
+        foreach (string nodeId in adjacency.Keys)
+        {
+            if (!visited.Add(nodeId))
+            {
+                continue;
+            }
+
+            components++;
+            Queue<string> queue = new();
+            queue.Enqueue(nodeId);
+
+            while (queue.Count > 0)
+            {
+                string current = queue.Dequeue();
+
+                foreach (string neighbor in adjacency[current])
+                {
+                    if (visited.Add(neighbor))
+                    {
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+
+        return components;
     }
 
     private static List<string> ResolveCompletenessWarnings(AzureInventorySnapshotDetailReadModel? snapshot)
@@ -756,6 +916,53 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         return AzureInventorySnapshotCompletenessWarningsJson
             .Deserialize(snapshot.Header.CompletenessWarningsJson)
             .ToList();
+    }
+
+    private static DiagramAstCompileOptions? MergeDisplayCompileOptions(
+        DiagramAstCompileOptions? options,
+        AzureInventorySnapshotDetailReadModel? snapshot,
+        bool includeRecoveryServices,
+        bool includeCrossGroupFanOut)
+    {
+        bool collectionIncomplete = HasRecoveryServicesCollectionGap(snapshot);
+
+        if (!includeRecoveryServices && !collectionIncomplete && !includeCrossGroupFanOut)
+        {
+            return options;
+        }
+
+        return new DiagramAstCompileOptions
+        {
+            ResourceGroupName = options?.ResourceGroupName,
+            SelectedNodeIds = options?.SelectedNodeIds,
+            NeighborhoodSeedNodeId = options?.NeighborhoodSeedNodeId,
+            NeighborhoodDepth = options?.NeighborhoodDepth ?? 2,
+            CollapseToResourceGroupMap = options?.CollapseToResourceGroupMap ?? false,
+            CollapseToBackboneKeep = options?.CollapseToBackboneKeep ?? false,
+            HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
+            IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? false,
+            IncludeRecoveryServices = includeRecoveryServices,
+            IncludeCrossGroupFanOut = includeCrossGroupFanOut,
+            RecoveryServicesCollectionIncomplete = collectionIncomplete,
+        };
+    }
+
+    private static bool HasRecoveryServicesCollectionGap(AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        foreach (string warning in ResolveCompletenessWarnings(snapshot))
+        {
+            if (warning.StartsWith(
+                    AzureInventoryRecoveryServicesCompletenessWarningCodes.BackupListFailedPrefix,
+                    StringComparison.OrdinalIgnoreCase)
+                || warning.StartsWith(
+                    AzureInventoryRecoveryServicesCompletenessWarningCodes.SiteRecoveryListFailedPrefix,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static InfraEvidenceMermaidCollapseReport? MapCollapseReport(

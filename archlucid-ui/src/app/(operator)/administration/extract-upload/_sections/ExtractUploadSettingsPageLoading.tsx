@@ -1,15 +1,22 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 import {
-  EXTRACT_UPLOAD_SETTINGS_NAV_HREF,
   EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
+import { extractUploadSettingsNavHrefForPath } from "@/lib/extract-upload-settings-route";
 import { cn } from "@/lib/utils";
 
 /** Shared loading chrome for extract-upload routes that hydrate URL search params on the client. */
 export function ExtractUploadSettingsPageLoading(): React.JSX.Element {
+  const pathname = usePathname();
+  const navHref = extractUploadSettingsNavHrefForPath(pathname);
+
   return (
     <div
       className={cn(OPERATOR_PAGE_CONTAINER.base, OPERATOR_PAGE_CONTAINER.variant.workflow, OPERATOR_LAYOUT.majorSectionGap)}
@@ -21,7 +28,7 @@ export function ExtractUploadSettingsPageLoading(): React.JSX.Element {
       <OperatorPageHeader
         title={EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE}
         titleTestId="extract-upload-page-title"
-        navHref={EXTRACT_UPLOAD_SETTINGS_NAV_HREF}
+        navHref={navHref}
         headingLevel="h1"
         subtitle={EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE}
       />
@@ -31,10 +38,6 @@ export function ExtractUploadSettingsPageLoading(): React.JSX.Element {
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-24 w-full" />
       </div>
-
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE}
-      </p>
     </div>
   );
 }

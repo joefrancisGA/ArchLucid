@@ -66,6 +66,61 @@ public sealed class DiagramAstGraphvizDotEmitterTests
     }
 
     [Fact]
+    public void Emit_uses_named_vnet_clusters_for_cited_same_group_members()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (FullSubscription)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vnet",
+                    Label = "vnet-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Network/virtualNetworks",
+                    ArmResourceGroup = "rg-app",
+                },
+                new DiagramNode
+                {
+                    NodeId = "vm",
+                    Label = "vm-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                },
+                new DiagramNode
+                {
+                    NodeId = "vault",
+                    Label = "vault-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.KeyVault/vaults",
+                    ArmResourceGroup = "rg-app",
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "vm",
+                    ToNodeId = "vnet",
+                    Label = "in",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
+                },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        dot.Should().Contain("subgraph cluster_vnet_vnet");
+        dot.Should().Contain("label=\"vnet-app\"");
+        dot.Should().NotContain("cluster_subscription");
+        dot.Should().NotContain("label=\"Subscription\"");
+        dot.Should().NotContain("VNet / subnet");
+        dot.Should().Contain("vault");
+    }
+
+    [Fact]
     public void Emit_declared_edge_uses_dashed_style()
     {
         DiagramAst ast = new()

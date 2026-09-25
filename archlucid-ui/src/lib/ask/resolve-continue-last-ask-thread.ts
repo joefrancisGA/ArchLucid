@@ -10,10 +10,18 @@ export function resolveContinueLastAskThread(threads: unknown): ConversationThre
     return null;
   }
 
+  const validThreads = normalizedThreads.filter(
+    (thread) => typeof thread?.threadId === "string" && typeof thread?.lastUpdatedUtc === "string",
+  );
+
+  if (validThreads.length === 0) {
+    return null;
+  }
+
   const recentThreadId = readAskContinueLastThreadId();
 
   if (recentThreadId !== null) {
-    const recentMatch = normalizedThreads.find((thread) => thread.threadId === recentThreadId);
+    const recentMatch = validThreads.find((thread) => thread.threadId === recentThreadId);
 
     if (recentMatch !== undefined) {
       return recentMatch;
@@ -21,7 +29,7 @@ export function resolveContinueLastAskThread(threads: unknown): ConversationThre
   }
 
   return (
-    normalizedThreads
+    validThreads
       .slice()
       .sort((left, right) => right.lastUpdatedUtc.localeCompare(left.lastUpdatedUtc))[0] ?? null
   );

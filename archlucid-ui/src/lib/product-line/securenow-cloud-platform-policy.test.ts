@@ -52,18 +52,32 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpTopicExcludedForProductLine("choose-your-next-step", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("accelerator-chooser", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("career-vs-rehearsal", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("architecture-draft-editing", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("architecture-sharing", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("inspect-stored-evidence", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("inspect-stored-evidence", "architecture")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("slack-integration", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("system-gravity", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("inhabit-the-architecture", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("sketch-a-change", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("which-mode-am-i-in", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("system-gravity", "architecture")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("findings", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "security")).toBe(false);
-    expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "architecture")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "architecture")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("billing-and-plans", "architecture")).toBe(false);
     expect(isHelpSearchTopicExcludedForProductLine("first-review-guide", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("first-review-guide", "architecture")).toBe(false);
     expect(isHelpSearchTopicExcludedForProductLine("create-first-review", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("how-archlucid-works", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("career-vs-rehearsal", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("system-gravity", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("inhabit-the-architecture", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("sketch-a-change", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("which-mode-am-i-in", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("system-gravity", "architecture")).toBe(false);
   });
 
   it("excludes ArchLucid training and simulator chrome from SecureNow", () => {

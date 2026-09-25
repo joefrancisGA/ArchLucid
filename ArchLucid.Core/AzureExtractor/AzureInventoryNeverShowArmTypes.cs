@@ -18,9 +18,11 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.Insights/workbooks",
         "Microsoft.Insights/scheduledQueryRules",
         "Microsoft.Insights/actionGroups",
+        "Microsoft.Insights/dataCollectionRules",
         // Application Insights Failure Anomalies (FailureAnomaliesDetector) and other smart detectors.
         "Microsoft.AlertsManagement/smartDetectorAlertRules",
         "Microsoft.OperationsManagement/solutions",
+        "Microsoft.Network/enterprisePolicies",
         "Microsoft.Network/dnszones",
         "Microsoft.Network/privateDnsZones",
         "Microsoft.Network/dnsResolvers",
@@ -42,6 +44,7 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
         // Companion child used to emit PEERS_WITH; omit from inventory/diagram nodes.
         "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+        "Microsoft.Web/serverFarms",
     ];
 
     private static readonly string[] LastSegments =
@@ -53,8 +56,10 @@ public static class AzureInventoryNeverShowArmTypes
         "workbooks",
         "scheduledqueryrules",
         "actiongroups",
+        "datacollectionrules",
         "smartdetectoralertrules",
         "solutions",
+        "enterprisepolicies",
         "extensions",
         "disks",
         "sshpublickeys",
@@ -74,6 +79,7 @@ public static class AzureInventoryNeverShowArmTypes
         "virtualnetworkpeerings",
         "maintenanceconfigurations",
         "configurationassignments",
+        "serverfarms",
     ];
 
     public static readonly string[] ResourceTypeLastSegmentSuffixes = LastSegments;
@@ -81,6 +87,11 @@ public static class AzureInventoryNeverShowArmTypes
     public static bool ShouldOmitFromInventory(string? armType)
     {
         if (string.IsNullOrWhiteSpace(armType))
+        {
+            return false;
+        }
+
+        if (AzureInventoryDatabricksAccessConnector.IsWorkspaceType(armType))
         {
             return false;
         }
@@ -113,6 +124,13 @@ public static class AzureInventoryNeverShowArmTypes
             StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         if (segments.Length < 2)
+        {
+            return false;
+        }
+
+        if (azureResourceId.Contains(
+                "Microsoft.Databricks/workspaces/",
+                StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }

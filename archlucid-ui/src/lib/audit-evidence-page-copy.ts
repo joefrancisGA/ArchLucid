@@ -16,10 +16,10 @@ export const AUDIT_EVIDENCE_BREADCRUMB_GOVERNANCE_HREF = ALERTS_CONFIGURATION_BR
 export const AUDIT_EVIDENCE_BREADCRUMB_TOPIC_TITLE = AUDIT_EVIDENCE_PAGE_TITLE;
 
 export const AUDIT_EVIDENCE_PAGE_LEAD =
-  "Open the deterministic chain of custody for an audit control. Enter IDs from an assessment snapshot export or API integration — not an AI summary." as const;
+  "Open deterministic evidence lineage for an audit control. Enter IDs from an assessment snapshot export or API integration — not an AI summary." as const;
 
 export const AUDIT_EVIDENCE_CLAIM_DISCIPLINE =
-  "This lookup opens a read-only lineage spine for one control in one snapshot. It does not replace audit trail activity, sealed review records, or official assurance materials." as const;
+  "This lookup opens read-only evidence lineage for one control in one snapshot. It does not replace audit trail activity, sealed review records, or official assurance materials." as const;
 
 export const AUDIT_EVIDENCE_ASSESSMENT_ID_LABEL = "Assessment ID" as const;
 
@@ -36,7 +36,7 @@ export const AUDIT_EVIDENCE_SNAPSHOT_ID_HINT =
 export const AUDIT_EVIDENCE_CONTROL_ID_HINT =
   "Control UUID or stable control key from the snapshot, for example AC-2 or a platform control id." as const;
 
-export const AUDIT_EVIDENCE_LINEAGE_URL_LABEL = "Paste lineage link" as const;
+export const AUDIT_EVIDENCE_LINEAGE_URL_LABEL = "Lineage Link" as const;
 
 /** Namespace-aware paste hint for the active product-line lookup path. */
 export function auditEvidenceLineageUrlHintForLookupPath(lookupPath: string): string {
@@ -54,7 +54,7 @@ export const AUDIT_EVIDENCE_LINEAGE_URL_APPLIED_LIVE_MESSAGE =
 export const AUDIT_EVIDENCE_LINEAGE_URL_HINT =
   "Paste a full /governance/audit-evidence/…/controls/… URL from email, ITSM, or an export to fill the fields below." as const;
 
-export const AUDIT_EVIDENCE_OPEN_LINEAGE_ACTION = "Open chain of custody" as const;
+export const AUDIT_EVIDENCE_OPEN_LINEAGE_ACTION = "Open evidence lineage" as const;
 
 export const AUDIT_EVIDENCE_START_FROM_INVENTORY_TITLE = "Start from inventory" as const;
 
@@ -82,28 +82,51 @@ export function auditEvidenceLineageUrlParseErrorForLookupPath(lookupPath: strin
 export const AUDIT_EVIDENCE_LINEAGE_URL_PARSE_ERROR =
   "Paste a governance audit-evidence control URL with assessment, snapshot, and control segments." as const;
 
-export const AUDIT_EVIDENCE_LOOKUP_SCOPE_BANNER_PREFIX = "Resolved scope:" as const;
+export const AUDIT_EVIDENCE_LOOKUP_SCOPE_PREFIX = "Workspace scope" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_CHANGE_SCOPE_ACTION = "Change scope" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_IDENTIFIERS_CONSOLIDATED_HINT =
+  "Enter assessment, snapshot, and control IDs from the same export bundle." as const;
 
 export const AUDIT_EVIDENCE_LOOKUP_READINESS_READY =
-  "Identifiers are ready — open the read-only chain of custody for this control." as const;
+  "Identifiers are ready — open read-only evidence lineage for this control." as const;
 
-export const AUDIT_EVIDENCE_LOOKUP_READINESS_BLOCKED =
-  "Enter assessment, snapshot, and control IDs in the expected shape to enable Open chain of custody." as const;
+export const AUDIT_EVIDENCE_LOOKUP_READINESS_BLOCKED_PREFIX =
+  "Enter valid" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_READINESS_BLOCKED_SUFFIX =
+  "to enable Open evidence lineage." as const;
 
 export const AUDIT_EVIDENCE_LOOKUP_ERROR_SUMMARY_TITLE =
-  "Fix these fields before opening the chain:" as const;
+  "Fix these fields before opening evidence lineage:" as const;
 
 export const AUDIT_EVIDENCE_LOOKUP_KEYBOARD_AFFORDANCE =
-  "F1 opens page help; Ctrl+K opens search." as const;
+  "F1 opens page help; Ctrl+K opens search; Ctrl+Enter opens evidence lineage when identifiers are valid." as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_OPEN_LINEAGE_SHORTCUT = "Ctrl+Enter" as const;
 
 export const AUDIT_EVIDENCE_LOOKUP_BUILD_PROVENANCE_LIMITATION =
   "Provenance limitation: build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
 
-export const AUDIT_EVIDENCE_LOOKUP_CONTINUE_LAST_TITLE = "Continue last viewed chain" as const;
+export const AUDIT_EVIDENCE_LOOKUP_RECENT_LINEAGE_TITLE = "Continue last viewed lineage" as const;
 
-export const AUDIT_EVIDENCE_LOOKUP_CONTINUE_LAST_ACTION = "Open chain" as const;
+export const AUDIT_EVIDENCE_LOOKUP_RECENT_LINEAGE_EMPTY =
+  "No recent evidence lineage visits in this browser." as const;
 
-export const AUDIT_EVIDENCE_LOOKUP_CONTINUE_LAST_PREFILL_ACTION = "Fill lookup fields" as const;
+export const AUDIT_EVIDENCE_LOOKUP_RECENT_LINEAGE_COPY_ACTION = "Copy link" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_RECENT_LINEAGE_FILL_ACTION = "Fill lookup fields" as const;
+
+export const AUDIT_EVIDENCE_LOOKUP_RECENT_LINEAGE_IDS_DISCLOSURE = "Show IDs" as const;
+
+export function formatAuditEvidenceLineageUrlAppliedConfirmation(
+  assessmentId: string,
+  snapshotId: string,
+  controlId: string,
+): string {
+  return `Filled Assessment ID (${assessmentId.trim()}), Snapshot ID (${snapshotId.trim()}), and Control ID (${controlId.trim()}).`;
+}
 
 export const AUDIT_EVIDENCE_LOOKUP_FORM_SECTION_TITLE = "Enter control identifiers" as const;
 
@@ -120,7 +143,7 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD =
   "Read-only chain of custody from audit control through requirements, evaluation, and collected evidence for one snapshot." as const;
 
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE =
-  "Deterministic linkage only — not an AI determination. Missing evidence links block a positive support checkbox." as const;
+  "Deterministic linkage only — not an AI determination. Missing evidence links block downstream attestation from recording support." as const;
 
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_IDENTIFIERS_TITLE = "Route identifiers" as const;
 
@@ -141,3 +164,57 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL = "Loading chain of cu
 
 export const AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE =
   "Audit evidence bundle download failed" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE =
+  "Downloads include only artifacts captured in this assessment snapshot — not a full workspace audit export or sealed review record." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE_ID =
+  "audit-evidence-package-download-scope-note" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_ACTION =
+  "Download snapshot evidence bundle (ZIP)" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_BUSY =
+  "Preparing snapshot bundle…" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_ACTION = "Copy lineage link" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_FAILED_MESSAGE =
+  "Could not copy lineage link — use the browser copy command or copy the address bar." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SUCCESS_MESSAGE =
+  "Snapshot evidence bundle downloaded." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_CHAIN_TOGGLE_SHORTCUT = "Alt+1" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_SHORTCUT = "Alt+2" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SHORTCUT = "Alt+3" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE =
+  "F1 opens page help; Ctrl+K opens search; Alt+1 toggles chain of custody; Alt+2 copies lineage link; Alt+3 downloads the snapshot bundle when lineage is loaded. Use Back to audit evidence lookup in the header to return to identifier entry." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE_ERROR =
+  "F1 opens page help; Ctrl+K opens search. Back to audit evidence lookup is available in the error panel when lineage cannot load." as const;
+
+export function formatAuditEvidenceControlLineagePageTitle(
+  controlNumber: string | null | undefined,
+  controlTitle: string | null | undefined,
+): string {
+  const number = controlNumber?.trim() ?? "";
+  const title = controlTitle?.trim() ?? "";
+
+  if (number.length > 0 && title.length > 0) {
+    return `${number}: ${title}`;
+  }
+
+  if (number.length > 0) {
+    return number;
+  }
+
+  if (title.length > 0) {
+    return title;
+  }
+
+  return AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE;
+}

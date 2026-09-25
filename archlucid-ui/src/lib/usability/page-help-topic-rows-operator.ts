@@ -22,6 +22,7 @@ import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-cop
 import { TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/troubleshooting-help-evidence-copy";
 import { USERS_AND_ROLES_HELP_TOPIC_LABEL } from "@/lib/users-and-roles-help-evidence-copy";
 import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-copy";
+import { CAREER_REHEARSAL_HELP_TOPIC_LABEL } from "@/lib/career-rehearsal-help-evidence-copy";
 import { WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL } from "@/lib/governance/working-career-rehearsal-help-evidence-copy";
 import { SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL } from "@/lib/system-not-job-help-system-not-job-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
@@ -102,6 +103,10 @@ const PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE: readonly { prefix: string; topic: Page
   {
     prefix: "/help/architecture-desk",
     topic: { slug: "architecture-desk", label: SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/career-vs-rehearsal",
+    topic: { slug: "career-vs-rehearsal", label: CAREER_REHEARSAL_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/career-rehearsal-doors",

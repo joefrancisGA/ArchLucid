@@ -27,7 +27,7 @@ export function resolveOperatorShellAuditRunId(input: ResolveOperatorShellAuditR
     try {
       return decodeURIComponent(reviewMatch[1] ?? "").trim() || null;
     } catch {
-      return reviewMatch[1]?.trim() || null;
+      return null;
     }
   }
 

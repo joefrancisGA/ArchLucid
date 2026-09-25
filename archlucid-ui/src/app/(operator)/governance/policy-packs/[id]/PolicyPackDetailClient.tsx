@@ -5,7 +5,7 @@ import { useCallback, useMemo, type ReactElement } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { usePolicyPackDetailPageQuery } from "@/hooks/use-policy-pack-detail-page-query";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildPolicyPacksHrefWithReviewId,
   POLICY_PACKS_REVIEW_ID_QUERY_PARAM,
@@ -49,28 +49,30 @@ function PolicyPackDetailScopedChrome(props: PolicyPackDetailChromeProps): React
   return (
     <PolicyPackDetailEvidenceChrome>
       {scopedReviewFilterActive ? (
-        <p
-          className={cn("m-0 px-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        <aside
+          className={cn("mx-4 rounded-md border p-4", DESIGN_TOKENS.callout.info)}
           data-testid="policy-pack-detail-review-scope-banner"
         >
-          {"Inspecting policy packs for review "}
-          <span className="font-mono text-al-text-primary">{scopedReviewId}</span>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={clearScopeHref}>
-            Clear review scope
-          </Link>
-          {" · "}
-          <Link
-            className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
-          >
-            Open review
-          </Link>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={buildPolicyPacksHrefWithReviewId(scopedReviewId, hubPath)}>
-            Open policy packs hub
-          </Link>
-        </p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {"Inspecting policy packs for review "}
+            <span className="font-mono text-al-text-primary">{scopedReviewId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={clearScopeHref}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
+            >
+              Open review
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={buildPolicyPacksHrefWithReviewId(scopedReviewId, hubPath)}>
+              Open policy packs hub
+            </Link>
+          </p>
+        </aside>
       ) : null}
       {props.children}
       <div className="space-y-4 px-4 pb-4">
@@ -135,7 +137,17 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   }
 
   if (kind === "healthcare-claims") {
-    return wrapDetail(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} packsHubHref={packsHubHref} />);
+    return wrapDetail(
+      <HealthcareClaimsPolicyPackDetail
+        policyPackId={policyPackId}
+        packRecord={packRecord}
+        packContent={packContent}
+        isEnabled={isEnabled}
+        isGloballyActive={isGloballyActive}
+        packsHubHref={packsHubHref}
+        findingsHref={findingsHref}
+      />,
+    );
   }
 
   if (kind === "responsible-ai") {
@@ -170,5 +182,5 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
     );
   }
 
-  return wrapDetail(<PolicyPackDetailNotFound policyPackId={policyPackId} />);
+  return wrapDetail(<PolicyPackDetailNotFound policyPackId={policyPackId} packsHubHref={packsHubHref} />);
 }

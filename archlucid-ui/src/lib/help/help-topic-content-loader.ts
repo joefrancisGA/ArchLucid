@@ -57,6 +57,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "sketch-a-change",
   "impact-preview-vs-architecture-envelope",
   "background-wait",
+  "career-vs-rehearsal",
   "proxy-timeout-real-execute",
   "architecture-drafts",
   "architecture-draft-editing",

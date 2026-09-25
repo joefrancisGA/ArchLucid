@@ -99,7 +99,34 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD =
   "Reconcile an ingested architecture diagram against an Azure inventory snapshot and review correspondence rows." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE =
-  "Correspondence rows are deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient evidence to confirmed." as const;
+  "Correspondence rows are deterministic — AI rationale appears only on Probable or Unknown confidence bands and cannot promote insufficient evidence to confirmed." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_TITLE =
+  "No saved reconciliation" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_DESCRIPTION =
+  "No saved reconciliation exists for this sealed review record and inventory snapshot yet. Run reconciliation after ingesting a diagram model." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILIATION_LOAD_ERROR_TITLE =
+  "Could not load saved reconciliation" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_SUCCESS_AUDIT_NOTE =
+  "Diagram ingest recorded on the audit trail for this sealed review record." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DRAFT_RESTORED_LABEL =
+  "Draft restored" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCE_NAME_PLACEHOLDER =
+  "uploaded-diagram" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_BUTTON_LABEL =
+  "Ingest diagram to review record" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILE_BUTTON_LABEL =
+  "Reconcile diagram" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RESOURCE_SCOPE_LABEL =
+  "All resources" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL = "Scoped to resource" as const;
 
@@ -141,6 +168,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagr
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
   "Render inventory diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden. Pick a Resource Group to see every resource in one group." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE =
+  "Diagram exports are advisory inventory reconstructions — confirm snapshot and subscription scope before sealed-record citations." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory diagrams unavailable" as const;
@@ -155,12 +185,37 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
     "Server-side PNG rendering is unavailable in this environment and the browser could not safely rasterize the diagram.",
   whatIsIntact: "The in-browser diagram and Mermaid export remain available.",
   nextStep:
-    "Use Export Mermaid (.mmd), screenshot the diagram viewport, or ask your operator to enable Mermaid CLI on the API host.",
+    "Use Export Mermaid, screenshot the diagram viewport, or ask your operator to enable Mermaid CLI on the API host.",
 } as const;
 
 /** Shown after a successful browser PNG fallback when the API host lacks mmdc. */
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
   "Downloaded a browser-rendered PNG because server-side rasterization is unavailable in this environment. Branded server PNG requires Mermaid CLI on the API host." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER =
+  "PNG export is an advisory inventory reconstruction — confirm snapshot and subscription scope before sealed-record citations." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE =
+  "Change subscription filter?" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_BODY =
+  "Changing the subscription clears the selected snapshot and diagram type." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CANCEL =
+  "Keep current filter" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFIRM =
+  "Change subscription" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY =
+  "Connect a read-only cloud account and wait for the first inventory capture before rendering diagrams." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE = "Diagram render failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY =
+  "The selected diagram type could not be rendered for this snapshot. Retry or choose a different type." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL = "Subscription" as const;
 
@@ -295,6 +350,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL = "Skip to drift co
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE =
   "Compare inventory snapshots and classify drift. Pick current and baseline snapshots before exporting advisory Terraform." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_LEAD =
+  "Compare inventory snapshots and classify drift." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_SECONDARY =
+  "Pick current and baseline snapshots before exporting advisory Terraform." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD =
   "Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot evidence." as const;
 
@@ -333,7 +394,37 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL = "Selected" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ACTIONS_COLUMN_LABEL = "Actions" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL = "Delete" as const;
+
+export function formatGovernanceInfrastructureDriftDeleteSnapshotAriaLabel(subscriptionLabel: string): string {
+  return `Delete inventory snapshot for ${subscriptionLabel}`;
+}
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CLEAR_SNAPSHOT_SELECTION_LABEL = "Clear selection" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LATER_CAPTURES_NONE_LABEL =
+  "No later captures are available." as const;
+
+export function GOVERNANCE_INFRASTRUCTURE_DRIFT_LATER_CAPTURES_SAME_SUBSCRIPTION_LABEL(count: number): string {
+  return count === 1
+    ? "1 later capture available in the same subscription."
+    : `${count} later captures available in the same subscription.`;
+}
+
+export function GOVERNANCE_INFRASTRUCTURE_DRIFT_LATER_CAPTURES_CROSS_SUBSCRIPTION_SUFFIX(count: number): string {
+  return count === 1
+    ? "1 later capture available in other subscriptions."
+    : `${count} later captures available in other subscriptions.`;
+}
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RESUME_LAST_COMPARISON_TITLE = "Resume last comparison" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RESUME_LAST_COMPARISON_BODY =
+  "Restore your previous snapshot, diff, and change selection from this browser." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RESUME_LAST_COMPARISON_ACTION_LABEL = "Resume last comparison" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE = "Delete inventory snapshot?" as const;
 
@@ -482,6 +573,9 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL = "Skip to reso
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD =
   "Browse cloud resources, apply work-queue filters, and open evidence hubs for drift, findings, remediation, and Ask." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE =
+  "Resource rows reflect observed ARM inventory — work counts and hub tabs may lag ingestion. Confirm snapshot scope before sealed-record citations." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH = 50 as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE = "Resource explorer unavailable" as const;
@@ -493,6 +587,24 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL = "Resource
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL = "Resource Group" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL = "None" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SCOPE_ALL_LABEL = "All resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLEAR_FILTERS_LABEL = "Clear filters" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_UNAPPLIED_FILTERS_LABEL = "Unapplied filter changes" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SORT_PAGE_LOCAL_DISCLOSURE =
+  "Sorting applies to the current page only." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_MARKERS_KEY_LABEL =
+  "F findings · R remediation · D drift" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_LATEST_SNAPSHOT_LABEL = "Latest inventory" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_PINNED_SNAPSHOT_LABEL = "Pinned snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_INVENTORY_AS_OF_LABEL = "Inventory as of" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL = "Opening resource evidence hub…" as const;
 
@@ -515,6 +627,34 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL = "C
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL = "ARM resource path" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL = "Terraform address" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_TITLE = "No drift rows for this resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_BODY =
+  "Inventory snapshots for this cloud resource show no property changes yet. Capture a new snapshot or open the drift workbench to compare baselines." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_TITLE = "No findings in this stream" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_BODY =
+  "Operational security and architecture review findings linked to this resource will appear here when present." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE =
+  "No remediation instances linked" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_BODY =
+  "Remediation factory instances scoped to this resource will appear here after you match a finding or create a draft." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE =
+  "No diagram correspondence linked" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY =
+  "Diagram reconciliation has not linked a node to this cloud resource yet. Open diagram reconcile to map inventory to architecture diagrams." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE =
+  "No snapshot-backed configuration" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY =
+  "Capture an inventory snapshot for this resource to surface type, region, and property evidence on the overview tab." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureTerraform;
 
@@ -548,6 +688,9 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_KEYBOARD_AFFORDANCE =
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION =
   "Provenance limitation: build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION =
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION;
+
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTINUE_LAST_TITLE = "Resume recent scoped mapping" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTINUE_LAST_ACTION = "Open mapping" as const;
@@ -559,6 +702,40 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_RESOURCE_SCOPE_ACTION = "
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLEAR_SNAPSHOT_SCOPE_ACTION = "Clear linked snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL = "Not scoped" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL = "Scoped" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_ADVISORY_RECONSTRUCTED_TAG = "Advisory · reconstructed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_LABEL = "Cloud resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_PLACEHOLDER =
+  "Search by resource name or paste a cloud resource id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_RECENT_MAPPINGS_TITLE = "Recent mappings" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TITLE = "No Terraform mapping for this snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_BODY =
+  "No advisory Terraform address is mapped for this resource in the selected snapshot." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TAG = "Not mapped" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_EXPORT_DISABLED_NO_SNAPSHOT =
+  "Select a snapshot with inventory evidence before downloading the advisory ZIP." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING =
+  "Advisory Terraform is reconstructed from inventory evidence — review before any apply; exports are not validated for safe cloud apply." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_APPLY_SAFETY_WARNING_ID =
+  "infra-terraform-apply-safety-warning" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_INVALID_ENTER =
+  "Enter a valid cloud resource UUID or pick a resource from the list." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HUB_LOAD_RETRY_ACTION = "Retry load" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD =
@@ -566,6 +743,15 @@ export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD =
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE =
   "Declared connections are HumanAssertion edges with required expiry. They may strengthen path and diagram reasoning; they are not observed ARM facts.";
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PRIMARY_CONTENT_ID =
+  "infra-declared-connections-primary-content" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_SKIP_LINK_LABEL =
+  "Skip to declared connections" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE =
+  "Declared connections unavailable" as const;
 
 export type InfrastructureWorkbenchRow = {
   readonly href: string;

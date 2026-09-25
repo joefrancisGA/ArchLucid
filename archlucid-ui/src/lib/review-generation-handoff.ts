@@ -97,13 +97,28 @@ export function readReviewGenerationHandoff(runId: string): ReviewGenerationHand
 
     const row = parsed as Record<string, unknown>;
 
+    if (typeof row.runId !== "string" || typeof row.recordedAtUtc !== "string") {
+      return null;
+    }
+
+    const optionalString = (value: unknown): string | null | undefined =>
+      value === null || value === undefined ? null : typeof value === "string" ? value : undefined;
+    const workspaceId = optionalString(row.workspaceId);
+    const projectId = optionalString(row.projectId);
+    const tenantId = optionalString(row.tenantId);
+    const jobId = optionalString(row.jobId);
+
+    if (workspaceId === undefined || projectId === undefined || tenantId === undefined || jobId === undefined) {
+      return null;
+    }
+
     return {
-      runId: String(row.runId ?? trimmedRunId),
-      recordedAtUtc: String(row.recordedAtUtc ?? ""),
-      workspaceId: row.workspaceId === null || row.workspaceId === undefined ? null : String(row.workspaceId),
-      projectId: row.projectId === null || row.projectId === undefined ? null : String(row.projectId),
-      tenantId: row.tenantId === null || row.tenantId === undefined ? null : String(row.tenantId),
-      jobId: row.jobId === null || row.jobId === undefined ? null : String(row.jobId),
+      runId: row.runId,
+      recordedAtUtc: row.recordedAtUtc,
+      workspaceId,
+      projectId,
+      tenantId,
+      jobId,
       source: isReviewGenerationHandoffSource(row.source) ? row.source : "unknown",
     };
   } catch {

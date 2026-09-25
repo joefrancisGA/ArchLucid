@@ -10,6 +10,18 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         . $script:helpersPath
     }
 
+    It 'counts a scalar TCP listener under strict mode (Get-NetTCPConnection single-result shape)' {
+        $scalarListener = [pscustomobject]@{ LocalPort = 5128; State = 'Listen' }
+
+        { @($scalarListener).Count -gt 0 } | Should -Not -Throw
+        @($scalarListener).Count | Should -Be 1
+
+        ($null -ne $scalarListener -and @($scalarListener).Count -gt 0) | Should -Be $true
+
+        $noListeners = $null
+        ($null -ne $noListeners -and @($noListeners).Count -gt 0) | Should -Be $false
+    }
+
     It 'quotes PowerShell single-quoted literals and doubles embedded apostrophes' {
         ConvertTo-PowerShellSingleQuotedLiteral -Value 'C:\ArchLucid' | Should -Be "'C:\ArchLucid'"
         ConvertTo-PowerShellSingleQuotedLiteral -Value "C:\O'Brien" | Should -Be "'C:\O''Brien'"
