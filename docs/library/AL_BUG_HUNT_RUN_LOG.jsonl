@@ -7253,3 +7253,4 @@
 {"at":"2026-09-25T14:24:53.7494290Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only"}
 {"at":"2026-09-25T14:27:01.6780614Z","zoneId":"host-composition","outcome":"seed-only"}
 {"at":"2026-09-25T14:29:24.5579561Z","zoneId":"run-execute-ownership","outcome":"seed-only"}
+{"at":"2026-09-25T14:31:36.0415104Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only"}

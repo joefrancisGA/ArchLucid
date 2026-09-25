@@ -22695,10 +22695,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-12 — `TenantTrialAbuseGuard` rejected link-entra on OID casing-only mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
