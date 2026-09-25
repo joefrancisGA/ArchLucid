@@ -5042,11 +5042,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 14
-- **bugs-found:** 10
+- **hunts:** 15
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — inspector/compare URL sync dropped pending filter text before debounced q= sync
+- **last-hunt:** 2026-09-25
+- **last-bug:** 2026-09-25 — client sort stayed newest-first after sort= URL navigation without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5102,6 +5102,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Inspector/compare `router.replace` URL sync drops in-progress text filter before debounced `q=` URL sync — **hit 2026-09-11 seed hunt #1752 (seed→hit):** `syncCompareInspectorToUrl` used `searchParams` only while `filterText` debounces 250ms; row activation and compare checkbox wrote `inspectorRunId`/`compareRuns` without pending `q=` until debounce completed; fixed by merging `filterText` via `runsListEffectiveSearchFromSearch` in `syncCompareInspectorToUrl`; regressions `preserves pending text filter in inspectorRunId URL sync before q= debounce completes` and `preserves pending text filter in compareRuns URL sync before q= debounce completes`.
 
 2026-09-11 seed hunt #1752 (seed→hit): reseeded ui-runs-list after #1751; proved inspector/compare URL sync dropped pending filter text before debounced q= sync; 40 scoped `RunsListClient` tests passed.
+
+- [x] (proven) Client-side sort stays newest-first after App Router `sort=` navigation without `popstate` — **hit 2026-09-25 seed hunt #3908 (seed→hit):** `useRunsList` kept `sortOrder` in `useState` synced only on `popstate` while sort chips navigate via URL; `filteredSorted` stayed on stale order until back/forward; fixed by deriving `sortOrder` from `searchParams` and using `readWindowLocationSearch()` in filter/compare popstate sync; regression `re-sorts rows when sort= URL changes without a popstate event`.
+
+2026-09-25 seed hunt #3908 (seed→hit): reseeded ui-runs-list after #1752; proved stale client sort after sort= URL navigation; 42 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
