@@ -121,7 +121,8 @@ public sealed class TenantTrialFacade(
         if (tenant is null)
             return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.TenantNotFound };
 
-        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
+        if (!string.IsNullOrWhiteSpace(tenant.TrialStatus)
+            && !TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted))
         {
             return new TenantTrialLinkEntraResult
             {
