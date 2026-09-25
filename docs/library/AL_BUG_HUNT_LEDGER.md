@@ -22815,11 +22815,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 22
-- **bugs-found:** 16
+- **hunts:** 24
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — `TrialLifecycleTransitionEngine` used canonical FromStatus for optimistic lock on non-canonical persisted labels
+- **last-bug:** 2026-09-25 — `TenantTrialConversionStage` reported convert success while `MarkTrialConvertedAsync` no-oped on non-canonical Active labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22852,6 +22852,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantTrialAbuseGuard.ValidateIdentityLinkAsync` — Ordinal `LinkedEntraOid` compare rejected idempotent link-entra retries when request OID differed only by casing — **hit 2026-09-12 thorough hunt #1859:** handoff stage already treats OID as case-insensitive but abuse precheck returned Conflict; fixed with `OrdinalIgnoreCase` parity; regression `ValidateIdentityLinkAsync_allows_same_entra_oid_when_casing_differs_from_linked_row`
 - [x] (proven) `TenantTrialFacade.LinkEntraAsync` — post-active lifecycle statuses (`Expired`, `ReadOnly`, `ExportOnly`, `Deleted`) bound Entra directory without `POST /v1/tenant/convert` — **hit 2026-09-25 seed hunt:** #1708 Active-only guard left expired trials able to skip conversion per `TRIAL_TO_PAID_IDENTITY_MIGRATION.md`; fixed by requiring `Converted` (or empty commercial status) before abuse precheck; regression `LinkEntraAsync_when_trial_status_is_expired_returns_conflict_without_binding_directory`
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — passed canonical `advancement.FromStatus` to `TryRecordTrialLifecycleTransitionAsync` so legacy lowercase/padded `TrialStatus` rows stalled after #808 policy parity — **hit 2026-09-25 seed hunt:** scheduler advanced policy but repository optimistic lock failed on ordinal mismatch; fixed by recording transitions against persisted `tenant.TrialStatus`; regressions `TryAdvanceTenantAsync_when_persisted_trial_status_differs_only_by_casing_records_transition_against_stored_label` and updated lowercase-active mock expectation
+- [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` / `MarkTrialConvertedAsync` — #1248 read-side `EqualsStatus` parity left convert returning Success while repository `TrialStatus = @Active` optimistic lock no-oped on lowercase/padded Active rows — **hit 2026-09-25 seed hunt:** `MarkTrialConvertedAsync` now returns bool with `EqualsStatus`/CI SQL matching and conversion stage returns Conflict when persist fails; regression `ConvertTrialAsync_when_persisted_trial_status_differs_only_by_casing_marks_converted`
+- [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `TrialStatus` returned commercial-style Success with `Status` "None" and no days-remaining — **cheap-disproof 2026-09-25 seed hunt:** `string.IsNullOrWhiteSpace` short-circuit before lifecycle display; lifecycle writers emit canonical labels; no tenant API path sets whitespace-only status.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — advances migration stage to `Verification` before `TenantMigrationVerificationProbe.RunAsync` completes — **cheap-disproof 2026-09-25 seed hunt:** intentional retry semantics (`isVerificationRetry` when `VerificationPassedUtc` is null); failed probes call `MarkVerificationResultAsync` without completing migration; regression `RunVerificationAsync_allows_retry_after_failed_verification`.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.EmitAuditAsync` — audit `fromStatus`/`toStatus` JSON uses canonical policy labels while optimistic lock records transitions against persisted `tenant.TrialStatus` — **cheap-disproof 2026-09-25 seed hunt:** observability-only after persisted-status lock fix; scheduler retry/idempotency unaffected.
+
+2026-09-25 seed hunt (seed-only): reseeded application-tenancy-lifecycle after three TrialStatus casing hits; cheap-disproof closed facade whitespace status, verification stage ordering, and audit-label observability candidates; 122 scoped tenancy tests passed.
+
+2026-09-25 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved trial convert falsely succeeded for non-canonical stored Active labels; 122 scoped tenancy tests passed.
 
 2026-09-25 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved lifecycle scheduler could not persist transitions for non-canonical stored TrialStatus labels; 121 scoped tenancy tests passed.
 
