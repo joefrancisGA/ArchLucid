@@ -83,6 +83,16 @@ public sealed class InfraEvidenceMermaidModeParserTests
     }
 
     [Fact]
+    public void TryParse_avd_maps_to_avd_diagram_mode()
+    {
+        bool parsed = InfraEvidenceMermaidModeParser.TryParse("avd", null, out InfraEvidenceMermaidModeParseResult result);
+
+        parsed.Should().BeTrue();
+        result.DiagramMode.Should().Be(DiagramMode.Avd);
+        result.ModeKey.Should().Be("avd");
+    }
+
+    [Fact]
     public void TryParse_supports_new_modes_and_private_endpoint_opt_in()
     {
         InfraEvidenceMermaidModeParser.TryParse(

@@ -44,6 +44,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         ("data", DiagramMode.Data),
         ("dataFlow", DiagramMode.DataFlow),
         ("dataArchitecture", DiagramMode.DataArchitecture),
+        ("avd", DiagramMode.Avd),
         ("full", DiagramMode.FullSubscription),
     ];
 
