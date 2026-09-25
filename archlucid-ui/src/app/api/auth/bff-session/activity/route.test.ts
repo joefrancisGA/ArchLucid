@@ -18,6 +18,24 @@ describe("POST /api/auth/bff-session/activity", () => {
     vi.useRealTimers();
   });
 
+  it("clears BFF session cookies when the session cookie cannot be parsed", async () => {
+    const req = new NextRequest("http://localhost/api/auth/bff-session/activity", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=not-a-valid-signed-cookie`,
+        [BFF_CSRF_HEADER]: "csrf-token",
+        "content-type": "application/json",
+      },
+      body: "{}",
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+    expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
   it("clears BFF session cookies when the session is past absolute expiry", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-09-06T12:00:00.000Z"));

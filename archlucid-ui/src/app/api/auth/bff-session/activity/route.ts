@@ -5,6 +5,7 @@ import {
   BFF_SESSION_COOKIE_NAME,
   buildBffSessionClearCookieHeaders,
   buildBffSessionCookieHeaders,
+  hasPresentButUnparseableBffSessionCookie,
   isBffSessionCookieEnabled,
   parseBffSessionCookieValue,
   slideBffSessionActivity,
@@ -28,7 +29,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const payload = cookieValue !== null ? parseBffSessionCookieValue(cookieValue) : null;
 
   if (payload === null) {
-    return NextResponse.json({ title: "No active BFF session" }, { status: 401 });
+    const response = NextResponse.json({ title: "No active BFF session" }, { status: 401 });
+
+    if (hasPresentButUnparseableBffSessionCookie(cookieValue, payload)) {
+      for (const cookieHeader of buildBffSessionClearCookieHeaders()) {
+        response.headers.append("Set-Cookie", cookieHeader);
+      }
+    }
+
+    return response;
   }
 
   if (Date.now() >= payload.exp) {
