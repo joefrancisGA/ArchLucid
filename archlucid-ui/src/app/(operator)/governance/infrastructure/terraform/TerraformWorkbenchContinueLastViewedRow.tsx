@@ -52,7 +52,7 @@ export function TerraformWorkbenchContinueLastViewedRow(
             {" · "}
             Snapshot {snapshotLabel}
             {" · "}
-            <time dateTime={props.target.viewedAtUtc} title={formatAbsoluteUpdatedAtTitle(props.target.viewedAtUtc)}>
+            <time dateTime={props.target.viewedAtUtc} aria-label={`Viewed ${formatAbsoluteUpdatedAtTitle(props.target.viewedAtUtc)}`}>
               {viewedLabel}
             </time>
           </p>

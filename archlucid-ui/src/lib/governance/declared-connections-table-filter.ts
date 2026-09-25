@@ -46,7 +46,12 @@ export function countDeclaredConnectionsByStatus(
   for (const row of rows) {
     const displayStatus = resolveDeclaredConnectionDisplayStatus(row);
 
-    if (displayStatus in counts && displayStatus !== "all") {
+    if (
+      displayStatus === "Active"
+      || displayStatus === "NearExpiry"
+      || displayStatus === "Expired"
+      || displayStatus === "Revoked"
+    ) {
       counts[displayStatus] += 1;
     }
   }
