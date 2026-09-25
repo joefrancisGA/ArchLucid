@@ -179,7 +179,34 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             "fd-node",
             "app-node",
             links,
-            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal));
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph.Edges);
+
+        path.HasUnresolvedGap.Should().BeFalse();
+        path.OrderedHopNodeIds.Should().BeEmpty();
+        path.ReachesTarget.Should().BeFalse();
+        path.MissingHopDescription.Should().BeNull();
+    }
+
+    [Fact]
+    public void ProjectPath_keeps_partial_path_when_terminal_hop_has_direct_target_continuation()
+    {
+        GraphSnapshot graph = BuildIngressChainGraph(includeAgwToApp: false, includeFirewallToApp: false);
+        graph.Edges.Add(CreateEdge(
+            "fw-node",
+            "app-node",
+            "CONNECTS_TO",
+            "inventory-direct-continuation"));
+
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        InventoryDiagramDataFlowTraversalHopPath path = InventoryDiagramDataFlowTraversalHopProjector.ProjectPath(
+            "fd-node",
+            "app-node",
+            links,
+            graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
+            graph.Edges);
 
         path.HasUnresolvedGap.Should().BeTrue();
         path.OrderedHopNodeIds.Should().Equal("agw-node", "fw-node");

@@ -51,7 +51,8 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         string sourceNodeId,
         string targetNodeId,
         IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> traversalLinks,
-        IReadOnlyDictionary<string, GraphNode> graphNodesById)
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
+        IReadOnlyList<GraphEdge>? graphEdges = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceNodeId);
         ArgumentException.ThrowIfNullOrWhiteSpace(targetNodeId);
@@ -126,6 +127,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             targetNodeId,
             adjacency,
             graphNodesById,
+            graphEdges,
             out List<string> partialPathNodeIds,
             out List<InventoryDiagramDataFlowTraversalHopLink> partialPathLinks,
             out string gapDescription);
@@ -177,7 +179,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                 continue;
             }
 
-            paths.Add(ProjectPath(edge.FromNodeId, edge.ToNodeId, traversalLinks, graphNodesById));
+            paths.Add(ProjectPath(edge.FromNodeId, edge.ToNodeId, traversalLinks, graphNodesById, graph.Edges));
         }
 
         return paths;
@@ -779,6 +781,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         string targetNodeId,
         IReadOnlyDictionary<string, List<InventoryDiagramDataFlowTraversalHopLink>> adjacency,
         IReadOnlyDictionary<string, GraphNode> graphNodesById,
+        IReadOnlyList<GraphEdge>? graphEdges,
         out List<string> hopNodeIds,
         out List<InventoryDiagramDataFlowTraversalHopLink> pathLinks,
         out string gapDescription)
@@ -803,7 +806,8 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         {
             (string currentNodeId, List<string> currentNodes, List<InventoryDiagramDataFlowTraversalHopLink> currentLinks) = queue.Dequeue();
 
-            if (currentNodes.Count > bestHopNodeIds.Count)
+            if (currentNodes.Count > bestHopNodeIds.Count
+                && HasDirectContinuationToTarget(currentNodeId, targetNodeId, graphEdges))
             {
                 bestHopNodeIds = currentNodes;
                 bestPathLinks = currentLinks;
@@ -852,6 +856,21 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         gapDescription = $"missing hop after {lastHopLabel} toward {targetLabel}";
 
         return true;
+    }
+
+    private static bool HasDirectContinuationToTarget(
+        string nodeId,
+        string targetNodeId,
+        IReadOnlyList<GraphEdge>? graphEdges)
+    {
+        if (graphEdges is null)
+        {
+            return false;
+        }
+
+        return graphEdges.Any(edge =>
+            string.Equals(edge.FromNodeId, nodeId, StringComparison.Ordinal)
+            && string.Equals(edge.ToNodeId, targetNodeId, StringComparison.Ordinal));
     }
 
     private static void AddLink(
