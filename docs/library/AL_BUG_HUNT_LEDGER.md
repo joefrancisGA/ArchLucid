@@ -22815,7 +22815,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
@@ -22856,6 +22856,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `TrialStatus` returned commercial-style Success with `Status` "None" and no days-remaining — **cheap-disproof 2026-09-25 seed hunt:** `string.IsNullOrWhiteSpace` short-circuit before lifecycle display; lifecycle writers emit canonical labels; no tenant API path sets whitespace-only status.
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — advances migration stage to `Verification` before `TenantMigrationVerificationProbe.RunAsync` completes — **cheap-disproof 2026-09-25 seed hunt:** intentional retry semantics (`isVerificationRetry` when `VerificationPassedUtc` is null); failed probes call `MarkVerificationResultAsync` without completing migration; regression `RunVerificationAsync_allows_retry_after_failed_verification`.
 - [x] (valid-no-repro) `TrialLifecycleTransitionEngine.EmitAuditAsync` — audit `fromStatus`/`toStatus` JSON uses canonical policy labels while optimistic lock records transitions against persisted `tenant.TrialStatus` — **cheap-disproof 2026-09-25 seed hunt:** observability-only after persisted-status lock fix; scheduler retry/idempotency unaffected.
+- [x] (valid-no-repro) `TenantSuspendCommandService.TryUnsuspendAsync` — platform admin unsuspend during active catalog migration clears scope-freeze suspend while migration record stays open — **cheap-disproof 2026-09-25 seed hunt:** intentional operator override via `POST /v1/admin/tenants/{id}/unsuspend`; `TenantMigrationVerificationProbe` fails closed when `SuspendedUtc` is null (`Write freeze is not active`); fan-out docs require operator sequencing per `TENANT_MIGRATION_FANOUT.md`.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — no active-migration guard before erasure offboard — **cheap-disproof 2026-09-25 seed hunt:** operator-driven conflict outside automated fan-out happy path; `StartAsync` already blocks new migrations for offboarded tenants; `CompleteAsync` unsuspend no-ops under erasure quarantine.
+- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — post-active trial lifecycle statuses set `isTrial=false` while `CommercialPackagingTierResolver` returns null for Free-tier rows — **cheap-disproof 2026-09-25 seed hunt:** packaging snapshot semantics; authoritative trial state remains on `GET /v1/tenant/trial-status`; `Expired`/`ReadOnly`/`ExportOnly` rows keep `Tier=Free` so resolver short-circuits before subscription inference.
+
+2026-09-25 seed hunt (seed-only): reseeded application-tenancy-lifecycle; cheap-disproof closed admin unsuspend during migration, erasure offboard without migration guard, and usage-status post-active trial packaging candidates; 122 scoped tenancy tests passed.
 
 2026-09-25 seed hunt (seed-only): reseeded application-tenancy-lifecycle after three TrialStatus casing hits; cheap-disproof closed facade whitespace status, verification stage ordering, and audit-label observability candidates; 122 scoped tenancy tests passed.
 
