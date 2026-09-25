@@ -15598,11 +15598,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 27
-- **bugs-found:** 18
+- **hunts:** 28
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — Network connection endpoint parser treated JSON reference blobs as ARM ids
+- **last-bug:** 2026-09-25 — Access connector external target parser ignored JSON reference property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15821,6 +15821,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureInventoryNetworkConnectionEndpointParser` — `NormalizeArmId` accepted any value containing `/subscriptions/` and lowercased JSON reference blobs from package inventory serialization — **hit 2026-09-25 seed hunt #27:** `virtualNetworkGateway1`/`localNetworkGateway2` object properties serialized as `{"id":"..."}` were stored as endpoint ARM ids, breaking connection hydration and orphaned-state resolution; fixed by requiring path-shaped values and extracting `id` from JSON blobs; regression `Parse_reads_arm_ids_from_json_reference_property_values`.
 
 2026-09-25 seed hunt #27 (seed→hit): reseeded core-azure-extractor; proved NR-01 network connection endpoint parser mishandled JSON ARM reference property values; 1385 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureInventoryAccessConnectorTargetParser` — `ParseExternalTargetArmId` required path-shaped `targetResourceId` values and ignored package-serialized JSON reference blobs — **hit 2026-09-25 seed hunt #28:** `targetResourceId` object properties stored as `{"id":"..."}` returned null, dropping access-connector external targets from NR-03 parent attachment resolution; fixed with shared `TryResolveArmReferenceValue` for path and JSON reference shapes; regression `ParseExternalTargetArmId_reads_arm_id_from_json_reference_property_values`.
+
+2026-09-25 seed hunt #28 (seed→hit): reseeded core-azure-extractor after network connection JSON reference hit; proved access connector external target parser ignored JSON reference property values; 1386 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
