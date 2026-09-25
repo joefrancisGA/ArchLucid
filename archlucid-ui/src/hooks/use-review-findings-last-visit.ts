@@ -11,7 +11,7 @@ import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings
 import {
   buildReviewFindingsLastVisitHref,
   reviewFindingsLastVisitHasUrlParams} from "@/lib/findings/review-findings-last-visit-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   patchReviewFindingsLastVisit,
   readReviewFindingsLastVisit} from "@/lib/findings/review-findings-last-visit-storage";
@@ -44,7 +44,7 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
         return;
       }
 
-      const windowSearchParams = new URLSearchParams(readWindowLocationSearch());
+      const windowSearchParams = new URLSearchParams(window.location.search);
 
       if (reviewFindingsLastVisitHasUrlParams(windowSearchParams)) {
         reviewFindingsLastVisitRestoredRunIds.add(runId);
@@ -56,7 +56,7 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
       const windowSearch = windowSearchParams.toString();
       const nextHref = buildReviewFindingsLastVisitHref(pathname, windowSearch, lastVisit);
 
-      commitHrefIfChanged(nextHref, { notify: false });
+      commitHrefIfChanged(nextHref);
       reviewFindingsLastVisitRestoredRunIds.add(runId);
     };
 

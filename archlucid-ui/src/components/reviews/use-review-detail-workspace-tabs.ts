@@ -1,22 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visited";
 import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-review-findings-refresh";
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_FINDING_PARAM,
-  REVIEW_DETAIL_TAB_PARAM,
+  REVIEW_DETAIL_TAB_PARAM, 
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
-  readPresenterModeFromWindowLocation,
+  readPresenterModeFromSearchParams,
   readReviewDetailTabFromWindowLocation,
   resolveReviewDetailTabFromHash,
   resolveReviewDetailTabFromLocation,
   resolveReviewWorkbenchFocusColumn,
-  writeReviewDetailTabToUrl,
-} from "@/lib/review-detail-workspace-tabs";
+  writeReviewDetailTabToUrl} from "@/lib/review-detail-workspace-tabs";
 import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import {
@@ -79,12 +79,14 @@ export type UseReviewDetailWorkspaceTabsResult = {
 export function useReviewDetailWorkspaceTabs(
   props: ReviewDetailWorkspaceProps,
 ): UseReviewDetailWorkspaceTabsResult {
+  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
-  const initialFindingId = null;
-  const initialWorkbenchFocus = null;
-  const [presenterMode, setPresenterModeState] = useState(false);
-  const presenterModeRef = useRef(presenterMode);
-  presenterModeRef.current = presenterMode;
+  const urlFindingId = searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+  const initialFindingId = urlFindingId.length > 0 ? urlFindingId : null;
+  const initialWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
+    searchParams.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
+  );
+  const presenterMode = readPresenterModeFromSearchParams(searchParams);
   const [hashResolved, setHashResolved] = useState(false);
   const lifecycle = resolveWorkspaceLifecycle(props);
   const resolved = useMemo(() => {
@@ -102,39 +104,23 @@ export function useReviewDetailWorkspaceTabs(
 
     return resolveReviewWorkspaceVisibleTabs({ ...fallbackInput, lifecycle, workingDesk: isWorkingMode });
   }, [isWorkingMode, lifecycle, props.tabLifecycle]);
+  const rawReviewTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
+  const rawArchTabParam = searchParams.get("archTab");
   const searchParamTab =
     props.tabLifecycle !== undefined
-      ? resolveReviewWorkspaceTabFromSearchParams(new URLSearchParams(), resolved, lifecycle)
-      : resolveReviewDetailTabFromLocation(null, null);
+      ? resolveReviewWorkspaceTabFromSearchParams(searchParams, resolved, lifecycle)
+      : resolveReviewDetailTabFromLocation(rawReviewTabParam, rawArchTabParam);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
-  const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(null);
-  const workbenchFocusColumnRef = useRef(workbenchFocusColumn);
-  workbenchFocusColumnRef.current = workbenchFocusColumn;
   const tabActivityAt = props.tabActivityAt ?? {};
   const { isTabNewSinceLastVisit, markTabSeen } = useReviewDetailLastVisited(props.runId, tabActivityAt);
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {
-      const nextTab = readReviewDetailTabFromWindowLocation();
+      setActiveTab((current) => {
+        const next = readReviewDetailTabFromWindowLocation();
 
-      setActiveTab((current) => (current === nextTab ? current : nextTab));
-
-      const nextPresenterMode = readPresenterModeFromWindowLocation();
-
-      if (presenterModeRef.current !== nextPresenterMode) {
-        presenterModeRef.current = nextPresenterMode;
-        setPresenterModeState(nextPresenterMode);
-      }
-
-      const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
-        new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
-      );
-      const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
-
-      if (workbenchFocusColumnRef.current !== normalizedFocus) {
-        workbenchFocusColumnRef.current = normalizedFocus;
-        setWorkbenchFocusColumnState(normalizedFocus);
-      }
+        return current === next ? current : next;
+      });
     };
 
     syncActiveTabFromUrl();
@@ -147,20 +133,15 @@ export function useReviewDetailWorkspaceTabs(
 
   const navigateTab = useCallback(
     (tab: ReviewDetailTabId, options?: { readonly findingId?: string | null; readonly workbenchFocus?: ReviewWorkbenchColumnId | null }) => {
-      const nextWorkbenchFocus = options?.workbenchFocus ?? (isWorkbenchTab(tab) ? tab : null);
-
       setActiveTab(tab);
-      setWorkbenchFocusColumnState(nextWorkbenchFocus);
-      workbenchFocusColumnRef.current = nextWorkbenchFocus;
       writeReviewDetailTabToUrl(tab, {
         hash: null,
         findingId: options?.findingId,
-        workbenchFocus: nextWorkbenchFocus,
-        presenter: presenterModeRef.current ? true : null,
-      });
+        workbenchFocus: options?.workbenchFocus ?? (isWorkbenchTab(tab) ? tab : null),
+        presenter: presenterMode ? true : null});
       markTabSeen(tab);
     },
-    [markTabSeen],
+    [markTabSeen, presenterMode],
   );
 
   useEffect(() => {
@@ -234,6 +215,11 @@ export function useReviewDetailWorkspaceTabs(
     && WORKBENCH_TAB_IDS.every(
       (tabId) => resolved.visibleTabIds.includes(tabId) || resolved.moreTabIds.includes(tabId),
     );
+  const workbenchFocusFromUrl = resolveReviewWorkbenchFocusColumn(
+    searchParams.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
+  );
+  const workbenchFocusColumn: ReviewWorkbenchColumnId | null =
+    workbenchFocusFromUrl ?? (isWorkbenchTab(activeTab) ? activeTab : null);
 
   useReviewWorkbenchShortcuts({
     enabled: workbenchVisible,

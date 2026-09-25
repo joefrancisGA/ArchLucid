@@ -1,18 +1,14 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import {
   DEFAULT_FINDING_JOB_VIEW,
   type FindingJobView} from "@/lib/findings/finding-job-view";
-import {
-  resolveFindingJobViewFromSearchParam,
-  REVIEW_FINDINGS_JOB_VIEW_PARAM,
-  writeFindingJobViewToUrl} from "@/lib/findings/review-findings-job-view-url";
+import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
 import {
   resolveReviewFindingsToolbarFilterFromSearchParam,
-  REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM,
   writeReviewFindingsToolbarFilterToUrl} from "@/lib/findings/review-findings-toolbar-filter-url";
 import {
   parseReviewFindingsToolbarSearchQuery,
@@ -32,15 +28,17 @@ import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings
 import type {
   RunDetailFindingsFilterKind,
   RunDetailFindingsSortKind} from "@/components/findings/run-detail-findings-toolbar-presentation";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 function readCommittedSearchParams(): URLSearchParams {
-  return new URLSearchParams(readWindowLocationSearch());
+  if (typeof window === "undefined") {
+    return new URLSearchParams();
+  }
+
+  return new URLSearchParams(window.location.search);
 }
 
 function readToolbarStateFromCommittedUrl(): {
-  readonly filter: RunDetailFindingsFilterKind;
-  readonly jobView: FindingJobView;
   readonly searchQuery: string;
   readonly originFilter: FindingOriginFilter;
   readonly groundingFilter: FindingGroundingFilter;
@@ -51,8 +49,6 @@ function readToolbarStateFromCommittedUrl(): {
   const params = readCommittedSearchParams();
 
   return {
-    filter: resolveReviewFindingsToolbarFilterFromSearchParam(params.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM)),
-    jobView: resolveFindingJobViewFromSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM)),
     searchQuery: parseReviewFindingsToolbarSearchQuery(params.get("q")),
     originFilter: parseFindingsOriginFilterFromSearch(params.get("origin")),
     groundingFilter: parseFindingsGroundingFilterFromSearch(params.get("grounding")),
@@ -85,7 +81,11 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
   const pathname = usePathname() ?? "";
-  const initialFilter = options?.initialFilter ?? "all";
+  const searchParams = useSearchParams();
+  const initialFilter =
+    options?.initialFilter ??
+    resolveReviewFindingsToolbarFilterFromSearchParam(searchParams?.get("findingsFilter"));
+  const initialFromUrl = readToolbarStateFromCommittedUrl();
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
   const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
     setFilterState(next);
@@ -98,19 +98,17 @@ export function useRunDetailFindingsToolbarState(options?: {
     setJobViewState(next);
     writeFindingJobViewToUrl(next);
   }, []);
-  const [ownerFilter, setOwnerFilterState] = useState("");
-  const [domainFilter, setDomainFilterState] = useState("");
-  const [searchQuery, setSearchQueryState] = useState("");
-  const [sort, setSortState] = useState<RunDetailFindingsSortKind>("severity-desc");
-  const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>("all");
-  const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>("all");
+  const [ownerFilter, setOwnerFilterState] = useState(initialFromUrl.ownerFilter);
+  const [domainFilter, setDomainFilterState] = useState(initialFromUrl.domainFilter);
+  const [searchQuery, setSearchQueryState] = useState(initialFromUrl.searchQuery);
+  const [sort, setSortState] = useState<RunDetailFindingsSortKind>(initialFromUrl.sort);
+  const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>(initialFromUrl.originFilter);
+  const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>(initialFromUrl.groundingFilter);
 
   useEffect(() => {
     const syncFromCommittedUrl = (): void => {
       const next = readToolbarStateFromCommittedUrl();
 
-      setFilterState((current) => (current === next.filter ? current : next.filter));
-      setJobViewState((current) => (current === next.jobView ? current : next.jobView));
       setSearchQueryState((current) => (current === next.searchQuery ? current : next.searchQuery));
       setOriginFilterState((current) => (current === next.originFilter ? current : next.originFilter));
       setGroundingFilterState((current) => (current === next.groundingFilter ? current : next.groundingFilter));
@@ -139,7 +137,6 @@ export function useRunDetailFindingsToolbarState(options?: {
           pathname,
           searchQuery,
         ),
-        { notify: false },
       );
     }, 250);
 
@@ -160,7 +157,6 @@ export function useRunDetailFindingsToolbarState(options?: {
           pathname,
           ownerFilter,
         ),
-        { notify: false },
       );
     }, 250);
 
@@ -181,7 +177,6 @@ export function useRunDetailFindingsToolbarState(options?: {
           pathname,
           domainFilter,
         ),
-        { notify: false },
       );
     }, 250);
 
@@ -207,7 +202,6 @@ export function useRunDetailFindingsToolbarState(options?: {
 
     commitHrefIfChanged(
       reviewFindingsToolbarClearOwnerHrefFromSearch(readCommittedSearchParams().toString(), pathname),
-      { notify: false },
     );
   }, [pathname]);
 
@@ -224,7 +218,6 @@ export function useRunDetailFindingsToolbarState(options?: {
 
     commitHrefIfChanged(
       reviewFindingsToolbarClearDomainHrefFromSearch(readCommittedSearchParams().toString(), pathname),
-      { notify: false },
     );
   }, [pathname]);
 

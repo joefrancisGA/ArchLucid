@@ -75,13 +75,13 @@ export async function fetchCloudResourceExplorerPage(
         && typeof row.lastSeenUtc === "string",
     )
     .map((row) => ({
-      cloudResourceId: row.cloudResourceId as string,
-      externalResourceId: row.externalResourceId as string,
+      cloudResourceId: row.cloudResourceId,
+      externalResourceId: row.externalResourceId,
       displayName: typeof row.displayName === "string" ? row.displayName : null,
       resourceType: typeof row.resourceType === "string" ? row.resourceType : null,
       resourceGroup: typeof row.resourceGroup === "string" ? row.resourceGroup : null,
       region: typeof row.region === "string" ? row.region : null,
-      lastSeenUtc: row.lastSeenUtc as string,
+      lastSeenUtc: row.lastSeenUtc,
       workCounts: row.workCounts == null
         ? null
         : {

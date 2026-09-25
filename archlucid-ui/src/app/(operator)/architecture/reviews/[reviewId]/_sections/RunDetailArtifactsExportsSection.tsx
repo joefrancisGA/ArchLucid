@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -52,7 +52,7 @@ import {
   parseRunDeliverablesOpenFromSearch,
   runDetailDeliverablesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-deliverables-disclosure-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 import { RunDetailExportRecordCompareCallout } from "./RunDetailExportRecordCompareCallout";
@@ -130,16 +130,11 @@ export function RunDetailArtifactsExportsSection(
     manifestSummary,
     feasibilityVerdictOverride,
   );
+  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const deliverablesSectionDefaultOpen =
-    deliverablesDefaultOpen ?? !buyerPolishedArtifactTable;
-  const readDeliverablesOpenFromUrl = (): boolean | null =>
-    parseRunDeliverablesOpenFromSearch(
-      new URLSearchParams(window.location.search).get("runDeliverablesOpen"),
-    );
-  const [deliverablesOpen, setDeliverablesOpenState] = useState(deliverablesSectionDefaultOpen);
-  const deliverablesOpenRef = useRef(deliverablesOpen);
-  deliverablesOpenRef.current = deliverablesOpen;
+  const searchParams = useSearchParams();
+  const runDeliverablesOpenParam = searchParams.get("runDeliverablesOpen");
+  const urlDeliverablesOpen = parseRunDeliverablesOpenFromSearch(runDeliverablesOpenParam);
   const sealedManifestVersion = manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
@@ -147,50 +142,19 @@ export function RunDetailArtifactsExportsSection(
   });
   const showDecisionReceipt =
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
+  const deliverablesSectionDefaultOpen =
+    deliverablesDefaultOpen ?? !buyerPolishedArtifactTable;
+  const deliverablesOpen = urlDeliverablesOpen ?? deliverablesSectionDefaultOpen;
 
-  const syncDeliverablesOpenToUrl = useCallback(
+  const setDeliverablesOpen = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailDeliverablesDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailDeliverablesDisclosureHrefFromSearch(window.location.search.slice(1), open, pathname),
         { notify: false },
       );
     },
     [pathname],
   );
-
-  const setDeliverablesOpen = useCallback(
-    (open: boolean) => {
-      if (deliverablesOpenRef.current === open) {
-        return;
-      }
-
-      deliverablesOpenRef.current = open;
-      setDeliverablesOpenState(open);
-      syncDeliverablesOpenToUrl(open);
-    },
-    [syncDeliverablesOpenToUrl],
-  );
-
-  useEffect(() => {
-    const syncDeliverablesOpenFromUrl = (): void => {
-      const fromUrl = readDeliverablesOpenFromUrl();
-      const next = fromUrl ?? deliverablesSectionDefaultOpen;
-
-      if (deliverablesOpenRef.current === next) {
-        return;
-      }
-
-      deliverablesOpenRef.current = next;
-      setDeliverablesOpenState(next);
-    };
-
-    syncDeliverablesOpenFromUrl();
-    window.addEventListener("popstate", syncDeliverablesOpenFromUrl);
-
-    return () => {
-      window.removeEventListener("popstate", syncDeliverablesOpenFromUrl);
-    };
-  }, [deliverablesSectionDefaultOpen]);
 
   const [bundleBusy, setBundleBusy] = useState(false);
   const [reviewExportBusy, setReviewExportBusy] = useState(false);
@@ -272,8 +236,6 @@ export function RunDetailArtifactsExportsSection(
         setBundleBusy(false);
       });
   }, [collateralExportBlockedReason, manifestId]);
-
-  const exportUrlParams = new URLSearchParams(readWindowLocationSearch());
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
@@ -619,12 +581,12 @@ export function RunDetailArtifactsExportsSection(
           </div>
         </CollapsibleSection>
       <RunDetailExportRecordCompareCallout
-        leftExportRecordId={exportUrlParams.get("leftExportRecordId") ?? ""}
-        rightExportRecordId={exportUrlParams.get("rightExportRecordId") ?? ""}
+        leftExportRecordId={searchParams.get("leftExportRecordId") ?? ""}
+        rightExportRecordId={searchParams.get("rightExportRecordId") ?? ""}
       />
-      <RunDetailExportRecordStatusCallout exportRecordId={exportUrlParams.get("exportRecordId") ?? ""} />
+      <RunDetailExportRecordStatusCallout exportRecordId={searchParams.get("exportRecordId") ?? ""} />
       <RunDetailExportRecordComparisonHistoryCallout
-        exportRecordId={exportUrlParams.get("exportRecordId") ?? ""}
+        exportRecordId={searchParams.get("exportRecordId") ?? ""}
       />
       <RunDetailExportHistoryCallout runId={runId} />
       <RunDetailExportBlobPushPanel runId={runId} disabled={collateralExportBlockedReason !== null} />

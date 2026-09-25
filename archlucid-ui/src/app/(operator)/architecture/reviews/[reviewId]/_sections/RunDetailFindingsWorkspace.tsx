@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
@@ -59,26 +59,22 @@ import {
   formatFindingsExcludedSummaryLine} from "@/lib/runs/run-detail-findings-triage-counts";
 import {
   defaultReviewFindingsListView,
-  parseReviewFindingsListViewFromSearch,
-  REVIEW_FINDINGS_LIST_VIEW_PARAM,
-} from "@/lib/findings/review-findings-list-view";
+  parseReviewFindingsListViewFromSearch} from "@/lib/findings/review-findings-list-view";
 import {
   parseReviewFindingsClassificationBandFromSearch,
   reviewFindingsClassificationBandHrefFromSearch,
   REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM} from "@/lib/findings/review-findings-last-visit-url";
 import {
   resolveFindingJobViewFromSearchParam,
-  REVIEW_FINDINGS_JOB_VIEW_PARAM,
-} from "@/lib/findings/review-findings-job-view-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+  REVIEW_FINDINGS_JOB_VIEW_PARAM} from "@/lib/findings/review-findings-job-view-url";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE,
-  formatFindingStreamDualCountLine,
-} from "@/lib/finding-stream-product-of-record-copy";
+  formatFindingStreamDualCountLine} from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -111,23 +107,27 @@ export type RunDetailFindingsWorkspaceProps = {
 
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
+  const router = useRouter();
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
-  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const workingInstrument =
     isWorkingMode && parentArchitectureId.length > 0
       ? { architectureId: parentArchitectureId, isWorkingMode: true as const }
       : undefined;
-  const toolbar = useRunDetailFindingsToolbarState();
+  const initialJobView = resolveFindingJobViewFromSearchParam(
+    searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
+  );
+  const toolbar = useRunDetailFindingsToolbarState({ initialJobView });
   const {
     showLowConfidence,
     showAdvisory,
     hideGenericLowDensity,
     setShowLowConfidence,
     setShowAdvisory,
-    setHideGenericLowDensity,
-  } = useReviewFindingsVisibilityState();
+    setHideGenericLowDensity} = useReviewFindingsVisibilityState();
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
 
   useReviewFindingsLastVisitRestore({
     runId: props.runId,
@@ -146,8 +146,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     toolbar.setSearchQuery(facets.titleKeywords.join(" "));
   }
 
-  const [classificationBand, setClassificationBandState] = useState<ReviewFindingsClassificationBandId>(
-    "decision-grade",
+  const [classificationBand, setClassificationBandState] = useState<ReviewFindingsClassificationBandId>(() =>
+    parseReviewFindingsClassificationBandFromSearch(searchParams?.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)),
   );
 
   const setClassificationBand = useCallback(
@@ -159,11 +159,11 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       }
 
       commitHrefIfChanged(
-        reviewFindingsClassificationBandHrefFromSearch(readWindowLocationSearch(), pathname, next),
+        reviewFindingsClassificationBandHrefFromSearch(window.location.search.slice(1), pathname, next),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, router],
   );
 
   useEffect(() => {
@@ -185,28 +185,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     };
   }, []);
 
-  const [listView, setListViewState] = useState(() => defaultReviewFindingsListView(architectWorkspaceChrome));
-
-  useEffect(() => {
-    const syncListViewFromUrl = (): void => {
-      setListViewState((current) => {
-        const next =
-          parseReviewFindingsListViewFromSearch(
-            new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_LIST_VIEW_PARAM),
-          ) ?? defaultReviewFindingsListView(architectWorkspaceChrome);
-
-        return current === next ? current : next;
-      });
-    };
-
-    syncListViewFromUrl();
-    window.addEventListener("popstate", syncListViewFromUrl);
-
-    return () => {
-      window.removeEventListener("popstate", syncListViewFromUrl);
-    };
-  }, [architectWorkspaceChrome]);
-
+  const listView =
+    parseReviewFindingsListViewFromSearch(searchParams?.get("findingsListView")) ??
+    defaultReviewFindingsListView(architectWorkspaceChrome);
   const useDenseTable = listView === "table" && architectWorkspaceChrome;
 
   useReviewFindingsLastVisitPersist({

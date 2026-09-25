@@ -193,7 +193,11 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     runId: props.runId,
     filter: "all",
     isWorkingMode});
-  const [recordMetadataOpen, setRecordMetadataOpenState] = useState(false);
+  const [recordMetadataOpen, setRecordMetadataOpenState] = useState(() =>
+    parseRunDetailRecordMetadataOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
+    ),
+  );
   const recordMetadataOpenRef = useRef(recordMetadataOpen);
   recordMetadataOpenRef.current = recordMetadataOpen;
 

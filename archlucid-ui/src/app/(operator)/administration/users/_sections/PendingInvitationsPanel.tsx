@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -40,7 +40,7 @@ import {
 } from "@/lib/administration/settings-invites-show-resolved-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
 import {
@@ -88,12 +88,18 @@ export function PendingInvitationsPanel({
   suppressEmptyPresentation = false,
   readOnly = false,
 }: Props) {
+  const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
+  const searchParams = useSearchParams();
+  const revokeInviteIdParam = searchParams.get("revokeInviteId");
+  const settingsInvitesShowResolvedParam = searchParams.get("settingsInvitesShowResolved");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [showResolved, setShowResolvedState] = useState(false);
-  const showResolvedRef = useRef(false);
+  const [showResolved, setShowResolvedState] = useState(() =>
+    parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam),
+  );
+  const showResolvedRef = useRef(showResolved);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [copiedReferenceId, setCopiedReferenceId] = useState<string | null>(null);
   const [copiedAcceptLinkId, setCopiedAcceptLinkId] = useState<string | null>(null);
@@ -107,11 +113,11 @@ export function PendingInvitationsPanel({
   const syncShowResolvedToUrl = useCallback(
     (resolvedVisible: boolean) => {
       commitHrefIfChanged(
-        settingsInvitesShowResolvedHrefFromSearch(readWindowLocationSearch(), resolvedVisible, pathname),
+        settingsInvitesShowResolvedHrefFromSearch(window.location.search.slice(1), resolvedVisible, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, router],
   );
 
   const setShowResolved = useCallback(
@@ -119,18 +125,19 @@ export function PendingInvitationsPanel({
       setShowResolvedState((current) => {
         const next = typeof value === "function" ? value(current) : value;
 
-        if (next === current) {
-          return current;
-        }
-
-        showResolvedRef.current = next;
-        syncShowResolvedToUrl(next);
-
-        return next;
+        return next === current ? current : next;
       });
     },
-    [syncShowResolvedToUrl],
+    [],
   );
+
+  useEffect(() => {
+    if (showResolvedRef.current === showResolved) {
+      return;
+    }
+
+    syncShowResolvedToUrl(showResolved);
+  }, [showResolved, syncShowResolvedToUrl]);
 
   useEffect(() => {
     const syncShowResolvedFromUrl = (): void => {
@@ -157,32 +164,33 @@ export function PendingInvitationsPanel({
   const syncRevokeInviteToUrl = useCallback(
     (invitationId: string | null) => {
       commitHrefIfChanged(
-        settingsUsersInviteRevokeHrefFromSearch(readWindowLocationSearch(), invitationId, pathname),
+        settingsUsersInviteRevokeHrefFromSearch(window.location.search.slice(1), invitationId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, router],
   );
 
   const setPendingRevoke = useCallback(
     (value: SetStateAction<AdminUserInvitationRow | null>) => {
       setPendingRevokeState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        const nextId = next?.id ?? null;
-        const currentId = current?.id ?? null;
 
-        if (nextId === currentId) {
-          return current;
-        }
-
-        pendingRevokeIdRef.current = nextId;
-        syncRevokeInviteToUrl(nextId);
-
-        return next;
+        return (next?.id ?? null) === (current?.id ?? null) ? current : next;
       });
     },
-    [syncRevokeInviteToUrl],
+    [],
   );
+
+  useEffect(() => {
+    const nextId = pendingRevoke?.id ?? null;
+
+    if (pendingRevokeIdRef.current === nextId) {
+      return;
+    }
+
+    syncRevokeInviteToUrl(nextId);
+  }, [pendingRevoke?.id, syncRevokeInviteToUrl]);
 
   useEffect(() => {
     const syncPendingRevokeFromUrl = (): void => {

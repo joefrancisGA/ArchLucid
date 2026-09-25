@@ -162696,22 +162696,6 @@
             }
           },
           {
-            "in": "query",
-            "name": "includeRecoveryServices",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "query",
-            "name": "includeCrossGroupFanOut",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
             "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
             "in": "header",
             "name": "X-ArchLucid-Product-Line",
@@ -162964,22 +162948,6 @@
             }
           },
           {
-            "in": "query",
-            "name": "includeRecoveryServices",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "query",
-            "name": "includeCrossGroupFanOut",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
             "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
             "in": "header",
             "name": "X-ArchLucid-Product-Line",
@@ -163158,22 +163126,6 @@
           {
             "in": "query",
             "name": "includePrivateEndpointNodes",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "query",
-            "name": "includeRecoveryServices",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "query",
-            "name": "includeCrossGroupFanOut",
             "schema": {
               "default": false,
               "type": "boolean"

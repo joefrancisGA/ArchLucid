@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
@@ -8,14 +8,11 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import {
   parseSettingsRolesMatrixConfirmKindFromSearch,
   parseSettingsRolesMatrixConfirmRoleNameFromSearch,
-  SETTINGS_ROLES_MATRIX_CONFIRM_KIND_PARAM,
-  SETTINGS_ROLES_MATRIX_CONFIRM_ROLE_NAME_PARAM,
   settingsRolesMatrixConfirmHrefFromSearch,
   type SettingsRolesMatrixConfirmKind,
 } from "@/lib/administration/settings-roles-matrix-confirm-url";
 import {
   parseSettingsRolesMatrixCollapsedGroupsFromSearch,
-  SETTINGS_ROLES_MATRIX_COLLAPSED_GROUPS_PARAM,
   settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch,
 } from "@/lib/administration/settings-roles-matrix-collapsed-groups-disclosure-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
@@ -77,35 +74,22 @@ async function fetchRoles(): Promise<CustomRoleDto[]> {
   return (await res.json()) as CustomRoleDto[];
 }
 
-function collapsedGroupsEqual(left: ReadonlySet<string>, right: ReadonlySet<string>): boolean {
-  if (left.size !== right.size) {
-    return false;
-  }
-
-  for (const value of left) {
-    if (!right.has(value)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 export function useSettingsRolesMatrix() {
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
+  const searchParams = useSearchParams();
+  const rolesMatrixConfirmKindParam = searchParams.get("rolesMatrixConfirm");
+  const rolesMatrixConfirmRoleNameParam = searchParams.get("rolesMatrixRoleName");
+  const settingsRolesMatrixCollapsedGroupsParam = searchParams.get("settingsRolesMatrixCollapsedGroups");
   const [matrix, setMatrix] = useState<RoleMatrixState>(EMPTY_MATRIX_STATE);
   const [loading, setLoading] = useState(true);
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
   const [newRoleName, setNewRoleName] = useState("");
   const [startFromRole, setStartFromRole] = useState<CustomRoleStartFromValue>("Operator");
   const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
-  const collapsedGroupsRef = useRef(collapsedGroups);
   const [pendingHighRisk, setPendingHighRiskState] = useState<PendingHighRiskAction | null>(null);
   const [loadFailure, setLoadFailure] = useState<CustomRoleFailureCopy | null>(null);
   const newRoleNameRef = useRef<HTMLInputElement | null>(null);
   const roles = matrix.roles;
-
-  collapsedGroupsRef.current = collapsedGroups;
 
   const syncRolesMatrixConfirmToUrl = useCallback(
     (state: { kind: SettingsRolesMatrixConfirmKind | null; roleName: string | null }) => {
@@ -193,93 +177,61 @@ export function useSettingsRolesMatrix() {
   const hasUnsavedEdits = unsavedRoleNames.length > 0;
 
   useEffect(() => {
-    const syncCollapsedGroupsFromUrl = (): void => {
-      const collapsedFromUrl = parseSettingsRolesMatrixCollapsedGroupsFromSearch(
-        new URLSearchParams(window.location.search).get(SETTINGS_ROLES_MATRIX_COLLAPSED_GROUPS_PARAM),
-      );
+    const collapsedFromUrl = parseSettingsRolesMatrixCollapsedGroupsFromSearch(settingsRolesMatrixCollapsedGroupsParam);
 
-      if (collapsedFromUrl.length === 0) {
-        return;
-      }
+    if (collapsedFromUrl.length === 0) {
+      return;
+    }
 
-      const next = new Set(collapsedFromUrl);
-
-      if (collapsedGroupsEqual(collapsedGroupsRef.current, next)) {
-        return;
-      }
-
-      collapsedGroupsRef.current = next;
-      setCollapsedGroups(next);
-    };
-
-    syncCollapsedGroupsFromUrl();
-    window.addEventListener("popstate", syncCollapsedGroupsFromUrl);
-
-    return () => {
-      window.removeEventListener("popstate", syncCollapsedGroupsFromUrl);
-    };
-  }, []);
+    setCollapsedGroups(new Set(collapsedFromUrl));
+  }, [settingsRolesMatrixCollapsedGroupsParam]);
 
   useEffect(() => {
-    const syncPendingHighRiskFromUrl = (): void => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const kind = parseSettingsRolesMatrixConfirmKindFromSearch(
-        urlParams.get(SETTINGS_ROLES_MATRIX_CONFIRM_KIND_PARAM),
-      );
-      const roleName = parseSettingsRolesMatrixConfirmRoleNameFromSearch(
-        urlParams.get(SETTINGS_ROLES_MATRIX_CONFIRM_ROLE_NAME_PARAM),
-      );
+    const kind = parseSettingsRolesMatrixConfirmKindFromSearch(rolesMatrixConfirmKindParam);
+    const roleName = parseSettingsRolesMatrixConfirmRoleNameFromSearch(rolesMatrixConfirmRoleNameParam);
 
-      if (kind === null || roleName.length === 0) {
-        setPendingHighRiskState((current) => (current === null ? current : null));
+    if (kind === null || roleName.length === 0) {
+      setPendingHighRiskState((current) => (current === null ? current : null));
 
+      return;
+    }
+
+    if (loading || roles.length === 0) {
+      return;
+    }
+
+    if (kind === "save") {
+      const role = roles.find((candidate) => candidate.name === roleName);
+
+      if (role === undefined) {
         return;
       }
-
-      if (loading || roles.length === 0) {
-        return;
-      }
-
-      if (kind === "save") {
-        const role = roles.find((candidate) => candidate.name === roleName);
-
-        if (role === undefined) {
-          return;
-        }
-
-        setPendingHighRiskState((current) => {
-          if (current?.kind === "save" && current.role.name === roleName) {
-            return current;
-          }
-
-          return { kind: "save", role };
-        });
-
-        return;
-      }
-
-      const startFrom = findSystemRoleByName(roles, startFromRole);
-      const permissions =
-        startFromRole === "Empty" || startFrom === null
-          ? []
-          : matrixPermissionList(startFrom.permissions);
 
       setPendingHighRiskState((current) => {
-        if (current?.kind === "create" && current.name === roleName) {
+        if (current?.kind === "save" && current.role.name === roleName) {
           return current;
         }
 
-        return { kind: "create", name: roleName, permissions };
+        return { kind: "save", role };
       });
-    };
 
-    syncPendingHighRiskFromUrl();
-    window.addEventListener("popstate", syncPendingHighRiskFromUrl);
+      return;
+    }
 
-    return () => {
-      window.removeEventListener("popstate", syncPendingHighRiskFromUrl);
-    };
-  }, [loading, roles, startFromRole]);
+    const startFrom = findSystemRoleByName(roles, startFromRole);
+    const permissions =
+      startFromRole === "Empty" || startFrom === null
+        ? []
+        : matrixPermissionList(startFrom.permissions);
+
+    setPendingHighRiskState((current) => {
+      if (current?.kind === "create" && current.name === roleName) {
+        return current;
+      }
+
+      return { kind: "create", name: roleName, permissions };
+    });
+  }, [loading, roles, rolesMatrixConfirmKindParam, rolesMatrixConfirmRoleNameParam, startFromRole]);
 
   useEffect(() => {
     if (!hasUnsavedEdits)

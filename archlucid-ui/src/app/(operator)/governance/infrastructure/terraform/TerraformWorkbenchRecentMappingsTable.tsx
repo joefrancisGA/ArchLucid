@@ -77,7 +77,7 @@ export function TerraformWorkbenchRecentMappingsTable(
                 </span>
               </td>
               <td className="py-2 text-al-text-secondary">
-                <time dateTime={target.viewedAtUtc} aria-label={`Viewed ${formatAbsoluteUpdatedAtTitle(target.viewedAtUtc)}`}>
+                <time dateTime={target.viewedAtUtc} title={formatAbsoluteUpdatedAtTitle(target.viewedAtUtc)}>
                   {formatRelativeTime(target.viewedAtUtc)}
                 </time>
               </td>
