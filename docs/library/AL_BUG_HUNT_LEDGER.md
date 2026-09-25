@@ -3080,15 +3080,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 19
-- **bugs-found:** 14
+- **hunts:** 20
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — big-reverse-solidus and final dot-operator homoglyphs evaded return-path guard
+- **last-bug:** 2026-09-25 — circled-reverse-solidus and Ethiopic/Hebrew full-stop homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved circled-reverse-solidus slash homoglyphs and Ethiopic/Hebrew full-stop dot homoglyph traversal bypasses; 82 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) CIRCLED REVERSE SOLIDUS (`⦸`), SQUARED RISING/FALLING DIAGONAL SLASH (`⧄`/`⧅`), and TRIPLE SOLIDUS (`⫻`) bypass `IsSlashHomoglyph` — **hit 2026-09-25 seed hunt:** evaded protocol-relative checks; fixed by extending `IsSlashHomoglyph`; regression `TryNormalize_rejects_named_unicode_slash_homoglyph_protocol_relative_paths`.
+- [x] (proven) ETHIOPIC FULL STOP (`።`) and HEBREW PUNCTUATION SOF PASUQ (`׃`) bypass `ContainsDotHomoglyph` — **hit 2026-09-25 seed hunt:** parent-segment pairs evaded ASCII `..` checks; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_script_full_stop_dot_homoglyph_path_traversal_segments`.
 
 2026-09-25 seed hunt (seed→hit): reseeded auth-return-path; proved big-reverse-solidus slash homoglyphs and final dot-operator homoglyph traversal bypasses; 70 scoped AuthSignInReturnPathGuard tests passed.
 

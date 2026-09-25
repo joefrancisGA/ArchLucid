@@ -240,7 +240,11 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u2AFD' // ⫽ DOUBLE SOLIDUS OPERATOR
         || ch == '\u2572' // ╲ BOX DRAWINGS LIGHT DIAGONAL UPPER LEFT TO LOWER RIGHT
         || ch == '\u29F9' // ⧹ BIG REVERSE SOLIDUS
-        || ch == '\u29F5'; // ⧵ REVERSE SOLIDUS OPERATOR
+        || ch == '\u29F5' // ⧵ REVERSE SOLIDUS OPERATOR
+        || ch == '\u29B8' // ⦸ CIRCLED REVERSE SOLIDUS
+        || ch == '\u29C4' // ⧄ SQUARED RISING DIAGONAL SLASH
+        || ch == '\u29C5' // ⧅ SQUARED FALLING DIAGONAL SLASH
+        || ch == '\u2AFB'; // ⫻ TRIPLE SOLIDUS BINARY RELATION
 
     // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
     private static bool IsDotHomoglyph(char ch) =>
@@ -254,5 +258,7 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u0387' // · GREEK ANO TELEIA
         || ch == '\u2027' // ‧ HYPHENATION POINT
         || ch == '\u22C5' // ⋅ DOT OPERATOR
-        || ch == '\u2219'; // ∙ BULLET OPERATOR
+        || ch == '\u2219' // ∙ BULLET OPERATOR
+        || ch == '\u1362' // ። ETHIOPIC FULL STOP
+        || ch == '\u05C3'; // ׃ HEBREW PUNCTUATION SOF PASUQ
 }
