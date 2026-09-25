@@ -191,6 +191,18 @@ internal static class InventoryDiagramParentAttachmentApplier
         string edgeLabel = InventoryDiagramEvidenceCurrencyLabels.Format(
             evidenceCurrency,
             ReadResourceName(connectorDiagramNode.ArmResourceId, connectorDiagramNode.Label));
+        bool edgeAlreadyExists = ast.Edges.Any(edge =>
+            string.Equals(edge.FromNodeId, parentDiagramNodeId, StringComparison.Ordinal)
+            && string.Equals(edge.ToNodeId, externalTargetDiagramNodeId, StringComparison.Ordinal)
+            && string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget,
+                StringComparison.Ordinal));
+
+        if (edgeAlreadyExists)
+        {
+            return true;
+        }
 
         ast.Edges.Add(new DiagramEdge
         {

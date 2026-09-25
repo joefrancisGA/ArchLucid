@@ -303,18 +303,25 @@ public static class AzureInventoryParentAttachmentParentResolver
     private static string? TryReadArmTypeFromArmId(string armId)
     {
         string[] segments = armId.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        int providersIndex = Array.FindIndex(segments, segment => segment.Equals("providers", StringComparison.OrdinalIgnoreCase));
 
-        if (segments.Length < 8)
+        if (providersIndex < 0 || providersIndex + 2 >= segments.Length)
         {
             return null;
         }
 
-        if (segments.Length == 8)
+        List<string> armTypeSegments =
+        [
+            segments[providersIndex + 1],
+            segments[providersIndex + 2],
+        ];
+
+        for (int index = providersIndex + 4; index < segments.Length; index += 2)
         {
-            return $"{segments[5]}/{segments[6]}";
+            armTypeSegments.Add(segments[index]);
         }
 
-        return $"{segments[5]}/{segments[6]}/{segments[7]}";
+        return string.Join("/", armTypeSegments);
     }
 
     private static string ReadArmId(GraphNode node)

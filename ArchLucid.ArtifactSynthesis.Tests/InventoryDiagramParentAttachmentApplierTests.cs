@@ -121,6 +121,18 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
     }
 
     [Fact]
+    public void Compile_duplicate_access_connectors_to_same_target_emit_one_edge()
+    {
+        GraphSnapshot graph = BuildDuplicateAccessConnectorExternalTargetGraph();
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Edges.Should().ContainSingle(edge =>
+            !edge.IsLayoutOnly
+            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget);
+    }
+
+    [Fact]
     public void Compile_collocated_resources_do_not_attach_without_cited_parent_reference()
     {
         GraphSnapshot graph = BuildCollocatedResourcesGraph();
@@ -245,6 +257,37 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
             StorageAccountArmId;
 
         return CreateGraph([workspace, storage, connector]);
+    }
+
+    private static GraphSnapshot BuildDuplicateAccessConnectorExternalTargetGraph()
+    {
+        GraphNode workspace = CreateTopologyNode(
+            "syn-node",
+            SynapseWorkspaceArmId,
+            "Microsoft.Synapse/workspaces");
+        GraphNode storage = CreateTopologyNode(
+            "storage-node",
+            StorageAccountArmId,
+            "Microsoft.Storage/storageAccounts");
+        GraphNode connectorOne = CreateTopologyNode(
+            "connector-one-node",
+            AccessConnectorArmId,
+            "Microsoft.Synapse/workspaces/managedPrivateEndpoints");
+        connectorOne.Properties[InventoryDiagramParentAttachmentPropertyKeys.AccessConnectorParentArmId] =
+            SynapseWorkspaceArmId;
+        connectorOne.Properties[InventoryDiagramParentAttachmentPropertyKeys.ExternalTargetArmId] =
+            StorageAccountArmId;
+
+        GraphNode connectorTwo = CreateTopologyNode(
+            "connector-two-node",
+            AccessConnectorArmId + "-2",
+            "Microsoft.Synapse/workspaces/managedPrivateEndpoints");
+        connectorTwo.Properties[InventoryDiagramParentAttachmentPropertyKeys.AccessConnectorParentArmId] =
+            SynapseWorkspaceArmId;
+        connectorTwo.Properties[InventoryDiagramParentAttachmentPropertyKeys.ExternalTargetArmId] =
+            StorageAccountArmId;
+
+        return CreateGraph([workspace, storage, connectorOne, connectorTwo]);
     }
 
     private static GraphSnapshot BuildCollocatedResourcesGraph()

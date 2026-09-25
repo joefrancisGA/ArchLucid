@@ -256,6 +256,12 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
     {
         Dictionary<string, HashSet<string>> subnetNodeIdsBySubnetArmId = BuildSubnetNodeIdsBySubnetArmId(graph);
         Dictionary<string, string> subnetArmIdByNodeId = BuildSubnetArmIdByNodeId(graph);
+        Dictionary<string, GraphNode> traversalHopNodesByArmId = graphNodesById.Values
+            .Where(InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode)
+            .Select(node => (ArmId: ArmResourceIdNormalizer.Normalize(ReadArmId(node)), Node: node))
+            .Where(pair => !string.IsNullOrWhiteSpace(pair.ArmId))
+            .GroupBy(pair => pair.ArmId!, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First().Node, StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode graphNode in graph.Nodes)
         {
@@ -283,23 +289,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                     string? nextHopArmId = AzureInventoryRouteTableNextHopResolver.Resolve(route, graph.Nodes);
 
                     if (string.IsNullOrWhiteSpace(nextHopArmId)
-                        || !graphNodesById.Values.Any(node =>
-                            string.Equals(
-                                ArmResourceIdNormalizer.Normalize(ReadArmId(node)),
-                                nextHopArmId,
-                                StringComparison.OrdinalIgnoreCase)
-                            && InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(node)))
-                    {
-                        continue;
-                    }
-
-                    GraphNode? nextHopNode = graphNodesById.Values.FirstOrDefault(node =>
-                        string.Equals(
-                            ArmResourceIdNormalizer.Normalize(ReadArmId(node)),
-                            nextHopArmId,
-                            StringComparison.OrdinalIgnoreCase));
-
-                    if (nextHopNode is null)
+                        || !traversalHopNodesByArmId.TryGetValue(nextHopArmId, out GraphNode? nextHopNode))
                     {
                         continue;
                     }
@@ -357,6 +347,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                 graph,
                 edge.FromNodeId,
                 edge.ToNodeId,
+                graphNodesById,
                 nicOwnerArmIdByNicArmId,
                 graphNodeIdByArmId);
 
@@ -381,6 +372,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         GraphSnapshot graph,
         string consumerNodeId,
         string targetNodeId,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
         IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId,
         IReadOnlyDictionary<string, string> graphNodeIdByArmId)
     {
@@ -397,7 +389,13 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
 
             string privateEndpointNodeId = edge.FromNodeId;
 
-            if (HasPrivateEndpointPlacementToConsumer(graph, privateEndpointNodeId, consumerNodeId, nicOwnerArmIdByNicArmId, graphNodeIdByArmId))
+            if (HasPrivateEndpointPlacementToConsumer(
+                    graph,
+                    privateEndpointNodeId,
+                    consumerNodeId,
+                    graphNodesById,
+                    nicOwnerArmIdByNicArmId,
+                    graphNodeIdByArmId))
             {
                 return privateEndpointNodeId;
             }
@@ -410,6 +408,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         GraphSnapshot graph,
         string privateEndpointNodeId,
         string consumerNodeId,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
         IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId,
         IReadOnlyDictionary<string, string> graphNodeIdByArmId)
     {
@@ -427,7 +426,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
 
             if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToNic, StringComparison.OrdinalIgnoreCase)
                 && nicOwnerArmIdByNicArmId.TryGetValue(
-                    ArmResourceIdNormalizer.Normalize(ReadArmIdFromNodeId(graph, edge.ToNodeId)),
+                    ReadArmIdFromNodeId(graphNodesById, edge.ToNodeId),
                     out string? ownerArmId)
                 && graphNodeIdByArmId.TryGetValue(
                     ownerArmId,
@@ -474,11 +473,13 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         return false;
     }
 
-    private static string ReadArmIdFromNodeId(GraphSnapshot graph, string nodeId)
+    private static string ReadArmIdFromNodeId(
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
+        string nodeId)
     {
-        GraphNode? node = graph.Nodes.FirstOrDefault(candidate => string.Equals(candidate.NodeId, nodeId, StringComparison.Ordinal));
-
-        return node is null ? string.Empty : ReadArmId(node);
+        return graphNodesById.TryGetValue(nodeId, out GraphNode? node)
+            ? ArmResourceIdNormalizer.Normalize(ReadArmId(node))
+            : string.Empty;
     }
 
     private static bool IsSubnetAttachedConsumer(
