@@ -93,10 +93,21 @@ export function resolveContinueLastSignedRecordsListRow(rows: unknown): SignedRe
     return null;
   }
 
+  const validRows = normalizedRows.filter(
+    (row) =>
+      typeof row?.manifestId === "string"
+      && typeof row?.runId === "string"
+      && typeof row?.committedUtc === "string",
+  );
+
+  if (validRows.length === 0) {
+    return null;
+  }
+
   const recentManifestId = readRecentSignedRecordManifestId();
 
   if (recentManifestId !== null) {
-    const manifestMatch = normalizedRows.find((row) => row.manifestId === recentManifestId);
+    const manifestMatch = validRows.find((row) => row.manifestId === recentManifestId);
 
     if (manifestMatch !== undefined && isSignedRecordsListRowOpenable(manifestMatch)) {
       return manifestMatch;
@@ -106,14 +117,14 @@ export function resolveContinueLastSignedRecordsListRow(rows: unknown): SignedRe
   const recentRunId = readRecentSignedRecordRunId();
 
   if (recentRunId !== null) {
-    const runMatch = normalizedRows.find((row) => row.runId === recentRunId);
+    const runMatch = validRows.find((row) => row.runId === recentRunId);
 
     if (runMatch !== undefined && isSignedRecordsListRowOpenable(runMatch)) {
       return runMatch;
     }
   }
 
-  const openableRows = normalizedRows.filter((row) => isSignedRecordsListRowOpenable(row));
+  const openableRows = validRows.filter((row) => isSignedRecordsListRowOpenable(row));
 
   if (openableRows.length === 0) {
     return null;

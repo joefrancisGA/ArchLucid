@@ -5,6 +5,9 @@ and must not be turned into merge-blocking checks without an explicit product
 decision. The goal is to make common omissions visible while the change is
 still easy to correct.
 
+For the implementation-oriented backlog and acceptance criteria, see
+[`DEFECT_PREVENTION_IMPLEMENTATION_BACKLOG.md`](DEFECT_PREVENTION_IMPLEMENTATION_BACKLOG.md).
+
 ## API mutations
 
 Before opening a PR for a write endpoint, walk through:

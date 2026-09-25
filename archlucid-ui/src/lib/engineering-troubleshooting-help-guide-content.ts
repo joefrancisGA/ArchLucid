@@ -15,10 +15,28 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_OVERVIEW =
 export const ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
   "Operational triage evidence for engineering support — not customer self-serve help and not certification.";
 
-export const ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_TITLE = "Admin engineering scope";
+export const ENGINEERING_TROUBLESHOOTING_HELP_APPLICABILITY_TITLE = "Admin scope and access";
 
-export const ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_BODY =
-  "After customer Troubleshooting and System health, use this runbook for CLI, migration, proxy, and auth-depth triage. It is not customer self-serve help and not certification.";
+export const ENGINEERING_TROUBLESHOOTING_HELP_APPLICABILITY_TAG = "Admin internal";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_APPLICABILITY_WORKING =
+  "Working seats with Admin or engineering support authority can open this internal runbook from Help search or admin integrations.";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_APPLICABILITY_RECORD_PRACTICE =
+  "Record and Practice desks do not expose this runbook in customer Help — start with Customer Troubleshooting and System health.";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_APPLICABILITY_ENFORCEMENT =
+  "Access is enforced by HelpTopicAuthorityGate (ReadAuthority). Unauthorized callers see Not found, not a partial runbook.";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_INDEX_FILTER_HINT =
+  "Type to filter symptoms. Press / to focus this field when the page is not inside another input.";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_MARKDOWN_TABLE_CAPTION = "Engineering troubleshooting reference table";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_MARKDOWN_LOAD_ERROR_TITLE = "Runbook body unavailable";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_MARKDOWN_LOAD_ERROR_BODY =
+  "The merged runbook markdown could not be rendered. Refresh the page or open Report a problem with the request ID from your browser network tab.";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_INDEX_TITLE = "Symptom lookup";
 
@@ -44,10 +62,28 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO =
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW = {
   title: "Runbook overview",
-  audience: "Admin and engineering support — not customer self-serve.",
+  audience: "Admin and engineering support on authorized hosts.",
   stability: "Internal runbook for engineering support.",
   documentTitle: "Engineering troubleshooting runbook",
 } as const;
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_HEADING_ID =
+  "help-engineering-troubleshooting-action-panel-heading" as const;
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING_ID =
+  "help-engineering-troubleshooting-job-matrix-heading" as const;
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_ESCALATION_HEADING_ID =
+  "help-engineering-troubleshooting-escalation-heading" as const;
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_RELATED_HEADING_ID =
+  "help-engineering-troubleshooting-related-heading" as const;
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_HEADING_ID =
+  "help-engineering-troubleshooting-sources-strip-heading" as const;
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW_HEADING_ID =
+  "help-engineering-troubleshooting-runbook-overview-heading" as const;
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE = "Quick paths";
 
@@ -133,7 +169,7 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS: readonly Engineering
     },
     {
       symptom: "409 on commit",
-      firstCheck: "Follow the conflict message; re-fetch run status before retrying.",
+      firstCheck: "Follow the conflict message; re-fetch sealed review record status before retrying.",
       evidenceToAttach: "Conflict response body",
       escalationDestinationLabel: "Customer Troubleshooting",
       escalationHref: inAppHelpHref("troubleshooting"),

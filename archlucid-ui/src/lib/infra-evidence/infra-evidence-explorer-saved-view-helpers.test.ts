@@ -26,6 +26,34 @@ describe("infra-evidence-explorer-saved-view-helpers", () => {
       resourceType: "Microsoft.Network/publicIPAddresses",
       resourceGroup: "rg-net",
       workQueue: "open-findings",
+      sortKey: "name",
+      sortAsc: true,
     });
+  });
+
+  it("restores sort from saved view payload", () => {
+    const payload = buildInfraResourcesSavedViewPayload({
+      namePrefix: "",
+      resourceType: "",
+      resourceGroup: "",
+      workQueue: "all",
+      sortKey: "work",
+      sortAsc: false,
+    });
+
+    expect(payload.sort).toBe("work:desc");
+
+    const applied = applyInfraResourcesSavedViewFilters(
+      payload.filters as {
+        namePrefix?: string;
+        resourceType?: string;
+        resourceGroup?: string;
+        workQueue?: string;
+      },
+      payload.sort,
+    );
+
+    expect(applied.sortKey).toBe("work");
+    expect(applied.sortAsc).toBe(false);
   });
 });

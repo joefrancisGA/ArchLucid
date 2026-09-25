@@ -1,30 +1,35 @@
 import Link from "next/link";
 
+import { HelpEngineeringTroubleshootingApplicabilityStrip } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingApplicabilityStrip";
+import { HelpEngineeringTroubleshootingBreadcrumb } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingBreadcrumb";
 import { HelpEngineeringTroubleshootingHeaderMetadata } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingHeaderMetadata";
 import { HelpEngineeringTroubleshootingMarkdownSections } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingMarkdownSections";
+import { HelpEngineeringTroubleshootingProvenanceFooter } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingProvenanceFooter";
 import { HelpEngineeringTroubleshootingRunbookOverview } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingRunbookOverview";
 import { HelpEngineeringTroubleshootingSourceLinks } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSourceLinks";
 import { HelpEngineeringTroubleshootingSymptomIndex } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSymptomIndex";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { EngineeringTroubleshootingHelpClaimDisciplineStrip } from "@/components/help/EngineeringTroubleshootingHelpClaimDisciplineStrip";
-import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorSeverityCallout } from "@/components/help/OperatorSeverityCallout";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ENGINEERING_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
+import { buildEngineeringTroubleshootingHelpGuideHeadings } from "@/lib/engineering-troubleshooting-help-guide-headings";
 import {
+  ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_HEADING_ID,
   ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE,
-  ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_BODY,
-  ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_TITLE,
+  ENGINEERING_TROUBLESHOOTING_HELP_APPLICABILITY_TAG,
+  ENGINEERING_TROUBLESHOOTING_HELP_ESCALATION_HEADING_ID,
   ENGINEERING_TROUBLESHOOTING_HELP_ESCALATION_PANEL_BODY,
   ENGINEERING_TROUBLESHOOTING_HELP_ESCALATION_PANEL_TITLE,
+  ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING_ID,
   ENGINEERING_TROUBLESHOOTING_HELP_PAGE_SUBTITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
+  ENGINEERING_TROUBLESHOOTING_HELP_RELATED_HEADING_ID,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 import {
   ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX,
@@ -64,10 +69,11 @@ export function HelpEngineeringTroubleshootingGuideView(
     helpTopicSlug: entry.slug,
     preserveMaintenanceMetadata: true,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
-  const majorSections = headings.filter((heading) => heading.level === 2);
-  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
-  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const markdownHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const guideHeadings = buildEngineeringTroubleshootingHelpGuideHeadings(markdownHeadings);
+  const majorSections = markdownHeadings.filter((heading) => heading.level === 2);
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const relatedGuides = engineeringTroubleshootingHelpRelatedGuides();
 
   return (
@@ -80,7 +86,9 @@ export function HelpEngineeringTroubleshootingGuideView(
       </a>
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpEngineeringTroubleshootingBreadcrumb />
+
+      <HelpTopicGuidePageHeader
         title={ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE}
         titleTestId="help-engineering-troubleshooting-page-title"
         subtitle={ENGINEERING_TROUBLESHOOTING_HELP_PAGE_SUBTITLE}
@@ -89,7 +97,7 @@ export function HelpEngineeringTroubleshootingGuideView(
         statusBadge={
           <StatusTag
             kind="neutral"
-            label="Admin internal"
+            label={ENGINEERING_TROUBLESHOOTING_HELP_APPLICABILITY_TAG}
             data-testid="help-engineering-troubleshooting-status-tag"
           />
         }
@@ -107,107 +115,95 @@ export function HelpEngineeringTroubleshootingGuideView(
 
       <EngineeringTroubleshootingHelpClaimDisciplineStrip />
 
-      <HelpEngineeringTroubleshootingSymptomIndex />
-
-      <OperatorSeverityCallout
-        kind="warn"
-        data-testid="help-engineering-troubleshooting-audience-strip"
-        heading={ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_TITLE}
-        headingId="help-engineering-troubleshooting-audience-strip-heading"
-        className="p-3"
-      >
-        <p className="m-0">{ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_BODY}</p>
-      </OperatorSeverityCallout>
-
-      <section
-        aria-labelledby="help-engineering-troubleshooting-job-matrix-heading"
-        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
-        data-testid={ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_TEST_ID}
-      >
-        <h2
-          id="help-engineering-troubleshooting-job-matrix-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-        >
-          {ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING}
-        </h2>
-        <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
-          {ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX.map((row) => (
-            <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
-              {row.isCurrent === true ? (
-                <span
-                  className="shrink-0 font-medium text-al-text-primary"
-                  data-testid="help-engineering-troubleshooting-job-matrix-current"
-                >
-                  {row.label}
-                </span>
-              ) : (
-                <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
-                  {row.label}
-                </Link>
-              )}
-              <span className="text-al-text-secondary">{row.when}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section
-        className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-        data-testid="help-engineering-troubleshooting-action-panel"
-        aria-labelledby="help-engineering-troubleshooting-action-panel-heading"
-      >
-        <h2
-          id="help-engineering-troubleshooting-action-panel-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-        >
-          {ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE}
-        </h2>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild size="sm" variant="primary" data-testid="help-engineering-troubleshooting-primary-cta">
-            <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.jumpToSymptomLookup.href}>
-              {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.jumpToSymptomLookup.label}
-            </Link>
-          </Button>
-        </div>
-        <div
-          className="flex flex-wrap gap-x-3 gap-y-1"
-          data-testid="help-engineering-troubleshooting-secondary-ctas"
-        >
-          <Link
-            className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
-            href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href}
-          >
-            {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.label}
-          </Link>
-          <Link
-            className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
-            href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.href}
-          >
-            {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.label}
-          </Link>
-          <Link
-            className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
-            href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.href}
-          >
-            {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.label}
-          </Link>
-          <Link
-            className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
-            href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.href}
-          >
-            {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label}
-          </Link>
-        </div>
-      </section>
-
-      <SponsorSendPathHonestyPanel testIdPrefix="help-engineering-troubleshooting" showSsoOptional={false} />
-
-      {showSectionNav ? (
-        <HelpTopicTableOfContents headings={headings} placement="header-inline" />
-      ) : null}
-
       <div className={contentGridClass}>
-        <div className="min-w-0 space-y-6">
+        <div className="min-w-0 space-y-4">
+          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} placement="header-inline" /> : null}
+
+          <HelpEngineeringTroubleshootingApplicabilityStrip />
+
+          <HelpEngineeringTroubleshootingSymptomIndex />
+
+          <section
+            aria-labelledby={ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING_ID}
+            className="space-y-4 border-b border-neutral-200 pb-4 dark:border-neutral-800"
+            data-testid={ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_TEST_ID}
+          >
+            <h2
+              id={ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING_ID}
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING}
+            </h2>
+            <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+              {ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX.map((row) => (
+                <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+                  {row.isCurrent === true ? (
+                    <span
+                      className="shrink-0 font-medium text-al-text-primary"
+                      data-testid="help-engineering-troubleshooting-job-matrix-current"
+                    >
+                      {row.label}
+                    </span>
+                  ) : (
+                    <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                      {row.label}
+                    </Link>
+                  )}
+                  <span className="text-al-text-secondary">{row.when}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section
+            className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-engineering-troubleshooting-action-panel"
+            aria-labelledby={ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_HEADING_ID}
+          >
+            <h2
+              id={ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_HEADING_ID}
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE}
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary" data-testid="help-engineering-troubleshooting-primary-cta">
+                <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.jumpToSymptomLookup.href}>
+                  {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.jumpToSymptomLookup.label}
+                </Link>
+              </Button>
+            </div>
+            <div
+              className="flex flex-wrap gap-x-3 gap-y-1"
+              data-testid="help-engineering-troubleshooting-secondary-ctas"
+            >
+              <Link
+                className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href}
+              >
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.label}
+              </Link>
+              <Link
+                className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.href}
+              >
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.label}
+              </Link>
+              <Link
+                className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.href}
+              >
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.label}
+              </Link>
+              <Link
+                className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.href}
+              >
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label}
+              </Link>
+            </div>
+          </section>
+
           <div
             id="help-engineering-troubleshooting-content"
             className={HELP_PAGE_LAYOUT.contentColumn}
@@ -218,7 +214,6 @@ export function HelpEngineeringTroubleshootingGuideView(
               markdown={preparedMarkdown}
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
-              tableCaption={`${entry.title} reference table`}
             />
           </div>
 
@@ -227,12 +222,12 @@ export function HelpEngineeringTroubleshootingGuideView(
           <HelpEngineeringTroubleshootingSourceLinks />
 
           <section
-            aria-labelledby="help-engineering-troubleshooting-escalation-heading"
-            className={cn(DESIGN_TOKENS.callout.info, "space-y-3 p-4")}
+            aria-labelledby={ENGINEERING_TROUBLESHOOTING_HELP_ESCALATION_HEADING_ID}
+            className={cn(DESIGN_TOKENS.callout.info, "space-y-4 p-4")}
             data-testid="help-engineering-troubleshooting-escalation"
           >
             <h2
-              id="help-engineering-troubleshooting-escalation-heading"
+              id={ENGINEERING_TROUBLESHOOTING_HELP_ESCALATION_HEADING_ID}
               className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
             >
               {ENGINEERING_TROUBLESHOOTING_HELP_ESCALATION_PANEL_TITLE}
@@ -248,19 +243,19 @@ export function HelpEngineeringTroubleshootingGuideView(
           </section>
 
           <section
-            aria-labelledby="help-engineering-troubleshooting-related-heading"
-            className="space-y-2 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            aria-labelledby={ENGINEERING_TROUBLESHOOTING_HELP_RELATED_HEADING_ID}
+            className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-800"
             data-testid={ENGINEERING_TROUBLESHOOTING_HELP_RELATED_TEST_ID}
           >
             <h2
-              id="help-engineering-troubleshooting-related-heading"
+              id={ENGINEERING_TROUBLESHOOTING_HELP_RELATED_HEADING_ID}
               className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
             >
               {ENGINEERING_TROUBLESHOOTING_HELP_RELATED_HEADING}
             </h2>
-            <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+            <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
               {relatedGuides.map((guide) => (
-                <li key={guide.href}>
+                <li key={guide.href} className="max-w-3xl">
                   <Link
                     href={guide.href}
                     className={cn(
@@ -271,14 +266,21 @@ export function HelpEngineeringTroubleshootingGuideView(
                   >
                     {guide.label}
                   </Link>
+                  {guide.description !== undefined ? (
+                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {guide.description}
+                    </p>
+                  ) : null}
                 </li>
               ))}
             </ul>
           </section>
+
+          <HelpEngineeringTroubleshootingProvenanceFooter entry={entry} />
         </div>
 
         {showSectionNav ? (
-          <HelpTopicTableOfContents headings={headings} enableScrollSpy placement="sidebar" />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy placement="sidebar" />
         ) : null}
       </div>
     </article>

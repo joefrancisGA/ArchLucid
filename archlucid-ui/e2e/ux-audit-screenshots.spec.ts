@@ -155,7 +155,7 @@ test.describe("ux audit screenshots @ux-audit", () => {
       const mode = resolveUxAuditShellMode(testInfo.project.name);
 
       if (mode === null || mode === "marketing") {
-        test.skip();
+        test.skip(true, "this route is only captured by the operator shell project");
       }
 
       if (mode === "operator") {
@@ -171,7 +171,7 @@ test.describe("ux audit screenshots @ux-audit", () => {
       const mode = resolveUxAuditShellMode(testInfo.project.name);
 
       if (mode !== "marketing") {
-        test.skip();
+        test.skip(true, "this route is only captured by the marketing shell project");
       }
 
       await captureUxAuditScreenshot(page, route, mode);

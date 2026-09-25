@@ -44,7 +44,7 @@ internal sealed class ItsmPullForwardRunner
         {
             RepositoryRoot = repositoryRoot,
             LedgerDirectory = ledgerDirectory,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Recommendation = recommendation,
             Checks = checks,
             Triggers = triggers,

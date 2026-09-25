@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunDetailAiReadinessGateCard } from "@/components/runs/RunDetailAiReadinessGateCard";
 import { BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import {
   EmailRunToSponsorBannerDeferred,
@@ -19,6 +20,16 @@ import {
   parseRunDetailSponsorBriefingOpenFromSearch,
   runDetailSponsorBriefingDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-sponsor-briefing-disclosure-url";
+
+function readSponsorBriefingOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  const param = new URLSearchParams(window.location.search).get(RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM);
+
+  return param === null ? true : parseRunDetailSponsorBriefingOpenFromSearch(param);
+}
 
 export type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
@@ -40,26 +51,28 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
     pagePrimaryOwnedElsewhere,
     careerArtifactHonesty,
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runDetailSponsorBriefingOpenParam = searchParams.get(RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM);
-  const [sponsorBriefingOpen, setSponsorBriefingOpenState] = useState(() =>
-    runDetailSponsorBriefingOpenParam === null
-      ? true
-      : parseRunDetailSponsorBriefingOpenFromSearch(runDetailSponsorBriefingOpenParam),
-  );
+  const [sponsorBriefingOpen, setSponsorBriefingOpenState] = useState(() => readSponsorBriefingOpenFromWindowLocation());
+  const sponsorBriefingOpenRef = useRef(sponsorBriefingOpen);
+  sponsorBriefingOpenRef.current = sponsorBriefingOpen;
+
   const syncSponsorBriefingOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        runDetailSponsorBriefingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runDetailSponsorBriefingDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setSponsorBriefingOpen = useCallback(
     (open: boolean) => {
+      if (sponsorBriefingOpenRef.current === open) {
+        return;
+      }
+
+      sponsorBriefingOpenRef.current = open;
       setSponsorBriefingOpenState(open);
       syncSponsorBriefingOpenToUrl(open);
     },
@@ -67,12 +80,24 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
   );
 
   useEffect(() => {
-    if (runDetailSponsorBriefingOpenParam === null) {
-      return;
-    }
+    const syncSponsorBriefingOpenFromUrl = (): void => {
+      const nextOpen = readSponsorBriefingOpenFromWindowLocation();
 
-    setSponsorBriefingOpenState(parseRunDetailSponsorBriefingOpenFromSearch(runDetailSponsorBriefingOpenParam));
-  }, [runDetailSponsorBriefingOpenParam]);
+      if (sponsorBriefingOpenRef.current === nextOpen) {
+        return;
+      }
+
+      sponsorBriefingOpenRef.current = nextOpen;
+      setSponsorBriefingOpenState(nextOpen);
+    };
+
+    syncSponsorBriefingOpenFromUrl();
+    window.addEventListener("popstate", syncSponsorBriefingOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSponsorBriefingOpenFromUrl);
+    };
+  }, []);
 
   const deliverables = (
     <>

@@ -31,7 +31,11 @@ export function resolveDevRoleOverrideUpstreamHeader(request: NextRequest): stri
         return undefined;
       }
 
-      return { value: decodeURIComponent(match.slice(prefix.length)) };
+      try {
+        return { value: decodeURIComponent(match.slice(prefix.length)) };
+      } catch {
+        return undefined;
+      }
     },
   });
 

@@ -20,7 +20,7 @@ public static class PilotProofPacketIndexBuilder
         {
             schema = Schema,
             runId,
-            generatedUtc = DateTimeOffset.UtcNow.ToString("O"),
+            generatedUtc = TimeProvider.System.GetUtcNow().ToString("O"),
             pilotStrictSatisfied,
             demoWarning,
             structuralExecutionMode = structuralExecutionModeLabel ?? "(not captured)",

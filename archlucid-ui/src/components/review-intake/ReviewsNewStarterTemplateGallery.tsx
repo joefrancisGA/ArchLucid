@@ -61,7 +61,9 @@ export function ReviewsNewStarterTemplateGallery(): React.JSX.Element {
               className="w-fit"
               data-testid={`reviews-new-template-${template.id}`}
               onClick={() => {
-                router.push(`/architecture/reviews/new?preset=${encodeURIComponent(template.id)}`);
+                router.push(
+                  `/architecture/reviews/new?path=guided-intake&preset=${encodeURIComponent(template.id)}`,
+                );
               }}
             >
               Use template

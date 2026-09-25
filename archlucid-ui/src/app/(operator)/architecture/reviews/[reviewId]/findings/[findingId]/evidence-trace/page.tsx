@@ -44,7 +44,13 @@ export default async function FindingEvidenceTracePage({
     notFound();
   }
 
-  const decodedFindingId = decodeURIComponent(findingId);
+  let decodedFindingId: string;
+
+  try {
+    decodedFindingId = decodeURIComponent(findingId);
+  } catch {
+    notFound();
+  }
 
   const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRouteCached(
     runId,

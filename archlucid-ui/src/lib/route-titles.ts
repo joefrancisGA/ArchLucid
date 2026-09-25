@@ -4,11 +4,12 @@ import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /** Human-readable title for route announcements and accessibility copy. */
-export function getRouteTitle(pathname: string): string {
+export function getRouteTitle(pathname: string, productLineId: ProductLineId = resolveProductLineIdFromEnv()): string {
   const withoutQuery = pathname.split("?")[0] ?? pathname;
   const withoutHash = withoutQuery.split("#")[0] ?? withoutQuery;
   const normalized =
@@ -17,7 +18,7 @@ export function getRouteTitle(pathname: string): string {
   const lookupPath = canonical.split("#")[0] ?? canonical;
 
   if (lookupPath === INTEGRATIONS_TEAMS_PATH) {
-    return productLineMicrosoftTeamsLabel(resolveProductLineIdFromEnv());
+    return productLineMicrosoftTeamsLabel(productLineId);
   }
 
   // Hash-preserving keys (e.g. #workspace-health) must win before stripping the fragment.

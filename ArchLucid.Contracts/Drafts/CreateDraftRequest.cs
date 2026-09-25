@@ -26,4 +26,12 @@ public sealed class CreateDraftRequest
         get;
         set;
     }
+
+    /// <summary>Optional system name applied to the document before the linked architecture identity is named.</summary>
+    [JsonPropertyName("systemName")]
+    public string? SystemName
+    {
+        get;
+        set;
+    }
 }

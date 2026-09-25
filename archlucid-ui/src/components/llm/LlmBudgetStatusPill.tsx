@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import { LlmBudgetUtilizationMeter } from "@/components/llm/LlmBudgetUtilizationMeter";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
@@ -25,6 +25,7 @@ import {
   llmBudgetStatusPillHrefFromSearch,
   parseLlmBudgetStatusPillOpenFromSearch,
 } from "@/lib/llm/llm-budget-status-pill-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { DESIGN_TOKENS, enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -49,34 +50,65 @@ function isOperatorShellAuthenticated(): boolean {
 
 /** Compact UTC-month LLM budget indicator for the operator shell top bar. */
 export function LlmBudgetStatusPill() {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const llmBudgetOpenParam = searchParams.get("llmBudgetOpen");
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const [open, setOpenState] = useState(() => parseLlmBudgetStatusPillOpenFromSearch(llmBudgetOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseLlmBudgetStatusPillOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("llmBudgetOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncLlmBudgetOpenToUrl = useCallback(
     (popoverOpen: boolean) => {
-      router.replace(llmBudgetStatusPillHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        llmBudgetStatusPillHrefFromSearch(readWindowLocationSearch(), popoverOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncLlmBudgetOpenToUrl(next);
+      const next = typeof value === "function" ? value(openRef.current) : value;
 
-        return next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+      syncLlmBudgetOpenToUrl(next);
     },
     [syncLlmBudgetOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncLlmBudgetOpenFromUrl = (): void => {
+      const nextOpen = parseLlmBudgetStatusPillOpenFromSearch(
+        new URLSearchParams(window.location.search).get("llmBudgetOpen"),
+      );
+
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncLlmBudgetOpenFromUrl();
+    window.addEventListener("popstate", syncLlmBudgetOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncLlmBudgetOpenFromUrl);
+    };
+  }, []);
   const queryEnabled =
     concernFetchEnabled &&
     isOperatorShellAuthenticated() &&

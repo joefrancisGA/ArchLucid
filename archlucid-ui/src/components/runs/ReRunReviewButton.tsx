@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import Link from "next/link";
 
@@ -87,35 +89,40 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     className,
     "data-testid": dataTestId = "re-run-review-button",
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
-  const reRunConfirmOpenParam = searchParams.get("reRunConfirmOpen");
-  const reRunConfirmSourceParam = searchParams.get("reRunConfirmSource");
-  const urlConfirmOpen = parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam);
-  const urlConfirmSource = parseReRunReviewConfirmSourceFromSearch(reRunConfirmSourceParam);
-  const [busy, setBusy] = useState(false);
-  const [confirmOpen, setConfirmOpenState] = useState(() =>
-    resolveReRunReviewConfirmDialogOpenForButton({
-      urlConfirmOpen: parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam),
-      urlConfirmSource: parseReRunReviewConfirmSourceFromSearch(reRunConfirmSourceParam),
+  const resolveConfirmOpenFromUrl = useCallback((): boolean => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return resolveReRunReviewConfirmDialogOpenForButton({
+      urlConfirmOpen: parseReRunReviewConfirmOpenFromSearch(params.get("reRunConfirmOpen")),
+      urlConfirmSource: parseReRunReviewConfirmSourceFromSearch(params.get("reRunConfirmSource")),
       buttonTestId: dataTestId,
-    }),
-  );
+    });
+  }, [dataTestId]);
+  const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpenState] = useState(resolveConfirmOpenFromUrl);
+  const confirmOpenRef = useRef(confirmOpen);
+  confirmOpenRef.current = confirmOpen;
 
   const syncConfirmOpenToUrl = useCallback(
     (open: boolean, sourceTestId: string | null = null) => {
-      router.replace(
-        reRunReviewConfirmHrefFromSearch(searchParams.toString(), open, pathname, sourceTestId),
-        { scroll: false },
+      commitHrefIfChanged(
+        reRunReviewConfirmHrefFromSearch(readWindowLocationSearch(), open, pathname, sourceTestId),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setConfirmOpen = useCallback(
     (open: boolean) => {
+      if (confirmOpenRef.current === open) {
+        return;
+      }
+
+      confirmOpenRef.current = open;
       setConfirmOpenState(open);
       syncConfirmOpenToUrl(open, open ? dataTestId : null);
     },
@@ -123,14 +130,24 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
   );
 
   useEffect(() => {
-    setConfirmOpenState(
-      resolveReRunReviewConfirmDialogOpenForButton({
-        urlConfirmOpen,
-        urlConfirmSource,
-        buttonTestId: dataTestId,
-      }),
-    );
-  }, [dataTestId, urlConfirmOpen, urlConfirmSource]);
+    const syncConfirmOpenFromUrl = (): void => {
+      const next = resolveConfirmOpenFromUrl();
+
+      if (confirmOpenRef.current === next) {
+        return;
+      }
+
+      confirmOpenRef.current = next;
+      setConfirmOpenState(next);
+    };
+
+    syncConfirmOpenFromUrl();
+    window.addEventListener("popstate", syncConfirmOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncConfirmOpenFromUrl);
+    };
+  }, [resolveConfirmOpenFromUrl]);
   const [sessionAttemptOffset, setSessionAttemptOffset] = useState(0);
   const [outcome, setOutcome] = useState<ReRunReviewOutcomeState | null>(null);
   const [error, setError] = useState<{

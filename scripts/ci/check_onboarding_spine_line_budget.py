@@ -49,7 +49,8 @@ def main() -> int:
             continue
 
         text = path.read_text(encoding="utf-8", errors="replace")
-        line_count = 0 if len(text) == 0 else text.count("\n") + 1
+        # A final newline terminates the last line; it does not create another one.
+        line_count = len(text.splitlines())
 
         if line_count > max_lines:
             failures.append(f"{rel}: {line_count} lines exceeds spine budget {max_lines}")

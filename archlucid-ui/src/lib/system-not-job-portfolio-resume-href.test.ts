@@ -48,6 +48,15 @@ describe("SN-012 portfolio resume href resolver", () => {
     expect(resolveRunIdFromWorkingReviewHref("/architecture/reviews/new")).toBeNull();
   });
 
+  it("returns null for malformed encoded review ids", () => {
+    expect(resolveRunIdFromWorkingReviewHref("/architecture/reviews/%E0%A4%A")).toBeNull();
+    expect(
+      resolveRunIdFromWorkingReviewHref(
+        "/architecture/architectures/architecture-identity-001/reviews/%E0%A4%A",
+      ),
+    ).toBeNull();
+  });
+
   it("runs list continue-last row uses SN-012 resume resolver", () => {
     const row = readFileSync(
       join(

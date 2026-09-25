@@ -109,7 +109,7 @@ internal static partial class PilotProofPacketCommand
             {
                 schema = "archlucid.proof-packet.audit-sample.v1",
                 runId,
-                capturedUtc = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+                capturedUtc = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
                 auditEventIds = auditIds,
                 note = "Event ids only — no payloads or secrets.",
             },

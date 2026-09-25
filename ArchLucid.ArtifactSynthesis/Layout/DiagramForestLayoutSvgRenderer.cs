@@ -16,7 +16,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double Width,
         double Height,
         DiagramForestNodeMetrics Metrics,
-        string? FrameCellId = null);
+        string? FrameCellId = null,
+        int DataFlowColumnIndex = -1,
+        string? VnetFrameId = null,
+        bool IsFrameAnchor = false);
 
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
@@ -53,19 +56,53 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 DiagramResourceGroupPacker.PartitionCells(renderableNodes),
                 visibleEdges);
 
-        List<ComponentLayout> componentLayouts = BuildResourceGroupCellLayouts(
-            resourceGroupCells,
-            visibleEdges,
-            resolvedOptions,
-            labelContext);
+        List<NodePlacement> placements;
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo>? dataFlowColumns = null;
 
-        if (componentLayouts.Count == 0)
+        if (IsDataFlowTitle(ast.Title))
+        {
+            DiagramForestDataFlowColumnLayout.Result dataFlowLayout = DiagramForestDataFlowColumnLayout.Plan(
+                renderableNodes,
+                ast.Subgraphs,
+                resolvedOptions,
+                labelContext,
+                visibleEdges);
+            dataFlowColumns = dataFlowLayout.Columns;
+            placements = dataFlowLayout.Placements
+                .Select(placement => new NodePlacement(
+                    placement.Node,
+                    placement.X,
+                    placement.Y,
+                    placement.Width,
+                    placement.Height,
+                    placement.Metrics,
+                    FrameCellId: null,
+                    DataFlowColumnIndex: placement.ColumnIndex))
+                .ToList();
+        }
+        else
+        {
+            List<ComponentLayout> componentLayouts = BuildResourceGroupCellLayouts(
+                resourceGroupCells,
+                visibleEdges,
+                resolvedOptions,
+                labelContext,
+                ast.Title);
+
+            if (componentLayouts.Count == 0)
+            {
+                return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
+            }
+
+            placements = PlaceNodes(componentLayouts, resolvedOptions);
+        }
+
+        if (placements.Count == 0)
         {
             return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
         }
 
-        List<NodePlacement> placements = PlaceNodes(componentLayouts, resolvedOptions);
-        string svg = EmitSvg(placements, visibleEdges, renderableNodes, ast.Title, resolvedOptions);
+        string svg = EmitSvg(placements, visibleEdges, renderableNodes, ast.Title, resolvedOptions, dataFlowColumns);
 
         if (string.IsNullOrWhiteSpace(svg))
         {
@@ -77,6 +114,60 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             Succeeded = true,
             Svg = svg,
         };
+    }
+
+    private static bool IsDataFlowTitle(string title)
+    {
+        return title.Contains("(DataFlow)", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsDataInventoryTitle(string title)
+    {
+        return title.Contains("(Data)", StringComparison.OrdinalIgnoreCase)
+            && !IsDataFlowTitle(title);
+    }
+
+    private static bool IsDataOrStorageNode(DiagramNode node)
+    {
+        string armType = node.ArmResourceType ?? string.Empty;
+        return armType.Contains("Microsoft.Storage/", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("Microsoft.Sql/", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("Microsoft.DocumentDB/", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("Microsoft.DBfor", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("Microsoft.Cache/", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("Microsoft.Synapse/", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("Microsoft.DataFactory/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsInteriorVnetPlacementEdge(
+        DiagramEdge edge,
+        IReadOnlyList<NodePlacement> placements)
+    {
+        if (DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge) || !IsInVerb(edge.Label))
+        {
+            return false;
+        }
+
+        NodePlacement? from = placements.FirstOrDefault(placement =>
+            string.Equals(placement.Node.NodeId, edge.FromNodeId, StringComparison.Ordinal));
+        NodePlacement? to = placements.FirstOrDefault(placement =>
+            string.Equals(placement.Node.NodeId, edge.ToNodeId, StringComparison.Ordinal));
+        return from is not null
+            && to is not null
+            && !string.IsNullOrWhiteSpace(from.VnetFrameId)
+            && string.Equals(from.VnetFrameId, to.VnetFrameId, StringComparison.Ordinal);
+    }
+
+    private static bool IsInVerb(string? label)
+    {
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            return false;
+        }
+
+        string trimmed = label.Trim();
+        return trimmed.Equals("in", StringComparison.OrdinalIgnoreCase)
+            || trimmed.EndsWith("· in", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsPackingSubgraphMember(DiagramAst ast, DiagramNode node)
@@ -98,7 +189,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells,
         IReadOnlyList<DiagramEdge> visibleEdges,
         DiagramForestLayoutOptions options,
-        DiagramForestCanvasLabelContext labelContext)
+        DiagramForestCanvasLabelContext labelContext,
+        string diagramTitle)
     {
         ArgumentNullException.ThrowIfNull(cells);
 
@@ -107,7 +199,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         if (layers.Count > 1)
         {
-            return BuildLayeredResourceGroupCellLayouts(layers, visibleEdges, options, labelContext);
+            return BuildLayeredResourceGroupCellLayouts(layers, visibleEdges, options, labelContext, diagramTitle);
         }
 
         List<ComponentLayout> layouts = [];
@@ -130,7 +222,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 columnIndex,
                 visibleEdges,
                 options,
-                labelContext));
+                labelContext,
+                diagramTitle));
         }
 
         return layouts;
@@ -140,7 +233,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell>> layers,
         IReadOnlyList<DiagramEdge> visibleEdges,
         DiagramForestLayoutOptions options,
-        DiagramForestCanvasLabelContext labelContext)
+        DiagramForestCanvasLabelContext labelContext,
+        string diagramTitle)
     {
         ArgumentNullException.ThrowIfNull(layers);
 
@@ -170,7 +264,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     columnIndex,
                     visibleEdges,
                     options,
-                    labelContext));
+                    labelContext,
+                    diagramTitle));
             }
         }
 
@@ -183,7 +278,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         int columnIndex,
         IReadOnlyList<DiagramEdge> visibleEdges,
         DiagramForestLayoutOptions options,
-        DiagramForestCanvasLabelContext labelContext)
+        DiagramForestCanvasLabelContext labelContext,
+        string diagramTitle)
     {
         string componentKey = $"{rowIndex}_{columnIndex}";
         List<NodePlacement> relativePlacements = LayoutResourceGroupCell(
@@ -192,7 +288,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             cellIndex: 0,
             visibleEdges,
             options,
-            labelContext);
+            labelContext,
+            diagramTitle);
         (double width, double height) = ResolveCellOuterSize(relativePlacements, options);
 
         return new ComponentLayout(
@@ -280,7 +377,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         int cellIndex,
         IReadOnlyList<DiagramEdge> visibleEdges,
         DiagramForestLayoutOptions options,
-        DiagramForestCanvasLabelContext labelContext)
+        DiagramForestCanvasLabelContext labelContext,
+        string diagramTitle)
     {
         ArgumentNullException.ThrowIfNull(cell);
 
@@ -293,9 +391,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             cell.Nodes,
             visibleEdges);
         List<IReadOnlyList<DiagramNode>> orderedIslands = DiagramComponentRowPlanner.OrderComponents(islands);
-        List<NodePlacement> interiorPlacements = orderedIslands.Count <= 1
-            ? LayoutCellInterior(cell.Nodes, visibleEdges, options, labelContext)
-            : PackIslandPlacements(orderedIslands, visibleEdges, options, labelContext);
+        List<NodePlacement> interiorPlacements = LayoutVnetAwareCell(
+            cell.Nodes,
+            orderedIslands,
+            visibleEdges,
+            options,
+            labelContext,
+            diagramTitle);
 
         if (!DiagramResourceGroupPacker.ShouldDrawFrame(cell))
         {
@@ -320,6 +422,129 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 FrameCellId = frameCellId,
             })
             .ToList();
+    }
+
+    private static List<NodePlacement> LayoutVnetAwareCell(
+        IReadOnlyList<DiagramNode> cellNodes,
+        IReadOnlyList<IReadOnlyList<DiagramNode>> orderedIslands,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext,
+        string diagramTitle)
+    {
+        if (diagramTitle.Contains("(Identity)", StringComparison.OrdinalIgnoreCase))
+        {
+            return orderedIslands.Count <= 1
+                ? LayoutCellInterior(cellNodes, visibleEdges, options, labelContext)
+                : PackIslandPlacements(orderedIslands, visibleEdges, options, labelContext);
+        }
+
+        IReadOnlyDictionary<string, IReadOnlySet<string>> memberships =
+            DiagramForestVnetMembership.Resolve(cellNodes, visibleEdges, sameResourceGroupOnly: true);
+        Dictionary<string, DiagramNode> nodesById = cellNodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+        HashSet<string> assigned = [];
+        List<(string? FrameId, DiagramNode? Vnet, IReadOnlyList<DiagramNode> Nodes)> groups = [];
+
+        foreach ((string vnetNodeId, IReadOnlySet<string> memberIds) in memberships)
+        {
+            if (!nodesById.TryGetValue(vnetNodeId, out DiagramNode? vnet))
+            {
+                continue;
+            }
+
+            List<DiagramNode> members = memberIds
+                .Where(nodesById.ContainsKey)
+                .Select(nodeId => nodesById[nodeId])
+                .Where(node => !string.Equals(node.NodeId, vnetNodeId, StringComparison.Ordinal))
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .ToList();
+            if (members.Count == 0
+                || (IsDataInventoryTitle(diagramTitle) && !members.Any(IsDataOrStorageNode)))
+            {
+                continue;
+            }
+
+            groups.Add(($"vnet-{vnetNodeId}", vnet, members));
+            assigned.Add(vnetNodeId);
+            assigned.UnionWith(members.Select(node => node.NodeId));
+        }
+
+        if (groups.Count == 0)
+        {
+            return orderedIslands.Count <= 1
+                ? LayoutCellInterior(cellNodes, visibleEdges, options, labelContext)
+                : PackIslandPlacements(orderedIslands, visibleEdges, options, labelContext);
+        }
+
+        List<DiagramNode> remainder = cellNodes
+            .Where(node => !assigned.Contains(node.NodeId))
+            .ToList();
+        if (remainder.Count > 0)
+        {
+            groups.Add((null, null, remainder));
+        }
+
+        List<NodePlacement> placements = [];
+        double groupX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach ((string? frameId, DiagramNode? vnet, IReadOnlyList<DiagramNode> groupNodes) in groups)
+        {
+            List<NodePlacement> groupPlacements = LayoutCellInterior(
+                groupNodes,
+                visibleEdges,
+                options,
+                labelContext);
+            bool framed = frameId is not null && vnet is not null;
+            double pad = DiagramForestResourceGroupFrameStyle.Pad;
+            double labelBand = DiagramForestResourceGroupFrameStyle.LabelBand;
+            double offsetX = framed ? pad : 0.0d;
+            double offsetY = framed ? labelBand : 0.0d;
+            double interiorWidth = groupPlacements.Count == 0
+                ? options.UniformNodeWidth
+                : groupPlacements.Max(placement => placement.X + placement.Width);
+            double interiorHeight = groupPlacements.Count == 0
+                ? options.NodeHeight
+                : groupPlacements.Max(placement => placement.Y + placement.Height);
+            double groupWidth = framed ? interiorWidth + (pad * 2.0d) : interiorWidth;
+            double groupHeight = framed ? interiorHeight + labelBand + pad : interiorHeight;
+
+            if (groupX > 0.0d && groupX + groupWidth > options.MaxNodeWidth * 3)
+            {
+                groupX = 0.0d;
+                rowY += rowHeight + options.ComponentVerticalGap;
+                rowHeight = 0.0d;
+            }
+
+            placements.AddRange(groupPlacements.Select(placement => placement with
+            {
+                X = placement.X + groupX + offsetX,
+                Y = placement.Y + rowY + offsetY,
+                VnetFrameId = frameId,
+            }));
+
+            if (framed)
+            {
+                placements.Add(new NodePlacement(
+                    vnet!,
+                    groupX,
+                    rowY,
+                    groupWidth,
+                    groupHeight,
+                    DiagramForestNodeMetricsCalculator.Measure(vnet!, options, labelContext),
+                    VnetFrameId: frameId,
+                    IsFrameAnchor: true));
+            }
+
+            groupX += groupWidth + options.ComponentHorizontalGap;
+            rowHeight = Math.Max(rowHeight, groupHeight);
+        }
+
+        return placements;
     }
 
     private static List<NodePlacement> LayoutCellInterior(
@@ -535,7 +760,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<DiagramEdge> visibleEdges,
         IReadOnlyList<DiagramNode> renderableNodes,
         string title,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo>? dataFlowColumns = null)
     {
         if (placements.Count == 0)
         {
@@ -552,7 +778,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 placement.Y,
                 placement.Width,
                 placement.Height,
-                placement.FrameCellId))
+                placement.FrameCellId,
+                placement.VnetFrameId,
+                placement.IsFrameAnchor))
             .ToList();
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frameBounds =
             DiagramResourceGroupPacker.ResolveFrameBounds(placementBounds);
@@ -560,8 +788,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             DiagramForestNestedFrameResolver.Resolve(renderableNodes, placementBounds, visibleEdges);
         DiagramForestNestedFrameBounds? subscriptionFrame =
             DiagramForestSubscriptionFrameResolver.Resolve(title, placementBounds);
+        bool isDataFlow = IsDataFlowTitle(title) && dataFlowColumns is not null;
         double minX = placements.Min(placement => placement.X) - options.Padding;
-        double minY = placements.Min(placement => placement.Y) - options.Padding;
+        double minY = isDataFlow
+            ? options.Padding
+            : placements.Min(placement => placement.Y) - options.Padding;
         double maxX = placements.Max(placement => placement.X + placement.Width) + options.Padding;
         double maxY = placements.Max(placement => placement.Y + placement.Height) + options.Padding;
 
@@ -592,6 +823,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         HashSet<string> suppressedEdgeKeys = DiagramForestEdgeLabelCollapse.ResolveSuppressedEdgeKeys(
             renderableNodes,
             visibleEdges);
+        foreach (DiagramEdge edge in ResolveVnetInternalPlacementEdges(renderableNodes, visibleEdges))
+        {
+            suppressedEdgeKeys.Add(DiagramForestEdgeLabelCollapse.EdgeKey(edge));
+        }
         Dictionary<string, IReadOnlyList<DiagramNode>> componentByNodeId =
             BuildComponentMembership(renderableNodes, visibleEdges);
         Dictionary<string, DiagramNode> nodesById = renderableNodes.ToDictionary(
@@ -627,11 +862,23 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             root.Add(DiagramForestNestedFrameSvgEmitter.EmitLayer(svgNamespace, containerFrames));
         }
 
+        if (isDataFlow && dataFlowColumns is not null && dataFlowColumns.Count > 0)
+        {
+            root.Add(DiagramForestDataFlowStageLabelSvgEmitter.EmitLayer(svgNamespace, dataFlowColumns, options));
+        }
+
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
         List<(double X, double Y)> placedLabelCenters = [];
+        List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted = [];
 
         foreach (DiagramEdge edge in visibleEdges)
         {
+            if (suppressedEdgeKeys.Contains(DiagramForestEdgeLabelCollapse.EdgeKey(edge))
+                || IsInteriorVnetPlacementEdge(edge, placements))
+            {
+                continue;
+            }
+
             string routeFromNodeId = edge.FromNodeId;
             string routeToNodeId = edge.ToNodeId;
 
@@ -651,14 +898,62 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 continue;
             }
 
-            (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
-            IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
-                DiagramForestOrthogonalEdgeRouter.BuildObstacles(
+            DiagramForestOrthogonalEdgeRouter.RouteResult? route;
+
+            if (isDataFlow && dataFlowColumns is not null)
+            {
+                DiagramForestDataFlowColumnLayout.NodePlacement fromDataFlow = new(
+                    fromPlacement.Node,
+                    fromPlacement.X,
+                    fromPlacement.Y,
+                    fromPlacement.Width,
+                    fromPlacement.Height,
+                    fromPlacement.Metrics,
+                    fromPlacement.DataFlowColumnIndex);
+                DiagramForestDataFlowColumnLayout.NodePlacement toDataFlow = new(
+                    toPlacement.Node,
+                    toPlacement.X,
+                    toPlacement.Y,
+                    toPlacement.Width,
+                    toPlacement.Height,
+                    toPlacement.Metrics,
+                    toPlacement.DataFlowColumnIndex);
+                route = DiagramForestDataFlowEdgeRouter.TryRoute(
+                    fromDataFlow,
+                    toDataFlow,
+                    dataFlowColumns,
                     placementBounds,
                     routeFromNodeId,
-                    routeToNodeId);
-            DiagramForestOrthogonalEdgeRouter.RouteResult route =
-                DiagramForestOrthogonalEdgeRouter.Route(fromX, fromY, toX, toY, obstacles);
+                    routeToNodeId,
+                    options);
+
+                if (route is null)
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
+                IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
+                    DiagramForestOrthogonalEdgeRouter.BuildObstacles(
+                        placementBounds,
+                        routeFromNodeId,
+                        routeToNodeId);
+                double? extraVerticalChannelX = fromX <= toX
+                    ? fromX + options.NodeHorizontalGap
+                    : fromX - options.NodeHorizontalGap;
+                route = DiagramForestOrthogonalEdgeRouter.Route(
+                    fromX,
+                    fromY,
+                    toX,
+                    toY,
+                    obstacles,
+                    alreadyRouted,
+                    extraVerticalChannelX);
+            }
+
+            alreadyRouted.Add(route.Segments);
             bool suppressOnPathLabel = DiagramForestEdgeLabelCollapse.ShouldSuppressOnPathLabel(
                 edge,
                 suppressedEdgeKeys);
@@ -678,6 +973,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         foreach (NodePlacement placement in placements.OrderBy(candidate => candidate.Node.OrderKey)
                      .ThenBy(candidate => candidate.Node.NodeId, StringComparer.Ordinal))
         {
+            if (placement.IsFrameAnchor)
+            {
+                continue;
+            }
+
             string safeId = MermaidIdSanitizer.Sanitize(placement.Node.NodeId);
             XElement nodeGroup = DiagramForestNodeSvgEmitter.Emit(
                 svgNamespace,
@@ -717,6 +1017,40 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
 
         return root.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static IReadOnlyList<DiagramEdge> ResolveVnetInternalPlacementEdges(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramEdge> edges)
+    {
+        Dictionary<string, DiagramNode> nodesById = nodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+        HashSet<string> suppressed = [];
+
+        foreach (IReadOnlySet<string> members in DiagramForestVnetMembership
+                     .Resolve(nodes, edges, sameResourceGroupOnly: true)
+                     .Values)
+        {
+            foreach (DiagramEdge edge in edges)
+            {
+                if (DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge)
+                    || !DiagramForestVnetMembership.IsCitedPlacementEdge(edge)
+                    || !members.Contains(edge.FromNodeId)
+                    || !members.Contains(edge.ToNodeId)
+                    || !nodesById.ContainsKey(edge.FromNodeId)
+                    || !nodesById.ContainsKey(edge.ToNodeId))
+                {
+                    continue;
+                }
+
+                suppressed.Add(DiagramForestEdgeLabelCollapse.EdgeKey(edge));
+            }
+        }
+
+        return edges
+            .Where(edge => suppressed.Contains(DiagramForestEdgeLabelCollapse.EdgeKey(edge)))
+            .ToList();
     }
 
     private static Dictionary<string, IReadOnlyList<DiagramNode>> BuildComponentMembership(

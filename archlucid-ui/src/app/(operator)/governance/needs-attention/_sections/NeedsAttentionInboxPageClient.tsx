@@ -16,7 +16,14 @@ import {
   OPERATOR_ATTENTION_KIND_LABELS,
 } from "@/lib/operator/operator-attention-taxonomy";
 import { cn } from "@/lib/utils";
-import { NEEDS_ATTENTION_INBOX_LABEL } from "@/lib/usability/usability-consolidation";
+import {
+  NEEDS_ATTENTION_INBOX_CLAIM_DISCIPLINE,
+  NEEDS_ATTENTION_INBOX_LABEL,
+  NEEDS_ATTENTION_INBOX_PRIMARY_CONTENT_ID,
+  NEEDS_ATTENTION_INBOX_SKIP_LINK_LABEL,
+} from "@/lib/usability/usability-consolidation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
 export function NeedsAttentionInboxPageClient(): React.JSX.Element {
   const { summaries } = useOperatorAttentionSummary();
@@ -24,12 +31,28 @@ export function NeedsAttentionInboxPageClient(): React.JSX.Element {
   const unfinishedWorkHref = useReviewsHubUnfinishedWorkHref();
 
   return (
-    <OperatorPageContainer variant="full">
+    <OperatorPageContainer variant="full" className="py-4" data-testid="needs-attention-inbox-page">
+      <a
+        href={`#${NEEDS_ATTENTION_INBOX_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {NEEDS_ATTENTION_INBOX_SKIP_LINK_LABEL}
+      </a>
+
       <OperatorPageHeader
         navHref={GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH}
         title={NEEDS_ATTENTION_INBOX_LABEL}
         subtitle="One inbox for unfinished work, assigned findings, alerts, and approvals."
+        claimDiscipline={NEEDS_ATTENTION_INBOX_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="needs-attention-inbox-claim-discipline"
+        actions={<PageContextualHelpButton />}
       />
+
+      <main
+        id={NEEDS_ATTENTION_INBOX_PRIMARY_CONTENT_ID}
+        className="scroll-mt-24"
+        data-testid="needs-attention-inbox-primary-content"
+      >
       <ul className="m-0 grid list-none gap-3 p-0 md:grid-cols-2" data-testid="needs-attention-inbox-list">
         {summaries.map((summary) => {
           const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[summary.partition];
@@ -79,6 +102,7 @@ export function NeedsAttentionInboxPageClient(): React.JSX.Element {
           );
         })}
       </ul>
+      </main>
     </OperatorPageContainer>
   );
 }

@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
+import { ShortcutHint } from "@/components/ShortcutHint";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { ResponsibleAiPolicyPackTechnicalDetailsDisclosure } from "@/app/(operator)/governance/policy-packs/[id]/ResponsibleAiPolicyPackTechnicalDetailsDisclosure";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -10,6 +14,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
+import { POLICY_PACK_DETAIL_KEYBOARD_AFFORDANCE } from "@/lib/policy/policy-pack-detail-page-copy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -34,7 +39,7 @@ import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs
 import {
   RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE,
   RESPONSIBLE_AI_ACTION_GOVERNANCE,
-  RESPONSIBLE_AI_ACTION_OPEN_LIBRARY,
+  RESPONSIBLE_AI_ACTION_MANAGE_WORKSPACE_ASSIGNMENT,
   RESPONSIBLE_AI_ACTION_START_REVIEW,
   RESPONSIBLE_AI_EVIDENCE_REQUIRED_ITEMS,
   RESPONSIBLE_AI_POLICY_PACK_APPLICABILITY,
@@ -52,6 +57,10 @@ import {
 
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+  PageContextualHelpButton,
+} from "@/components/usability/PageContextualHelpButton";
 
 type ResponsibleAiPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -191,9 +200,14 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null, policyPackId:
 
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
+  const { productLine } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
   const findingsHref = props.findingsHref ?? GOVERNANCE_FINDINGS_PATH;
+  const showCrossProductActions = productLine !== "security";
+  const primaryActionLabel = isEnabled
+    ? RESPONSIBLE_AI_ACTION_MANAGE_WORKSPACE_ASSIGNMENT
+    : RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE;
   const versionMetric = resolveVersionMetric(packRecord);
   const lastUpdatedMetric = resolveLastUpdatedMetric(packRecord);
   const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
@@ -205,20 +219,31 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
     packRecord?.currentVersion?.trim() || RESPONSIBLE_AI_POLICY_PACK_BASELINE_VERSION;
   const lifecycleStatusLabel = resolveLifecycleStatusLabel(packRecord);
   const headerActions = (
-    <>
-      <Button asChild variant="default" size="sm" data-testid="policy-pack-primary-action">
-        <Link href={policyPacksEditHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE}</Link>
-      </Button>
-      <Button asChild variant="outline" size="sm">
-        <Link href={reviewsNewWithPackHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
-      </Button>
-      <Button asChild variant="outline" size="sm">
-        <Link href={packsHubHref}>{RESPONSIBLE_AI_ACTION_OPEN_LIBRARY}</Link>
-      </Button>
-      <Button asChild variant="outline" size="sm">
-        <Link href="/governance/approval-queue">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
-      </Button>
-    </>
+    <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button asChild variant="default" size="sm" data-testid="policy-pack-primary-action">
+          <Link href={policyPacksEditHref(policyPackId, packsHubHref)}>{primaryActionLabel}</Link>
+        </Button>
+        {showCrossProductActions ? (
+          <>
+            <Button asChild variant="outline" size="sm">
+              <Link href={reviewsNewWithPackHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/governance/approval-queue">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
+            </Button>
+          </>
+        ) : null}
+        <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+      </div>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+        data-testid="policy-pack-detail-keyboard-affordance"
+      >
+        <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search.
+        <span className="sr-only">{POLICY_PACK_DETAIL_KEYBOARD_AFFORDANCE}</span>
+      </p>
+    </div>
   );
 
   return (

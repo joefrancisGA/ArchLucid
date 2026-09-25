@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpConfigurationReferenceActionPanel } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceActionPanel";
 import { HelpConfigurationReferenceCatalogSection } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceCatalogSection";
+import { HELP_CONFIGURATION_REFERENCE_PRINT_PREPARE_EVENT } from "@/lib/help/help-configuration-reference-print-events";
 import { HelpConfigurationReferenceProvenanceFooter } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceProvenanceFooter";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConfigurationReferenceHelpClaimDisciplineStrip } from "@/components/help/ConfigurationReferenceHelpClaimDisciplineStrip";
@@ -9,6 +10,7 @@ import { HelpConfigurationReferenceBreadcrumb } from "@/app/(operator)/help/_sec
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
@@ -16,6 +18,8 @@ import {
   CONFIGURATION_REFERENCE_HELP_OVERVIEW,
   CONFIGURATION_REFERENCE_HELP_PAGE_SUBTITLE,
   CONFIGURATION_REFERENCE_HELP_PAGE_TITLE,
+  CONFIGURATION_REFERENCE_HELP_PRIMARY_CONTENT_ID,
+  CONFIGURATION_REFERENCE_HELP_SKIP_LINK_LABEL,
   CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS,
 } from "@/lib/configuration-reference-help-guide-content";
 import {
@@ -95,6 +99,20 @@ function JobMatrixRow(props: {
   );
 }
 
+async function prepareConfigurationReferenceForPrint(): Promise<void> {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent(HELP_CONFIGURATION_REFERENCE_PRINT_PREPARE_EVENT));
+
+  await new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
 /** Admin configuration task orientation for `/help/configuration-reference` (TB-1326 / TB-1328). */
 export function HelpConfigurationReferenceGuideView(
   props: HelpConfigurationReferenceGuideViewProps,
@@ -108,6 +126,13 @@ export function HelpConfigurationReferenceGuideView(
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-configuration-reference-guide"
     >
+      <a
+        href={`#${CONFIGURATION_REFERENCE_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {CONFIGURATION_REFERENCE_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpConfigurationReferenceBreadcrumb />
@@ -120,11 +145,16 @@ export function HelpConfigurationReferenceGuideView(
         headingLevel="h1"
         actions={
           <div
-            className="flex flex-wrap items-center gap-2"
+            className="flex flex-col items-end gap-2"
             data-testid="help-configuration-reference-header-actions"
           >
-            <PageContextualHelpButton />
-            <HelpTopicPrintButton entry={entry} />
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <PageContextualHelpButton />
+              <HelpTopicPrintButton entry={entry} onBeforePrint={prepareConfigurationReferenceForPrint} />
+            </div>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search
+            </p>
           </div>
         }
       />
@@ -132,7 +162,10 @@ export function HelpConfigurationReferenceGuideView(
       <ConfigurationReferenceHelpClaimDisciplineStrip />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "min-w-0 space-y-6")}>
+        <div
+          id={CONFIGURATION_REFERENCE_HELP_PRIMARY_CONTENT_ID}
+          className={cn(HELP_PAGE_LAYOUT.contentColumn, "min-w-0 scroll-mt-24 space-y-6")}
+        >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-configuration-reference-overview">
             {CONFIGURATION_REFERENCE_HELP_OVERVIEW}
           </p>
@@ -156,6 +189,13 @@ export function HelpConfigurationReferenceGuideView(
                   ) : null}
                 </div>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{section.body}</p>
+                {section.primaryActionHref !== undefined && section.primaryActionLabel !== undefined ? (
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                    <Link className={OPERATOR_LINK.inline} href={section.primaryActionHref}>
+                      {section.primaryActionLabel}
+                    </Link>
+                  </p>
+                ) : null}
               </section>
             ))}
           </div>

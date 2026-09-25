@@ -43,6 +43,7 @@ import {
   parseSettingsUsersInviteOpenFromSearch,
   settingsUsersInviteHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-url";
+import { commitHrefIfChanged, readWindowLocationSearch, replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -91,6 +92,8 @@ import {
 } from "./settings-roles-settings-page-copy";
 import { SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/settings-roles-settings-evidence-copy";
 
+const settingsUsersInviteAutoOpenAttempted = new Set<string>();
+
 type Props = {
   readonly model: SettingsRolesPageViewModel;
 };
@@ -118,19 +121,28 @@ export function SettingsRolesPageView(props: Props) {
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
   const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
   const [inviteSectionOpen, setInviteSectionOpenState] = useState(urlInviteOpen);
+  const inviteSectionOpenRef = useRef(urlInviteOpen);
   const rolesTabBuyerPolished = buyerPolishedShell && activeTab === "roles";
   const usersTabBuyerPolished = buyerPolishedShell && activeTab === "users";
   const buyerPolishedMutationTab = rolesTabBuyerPolished || usersTabBuyerPolished;
 
   const syncInviteSectionToUrl = useCallback(
     (open: boolean) => {
-      router.replace(settingsUsersInviteHrefFromSearch(currentSearch, open, hubPathname), { scroll: false });
+      commitHrefIfChanged(
+        settingsUsersInviteHrefFromSearch(readWindowLocationSearch(), open, hubPathname),
+        { notify: false },
+      );
     },
-    [currentSearch, hubPathname, router],
+    [hubPathname],
   );
 
   const setInviteSectionOpen = useCallback(
     (open: boolean) => {
+      if (inviteSectionOpenRef.current === open) {
+        return;
+      }
+
+      inviteSectionOpenRef.current = open;
       setInviteSectionOpenState(open);
       syncInviteSectionToUrl(open);
     },
@@ -181,23 +193,45 @@ export function SettingsRolesPageView(props: Props) {
   }, []);
 
   useEffect(() => {
-    setActiveTab(urlTab);
-  }, [urlTab]);
+    const syncInviteOpenFromUrl = (): void => {
+      const nextInviteOpen = parseSettingsUsersInviteOpenFromSearch(
+        new URLSearchParams(window.location.search).get("invite"),
+      );
 
-  useEffect(() => {
-    setInviteSectionOpenState(parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite")));
-  }, [searchParams]);
+      if (inviteSectionOpenRef.current === nextInviteOpen) {
+        return;
+      }
 
-  useEffect(() => {
-    const onPop = () => {
-      const sp = new URLSearchParams(window.location.search);
-      setActiveTab(settingsUsersTabFromLocation(window.location.pathname, sp.get("tab"), canManageApiKeys));
+      inviteSectionOpenRef.current = nextInviteOpen;
+      setInviteSectionOpenState(nextInviteOpen);
     };
 
-    window.addEventListener("popstate", onPop);
+    syncInviteOpenFromUrl();
+    window.addEventListener("popstate", syncInviteOpenFromUrl);
 
     return () => {
-      window.removeEventListener("popstate", onPop);
+      window.removeEventListener("popstate", syncInviteOpenFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncActiveTabFromUrl = (): void => {
+      setActiveTab((current) => {
+        const next = settingsUsersTabFromLocation(
+          window.location.pathname,
+          new URLSearchParams(window.location.search).get("tab"),
+          canManageApiKeys,
+        );
+
+        return current === next ? current : next;
+      });
+    };
+
+    syncActiveTabFromUrl();
+    window.addEventListener("popstate", syncActiveTabFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncActiveTabFromUrl);
     };
   }, [canManageApiKeys]);
 
@@ -212,10 +246,18 @@ export function SettingsRolesPageView(props: Props) {
   }, [inviteSectionOpen]);
 
   useEffect(() => {
-    if (usersTabInviteFirstLayout && activeTab === "users" && !usersTabBuyerPolished) {
+    // Invite-first layout already renders the form inline; only auto-open the collapsible section.
+    if (
+      !usersTabInviteFirstLayout
+      && activeTab === "users"
+      && !usersTabBuyerPolished
+      && !inviteSectionOpen
+      && !settingsUsersInviteAutoOpenAttempted.has(hubPathname)
+    ) {
+      settingsUsersInviteAutoOpenAttempted.add(hubPathname);
       setInviteSectionOpen(true);
     }
-  }, [usersTabInviteFirstLayout, activeTab, usersTabBuyerPolished]);
+  }, [activeTab, hubPathname, inviteSectionOpen, setInviteSectionOpen, usersTabBuyerPolished, usersTabInviteFirstLayout]);
 
   const onSelectTab = useCallback(
     (id: string) => {
@@ -223,14 +265,14 @@ export function SettingsRolesPageView(props: Props) {
       setActiveTab(tabId);
 
       if (tabId === "users") {
-        router.replace(SETTINGS_USERS_USERS_TAB_PATH);
+        commitHrefIfChanged(SETTINGS_USERS_USERS_TAB_PATH, { notify: false });
 
         return;
       }
 
-      router.replace(`${hubPathname}?tab=${encodeURIComponent(tabId)}`);
+      commitHrefIfChanged(`${hubPathname}?tab=${encodeURIComponent(tabId)}`, { notify: false });
     },
-    [canManageApiKeys, hubPathname, router],
+    [canManageApiKeys, hubPathname],
   );
 
   const openInviteSection = useCallback(() => {
@@ -253,7 +295,7 @@ export function SettingsRolesPageView(props: Props) {
   function openPrincipal(principalId: string): void {
     writeSettingsPrincipalLastViewedId("user", principalId);
     setActiveTab("users");
-    router.replace(SETTINGS_USERS_USERS_TAB_PATH);
+    replaceIfHrefChanged(router, SETTINGS_USERS_USERS_TAB_PATH);
     window.setTimeout(() => {
       document
         .querySelector(`[data-principal-id="${CSS.escape(principalId)}"]`)
@@ -497,19 +539,22 @@ export function SettingsRolesPageView(props: Props) {
         />
 
         <TabsContent value="roles" data-testid="settings-roles-tabpanel-roles">
-          <Card>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SettingsRolesMatrixSection readOnly={rolesTabBuyerPolished} />
-            </CardContent>
-          </Card>
+          {activeTab === "roles" ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SettingsRolesMatrixSection readOnly={rolesTabBuyerPolished} />
+              </CardContent>
+            </Card>
+          ) : null}
         </TabsContent>
 
         {canManageApiKeys ? (
           <TabsContent value="keys" data-testid="settings-roles-tabpanel-keys">
-            <Card>
+            {activeTab === "keys" ? (
+              <Card>
               <CardHeader>
                 <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SETTINGS_ROLES_KEYS_TAB_CARD_TITLE}</CardTitle>
               </CardHeader>
@@ -554,6 +599,7 @@ export function SettingsRolesPageView(props: Props) {
                 ) : null}
               </CardContent>
             </Card>
+            ) : null}
           </TabsContent>
         ) : null}
           </Tabs>

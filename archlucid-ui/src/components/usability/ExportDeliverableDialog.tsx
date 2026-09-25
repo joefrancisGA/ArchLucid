@@ -6,8 +6,10 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
@@ -42,17 +44,23 @@ const AUDIENCE_OPTIONS: readonly { id: ReviewDeliverableAudience; label: string;
 
 /** Unified export/deliverable picker for post-commit reviews. */
 export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const searchParams = useSearchParams();
-  const deliverableOpenParam = searchParams.get("deliverableOpen");
-  const deliverableAudienceParam = searchParams.get("deliverableAudience");
-  const [open, setOpenState] = useState(() => parseReviewDeliverableOpenFromSearch(deliverableOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewDeliverableOpenFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("deliverableOpen"),
+    ),
+  );
   const [audience, setAudienceState] = useState<ReviewDeliverableAudience>(() => {
-    const parsed = parseReviewDeliverableAudienceFromSearch(deliverableAudienceParam);
+    const parsed = parseReviewDeliverableAudienceFromSearch(
+      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("deliverableAudience"),
+    );
 
     return parsed ?? "sponsor";
   });
+  const openRef = useRef(open);
+  openRef.current = open;
+  const audienceRef = useRef(audience);
+  audienceRef.current = audience;
   const encodedRun = encodeURIComponent(props.runId);
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: props.runId,
@@ -64,40 +72,77 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
 
   const syncDeliverablePanelsToUrl = useCallback(
     (nextOpen: boolean, nextAudience: ReviewDeliverableAudience) => {
-      router.replace(
+      commitHrefIfChanged(
         reviewExportDeliverablePanelsHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           { open: nextOpen, audience: nextOpen ? nextAudience : null },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncDeliverablePanelsToUrl(next, audience);
+
+        if (openRef.current === next) {
+          return current;
+        }
+
+        openRef.current = next;
+        syncDeliverablePanelsToUrl(next, audienceRef.current);
 
         return next;
       });
     },
-    [audience, syncDeliverablePanelsToUrl],
+    [syncDeliverablePanelsToUrl],
   );
 
   const setAudience = useCallback(
     (nextAudience: ReviewDeliverableAudience) => {
+      if (audienceRef.current === nextAudience) {
+        return;
+      }
+
+      audienceRef.current = nextAudience;
       setAudienceState(nextAudience);
 
-      if (open) {
+      if (openRef.current) {
         syncDeliverablePanelsToUrl(true, nextAudience);
       }
     },
-    [open, syncDeliverablePanelsToUrl],
+    [syncDeliverablePanelsToUrl],
   );
+
+  useEffect(() => {
+    const syncDeliverablePanelsFromUrl = (): void => {
+      const params = new URLSearchParams(window.location.search);
+      const nextOpen = parseReviewDeliverableOpenFromSearch(params.get("deliverableOpen"));
+      const parsedAudience = parseReviewDeliverableAudienceFromSearch(params.get("deliverableAudience"));
+      const nextAudience = parsedAudience ?? audienceRef.current;
+
+      if (openRef.current !== nextOpen) {
+        openRef.current = nextOpen;
+        setOpenState(nextOpen);
+      }
+
+      if (parsedAudience !== null && audienceRef.current !== nextAudience) {
+        audienceRef.current = nextAudience;
+        setAudienceState(nextAudience);
+      }
+    };
+
+    syncDeliverablePanelsFromUrl();
+    window.addEventListener("popstate", syncDeliverablePanelsFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDeliverablePanelsFromUrl);
+    };
+  }, []);
 
   const exportHref =
     audience === "sponsor"

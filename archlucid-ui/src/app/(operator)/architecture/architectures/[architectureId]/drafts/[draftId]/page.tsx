@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
+import { ArchitectureNestedDraftPageClient } from "@/app/(operator)/architecture/architectures/[architectureId]/drafts/[draftId]/ArchitectureNestedDraftPageClient";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { getDraftRequest } from "@/lib/api/draft-intake-api";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
@@ -51,7 +51,7 @@ export default async function NestedArchitectureDraftPage(
   return (
     <OperatorPageContainer variant="workflow">
       <div className="mt-6 space-y-4">
-        <ArchitectureDraftWorkspace draftId={draftId} parentArchitectureId={architectureId} />
+        <ArchitectureNestedDraftPageClient architectureId={architectureId} draftId={draftId} />
       </div>
     </OperatorPageContainer>
   );

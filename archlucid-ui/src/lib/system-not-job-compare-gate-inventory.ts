@@ -45,6 +45,7 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS: readonly SystemNotJobCompareG
     leftSide: "In-flight draft (DraftRequests)",
     rightSide: "Committed run (GoldenManifestId + ManifestHash)",
     gateOutcome: "blocked",
+    // eslint-disable-next-line buyer-review-terminology/no-run-primary-copy -- this is an internal audit inventory, not buyer-facing copy.
     blockedReason: "Draft is not a run/manifest; Compare pickers list committed runs only.",
     surface: "CompareForm · useCompareFinalizedRunAvailability (committedOnly)",
     backendGate: "CompareRunsAsync manifest diff only when both GoldenManifestId set",
@@ -107,8 +108,8 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS: readonly SystemNotJobCompareG
     leftSide: "Labeled what-if envelope (ADR 0092, committed golden manifest)",
     rightSide: "Committed golden manifest (Career seal)",
     gateOutcome: "allowed",
-    blockedReason:
-      "Both sides are committed runs; Compare pickers show door stamps and diff manifests (SN-014 / CG-057).",
+    // eslint-disable-next-line buyer-review-terminology/no-run-primary-copy -- this is an internal audit inventory, not buyer-facing copy.
+    blockedReason: "Both sides are committed runs; Compare pickers show door stamps and diff manifests (SN-014 / CG-057).",
     surface: "CompareForm · CompareRunPickersSection · committedOnly + stamp footnotes",
     backendGate: "AuthorityCompareService.CompareRunsAsync · GoldenManifestId on both runs",
     cheapPathOwner: "SN-014",

@@ -251,8 +251,6 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
             || resourceType.Contains("Microsoft.DBforMySQL", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("Microsoft.KeyVault/vaults", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("Microsoft.DocumentDB", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.EventHub", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.ServiceBus", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("Microsoft.Cache/redis", StringComparison.OrdinalIgnoreCase);
     }
 

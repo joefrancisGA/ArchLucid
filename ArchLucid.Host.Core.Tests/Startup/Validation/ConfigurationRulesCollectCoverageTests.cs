@@ -207,7 +207,9 @@ public sealed class ConfigurationRulesCollectCoverageTests
 
         AgentExecutionRules.Collect(configuration, errors);
 
-        errors.Should().ContainSingle(e => e.Contains("Azure OpenAI", StringComparison.Ordinal));
+        errors.Should().ContainSingle(e =>
+            e.Contains("Azure OpenAI", StringComparison.Ordinal)
+            && e.Contains("AgentExecution:Mode=Simulator", StringComparison.Ordinal));
     }
 
     [Fact]

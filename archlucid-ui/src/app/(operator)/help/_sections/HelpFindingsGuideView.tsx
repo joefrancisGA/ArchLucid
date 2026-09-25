@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { FindingsHelpClaimDisciplineStrip } from "@/components/help/FindingsHelpClaimDisciplineStrip";
@@ -61,7 +65,6 @@ import {
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -205,7 +208,7 @@ function FindingsActionPanel(props: { readonly productLineId: ProductLineId }): 
 /** Buyer-safe findings orientation for `/help/findings`. */
 export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.ReactElement {
   void props.entry;
-  const productLineId = resolveProductLineIdFromEnv();
+  const { productLine: productLineId } = useProductLine();
   const pageSubtitle = findingsHelpPageSubtitle(productLineId);
   const overview = findingsHelpOverview(productLineId);
   const whatIsBody = findingsHelpWhatIsBody(productLineId);

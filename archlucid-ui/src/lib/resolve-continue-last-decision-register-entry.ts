@@ -54,10 +54,20 @@ export function resolveContinueLastDecisionRegisterEntry(
     return null;
   }
 
+  const validDecisions = normalizedDecisions.filter(
+    (decision) =>
+      typeof decision?.manifestId === "string"
+      && typeof decision?.recordedAtUtc === "string",
+  );
+
+  if (validDecisions.length === 0) {
+    return null;
+  }
+
   const recentManifestId = readRecentDecisionManifestId();
 
   if (recentManifestId !== null) {
-    const manifestMatch = normalizedDecisions.find((decision) => decision.manifestId === recentManifestId);
+    const manifestMatch = validDecisions.find((decision) => decision.manifestId === recentManifestId);
 
     if (manifestMatch !== undefined) {
       return manifestMatch;
@@ -65,7 +75,7 @@ export function resolveContinueLastDecisionRegisterEntry(
   }
 
   return (
-    normalizedDecisions
+    validDecisions
       .slice()
       .sort((left, right) => right.recordedAtUtc.localeCompare(left.recordedAtUtc))[0] ?? null
   );

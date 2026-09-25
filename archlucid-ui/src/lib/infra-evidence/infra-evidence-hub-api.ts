@@ -2,6 +2,7 @@ import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import { infraEvidenceHubBlockedReason } from "@/lib/infra-evidence/infra-evidence-hub-blocked-reason";
+import { tryWorkbookInfraResourceHubDemoFallback } from "@/lib/infra-evidence/infra-resource-hub-demo-fallback";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resourceExplorerWorkQueueApiValue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type {
@@ -65,29 +66,37 @@ export async function fetchCloudResourceExplorerPage(
     hasMore?: boolean;
   }>(`${CLOUD_RESOURCES_PATH}?${params.toString()}`);
 
-  const items = (raw.items ?? []).map((row) => ({
-    cloudResourceId: row.cloudResourceId ?? "",
-    externalResourceId: row.externalResourceId ?? "",
-    displayName: row.displayName ?? null,
-    resourceType: row.resourceType ?? null,
-    resourceGroup: row.resourceGroup ?? null,
-    region: row.region ?? null,
-    lastSeenUtc: row.lastSeenUtc ?? "",
-    workCounts: row.workCounts == null
-      ? null
-      : {
-          openOperationalFindingsCount: row.workCounts.openOperationalFindingsCount ?? 0,
-          openRemediationInstancesCount: row.workCounts.openRemediationInstancesCount ?? 0,
-          inventoryDriftChangeCount: row.workCounts.inventoryDriftChangeCount ?? 0,
-        },
-  }));
+  const items = (raw.items ?? [])
+    .filter(
+      (row) =>
+        row != null
+        && typeof row.cloudResourceId === "string"
+        && typeof row.externalResourceId === "string"
+        && typeof row.lastSeenUtc === "string",
+    )
+    .map((row) => ({
+      cloudResourceId: row.cloudResourceId,
+      externalResourceId: row.externalResourceId,
+      displayName: typeof row.displayName === "string" ? row.displayName : null,
+      resourceType: typeof row.resourceType === "string" ? row.resourceType : null,
+      resourceGroup: typeof row.resourceGroup === "string" ? row.resourceGroup : null,
+      region: typeof row.region === "string" ? row.region : null,
+      lastSeenUtc: row.lastSeenUtc,
+      workCounts: row.workCounts == null
+        ? null
+        : {
+            openOperationalFindingsCount: Number.isFinite(row.workCounts.openOperationalFindingsCount) ? Number(row.workCounts.openOperationalFindingsCount) : 0,
+            openRemediationInstancesCount: Number.isFinite(row.workCounts.openRemediationInstancesCount) ? Number(row.workCounts.openRemediationInstancesCount) : 0,
+            inventoryDriftChangeCount: Number.isFinite(row.workCounts.inventoryDriftChangeCount) ? Number(row.workCounts.inventoryDriftChangeCount) : 0,
+          },
+    }));
 
   return {
     items,
-    totalCount: raw.totalCount ?? items.length,
-    page: raw.page ?? page,
-    pageSize: raw.pageSize ?? pageSize,
-    hasMore: raw.hasMore ?? false,
+    totalCount: Number.isFinite(raw.totalCount) ? Number(raw.totalCount) : items.length,
+    page: Number.isFinite(raw.page) ? Number(raw.page) : page,
+    pageSize: Number.isFinite(raw.pageSize) ? Number(raw.pageSize) : pageSize,
+    hasMore: raw.hasMore === true,
   };
 }
 
@@ -119,53 +128,101 @@ export async function fetchCloudResourceEvidenceHub(
     params.set("controlId", context.controlId.trim());
   }
 
-  const raw = await proxyJsonGet<Record<string, unknown>>(
-    `${CLOUD_RESOURCES_PATH}/${cloudResourceId}/hub?${params.toString()}`,
-  );
+  try {
+    const raw = await proxyJsonGet<Record<string, unknown>>(
+      `${CLOUD_RESOURCES_PATH}/${cloudResourceId}/hub?${params.toString()}`,
+    );
 
-  return mapHubResponse(raw);
+    return mapHubResponse(raw);
+  } catch (error: unknown) {
+    const demoFallback = tryWorkbookInfraResourceHubDemoFallback(cloudResourceId);
+
+    if (demoFallback !== null) {
+      return demoFallback;
+    }
+
+    const failure = toApiLoadFailure(error);
+    const blockedReason = infraEvidenceHubBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatInfraEvidenceSealedManifestAwareApiError(failure));
+  }
+}
+
+function stringRecord(value: unknown): Record<string, string> {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+  );
 }
 
 function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubResponse {
+  const finiteNumberOr = (value: unknown, fallback: number): number => {
+    const parsed = typeof value === "number" ? value : Number(value);
+
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
   const mapFindingStream = (stream: Record<string, unknown> | undefined) => ({
     streamKind: String(stream?.streamKind ?? ""),
     streamLabel: String(stream?.streamLabel ?? ""),
     items: Array.isArray(stream?.items)
-      ? stream.items.map((item) => {
+      ? stream.items.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            id: String(row.id ?? ""),
-            title: String(row.title ?? ""),
-            severity: row.severity != null ? String(row.severity) : null,
-            status: row.status != null ? String(row.status) : null,
-            streamKind: String(row.streamKind ?? ""),
-            streamLabel: String(row.streamLabel ?? ""),
-          };
+          if (typeof row.id !== "string" || typeof row.title !== "string") {
+            return [];
+          }
+
+          return [{
+            id: row.id,
+            title: row.title,
+            severity: typeof row.severity === "string" ? row.severity : null,
+            status: typeof row.status === "string" ? row.status : null,
+            streamKind: typeof row.streamKind === "string" ? row.streamKind : "",
+            streamLabel: typeof row.streamLabel === "string" ? row.streamLabel : "",
+          }];
         })
       : [],
-    totalCount: Number(stream?.totalCount ?? 0),
-    page: Number(stream?.page ?? 1),
-    pageSize: Number(stream?.pageSize ?? 25),
-    hasMore: Boolean(stream?.hasMore),
+    totalCount: finiteNumberOr(stream?.totalCount, 0),
+    page: finiteNumberOr(stream?.page, 1),
+    pageSize: finiteNumberOr(stream?.pageSize, 25),
+    hasMore: stream?.hasMore === true,
   });
 
   const mapRemediationStream = (stream: Record<string, unknown> | undefined) => ({
     items: Array.isArray(stream?.items)
-      ? stream.items.map((item) => {
+      ? stream.items.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            instanceId: String(row.instanceId ?? ""),
-            patternKey: String(row.patternKey ?? ""),
-            status: String(row.status ?? ""),
-          };
+          if (
+            typeof row.instanceId !== "string"
+            || typeof row.patternKey !== "string"
+            || typeof row.status !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            instanceId: row.instanceId,
+            patternKey: row.patternKey,
+            status: row.status,
+          }];
         })
       : [],
-    totalCount: Number(stream?.totalCount ?? 0),
-    page: Number(stream?.page ?? 1),
-    pageSize: Number(stream?.pageSize ?? 25),
-    hasMore: Boolean(stream?.hasMore),
+    totalCount: finiteNumberOr(stream?.totalCount, 0),
+    page: finiteNumberOr(stream?.page, 1),
+    pageSize: finiteNumberOr(stream?.pageSize, 25),
+    hasMore: stream?.hasMore === true,
   });
 
   const currentConfigurationRaw = raw.currentConfiguration as Record<string, unknown> | null | undefined;
@@ -173,44 +230,44 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
   const auditRaw = raw.auditLineageLink as Record<string, unknown> | undefined;
 
   return {
-    cloudResourceId: String(raw.cloudResourceId ?? ""),
-    externalResourceId: String(raw.externalResourceId ?? ""),
-    resourceType: raw.resourceType != null ? String(raw.resourceType) : null,
+    cloudResourceId: typeof raw.cloudResourceId === "string" ? raw.cloudResourceId : "",
+    externalResourceId: typeof raw.externalResourceId === "string" ? raw.externalResourceId : "",
+    resourceType: typeof raw.resourceType === "string" ? raw.resourceType : null,
     currentConfiguration:
       currentConfigurationRaw == null
         ? null
         : {
-            snapshotId: String(currentConfigurationRaw.snapshotId ?? ""),
-            azureResourceId: String(currentConfigurationRaw.azureResourceId ?? ""),
-            resourceType: String(currentConfigurationRaw.resourceType ?? ""),
+            snapshotId: typeof currentConfigurationRaw.snapshotId === "string" ? currentConfigurationRaw.snapshotId : "",
+            azureResourceId: typeof currentConfigurationRaw.azureResourceId === "string" ? currentConfigurationRaw.azureResourceId : "",
+            resourceType: typeof currentConfigurationRaw.resourceType === "string" ? currentConfigurationRaw.resourceType : "",
             resourceGroup:
-              currentConfigurationRaw.resourceGroup != null
-                ? String(currentConfigurationRaw.resourceGroup)
+              typeof currentConfigurationRaw.resourceGroup === "string"
+                ? currentConfigurationRaw.resourceGroup
                 : null,
-            region: currentConfigurationRaw.region != null ? String(currentConfigurationRaw.region) : null,
-            properties: (currentConfigurationRaw.properties as Record<string, string>) ?? {},
-            tags: (currentConfigurationRaw.tags as Record<string, string>) ?? {},
+            region: typeof currentConfigurationRaw.region === "string" ? currentConfigurationRaw.region : null,
+            properties: stringRecord(currentConfigurationRaw.properties),
+            tags: stringRecord(currentConfigurationRaw.tags),
           },
-    terraformAddress: raw.terraformAddress != null ? String(raw.terraformAddress) : null,
+    terraformAddress: typeof raw.terraformAddress === "string" ? raw.terraformAddress : null,
     terraformGenerationMethod:
-      raw.terraformGenerationMethod != null ? String(raw.terraformGenerationMethod) : null,
+      typeof raw.terraformGenerationMethod === "string" ? raw.terraformGenerationMethod : null,
     diagramCorrespondence:
       diagramRaw == null
         ? null
         : {
-            correspondenceId: String(diagramRaw.correspondenceId ?? ""),
-            diagramNodeId: diagramRaw.diagramNodeId != null ? String(diagramRaw.diagramNodeId) : null,
-            diagramNodeLabel: diagramRaw.diagramNodeLabel != null ? String(diagramRaw.diagramNodeLabel) : null,
-            cloudResourceId: diagramRaw.cloudResourceId != null ? String(diagramRaw.cloudResourceId) : null,
-            azureResourceId: diagramRaw.azureResourceId != null ? String(diagramRaw.azureResourceId) : null,
-            resourceType: diagramRaw.resourceType != null ? String(diagramRaw.resourceType) : null,
-            resourceGroup: diagramRaw.resourceGroup != null ? String(diagramRaw.resourceGroup) : null,
-            terraformAddress: diagramRaw.terraformAddress != null ? String(diagramRaw.terraformAddress) : null,
-            matchKind: String(diagramRaw.matchKind ?? ""),
-            confidenceBand: String(diagramRaw.confidenceBand ?? ""),
-            explainText: String(diagramRaw.explainText ?? ""),
-            aiRationale: diagramRaw.aiRationale != null ? String(diagramRaw.aiRationale) : null,
-            securityDiscrepancy: Boolean(diagramRaw.securityDiscrepancy),
+            correspondenceId: typeof diagramRaw.correspondenceId === "string" ? diagramRaw.correspondenceId : "",
+            diagramNodeId: typeof diagramRaw.diagramNodeId === "string" ? diagramRaw.diagramNodeId : null,
+            diagramNodeLabel: typeof diagramRaw.diagramNodeLabel === "string" ? diagramRaw.diagramNodeLabel : null,
+            cloudResourceId: typeof diagramRaw.cloudResourceId === "string" ? diagramRaw.cloudResourceId : null,
+            azureResourceId: typeof diagramRaw.azureResourceId === "string" ? diagramRaw.azureResourceId : null,
+            resourceType: typeof diagramRaw.resourceType === "string" ? diagramRaw.resourceType : null,
+            resourceGroup: typeof diagramRaw.resourceGroup === "string" ? diagramRaw.resourceGroup : null,
+            terraformAddress: typeof diagramRaw.terraformAddress === "string" ? diagramRaw.terraformAddress : null,
+            matchKind: typeof diagramRaw.matchKind === "string" ? diagramRaw.matchKind : "",
+            confidenceBand: typeof diagramRaw.confidenceBand === "string" ? diagramRaw.confidenceBand : "",
+            explainText: typeof diagramRaw.explainText === "string" ? diagramRaw.explainText : "",
+            aiRationale: typeof diagramRaw.aiRationale === "string" ? diagramRaw.aiRationale : null,
+            securityDiscrepancy: diagramRaw.securityDiscrepancy === true,
           },
     operationalSecurityFindings: mapFindingStream(
       raw.operationalSecurityFindings as Record<string, unknown> | undefined,
@@ -222,77 +279,136 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       raw.remediationInstances as Record<string, unknown> | undefined,
     ),
     rbacAssignments: Array.isArray(raw.rbacAssignments)
-      ? raw.rbacAssignments.map((item) => {
+      ? raw.rbacAssignments.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            principalId: String(row.principalId ?? ""),
-            roleDefinitionId: String(row.roleDefinitionId ?? ""),
-            scope: String(row.scope ?? ""),
-          };
+          if (
+            typeof row.principalId !== "string"
+            || typeof row.roleDefinitionId !== "string"
+            || typeof row.scope !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            principalId: row.principalId,
+            roleDefinitionId: row.roleDefinitionId,
+            scope: row.scope,
+          }];
         })
       : [],
     networkRelationships: Array.isArray(raw.networkRelationships)
-      ? raw.networkRelationships.map((item) => {
+      ? raw.networkRelationships.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            relationshipType: String(row.relationshipType ?? ""),
-            fromAzureResourceId: String(row.fromAzureResourceId ?? ""),
-            toAzureResourceId: String(row.toAzureResourceId ?? ""),
-          };
+          if (
+            typeof row.relationshipType !== "string"
+            || typeof row.fromAzureResourceId !== "string"
+            || typeof row.toAzureResourceId !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            relationshipType: row.relationshipType,
+            fromAzureResourceId: row.fromAzureResourceId,
+            toAzureResourceId: row.toAzureResourceId,
+          }];
         })
       : [],
     recentChanges: Array.isArray(raw.recentChanges)
-      ? raw.recentChanges.map((item) => {
+      ? raw.recentChanges.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            changeId: String(row.changeId ?? ""),
-            diffId: String(row.diffId ?? ""),
-            snapshotAId: String(row.snapshotAId ?? ""),
-            snapshotBId: String(row.snapshotBId ?? ""),
-            changeType: String(row.changeType ?? ""),
-            property: row.property != null ? String(row.property) : null,
-            oldValue: row.oldValue != null ? String(row.oldValue) : null,
-            newValue: row.newValue != null ? String(row.newValue) : null,
-            riskClassification: row.riskClassification != null ? String(row.riskClassification) : null,
-          };
+          if (
+            typeof row.changeId !== "string"
+            || typeof row.diffId !== "string"
+            || typeof row.snapshotAId !== "string"
+            || typeof row.snapshotBId !== "string"
+            || typeof row.changeType !== "string"
+          ) {
+            return [];
+          }
+
+          return [{
+            changeId: row.changeId,
+            diffId: row.diffId,
+            snapshotAId: row.snapshotAId,
+            snapshotBId: row.snapshotBId,
+            changeType: row.changeType,
+            property: typeof row.property === "string" ? row.property : null,
+            oldValue: typeof row.oldValue === "string" ? row.oldValue : null,
+            newValue: typeof row.newValue === "string" ? row.newValue : null,
+            riskClassification: typeof row.riskClassification === "string" ? row.riskClassification : null,
+          }];
         })
       : [],
     auditLineageLink: {
-      available: Boolean(auditRaw?.available),
-      degradedReason: auditRaw?.degradedReason != null ? String(auditRaw.degradedReason) : null,
-      relativePath: auditRaw?.relativePath != null ? String(auditRaw.relativePath) : null,
-      assessmentId: auditRaw?.assessmentId != null ? String(auditRaw.assessmentId) : null,
+      available: auditRaw?.available === true,
+      degradedReason: typeof auditRaw?.degradedReason === "string" ? auditRaw.degradedReason : null,
+      relativePath: typeof auditRaw?.relativePath === "string" ? auditRaw.relativePath : null,
+      assessmentId: typeof auditRaw?.assessmentId === "string" ? auditRaw.assessmentId : null,
       auditEvidenceSnapshotId:
-        auditRaw?.auditEvidenceSnapshotId != null ? String(auditRaw.auditEvidenceSnapshotId) : null,
-      controlId: auditRaw?.controlId != null ? String(auditRaw.controlId) : null,
-      controlNumber: auditRaw?.controlNumber != null ? String(auditRaw.controlNumber) : null,
-      controlTitle: auditRaw?.controlTitle != null ? String(auditRaw.controlTitle) : null,
+        typeof auditRaw?.auditEvidenceSnapshotId === "string" ? auditRaw.auditEvidenceSnapshotId : null,
+      controlId: typeof auditRaw?.controlId === "string" ? auditRaw.controlId : null,
+      controlNumber: typeof auditRaw?.controlNumber === "string" ? auditRaw.controlNumber : null,
+      controlTitle: typeof auditRaw?.controlTitle === "string" ? auditRaw.controlTitle : null,
       matches: Array.isArray(auditRaw?.matches)
-        ? auditRaw.matches.map((item) => {
-            const row = item as Record<string, unknown>;
+        ? auditRaw.matches.flatMap((item) => {
+            if (item === null || typeof item !== "object" || Array.isArray(item)) {
+              return [];
+            }
 
-            return {
-              assessmentId: String(row.assessmentId ?? ""),
-              auditEvidenceSnapshotId: String(row.auditEvidenceSnapshotId ?? ""),
-              controlId: String(row.controlId ?? ""),
-              controlNumber: String(row.controlNumber ?? ""),
-              controlTitle: String(row.controlTitle ?? ""),
-              snapshotCreatedUtc: String(row.snapshotCreatedUtc ?? ""),
-            };
+            const row = item as Record<string, unknown>;
+            const required = [
+              row.assessmentId,
+              row.auditEvidenceSnapshotId,
+              row.controlId,
+              row.controlNumber,
+              row.controlTitle,
+              row.snapshotCreatedUtc,
+            ];
+
+            if (!required.every((value) => typeof value === "string")) {
+              return [];
+            }
+
+            return [{
+              assessmentId: row.assessmentId as string,
+              auditEvidenceSnapshotId: row.auditEvidenceSnapshotId as string,
+              controlId: row.controlId as string,
+              controlNumber: row.controlNumber as string,
+              controlTitle: row.controlTitle as string,
+              snapshotCreatedUtc: row.snapshotCreatedUtc as string,
+            }];
           })
         : [],
     },
     evidencePointers: Array.isArray(raw.evidencePointers)
-      ? raw.evidencePointers.map((item) => {
+      ? raw.evidencePointers.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
           const row = item as Record<string, unknown>;
 
-          return {
-            kind: String(row.kind ?? ""),
-            relativePath: String(row.relativePath ?? ""),
-          };
+          if (typeof row.kind !== "string" || typeof row.relativePath !== "string") {
+            return [];
+          }
+
+          return [{ kind: row.kind, relativePath: row.relativePath }];
         })
       : [],
   };

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import type { ResponsibleAiRulesResolution } from "@/lib/policy/responsible-ai-policy-pack-rules";
 
 type PolicyPackRulesTableSectionProps = {
@@ -20,17 +21,21 @@ type PolicyPackRulesTableSectionProps = {
   readonly rulesResolution: ResponsibleAiRulesResolution;
   readonly ariaLabel: string;
   readonly emptyMessage?: string;
+  readonly ruleAnchorPrefix?: string;
+  readonly tableTestId?: string;
 };
 
 /** Shared rules table for policy pack detail variants (GPI). */
 export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionProps): React.JSX.Element {
   const { headingId, heading, intro, rulesResolution, ariaLabel, emptyMessage } = props;
+  const ruleCountLabel = finiteIntegerCountDisplay(rulesResolution.rows.length);
 
   return (
     <section className="space-y-3" aria-labelledby={headingId}>
       <div className="space-y-1">
         <h3 id={headingId} className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {heading}
+          <span className="ms-2 font-normal text-al-text-secondary">({ruleCountLabel})</span>
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-intro">
           {intro}
@@ -46,9 +51,10 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
           {emptyMessage ?? "No published rules are available for this pack yet."}
         </p>
       ) : (
-        <EnterpriseTable ariaLabel={ariaLabel} data-testid="policy-pack-rules-table">
+        <EnterpriseTable ariaLabel={ariaLabel} data-testid={props.tableTestId ?? "policy-pack-rules-table"}>
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Rule key</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Rule name</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Requirement</EnterpriseTableHeaderCell>
@@ -57,7 +63,22 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
           </EnterpriseTableHead>
           <EnterpriseTableBody>
             {rulesResolution.rows.map((row) => (
-              <EnterpriseTableRow key={row.ruleKey}>
+              <EnterpriseTableRow
+                key={row.ruleKey}
+                id={props.ruleAnchorPrefix != null ? `${props.ruleAnchorPrefix}-${row.ruleKey}` : undefined}
+              >
+                <EnterpriseTableCell className="font-mono text-xs">
+                  {props.ruleAnchorPrefix != null ? (
+                    <a
+                      href={`#${props.ruleAnchorPrefix}-${row.ruleKey}`}
+                      className="text-al-link underline-offset-2 hover:underline"
+                    >
+                      {row.ruleKey}
+                    </a>
+                  ) : (
+                    row.ruleKey
+                  )}
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <SeverityTag severity={row.severity} />

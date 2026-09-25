@@ -3,8 +3,10 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FileJson, FileSpreadsheet } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
@@ -22,6 +24,7 @@ import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-col
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   findingsItsmPreFinalizeExportDisclosureHrefFromSearch,
+  FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM,
   parseFindingsItsmPreFinalizeExportOpenFromSearch,
 } from "@/lib/findings/findings-itsm-pre-finalize-export-disclosure-url";
 
@@ -65,13 +68,16 @@ export function FindingsItsmExportToolbar({
   compact = false,
   packageCommitted,
 }: FindingsItsmExportToolbarProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingsItsmPreFinalizeExportOpenParam = searchParams.get("findingsItsmPreFinalizeExportOpen");
   const [preFinalizeExportOpen, setPreFinalizeExportOpenState] = useState(() =>
-    parseFindingsItsmPreFinalizeExportOpenFromSearch(findingsItsmPreFinalizeExportOpenParam),
+    parseFindingsItsmPreFinalizeExportOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM),
+    ),
   );
+  const preFinalizeExportOpenRef = useRef(preFinalizeExportOpen);
+  preFinalizeExportOpenRef.current = preFinalizeExportOpen;
   const [exportingCsv, setExportingCsv] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const sealedManifestBlockedReason =
@@ -141,16 +147,21 @@ export function FindingsItsmExportToolbar({
 
   const syncPreFinalizeExportOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingsItsmPreFinalizeExportDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingsItsmPreFinalizeExportDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setPreFinalizeExportOpen = useCallback(
     (open: boolean) => {
+      if (preFinalizeExportOpenRef.current === open) {
+        return;
+      }
+
+      preFinalizeExportOpenRef.current = open;
       setPreFinalizeExportOpenState(open);
       syncPreFinalizeExportOpenToUrl(open);
     },
@@ -158,10 +169,26 @@ export function FindingsItsmExportToolbar({
   );
 
   useEffect(() => {
-    setPreFinalizeExportOpenState(
-      parseFindingsItsmPreFinalizeExportOpenFromSearch(findingsItsmPreFinalizeExportOpenParam),
-    );
-  }, [findingsItsmPreFinalizeExportOpenParam]);
+    const syncPreFinalizeExportOpenFromUrl = (): void => {
+      const next = parseFindingsItsmPreFinalizeExportOpenFromSearch(
+        new URLSearchParams(window.location.search).get(FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM),
+      );
+
+      if (preFinalizeExportOpenRef.current === next) {
+        return;
+      }
+
+      preFinalizeExportOpenRef.current = next;
+      setPreFinalizeExportOpenState(next);
+    };
+
+    syncPreFinalizeExportOpenFromUrl();
+    window.addEventListener("popstate", syncPreFinalizeExportOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPreFinalizeExportOpenFromUrl);
+    };
+  }, []);
 
   if (findings.length === 0) {
     return null;
@@ -221,7 +248,8 @@ export function FindingsItsmExportToolbar({
         data-workspace-disclosure
         open={preFinalizeExportOpen}
         onToggle={(event) => {
-          setPreFinalizeExportOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setPreFinalizeExportOpen(!preFinalizeExportOpenRef.current);
         }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>

@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
   SECURENOW_AUDIT_EVIDENCE_PATH,
+  auditEvidenceLineageLookupPathFromPathname,
   buildAuditEvidenceControlLineagePath,
+  isAuditEvidenceControlLineagePath,
   isAuditEvidenceRoutePath,
   parseAuditEvidenceControlLineagePath,
 } from "@/lib/audit-evidence-lineage-route";
@@ -53,11 +55,26 @@ describe("audit-evidence-lineage-route", () => {
     expect(parseAuditEvidenceControlLineagePath("not-a-url")).toBeNull();
   });
 
+  it("detects control lineage detail routes", () => {
+    expect(isAuditEvidenceControlLineagePath("/governance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
+    expect(isAuditEvidenceControlLineagePath("/compliance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
+    expect(isAuditEvidenceControlLineagePath(AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH)).toBe(false);
+  });
+
   it("detects audit evidence routes", () => {
     expect(isAuditEvidenceRoutePath(AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH)).toBe(true);
     expect(isAuditEvidenceRoutePath("/governance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
     expect(isAuditEvidenceRoutePath(SECURENOW_AUDIT_EVIDENCE_PATH)).toBe(true);
     expect(isAuditEvidenceRoutePath("/compliance/audit-evidence/a/snapshots/s/controls/c")).toBe(true);
     expect(isAuditEvidenceRoutePath("/governance/audit")).toBe(false);
+  });
+
+  it("resolves lookup path from pathname namespace", () => {
+    expect(auditEvidenceLineageLookupPathFromPathname("/governance/audit-evidence/a/snapshots/s/controls/c")).toBe(
+      AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
+    );
+    expect(auditEvidenceLineageLookupPathFromPathname("/compliance/audit-evidence/a/snapshots/s/controls/c")).toBe(
+      SECURENOW_AUDIT_EVIDENCE_PATH,
+    );
   });
 });

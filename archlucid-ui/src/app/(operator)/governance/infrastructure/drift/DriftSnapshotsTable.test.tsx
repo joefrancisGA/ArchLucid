@@ -18,60 +18,91 @@ function snapshot(overrides: Partial<InfraEvidenceSnapshotSummary> = {}): InfraE
   };
 }
 
-describe("DriftSnapshotsTable", () => {
-  it("renders snapshot rows and marks the selected snapshot", () => {
-    const onSelectSnapshot = vi.fn();
+const tableProps = {
+  loading: false,
+  tableFilterState: DEFAULT_DRIFT_SNAPSHOTS_TABLE_FILTER_STATE,
+  hasActiveFilters: false,
+  onSelectSnapshot: vi.fn(),
+  onFocusSnapshot: vi.fn(),
+  onSortColumn: vi.fn(),
+  onTableFiltersChange: vi.fn(),
+  onClearFilters: vi.fn(),
+};
 
+describe("DriftSnapshotsTable", () => {
+  it("renders snapshot rows, capture status tags, and marks the selected snapshot", () => {
     render(
       <DriftSnapshotsTable
-        snapshots={[snapshot(), snapshot({ snapshotId: "22222222-2222-2222-2222-222222222222", subscriptionName: "Dev" })]}
+        snapshots={[
+          snapshot(),
+          snapshot({
+            snapshotId: "22222222-2222-2222-2222-222222222222",
+            subscriptionName: "Dev",
+            captureStatus: 2,
+          }),
+        ]}
         selectedSnapshotId="11111111-1111-1111-1111-111111111111"
-        loading={false}
-        tableFilterState={DEFAULT_DRIFT_SNAPSHOTS_TABLE_FILTER_STATE}
-        hasActiveFilters={false}
-        onSelectSnapshot={onSelectSnapshot}
-        onSortColumn={vi.fn()}
-        onTableFiltersChange={vi.fn()}
-        onClearFilters={vi.fn()}
+        focusedSnapshotId="11111111-1111-1111-1111-111111111111"
+        {...tableProps}
       />,
     );
 
     expect(screen.getByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-snapshot-subscription-filter-trigger")).toBeInTheDocument();
-    expect(screen.queryByTestId("infra-drift-change-type-filter-trigger")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("infra-drift-property-filter-trigger")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("infra-drift-risk-filter-trigger")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Filter Change")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Filter Property")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Filter Risk")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Ready",
+    );
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-22222222-2222-2222-2222-222222222222")).toHaveTextContent(
+      "Needs attention",
+    );
     expect(screen.getByTestId("infra-drift-snapshot-row-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "aria-selected",
       "true",
     );
     expect(screen.getByTestId("infra-drift-snapshot-selected-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-snapshot-captured-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "dateTime",
+      "2026-09-01T12:00:00.000Z",
+    );
     expect(screen.getByText("Dev")).toBeInTheDocument();
   });
 
-  it("calls onSelectSnapshot when a row is clicked", () => {
+  it("renders blocked capture status", () => {
+    render(
+      <DriftSnapshotsTable
+        snapshots={[snapshot({ captureStatus: 3 })]}
+        selectedSnapshotId=""
+        focusedSnapshotId=""
+        {...tableProps}
+      />,
+    );
+
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Blocked",
+    );
+  });
+
+  it("calls onSelectSnapshot when a row is clicked and exposes select/delete actions", () => {
     const onSelectSnapshot = vi.fn();
+    const onDeleteSnapshot = vi.fn();
 
     render(
       <DriftSnapshotsTable
         snapshots={[snapshot()]}
         selectedSnapshotId=""
-        loading={false}
-        tableFilterState={DEFAULT_DRIFT_SNAPSHOTS_TABLE_FILTER_STATE}
-        hasActiveFilters={false}
+        focusedSnapshotId=""
+        {...tableProps}
         onSelectSnapshot={onSelectSnapshot}
-        onSortColumn={vi.fn()}
-        onTableFiltersChange={vi.fn()}
-        onClearFilters={vi.fn()}
+        onDeleteSnapshot={onDeleteSnapshot}
       />,
     );
 
     fireEvent.click(screen.getByTestId("infra-drift-snapshot-row-11111111-1111-1111-1111-111111111111"));
-
     expect(onSelectSnapshot).toHaveBeenCalledWith("11111111-1111-1111-1111-111111111111");
+
+    fireEvent.click(screen.getByTestId("infra-drift-snapshot-select-11111111-1111-1111-1111-111111111111"));
+    expect(onSelectSnapshot).toHaveBeenCalledTimes(2);
+    expect(
+      screen.getByRole("button", { name: "Delete inventory snapshot for Prod" }),
+    ).toBeInTheDocument();
   });
 });

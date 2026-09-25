@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
-import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, SECURENOW_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE,
@@ -17,6 +17,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFIRM,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
@@ -439,6 +441,9 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-export-mmd")).toHaveTextContent(/^Export Mermaid$/);
+    expect(screen.queryByTestId("infra-diagrams-export-advisory-status")).not.toBeInTheDocument();
+    expect(screen.queryByText("Advisory export")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
@@ -566,6 +571,7 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-diagrams-seed-node-input")).toHaveValue(armId);
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
+    expect(screen.getByTestId("infra-diagrams-choose-another-view")).toBeInTheDocument();
     expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
@@ -632,6 +638,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-mermaid-outline")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-diagrams-outline-nodes-disclosure"));
     expect(screen.getByRole("button", { name: /Focus neighborhood from vnet-aep-hi-test-wus-001/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Focus neighborhood from gateway-pip/i })).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-dependency-seed-prompt")).not.toBeInTheDocument();
@@ -1513,5 +1520,154 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-evidence-completeness-warnings-banner")).toBeInTheDocument();
     expect(screen.getByText(/App setting hostnames not collected on hosted pull/)).toBeInTheDocument();
+  });
+
+  it("links the SecureNow breadcrumb parent to the infrastructure overview", async () => {
+    pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const breadcrumbLink = (await screen.findByTestId("infra-diagrams-breadcrumb")).querySelector("a");
+
+    expect(breadcrumbLink).toHaveAttribute("href", SECURENOW_INFRASTRUCTURE_PATH);
+  });
+
+  it("passes the active render query to PNG export", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&includePrivateEndpoints=1",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    const exportButton = await screen.findByTestId("infra-diagrams-export-png");
+
+    await waitFor(() => {
+      expect(exportButton).not.toBeDisabled();
+    });
+
+    fireEvent.click(exportButton);
+
+    const renderQuery = fetchInfraEvidenceMermaidRenderMock.mock.calls.at(-1)?.[1];
+    const exportQuery = downloadInfraEvidenceMermaidPngMock.mock.calls.at(-1)?.[1];
+
+    expect(renderQuery).toEqual(
+      expect.objectContaining({
+        mode: "executive",
+        includeNeverShow: false,
+        includePrivateEndpointNodes: true,
+      }),
+    );
+    expect(exportQuery).toEqual(renderQuery);
+  });
+
+  it("toggles include recovery services in the search param and mermaid request", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    const toggle = await screen.findByTestId("infra-diagrams-include-recovery-services");
+
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      const renderQuery = fetchInfraEvidenceMermaidRenderMock.mock.calls.at(-1)?.[1];
+
+      expect(renderQuery).toEqual(
+        expect.objectContaining({
+          mode: "executive",
+          includeRecoveryServices: true,
+        }),
+      );
+    });
+  });
+
+  it("confirms before a subscription change clears the active diagram selection", async () => {
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0],
+        {
+          snapshotId: "22222222-2222-2222-2222-222222222222",
+          subscriptionId: "sub-dev",
+          subscriptionName: "Dev",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    await selectDiagramsSubscription("sub-1");
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-snapshot-picker"), {
+      target: { value: "11111111-1111-1111-1111-111111111111" },
+    });
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "executive" },
+    });
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-subscription-picker"), {
+      target: { value: "sub-dev" },
+    });
+
+    expect(await screen.findByTestId("infra-diagrams-subscription-change-dialog")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE,
+    );
+
+    fireEvent.click(await screen.findByTestId("infra-diagrams-subscription-change-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-subscription-picker")).toHaveValue("sub-dev");
+      expect(screen.getByTestId("infra-diagrams-snapshot-picker")).toHaveValue("");
+      expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("");
+    });
   });
 });

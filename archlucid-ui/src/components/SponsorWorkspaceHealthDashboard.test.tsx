@@ -21,6 +21,12 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
 
 vi.mock("next/navigation", () => ({
   usePathname: () => SPONSOR_DASHBOARD_HREF,
+  useRouter: () => ({
+    replace: vi.fn(),
+    push: vi.fn(),
+    back: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({

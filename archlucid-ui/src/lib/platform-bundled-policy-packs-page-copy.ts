@@ -1,5 +1,10 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
+export const PLATFORM_BUNDLED_POLICY_PACKS_ACCESS_DENIED_TITLE = "Administrator access required" as const;
+
+export const PLATFORM_BUNDLED_POLICY_PACKS_ACCESS_DENIED_DESCRIPTION =
+  "Sign in with a tenant administrator account (AdminAuthority) to manage platform bundled policy packs." as const;
+
 export const PLATFORM_BUNDLED_POLICY_PACKS_PAGE_TITLE = "Platform policy packs" as const;
 
 export const PLATFORM_BUNDLED_POLICY_PACKS_PAGE_SUBTITLE =

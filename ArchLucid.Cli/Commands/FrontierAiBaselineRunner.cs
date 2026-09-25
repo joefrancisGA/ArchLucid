@@ -51,7 +51,7 @@ internal sealed partial class FrontierAiBaselineRunner
         {
             RepositoryRoot = repositoryRoot,
             ScoreboardPath = scoreboardPath,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             OverallVerdict = overallVerdict,
             Checks = checks,
             Sessions = sessions,

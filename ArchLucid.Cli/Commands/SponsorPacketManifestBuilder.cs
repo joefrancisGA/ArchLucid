@@ -44,7 +44,7 @@ public static class SponsorPacketManifestBuilder
         Dictionary<string, object> root = new(StringComparer.Ordinal)
         {
             ["formatVersion"] = SponsorPacketArtifactCatalog.FormatVersion,
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["runId"] = runId.Trim(),
             ["demoDataWarning"] = demoDataWarning,
             ["files"] = files,

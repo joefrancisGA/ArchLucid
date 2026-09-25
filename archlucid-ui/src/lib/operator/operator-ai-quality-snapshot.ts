@@ -28,6 +28,10 @@ function parseOperatorAiQualitySnapshotDisposition(
   return "NOT_GENERATED";
 }
 
+function finiteNumberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
 function parseOperatorAiQualityHistoryEntry(value: unknown): OperatorAiQualityHistoryEntry | null {
   if (value === null || typeof value !== "object") {
     return null;
@@ -46,11 +50,11 @@ function parseOperatorAiQualityHistoryEntry(value: unknown): OperatorAiQualityHi
     generatedUtc: String(row.generatedUtc ?? ""),
     disposition: parseOperatorAiQualitySnapshotDisposition(row.disposition),
     retrievalIr: {
-      casesEvaluated: typeof ir.casesEvaluated === "number" ? ir.casesEvaluated : null,
-      meanRecallAt5: typeof ir.meanRecallAt5 === "number" ? ir.meanRecallAt5 : null,
-      meanMrr: typeof ir.meanMrr === "number" ? ir.meanMrr : null,
-      floorRecallAt5: typeof ir.floorRecallAt5 === "number" ? ir.floorRecallAt5 : null,
-      floorMrr: typeof ir.floorMrr === "number" ? ir.floorMrr : null,
+      casesEvaluated: finiteNumberOrNull(ir.casesEvaluated),
+      meanRecallAt5: finiteNumberOrNull(ir.meanRecallAt5),
+      meanMrr: finiteNumberOrNull(ir.meanMrr),
+      floorRecallAt5: finiteNumberOrNull(ir.floorRecallAt5),
+      floorMrr: finiteNumberOrNull(ir.floorMrr),
     },
   };
 }
@@ -104,11 +108,11 @@ function parseOperatorAiQualitySnapshot(value: unknown): OperatorAiQualitySnapsh
     generatedUtc: String(row.generatedUtc ?? ""),
     disposition: parseOperatorAiQualitySnapshotDisposition(row.disposition),
     retrievalIr: {
-      casesEvaluated: typeof ir.casesEvaluated === "number" ? ir.casesEvaluated : null,
-      meanRecallAt5: typeof ir.meanRecallAt5 === "number" ? ir.meanRecallAt5 : null,
-      meanMrr: typeof ir.meanMrr === "number" ? ir.meanMrr : null,
-      floorRecallAt5: typeof ir.floorRecallAt5 === "number" ? ir.floorRecallAt5 : null,
-      floorMrr: typeof ir.floorMrr === "number" ? ir.floorMrr : null,
+      casesEvaluated: finiteNumberOrNull(ir.casesEvaluated),
+      meanRecallAt5: finiteNumberOrNull(ir.meanRecallAt5),
+      meanMrr: finiteNumberOrNull(ir.meanMrr),
+      floorRecallAt5: finiteNumberOrNull(ir.floorRecallAt5),
+      floorMrr: finiteNumberOrNull(ir.floorMrr),
     },
     ...(history.length > 0 ? { history } : {}),
     remediationLinks,

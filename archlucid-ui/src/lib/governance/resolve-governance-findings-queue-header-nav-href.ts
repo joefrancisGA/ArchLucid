@@ -20,9 +20,13 @@ function parseArchitectureIdFromNestedFindingsPath(pathname: string): string | n
     return null;
   }
 
-  const architectureId = decodeURIComponent(match[1]).trim();
+  try {
+    const architectureId = decodeURIComponent(match[1]).trim();
 
-  return architectureId.length > 0 ? architectureId : null;
+    return architectureId.length > 0 ? architectureId : null;
+  } catch {
+    return null;
+  }
 }
 
 /** SG-030: governance findings opened from the desk return to the architecture, not platform Home. */

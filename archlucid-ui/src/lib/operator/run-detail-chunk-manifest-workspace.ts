@@ -12,7 +12,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST_WORKSPACE: readonly DeferredChunkManifest
     id: "run-detail-overview-panel",
     label: "Loading review overview",
     variant: "panel",
-    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailOverviewPanelClient",
+    modulePath: "@/components/reviews/RunDetailOverviewPanelClient",
     exportName: "RunDetailOverviewPanelClient",
   },
   {

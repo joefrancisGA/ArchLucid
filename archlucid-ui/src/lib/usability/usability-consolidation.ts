@@ -22,6 +22,13 @@ export const NEEDS_ATTENTION_INBOX_PATH = GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH;
 
 export const NEEDS_ATTENTION_INBOX_LABEL = "Needs attention" as const;
 
+export const NEEDS_ATTENTION_INBOX_PRIMARY_CONTENT_ID = "needs-attention-inbox-primary-content" as const;
+
+export const NEEDS_ATTENTION_INBOX_SKIP_LINK_LABEL = "Skip to needs attention inbox" as const;
+
+export const NEEDS_ATTENTION_INBOX_CLAIM_DISCIPLINE =
+  "Counts reflect current workspace scope — open each queue for authoritative status and provenance." as const;
+
 /** Outcomes hub entry — sponsor report tab strip covers ROI, scorecard, and workspace health. */
 export const OUTCOMES_HUB_NAV_LABEL = "Outcomes" as const;
 

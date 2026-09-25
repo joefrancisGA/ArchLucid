@@ -1,11 +1,12 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM,
   parseRunToolInvocationForensicsTraceIdFromSearch,
@@ -63,32 +64,64 @@ function RawField(props: { readonly label: string; readonly value: string | null
  * TB-110: inline redacted prompt/response preview for execute-tier operators (API policy remains authoritative).
  */
 export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForensicsRawCellProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runToolInvocationForensicsTraceIdParam = searchParams.get(RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM);
   const [openTraceId, setOpenTraceIdState] = useState(() =>
-    parseRunToolInvocationForensicsTraceIdFromSearch(runToolInvocationForensicsTraceIdParam),
+    parseRunToolInvocationForensicsTraceIdFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get(RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM),
+    ),
   );
+  const openTraceIdRef = useRef(openTraceId);
+  openTraceIdRef.current = openTraceId;
+
   const syncOpenTraceIdToUrl = useCallback(
     (traceId: string | null) => {
-      router.replace(
-        runToolInvocationForensicsTraceDisclosureHrefFromSearch(searchParams.toString(), traceId, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        runToolInvocationForensicsTraceDisclosureHrefFromSearch(readWindowLocationSearch(), traceId, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setOpenTraceId = useCallback(
     (traceId: string | null) => {
-      setOpenTraceIdState(traceId ?? "");
+      const next = traceId ?? "";
+
+      if (openTraceIdRef.current === next) {
+        return;
+      }
+
+      openTraceIdRef.current = next;
+      setOpenTraceIdState(next);
       syncOpenTraceIdToUrl(traceId);
     },
     [syncOpenTraceIdToUrl],
   );
+
   useEffect(() => {
-    setOpenTraceIdState(parseRunToolInvocationForensicsTraceIdFromSearch(runToolInvocationForensicsTraceIdParam));
-  }, [runToolInvocationForensicsTraceIdParam]);
+    const syncOpenTraceIdFromUrl = (): void => {
+      const next = parseRunToolInvocationForensicsTraceIdFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM),
+      );
+
+      if (openTraceIdRef.current === next) {
+        return;
+      }
+
+      openTraceIdRef.current = next;
+      setOpenTraceIdState(next);
+    };
+
+    syncOpenTraceIdFromUrl();
+    window.addEventListener("popstate", syncOpenTraceIdFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenTraceIdFromUrl);
+    };
+  }, []);
+
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const canViewRaw = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const traceId = (props.traceId ?? "").trim();
@@ -124,8 +157,8 @@ export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForens
       className={OPERATOR_TYPOGRAPHY.helper}
       open={rawOpen}
       onToggle={(event) => {
-        const nextOpen = event.currentTarget.open;
-        setOpenTraceId(nextOpen && traceId.length > 0 ? traceId : null);
+        event.preventDefault();
+        setOpenTraceId(!rawOpen && traceId.length > 0 ? traceId : null);
       }}
     >
       <summary className="cursor-pointer text-al-accent hover:underline">View raw</summary>

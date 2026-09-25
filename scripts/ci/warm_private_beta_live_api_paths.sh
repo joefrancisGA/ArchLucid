@@ -147,6 +147,13 @@ warm_path_post() {
     echo "Warm ${label} attempt ${attempt}/${max_attempts} failed (HTTP ${status}); retrying in ${SLEEP_SECONDS}s..."
     sleep "${SLEEP_SECONDS}"
     attempt=$((attempt + 1))
+
+    # Partial create-run failures can persist requestId/systemName; rotate identity before retry.
+    if [ "${label}" = "create architecture run" ]; then
+      local retry_suffix
+      retry_suffix="$(date +%s)-$$-${attempt}"
+      body="{\"requestId\":\"WARM-PRIVATE-BETA-${retry_suffix}\",\"description\":\"Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.\",\"systemName\":\"PrivateBetaPipelineWarm-${retry_suffix}\",\"environment\":\"prod\",\"cloudProvider\":1,\"constraints\":[\"Private endpoints required\",\"Use managed identity\"],\"requiredCapabilities\":[\"Azure AI Search\",\"SQL\",\"Managed Identity\",\"Private Networking\"],\"assumptions\":[],\"priorManifestVersion\":null}"
+    fi
   done
 }
 
@@ -183,13 +190,14 @@ if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
   # Skip create-run warm when the API is not accepting connections (curl HTTP 000).
   # A hung 120s POST does not help invite-wave Playwright and delays JWT refresh.
   if curl -fsS --max-time 5 "${API_URL}/health/ready" >/dev/null; then
-    CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+    warm_suffix="$(date +%s)-$$"
+    CREATE_BODY="{\"requestId\":\"WARM-PRIVATE-BETA-${warm_suffix}\",\"description\":\"Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.\",\"systemName\":\"PrivateBetaPipelineWarm-${warm_suffix}\",\"environment\":\"prod\",\"cloudProvider\":1,\"constraints\":[\"Private endpoints required\",\"Use managed identity\"],\"requiredCapabilities\":[\"Azure AI Search\",\"SQL\",\"Managed Identity\",\"Private Networking\"],\"assumptions\":[],\"priorManifestVersion\":null}"
     warm_path_post_optional \
       "create architecture run" \
       "${API_URL}/v1/architecture/request" \
       "${CREATE_BODY}" \
       "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-20}" \
-      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-2}"
+      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-4}"
   else
     echo "::warning::Skipping create-run warm; ${API_URL}/health/ready is not reachable." >&2
   fi

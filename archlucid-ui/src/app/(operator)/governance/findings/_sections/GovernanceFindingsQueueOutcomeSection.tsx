@@ -39,6 +39,8 @@ import {
   INHABIT_FINDINGS_LIVE_RECOVERY_TITLE,
   resolveInhabitFindingsLiveRecoveryActions,
 } from "@/lib/inhabit/inhabit-live-recovery-contract";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
@@ -48,6 +50,10 @@ export function GovernanceFindingsQueueOutcomeSection(
   const pathname = usePathname();
   const { productLine } = useProductLine();
   const relativeFreshnessNowMs = useOperatorRelativeFreshnessNowMs();
+  const loadRecovery = errorRecoveryContractForScenario("api-problem", {
+    failureSummary: "Findings queue could not be loaded.",
+    productLineId: productLine,
+  });
   const inhabitedEmptyState = resolveInhabitedFindingsEmptyStateCopy({
     workingMode: props.isWorkingMode,
     pathname,
@@ -76,44 +82,47 @@ export function GovernanceFindingsQueueOutcomeSection(
       ) : null}
 
       {!props.loading && props.rows.length === 0 && props.loadFailed && (inhabitedEmptyState === null || !isLiveOperatorShellRecoveryContext()) ? (
-        <EnterpriseInlineErrorNotification
-          testId={props.loadFailedPreset.testId}
-          title={
-            props.isAssignedToMe && props.buyerPolishedShell
-              ? "Could not load your assigned findings"
-              : !props.isAssignedToMe && props.buyerPolishedShell
-                ? "Could not load findings for this workspace"
-                : props.loadFailedPreset.title
-          }
-          description={
-            props.loadFailure?.blockedReason ??
-            (props.isAssignedToMe && props.buyerPolishedShell
-              ? "Your assigned findings did not load. Existing assignments are unchanged — retry the load or check connectivity before navigating away."
-              : !props.isAssignedToMe && props.buyerPolishedShell
-                ? "The findings queue did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
-                : props.loadFailedPreset.description)
-          }
-          onRetry={() => {
-            props.onRefresh();
-          }}
-          diagnostics={
-            props.loadFailure === null
-              ? null
-              : {
-                  attemptedAtUtc: props.loadFailure.attemptedAtUtc,
-                  correlationId: props.loadFailure.correlationId,
-                  errorCode: props.loadFailure.errorCode,
-                  httpStatus: props.loadFailure.httpStatus,
-                }
-          }
-          reportProblem={{
-            surfaceId: "governance-findings-queue-hard-failure",
-            errorTitle: props.pageTitle,
-            errorCode: props.loadFailure?.errorCode ?? "governance-findings-load-failed",
-            correlationId: props.loadFailure?.correlationId ?? null,
-            httpStatus: props.loadFailure?.httpStatus ?? null,
-          }}
-        />
+        <>
+          <EnterpriseInlineErrorNotification
+            testId={props.loadFailedPreset.testId}
+            title={
+              props.isAssignedToMe && props.buyerPolishedShell
+                ? "Could not load your assigned findings"
+                : !props.isAssignedToMe && props.buyerPolishedShell
+                  ? "Could not load findings for this workspace"
+                  : props.loadFailedPreset.title
+            }
+            description={
+              props.loadFailure?.blockedReason ??
+              (props.isAssignedToMe && props.buyerPolishedShell
+                ? "Your assigned findings did not load. Existing assignments are unchanged — retry the load or check connectivity before navigating away."
+                : !props.isAssignedToMe && props.buyerPolishedShell
+                  ? "The findings queue did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
+                  : props.loadFailedPreset.description)
+            }
+            onRetry={() => {
+              props.onRefresh();
+            }}
+            diagnostics={
+              props.loadFailure === null
+                ? null
+                : {
+                    attemptedAtUtc: props.loadFailure.attemptedAtUtc,
+                    correlationId: props.loadFailure.correlationId,
+                    errorCode: props.loadFailure.errorCode,
+                    httpStatus: props.loadFailure.httpStatus,
+                  }
+            }
+            reportProblem={{
+              surfaceId: "governance-findings-queue-hard-failure",
+              errorTitle: props.pageTitle,
+              errorCode: props.loadFailure?.errorCode ?? "governance-findings-load-failed",
+              correlationId: props.loadFailure?.correlationId ?? null,
+              httpStatus: props.loadFailure?.httpStatus ?? null,
+            }}
+          />
+          <OperatorErrorRecoveryContract presentation={loadRecovery} />
+        </>
       ) : null}
 
       {!props.loading && props.rows.length === 0 && !props.loadFailed ? (

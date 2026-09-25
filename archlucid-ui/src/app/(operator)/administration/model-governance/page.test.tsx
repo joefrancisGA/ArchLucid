@@ -22,6 +22,10 @@ vi.mock("./_sections/ModelGovernanceSettingsCard", () => ({
   ModelGovernanceSettingsCard: () => <div data-testid="model-governance-settings-card-stub" />,
 }));
 
+vi.mock("./_sections/ModelGovernanceAzureOpenAiConnectionCard", () => ({
+  ModelGovernanceAzureOpenAiConnectionCard: () => <div data-testid="model-governance-azure-openai-card-stub" />,
+}));
+
 import {
   AI_MODELS_SETTINGS_PAGE_SUBTITLE,
   MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE,
@@ -37,6 +41,7 @@ describe("ModelGovernanceSettingsPage", () => {
     expect(screen.getAllByRole("heading", { name: "AI models" })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: "← Settings" })).not.toBeInTheDocument();
     expect(screen.getByTestId("model-governance-settings-card-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("model-governance-azure-openai-card-stub")).toBeInTheDocument();
     expect(screen.getByText(AI_MODELS_SETTINGS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("model-governance-settings-claim-discipline")).toHaveTextContent(
       MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),

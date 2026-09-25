@@ -8,6 +8,7 @@ import {
   resolveReviewDetailTab,
   resolveReviewDetailTabFromHash,
   resolveReviewDetailTabFromLocation,
+  writeReviewDetailFindingIdToUrl,
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 
@@ -57,6 +58,45 @@ describe("review-detail-workspace-tabs", () => {
     expect(replaceStateSpy).toHaveBeenCalled();
     expect(readReviewDetailTabFromWindowLocation()).toBe("findings");
     expect(window.location.search).toContain("reviewTab=findings");
+  });
+
+  it("writes only findingId without rewriting reviewTab", () => {
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview&findingId=stale");
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    writeReviewDetailFindingIdToUrl(null);
+
+    expect(replaceStateSpy).toHaveBeenCalled();
+    expect(window.location.search).toBe("?reviewTab=overview");
+  });
+
+  it("clears legacy diagramFindingId when clearing finding selection", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=overview&diagramFindingId=stale",
+    );
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    writeReviewDetailFindingIdToUrl(null);
+
+    expect(replaceStateSpy).toHaveBeenCalled();
+    expect(window.location.search).toBe("?reviewTab=overview");
+  });
+
+  it("skips replaceState when the href is already committed", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=overview&findingId=stale-missing",
+    );
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+    const dispatchEventSpy = vi.spyOn(window, "dispatchEvent");
+
+    writeReviewDetailTabToUrl("overview", { findingId: "stale-missing" });
+
+    expect(replaceStateSpy).not.toHaveBeenCalled();
+    expect(dispatchEventSpy).not.toHaveBeenCalled();
   });
 
   it("prefers hash-mapped tabs when reading from window location", () => {

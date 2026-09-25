@@ -6,7 +6,9 @@ namespace ArchLucid.Core.Pagination;
 internal static class UtcCursorDateTimeCodec
 {
     public static string FormatRoundTripUtc(DateTime dateTime) =>
-        DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).ToString("o");
+        (dateTime.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)
+            : dateTime.ToUniversalTime()).ToString("o");
 
     public static DateTime NormalizeToUtc(DateTime dateTime) =>
         dateTime.Kind is DateTimeKind.Utc
@@ -20,7 +22,8 @@ internal static class UtcCursorDateTimeCodec
         if (string.IsNullOrWhiteSpace(value))
             return false;
 
-        if (!DateTime.TryParse(value, null, DateTimeStyles.RoundtripKind, out DateTime parsed))
+        if (!DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime parsed)
+            || parsed.Kind == DateTimeKind.Unspecified)
             return false;
 
         utc = NormalizeToUtc(parsed);

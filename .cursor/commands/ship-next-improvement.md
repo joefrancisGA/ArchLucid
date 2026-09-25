@@ -279,6 +279,7 @@ Always end with:
 - The **## Proposed next improvement** preview block (repeat or reference what was shown at Step 0)
 - Which implementation step (1–7) ran, or **stopped at preview** if blocked
 - TB-ID / assessment title (if any)
+- **Claim/disproof/scope:** one sentence stating the behavior established, the check that could disprove it and its result, and the covered/untested scope
 - **Quality gate:** findings from compiler check, deslop, and Bugbot, and what was fixed
 - Commit SHA(s) and branch pushed (if implementation occurred)
 - **CI gate:** final CI status for the push (green, or fixes applied via `/fix-ci`)

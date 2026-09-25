@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 
@@ -87,7 +91,6 @@ import {
   AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID,
 } from "@/lib/azure-permissions-help-page-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -169,6 +172,7 @@ function CustomRoleActionsTable(): React.ReactElement {
 export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
   const returnHref = props.returnHref ?? CLOUD_CONNECTIONS_HUB_HREF;
   const otherProviders = AZURE_CLOUD_CONNECTION_RELATED_HELP.filter((link) => link.provider !== "azure");
   // A bare hub href carries no per-connection context, so the verify CTA targets the Azure setup page it names.
@@ -234,7 +238,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
                     className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
                     data-testid="help-azure-permissions-intro"
                   >
-                    {azurePermissionsHelpPageLead(resolveProductLineIdFromEnv())}
+                    {azurePermissionsHelpPageLead(productLine)}
                   </p>
                   <p
                     className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

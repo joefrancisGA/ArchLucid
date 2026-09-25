@@ -26,7 +26,7 @@ public static class PilotProofPacketRedactionManifestBuilder
         {
             ["schema"] = PilotProofPacketArtifactCatalog.RedactionManifestSchema,
             ["formatVersion"] = "1.0",
-            ["generatedUtc"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+            ["generatedUtc"] = TimeProvider.System.GetUtcNow().ToString("O", CultureInfo.InvariantCulture),
             ["status"] = status,
             ["redactionPassAppliedToProofPacket"] = redactionPassApplied,
             ["filesCovered"] = PilotProofPacketArtifactCatalog.CoreFileNames,

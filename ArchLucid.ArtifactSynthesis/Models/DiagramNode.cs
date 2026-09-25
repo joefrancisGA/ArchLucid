@@ -38,6 +38,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Canonical ARM resource id used for topology containment and diagram grouping.</summary>
+    public string? ArmResourceId
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Original inventory graph node id used as the Dependency neighborhood seed.
     ///     Distinct from <see cref="NodeId" />, which is the sanitized mermaid identifier.
@@ -49,6 +56,12 @@ public class DiagramNode
     }
 
     public string? ArmResourceType
+    {
+        get;
+        set;
+    }
+
+    public string? ArmResourceKind
     {
         get;
         set;

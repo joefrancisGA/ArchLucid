@@ -19,7 +19,7 @@ public static class BackfillCliJsonReportSerializer
         {
             schema = SchemaVersion,
             mode = "backfill",
-            generatedUtc = DateTimeOffset.UtcNow.ToString("O"),
+            generatedUtc = TimeProvider.System.GetUtcNow().ToString("O"),
             elapsedMs = totalElapsedMs,
             disposition = report.FailureCount > 0 ? "HOLD" : "PASS",
             processedCount = report.ProcessedCount,
@@ -49,7 +49,7 @@ public static class BackfillCliJsonReportSerializer
         {
             schema = SchemaVersion,
             mode = "readiness",
-            generatedUtc = DateTimeOffset.UtcNow.ToString("O"),
+            generatedUtc = TimeProvider.System.GetUtcNow().ToString("O"),
             elapsedMs = totalElapsedMs,
             disposition = report.IsFullyReady ? "PASS" : "HOLD",
             slices = report.Slices.Select(

@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { DismissControl } from "@/components/usability/DismissControl";
@@ -20,6 +20,7 @@ import {
   parseArchitectureDraftGuidanceOpenFromSearch,
 } from "@/lib/architecture/architecture-draft-guidance-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { cn } from "@/lib/utils";
 
@@ -31,30 +32,38 @@ export type ArchitectureDraftGuidanceDisclosureProps = {
 export function ArchitectureDraftGuidanceDisclosure(
   props: ArchitectureDraftGuidanceDisclosureProps,
 ): React.JSX.Element | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureDraftGuidanceOpenParam = searchParams.get("architectureDraftGuidanceOpen");
   const headerTopicSlug = pageHelpTopicForPathname(pathname ?? "")?.slug;
   // Skip getting-started when the page header Help button already maps to that topic.
   const showGettingStartedHelpLink = headerTopicSlug !== "getting-started";
+  const readOpenFromUrl = (): boolean =>
+    parseArchitectureDraftGuidanceOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        "architectureDraftGuidanceOpen",
+      ),
+    );
   const [visible, setVisible] = useState(false);
-  const [open, setOpenState] = useState(() =>
-    parseArchitectureDraftGuidanceOpenFromSearch(architectureDraftGuidanceOpenParam),
-  );
+  const [open, setOpenState] = useState(() => readOpenFromUrl());
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(
-        architectureDraftGuidanceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureDraftGuidanceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -62,8 +71,24 @@ export function ArchitectureDraftGuidanceDisclosure(
   );
 
   useEffect(() => {
-    setOpenState(parseArchitectureDraftGuidanceOpenFromSearch(architectureDraftGuidanceOpenParam));
-  }, [architectureDraftGuidanceOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = readOpenFromUrl();
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (isArchitectureDraftGuidanceDismissed()) {
@@ -93,7 +118,8 @@ export function ArchitectureDraftGuidanceDisclosure(
         )}
         open={open}
         onToggle={(event) => {
-          setOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setOpen(!openRef.current);
         }}
       >
         <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

@@ -33,6 +33,11 @@ export const ERROR_RECOVERY_STAMPED_PRACTICE_TITLE = "Practice — recovery is n
 export const ERROR_RECOVERY_STAMPED_PRACTICE_BODY =
   "This review ran as Practice on Real structural execute. Retry keeps practice posture — it is not sponsor-ready sealed-record evidence.";
 
+export const ERROR_RECOVERY_SECURITY_TITLE = "SecureNow recovery does not change findings";
+
+export const ERROR_RECOVERY_SECURITY_BODY =
+  "SecureNow has no Practice review mode. Retry only reloads the security workspace — it does not create, alter, or complete a security finding.";
+
 export type ErrorRecoveryCareerHonestyPresentation = {
   readonly kind: "generic-retry" | "stamped";
   readonly cellId?: RunStatusBadgeWorkingCareerHonestyCellId;
@@ -71,12 +76,21 @@ function presentationForStampedCell(
 
 export function resolveErrorRecoveryCareerHonesty(input: {
   readonly workingDesk?: boolean;
+  readonly productLineId?: "architecture" | "security";
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly stampedWorkingCareerRehearsalDoor?: string | null;
   readonly liveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId;
 }): ErrorRecoveryCareerHonestyPresentation | null {
   if (input.workingDesk !== true) {
     return null;
+  }
+
+  if (input.productLineId === "security") {
+    return {
+      kind: "generic-retry",
+      title: ERROR_RECOVERY_SECURITY_TITLE,
+      body: ERROR_RECOVERY_SECURITY_BODY,
+    };
   }
 
   const honestyInput: RunStatusBadgeWorkingCareerHonestyInput = {

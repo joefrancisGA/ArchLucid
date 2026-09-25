@@ -48,6 +48,7 @@ public sealed class DraftRequestCreateStage(
             FocusedPilotModeEnabled = true,
             WorkflowIntent = DraftDocumentMutator.NormalizeWorkflowIntent(request.WorkflowIntent),
             PriorRunId = string.IsNullOrWhiteSpace(request.PriorRunId) ? null : request.PriorRunId.Trim(),
+            SystemName = string.IsNullOrWhiteSpace(request.SystemName) ? null : request.SystemName.Trim(),
         };
 
         if (!string.IsNullOrWhiteSpace(document.PriorRunId))

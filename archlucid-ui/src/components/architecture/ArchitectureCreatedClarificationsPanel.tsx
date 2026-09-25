@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { ArchitectureCreatedClarificationsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedClarificationsEvidenceOrientationStrip";
 import { ClarificationAnswerCapturePanel } from "@/components/architecture/ClarificationAnswerCapturePanel";
@@ -26,6 +26,7 @@ import {
   architectureAnsweredBriefDisclosureHrefFromSearch,
   parseArchitectureAnsweredBriefOpenFromSearch,
 } from "@/lib/architecture/architecture-answered-brief-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
@@ -91,25 +92,32 @@ export function ArchitectureCreatedClarificationsPanel(
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
   const clarificationQuestions = props.clarificationQuestions ?? [];
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const architectureAnsweredBriefOpenParam = searchParams.get("architectureAnsweredBriefOpen");
-  const [answeredBriefOpen, setAnsweredBriefOpenState] = useState(() =>
-    parseArchitectureAnsweredBriefOpenFromSearch(architectureAnsweredBriefOpenParam),
-  );
+  const readAnsweredBriefOpenFromUrl = (): boolean =>
+    parseArchitectureAnsweredBriefOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("architectureAnsweredBriefOpen"),
+    );
+  const [answeredBriefOpen, setAnsweredBriefOpenState] = useState(() => readAnsweredBriefOpenFromUrl());
+  const answeredBriefOpenRef = useRef(answeredBriefOpen);
+  answeredBriefOpenRef.current = answeredBriefOpen;
 
   const syncAnsweredBriefOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(architectureAnsweredBriefDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        architectureAnsweredBriefDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setAnsweredBriefOpen = useCallback(
     (open: boolean) => {
+      if (answeredBriefOpenRef.current === open) {
+        return;
+      }
+
+      answeredBriefOpenRef.current = open;
       setAnsweredBriefOpenState(open);
       syncAnsweredBriefOpenToUrl(open);
     },
@@ -117,8 +125,24 @@ export function ArchitectureCreatedClarificationsPanel(
   );
 
   useEffect(() => {
-    setAnsweredBriefOpenState(parseArchitectureAnsweredBriefOpenFromSearch(architectureAnsweredBriefOpenParam));
-  }, [architectureAnsweredBriefOpenParam]);
+    const syncAnsweredBriefOpenFromUrl = (): void => {
+      const next = readAnsweredBriefOpenFromUrl();
+
+      if (answeredBriefOpenRef.current === next) {
+        return;
+      }
+
+      answeredBriefOpenRef.current = next;
+      setAnsweredBriefOpenState(next);
+    };
+
+    syncAnsweredBriefOpenFromUrl();
+    window.addEventListener("popstate", syncAnsweredBriefOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAnsweredBriefOpenFromUrl);
+    };
+  }, []);
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">

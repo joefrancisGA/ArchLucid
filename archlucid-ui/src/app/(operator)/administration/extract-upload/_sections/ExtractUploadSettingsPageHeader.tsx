@@ -2,6 +2,7 @@
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { usePathname } from "next/navigation";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   PageContextualHelpButton,
@@ -18,12 +19,10 @@ import {
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
-  EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
-  EXTRACT_UPLOAD_SETTINGS_NAV_HREF,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
   extractUploadSettingsPageSubtitle,
 } from "@/lib/extract-upload-settings-page-copy";
-import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-package-record";
+import { extractUploadSettingsNavHrefForPath } from "@/lib/extract-upload-settings-route";
 import { cn } from "@/lib/utils";
 
 import { ExtractUploadSettingsBreadcrumb } from "./ExtractUploadSettingsBreadcrumb";
@@ -54,31 +53,21 @@ function inventoryStatusPresentation(
   return null;
 }
 
-function reviewBindingLabel(associateRunId: string | null): string | null {
-  const trimmed = associateRunId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
-}
-
 export function ExtractUploadSettingsPageHeader(
   props: ExtractUploadSettingsPageHeaderProps,
 ): React.JSX.Element {
+  const pathname = usePathname();
   const { productLine } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
-  const reviewBinding = reviewBindingLabel(props.associateRunId);
+  const navHref = extractUploadSettingsNavHrefForPath(pathname);
 
   return (
     <OperatorPageHeader
       title={EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE}
       titleTestId="extract-upload-page-title"
-      navHref={EXTRACT_UPLOAD_SETTINGS_NAV_HREF}
+      navHref={navHref}
       headingLevel="h1"
-      breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
       subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell, productLine)}
       subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
@@ -103,15 +92,11 @@ export function ExtractUploadSettingsPageHeader(
       }
       metadata={
         buyerPolishedShell ? null : (
-          <div className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+          <div className={cn("flex flex-col gap-2", OPERATOR_TYPOGRAPHY.helper)}>
+            <ExtractUploadSettingsBreadcrumb />
             {props.extractorScriptVersion !== null ? (
               <span className="text-al-text-secondary" data-testid="extract-upload-header-extractor-version">
                 {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
-              </span>
-            ) : null}
-            {reviewBinding !== null ? (
-              <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
-                {reviewBinding}
               </span>
             ) : null}
           </div>

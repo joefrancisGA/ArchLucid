@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
@@ -33,35 +35,59 @@ export type FindingOptionalArtifactUnavailableProps = {
 export function FindingOptionalArtifactUnavailable(
   props: FindingOptionalArtifactUnavailableProps,
 ): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingOptionalArtifactTechnicalDetailsParam = searchParams.get(
-    FINDING_OPTIONAL_ARTIFACT_TECHNICAL_DETAILS_OPEN_PARAM,
-  );
   const [findingOptionalArtifactTechnicalDetailsOpen, setFindingOptionalArtifactTechnicalDetailsOpenState] =
-    useState(() => parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(findingOptionalArtifactTechnicalDetailsParam));
+    useState(() =>
+      parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(
+        typeof window === "undefined"
+          ? null
+          : new URLSearchParams(window.location.search).get(FINDING_OPTIONAL_ARTIFACT_TECHNICAL_DETAILS_OPEN_PARAM),
+      ),
+    );
+  const findingOptionalArtifactTechnicalDetailsOpenRef = useRef(findingOptionalArtifactTechnicalDetailsOpen);
+  findingOptionalArtifactTechnicalDetailsOpenRef.current = findingOptionalArtifactTechnicalDetailsOpen;
   const syncFindingOptionalArtifactTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingOptionalArtifactTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingOptionalArtifactTechnicalDetailsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setFindingOptionalArtifactTechnicalDetailsOpen = useCallback(
     (open: boolean) => {
+      if (findingOptionalArtifactTechnicalDetailsOpenRef.current === open) {
+        return;
+      }
+
+      findingOptionalArtifactTechnicalDetailsOpenRef.current = open;
       setFindingOptionalArtifactTechnicalDetailsOpenState(open);
       syncFindingOptionalArtifactTechnicalDetailsOpenToUrl(open);
     },
     [syncFindingOptionalArtifactTechnicalDetailsOpenToUrl],
   );
   useEffect(() => {
-    setFindingOptionalArtifactTechnicalDetailsOpenState(
-      parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(findingOptionalArtifactTechnicalDetailsParam),
-    );
-  }, [findingOptionalArtifactTechnicalDetailsParam]);
+    const syncOpenFromUrl = (): void => {
+      const next = parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(
+        new URLSearchParams(window.location.search).get(FINDING_OPTIONAL_ARTIFACT_TECHNICAL_DETAILS_OPEN_PARAM),
+      );
+
+      if (findingOptionalArtifactTechnicalDetailsOpenRef.current === next) {
+        return;
+      }
+
+      findingOptionalArtifactTechnicalDetailsOpenRef.current = next;
+      setFindingOptionalArtifactTechnicalDetailsOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
   const correlationId = ensureCorrelationId(props.failure?.correlationId ?? props.failure?.problem?.correlationId);
   const httpStatus = props.failure?.httpStatus ?? props.failure?.problem?.status ?? null;
   const showTechnicalDetails = props.buyerPolishedShell !== true && props.failure !== null && props.failure !== undefined;
@@ -92,7 +118,10 @@ export function FindingOptionalArtifactUnavailable(
             OPERATOR_TYPOGRAPHY.micro,
           )}
           open={findingOptionalArtifactTechnicalDetailsOpen}
-          onToggle={(event) => setFindingOptionalArtifactTechnicalDetailsOpen(event.currentTarget.open)}
+          onToggle={(event) => {
+            event.preventDefault();
+            setFindingOptionalArtifactTechnicalDetailsOpen(!findingOptionalArtifactTechnicalDetailsOpenRef.current);
+          }}
         >
           <summary className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             Technical details

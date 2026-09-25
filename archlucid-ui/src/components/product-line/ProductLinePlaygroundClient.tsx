@@ -1,9 +1,15 @@
 "use client";
 
+import { ProductLinePlaygroundBreadcrumb } from "@/app/(operator)/internal/product-line/_sections/ProductLinePlaygroundBreadcrumb";
+import { ProductLinePlaygroundEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { flattenNavLinks } from "@/lib/nav-config";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/internal-ops-route-paths";
+import { PRODUCT_LINE_PLAYGROUND_CLAIM_DISCIPLINE } from "@/lib/product-line/product-line-playground-evidence-copy";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ProductLineSwitchBar } from "@/components/product-line/ProductLineSwitchBar";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -48,11 +54,26 @@ export function ProductLinePlaygroundClient(): React.JSX.Element {
 
   return (
     <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="product-line-playground">
+      <a href="#product-line-playground-first-viewport" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        Skip to product line playground
+      </a>
+
+      <ProductLinePlaygroundBreadcrumb />
+
       <OperatorPageHeader
+        navHref={INTERNAL_PRODUCT_LINE_PATH}
         title={PRODUCT_LINE_PLAYGROUND_TITLE}
         subtitle={PRODUCT_LINE_PLAYGROUND_SUBTITLE}
-        headingLevel="h2"
+        headingLevel="h1"
+        claimDiscipline={PRODUCT_LINE_PLAYGROUND_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="product-line-playground-header-claim-discipline"
       />
+
+      <div
+        id="product-line-playground-first-viewport"
+        data-testid="product-line-playground-first-viewport"
+        className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
+      >
 
       <section
         className="flex flex-col gap-1 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900"
@@ -133,6 +154,9 @@ export function ProductLinePlaygroundClient(): React.JSX.Element {
           })}
         </tbody>
       </table>
+
+        <ProductLinePlaygroundEvidenceOrientationStrip />
+      </div>
     </OperatorPageContainer>
   );
 }

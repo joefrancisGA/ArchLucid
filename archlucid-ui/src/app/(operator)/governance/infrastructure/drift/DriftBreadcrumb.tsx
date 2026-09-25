@@ -1,19 +1,38 @@
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import Link from "next/link";
+
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
-/** Drift workbench breadcrumb (GOR). */
-export function DriftBreadcrumb(): React.JSX.Element {
+/** Drift workbench breadcrumb (IDR). */
+export function DriftBreadcrumb(): React.JSX.Element | null {
+  const { productLine } = useProductLine();
+
+  if (productLine === "security") {
+    return null;
+  }
+
   return (
-    <OperatorPageBreadcrumb
-      data-testid="infra-drift-breadcrumb"
-      items={[
-        { label: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE, href: GOVERNANCE_INFRASTRUCTURE_PATH },
-        { label: GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE },
-      ]}
-    />
+    <nav aria-label="Breadcrumb" data-testid="infra-drift-breadcrumb">
+      <ol className={cn("m-0 flex flex-wrap items-center gap-1 p-0 list-none", OPERATOR_TYPOGRAPHY.helper)}>
+        <li>
+          <Link
+            href={GOVERNANCE_INFRASTRUCTURE_PATH}
+            className={cn("text-al-link hover:underline", OPERATOR_LINK.inline)}
+          >
+            {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE}
+          </Link>
+        </li>
+        <li aria-hidden className="text-al-text-secondary">/</li>
+        <li className="text-al-text-secondary" aria-current="page">
+          {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
+        </li>
+      </ol>
+    </nav>
   );
 }

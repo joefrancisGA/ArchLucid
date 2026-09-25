@@ -16,9 +16,12 @@ vi.mock("@/lib/oidc/session", () => ({
   isLikelySignedIn: () => signedInState.value,
 }));
 
+import { EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE } from "@/lib/extract-upload-settings-page-copy";
+import { SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   operatorHomeGateAllowsInitialPaint,
   operatorHomeGateBlocksInitialPaint,
+  operatorShellAccessGateLoadingTitle,
   pathnameExemptFromOperatorAccessGate,
   shouldDeferOperatorShellChrome,
   unsignedJwtSessionBlocksOperatorShell,
@@ -57,5 +60,12 @@ describe("operator-shell-access-gate", () => {
 
     expect(operatorHomeGateBlocksInitialPaint("/")).toBe(!operatorHomeGateAllowsInitialPaint());
     expect(operatorHomeGateBlocksInitialPaint("/architecture/reviews")).toBe(false);
+  });
+
+  it("returns optional loading titles for extract-upload routes", () => {
+    expect(operatorShellAccessGateLoadingTitle(SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH)).toBe(
+      EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+    );
+    expect(operatorShellAccessGateLoadingTitle("/architecture/reviews")).toBeUndefined();
   });
 });

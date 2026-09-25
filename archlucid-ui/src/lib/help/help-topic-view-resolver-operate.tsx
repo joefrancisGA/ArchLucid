@@ -19,6 +19,11 @@ const HelpArchitectureDeskGuideView = dynamic(() =>
     (module) => module.HelpArchitectureDeskGuideView,
   ),
 );
+const HelpSecurityEvidencePathsGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSecurityEvidencePathsGuideView").then(
+    (module) => module.HelpSecurityEvidencePathsGuideView,
+  ),
+);
 const HelpInhabitTheArchitectureGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpInhabitTheArchitectureGuideView").then(
     (module) => module.HelpInhabitTheArchitectureGuideView,
@@ -477,6 +482,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "architecture-sharing") {
     return <HelpArchitectureSharingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "security-evidence-paths") {
+    return <HelpSecurityEvidencePathsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "choose-your-next-step") {
     return <HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />;

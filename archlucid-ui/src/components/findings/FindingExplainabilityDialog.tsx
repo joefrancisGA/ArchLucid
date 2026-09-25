@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
 import { FindingEvidenceGraph } from "@/components/findings/FindingEvidenceGraphLazy";
@@ -59,29 +61,37 @@ export function FindingExplainabilityDialog({
   runId,
   findingId,
 }: FindingExplainabilityDialogProps) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingExplainabilityTechnicalOpenParam = searchParams.get("findingExplainabilityTechnicalOpen");
   const [data, setData] = useState<FindingExplainability | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
   const [technicalAuditOpen, setTechnicalAuditOpenState] = useState(() =>
-    parseFindingExplainabilityTechnicalOpenFromSearch(findingExplainabilityTechnicalOpenParam),
+    parseFindingExplainabilityTechnicalOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingExplainabilityTechnicalOpen"),
+    ),
   );
+  const technicalAuditOpenRef = useRef(technicalAuditOpen);
+  technicalAuditOpenRef.current = technicalAuditOpen;
 
   const syncTechnicalAuditOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingExplainabilityTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingExplainabilityTechnicalDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalAuditOpen = useCallback(
     (open: boolean) => {
+      if (technicalAuditOpenRef.current === open) {
+        return;
+      }
+
+      technicalAuditOpenRef.current = open;
       setTechnicalAuditOpenState(open);
       syncTechnicalAuditOpenToUrl(open);
     },
@@ -89,8 +99,26 @@ export function FindingExplainabilityDialog({
   );
 
   useEffect(() => {
-    setTechnicalAuditOpenState(parseFindingExplainabilityTechnicalOpenFromSearch(findingExplainabilityTechnicalOpenParam));
-  }, [findingExplainabilityTechnicalOpenParam]);
+    const syncTechnicalAuditOpenFromUrl = (): void => {
+      const next = parseFindingExplainabilityTechnicalOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingExplainabilityTechnicalOpen"),
+      );
+
+      if (technicalAuditOpenRef.current === next) {
+        return;
+      }
+
+      technicalAuditOpenRef.current = next;
+      setTechnicalAuditOpenState(next);
+    };
+
+    syncTechnicalAuditOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalAuditOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalAuditOpenFromUrl);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     if (findingId === null || findingId.trim().length === 0) {
@@ -233,7 +261,8 @@ export function FindingExplainabilityDialog({
               className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40"
               open={technicalAuditOpen}
               onToggle={(event) => {
-                setTechnicalAuditOpen(event.currentTarget.open);
+                event.preventDefault();
+                setTechnicalAuditOpen(!technicalAuditOpenRef.current);
               }}
             >
               <summary className={cn(

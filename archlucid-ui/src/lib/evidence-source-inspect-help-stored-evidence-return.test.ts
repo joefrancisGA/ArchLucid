@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveInspectStoredEvidenceHelpReturnHref } from "@/lib/evidence-source-inspect-help-stored-evidence-return";
+import {
+  resolveInspectStoredEvidenceHelpReturnHref,
+  resolveInspectStoredEvidenceHelpReturnHrefFromRecentViews,
+} from "@/lib/evidence-source-inspect-help-stored-evidence-return";
 
-describe("evidence-source-inspect-help-stored-evidence-return", () => {
-  it("accepts validated same-origin review Evidence tab returnTo values", () => {
+describe("resolveInspectStoredEvidenceHelpReturnHref", () => {
+  it("accepts review evidence tab deep links", () => {
     expect(resolveInspectStoredEvidenceHelpReturnHref("/architecture/reviews/run-1?reviewTab=evidence")).toBe(
       "/architecture/reviews/run-1?reviewTab=evidence",
     );
@@ -15,7 +18,7 @@ describe("evidence-source-inspect-help-stored-evidence-return", () => {
     );
   });
 
-  it("ignores invalid or non-evidence returnTo values", () => {
+  it("rejects invalid returnTo values", () => {
     expect(resolveInspectStoredEvidenceHelpReturnHref(undefined)).toBeNull();
     expect(resolveInspectStoredEvidenceHelpReturnHref("")).toBeNull();
     expect(resolveInspectStoredEvidenceHelpReturnHref("https://evil.example/run-1?reviewTab=evidence")).toBeNull();
@@ -23,5 +26,26 @@ describe("evidence-source-inspect-help-stored-evidence-return", () => {
     expect(resolveInspectStoredEvidenceHelpReturnHref("/architecture/reviews/new?reviewTab=evidence")).toBeNull();
     expect(resolveInspectStoredEvidenceHelpReturnHref("/architecture/reviews/run-1?reviewTab=findings")).toBeNull();
     expect(resolveInspectStoredEvidenceHelpReturnHref("/governance/findings")).toBeNull();
+  });
+});
+
+describe("resolveInspectStoredEvidenceHelpReturnHrefFromRecentViews", () => {
+  it("returns the first recent review evidence href", () => {
+    expect(
+      resolveInspectStoredEvidenceHelpReturnHrefFromRecentViews({
+        entries: [
+          { href: "/governance/findings" },
+          { href: "/architecture/reviews/run-2?reviewTab=evidence" },
+        ],
+      }),
+    ).toBe("/architecture/reviews/run-2?reviewTab=evidence");
+  });
+
+  it("returns null when no recent evidence tab visits exist", () => {
+    expect(
+      resolveInspectStoredEvidenceHelpReturnHrefFromRecentViews({
+        entries: [{ href: "/governance/findings" }],
+      }),
+    ).toBeNull();
   });
 });

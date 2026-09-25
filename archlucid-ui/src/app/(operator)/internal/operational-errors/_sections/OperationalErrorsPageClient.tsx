@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Copy } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { OperationalErrorsBreadcrumb } from "@/app/(operator)/internal/operational-errors/_sections/OperationalErrorsBreadcrumb";
 import { OperationalErrorsDetailPanel } from "@/app/(operator)/internal/operational-errors/_sections/OperationalErrorsDetailPanel";
 import { OperationalErrorsTable } from "@/app/(operator)/internal/operational-errors/_sections/OperationalErrorsTable";
 import {
@@ -24,8 +25,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { OperationalErrorsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { INTERNAL_OPERATIONAL_ERRORS_PATH } from "@/lib/internal-ops-route-paths";
+import {
+  OPERATIONAL_ERRORS_CLAIM_DISCIPLINE,
+  OPERATIONAL_ERRORS_PAGE_TITLE,
+} from "@/lib/internal/operational-errors-evidence-copy";
 import {
   operationalErrorsCategoryHrefFromSearch,
   operationalErrorsCorrelationHrefFromSearch,
@@ -234,10 +241,18 @@ export function OperationalErrorsPageClient() {
 
   return (
     <OperatorPageContainer>
+      <a href="#operational-errors-first-viewport" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        Skip to operational errors
+      </a>
+
+      <OperationalErrorsBreadcrumb />
+
       <OperatorPageHeader
-        title="Operational errors"
+        title={OPERATIONAL_ERRORS_PAGE_TITLE}
         subtitle="Review captured HTTP errors, database failures, and unhandled exceptions across the platform."
         navHref={INTERNAL_OPERATIONAL_ERRORS_PATH}
+        claimDiscipline={OPERATIONAL_ERRORS_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="operational-errors-header-claim-discipline"
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -348,6 +363,8 @@ export function OperationalErrorsPageClient() {
           <OperationalErrorsDetailPanel row={selectedRow} onClose={() => setSelectedRow(null)} />
         </div>
       ) : null}
+
+      <OperationalErrorsEvidenceOrientationStrip />
     </OperatorPageContainer>
   );
 }

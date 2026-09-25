@@ -36,5 +36,5 @@ public sealed class PagedResponse<T>
     } = 50;
 
     /// <summary>Whether additional pages exist beyond the current page.</summary>
-    public bool HasMore => Page * PageSize < TotalCount;
+    public bool HasMore => (long)Page * PageSize < TotalCount;
 }

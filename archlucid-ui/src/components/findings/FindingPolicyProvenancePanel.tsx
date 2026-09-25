@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -54,13 +56,16 @@ function ProvenanceLink(props: {
 
 /** Prominent policy pack, rule, evidence, and trace excerpt for a finding. */
 export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanelProps): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const findingPolicyTraceExcerptOpenParam = searchParams.get("findingPolicyTraceExcerptOpen");
   const [traceExcerptOpen, setTraceExcerptOpenState] = useState(() =>
-    parseFindingPolicyTraceExcerptOpenFromSearch(findingPolicyTraceExcerptOpenParam),
+    parseFindingPolicyTraceExcerptOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("findingPolicyTraceExcerptOpen"),
+    ),
   );
+  const traceExcerptOpenRef = useRef(traceExcerptOpen);
+  traceExcerptOpenRef.current = traceExcerptOpen;
   const { model, traceExcerpt, compact = false, variant = "default", className } = props;
   const trimmedTrace = traceExcerpt?.trim() ?? "";
   const hasPolicyContext = model.pack !== null || model.policy !== null;
@@ -68,16 +73,21 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
 
   const syncTraceExcerptOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        findingPolicyTraceExcerptDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        findingPolicyTraceExcerptDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTraceExcerptOpen = useCallback(
     (open: boolean) => {
+      if (traceExcerptOpenRef.current === open) {
+        return;
+      }
+
+      traceExcerptOpenRef.current = open;
       setTraceExcerptOpenState(open);
       syncTraceExcerptOpenToUrl(open);
     },
@@ -85,8 +95,26 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
   );
 
   useEffect(() => {
-    setTraceExcerptOpenState(parseFindingPolicyTraceExcerptOpenFromSearch(findingPolicyTraceExcerptOpenParam));
-  }, [findingPolicyTraceExcerptOpenParam]);
+    const syncTraceExcerptOpenFromUrl = (): void => {
+      const next = parseFindingPolicyTraceExcerptOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingPolicyTraceExcerptOpen"),
+      );
+
+      if (traceExcerptOpenRef.current === next) {
+        return;
+      }
+
+      traceExcerptOpenRef.current = next;
+      setTraceExcerptOpenState(next);
+    };
+
+    syncTraceExcerptOpenFromUrl();
+    window.addEventListener("popstate", syncTraceExcerptOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTraceExcerptOpenFromUrl);
+    };
+  }, []);
 
   if (!hasPolicyContext && model.evidence.length === 0 && trimmedTrace.length === 0) {
     return null;
@@ -161,7 +189,8 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
           className="rounded-md border border-neutral-200 bg-white/80 dark:border-neutral-700 dark:bg-neutral-950/50"
           open={traceExcerptOpen}
           onToggle={(event) => {
-            setTraceExcerptOpen(event.currentTarget.open);
+            event.preventDefault();
+            setTraceExcerptOpen(!traceExcerptOpenRef.current);
           }}
         >
           <summary className={cn("cursor-pointer select-none px-3 py-2 font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>

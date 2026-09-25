@@ -96,12 +96,12 @@ internal static class PilotProofPacketRoiArtifacts
 
     private static void AppendFreshnessSection(StringBuilder sb, string deltasJson)
     {
-        string disposition = PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, DateTime.UtcNow);
+        string disposition = PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         sb.AppendLine($"**ROI source freshness disposition:** **{disposition}**");
         sb.AppendLine();
 
-        string line = PilotProofPacketRoiFreshnessEvaluator.BuildLimitationsLine(deltasJson, DateTime.UtcNow);
+        string line = PilotProofPacketRoiFreshnessEvaluator.BuildLimitationsLine(deltasJson, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         if (!string.IsNullOrWhiteSpace(line))
         {

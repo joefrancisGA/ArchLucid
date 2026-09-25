@@ -1,3 +1,5 @@
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import {
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
@@ -84,6 +86,69 @@ export const POLICY_PACK_DELTA_DEMO_HELP_SOURCES: readonly PolicyPackDeltaDemoHe
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "Approval", href: inAppHelpHref("governance-approval") },
   { label: "Understanding alerts", href: inAppHelpHref("alerts") },
+] as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_TOPIC_LABEL = "Policy-pack delta demo" as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_APPLICABILITY_SECURENOW =
+  "SecureNow (Security) buyers should use governance approval and alerts help — this internal SE/Admin runbook targets Architecture policy-pack enforcement demos only." as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_ERROR_RECOVERY_HEADING = "When dry-run or simulation fails" as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_ERROR_RECOVERY = {
+  whatFailed: "Dry-run, simulation, or audit export could not complete for the selected review and pack assignment.",
+  whatIsIntact:
+    "The committed review findings snapshot and existing pack assignments remain unchanged — dry-run does not mutate finalize state.",
+  nextStep:
+    "Confirm ReadAuthority scope headers, retry simulation from Policy packs, then open the audit trail for the last successful governance event.",
+} as const;
+
+export type PolicyPackDeltaDemoHelpRelatedLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+export const POLICY_PACK_DELTA_DEMO_HELP_RELATED_TOPICS_HEADING_ID =
+  "help-policy-pack-delta-demo-related-topics" as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_RELATED_TOPICS_HEADING = "Related topics" as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_RELATED_LINKS: readonly PolicyPackDeltaDemoHelpRelatedLink[] = [
+  { label: "Policy packs help", href: inAppHelpHref("policy-packs") },
+  { label: "Governance approval", href: inAppHelpHref("governance-approval") },
+  { label: "Understanding alerts", href: inAppHelpHref("alerts") },
+  { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
+] as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_HELP_RETURN = {
+  label: HELP_TOPIC_BREADCRUMB_HUB_LABEL,
+  href: HELP_HUB_CANONICAL_PATH,
+} as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: "help-policy-pack-delta-demo-arc-heading", title: "Narrative arc (5 minutes)" },
+  {
+    level: 2,
+    id: "help-policy-pack-delta-demo-impact-preview-heading",
+    title: POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE,
+  },
+  {
+    level: 2,
+    id: "help-policy-pack-delta-demo-finding-toggle-heading",
+    title: POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
+  },
+  { level: 2, id: "help-policy-pack-delta-demo-action-panel-heading", title: "Run the demo surfaces" },
+  { level: 2, id: "help-policy-pack-delta-demo-applicability", title: "Scope and seat applicability" },
+  {
+    level: 2,
+    id: "help-policy-pack-delta-demo-error-recovery",
+    title: POLICY_PACK_DELTA_DEMO_HELP_ERROR_RECOVERY_HEADING,
+  },
+  {
+    level: 2,
+    id: POLICY_PACK_DELTA_DEMO_HELP_RELATED_TOPICS_HEADING_ID,
+    title: POLICY_PACK_DELTA_DEMO_HELP_RELATED_TOPICS_HEADING,
+  },
 ] as const;
 
 export const POLICY_PACK_DELTA_DEMO_HELP_CANONICAL_PATH = POLICY_PACK_DELTA_DEMO_HELP_PATH;

@@ -21,7 +21,7 @@ import {
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
 } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
+import { POLICY_PACK_DELTA_DEMO_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID } from "@/lib/policy/policy-pack-delta-demo-help-page-copy";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -58,15 +58,10 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
     expect(screen.getByTestId("help-policy-pack-delta-demo-finding-toggle")).toHaveTextContent(
       POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
     );
-    expect(screen.queryByTestId("help-policy-pack-delta-demo-claim-discipline")).toBeNull();
-    expect(screen.getByTestId("help-policy-pack-delta-demo-claim-discipline-strip")).toHaveTextContent(
+    expect(screen.queryByTestId("help-policy-pack-delta-demo-claim-discipline-strip")).toBeNull();
+    expect(screen.queryByTestId("help-policy-pack-delta-demo-wk21-honesty")).toBeNull();
+    expect(screen.getByTestId(POLICY_PACK_DELTA_DEMO_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,
-    );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-policy-pack-delta-demo",
-      "help-policy-pack-delta-demo-claim-discipline",
-      POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 
     const actionPanel = screen.getByTestId("help-policy-pack-delta-demo-action-panel");

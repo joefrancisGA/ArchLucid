@@ -27,7 +27,11 @@ function readCookieValue(name: string): string | null {
     return null;
   }
 
-  return decodeURIComponent(match.slice(prefix.length));
+  try {
+    return decodeURIComponent(match.slice(prefix.length));
+  } catch {
+    return null;
+  }
 }
 
 function writeCookieValue(name: string, value: string | null): void {
@@ -63,13 +67,13 @@ export function readProductLineAssignmentOverrides(): Readonly<Record<string, Pr
     return {};
   }
 
-  const raw = window.localStorage.getItem(PRODUCT_LINE_ASSIGNMENT_OVERRIDES_STORAGE_KEY);
-
-  if (raw === null || raw.trim().length === 0) {
-    return {};
-  }
-
   try {
+    const raw = window.localStorage.getItem(PRODUCT_LINE_ASSIGNMENT_OVERRIDES_STORAGE_KEY);
+
+    if (raw === null || raw.trim().length === 0) {
+      return {};
+    }
+
     const parsed: unknown = JSON.parse(raw);
 
     if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
@@ -103,7 +107,11 @@ export function persistProductLineAssignmentOverrides(
     return;
   }
 
-  window.localStorage.setItem(PRODUCT_LINE_ASSIGNMENT_OVERRIDES_STORAGE_KEY, JSON.stringify(overrides));
+  try {
+    window.localStorage.setItem(PRODUCT_LINE_ASSIGNMENT_OVERRIDES_STORAGE_KEY, JSON.stringify(overrides));
+  } catch {
+    // Storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export function clearProductLineAssignmentOverrides(): void {
@@ -111,5 +119,9 @@ export function clearProductLineAssignmentOverrides(): void {
     return;
   }
 
-  window.localStorage.removeItem(PRODUCT_LINE_ASSIGNMENT_OVERRIDES_STORAGE_KEY);
+  try {
+    window.localStorage.removeItem(PRODUCT_LINE_ASSIGNMENT_OVERRIDES_STORAGE_KEY);
+  } catch {
+    // Storage may be unavailable in private/restricted browser contexts.
+  }
 }

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Share2, Users } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
 
 import { buildReviewMeetingPacketSteps, type ReviewMeetingPacketStep } from "@/components/reviews/ReviewMeetingPacketButton";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
@@ -18,10 +18,10 @@ import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-ex
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseReviewHeaderShareMenuOpenFromSearch,
-  reviewHeaderShareMenuHrefFromSearch,
-} from "@/lib/reviews/review-header-share-menu-url";
+  reviewHeaderShareMenuHrefFromSearch} from "@/lib/reviews/review-header-share-menu-url";
 import { cn } from "@/lib/utils";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
@@ -40,42 +40,66 @@ export type ReviewHeaderShareMenuProps = {
 
 /** Consolidated share and export affordances on the review detail header. */
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const searchParams = useSearchParams();
-  const shareMenuOpenParam = searchParams.get("shareMenuOpen");
-  const [open, setOpenState] = useState(() => parseReviewHeaderShareMenuOpenFromSearch(shareMenuOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseReviewHeaderShareMenuOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("shareMenuOpen"),
+    ),
+  );
   const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
 
   const syncShareMenuOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(reviewHeaderShareMenuHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        reviewHeaderShareMenuHrefFromSearch(window.location.search.slice(1), nextOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncShareMenuOpenToUrl(next);
+
+        if (next !== current) {
+          syncShareMenuOpenToUrl(next);
+        }
 
         return next;
       });
     },
     [syncShareMenuOpenToUrl],
   );
+
+  useEffect(() => {
+    const syncShareMenuOpenFromUrl = (): void => {
+      setOpenState((current) => {
+        const next = parseReviewHeaderShareMenuOpenFromSearch(
+          new URLSearchParams(window.location.search).get("shareMenuOpen"),
+        );
+
+        return current === next ? current : next;
+      });
+    };
+
+    syncShareMenuOpenFromUrl();
+    window.addEventListener("popstate", syncShareMenuOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncShareMenuOpenFromUrl);
+    };
+  }, []);
   const inviteHref = buildInviteReviewerHref(props.runId, props.parentArchitectureId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,
-    findingsQueueHref: props.findingsQueueHref,
-  });
+    findingsQueueHref: props.findingsQueueHref});
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: props.runId,
-    manifestVersion: props.manifestVersion,
-  });
+    manifestVersion: props.manifestVersion});
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
   const shareMenuDisabled = props.disabled === true;
 

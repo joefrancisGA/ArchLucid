@@ -5,10 +5,14 @@ import {
   buildDiagramsWorkbenchHref,
   infraDiagramsFilterHrefFromSearch,
   parseInfraDiagramsCloudResourceIdFromSearch,
+  parseInfraDiagramsIncludePrivateEndpointsFromSearch,
+  parseInfraDiagramsIncludeRecoveryServicesFromSearch,
+  INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
   parseInfraDiagramsSnapshotIdFromSearch,
+  parseInfraDiagramsSubscriptionFilterFromSearch,
   resolveInfraDiagramsSelectedSnapshotId,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 
@@ -131,5 +135,56 @@ describe("infra-evidence-diagrams-filter-url", () => {
 
     expect(resolveInfraDiagramsSelectedSnapshotId("snap-2", snapshots)).toBe("snap-2");
     expect(resolveInfraDiagramsSelectedSnapshotId("missing", snapshots)).toBe("");
+  });
+
+  it("parses subscription filter and private endpoint params", () => {
+    expect(parseInfraDiagramsSubscriptionFilterFromSearch("sub-prod")).toBe("sub-prod");
+    expect(parseInfraDiagramsSubscriptionFilterFromSearch(null)).toBe("");
+    expect(parseInfraDiagramsIncludePrivateEndpointsFromSearch("1")).toBe(true);
+    expect(parseInfraDiagramsIncludePrivateEndpointsFromSearch("true")).toBe(true);
+    expect(parseInfraDiagramsIncludePrivateEndpointsFromSearch(null)).toBe(false);
+    expect(parseInfraDiagramsIncludeRecoveryServicesFromSearch("1")).toBe(true);
+    expect(parseInfraDiagramsIncludeRecoveryServicesFromSearch(null)).toBe(false);
+  });
+
+  it("round-trips includeRecoveryServices without touching includeNeverShow", () => {
+    expect(
+      infraDiagramsFilterHrefFromSearch("includeNeverShow=1", {
+        includeRecoveryServices: true,
+      }),
+    ).toBe(
+      `/governance/infrastructure/diagrams?includeNeverShow=1&${INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM}=1`,
+    );
+
+    expect(
+      infraDiagramsFilterHrefFromSearch(
+        `includeNeverShow=1&${INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM}=1`,
+        {
+          includeRecoveryServices: false,
+        },
+      ),
+    ).toBe("/governance/infrastructure/diagrams?includeNeverShow=1");
+  });
+
+  it("round-trips subscription filter and private endpoint patches", () => {
+    expect(
+      infraDiagramsFilterHrefFromSearch("", {
+        snapshotId: "snap-1",
+        subscriptionFilter: "sub-prod",
+        includePrivateEndpoints: true,
+      }),
+    ).toBe(
+      "/governance/infrastructure/diagrams?snapshotId=snap-1&diagramSubscription=sub-prod&includePrivateEndpoints=1",
+    );
+
+    expect(
+      infraDiagramsFilterHrefFromSearch(
+        "snapshotId=snap-1&diagramSubscription=sub-prod&includePrivateEndpoints=1",
+        {
+          subscriptionFilter: "",
+          includePrivateEndpoints: false,
+        },
+      ),
+    ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1");
   });
 });

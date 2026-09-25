@@ -111,6 +111,12 @@ import type { RemediationPatternRecord, RemediationPatternVersionRecord } from "
 import { cn } from "@/lib/utils";
 
 import { RemediationPatternsGuards } from "./RemediationPatternsGuards";
+import {
+  REMEDIATION_PATTERNS_CLAIM_DISCIPLINE,
+  REMEDIATION_PATTERNS_PRIMARY_CONTENT_ID,
+  REMEDIATION_PATTERNS_SKIP_LINK_LABEL,
+} from "@/lib/remediation-patterns-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 const SELECTABLE_ROW_CLASS =
   "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400";
@@ -767,11 +773,20 @@ export function RemediationPatternsClient() {
 
   return (
     <div className="space-y-4 p-4" data-testid="remediation-patterns-page">
+      <a
+        href={`#${REMEDIATION_PATTERNS_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {REMEDIATION_PATTERNS_SKIP_LINK_LABEL}
+      </a>
+
       <RemediationPatternsGuards yamlDraft={yamlDraft} />
       <OperatorPageHeader
         navHref={navHref}
         title={OPERATOR_NAV_LINK_LABELS.remediationPatterns}
         subtitle="Create, review, and approve governed remediation patterns."
+        claimDiscipline={REMEDIATION_PATTERNS_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="remediation-patterns-claim-discipline"
         headingLevel="h1"
         titleTestId="remediation-patterns-page-title"
         actions={
@@ -810,6 +825,11 @@ export function RemediationPatternsClient() {
         }
       />
 
+      <main
+        id={REMEDIATION_PATTERNS_PRIMARY_CONTENT_ID}
+        className="scroll-mt-24 space-y-4"
+        data-testid="remediation-patterns-primary-content"
+      >
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-patterns-draft-rule-copy">
         {DRAFT_RULE_COPY}
       </p>
@@ -1237,6 +1257,7 @@ export function RemediationPatternsClient() {
           ) : null}
         </section>
       ) : null}
+      </main>
 
       <AlertDialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
         <AlertDialogContent data-testid="remediation-pattern-approve-dialog">

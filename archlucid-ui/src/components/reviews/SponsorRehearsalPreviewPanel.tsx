@@ -1,12 +1,12 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
-  SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM,
   parseSponsorRehearsalPreviewOpenFromSearch,
   sponsorRehearsalPreviewDisclosureHrefFromSearch,
 } from "@/lib/reviews/sponsor-rehearsal-preview-disclosure-url";
@@ -31,32 +31,62 @@ export function SponsorRehearsalPreviewPanel(
   props: SponsorRehearsalPreviewPanelProps,
 ): ReactElement {
   const collapsedByDefault = props.collapsedByDefault !== false;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const sponsorRehearsalPreviewOpenParam = searchParams.get(SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM);
   const [panelOpen, setPanelOpenState] = useState(() =>
-    parseSponsorRehearsalPreviewOpenFromSearch(sponsorRehearsalPreviewOpenParam),
+    parseSponsorRehearsalPreviewOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("sponsorRehearsalPreviewOpen"),
+    ),
   );
+  const panelOpenRef = useRef(panelOpen);
+  panelOpenRef.current = panelOpen;
+
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        sponsorRehearsalPreviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        sponsorRehearsalPreviewDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
   const setPanelOpen = useCallback(
     (open: boolean) => {
+      if (panelOpenRef.current === open) {
+        return;
+      }
+
+      panelOpenRef.current = open;
       setPanelOpenState(open);
       syncPanelOpenToUrl(open);
     },
     [syncPanelOpenToUrl],
   );
+
   useEffect(() => {
-    setPanelOpenState(parseSponsorRehearsalPreviewOpenFromSearch(sponsorRehearsalPreviewOpenParam));
-  }, [sponsorRehearsalPreviewOpenParam]);
+    const syncPanelOpenFromUrl = (): void => {
+      const next = parseSponsorRehearsalPreviewOpenFromSearch(
+        new URLSearchParams(window.location.search).get("sponsorRehearsalPreviewOpen"),
+      );
+
+      if (panelOpenRef.current === next) {
+        return;
+      }
+
+      panelOpenRef.current = next;
+      setPanelOpenState(next);
+    };
+
+    syncPanelOpenFromUrl();
+    window.addEventListener("popstate", syncPanelOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPanelOpenFromUrl);
+    };
+  }, []);
+
   const preview = buildSponsorRehearsalPreview(props.input ?? {});
 
   const body = (
@@ -117,7 +147,10 @@ export function SponsorRehearsalPreviewPanel(
       )}
       data-testid="sponsor-rehearsal-preview"
       open={panelOpen}
-      onToggle={(event) => setPanelOpen(event.currentTarget.open)}
+      onToggle={(event) => {
+        event.preventDefault();
+        setPanelOpen(!panelOpenRef.current);
+      }}
     >
       <summary
         className={cn("cursor-pointer select-none font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

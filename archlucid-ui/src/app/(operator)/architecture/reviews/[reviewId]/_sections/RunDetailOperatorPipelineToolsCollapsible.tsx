@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { RunDetailAiRefinePanel } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAiRefinePanel";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
@@ -11,6 +11,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunRefineWithAiOpenFromSearch,
   runDetailRefineWithAiDisclosureHrefFromSearch,
@@ -29,23 +30,34 @@ export function RunDetailOperatorPipelineToolsCollapsible(
   props: RunDetailOperatorPipelineToolsCollapsibleProps,
 ): ReactElement {
   const { runId } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runRefineWithAiOpenParam = searchParams.get("runRefineWithAiOpen");
-  const [open, setOpenState] = useState(() => parseRunRefineWithAiOpenFromSearch(runRefineWithAiOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseRunRefineWithAiOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runRefineWithAiOpen"),
+    ),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(runDetailRefineWithAiDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runDetailRefineWithAiDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
@@ -53,8 +65,26 @@ export function RunDetailOperatorPipelineToolsCollapsible(
   );
 
   useEffect(() => {
-    setOpenState(parseRunRefineWithAiOpenFromSearch(runRefineWithAiOpenParam));
-  }, [runRefineWithAiOpenParam]);
+    const syncOpenFromUrl = (): void => {
+      const nextOpen = parseRunRefineWithAiOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runRefineWithAiOpen"),
+      );
+
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
 
   return (
     <CollapsibleSection

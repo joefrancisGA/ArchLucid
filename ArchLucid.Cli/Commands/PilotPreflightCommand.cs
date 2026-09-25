@@ -96,7 +96,7 @@ internal static class PilotPreflightCommand
     private static string BuildMarkdown(PilotPreflightReport report)
     {
         StringBuilder sb = new();
-        string timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm") + " UTC";
+        string timestamp = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyy-MM-dd HH:mm") + " UTC";
 
         sb.AppendLine("# ArchLucid Pilot Readiness Preflight");
         sb.AppendLine();

@@ -2,7 +2,7 @@
 
 import { CircleUser } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -23,6 +23,7 @@ import {
   accountSettingsMenuHrefFromSearch,
   parseAccountSettingsMenuOpenFromSearch,
 } from "@/lib/operator/account-settings-menu-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export const ACCOUNT_SETTINGS_MENU_ARIA_LABEL = "Your account settings";
@@ -58,11 +59,14 @@ export function computeAccountSettingsMenuPanelStyle(trigger: HTMLElement): CSSP
  * scrollbar in the top bar that kills demos.
  */
 export function AccountSettingsMenu(): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const accountMenuOpenParam = searchParams.get("accountMenuOpen");
-  const [open, setOpenState] = useState(() => parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam));
+  const [open, setOpenState] = useState(() =>
+    parseAccountSettingsMenuOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("accountMenuOpen"),
+    ),
+  );
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const openRef = useRef(open);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -73,11 +77,12 @@ export function AccountSettingsMenu(): React.JSX.Element {
 
   const syncAccountMenuOpenToUrl = useCallback(
     (menuOpen: boolean) => {
-      router.replace(accountSettingsMenuHrefFromSearch(searchParams.toString(), menuOpen, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        accountSettingsMenuHrefFromSearch(readWindowLocationSearch(), menuOpen, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setOpen = useCallback(
@@ -85,6 +90,11 @@ export function AccountSettingsMenu(): React.JSX.Element {
       const current = openRef.current;
       const next = typeof value === "function" ? value(current) : value;
 
+      if (current === next) {
+        return;
+      }
+
+      openRef.current = next;
       setOpenState(next);
       syncAccountMenuOpenToUrl(next);
     },
@@ -92,8 +102,26 @@ export function AccountSettingsMenu(): React.JSX.Element {
   );
 
   useEffect(() => {
-    setOpenState(parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam));
-  }, [accountMenuOpenParam]);
+    const syncAccountMenuOpenFromUrl = (): void => {
+      const next = parseAccountSettingsMenuOpenFromSearch(
+        new URLSearchParams(window.location.search).get("accountMenuOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncAccountMenuOpenFromUrl();
+    window.addEventListener("popstate", syncAccountMenuOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAccountMenuOpenFromUrl);
+    };
+  }, []);
 
   const closeMenu = useCallback(() => {
     setOpen(false);

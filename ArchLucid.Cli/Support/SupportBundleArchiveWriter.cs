@@ -205,7 +205,7 @@ public static class SupportBundleArchiveWriter
     {
         ArgumentNullException.ThrowIfNull(payload);
 
-        DateTimeOffset analyzedUtc = DateTimeOffset.UtcNow;
+        DateTimeOffset analyzedUtc = TimeProvider.System.GetUtcNow();
         string summary = SupportBundleLogDiagnosticsAnalyzer.BuildSummary(payload.Logs.LocalLogExcerpt, analyzedUtc);
         string summaryPath = Path.Combine(outputDirectory, DiagnosticsSummaryFileName);
 

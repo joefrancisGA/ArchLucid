@@ -17,6 +17,10 @@ export const CONFIGURATION_REFERENCE_HELP_OVERVIEW =
 export const CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE =
   "This guide orients Admin configuration tasks inside the product. It is not buyer self-serve product help and not a certification evidence pack.";
 
+export const CONFIGURATION_REFERENCE_HELP_PRIMARY_CONTENT_ID = "help-configuration-reference-primary-content" as const;
+
+export const CONFIGURATION_REFERENCE_HELP_SKIP_LINK_LABEL = "Skip to configuration reference guide" as const;
+
 export const CONFIGURATION_REFERENCE_HELP_ACTION_PANEL_ID = "open-configuration-surfaces" as const;
 
 export const CONFIGURATION_REFERENCE_HELP_ACTION_PANEL_TITLE = "Open configuration surfaces" as const;
@@ -32,35 +36,6 @@ export const CONFIGURATION_REFERENCE_HELP_KEY_CATALOG_SUMMARY_LABEL =
 
 export const CONFIGURATION_REFERENCE_HELP_PROVENANCE_DISCLOSURE_TITLE = "Source document" as const;
 
-export type ConfigurationReferenceHelpTaskSection = {
-  readonly title: string;
-  readonly body: string;
-  readonly status?: {
-    readonly kind: "neutral" | "blocked";
-    readonly label: string;
-  };
-};
-
-export const CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS: readonly ConfigurationReferenceHelpTaskSection[] =
-  [
-    {
-      title: "Identity and SSO",
-      body: "Configure workforce sign-in with the SSO wizard, then confirm identity providers and role mapping. Use Users and roles help when you need permission semantics rather than IdP wiring.",
-    },
-    {
-      title: "Automation credentials",
-      status: {
-        kind: "neutral",
-        label: "Not available in product",
-      },
-      body: "Prefer managed identity and Key Vault for hosted secrets; do not paste raw connection strings into evidence bundles.",
-    },
-    {
-      title: "Hosting and secrets posture",
-      body: "Production-like hosts require Key Vault-backed secrets and honest auth mode (JWT/OIDC or SAML as contracted). Open the Admin configuration summary for the live key snapshot after settings changes.",
-    },
-  ] as const;
-
 export const CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS = {
   openSsoWizard: {
     label: "Open SSO wizard",
@@ -75,6 +50,42 @@ export const CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS = {
     href: "/internal/configuration",
   },
 } as const;
+
+export type ConfigurationReferenceHelpTaskSection = {
+  readonly title: string;
+  readonly body: string;
+  readonly primaryActionHref?: string;
+  readonly primaryActionLabel?: string;
+  readonly status?: {
+    readonly kind: "neutral" | "blocked";
+    readonly label: string;
+  };
+};
+
+export const CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS: readonly ConfigurationReferenceHelpTaskSection[] =
+  [
+    {
+      title: "Identity and SSO",
+      body: "Configure workforce sign-in with the SSO wizard, then confirm identity providers and role mapping. Use Users and roles help when you need permission semantics rather than IdP wiring.",
+      primaryActionHref: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.href,
+      primaryActionLabel: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.label,
+    },
+    {
+      title: "Automation credentials",
+      status: {
+        kind: "neutral",
+        label: "Not available in product",
+      },
+      body:
+        "Product-managed automation credential settings are not available in this release. When wiring integrations outside this guide, prefer managed identity and Key Vault for hosted secrets instead of pasting raw connection strings into evidence bundles.",
+    },
+    {
+      title: "Hosting and secrets posture",
+      body: "Production-like hosts require Key Vault-backed secrets and honest auth mode (JWT/OIDC or SAML as contracted). Open the Admin configuration summary for the live key snapshot after settings changes.",
+      primaryActionHref: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href,
+      primaryActionLabel: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.label,
+    },
+  ] as const;
 
 export const CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING =
   "Which guide should you open?" as const;

@@ -54,9 +54,11 @@ export function registrationScopeHeaders(): Record<string, string> | null {
     return null;
   }
 
-  const tenantId = payload.tenantId?.trim() ?? "";
-  const workspaceId = payload.defaultWorkspaceId?.trim() ?? "";
-  const projectId = payload.defaultProjectId?.trim() ?? "";
+  const tenantId = typeof payload.tenantId === "string" ? payload.tenantId.trim() : "";
+  const workspaceId =
+    typeof payload.defaultWorkspaceId === "string" ? payload.defaultWorkspaceId.trim() : "";
+  const projectId =
+    typeof payload.defaultProjectId === "string" ? payload.defaultProjectId.trim() : "";
 
   if (tenantId.length === 0 || workspaceId.length === 0 || projectId.length === 0) {
     return null;

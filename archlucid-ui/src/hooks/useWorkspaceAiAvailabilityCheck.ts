@@ -29,6 +29,7 @@ export function useWorkspaceAiAvailabilityCheck(input: {
   const autoCheckedRef = useRef(false);
   const retriesRemainingRef = useRef(input.maxAutoRetries ?? (input.autoRetryOnError === true ? 1 : 0));
   const attemptIndexRef = useRef(0);
+  const checkAvailabilityRef = useRef<WorkspaceAiAvailabilityCheck["checkAvailability"]>(async () => {});
 
   const checkAvailability = useCallback(
     async (options?: { readonly force?: boolean }) => {
@@ -92,7 +93,7 @@ export function useWorkspaceAiAvailabilityCheck(input: {
           });
 
           window.setTimeout(() => {
-            void checkAvailability({ force: true });
+            void checkAvailabilityRef.current({ force: true });
           }, 400);
 
           return;
@@ -122,6 +123,8 @@ export function useWorkspaceAiAvailabilityCheck(input: {
     },
     [input.autoRetryOnError, input.enabled, state.status],
   );
+
+  checkAvailabilityRef.current = checkAvailability;
 
   useEffect(() => {
     if (!input.enabled) {

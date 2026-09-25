@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -85,7 +87,6 @@ export type UseRunsListResult = {
 /** Page controller: runs list filter, sort, inspector, and pagination state. */
 export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const { runs, projectId, page, pageSize, totalCount, nextCursor = null } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
   const listContextFilter = searchParams.get("filter");
@@ -117,10 +118,16 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const buyerCollapseFilters = buyerPolished && totalCount <= 1;
 
   const [filterText, setFilterTextState] = useState(urlFilterText);
+  const filterTextRef = useRef(filterText);
+  filterTextRef.current = filterText;
   const buyerPackageScope = urlBuyerPackageScope;
   const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
+  const sortOrderRef = useRef(sortOrder);
+  sortOrderRef.current = sortOrder;
   const [selectedRun, setSelectedRunState] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelectionState] = useState<string[]>(() => [...urlCompareRunIds]);
+  const compareSelectionRef = useRef(compareSelection);
+  compareSelectionRef.current = compareSelection;
   const [compareSelectionNotice, setCompareSelectionNotice] = useState<string | null>(null);
   const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
   const mobileInspectorShellRef = useRef<HTMLDivElement>(null);
@@ -130,52 +137,90 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   useFocusTrap(mobileInspectorShellRef, mobileInspectorTrapActive);
 
   useEffect(() => {
-    setFilterTextState(urlFilterText);
-  }, [urlFilterText]);
+    const syncFilterTextFromUrl = (): void => {
+      const next = parseRunsListSearchQuery(new URLSearchParams(window.location.search).get("q"));
+
+      if (filterTextRef.current === next) {
+        return;
+      }
+
+      filterTextRef.current = next;
+      setFilterTextState(next);
+    };
+
+    syncFilterTextFromUrl();
+    window.addEventListener("popstate", syncFilterTextFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFilterTextFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
-    setSortOrderState(urlSortOrder);
-  }, [urlSortOrder]);
+    const syncSortOrderFromUrl = (): void => {
+      const next = sortOrderFromRunsListSort(
+        parseRunsListSortFromSearch(new URLSearchParams(window.location.search).get("sort")),
+      );
+
+      if (sortOrderRef.current === next) {
+        return;
+      }
+
+      sortOrderRef.current = next;
+      setSortOrderState(next);
+    };
+
+    syncSortOrderFromUrl();
+    window.addEventListener("popstate", syncSortOrderFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSortOrderFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      const nextHref = runsListSearchHrefFromSearch(searchParams.toString(), filterText, pathname);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
+      commitHrefIfChanged(
+        runsListSearchHrefFromSearch(readWindowLocationSearch(), filterText, pathname),
+        { notify: false },
+      );
     }, 250);
 
     return () => {
       window.clearTimeout(handle);
     };
-  }, [filterText, pathname, router, searchParams]);
+  }, [filterText, pathname]);
 
   const setFilterText = useCallback((value: string): void => {
+    filterTextRef.current = value;
     setFilterTextState(value);
   }, []);
 
   const clearFilterText = useCallback(() => {
+    filterTextRef.current = "";
     setFilterTextState("");
-    router.replace(runsListClearSearchHrefFromSearch(searchParams.toString(), pathname), { scroll: false });
-  }, [pathname, router, searchParams]);
+    commitHrefIfChanged(runsListClearSearchHrefFromSearch(readWindowLocationSearch(), pathname), {
+      notify: false,
+    });
+  }, [pathname]);
 
   const setSortOrder = useCallback((order: SortOrder): void => {
+    sortOrderRef.current = order;
     setSortOrderState(order);
   }, []);
 
   const syncCompareInspectorToUrl = useCallback(
     (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
-      router.replace(
+      commitHrefIfChanged(
         runsListCompareInspectorHrefFromSearch(
-          runsListEffectiveSearchFromSearch(searchParams.toString(), filterText),
+          runsListEffectiveSearchFromSearch(readWindowLocationSearch(), filterTextRef.current),
           { inspectorRunId, compareRunIds },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [filterText, pathname, router, searchParams],
+    [pathname],
   );
 
   const setSelectedRun = useCallback(
@@ -199,8 +244,29 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   );
 
   useEffect(() => {
-    setCompareSelectionState([...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)]);
-  }, [urlCompareRunsRaw]);
+    const syncCompareSelectionFromUrl = (): void => {
+      const next = [
+        ...parseRunsListCompareRunIdsFromSearch(
+          new URLSearchParams(window.location.search).get("compareRuns"),
+        ),
+      ];
+      const current = compareSelectionRef.current;
+
+      if (current.length === next.length && current.every((id, index) => id === next[index])) {
+        return;
+      }
+
+      compareSelectionRef.current = next;
+      setCompareSelectionState(next);
+    };
+
+    syncCompareSelectionFromUrl();
+    window.addEventListener("popstate", syncCompareSelectionFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncCompareSelectionFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (safeRuns.length === 0) {

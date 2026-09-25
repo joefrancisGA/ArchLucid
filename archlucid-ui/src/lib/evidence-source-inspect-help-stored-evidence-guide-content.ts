@@ -131,68 +131,96 @@ export type EvidenceSourceInspectHelpStoredEvidenceRelatedLink = {
   readonly description?: string;
 };
 
+export type EvidenceSourceInspectHelpStoredEvidenceRelatedLinkGroup = {
+  readonly heading: string;
+  readonly links: readonly EvidenceSourceInspectHelpStoredEvidenceRelatedLink[];
+};
+
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING_ID =
   "help-inspect-stored-evidence-related-topics" as const;
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_TOPICS_HEADING = "Related" as const;
 
-export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS: readonly EvidenceSourceInspectHelpStoredEvidenceRelatedLink[] =
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINK_GROUPS: readonly EvidenceSourceInspectHelpStoredEvidenceRelatedLinkGroup[] =
   [
     {
-      label: "Evidence intake",
-      href: inAppHelpHref("evidence-intake"),
-      description: "Upload and verify attachments before finalize — then inspect stored files on the review.",
+      heading: "Review workflow",
+      links: [
+        {
+          label: "Evidence intake",
+          href: inAppHelpHref("evidence-intake"),
+          description: "Upload and verify attachments before finalize — then inspect stored files on the review.",
+        },
+        {
+          label: "Architecture reviews",
+          href: REVIEWS_LIST_PATH,
+          description: "Open a package Evidence tab to reach Submitted evidence controls.",
+        },
+        {
+          label: "Architecture packages",
+          href: inAppHelpHref("review-packages"),
+        },
+        {
+          label: "Record vs Practice on the Working desk",
+          href: inAppHelpHref("career-vs-rehearsal"),
+        },
+        {
+          label: "Search review evidence",
+          href: inAppHelpHref("search-review-evidence"),
+        },
+      ],
     },
     {
-      label: "Architecture reviews",
-      href: REVIEWS_LIST_PATH,
-      description: "Open a package Evidence tab to reach Submitted evidence controls.",
+      heading: "Sealed record and sharing",
+      links: [
+        {
+          label: "Sealed review record vs decision register",
+          href: inAppHelpHref("sealed-record-vs-decision-register"),
+          description: "Package manifest exports are not the same as downloading a submitted PNG or PDF source.",
+        },
+        {
+          label: "Architecture sharing inside your tenant",
+          href: inAppHelpHref("architecture-sharing"),
+          description: "Restrict-to-shares hides packages from unshared workspace members — lists stay tenant-scoped.",
+        },
+      ],
     },
     {
-      label: "Sealed review record vs decision register",
-      href: inAppHelpHref("sealed-record-vs-decision-register"),
-      description: "Package manifest exports are not the same as downloading a submitted PNG or PDF source.",
+      heading: "Evidence quality and trust",
+      links: [
+        {
+          label: "Extraction fidelity",
+          href: inAppHelpHref("extraction-fidelity"),
+          description: "Decision-grade findings still require Kind A/B provenance — inspect originals before disposition.",
+        },
+        {
+          label: "Security & Trust",
+          href: inAppHelpHref("security-trust"),
+        },
+        {
+          label: "Evidence trail",
+          href: inAppHelpHref("evidence-trail"),
+        },
+        {
+          label: "Findings",
+          href: inAppHelpHref("findings"),
+        },
+      ],
     },
     {
-      label: "Architecture sharing inside your tenant",
-      href: inAppHelpHref("architecture-sharing"),
-      description: "Restrict-to-shares hides packages from unshared workspace members — lists stay tenant-scoped.",
-    },
-    {
-      label: "Review stored evidence files API",
-      href: inAppHelpHref("api-contracts"),
-      description: "Authorized GET stream for catalog evidenceItemId rows (ReadAuthority).",
-    },
-    {
-      label: "Extraction fidelity",
-      href: inAppHelpHref("extraction-fidelity"),
-      description: "Decision-grade findings still require Kind A/B provenance — inspect originals before disposition.",
-    },
-    {
-      label: "Security & Trust",
-      href: inAppHelpHref("security-trust"),
-    },
-    {
-      label: "Evidence trail",
-      href: inAppHelpHref("evidence-trail"),
-    },
-    {
-      label: "Findings",
-      href: inAppHelpHref("findings"),
-    },
-    {
-      label: "Architecture packages",
-      href: inAppHelpHref("review-packages"),
-    },
-    {
-      label: "Record vs Practice on the Working desk",
-      href: inAppHelpHref("career-vs-rehearsal"),
-    },
-    {
-      label: "Search review evidence",
-      href: inAppHelpHref("search-review-evidence"),
+      heading: "API and contracts",
+      links: [
+        {
+          label: "Review stored evidence files API",
+          href: inAppHelpHref("api-contracts"),
+          description: "Authorized GET stream for catalog evidenceItemId rows (ReadAuthority).",
+        },
+      ],
     },
   ] as const;
+
+export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS: readonly EvidenceSourceInspectHelpStoredEvidenceRelatedLink[] =
+  EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINK_GROUPS.flatMap((group) => group.links);
 
 /** @deprecated Merged into {@link EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RELATED_LINKS}. */
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_ENFORCEMENT_SURFACES =

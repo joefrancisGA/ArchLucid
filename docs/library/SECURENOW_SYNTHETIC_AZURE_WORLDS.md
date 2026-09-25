@@ -55,6 +55,18 @@ Prefer one tiny world per semantic claim. Keep expected truth obvious enough tha
 
 Do not turn this suite into another copy of the production algorithms. If a world needs a reference algorithm, add that separately as an independent brute-force oracle.
 
+## Independent bounded path oracles
+
+The test suite includes small brute-force oracles under
+`ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/` for reachability and the
+narrow privilege role/action slice. They walk simple paths over plain node/edge tuples to a
+fixed depth and compare full path signatures with production enumeration.
+
+The oracles do not call production graph builders, path enumerators, rankers, or cut-point
+analyzers. Their graphs are deliberately tiny and their terminal resources are hand-listed so
+expected paths remain countable by inspection. They are contributor-only regression checks, not
+buyer-facing proof.
+
 
 ## Metamorphic companion suite
 

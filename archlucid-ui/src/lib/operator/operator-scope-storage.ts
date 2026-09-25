@@ -62,9 +62,16 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
       return null;
     }
     const row = parsed as Record<string, unknown>;
-    const tenantId = String(row.tenantId ?? "");
-    const workspaceId = String(row.workspaceId ?? "");
-    const projectId = String(row.projectId ?? "");
+    if (
+      typeof row.tenantId !== "string"
+      || typeof row.workspaceId !== "string"
+      || typeof row.projectId !== "string"
+    ) {
+      return null;
+    }
+    const tenantId = row.tenantId;
+    const workspaceId = row.workspaceId;
+    const projectId = row.projectId;
     if (!isNonEmptyId(tenantId) || !isNonEmptyId(workspaceId) || !isNonEmptyId(projectId)) {
       return null;
     }
@@ -72,8 +79,8 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
       tenantId: tenantId.trim(),
       workspaceId: workspaceId.trim(),
       projectId: projectId.trim(),
-      workspaceLabel: String(row.workspaceLabel ?? "").trim(),
-      projectLabel: String(row.projectLabel ?? "").trim(),
+      workspaceLabel: typeof row.workspaceLabel === "string" ? row.workspaceLabel.trim() : "",
+      projectLabel: typeof row.projectLabel === "string" ? row.projectLabel.trim() : "",
     };
   } catch {
     return null;

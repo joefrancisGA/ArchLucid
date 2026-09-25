@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import {
   GUIDED_INTAKE_EXPLAIN_SUGGESTION_LOADING,
   GUIDED_INTAKE_EXPLAIN_SUGGESTION_RETRY_BUTTON,
 } from "@/lib/guided-intake-copy";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
@@ -47,16 +48,20 @@ export function StructuredBriefSuggestionExplainPanel(
   props: StructuredBriefSuggestionExplainPanelProps,
 ): React.JSX.Element {
   const panelId = useId();
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const structuredBriefSuggestionExplainKeyParam = searchParams.get("structuredBriefSuggestionExplainKey");
   const explainKey = props.explainKey.trim();
-  const [open, setOpenState] = useState(
-    () =>
-      explainKey.length > 0 &&
-      parseStructuredBriefSuggestionExplainKeyFromSearch(structuredBriefSuggestionExplainKeyParam) === explainKey,
-  );
+  const readOpenFromUrl = (): boolean => {
+    const fromUrl = parseStructuredBriefSuggestionExplainKeyFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
+        "structuredBriefSuggestionExplainKey",
+      ),
+    );
+
+    return explainKey.length > 0 && fromUrl === explainKey;
+  };
+  const [open, setOpenState] = useState(() => readOpenFromUrl());
+  const openRef = useRef(open);
+  openRef.current = open;
   const [loading, setLoading] = useState(false);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [error, setError] = useState<{
@@ -67,20 +72,25 @@ export function StructuredBriefSuggestionExplainPanel(
 
   const syncOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      router.replace(
+      commitHrefIfChanged(
         structuredBriefSuggestionExplainDisclosureHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           nextOpen ? explainKey : null,
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [explainKey, pathname, router, searchParams],
+    [explainKey, pathname],
   );
 
   const setOpen = useCallback(
     (nextOpen: boolean) => {
+      if (openRef.current === nextOpen) {
+        return;
+      }
+
+      openRef.current = nextOpen;
       setOpenState(nextOpen);
       syncOpenToUrl(nextOpen);
     },
@@ -88,10 +98,24 @@ export function StructuredBriefSuggestionExplainPanel(
   );
 
   useEffect(() => {
-    const fromUrl = parseStructuredBriefSuggestionExplainKeyFromSearch(structuredBriefSuggestionExplainKeyParam);
+    const syncOpenFromUrl = (): void => {
+      const next = readOpenFromUrl();
 
-    setOpenState(explainKey.length > 0 && fromUrl === explainKey);
-  }, [explainKey, structuredBriefSuggestionExplainKeyParam]);
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, [explainKey]);
 
   const loadExplanation = useCallback(async (): Promise<void> => {
     const cacheKey = await buildStructuredBriefSuggestionExplainCacheKey({

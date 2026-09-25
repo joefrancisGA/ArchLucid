@@ -12,7 +12,13 @@ import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib
  * issue a second fat/LOB inspect call on first paint.
  */
 export async function metadataForFindingDetailRoute(runId: string, findingIdEncoded: string): Promise<Metadata> {
-  const findingId = decodeURIComponent(findingIdEncoded);
+  let findingId: string;
+
+  try {
+    findingId = decodeURIComponent(findingIdEncoded);
+  } catch {
+    return { title: "Finding detail" };
+  }
 
   if (isInvalidGuidOrSlugRouteToken(runId) || isInvalidDynamicRouteToken(findingId)) {
     return { title: "Finding detail" };
@@ -38,7 +44,13 @@ export async function metadataForFindingEvidenceTraceRoute(
   runId: string,
   findingIdEncoded: string,
 ): Promise<Metadata> {
-  const findingId = decodeURIComponent(findingIdEncoded);
+  let findingId: string;
+
+  try {
+    findingId = decodeURIComponent(findingIdEncoded);
+  } catch {
+    return { title: "Evidence Trace" };
+  }
 
   if (isInvalidGuidOrSlugRouteToken(runId) || isInvalidDynamicRouteToken(findingId)) {
     return { title: "Evidence Trace" };

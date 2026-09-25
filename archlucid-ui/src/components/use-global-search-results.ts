@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { RetrievalHit } from "@/app/(operator)/insights/search-review-evidence/_sections/retrieval-hit";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
 import { fetchRetrievalSearchHits } from "@/lib/api/retrieval-search-api";
@@ -68,6 +69,7 @@ export function useGlobalSearchResults(
     (routeLocalSearchMode === "review-detail" && options.searchScope === "workspace") ||
     architecturePackageScoped;
   const { mode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const workingMode = isWorkingWorkspaceMode(mode);
   const architectureIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 200, {
     enabled: workingMode && workspaceScoped,
@@ -193,8 +195,14 @@ export function useGlobalSearchResults(
     setReviewDetailSectionMatches(findReviewDetailSectionSearchMatches(query));
   }, [query, routeLocalSearchMode]);
 
-  const findPageMatches = useMemo(() => searchFindPageIndex(query, { limit: 6 }), [query]);
-  const helpHits = useMemo(() => searchFindPageHelpEntries(query, { limit: 4 }), [query]);
+  const findPageMatches = useMemo(
+    () => searchFindPageIndex(query, { limit: 6, productLineId: productLine }),
+    [productLine, query],
+  );
+  const helpHits = useMemo(
+    () => searchFindPageHelpEntries(query, { limit: 4, productLineId: productLine }),
+    [productLine, query],
+  );
   const trimmedQuery = query.trim();
   const architectureIdentityHits = useMemo((): readonly GlobalSearchArchitectureIdentityHit[] => {
     if (!workingMode || !workspaceScoped || trimmedQuery.length < 2) {

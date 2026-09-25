@@ -30,9 +30,13 @@ function draftIdFromDraftHref(href: string): string | null {
     return null;
   }
 
-  const draftId = decodeURIComponent(match[1]).trim();
+  try {
+    const draftId = decodeURIComponent(match[1]).trim();
 
-  return draftId.length > 0 ? draftId : null;
+    return draftId.length > 0 ? draftId : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Canonical hero/header resume target — used to dedupe table row Continue actions (P1-11). */

@@ -1,12 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   buildDefaultWizardValues,
   wizardFormSchema,
@@ -42,7 +43,6 @@ export type UseNewRunWizardClientOptions = {
 /** Orchestrates hooks/state for `NewRunWizardClient` and returns step-body props. */
 export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}) {
   const embeddedInPathSwitcher = options.embeddedInPathSwitcher === true;
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
   const params = useNewRunWizardIntakeParams();
@@ -78,11 +78,11 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
       readonly focusedPilotModeEnabled?: boolean;
       readonly advancedConfigurationOptIn?: boolean;
     }) => {
-      router.replace(newRunWizardPilotHrefFromSearch(searchParams.toString(), patch, pathname), {
-        scroll: false,
+      commitHrefIfChanged(newRunWizardPilotHrefFromSearch(readWindowLocationSearch(), patch, pathname), {
+        notify: false,
       });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setFocusedPilotModeEnabled = useCallback(
@@ -102,14 +102,29 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   );
 
   useEffect(() => {
-    const nextPilot = parseNewRunWizardPilotFromSearch(searchParams.get("pilot"));
+    const syncPilotTogglesFromUrl = (): void => {
+      const nextPilot = parseNewRunWizardPilotFromSearch(
+        new URLSearchParams(window.location.search).get("pilot"),
+      );
 
-    if (nextPilot !== null) {
-      setFocusedPilotModeEnabledState(nextPilot);
-    }
+      if (nextPilot !== null) {
+        setFocusedPilotModeEnabledState(nextPilot);
+      }
 
-    setAdvancedConfigurationOptInState(parseNewRunWizardAdvancedConfigFromSearch(searchParams.get("advancedConfig")));
-  }, [searchParams]);
+      setAdvancedConfigurationOptInState(
+        parseNewRunWizardAdvancedConfigFromSearch(
+          new URLSearchParams(window.location.search).get("advancedConfig"),
+        ),
+      );
+    };
+
+    syncPilotTogglesFromUrl();
+    window.addEventListener("popstate", syncPilotTogglesFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPilotTogglesFromUrl);
+    };
+  }, []);
 
   const [runId, setRunId] = useState<string | null>(null);
   const {

@@ -51,10 +51,19 @@ export function resolveContinueLastRunsListRow(runs: unknown): RunSummary | null
     return null;
   }
 
+  const validRuns = normalizedRuns.filter(
+    (run): run is RunSummary =>
+      typeof run?.runId === "string" && typeof run?.createdUtc === "string",
+  );
+
+  if (validRuns.length === 0) {
+    return null;
+  }
+
   const recentRunId = readRecentReviewRunId();
 
   if (recentRunId !== null) {
-    const recentMatch = normalizedRuns.find((run) => run.runId === recentRunId);
+    const recentMatch = validRuns.find((run) => run.runId === recentRunId);
 
     if (recentMatch !== undefined) {
       return recentMatch;
@@ -62,7 +71,7 @@ export function resolveContinueLastRunsListRow(runs: unknown): RunSummary | null
   }
 
   return (
-    normalizedRuns
+    validRuns
       .slice()
       .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0] ?? null
   );

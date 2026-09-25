@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 
+import { WorkingArchitectureNestedToolShell } from "@/components/architecture/WorkingArchitectureNestedToolShell";
 import { GraphPageContent } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageContent";
 import { GraphSuspenseFallback } from "@/app/(operator)/insights/evidence-graph/_sections/GraphSuspenseFallback";
 import { architectureNestedGraphPath } from "@/lib/architecture/architecture-routes";
@@ -17,11 +18,13 @@ export function ArchitectureNestedGraphPageClient(
   const architectureId = props.architectureId.trim();
 
   return (
-    <Suspense fallback={<GraphSuspenseFallback />}>
-      <GraphPageContent
-        basePathname={architectureNestedGraphPath(architectureId)}
-        pinnedArchitectureId={architectureId}
-      />
-    </Suspense>
+    <WorkingArchitectureNestedToolShell architectureId={architectureId} toolLabel="Graph">
+      <Suspense fallback={<GraphSuspenseFallback />}>
+        <GraphPageContent
+          basePathname={architectureNestedGraphPath(architectureId)}
+          pinnedArchitectureId={architectureId}
+        />
+      </Suspense>
+    </WorkingArchitectureNestedToolShell>
   );
 }

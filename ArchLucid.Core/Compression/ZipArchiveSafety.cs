@@ -48,13 +48,13 @@ public static class ZipArchiveSafety
 
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
-            if (entry.FullName.EndsWith('/'))
-                continue;
-
             if (!IsSafeEntryPath(entry.FullName))
             {
                 return ZipArchiveSafetyResult.Reject($"Unsafe ZIP entry path: {entry.FullName}");
             }
+
+            if (entry.FullName.EndsWith('/'))
+                continue;
 
             fileEntryCount++;
 
@@ -68,6 +68,13 @@ public static class ZipArchiveSafety
 
             if (uncompressed < 0)
                 uncompressed = 0;
+
+            double entryRatio = (double)uncompressed / Math.Max(1, entry.CompressedLength);
+            if (entryRatio > maxCompressionRatio)
+            {
+                return ZipArchiveSafetyResult.Reject(
+                    $"ZIP entry compression ratio {entryRatio} exceeds maximum {maxCompressionRatio}.");
+            }
 
             try
             {

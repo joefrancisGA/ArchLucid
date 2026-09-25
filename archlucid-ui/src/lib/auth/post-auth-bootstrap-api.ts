@@ -1,3 +1,5 @@
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+
 export type PostAuthBootstrapDestination =
   | "AcceptInvitation"
   | "SelectWorkspace"
@@ -59,9 +61,12 @@ export async function fetchPostAuthBootstrapStatus(
   }
 
   const query = params.size > 0 ? `?${params.toString()}` : "";
-  const response = await fetch(`/api/proxy/v1/auth/bootstrap/status${query}`, {
-    headers: { Accept: "application/json" },
-  });
+  const response = await fetch(
+    `/api/proxy/v1/auth/bootstrap/status${query}`,
+    mergeRegistrationScopeForProxy({
+      headers: { Accept: "application/json" },
+    }),
+  );
 
   if (!response.ok) {
     throw new Error("bootstrap_status_failed");
@@ -81,11 +86,14 @@ export async function createPostAuthWorkspace(
   session?: PostAuthBootstrapSessionResponse | null;
   duplicateOrganization?: PostAuthBootstrapStatusResponse["duplicateOrganization"];
 }> {
-  const response = await fetch("/api/proxy/v1/auth/bootstrap/workspaces", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(
+    "/api/proxy/v1/auth/bootstrap/workspaces",
+    mergeRegistrationScopeForProxy({
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
+    }),
+  );
 
   if (!response.ok) {
     return { succeeded: false, customerMessage: "Workspace creation could not be completed." };
@@ -107,11 +115,14 @@ export async function acceptPostAuthInvitation(
   confirmEmailMismatch = false,
 ): Promise<PostAuthBootstrapSessionResponse | null> {
   const query = returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : "";
-  const response = await fetch(`/api/proxy/v1/auth/bootstrap/invitations/accept${query}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ invitationId, invitationToken, confirmEmailMismatch }),
-  });
+  const response = await fetch(
+    `/api/proxy/v1/auth/bootstrap/invitations/accept${query}`,
+    mergeRegistrationScopeForProxy({
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ invitationId, invitationToken, confirmEmailMismatch }),
+    }),
+  );
 
   if (!response.ok) {
     return null;
@@ -126,11 +137,14 @@ export async function selectPostAuthWorkspace(
   returnUrl?: string,
 ): Promise<PostAuthBootstrapSessionResponse | null> {
   const query = returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : "";
-  const response = await fetch(`/api/proxy/v1/auth/bootstrap/workspaces/select${query}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ tenantId, workspaceId }),
-  });
+  const response = await fetch(
+    `/api/proxy/v1/auth/bootstrap/workspaces/select${query}`,
+    mergeRegistrationScopeForProxy({
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ tenantId, workspaceId }),
+    }),
+  );
 
   if (!response.ok) {
     return null;
@@ -140,11 +154,14 @@ export async function selectPostAuthWorkspace(
 }
 
 export async function initiatePostAuthAccessRequest(message?: string): Promise<boolean> {
-  const response = await fetch("/api/proxy/v1/auth/bootstrap/access-request", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ message }),
-  });
+  const response = await fetch(
+    "/api/proxy/v1/auth/bootstrap/access-request",
+    mergeRegistrationScopeForProxy({
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ message }),
+    }),
+  );
 
   return response.status === 202;
 }

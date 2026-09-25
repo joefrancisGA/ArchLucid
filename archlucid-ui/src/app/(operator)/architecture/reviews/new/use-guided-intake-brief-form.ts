@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
+import { starterArchitectureTemplates } from "@/data/starter-templates";
 import {
   mergeScopeBulletsIntoBrief,
   scopeBriefLines,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import { appendIntakeAttachedFileNames } from "@/lib/intake-attached-file-names";
 import {
@@ -29,6 +31,7 @@ import {
 type GuidedIntakeBriefFormOptions = {
   readonly exampleTemplate: ReviewIntakeExampleTemplate | null;
   readonly isCreateArchitectureFlow: boolean;
+  readonly requiresSystemName?: boolean;
 };
 
 /**
@@ -41,7 +44,6 @@ type GuidedIntakeBriefFormOptions = {
 export type GuidedIntakeBriefForm = ReturnType<typeof useGuidedIntakeBriefForm>;
 
 export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) {
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
@@ -52,27 +54,62 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
+  const scopeGateOpenRef = useRef(scopeGateOpen);
+  scopeGateOpenRef.current = scopeGateOpen;
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [priorAttachedFileNames, setPriorAttachedFileNames] = useState<readonly string[]>([]);
 
-  const { exampleTemplate, isCreateArchitectureFlow } = options;
+  const {
+    exampleTemplate,
+    isCreateArchitectureFlow,
+    requiresSystemName = false,
+  } = options;
+  const starterTemplate = useMemo(() => {
+    const presetId = searchParams.get("preset")?.trim() ?? "";
+
+    return starterArchitectureTemplates.find((template) => template.id === presetId) ?? null;
+  }, [searchParams]);
+  const starterTemplatePrefillApplied = useRef(false);
 
   const setScopeGateOpen = useCallback(
     (next: boolean | ((open: boolean) => boolean)) => {
       setScopeGateOpenState((current) => {
         const resolved = typeof next === "function" ? next(current) : next;
 
-        router.replace(scopeGateHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+        if (scopeGateOpenRef.current !== resolved) {
+          scopeGateOpenRef.current = resolved;
+          commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
+            notify: false,
+          });
+        }
 
         return resolved;
       });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   useEffect(() => {
-    setScopeGateOpenState(urlScopeGateOpen);
-  }, [urlScopeGateOpen]);
+    const syncScopeGateFromUrl = (): void => {
+      const next = parseScopeGateOpenFromSearch(
+        new URLSearchParams(window.location.search).get("scopeGate"),
+      );
+
+      if (scopeGateOpenRef.current === next) {
+        return;
+      }
+
+      scopeGateOpenRef.current = next;
+      setScopeGateOpenState(next);
+    };
+
+    syncScopeGateFromUrl();
+    window.addEventListener("popstate", syncScopeGateFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncScopeGateFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     if (exampleTemplate === null || hasGuidedIntakeExampleTemplatePrefillApplied(exampleTemplate.id)) {
@@ -84,6 +121,17 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     setBusinessOutcome(exampleTemplate.businessOutcome);
     setSystemName(exampleTemplate.systemName);
   }, [exampleTemplate]);
+
+  useEffect(() => {
+    if (starterTemplate === null || starterTemplatePrefillApplied.current) {
+      return;
+    }
+
+    starterTemplatePrefillApplied.current = true;
+    setFreeTextIntent(starterTemplate.values.description ?? "");
+    setBusinessOutcome(`A review-ready architecture package for ${starterTemplate.label}.`);
+    setSystemName(starterTemplate.values.systemName ?? "");
+  }, [starterTemplate]);
 
   const intentTrimmedLength = freeTextIntent.trim().length;
   const intentMeetsMinimum = intentTrimmedLength >= MIN_INTENT_CHARS;
@@ -98,7 +146,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const advanceBlockers = useMemo(() => {
     const blockers: string[] = [];
 
-    if (isCreateArchitectureFlow && !systemNameMeetsMinimum) {
+    if ((isCreateArchitectureFlow || requiresSystemName) && !systemNameMeetsMinimum) {
       blockers.push("system name");
     }
 
@@ -128,6 +176,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     intentFieldLabel,
     intentMeetsMinimum,
     isCreateArchitectureFlow,
+    requiresSystemName,
     outcomeMeetsMinimum,
     scopeBullets.length,
     scopeGateOpen,

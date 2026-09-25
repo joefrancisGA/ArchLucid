@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { AccountSecurityBreadcrumb } from "@/app/(operator)/account/security/AccountSecurityBreadcrumb";
 import { AccountSecurityAuthDomainsVocabularyRail } from "@/components/AccountSecurityAuthDomainsVocabularyRail";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -86,6 +87,8 @@ export function AccountSecurityPageShell(props: AccountSecurityPageShellProps) {
         data-testid={ACCOUNT_SECURITY_PRIMARY_CONTENT_ID}
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
+        <AccountSecurityBreadcrumb />
+
         <OperatorPageHeader
           title={ACCOUNT_SECURITY_PAGE_TITLE}
           subtitle={accountSecurityPageSubtitle(buyerPolishedShell)}

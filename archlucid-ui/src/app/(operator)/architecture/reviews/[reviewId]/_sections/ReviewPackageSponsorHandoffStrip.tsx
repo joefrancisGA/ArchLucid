@@ -2,8 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 
@@ -69,13 +70,16 @@ export function ReviewPackageSponsorHandoffStrip(
   props: ReviewPackageSponsorHandoffStripProps,
 ): React.JSX.Element {
   const lowExtractionConfidenceCount = Math.max(0, Math.trunc(props.lowExtractionConfidenceCount ?? 0));
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const searchParams = useSearchParams();
-  const reviewPackageSponsorHandoffMoreExportsOpenParam = searchParams.get("reviewPackageSponsorHandoffMoreExportsOpen");
   const [moreExportsOpen, setMoreExportsOpenState] = useState(() =>
-    parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(reviewPackageSponsorHandoffMoreExportsOpenParam),
+    parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("reviewPackageSponsorHandoffMoreExportsOpen"),
+    ),
   );
+  const moreExportsOpenRef = useRef(moreExportsOpen);
+  moreExportsOpenRef.current = moreExportsOpen;
   const [docxExportBusy, setDocxExportBusy] = useState(false);
   const [extractionCaveatAcknowledged, setExtractionCaveatAcknowledged] = useState(false);
   const extractionGateSatisfied = isExtractionFidelityGateSatisfied({
@@ -93,16 +97,21 @@ export function ReviewPackageSponsorHandoffStrip(
 
   const syncMoreExportsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setMoreExportsOpen = useCallback(
     (open: boolean) => {
+      if (moreExportsOpenRef.current === open) {
+        return;
+      }
+
+      moreExportsOpenRef.current = open;
       setMoreExportsOpenState(open);
       syncMoreExportsOpenToUrl(open);
     },
@@ -110,10 +119,26 @@ export function ReviewPackageSponsorHandoffStrip(
   );
 
   useEffect(() => {
-    setMoreExportsOpenState(
-      parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(reviewPackageSponsorHandoffMoreExportsOpenParam),
-    );
-  }, [reviewPackageSponsorHandoffMoreExportsOpenParam]);
+    const syncMoreExportsOpenFromUrl = (): void => {
+      const nextOpen = parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
+        new URLSearchParams(window.location.search).get("reviewPackageSponsorHandoffMoreExportsOpen"),
+      );
+
+      if (moreExportsOpenRef.current === nextOpen) {
+        return;
+      }
+
+      moreExportsOpenRef.current = nextOpen;
+      setMoreExportsOpenState(nextOpen);
+    };
+
+    syncMoreExportsOpenFromUrl();
+    window.addEventListener("popstate", syncMoreExportsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncMoreExportsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <section
@@ -229,7 +254,8 @@ export function ReviewPackageSponsorHandoffStrip(
         data-testid="review-package-sponsor-handoff-more-exports"
         open={moreExportsOpen}
         onToggle={(event) => {
-          setMoreExportsOpen((event.currentTarget as HTMLDetailsElement).open);
+          event.preventDefault();
+          setMoreExportsOpen(!moreExportsOpen);
         }}
       >
         <summary

@@ -6,6 +6,7 @@ import { EvolutionReviewPageClient } from "@/app/(operator)/insights/impact-prev
 import type { EvolutionReviewPageServerLoad } from "@/app/(operator)/insights/impact-preview/_sections/load-evolution-review-page-data";
 import { ImpactPreviewSetupSkeleton } from "@/app/(operator)/insights/impact-preview/_sections/ImpactPreviewSetupSkeleton";
 import { ArchitectureNestedToolScopeSeed } from "@/components/architecture/ArchitectureNestedToolScopeSeed";
+import { WorkingArchitectureNestedToolShell } from "@/components/architecture/WorkingArchitectureNestedToolShell";
 import { architectureNestedImpactPreviewPath } from "@/lib/architecture/architecture-routes";
 
 export type ArchitectureNestedImpactPreviewPageClientProps = {
@@ -20,14 +21,16 @@ export function ArchitectureNestedImpactPreviewPageClient(
   const architectureId = props.architectureId.trim();
 
   return (
-    <Suspense fallback={<ImpactPreviewSetupSkeleton />}>
-      <ArchitectureNestedToolScopeSeed architectureId={architectureId} queryParam="architectureId" />
-      <EvolutionReviewPageClient
-        loaded={props.loaded}
-        basePathname={architectureNestedImpactPreviewPath(architectureId)}
-        pinnedArchitectureId={architectureId}
-        nestedPolicyEnvelopeEntry
-      />
-    </Suspense>
+    <WorkingArchitectureNestedToolShell architectureId={architectureId} toolLabel="Impact preview">
+      <Suspense fallback={<ImpactPreviewSetupSkeleton />}>
+        <ArchitectureNestedToolScopeSeed architectureId={architectureId} queryParam="architectureId" />
+        <EvolutionReviewPageClient
+          loaded={props.loaded}
+          basePathname={architectureNestedImpactPreviewPath(architectureId)}
+          pinnedArchitectureId={architectureId}
+          nestedPolicyEnvelopeEntry
+        />
+      </Suspense>
+    </WorkingArchitectureNestedToolShell>
   );
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import {
   POLICY_PACK_ID_QUERY_PARAM,
   POLICY_PACKS_TAB_QUERY_PARAM,
@@ -20,6 +21,13 @@ describe("policy-packs-deep-link", () => {
 
   it("returns bare route when pack id is empty", () => {
     expect(policyPacksEditHref("   ")).toBe("/governance/policy-packs");
+  });
+
+  it("uses the supplied hub path for SecureNow compliance routes", () => {
+    const href = policyPacksEditHref("pack-1", SECURENOW_POLICY_PACKS_PATH);
+
+    expect(href).toContain(`${SECURENOW_POLICY_PACKS_PATH}?`);
+    expect(href).toContain(`${POLICY_PACK_ID_QUERY_PARAM}=pack-1`);
   });
 
   it("builds author tab href with optional pack and rule focus", () => {

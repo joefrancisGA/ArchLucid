@@ -214,7 +214,7 @@ export function useGovernanceWorkflowPageMutations() {
       return;
     }
 
-    mutations.pendingPromoteRequestRef.current = row;
+    mutations.setPendingPromoteRequest(row);
     setPendingPromote({ manifestId: urlPromoteManifest, targetEnv: urlPromoteEnv });
   }, [approvals, listsLoading, mutations, setPendingPromote, urlPromoteEnv, urlPromoteManifest]);
 
@@ -241,7 +241,7 @@ export function useGovernanceWorkflowPageMutations() {
       return;
     }
 
-    mutations.pendingActivatePromotionRef.current = promotion;
+    mutations.setPendingActivatePromotion(promotion);
     setPendingActivate({ activationId: urlActivateId, env: promotion.targetEnvironment });
   }, [listsLoading, mutations, promotions, setPendingActivate, urlActivateId]);
 

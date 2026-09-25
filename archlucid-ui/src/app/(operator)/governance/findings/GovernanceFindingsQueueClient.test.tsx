@@ -636,5 +636,9 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(queueBody).toContainElement(orientationBottom);
     expect(queueBody.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(queueBody).toHaveAttribute("id", GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID);
+    expect(await screen.findByTestId("architecture-risk-register-summary-open")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-queue-context-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-queue-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-queue-last-refreshed")).toBeInTheDocument();
   });
 });

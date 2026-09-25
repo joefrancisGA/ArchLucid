@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackVocabularyRail";
 import { SlackIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
@@ -52,7 +53,6 @@ import {
   type AlertRoutingSubscriptionDisableTarget,
 } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   parseSlackDisableIdFromSearch,
   slackDisableRouteHrefFromSearch,
@@ -73,6 +73,7 @@ const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fiel
 /** Slack alert routing — incoming webhook destinations for approval alerts in this workspace scope. */
 export function SlackIntegrationPageClient(): React.ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const showOperatorNotes = isShowSystemAdministrationNavEnabled();
   const router = useRouter();
@@ -430,7 +431,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
             >
               <div className="space-y-4" data-testid="slack-integration-buyer-intro">
                 <p className={readingBodyClass} data-testid="slack-integration-intro">
-                  {slackIntegrationPageLead(resolveProductLineIdFromEnv())}
+                  {slackIntegrationPageLead(productLine)}
                 </p>
               </div>
             </div>

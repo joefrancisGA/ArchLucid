@@ -38,7 +38,7 @@ export function ArchitectureIdentityContinueLastRow(
             <span className="font-medium text-al-text-primary">{target.label}</span>
             {" · "}
             Last opened{" "}
-            <time dateTime={target.visitedAtUtc} title={updatedAt.absoluteTitle}>
+            <time dateTime={target.visitedAtUtc} aria-label={`Last opened ${updatedAt.absoluteTitle}`}>
               {updatedAt.display}
             </time>
           </p>

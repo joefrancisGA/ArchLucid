@@ -51,6 +51,7 @@ export function createOperatorNavAuthorityVitestMock(
     currentPrincipal,
     callerAuthorityRank,
     isAuthorityLoading,
+    retryAuthorityLoad: () => undefined,
   };
 
   return {

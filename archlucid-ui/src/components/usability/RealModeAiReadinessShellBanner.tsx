@@ -1,9 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isAuditEvidenceRoutePath } from "@/lib/audit-evidence-lineage-route";
@@ -37,6 +38,7 @@ export function RealModeAiReadinessShellBanner(
   props: RealModeAiReadinessShellBannerProps,
 ): React.JSX.Element | null {
   const readiness = useSessionAiReadiness();
+  const { productLine } = useProductLine();
   const pathname = usePathname();
   const [hasAnnouncedFailure, setHasAnnouncedFailure] = useState(false);
   const probeFailed = isLiveAiAvailabilityProbeFailed(readiness.probeState);
@@ -47,16 +49,22 @@ export function RealModeAiReadinessShellBanner(
   );
 
   const recoverySteps = useMemo(
-    () => resolveShellAiReadinessRecoverySteps(readiness),
-    [readiness],
+    () => resolveShellAiReadinessRecoverySteps(readiness, productLine),
+    [productLine, readiness],
   );
 
   // Sticky failure: hide the first background check, but keep the banner mounted while a retry is in flight.
-  if (readiness.isReady && hasAnnouncedFailure) {
-    setHasAnnouncedFailure(false);
-  } else if (!readiness.isReady && probeFailed && !hasAnnouncedFailure) {
-    setHasAnnouncedFailure(true);
-  }
+  useEffect(() => {
+    if (readiness.isReady && hasAnnouncedFailure) {
+      setHasAnnouncedFailure(false);
+
+      return;
+    }
+
+    if (!readiness.isReady && probeFailed && !hasAnnouncedFailure) {
+      setHasAnnouncedFailure(true);
+    }
+  }, [hasAnnouncedFailure, probeFailed, readiness.isReady]);
 
   if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
     return null;

@@ -143,7 +143,7 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD =
   "Read-only chain of custody from audit control through requirements, evaluation, and collected evidence for one snapshot." as const;
 
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE =
-  "Deterministic linkage only — not an AI determination. Missing evidence links block a positive support checkbox." as const;
+  "Deterministic linkage only — not an AI determination. Missing evidence links block downstream attestation from recording support." as const;
 
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_IDENTIFIERS_TITLE = "Route identifiers" as const;
 
@@ -164,3 +164,57 @@ export const AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL = "Loading chain of cu
 
 export const AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE =
   "Audit evidence bundle download failed" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE =
+  "Downloads include only artifacts captured in this assessment snapshot — not a full workspace audit export or sealed review record." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE_ID =
+  "audit-evidence-package-download-scope-note" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_ACTION =
+  "Download snapshot evidence bundle (ZIP)" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_BUSY =
+  "Preparing snapshot bundle…" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_ACTION = "Copy lineage link" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_FAILED_MESSAGE =
+  "Could not copy lineage link — use the browser copy command or copy the address bar." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SUCCESS_MESSAGE =
+  "Snapshot evidence bundle downloaded." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_CHAIN_TOGGLE_SHORTCUT = "Alt+1" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COPY_LINK_SHORTCUT = "Alt+2" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SHORTCUT = "Alt+3" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE =
+  "F1 opens page help; Ctrl+K opens search; Alt+1 toggles chain of custody; Alt+2 copies lineage link; Alt+3 downloads the snapshot bundle when lineage is loaded. Use Back to audit evidence lookup in the header to return to identifier entry." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_KEYBOARD_AFFORDANCE_ERROR =
+  "F1 opens page help; Ctrl+K opens search. Back to audit evidence lookup is available in the error panel when lineage cannot load." as const;
+
+export function formatAuditEvidenceControlLineagePageTitle(
+  controlNumber: string | null | undefined,
+  controlTitle: string | null | undefined,
+): string {
+  const number = controlNumber?.trim() ?? "";
+  const title = controlTitle?.trim() ?? "";
+
+  if (number.length > 0 && title.length > 0) {
+    return `${number}: ${title}`;
+  }
+
+  if (number.length > 0) {
+    return number;
+  }
+
+  if (title.length > 0) {
+    return title;
+  }
+
+  return AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE;
+}

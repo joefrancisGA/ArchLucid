@@ -150,6 +150,8 @@ export default function GovernanceFindingsQueueClient({
     assignedToMeCount,
     assignedToMeLoadedFindingCount,
     assignedToMeCountMismatch,
+    tenantLastRefreshedAt,
+    tenantRefreshing,
   } = queueMode;
   const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
   const scopedFindingLifecycleCompareHref = resolveScopedFindingLifecycleCompareHref(
@@ -276,9 +278,7 @@ export default function GovernanceFindingsQueueClient({
               assignedToMeRefreshing={assignedToMeQuery.refreshing}
               onRefresh={refresh}
             />
-          ) : (
-            <PageContextualHelpButton />
-          )
+          ) : undefined
         }
         registerSummary={synopsis.registerSummary}
         scopedRunId={scopedRunId}
@@ -289,6 +289,9 @@ export default function GovernanceFindingsQueueClient({
         scopedArchitectureId={scopedArchitectureId}
         architectureDisplayName={architectureIdentityQuery.data?.displayName ?? null}
         scopedRunTitle={scopedRunContextTitle}
+        onRefresh={refresh}
+        queueRefreshing={tenantRefreshing}
+        queueLastRefreshedAt={tenantLastRefreshedAt}
       />
       <GovernanceFindingsQueueTableShell
         isAssignedToMe={isAssignedToMe}
@@ -365,6 +368,8 @@ export default function GovernanceFindingsQueueClient({
         assignedToMeFetchBasis={assignedToMeFetchBasis}
         currentJobId={currentJobId}
         inhabitedFindingsInitialTrailBundle={inhabitedFindingsInitialTrailBundle}
+        queueLastRefreshedAt={tenantLastRefreshedAt}
+        queueRefreshing={tenantRefreshing}
       />
     </OperatorPageContainer>
   );

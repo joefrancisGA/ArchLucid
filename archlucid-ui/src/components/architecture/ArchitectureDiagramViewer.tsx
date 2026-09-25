@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+
+import { commitHrefIfChanged, readWindowLocationSearch } from '@/lib/navigation/replace-if-href-changed';
 
 import { ArchitectureDiagramMermaidViewportFrame } from '@/components/architecture/ArchitectureDiagramMermaidViewportFrame';
 import { ArchitectureDiagramViewportControls } from '@/components/architecture/ArchitectureDiagramViewportControls';
@@ -175,10 +177,11 @@ function syncMermaidViewportCamera(
 }
 
 function useDiagramZoomState(pathname: string) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const urlZoom = parseArchitectureDiagramZoomFromSearch(searchParams.get('diagZoom'));
-  const [zoom, setZoomState] = useState<number>(() => urlZoom ?? 1);
+  const readZoomFromUrl = (): number | null =>
+    parseArchitectureDiagramZoomFromSearch(
+      new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagZoom'),
+    );
+  const [zoom, setZoomState] = useState<number>(() => readZoomFromUrl() ?? 1);
   const [zoomPercentDraft, setZoomPercentDraft] = useState<string | null>(null);
   const zoomRef = useRef<number>(zoom);
 
@@ -194,20 +197,39 @@ function useDiagramZoomState(pathname: string) {
       const nextRaw = typeof value === 'function' ? value(current) : value;
       const next = clampArchitectureDiagramZoom(nextRaw);
 
+      if (zoomRef.current === next) {
+        return;
+      }
+
+      zoomRef.current = next;
       setZoomState(next);
-      router.replace(
-        architectureDiagramZoomHrefFromSearch(searchParams.toString(), next, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureDiagramZoomHrefFromSearch(readWindowLocationSearch(), next, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   useEffect(() => {
-    if (urlZoom !== null) {
+    const syncZoomFromUrl = (): void => {
+      const urlZoom = readZoomFromUrl();
+
+      if (urlZoom === null || zoomRef.current === urlZoom) {
+        return;
+      }
+
+      zoomRef.current = urlZoom;
       setZoomState(urlZoom);
-    }
-  }, [urlZoom]);
+    };
+
+    syncZoomFromUrl();
+    window.addEventListener('popstate', syncZoomFromUrl);
+
+    return (): void => {
+      window.removeEventListener('popstate', syncZoomFromUrl);
+    };
+  }, []);
 
   const zoomIn = useCallback(() => {
     setZoom((current) => current + ZOOM_STEP);
@@ -328,10 +350,14 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_.node_polygon]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_polygon]:fill-slate-700',
   '[&_svg_.node_polygon]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_polygon]:stroke-slate-200',
   '[&_svg_.node_polygon]:stroke-[1.5px]',
-  '[&_svg_.edgePath_path]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.edgePath_path]:stroke-slate-200',
+  '[&_svg_.edgePath_path]:stroke-[#111827] dark:[&_svg_.edgePath_path]:stroke-[#e2e8f0]',
   '[&_svg_.edgePath_path]:fill-none',
-  '[&_svg_.edgePaths_path]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.edgePaths_path]:stroke-slate-200',
+  '[&_svg_.edgePaths_path]:stroke-[#111827] dark:[&_svg_.edgePaths_path]:stroke-[#e2e8f0]',
   '[&_svg_.edgePaths_path]:fill-none',
+  '[&_svg_path.edge-path]:stroke-[#111827] dark:[&_svg_path.edge-path]:stroke-[#e2e8f0]',
+  '[&_svg_path.edge-path]:fill-none',
+  '[&_svg_marker#al-edge-arrow_path]:fill-[#111827] dark:[&_svg_marker#al-edge-arrow_path]:fill-[#e2e8f0]',
+  '[&_svg_g.edge-label_text]:fill-[#111827] dark:[&_svg_g.edge-label_text]:fill-[#e2e8f0]',
 );
 
 const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
@@ -354,18 +380,18 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     focusNonce = 0,
     cameraMaxHeightClassName = 'max-h-[36rem]',
   } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? '';
-  const searchParams = useSearchParams();
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`arch-diagram-${reactId}`), [reactId]);
   const dark = useDocumentDarkMode();
+  const readFullscreenOpenFromUrl = (): boolean =>
+    parseArchitectureDiagramFullscreenOpenFromSearch(
+      new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagFullscreen'),
+    );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [renderGeneration, setRenderGeneration] = useState(0);
-  const [fullscreenOpen, setFullscreenOpenState] = useState(() =>
-    parseArchitectureDiagramFullscreenOpenFromSearch(searchParams.get('diagFullscreen')),
-  );
+  const [fullscreenOpen, setFullscreenOpenState] = useState(readFullscreenOpenFromUrl);
   const viewportFrameRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const svgHostRef = useRef<HTMLDivElement | null>(null);
@@ -418,14 +444,39 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       const current = fullscreenOpenRef.current;
       const next = typeof value === 'function' ? value(current) : value;
 
+      if (fullscreenOpenRef.current === next) {
+        return;
+      }
+
+      fullscreenOpenRef.current = next;
       setFullscreenOpenState(next);
-      router.replace(
-        architectureDiagramFullscreenHrefFromSearch(searchParams.toString(), next, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        architectureDiagramFullscreenHrefFromSearch(readWindowLocationSearch(), next, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
+
+  useEffect(() => {
+    const syncFullscreenOpenFromUrl = (): void => {
+      const next = readFullscreenOpenFromUrl();
+
+      if (fullscreenOpenRef.current === next) {
+        return;
+      }
+
+      fullscreenOpenRef.current = next;
+      setFullscreenOpenState(next);
+    };
+
+    syncFullscreenOpenFromUrl();
+    window.addEventListener('popstate', syncFullscreenOpenFromUrl);
+
+    return (): void => {
+      window.removeEventListener('popstate', syncFullscreenOpenFromUrl);
+    };
+  }, []);
 
   const retryRender = useCallback(() => {
     setRenderGeneration((current) => current + 1);
@@ -1057,7 +1108,7 @@ function ArchitectureDiagramStaticCanvas(props: ArchitectureDiagramStaticViewerP
           role="region"
           aria-label={`${alt} diagram viewport`}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- diagram export fallback needs a direct img element. */}
           <img
             src={source}
             alt={alt}

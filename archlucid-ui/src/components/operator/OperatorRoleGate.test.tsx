@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { CurrentPrincipal } from "@/lib/current-principal";
@@ -48,6 +48,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
     currentPrincipal: principalState.current,
     callerAuthorityRank: AUTHORITY_RANK.ReadAuthority,
     isAuthorityLoading: principalState.loading,
+    retryAuthorityLoad: vi.fn(),
   }),
 }));
 
@@ -104,6 +105,30 @@ describe("OperatorRoleGate", () => {
     } finally {
       locationSpy.mockRestore();
     }
+  });
+
+  it("shows sign-in required after unsigned JWT grace period", async () => {
+    vi.useFakeTimers();
+    signedInState.value = false;
+    principalState.loading = false;
+    replace.mockClear();
+
+    render(
+      <OperatorRoleGate>
+        <div data-testid="protected-page">protected</div>
+      </OperatorRoleGate>,
+    );
+
+    expect(screen.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(3_001);
+    });
+
+    expect(screen.getByTestId("operator-shell-sign-in-required")).toBeInTheDocument();
+    expect(screen.queryByTestId("protected-page")).not.toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 
   it("renders neutral loading without page content while authority resolves", () => {

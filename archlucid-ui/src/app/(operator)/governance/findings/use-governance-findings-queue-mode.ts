@@ -106,6 +106,9 @@ export function useGovernanceFindingsQueueMode({
     loading,
     loadFailed,
     refresh,
+    tenantLastRefreshedAt:
+      !isAssignedToMe && tenantQuery.dataUpdatedAt > 0 ? new Date(tenantQuery.dataUpdatedAt) : null,
+    tenantRefreshing: !isAssignedToMe && tenantQuery.refreshing,
     assignedToMeFetchBasis,
     assignedToMeCheckedAt,
     loadFailure,

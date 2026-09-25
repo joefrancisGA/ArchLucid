@@ -33,7 +33,7 @@ internal sealed class StackDoctorOrchestrator
         {
             Profile = profile,
             RepositoryRoot = repositoryRoot,
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             OverallVerdict = overall,
             Steps = results,
         };

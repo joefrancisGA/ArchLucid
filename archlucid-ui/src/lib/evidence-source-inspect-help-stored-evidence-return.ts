@@ -62,3 +62,26 @@ export function resolveInspectStoredEvidenceHelpReturnHref(returnTo: string | un
 
 export const EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_RETURN_TO_REVIEW_EVIDENCE_LABEL =
   "Back to review evidence" as const;
+
+type RecentViewEntry = {
+  readonly href: string;
+};
+
+type RecentViewsState = {
+  readonly entries: readonly RecentViewEntry[];
+};
+
+/** Resume review Evidence tab from operator recent views when returnTo is absent. */
+export function resolveInspectStoredEvidenceHelpReturnHrefFromRecentViews(
+  recentViews: RecentViewsState,
+): string | null {
+  for (const entry of recentViews.entries) {
+    const resolved = resolveInspectStoredEvidenceHelpReturnHref(entry.href);
+
+    if (resolved !== null) {
+      return resolved;
+    }
+  }
+
+  return null;
+}

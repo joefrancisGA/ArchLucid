@@ -3,8 +3,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
 
@@ -55,28 +57,37 @@ export function RunDetailLastFailureCard(props: {
   readonly failureRecordedAtUtc?: string | null;
   readonly hasRecoverySteps?: boolean;
 }): ReactElement | null {
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const runLastFailureTechOpenParam = searchParams.get("runLastFailureTechOpen");
   const summary = props.summary;
   const runId = props.runId?.trim() ?? "";
   const reRunInFlight = useReviewPipelineReRunInFlight(runId);
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
-    parseRunLastFailureTechOpenFromSearch(runLastFailureTechOpenParam),
+    parseRunLastFailureTechOpenFromSearch(
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("runLastFailureTechOpen"),
+    ),
   );
+  const technicalDetailsOpenRef = useRef(technicalDetailsOpen);
+  technicalDetailsOpenRef.current = technicalDetailsOpen;
 
   const syncTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(runLastFailureTechDetailsHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      commitHrefIfChanged(
+        runLastFailureTechDetailsHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setTechnicalDetailsOpen = useCallback(
     (open: boolean) => {
+      if (technicalDetailsOpenRef.current === open) {
+        return;
+      }
+
+      technicalDetailsOpenRef.current = open;
       setTechnicalDetailsOpenState(open);
       syncTechnicalDetailsOpenToUrl(open);
     },
@@ -84,8 +95,26 @@ export function RunDetailLastFailureCard(props: {
   );
 
   useEffect(() => {
-    setTechnicalDetailsOpenState(parseRunLastFailureTechOpenFromSearch(runLastFailureTechOpenParam));
-  }, [runLastFailureTechOpenParam]);
+    const syncTechnicalDetailsOpenFromUrl = (): void => {
+      const next = parseRunLastFailureTechOpenFromSearch(
+        new URLSearchParams(window.location.search).get("runLastFailureTechOpen"),
+      );
+
+      if (technicalDetailsOpenRef.current === next) {
+        return;
+      }
+
+      technicalDetailsOpenRef.current = next;
+      setTechnicalDetailsOpenState(next);
+    };
+
+    syncTechnicalDetailsOpenFromUrl();
+    window.addEventListener("popstate", syncTechnicalDetailsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTechnicalDetailsOpenFromUrl);
+    };
+  }, []);
 
   if (summary === null || summary === undefined) {
     return null;
@@ -168,7 +197,8 @@ export function RunDetailLastFailureCard(props: {
             className="rounded-md border border-neutral-200 bg-al-surface-raised p-2 dark:border-neutral-800"
             open={technicalDetailsOpen}
             onToggle={(event) => {
-              setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+              event.preventDefault();
+              setTechnicalDetailsOpen(!technicalDetailsOpenRef.current);
             }}
           >
             <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>

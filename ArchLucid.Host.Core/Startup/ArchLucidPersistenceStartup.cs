@@ -236,9 +236,17 @@ public static class ArchLucidPersistenceStartup
                     Guid.TryParse(app.Configuration["Authentication:ApiKey:TenantId"], out Guid apiKeyTenantId)
                     && apiKeyTenantId == ScopeIds.DefaultTenant;
 
+                bool grantDefaultTenantEnterprise = app.Configuration.GetValue<bool>(
+                    "ArchLucid:CiLiveE2e:GrantDefaultTenantEnterprise");
+
                 if (!string.IsNullOrWhiteSpace(catalogConnectionString)
                     && (app.Environment.IsDevelopment() || apiKeyUsesDefaultTenant))
-                    DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
+                {
+                    DevelopmentDefaultScopeTenantBootstrap.TryEnsure(
+                        catalogConnectionString,
+                        app.Logger,
+                        grantDefaultTenantEnterprise);
+                }
 
                 if (!string.IsNullOrWhiteSpace(catalogConnectionString) && app.Environment.IsDevelopment())
                 {

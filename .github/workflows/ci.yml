@@ -187,6 +187,25 @@ jobs:
       - name: Assert docs root .md count
         run: python scripts/ci/assert_docs_root_size.py
 
+  defect-prevention-coverage:
+    name: "Defect prevention: coverage matrix integrity"
+    needs:
+      - gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Validate defect-prevention coverage matrix
+        run: python scripts/ci/check_defect_prevention_coverage.py
+
+      - name: Test defect-prevention coverage validator
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_defect_prevention_coverage.py"
+
   # Full history: last-touch dates for docs/*.md (advisory; merge-never).
   docs-stale-code-refs-warn:
     name: "Docs: stale code-path references (advisory)"
@@ -2903,7 +2922,7 @@ jobs:
           ArchLucidAuth__AllowTestActorHeaders: "true"
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
-          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          # Empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI.
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
           AzureOpenAI__DeploymentName: ""
@@ -4311,9 +4330,12 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npm ci
+          python3 ../scripts/ci/check_ui_lint_toolchain.py --prefix .
+          python3 ../scripts/ci/check_eslint_disable_reasons.py --prefix .
           npm run lint
           npm run lint:terminology
           npm run typecheck
+          npm run typecheck:e2e
           npm run build
           npm run check:first-load-js
 
@@ -4405,6 +4427,52 @@ jobs:
         with:
           name: ui-mock-smoke-blob-report
           path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+  ui-playwright-console-network:
+    name: "Operator UI: console/network smoke (PR)"
+    needs: gitleaks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Build mock UI and install Chromium
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_DEMO_MODE: "true"
+          NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
+          NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: "true"
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: "public-self-service"
+          FOUNDER_PUBLIC_ONLY: "1"
+        run: |
+          npm ci
+          npm run build
+          MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
+
+      - name: Run public console and network guards
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          MOCK_E2E_SKIP_NEXT_BUILD: "1"
+          FOUNDER_PUBLIC_ONLY: "1"
+        run: npx playwright test -c playwright.mock.config.ts e2e/founder-console-network.spec.ts
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ui-console-network-playwright-report
+          path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
   ui-playwright-infra-diagrams-layout:
@@ -4589,7 +4657,7 @@ jobs:
           # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
           Billing__Provider: Noop
           AgentExecution__Mode: Simulator
-          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          # Empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI.
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
           AzureOpenAI__DeploymentName: ""
@@ -4779,7 +4847,7 @@ jobs:
           # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
           Billing__Provider: Noop
           AgentExecution__Mode: Simulator
-          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          # Empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI.
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
           AzureOpenAI__DeploymentName: ""
@@ -4976,7 +5044,7 @@ jobs:
           # Tenant-bound only so live specs can select demo / isolated workspace+project via headers.
           Authentication__ApiKey__TenantId: "11111111-1111-1111-1111-111111111111"
           AgentExecution__Mode: Simulator
-          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          # Empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI.
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
           AzureOpenAI__DeploymentName: ""
@@ -5145,7 +5213,7 @@ jobs:
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
-          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          # Empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI.
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
           AzureOpenAI__DeploymentName: ""
@@ -5341,13 +5409,14 @@ jobs:
           Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
-          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          # Empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI.
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
@@ -5360,6 +5429,7 @@ jobs:
           ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
           ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
           AuthorityPipeline__PipelineTimeout: "00:05:00"
+          AuthorityPipeline__HaltOnPartialFindings: "false"
           FeatureManagement__FeatureFlags__AsyncAuthorityPipeline: "false"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
@@ -5372,13 +5442,66 @@ jobs:
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-beta-access.log"
 
       - name: Grant Enterprise tier to private-beta test tenant
+        env:
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+        run: bash scripts/ci/grant_ci_live_e2e_enterprise_tenant.sh
+
+      - name: Restart API after Enterprise grant (refresh tenant-tier cache)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess;Max Pool Size=200;Connect Timeout=120"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: JwtBearer
+          ArchLucidAuth__Authority: ""
+          ArchLucidAuth__Audience: ""
+          ArchLucidAuth__JwtSigningPublicKeyPemPath: ${{ runner.temp }}/ci-jwt-pub.pem
+          ArchLucidAuth__JwtLocalIssuer: "https://ci.archlucid.local"
+          ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
+          Auth__Trial__LocalIdentity__JwtPrivateKeyPemPath: ${{ runner.temp }}/ci-jwt-priv.pem
+          Auth__Trial__LocalIdentity__JwtIssuer: "https://ci.archlucid.local"
+          Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-jwt"
+          Authentication__ApiKey__DevelopmentBypassAll: "false"
+          AgentExecution__Mode: Simulator
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          DataConsistency__OrphanProbeEnabled: "false"
+          Demo__Enabled: "false"
+          Demo__SeedOnStartup: "false"
+          TrialArchitecturePreseed__Enabled: "false"
+          Persistence__SqlOpenResilience__MaxRetryAttempts: "6"
+          Persistence__SqlOpenResilience__BaseDelayMilliseconds: "500"
+          ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
+          ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
+          AuthorityPipeline__PipelineTimeout: "00:05:00"
+          AuthorityPipeline__HaltOnPartialFindings: "false"
+          FeatureManagement__FeatureFlags__AsyncAuthorityPipeline: "false"
+          HostLeaderElection__Enabled: "false"
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
-          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
-            mcr.microsoft.com/mssql/server:2022-latest \
-            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -d ArchLucidLiveE2eBetaAccess \
-            -Q "IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL BEGIN IF EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = '11111111-1111-1111-1111-111111111111') UPDATE dbo.Tenants SET Tier = N'Enterprise' WHERE Id = '11111111-1111-1111-1111-111111111111'; ELSE INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId) VALUES ('11111111-1111-1111-1111-111111111111', N'Private beta CI tenant', N'private-beta-ci', N'Enterprise', NULL); END"
+          API_PID="$(cat "${RUNNER_TEMP}/live-api-beta-access.pid")"
+          if kill -0 "${API_PID}" 2>/dev/null; then
+            pkill -TERM -P "${API_PID}" || true
+            kill "${API_PID}" || true
+            for _ in $(seq 1 30); do
+              kill -0 "${API_PID}" 2>/dev/null || break
+              sleep 1
+            done
+          fi
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-beta-access.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-beta-access.pid"
+
+      - name: Wait for API readiness after Enterprise-grant restart
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-beta-access.log"
 
       - name: Install Playwright browsers & run private-beta access-path smoke
         working-directory: archlucid-ui
@@ -5899,6 +6022,7 @@ jobs:
       - ui-axe-components
       - ui-static-quality
       - ui-playwright-mock-smoke
+      - ui-playwright-console-network
       - ui-playwright-accessibility
       - ui-e2e-live
       - ui-e2e-live-extended

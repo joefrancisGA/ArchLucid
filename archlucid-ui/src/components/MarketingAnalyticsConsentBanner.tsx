@@ -17,7 +17,13 @@ function readStoredConsent(): ConsentUiState {
   if (typeof window === "undefined")
     return "unknown";
 
-  const raw = window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY)?.trim();
+  let raw: string | undefined;
+
+  try {
+    raw = window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY)?.trim();
+  } catch {
+    return "unknown";
+  }
 
   if (raw === "granted" || raw === "denied")
     return raw;
@@ -36,7 +42,11 @@ export function MarketingAnalyticsConsentBanner(props: { clarityProjectId: strin
   }, []);
 
   const persist = useCallback((value: MarketingAnalyticsConsentValue) => {
-    window.localStorage.setItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY, value);
+    try {
+      window.localStorage.setItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY, value);
+    } catch {
+      // Storage may be unavailable; consent still applies for this page lifetime.
+    }
     setConsent(value);
     window.dispatchEvent(new Event("archlucid-marketing-consent-changed"));
   }, []);

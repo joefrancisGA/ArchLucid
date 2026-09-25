@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import type { HelpTabId } from "@/components/HelpPanel";
 import {
@@ -18,56 +18,74 @@ import {
   helpDocSearchPanelHrefFromSearch,
   parseHelpDocSearchOpenFromSearch,
 } from "@/lib/help/help-doc-search-panel-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { resolveOperatorHelpRequestForPathname } from "@/lib/usability/resolve-operator-help-request";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+
+function readCommittedSearchParams(): URLSearchParams {
+  if (typeof window === "undefined") {
+    return new URLSearchParams();
+  }
+
+  return new URLSearchParams(window.location.search);
+}
 
 export function useAppShellState() {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
-  const urlHelpOpen = parseHelpPanelOpenFromSearch(searchParams.get("help"));
-  const urlHelpTab = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
-  const helpSearchOpenParam = searchParams.get("helpSearchOpen");
-  const [helpGuidesOpen, setHelpGuidesOpenState] = useState(urlHelpOpen);
-  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>(urlHelpTab ?? "guides");
+  const [helpGuidesOpen, setHelpGuidesOpenState] = useState(() =>
+    parseHelpPanelOpenFromSearch(readCommittedSearchParams().get("help")),
+  );
+  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>(() =>
+    parseHelpPanelTabFromSearch(readCommittedSearchParams().get("helpTab")) ?? "guides",
+  );
   const [helpDocSearchOpen, setHelpDocSearchOpenState] = useState(() =>
-    parseHelpDocSearchOpenFromSearch(helpSearchOpenParam),
+    parseHelpDocSearchOpenFromSearch(readCommittedSearchParams().get("helpSearchOpen")),
   );
   const helpDocSearchOpenRef = useRef(helpDocSearchOpen);
   helpDocSearchOpenRef.current = helpDocSearchOpen;
 
   const syncHelpPanelOpenToUrl = useCallback(
     (open: boolean, tab: HelpTabId = helpGuidesInitialTab) => {
-      router.replace(
-        helpPanelOverlayHrefFromSearch(searchParams.toString(), { open, tab, query: "" }, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        helpPanelOverlayHrefFromSearch(readCommittedSearchParams().toString(), { open, tab, query: "" }, pathname),
+        { notify: false },
       );
     },
-    [helpGuidesInitialTab, pathname, router, searchParams],
+    [helpGuidesInitialTab, pathname],
   );
 
   const syncHelpDocSearchOpenToUrl = useCallback(
     (open: boolean, query: string = "") => {
-      router.replace(
-        helpDocSearchPanelHrefFromSearch(searchParams.toString(), { open, query }, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        helpDocSearchPanelHrefFromSearch(readCommittedSearchParams().toString(), { open, query }, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setHelpGuidesOpen = useCallback(
     (open: boolean) => {
+      if (helpGuidesOpen === open) {
+        return;
+      }
+
       setHelpGuidesOpenState(open);
       syncHelpPanelOpenToUrl(open);
     },
-    [syncHelpPanelOpenToUrl],
+    [helpGuidesOpen, syncHelpPanelOpenToUrl],
   );
 
   const setHelpDocSearchOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       const next = typeof value === "function" ? value(helpDocSearchOpenRef.current) : value;
+
+      if (helpDocSearchOpenRef.current === next) {
+        return;
+      }
+
       setHelpDocSearchOpenState(next);
       syncHelpDocSearchOpenToUrl(next, next ? "" : "");
     },
@@ -75,25 +93,34 @@ export function useAppShellState() {
   );
 
   useEffect(() => {
-    const open = parseHelpPanelOpenFromSearch(searchParams.get("help"));
-    const tab = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
+    const syncHelpPanelFromUrl = (): void => {
+      const params = readCommittedSearchParams();
+      const open = parseHelpPanelOpenFromSearch(params.get("help"));
+      const tab = parseHelpPanelTabFromSearch(params.get("helpTab"));
 
-    setHelpGuidesOpenState(open);
+      setHelpGuidesOpenState(open);
 
-    if (tab !== null) {
-      setHelpGuidesInitialTab(tab);
-    }
-  }, [searchParams]);
+      if (tab !== null) {
+        setHelpGuidesInitialTab(tab);
+      }
 
-  useEffect(() => {
-    setHelpDocSearchOpenState(parseHelpDocSearchOpenFromSearch(helpSearchOpenParam));
-  }, [helpSearchOpenParam]);
+      setHelpDocSearchOpenState(parseHelpDocSearchOpenFromSearch(params.get("helpSearchOpen")));
+    };
+
+    syncHelpPanelFromUrl();
+    window.addEventListener("popstate", syncHelpPanelFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncHelpPanelFromUrl);
+    };
+  }, []);
 
   const openHelpSearch = useCallback(() => {
     const request = resolveOperatorHelpRequestForPathname(pathname ?? "/", { workingMode: isWorkingMode });
 
     if (request.kind === "navigate") {
       router.push(request.href);
+
       return;
     }
 
@@ -104,11 +131,11 @@ export function useAppShellState() {
   const openHelpGuidesPanel = useCallback((initialTab: HelpTabId = "guides") => {
     setHelpGuidesInitialTab(initialTab);
     setHelpGuidesOpenState(true);
-    router.replace(
-      helpPanelOverlayHrefFromSearch(searchParams.toString(), { open: true, tab: initialTab, query: "" }, pathname),
-      { scroll: false },
+    commitHrefIfChanged(
+      helpPanelOverlayHrefFromSearch(readCommittedSearchParams().toString(), { open: true, tab: initialTab, query: "" }, pathname),
+      { notify: false },
     );
-  }, [pathname, router, searchParams]);
+  }, [pathname]);
 
   const hideWorkspaceHealthFooter =
     pathname === "/" ||

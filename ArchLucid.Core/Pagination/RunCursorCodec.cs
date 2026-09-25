@@ -32,8 +32,15 @@ public static class RunCursorCodec
 
         if (!Base64UrlCodec.TryDecode(encoded, out byte[] bytes))
             return null;
-        RunListCursorDto? dto =
-            JsonSerializer.Deserialize<RunListCursorDto>(bytes, SerializerOptions);
+        RunListCursorDto? dto;
+        try
+        {
+            dto = JsonSerializer.Deserialize<RunListCursorDto>(bytes, SerializerOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
 
         if (dto is null || string.IsNullOrWhiteSpace(dto.Cu) || dto.Ri == Guid.Empty)
 

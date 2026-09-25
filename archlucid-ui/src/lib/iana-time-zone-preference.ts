@@ -54,8 +54,15 @@ export function writeStoredIanaTimeZonePreference(ianaTimeZoneId: string): void 
     return;
   }
 
-  window.localStorage.setItem(IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY, normalizeIanaTimeZonePreference(ianaTimeZoneId));
-  dispatchIanaTimeZonePreferenceChanged();
+  try {
+    window.localStorage.setItem(
+      IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY,
+      normalizeIanaTimeZonePreference(ianaTimeZoneId),
+    );
+    dispatchIanaTimeZonePreferenceChanged();
+  } catch {
+    // Local storage may be unavailable in private/restricted browser contexts.
+  }
 }
 
 export function persistIanaTimeZonePreferenceLocally(ianaTimeZoneId: string): void {

@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -27,6 +27,7 @@ import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 import {
   parseReviewsNewReturningJobChooserOpenFromSearch,
@@ -63,7 +64,6 @@ function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePa
  * Wizards load on demand so the initial `/architecture/reviews/new` chunk stays smaller.
  */
 export function ReviewsNewPathSwitcher() {
-  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
   const baselineFirst = searchParams?.get("baseline") === "1";
@@ -100,19 +100,26 @@ export function ReviewsNewPathSwitcher() {
   const [returningJobChooserOpen, setReturningJobChooserOpenState] = useState(() =>
     parseReviewsNewReturningJobChooserOpenFromSearch(reviewsNewReturningJobChooserOpenParam),
   );
+  const returningJobChooserOpenRef = useRef(returningJobChooserOpen);
+  returningJobChooserOpenRef.current = returningJobChooserOpen;
 
   const syncReturningJobChooserOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        reviewsNewReturningJobChooserDisclosureHrefFromSearch(searchParams?.toString() ?? "", open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        reviewsNewReturningJobChooserDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setReturningJobChooserOpen = useCallback(
     (open: boolean) => {
+      if (returningJobChooserOpenRef.current === open) {
+        return;
+      }
+
+      returningJobChooserOpenRef.current = open;
       setReturningJobChooserOpenState(open);
       syncReturningJobChooserOpenToUrl(open);
     },
@@ -120,10 +127,26 @@ export function ReviewsNewPathSwitcher() {
   );
 
   useEffect(() => {
-    setReturningJobChooserOpenState(
-      parseReviewsNewReturningJobChooserOpenFromSearch(reviewsNewReturningJobChooserOpenParam),
-    );
-  }, [reviewsNewReturningJobChooserOpenParam]);
+    const syncReturningJobChooserOpenFromUrl = (): void => {
+      const next = parseReviewsNewReturningJobChooserOpenFromSearch(
+        new URLSearchParams(window.location.search).get("reviewsNewReturningJobChooserOpen"),
+      );
+
+      if (returningJobChooserOpenRef.current === next) {
+        return;
+      }
+
+      returningJobChooserOpenRef.current = next;
+      setReturningJobChooserOpenState(next);
+    };
+
+    syncReturningJobChooserOpenFromUrl();
+    window.addEventListener("popstate", syncReturningJobChooserOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncReturningJobChooserOpenFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -143,7 +166,7 @@ export function ReviewsNewPathSwitcher() {
   const selectPath = (path: ReviewsNewActivePath) => {
     setActivePath(path);
     persistActivePath(path);
-    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    const params = new URLSearchParams(readWindowLocationSearch());
 
     if (path === "quick-review") {
       setSuppressAcceleratorStartIntent(true);
@@ -170,7 +193,7 @@ export function ReviewsNewPathSwitcher() {
       params.delete("advancedConfig");
     }
 
-    router.replace(buildReviewsNewPathHref(pathname, path, params), { scroll: false });
+    commitHrefIfChanged(buildReviewsNewPathHref(pathname, path, params), { notify: false });
   };
 
   return (

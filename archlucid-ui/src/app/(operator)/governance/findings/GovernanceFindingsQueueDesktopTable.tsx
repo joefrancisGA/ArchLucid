@@ -320,7 +320,9 @@ export function GovernanceFindingsQueueDesktopTable(
             return (
               <CollapsibleSection
                 key={group.key}
-                title={`${group.label} (${group.rows.length} ${recordLabel})`}
+                title={group.label}
+                summaryLine={`${group.rows.length} ${recordLabel}`}
+                summaryAriaLabel={`${group.label} (${group.rows.length} ${recordLabel})`}
                 open={isResourceGroupOpen(group.key, true)}
                 onToggle={(open) => setOpenResourceGroupKey(open ? group.key : null)}
                 sectionTestId={`governance-findings-resource-group-${group.key}`}

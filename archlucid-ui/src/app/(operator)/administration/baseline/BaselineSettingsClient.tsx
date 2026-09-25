@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { BaselineSettingsBreadcrumb } from "@/app/(operator)/administration/baseline/BaselineSettingsBreadcrumb";
 import { BaselineSettingsFormFields } from "@/app/(operator)/administration/baseline/BaselineSettingsFormFields";
 import { useBaselineSettings } from "@/app/(operator)/administration/baseline/use-baseline-settings";
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
@@ -53,6 +54,8 @@ export function BaselineSettingsClient() {
         data-testid={BASELINE_SETTINGS_PRIMARY_CONTENT_ID}
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
+        <BaselineSettingsBreadcrumb />
+
         <OperatorPageHeader
           title={BASELINE_SETTINGS_PAGE_TITLE}
           subtitle={baselineSettingsPageSubtitle(buyerPolishedShell, BASELINE_SETTINGS_PAGE_SUBTITLE)}

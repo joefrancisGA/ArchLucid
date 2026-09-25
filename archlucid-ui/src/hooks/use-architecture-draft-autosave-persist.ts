@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/immutability -- this hook intentionally mutates refs to coordinate autosave requests across renders. */
+
 import { useCallback, useEffect, useRef } from "react";
 
 import {
@@ -29,7 +31,6 @@ import {
 } from "@/lib/architecture/architecture-draft-patch-cas";
 import {
   clearArchitectureNewDraftRecovery,
-  readArchitectureNewDraftRecovery,
   writeArchitectureNewDraftRecovery,
 } from "@/lib/architecture/architecture-new-draft-recovery";
 import { isApiRequestError } from "@/lib/api-request-error";

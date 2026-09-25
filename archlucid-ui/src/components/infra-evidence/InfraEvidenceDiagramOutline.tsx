@@ -155,6 +155,110 @@ function InfraEvidenceDiagramOutlineSortableHeader<TColumn extends string>(props
   );
 }
 
+function InfraEvidenceDiagramOutlineNodeTable(props: {
+  readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
+  readonly sectionLabel: string;
+  readonly sectionTestId: string;
+  readonly nodeSortKey: InfraEvidenceDiagramOutlineNodeSortKey;
+  readonly nodeSortDir: "asc" | "desc";
+  readonly onSort: (column: InfraEvidenceDiagramOutlineNodeSortKey) => void;
+  readonly showNeighborhoodActions: boolean;
+  readonly onFocusNeighborhood?: (node: InfraEvidenceMermaidOutlineNode) => void;
+}): React.JSX.Element {
+  const {
+    nodes,
+    sectionLabel,
+    sectionTestId,
+    nodeSortKey,
+    nodeSortDir,
+    onSort,
+    showNeighborhoodActions,
+    onFocusNeighborhood,
+  } = props;
+
+  return (
+    <section
+      className="flex flex-col gap-2"
+      data-testid={sectionTestId}
+      aria-label={`${sectionLabel} (${nodes.length})`}
+    >
+      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        {sectionLabel} ({nodes.length})
+      </h3>
+      {nodes.length > 0 ? (
+        <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
+          <thead className="bg-neutral-50 dark:bg-neutral-900/60">
+            <tr>
+              <InfraEvidenceDiagramOutlineSortableHeader
+                column="label"
+                label="Node Name"
+                sortKey={nodeSortKey}
+                sortDir={nodeSortDir}
+                onSort={onSort}
+                resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
+              />
+              <InfraEvidenceDiagramOutlineSortableHeader
+                column="resourceType"
+                label="Resource type"
+                sortKey={nodeSortKey}
+                sortDir={nodeSortDir}
+                onSort={onSort}
+                resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
+              />
+              <InfraEvidenceDiagramOutlineSortableHeader
+                column="resourceGroup"
+                label="Resource group"
+                sortKey={nodeSortKey}
+                sortDir={nodeSortDir}
+                onSort={onSort}
+                resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
+              />
+              {showNeighborhoodActions ? (
+                <th className="px-3 py-2 font-medium" scope="col">
+                  Neighborhood
+                </th>
+              ) : null}
+            </tr>
+          </thead>
+          <tbody>
+            {nodes.map((node) => (
+              <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
+                <td className="px-3 py-2">
+                  <InfraEvidenceDiagramOutlineNodeLabel node={node} />
+                </td>
+                <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
+                <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
+                  {formatOutlineCell(node.resourceGroup)}
+                </td>
+                {showNeighborhoodActions ? (
+                  <td className="px-3 py-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
+                      aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
+                      onClick={() => {
+                        onFocusNeighborhood?.(node);
+                      }}
+                    >
+                      {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                    </Button>
+                  </td>
+                ) : null}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          No {sectionLabel.toLowerCase()}.
+        </p>
+      )}
+    </section>
+  );
+}
+
 /** Structured list alternative to the Mermaid canvas (WCAG 1.1.1 peer affordance). */
 export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlineProps): React.JSX.Element {
   const {
@@ -225,16 +329,36 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     };
   }, [selectedDeclaredEdge]);
 
-  const nodeRows = useMemo(() => {
-    const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
+  const connectedNodeIds = useMemo(() => {
+    const ids = new Set<string>();
 
-    return sortedNodes.slice(0, 200);
-  }, [nodeSortDir, nodeSortKey, outline.nodes]);
-  const edgeRows = useMemo(() => {
-    const sortedEdges = sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir);
+    for (const edge of outline.edges) {
+      ids.add(edge.from);
+      ids.add(edge.to);
+    }
 
-    return sortedEdges.slice(0, 200);
-  }, [edgeSortDir, edgeSortKey, outline.edges, outline.nodes]);
+    return ids;
+  }, [outline.edges]);
+  const allConnectedNodes = useMemo(
+    () => outline.nodes.filter((node) => connectedNodeIds.has(node.id)),
+    [connectedNodeIds, outline.nodes],
+  );
+  const allUnconnectedNodes = useMemo(
+    () => outline.nodes.filter((node) => !connectedNodeIds.has(node.id)),
+    [connectedNodeIds, outline.nodes],
+  );
+  const connectedNodeRows = useMemo(
+    () => sortInfraEvidenceDiagramOutlineNodes(allConnectedNodes, nodeSortKey, nodeSortDir),
+    [allConnectedNodes, nodeSortDir, nodeSortKey],
+  );
+  const unconnectedNodeRows = useMemo(
+    () => sortInfraEvidenceDiagramOutlineNodes(allUnconnectedNodes, nodeSortKey, nodeSortDir),
+    [allUnconnectedNodes, nodeSortDir, nodeSortKey],
+  );
+  const edgeRows = useMemo(
+    () => sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir),
+    [edgeSortDir, edgeSortKey, outline.edges, outline.nodes],
+  );
   const showNeighborhoodActions = onFocusNeighborhood != null;
   const showEdgesSection = outline.edges.length > 0;
 
@@ -300,69 +424,29 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT}
                 </p>
               ) : null}
-              <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-                <thead className="bg-neutral-50 dark:bg-neutral-900/60">
-                  <tr>
-                    <InfraEvidenceDiagramOutlineSortableHeader
-                      column="label"
-                      label="Node Name"
-                      sortKey={nodeSortKey}
-                      sortDir={nodeSortDir}
-                      onSort={handleNodeSort}
-                      resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
-                    />
-                    <InfraEvidenceDiagramOutlineSortableHeader
-                      column="resourceType"
-                      label="Resource type"
-                      sortKey={nodeSortKey}
-                      sortDir={nodeSortDir}
-                      onSort={handleNodeSort}
-                      resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
-                    />
-                    <InfraEvidenceDiagramOutlineSortableHeader
-                      column="resourceGroup"
-                      label="Resource group"
-                      sortKey={nodeSortKey}
-                      sortDir={nodeSortDir}
-                      onSort={handleNodeSort}
-                      resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
-                    />
-                    {showNeighborhoodActions ? (
-                      <th className="px-3 py-2 font-medium" scope="col">
-                        Neighborhood
-                      </th>
-                    ) : null}
-                  </tr>
-                </thead>
-                <tbody>
-                  {nodeRows.map((node) => (
-                    <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-                      <td className="px-3 py-2">
-                        <InfraEvidenceDiagramOutlineNodeLabel node={node} />
-                      </td>
-                      <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
-                      <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>{formatOutlineCell(node.resourceGroup)}</td>
-                      {showNeighborhoodActions ? (
-                        <td className="px-3 py-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
-                            aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
-                            onClick={() => {
-                              onFocusNeighborhood(node);
-                            }}
-                          >
-                            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
-                          </Button>
-                        </td>
-                      ) : null}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {nodeRows.length === 0 ? (
+              <div className="flex flex-col gap-4">
+                <InfraEvidenceDiagramOutlineNodeTable
+                  nodes={connectedNodeRows}
+                  sectionLabel="Connected nodes"
+                  sectionTestId="infra-diagrams-connected-nodes-list"
+                  nodeSortKey={nodeSortKey}
+                  nodeSortDir={nodeSortDir}
+                  onSort={handleNodeSort}
+                  showNeighborhoodActions={showNeighborhoodActions}
+                  onFocusNeighborhood={onFocusNeighborhood}
+                />
+                <InfraEvidenceDiagramOutlineNodeTable
+                  nodes={unconnectedNodeRows}
+                  sectionLabel="Unconnected nodes"
+                  sectionTestId="infra-diagrams-unconnected-nodes-list"
+                  nodeSortKey={nodeSortKey}
+                  nodeSortDir={nodeSortDir}
+                  onSort={handleNodeSort}
+                  showNeighborhoodActions={showNeighborhoodActions}
+                  onFocusNeighborhood={onFocusNeighborhood}
+                />
+              </div>
+              {outline.nodes.length === 0 ? (
                 <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   No nodes parsed from the Mermaid source.
                 </p>

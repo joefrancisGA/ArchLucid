@@ -27,9 +27,30 @@ import {
   workspaceAiAvailableDetail,
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+function readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseWorkspaceAiProbeDebugMetadataOpenFromSearch(
+    new URLSearchParams(window.location.search).get("workspaceAiProbeDebugMetadataOpen"),
+  );
+}
+
+function readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseWorkspaceAiProbeDiagnosticsOpenFromSearch(
+    new URLSearchParams(window.location.search).get("workspaceAiProbeDiagnosticsOpen"),
+  );
+}
 
 export type WorkspaceAiAvailabilityPanelProps = {
   readonly workspaceAiSignal: WorkspaceAiConfigurationSignal;
@@ -315,24 +336,28 @@ function WorkspaceAiProbeDiagnostics(props: {
   readonly compact?: boolean;
 }): React.JSX.Element {
   const { result, compact = false } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const workspaceAiProbeDebugMetadataOpenParam = searchParams.get("workspaceAiProbeDebugMetadataOpen");
   const [debugMetadataOpen, setDebugMetadataOpenState] = useState(() =>
-    parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam),
+    readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation(),
   );
+  const debugMetadataOpenRef = useRef(debugMetadataOpen);
+  debugMetadataOpenRef.current = debugMetadataOpen;
   const syncDebugMetadataOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
   const setDebugMetadataOpen = useCallback(
     (open: boolean) => {
+      if (debugMetadataOpenRef.current === open) {
+        return;
+      }
+
+      debugMetadataOpenRef.current = open;
       setDebugMetadataOpenState(open);
       syncDebugMetadataOpenToUrl(open);
     },
@@ -340,8 +365,24 @@ function WorkspaceAiProbeDiagnostics(props: {
   );
 
   useEffect(() => {
-    setDebugMetadataOpenState(parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam));
-  }, [workspaceAiProbeDebugMetadataOpenParam]);
+    const syncDebugMetadataOpenFromUrl = (): void => {
+      const nextOpen = readWorkspaceAiProbeDebugMetadataOpenFromWindowLocation();
+
+      if (debugMetadataOpenRef.current === nextOpen) {
+        return;
+      }
+
+      debugMetadataOpenRef.current = nextOpen;
+      setDebugMetadataOpenState(nextOpen);
+    };
+
+    syncDebugMetadataOpenFromUrl();
+    window.addEventListener("popstate", syncDebugMetadataOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncDebugMetadataOpenFromUrl);
+    };
+  }, []);
 
   const deploymentName = resolveProbeDeploymentName(result.debug);
   const modelId = resolveProbeModelId(result.debug);
@@ -432,26 +473,30 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
     probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
   const probeTriggerLabel =
     probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "AI availability details";
-  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const workspaceAiProbeDiagnosticsOpenParam = searchParams.get("workspaceAiProbeDiagnosticsOpen");
   const [probeDiagnosticsOpen, setProbeDiagnosticsOpenState] = useState(() =>
-    parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
+    readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation(),
   );
+  const probeDiagnosticsOpenRef = useRef(probeDiagnosticsOpen);
+  probeDiagnosticsOpenRef.current = probeDiagnosticsOpen;
 
   const syncProbeDiagnosticsOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
+      commitHrefIfChanged(
+        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setProbeDiagnosticsOpen = useCallback(
     (open: boolean) => {
+      if (probeDiagnosticsOpenRef.current === open) {
+        return;
+      }
+
+      probeDiagnosticsOpenRef.current = open;
       setProbeDiagnosticsOpenState(open);
       syncProbeDiagnosticsOpenToUrl(open);
     },
@@ -459,10 +504,24 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
   );
 
   useEffect(() => {
-    setProbeDiagnosticsOpenState(
-      parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
-    );
-  }, [workspaceAiProbeDiagnosticsOpenParam]);
+    const syncProbeDiagnosticsOpenFromUrl = (): void => {
+      const nextOpen = readWorkspaceAiProbeDiagnosticsOpenFromWindowLocation();
+
+      if (probeDiagnosticsOpenRef.current === nextOpen) {
+        return;
+      }
+
+      probeDiagnosticsOpenRef.current = nextOpen;
+      setProbeDiagnosticsOpenState(nextOpen);
+    };
+
+    syncProbeDiagnosticsOpenFromUrl();
+    window.addEventListener("popstate", syncProbeDiagnosticsOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncProbeDiagnosticsOpenFromUrl);
+    };
+  }, []);
 
   return (
     <div
@@ -493,7 +552,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
               <span
                 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-package-workspace-ai-checked-at"
-                title={probeValidatedAt.absolute}
+                aria-label={`Checked ${probeValidatedAt.absolute}`}
               >
                 {probeValidatedAt.relative}
               </span>
@@ -519,7 +578,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
                 <span
                   className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="review-package-workspace-ai-checked-at"
-                  title={probeValidatedAt.absolute}
+                  aria-label={`Checked ${probeValidatedAt.absolute}`}
                 >
                   {probeValidatedAt.relative}
                 </span>

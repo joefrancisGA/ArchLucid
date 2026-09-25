@@ -1,5 +1,6 @@
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { tryWorkbookAuditEvidenceLineageDemoFallback } from "@/lib/governance/audit-evidence-lineage-demo-fallback";
 import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
@@ -14,6 +15,12 @@ export async function fetchAuditEvidenceControlLineage(
       `/api/proxy/v1/infra-evidence/audit-assessments/${encodeURIComponent(assessmentId)}/snapshots/${encodeURIComponent(snapshotId)}/controls/${encodeURIComponent(controlId)}/lineage`,
     );
   } catch (error: unknown) {
+    const demoFallback = tryWorkbookAuditEvidenceLineageDemoFallback(assessmentId, snapshotId, controlId);
+
+    if (demoFallback !== null) {
+      return demoFallback;
+    }
+
     const failure = toApiLoadFailure(error);
     const blockedReason = auditEvidenceLineageBlockedReason(failure);
 

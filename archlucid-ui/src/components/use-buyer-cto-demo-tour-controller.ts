@@ -1,6 +1,8 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { runBuyerCtoDemoSmokeCheck, type CtoDemoSmokeCheckResult } from "@/lib/buyer/buyer-cto-demo-smoke-check";
@@ -254,7 +256,7 @@ export function useBuyerCtoDemoTourController() {
       const query = params.toString();
       const nextUrl = query.length > 0 ? `${pathname}?${query}` : pathname;
 
-      router.replace(nextUrl, { scroll: false });
+      replaceIfHrefChanged(router, nextUrl);
     }
   }, [activateTour, mounted, pathname, router, searchParams]);
 

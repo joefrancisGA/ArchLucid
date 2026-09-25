@@ -2,8 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -32,6 +32,7 @@ import {
 } from "@/lib/findings/finding-evidence-graph-view-url";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { loadArchitectureGraphViewModel } from "@/lib/load-architecture-graph-view-model";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -161,11 +162,19 @@ function FindingEvidenceGraphCanvas(props: {
  */
 export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   const { runId, graphNodeIdsExamined } = props;
-  const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
-  const searchParams = useSearchParams();
-  const urlEvGraphView = parseFindingEvidenceGraphViewFromSearch(searchParams.get("evGraphView"));
-  const urlEvPresentation = parseFindingEvidenceGraphPresentationFromSearch(searchParams.get("evPresentation"));
+  const readEvidenceGraphViewFromUrl = (): {
+    viewMode: FindingEvidenceGraphViewMode | null;
+    presentationMode: FindingEvidenceGraphPresentationMode | null;
+  } => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return {
+      viewMode: parseFindingEvidenceGraphViewFromSearch(params.get("evGraphView")),
+      presentationMode: parseFindingEvidenceGraphPresentationFromSearch(params.get("evPresentation")),
+    };
+  };
+  const initialUrlView = readEvidenceGraphViewFromUrl();
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
   const [graph, setGraph] = useState<GraphViewModel | null>(null);
@@ -173,51 +182,78 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [viewMode, setViewModeState] = useState<FindingEvidenceGraphViewMode>(
-    urlEvGraphView ?? defaultFindingEvidenceGraphViewMode(graphNodeIdsExamined.length),
+    initialUrlView.viewMode ?? defaultFindingEvidenceGraphViewMode(graphNodeIdsExamined.length),
   );
   const [presentationMode, setPresentationModeState] = useState<FindingEvidenceGraphPresentationMode>(
-    urlEvPresentation ?? defaultFindingEvidenceGraphPresentationMode(workingMode),
+    initialUrlView.presentationMode ?? defaultFindingEvidenceGraphPresentationMode(workingMode),
   );
+  const viewModeRef = useRef(viewMode);
+  viewModeRef.current = viewMode;
+  const presentationModeRef = useRef(presentationMode);
+  presentationModeRef.current = presentationMode;
 
   const syncEvidenceGraphViewToUrl = useCallback(
     (nextViewMode: FindingEvidenceGraphViewMode, nextPresentationMode: FindingEvidenceGraphPresentationMode) => {
-      router.replace(
+      commitHrefIfChanged(
         findingEvidenceGraphViewHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           { viewMode: nextViewMode, presentationMode: nextPresentationMode },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const setViewMode = useCallback(
     (nextViewMode: FindingEvidenceGraphViewMode) => {
+      if (viewModeRef.current === nextViewMode) {
+        return;
+      }
+
+      viewModeRef.current = nextViewMode;
       setViewModeState(nextViewMode);
-      syncEvidenceGraphViewToUrl(nextViewMode, presentationMode);
+      syncEvidenceGraphViewToUrl(nextViewMode, presentationModeRef.current);
     },
-    [presentationMode, syncEvidenceGraphViewToUrl],
+    [syncEvidenceGraphViewToUrl],
   );
 
   const setPresentationMode = useCallback(
     (nextPresentationMode: FindingEvidenceGraphPresentationMode) => {
+      if (presentationModeRef.current === nextPresentationMode) {
+        return;
+      }
+
+      presentationModeRef.current = nextPresentationMode;
       setPresentationModeState(nextPresentationMode);
-      syncEvidenceGraphViewToUrl(viewMode, nextPresentationMode);
+      syncEvidenceGraphViewToUrl(viewModeRef.current, nextPresentationMode);
     },
-    [syncEvidenceGraphViewToUrl, viewMode],
+    [syncEvidenceGraphViewToUrl],
   );
 
   useEffect(() => {
-    if (urlEvGraphView !== null) {
-      setViewModeState(urlEvGraphView);
-    }
+    const syncEvidenceGraphViewFromUrl = (): void => {
+      const next = readEvidenceGraphViewFromUrl();
 
-    if (urlEvPresentation !== null) {
-      setPresentationModeState(urlEvPresentation);
-    }
-  }, [urlEvGraphView, urlEvPresentation]);
+      if (next.viewMode !== null && viewModeRef.current !== next.viewMode) {
+        viewModeRef.current = next.viewMode;
+        setViewModeState(next.viewMode);
+      }
+
+      if (next.presentationMode !== null && presentationModeRef.current !== next.presentationMode) {
+        presentationModeRef.current = next.presentationMode;
+        setPresentationModeState(next.presentationMode);
+      }
+    };
+
+    syncEvidenceGraphViewFromUrl();
+    window.addEventListener("popstate", syncEvidenceGraphViewFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncEvidenceGraphViewFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     setPresentationModeState(defaultFindingEvidenceGraphPresentationMode(workingMode));

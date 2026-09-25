@@ -14,14 +14,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => true,
-  };
-});
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => true,
+  useProductionDeskChrome: (): boolean => false,
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
@@ -31,6 +27,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
     PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
   };
 });
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" }),
+}));
 
 import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION,
@@ -62,7 +62,6 @@ describe("AuditEvidenceControlLineageClient buyer-polished chrome", () => {
       `#${AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("audit-evidence-control-lineage-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByTestId("audit-evidence-lineage-route-identifiers")).toBeInTheDocument();
     expect(screen.getByTestId("audit-evidence-lineage-error-panel")).toBeInTheDocument();
     expect(screen.getByTestId("audit-evidence-control-lineage-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
@@ -75,7 +74,7 @@ describe("AuditEvidenceControlLineageClient buyer-polished chrome", () => {
       "/governance/audit-evidence",
     );
     expect(screen.getByRole("button", { name: AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION })).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-lineage-back-to-lookup-header")).toBeInTheDocument();
   });
 
   it("hides raw route ids from the header and uses Button for chain toggle", () => {
@@ -122,5 +121,7 @@ describe("AuditEvidenceControlLineageClient buyer-polished chrome", () => {
 
     expect(screen.getByTestId("audit-evidence-positive-checkbox")).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByTestId("audit-evidence-lineage-spine")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-lineage-route-identifiers")).toBeInTheDocument();
+    expect(screen.queryAllByTestId("audit-evidence-lineage-status-tag")).toHaveLength(1);
   });
 });
