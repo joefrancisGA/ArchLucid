@@ -8179,10 +8179,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-11 — confirm-required livelihood 401 resume dropped pending mutation from localStorage before operator confirmed replay
 - **related-pd-tb:** none
 - **code-changed-since:** no
