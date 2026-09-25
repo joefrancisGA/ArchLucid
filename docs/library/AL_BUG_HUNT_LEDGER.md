@@ -23306,10 +23306,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-11 — orphan rerun= from guided-intake deep links prefilled quick-start run title
 - **related-pd-tb:** none
 - **code-changed-since:** yes
