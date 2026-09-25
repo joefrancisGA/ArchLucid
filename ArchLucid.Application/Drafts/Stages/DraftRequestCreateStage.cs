@@ -76,6 +76,16 @@ public sealed class DraftRequestCreateStage(
             displayName,
             cancellationToken);
 
+        created = await _draftRepository
+            .GetAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                created.DraftId,
+                cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"Draft '{created.DraftId:D}' was not found after creation.");
+
         created.ArchitectureId = identity.ArchitectureId;
 
         return created;

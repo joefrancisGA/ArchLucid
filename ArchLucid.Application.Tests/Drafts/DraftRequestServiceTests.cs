@@ -72,6 +72,38 @@ public sealed class DraftRequestServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_returns_current_updated_utc_for_immediate_conditional_patch()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
+            CancellationToken.None);
+
+        DraftRequestResponse? reloaded = await _repository.GetAsync(
+            _scope.TenantId,
+            _scope.WorkspaceId,
+            _scope.ProjectId,
+            created.DraftId,
+            CancellationToken.None);
+
+        created.UpdatedUtc.Should().Be(reloaded!.UpdatedUtc);
+
+        DraftRequestResponse? patched = await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest
+            {
+                BusinessOutcome = "Faster audit preparation",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
+            },
+            CancellationToken.None);
+
+        patched.Should().NotBeNull();
+        patched!.Document.BusinessOutcome.Should().Be("Faster audit preparation");
+    }
+
+    [Fact]
     public async Task RequestAdmissionAsync_Redirects_WhenActorMissing()
     {
         DraftRequestResponse created = await _service.CreateAsync(
