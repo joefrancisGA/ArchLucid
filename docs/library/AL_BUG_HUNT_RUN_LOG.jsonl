@@ -7262,3 +7262,4 @@
 {"at":"2026-09-25T14:50:24.7463473Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only"}
 {"at":"2026-09-25T14:53:13.6579847Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only"}
 {"at":"2026-09-25T14:55:58.0721173Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only"}
+{"at":"2026-09-25T14:59:29.9819734Z","zoneId":"ui-auth-proxy","outcome":"seed-only"}
