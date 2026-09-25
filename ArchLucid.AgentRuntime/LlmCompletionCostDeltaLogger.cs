@@ -64,7 +64,7 @@ public static class LlmCompletionCostDeltaLogger
                    }))
         {
             logger.LogInformation(
-                "{EventName} runId={RunId} agentType={AgentType} estimatedPrompt={EstimatedPromptTokens} estimatedCompletion={EstimatedCompletionTokens} estimatedUsd={EstimatedUsd} actualPrompt={ActualPromptTokens} actualCompletion={ActualCompletionTokens} actualUsd={ActualUsd} deltaUsd={DeltaUsd}",
+                "{EventName} runId={RunId} agentType={AgentType} estimatedPrompt={EstPromptUnits} estimatedCompletion={EstCompletionUnits} estimatedUsd={EstimatedUsd} actualPrompt={ActPromptUnits} actualCompletion={ActCompletionUnits} actualUsd={ActualUsd} deltaUsd={DeltaUsd}",
                 EventName,
                 runId ?? "unknown",
                 agentType ?? "unknown",
