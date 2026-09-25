@@ -16,4 +16,5 @@ public enum DiagramMode
     ResourceGroup,
     SelectedResources,
     DependencyNeighborhood,
+    Avd,
 }

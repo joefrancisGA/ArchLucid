@@ -300,6 +300,50 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_keeps_synthetic_service_and_datastore_aliases_distinct_when_labels_match()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-orders",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "orders",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "azurerm_app_service.orders",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-orders",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "orders",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_storage_account.orders",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-orders",
+                    TargetId = "ds-orders",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-orders" &&
+            e.ToNodeId == "ds-orders" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_arm_source_id_with_surrounding_whitespace()
     {
         const string rawArmId =

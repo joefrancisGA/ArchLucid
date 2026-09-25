@@ -44,4 +44,25 @@ public class DiagramEdge
         get;
         set;
     }
+
+    /// <summary>True when an applicable NSG denies the connector flow (NR-08).</summary>
+    public bool IsDataFlowNsgBlocked
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Effective NSG protocol/port labels shown on the connector (NR-08).</summary>
+    public List<string> DataFlowNsgAnnotationLabels
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Supporting NSG rule identity available on demand (NR-08).</summary>
+    public List<string> DataFlowNsgSupportingRuleDetails
+    {
+        get;
+        set;
+    } = [];
 }

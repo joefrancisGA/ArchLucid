@@ -41,7 +41,6 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
         Dictionary<string, string> aliasToNodeId,
         string? label,
         string? category,
-        string? sourceId,
         string nodeId)
     {
         if (string.IsNullOrWhiteSpace(label))
@@ -53,15 +52,6 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
                 aliasToNodeId,
                 TopologyProposalRelationshipEndpointIndex.BuildSyntheticDatastoreNodeId(label),
                 nodeId);
-
-            if (LooksLikeTerraformServiceSourceId(sourceId))
-            {
-                TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(
-                    aliasToNodeId,
-                    TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId(label),
-                    nodeId);
-            }
-
             return;
         }
 
@@ -82,8 +72,26 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             aliasToNodeId,
             TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId(label),
             nodeId);
+    }
 
-        if (LooksLikeTerraformDatastoreSourceId(sourceId))
+    internal static void AddGraphNodeTerraformSyntheticLabelResolutionFallback(
+        Dictionary<string, string> aliasToNodeId,
+        string? label,
+        string? category,
+        string? sourceId,
+        string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(label) || string.IsNullOrWhiteSpace(category))
+            return;
+
+        if (IsDatastoreCategory(category) && LooksLikeTerraformServiceSourceId(sourceId))
+        {
+            TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(
+                aliasToNodeId,
+                TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId(label),
+                nodeId);
+        }
+        else if (!IsDatastoreCategory(category) && LooksLikeTerraformDatastoreSourceId(sourceId))
         {
             TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(
                 aliasToNodeId,
