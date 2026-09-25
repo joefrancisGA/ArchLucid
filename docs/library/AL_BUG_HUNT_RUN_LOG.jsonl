@@ -7295,3 +7295,4 @@
 {"at":"2026-09-25T16:54:41.3889015Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only"}
 {"at":"2026-09-25T16:58:11.3970220Z","zoneId":"core-tenancy-commercial","outcome":"dry"}
 {"at":"2026-09-25T17:01:08.2604074Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only"}
+{"at":"2026-09-25T17:04:23.1154691Z","zoneId":"core-azure-extractor","outcome":"seed-only"}
