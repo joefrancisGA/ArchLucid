@@ -15809,10 +15809,10 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — pipe/plus-delimited product names false-positive phrase and token constraints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
