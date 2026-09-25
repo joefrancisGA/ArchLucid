@@ -3080,7 +3080,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
@@ -3089,6 +3089,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** unknown
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
+
+2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved line/paragraph separators, fragment-only dot-dot, and dot-homoglyph-in-query over-rejection; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Unicode LINE SEPARATOR (`U+2028`) and PARAGRAPH SEPARATOR (`U+2029`) in path segments — **valid-no-repro 2026-09-25 seed hunt:** not `char.IsControl` and not browser-normalized to `/`; encoded-slash smuggling with separators still rejected.
+- [x] (valid-no-repro) Fragment-only dot-dot (`/safe#..`) and query-string traversal (`/signin?next=../../evil`) — **valid-no-repro 2026-09-25 seed hunt:** `GetPathWithoutQueryOrFragment` limits traversal checks to path prefix; prior ledger rows unchanged.
+- [x] (valid-no-repro) Dot homoglyphs appearing only in query (`/reviews?x=。。`) reject the whole return path — **valid-no-repro 2026-09-25 seed hunt:** conservative guard scans full candidate; not an open-redirect under-acceptance class.
 
 2026-09-25 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved APL slash symbols, combining solidus overlays, spaced-slash segments, and soft-hyphen segment pairs; 92 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
