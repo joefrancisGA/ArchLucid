@@ -23407,10 +23407,10 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-08 — inventory diagrams and terraform workbench links dropped review runId while diagram reconcile and hub tab links preserved it
 - **related-pd-tb:** none
 - **code-changed-since:** yes
