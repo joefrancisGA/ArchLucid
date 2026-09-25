@@ -22624,10 +22624,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-12 — PreCommitGateThresholdParser undefined numeric threshold
 - **related-pd-tb:** none
 - **code-changed-since:** 0
