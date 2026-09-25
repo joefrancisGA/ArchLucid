@@ -15598,11 +15598,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 23
-- **bugs-found:** 15
+- **hunts:** 24
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — NSG/route explicit flattened property parsers ignored PascalCase suffix keys
+- **last-bug:** 2026-09-25 — NSG association explicit flattened property parser ignored PascalCase suffix keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15803,6 +15803,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureInventoryNsgSecurityRuleParser` / `AzureInventoryRouteTableRouteParser` — explicit flattened NR-02 property index discovery used case-insensitive prefix/suffix matching but `ReadRuleProperty`/`ReadRouteProperty` required ordinal key equality — **hit 2026-09-25 seed hunt:** PascalCase suffix keys such as `.Protocol`/`.AddressPrefix` produced empty rule/route rows and blocked `securityRules`/`routes` JSON fallback; fixed with case-insensitive flattened property lookup; regressions `Parse_reads_explicit_flattened_rule_properties_when_suffix_casing_differs`, `Parse_reads_explicit_flattened_route_properties_when_suffix_casing_differs`.
 
 2026-09-25 seed hunt (seed→hit): reseeded core-azure-extractor; proved NR-02 NSG/route explicit flattened property parsers ignored PascalCase suffix keys; 1378 scoped `AzureExtractor` tests passed (1 unrelated pre-existing catalog association-type failure).
+
+- [x] (proven) `AzureInventoryNsgAssociationParser` — explicit flattened NR-02 association index discovery used case-insensitive prefix/suffix matching but `ReadAssociationProperty` required ordinal key equality — **hit 2026-09-25 seed hunt:** PascalCase `.TargetArmId`/`.Kind` suffix keys dropped subnet/NIC associations after #NSG/route casing fix; fixed with case-insensitive flattened property lookup; regression `Parse_reads_explicit_flattened_association_properties_when_suffix_casing_differs`.
+
+2026-09-25 seed hunt (seed→hit): reseeded core-azure-extractor after NSG/route casing fix; proved NR-02 NSG association parser ignored PascalCase flattened suffix keys; 1379 scoped `AzureExtractor` tests passed (1 unrelated pre-existing catalog association-type failure).
 
 ---
 ## Zone: core-configuration-summary
