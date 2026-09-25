@@ -21,7 +21,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/restorePointCollections/rpc-app";
 
     private const string StorageAccountArmId =
-        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stalone";
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/standalone";
 
     private const string WorkflowArmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Logic/workflows/notify";

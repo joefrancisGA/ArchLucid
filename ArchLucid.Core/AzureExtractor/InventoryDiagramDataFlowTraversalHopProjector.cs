@@ -101,6 +101,13 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                 return;
             }
 
+            if (bestHopNodeIds.Count == hopNodeIds.Count
+                && bestLinks.Count >= pathLinks.Count
+                && !string.IsNullOrWhiteSpace(missingHopDescription))
+            {
+                return;
+            }
+
             bestHopNodeIds = hopNodeIds.ToList();
             bestLinks = pathLinks.ToList();
             missingHopDescription = gapDescription;
@@ -256,6 +263,8 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
     {
         Dictionary<string, HashSet<string>> subnetNodeIdsBySubnetArmId = BuildSubnetNodeIdsBySubnetArmId(graph);
         Dictionary<string, string> subnetArmIdByNodeId = BuildSubnetArmIdByNodeId(graph);
+        Dictionary<string, HashSet<string>> subnetAttachedConsumerNodeIdsBySubnetArmId =
+            BuildSubnetAttachedConsumerNodeIdsBySubnetArmId(graph, subnetArmIdByNodeId);
         Dictionary<string, GraphNode> traversalHopNodesByArmId = graphNodesById.Values
             .Where(InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode)
             .Select(node => (ArmId: ArmResourceIdNormalizer.Normalize(ReadArmId(node)), Node: node))
@@ -305,14 +314,16 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                     {
                         AddLink(links, linkKeys, subnetNodeId, nextHopNode.NodeId, evidence);
 
-                        foreach (GraphNode originNode in graph.Nodes)
+                        if (!subnetAttachedConsumerNodeIdsBySubnetArmId.TryGetValue(
+                                ArmResourceIdNormalizer.Normalize(subnetArmId),
+                                out HashSet<string>? originNodeIds))
                         {
-                            if (!IsSubnetAttachedConsumer(originNode, subnetArmId, subnetArmIdByNodeId, graph))
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            AddLink(links, linkKeys, originNode.NodeId, nextHopNode.NodeId, evidence);
+                        foreach (string originNodeId in originNodeIds)
+                        {
+                            AddLink(links, linkKeys, originNodeId, nextHopNode.NodeId, evidence);
                         }
                     }
                 }
@@ -517,40 +528,50 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             : string.Empty;
     }
 
-    private static bool IsSubnetAttachedConsumer(
-        GraphNode originNode,
-        string subnetArmId,
-        IReadOnlyDictionary<string, string> subnetArmIdByNodeId,
-        GraphSnapshot graph)
+    private static Dictionary<string, HashSet<string>> BuildSubnetAttachedConsumerNodeIdsBySubnetArmId(
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, string> subnetArmIdByNodeId)
     {
-        if (subnetArmIdByNodeId.TryGetValue(originNode.NodeId, out string? originSubnetArmId)
-            && string.Equals(
-                ArmResourceIdNormalizer.Normalize(originSubnetArmId),
-                ArmResourceIdNormalizer.Normalize(subnetArmId),
-                StringComparison.OrdinalIgnoreCase))
+        Dictionary<string, HashSet<string>> subnetAttachedConsumerNodeIdsBySubnetArmId =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach ((string nodeId, string subnetArmId) in subnetArmIdByNodeId)
         {
-            return true;
+            string normalizedSubnetArmId = ArmResourceIdNormalizer.Normalize(subnetArmId);
+
+            if (!subnetAttachedConsumerNodeIdsBySubnetArmId.TryGetValue(
+                    normalizedSubnetArmId,
+                    out HashSet<string>? consumerNodeIds))
+            {
+                consumerNodeIds = new HashSet<string>(StringComparer.Ordinal);
+                subnetAttachedConsumerNodeIdsBySubnetArmId[normalizedSubnetArmId] = consumerNodeIds;
+            }
+
+            consumerNodeIds.Add(nodeId);
         }
 
         foreach (GraphEdge edge in graph.Edges)
         {
-            if (!string.Equals(edge.FromNodeId, originNode.NodeId, StringComparison.Ordinal))
+            if (!string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
+                || !subnetArmIdByNodeId.TryGetValue(edge.ToNodeId, out string? appSubnetArmId))
             {
                 continue;
             }
 
-            if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
-                && subnetArmIdByNodeId.TryGetValue(edge.ToNodeId, out string? appSubnetArmId)
-                && string.Equals(
-                    ArmResourceIdNormalizer.Normalize(appSubnetArmId),
-                    ArmResourceIdNormalizer.Normalize(subnetArmId),
-                    StringComparison.OrdinalIgnoreCase))
+            string normalizedSubnetArmId = ArmResourceIdNormalizer.Normalize(appSubnetArmId);
+
+            if (!subnetAttachedConsumerNodeIdsBySubnetArmId.TryGetValue(
+                    normalizedSubnetArmId,
+                    out HashSet<string>? consumerNodeIds))
             {
-                return true;
+                consumerNodeIds = new HashSet<string>(StringComparer.Ordinal);
+                subnetAttachedConsumerNodeIdsBySubnetArmId[normalizedSubnetArmId] = consumerNodeIds;
             }
+
+            consumerNodeIds.Add(edge.FromNodeId);
         }
 
-        return false;
+        return subnetAttachedConsumerNodeIdsBySubnetArmId;
     }
 
     private static Dictionary<string, HashSet<string>> BuildSubnetNodeIdsBySubnetArmId(GraphSnapshot graph)

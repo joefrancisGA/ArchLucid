@@ -14,7 +14,6 @@ public static class InventoryDiagramAvdScopeResolver
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
-        Dictionary<string, string> armIdToNodeId = BuildArmIdToNodeIdMap(graph.Nodes);
         HashSet<string> avdOnlyNodeIds = [];
         Dictionary<string, string> nodeIdToHostPoolArmId = new(StringComparer.Ordinal);
 
@@ -297,23 +296,6 @@ public static class InventoryDiagramAvdScopeResolver
                 yield return edge;
             }
         }
-    }
-
-    private static Dictionary<string, string> BuildArmIdToNodeIdMap(IReadOnlyList<GraphNode> nodes)
-    {
-        Dictionary<string, string> armIdToNodeId = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (GraphNode node in nodes)
-        {
-            string armId = ReadArmId(node);
-
-            if (!string.IsNullOrWhiteSpace(armId))
-            {
-                armIdToNodeId[ArmResourceIdNormalizer.Normalize(armId)] = node.NodeId;
-            }
-        }
-
-        return armIdToNodeId;
     }
 
     private static string ReadArmType(GraphNode node)

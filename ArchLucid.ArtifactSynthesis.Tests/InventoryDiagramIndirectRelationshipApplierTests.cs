@@ -33,7 +33,7 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stapp";
 
     private const string UnconnectedStorageArmId =
-        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stalone";
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/standalone";
 
     private const string RedisArmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Cache/redis/redis-app";
@@ -115,8 +115,8 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
         ast.Nodes.Should().ContainSingle(node => node.ArmResourceId == UnconnectedStorageArmId);
         ast.Edges.Should().NotContain(edge =>
             !edge.IsLayoutOnly
-            && (edge.FromNodeId.Contains("stalone", StringComparison.Ordinal)
-                || edge.ToNodeId.Contains("stalone", StringComparison.Ordinal)));
+            && (edge.FromNodeId.Contains("standalone", StringComparison.Ordinal)
+                || edge.ToNodeId.Contains("standalone", StringComparison.Ordinal)));
     }
 
     [Fact]
