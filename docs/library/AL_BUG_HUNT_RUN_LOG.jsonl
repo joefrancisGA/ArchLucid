@@ -7273,3 +7273,4 @@
 {"at":"2026-09-25T15:24:21.0020021Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only"}
 {"at":"2026-09-25T15:27:29.9497483Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only"}
 {"at":"2026-09-25T15:30:33.4488353Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only"}
+{"at":"2026-09-25T15:34:00.7603012Z","zoneId":"ui-auth-proxy","outcome":"seed-only"}
