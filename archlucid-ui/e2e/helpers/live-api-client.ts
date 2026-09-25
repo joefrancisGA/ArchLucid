@@ -31,12 +31,16 @@ import {
 } from "./live-api-headers";
 import { parsePrivateBetaCommittedRunId } from "./private-beta-create-identity";
 import {
+  isPrivateBetaCreateIdentityConflict,
+  refreshPrivateBetaArchitectureCreateBody,
+} from "./private-beta-create-identity";
+import {
   continueInfrastructureMutationRetry,
   getMaxCommitInfrastructureMutationAttempts,
   getMaxInfrastructureMutationAttempts,
   InfraTransientError,
 } from "./live-api-infra-retry";
-import { normalizeRunIdForCompare, unwrapCursorPagedResponseItems } from "./live-api-payloads";
+import { normalizeRunIdForCompare, unwrapCursorPagedResponseItems, enrichArchitectureRequestBody, liveE2eArchitectureDescription } from "./live-api-payloads";
 import {
   delayAfterRateLimitedResponse,
   replayBufferedApiResponse,
@@ -68,10 +72,11 @@ export async function postArchitectureRequestRaw(
   });
 }
 
-/** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — cap retries so a wedged create cannot burn 25+ minutes. */
+  /** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — cap retries so a wedged create cannot burn 25+ minutes. */
 function maxArchitectureMutationAttempts(): number {
   if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
-    return 2;
+    // Committed-run 400 and partial-create name collisions can need several fresh identities.
+    return 5;
   }
 
   return getMaxInfrastructureMutationAttempts();
@@ -173,13 +178,15 @@ export async function createRun(
   tenantScope?: LiveTenantScopeHeaders | null,
   explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
+  let requestBody = body;
+
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
     await ensurePrivateBetaApiReadyBeforeCreateRun(request);
 
     let res: APIResponse;
 
     try {
-      res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
+      res = await postArchitectureRequestRaw(request, requestBody, tenantScope, explicitBearerToken);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
 
@@ -220,6 +227,14 @@ export async function createRun(
 
       if (committedRunId !== null) {
         return { runId: committedRunId };
+      }
+
+      if (
+        isPrivateBetaCreateIdentityConflict(status, responseBody) &&
+        attempt < maxArchitectureMutationAttempts() - 1
+      ) {
+        requestBody = refreshPrivateBetaArchitectureCreateBody(requestBody);
+        continue;
       }
 
       if (

@@ -75,8 +75,8 @@ function GuidanceBody(props: {
  */
 export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
   const { isInviteeReviewer } = useInviteeReviewerContext();
-  const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
   const evalChromeShell = useProductionEvalChrome();
+  const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
 
   if (isInviteeReviewer) {
     return null;
