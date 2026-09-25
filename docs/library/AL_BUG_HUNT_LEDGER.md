@@ -23432,11 +23432,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 21
-- **bugs-found:** 15
+- **hunts:** 22
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — guided intake scopeGate stayed open after URL cleared scopeGate without popstate
+- **last-bug:** 2026-09-25 — returning-tenant job chooser stayed open after URL cleared reviewsNewReturningJobChooserOpen without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23485,6 +23485,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `useGuidedIntakeBriefForm` / `useFirstPilotIntakeWizard` — `scopeGateOpen` stayed true after App Router cleared `scopeGate=` without `popstate` — **hit 2026-09-25 seed hunt #3908d (seed→hit):** scope gate lived in `useState` synced only on `popstate`; deep-linked `scopeGate=1` left scope confirmation chrome mounted after client navigation cleared the param; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in popstate handlers; regressions `follows scopeGate= URL changes without a popstate event`.
 
 2026-09-25 seed hunt #3908d (seed→hit): reseeded ui-review-intake-wizards after advancedConfig URL sync hit; proved stale scopeGate after URL navigation; 13 scoped intake scopeGate + URL-sync unit tests passed.
+
+- [x] (proven) `ReviewsNewPathSwitcher` — returning-tenant job chooser disclosure stayed open after App Router cleared `reviewsNewReturningJobChooserOpen=` without `popstate` — **hit 2026-09-25 seed hunt #3908e (seed→hit):** `returningJobChooserOpen` lived in `useState` synced only on `popstate`; deep-linked disclosure open state survived client navigation that cleared the param; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in the popstate handler; regression `follows reviewsNewReturningJobChooserOpen= URL changes without a popstate event`.
+
+2026-09-25 seed hunt #3908e (seed→hit): reseeded ui-review-intake-wizards after scopeGate URL sync hit; proved stale returning job chooser disclosure after URL navigation; 11 scoped intake URL-sync unit tests passed.
 
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 
