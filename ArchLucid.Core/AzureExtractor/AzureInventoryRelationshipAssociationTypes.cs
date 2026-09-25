@@ -90,9 +90,17 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string EventHubCapture = "eventHubCapture";
 
+    public const string EventHubMayPublish = "inventory-event-hub-may-publish";
+
+    public const string EventHubMayConsume = "inventory-event-hub-may-consume";
+
     public const string ServiceBusForwardTo = "serviceBusForwardTo";
 
     public const string ServiceBusForwardDeadLetterTo = "serviceBusForwardDeadLetterTo";
+
+    public const string ServiceBusMaySend = "inventory-service-bus-may-send";
+
+    public const string ServiceBusMayReceive = "inventory-service-bus-may-receive";
 
     public const string NatGatewayToSubnet = "natGatewayToSubnet";
 
@@ -157,8 +165,12 @@ public static class AzureInventoryRelationshipAssociationTypes
         Observed(AdfTriggerSource, AzureInventoryRelationshipArmKind.LinkedServiceTarget, AzureInventoryRelationshipArmKind.DataFactory, "CONNECTS_TO", "inventory-adf-trigger-source"),
         Observed(AdfIntegrationRuntime, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.IntegrationRuntime, "CONNECTS_TO", "inventory-adf-integration-runtime"),
         Observed(EventHubCapture, AzureInventoryRelationshipArmKind.EventHub, AzureInventoryRelationshipArmKind.StorageAccount, "CONNECTS_TO", "inventory-event-hub-capture"),
+        Inferred(EventHubMayPublish, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.EventHub, "MAY_ACCESS", "inventory-event-hub-may-publish", ProvenanceKind.DerivedFact),
+        Inferred(EventHubMayConsume, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.EventHub, "MAY_ACCESS", "inventory-event-hub-may-consume", ProvenanceKind.DerivedFact),
         Observed(ServiceBusForwardTo, AzureInventoryRelationshipArmKind.ServiceBusQueue, AzureInventoryRelationshipArmKind.ServiceBusQueue, "CONNECTS_TO", "inventory-service-bus-forward-to"),
         Observed(ServiceBusForwardDeadLetterTo, AzureInventoryRelationshipArmKind.ServiceBusQueue, AzureInventoryRelationshipArmKind.ServiceBusQueue, "CONNECTS_TO", "inventory-service-bus-forward-dead-letter"),
+        Inferred(ServiceBusMaySend, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.ServiceBusQueue, "MAY_ACCESS", "inventory-service-bus-may-send", ProvenanceKind.DerivedFact),
+        Inferred(ServiceBusMayReceive, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.ServiceBusQueue, "MAY_ACCESS", "inventory-service-bus-may-receive", ProvenanceKind.DerivedFact),
         Observed(NatGatewayToSubnet, AzureInventoryRelationshipArmKind.NatGateway, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nat-gateway-subnet"),
         Observed(FirewallToSubnet, AzureInventoryRelationshipArmKind.AzureFirewall, AzureInventoryRelationshipArmKind.Subnet, "PROTECTS", "inventory-firewall-subnet"),
         Observed(FrontDoorToOrigin, AzureInventoryRelationshipArmKind.FrontDoor, AzureInventoryRelationshipArmKind.BackendPoolMember, "CONNECTS_TO", "inventory-front-door-origin"),

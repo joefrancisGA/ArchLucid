@@ -1519,7 +1519,6 @@ export function DriftWorkbenchClient() {
               <DriftSnapshotIdentifiers
                 snapshotId={selectedSnapshotId}
                 diffId={selectedDiffId}
-                architectureName={selectedSnapshot?.architectureName}
               />
 
               {exportReceipt != null ? (

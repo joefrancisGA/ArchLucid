@@ -36,6 +36,29 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence.IncludeOnDataFlow.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayPublish, AzureInventoryDataFlowEdgeDirection.MayWrite, "May publish")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayConsume, AzureInventoryDataFlowEdgeDirection.MayRead, "May consume")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend, AzureInventoryDataFlowEdgeDirection.MayWrite, "May send")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive, AzureInventoryDataFlowEdgeDirection.MayRead, "May receive")]
+    public void Messaging_authorization_associations_are_catalogued_for_data_flow(
+        string associationType,
+        AzureInventoryDataFlowEdgeDirection direction,
+        string label)
+    {
+        AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
+
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            associationType,
+            out AzureInventoryDataFlowEvidenceAssociation? evidence).Should().BeTrue();
+
+        evidence!.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess);
+        evidence.DefaultBand.Should().Be(PathConfidenceBand.Probable);
+        evidence.Direction.Should().Be(direction);
+        evidence.DiagramLabel.Should().Be(label);
+        evidence.IncludeOnDataFlow.Should().BeTrue();
+    }
+
     [Fact]
     public void DiagnosticToDestination_is_not_on_data_flow()
     {

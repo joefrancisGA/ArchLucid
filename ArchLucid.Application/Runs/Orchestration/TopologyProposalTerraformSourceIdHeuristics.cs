@@ -15,10 +15,10 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
 
         if (IsDatastoreCategory(category))
         {
+            // Categories and source slugs are enrichment metadata; an existing graph node remains a valid
+            // relationship endpoint even when either is stale or incomplete.
             TopologyProposalRelationshipEndpointIndex.AddSyntheticDatastoreEndpointKey(endpointKeys, label);
-
-            if (LooksLikeTerraformServiceSourceId(sourceId))
-                TopologyProposalRelationshipEndpointIndex.AddSyntheticServiceEndpointKey(endpointKeys, label);
+            TopologyProposalRelationshipEndpointIndex.AddSyntheticServiceEndpointKey(endpointKeys, label);
 
             return;
         }
@@ -32,9 +32,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
         }
 
         TopologyProposalRelationshipEndpointIndex.AddSyntheticServiceEndpointKey(endpointKeys, label);
-
-        if (LooksLikeTerraformDatastoreSourceId(sourceId))
-            TopologyProposalRelationshipEndpointIndex.AddSyntheticDatastoreEndpointKey(endpointKeys, label);
+        TopologyProposalRelationshipEndpointIndex.AddSyntheticDatastoreEndpointKey(endpointKeys, label);
     }
 
     internal static void AddGraphNodeSyntheticLabelResolutionAliases(
@@ -52,6 +50,11 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
                 aliasToNodeId,
                 TopologyProposalRelationshipEndpointIndex.BuildSyntheticDatastoreNodeId(label),
                 nodeId);
+            TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(
+                aliasToNodeId,
+                TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId(label),
+                nodeId);
+
             return;
         }
 
@@ -71,6 +74,10 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
         TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(
             aliasToNodeId,
             TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId(label),
+            nodeId);
+        TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(
+            aliasToNodeId,
+            TopologyProposalRelationshipEndpointIndex.BuildSyntheticDatastoreNodeId(label),
             nodeId);
     }
 

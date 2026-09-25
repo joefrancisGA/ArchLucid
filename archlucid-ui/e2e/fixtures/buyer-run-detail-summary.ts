@@ -35,6 +35,7 @@ export function toMockBuyerRunDetailSummary(full: RunDetail): RunDetail {
       description: run.description,
       displayName: run.displayName ?? run.description,
       createdUtc: run.createdUtc,
+      structuralExecutionMode: run.structuralExecutionMode,
       goldenManifestId,
       hasGoldenManifest: run.hasGoldenManifest ?? Boolean(goldenManifestId),
       hasGraphSnapshot: Boolean(run.graphSnapshotId),

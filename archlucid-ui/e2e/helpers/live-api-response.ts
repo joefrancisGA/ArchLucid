@@ -79,6 +79,10 @@ export function replayBufferedApiResponse(status: number, body: string, source: 
     json: async () => JSON.parse(body) as unknown,
     body: async () => Buffer.from(body),
     url: () => source.url(),
+    dispose: () => source.dispose(),
+    securityDetails: () => source.securityDetails(),
+    serverAddr: () => source.serverAddr(),
+    timing: () => source.timing(),
     [Symbol.asyncDispose]: async () => {},
   };
 }

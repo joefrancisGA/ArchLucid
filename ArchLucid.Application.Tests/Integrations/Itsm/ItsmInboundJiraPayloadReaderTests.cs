@@ -46,6 +46,17 @@ public sealed class ItsmInboundJiraPayloadReaderTests
     }
 
     [Fact]
+    public void TryRead_rejects_numeric_status_name()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PROJ-1","fields":{"status":{"name":12345}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("Jira status names are string tokens in vendor payloads");
+    }
+
+    [Fact]
     public void TryRead_trims_whitespace_from_status_name()
     {
         using JsonDocument document = JsonDocument.Parse(

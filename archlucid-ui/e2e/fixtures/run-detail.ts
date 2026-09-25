@@ -1,6 +1,7 @@
 import type { RunDetail } from "@/types/authority";
 
 import { buildStaticDemoRunDetailFromShowcase } from "@/lib/operator/operator-static-demo";
+import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 
 import {
   FIXTURE_MANIFEST_ID,
@@ -34,6 +35,7 @@ export function fixtureRunDetail(): RunDetail {
       goldenManifestId: FIXTURE_MANIFEST_ID,
       decisionTraceId: "trace-fixture",
       artifactBundleId: "bundle-fixture",
+      structuralExecutionMode: StructuralExecutionModeWire.Simulator,
     },
     contextSnapshot: { fixture: true },
     graphSnapshot: { fixture: true },
