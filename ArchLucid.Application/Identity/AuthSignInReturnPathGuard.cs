@@ -238,7 +238,9 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u29F8' // ⧸ BIG SOLIDUS
         || ch == '\u29FA' // ⧺ DOUBLE SOLIDUS OPERATOR (distinct from ⫽ U+2AFD)
         || ch == '\u2AFD' // ⫽ DOUBLE SOLIDUS OPERATOR
-        || ch == '\u2572'; // ╲ BOX DRAWINGS LIGHT DIAGONAL UPPER LEFT TO LOWER RIGHT
+        || ch == '\u2572' // ╲ BOX DRAWINGS LIGHT DIAGONAL UPPER LEFT TO LOWER RIGHT
+        || ch == '\u29F9' // ⧹ BIG REVERSE SOLIDUS
+        || ch == '\u29F5'; // ⧵ REVERSE SOLIDUS OPERATOR
 
     // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
     private static bool IsDotHomoglyph(char ch) =>
@@ -248,5 +250,9 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u2024' // ․ ONE DOT LEADER
         || ch == '\u2025' // ‥ TWO DOT LEADER
         || ch == '\u3002' // 。 IDEOGRAPHIC FULL STOP
-        || ch == '\u06D4'; // ۔ ARABIC FULL STOP
+        || ch == '\u06D4' // ۔ ARABIC FULL STOP
+        || ch == '\u0387' // · GREEK ANO TELEIA
+        || ch == '\u2027' // ‧ HYPHENATION POINT
+        || ch == '\u22C5' // ⋅ DOT OPERATOR
+        || ch == '\u2219'; // ∙ BULLET OPERATOR
 }
