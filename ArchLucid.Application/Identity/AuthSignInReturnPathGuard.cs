@@ -249,7 +249,10 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u2E4A' // ⹊ DOTTED SOLIDUS
         || ch == '\u244A' // ⑊ OCR DOUBLE BACKSLASH
         || ch == '\u27C8' // ⟈ REVERSE SOLIDUS PRECEDING SUBSET
-        || ch == '\u27C9'; // ⟉ SUPERSET PRECEDING SOLIDUS
+        || ch == '\u27C9' // ⟉ SUPERSET PRECEDING SOLIDUS
+        || ch == '\u27CB' // ⟋ MATHEMATICAL RISING DIAGONAL
+        || ch == '\u27CD' // ⟍ MATHEMATICAL FALLING DIAGONAL
+        || ch == '\u29F4'; // ⧴ SOLIDUS INTEROPERATOR
 
     // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
     private static bool IsDotHomoglyph(char ch) =>
@@ -265,5 +268,11 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u22C5' // ⋅ DOT OPERATOR
         || ch == '\u2219' // ∙ BULLET OPERATOR
         || ch == '\u1362' // ። ETHIOPIC FULL STOP
-        || ch == '\u05C3'; // ׃ HEBREW PUNCTUATION SOF PASUQ
+        || ch == '\u05C3' // ׃ HEBREW PUNCTUATION SOF PASUQ
+        || ch == '\u2E31' // ⸱ WORD SEPARATOR MIDDLE DOT
+        || ch == '\u2E33' // ⸳ RAISED DOT
+        || ch == '\u2981' // ⦁ Z NOTATION SPOT
+        || ch == '\u16EB' // ᛫ RUNIC SINGLE PUNCTUATION
+        || ch == '\u1427' // ᐧ CANADIAN SYLLABICS FINAL MIDDLE DOT
+        || ch == '\u1803'; // ᠃ MONGOLIAN FULL STOP
 }

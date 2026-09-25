@@ -242,4 +242,34 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/\u27CB\u27CBevil.example")]
+    [InlineData("/%E2%9F%8B%E2%9F%8Bevil.example")]
+    [InlineData("/\u27CD\u27CDevil.example")]
+    [InlineData("/%E2%9F%8D%E2%9F%8Devil.example")]
+    [InlineData("/\u29F4\u29F4evil.example")]
+    [InlineData("/%E2%A7%B4%E2%A7%B4evil.example")]
+    public void TryNormalize_rejects_mathematical_diagonal_and_solidus_interoperator_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/signin/\u2E31\u2E31/other")]
+    [InlineData("/signin/%E2%B8%B1%E2%B8%B1/other")]
+    [InlineData("/signin/\u2E33\u2E33/other")]
+    [InlineData("/signin/%E2%B8%B3%E2%B8%B3/other")]
+    [InlineData("/signin/\u2981\u2981/other")]
+    [InlineData("/signin/%E2%A6%81%E2%A6%81/other")]
+    [InlineData("/signin/\u16EB\u16EB/other")]
+    [InlineData("/signin/%E1%9B%AB%E1%9B%AB/other")]
+    [InlineData("/signin/\u1427\u1427/other")]
+    [InlineData("/signin/%E1%90%A7%E1%90%A7/other")]
+    [InlineData("/signin/\u1803\u1803/other")]
+    [InlineData("/signin/%E1%A0%83%E1%A0%83/other")]
+    public void TryNormalize_rejects_additional_script_and_separator_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
 }
