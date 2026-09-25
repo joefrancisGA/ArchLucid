@@ -62,6 +62,16 @@ public static class TopologyProposalRelationshipEdgeMapper
             TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
         }
 
+        foreach (GraphNode node in topologyNodes)
+        {
+            TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeTerraformSyntheticLabelResolutionFallback(
+                endpointKeyToNodeId,
+                node.Label,
+                node.Category,
+                node.SourceId,
+                node.NodeId);
+        }
+
         if (endpointAliases is null)
             return endpointKeyToNodeId;
 

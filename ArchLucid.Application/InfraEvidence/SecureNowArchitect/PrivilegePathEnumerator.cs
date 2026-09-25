@@ -167,6 +167,11 @@ internal static class PrivilegePathEnumerator
             return TryFinalizeMappedRolePath(graph, hops, hasRoleHop, mappedRole, permission, out candidate);
         }
 
+        if (HasExplicitActionEdge(graph, hasRoleHop.ToNodeId))
+        {
+            return false;
+        }
+
         List<PrivilegePathEdge> hopsWithInsufficient = [.. hops];
         hopsWithInsufficient.Add(new PrivilegePathEdge
         {
@@ -197,6 +202,12 @@ internal static class PrivilegePathEnumerator
 
         return true;
     }
+
+    private static bool HasExplicitActionEdge(
+        InventoryPrivilegePathGraphSnapshot graph,
+        string nodeId) =>
+        graph.OutgoingEdges.TryGetValue(nodeId, out List<PrivilegePathEdge>? edges)
+        && edges.Any(static edge => edge.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite);
 
     private static bool TryFinalizeMappedRolePath(
         InventoryPrivilegePathGraphSnapshot graph,
