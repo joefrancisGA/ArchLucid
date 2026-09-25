@@ -92,6 +92,27 @@ public sealed class InventoryDiagramDataFlowNsgEffectiveRuleReducerTests
     }
 
     [Fact]
+    public void Reduce_deny_on_one_attachment_blocks_even_when_another_attachment_has_lower_priority_allow()
+    {
+        GraphSnapshot graph = BuildGraph(
+            sourceRules:
+            [
+                CreateRule("allow-https-out", "TCP", "443", "Outbound", "Allow", "100"),
+            ],
+            targetRules:
+            [
+                CreateRule("deny-https-in", "TCP", "443", "Inbound", "Deny", "200"),
+            ]);
+
+        InventoryDiagramDataFlowNsgConnectorAnnotation? annotation =
+            InventoryDiagramDataFlowNsgEffectiveRuleReducer.Reduce(graph, "source-app-node", "target-app-node");
+
+        annotation.Should().NotBeNull();
+        annotation!.IsBlocked.Should().BeTrue();
+        annotation.ConnectorDisplayLabels.Should().Contain("blocked");
+    }
+
+    [Fact]
     public void Reduce_different_inbound_and_outbound_results_produce_two_directional_annotations()
     {
         GraphSnapshot graph = BuildGraph(

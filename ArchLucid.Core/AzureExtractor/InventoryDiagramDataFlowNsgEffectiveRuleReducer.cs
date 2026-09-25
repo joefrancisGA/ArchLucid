@@ -93,55 +93,61 @@ public static class InventoryDiagramDataFlowNsgEffectiveRuleReducer
             return null;
         }
 
-        List<(AzureInventoryNsgSecurityRule Rule, InventoryDiagramDataFlowNsgEndpointAttachment Attachment)> matchingRules = [];
+        List<(AzureInventoryNsgSecurityRule Rule, InventoryDiagramDataFlowNsgEndpointAttachment Attachment)> effectiveDenyRules = [];
+        List<InventoryDiagramDataFlowNsgRuleReference> supportingRules = [];
+        string? effectiveDisplayLabel = null;
 
         foreach (InventoryDiagramDataFlowNsgEndpointAttachment attachment in attachments)
         {
-            foreach (AzureInventoryNsgSecurityRule rule in attachment.Rules)
-            {
-                if (!string.Equals(rule.Direction, direction, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                matchingRules.Add((rule, attachment));
-            }
-        }
-
-        if (matchingRules.Count == 0)
-        {
-            return null;
-        }
-
-        List<(AzureInventoryNsgSecurityRule Rule, InventoryDiagramDataFlowNsgEndpointAttachment Attachment)> orderedRules =
-            matchingRules
-                .OrderBy(entry => ParsePriority(entry.Rule.Priority))
-                .ThenBy(entry => entry.Rule.RuleName, StringComparer.OrdinalIgnoreCase)
+            List<AzureInventoryNsgSecurityRule> orderedRules = attachment.Rules
+                .Where(rule => string.Equals(rule.Direction, direction, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(rule => ParsePriority(rule.Priority))
+                .ThenBy(rule => rule.RuleName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-        (AzureInventoryNsgSecurityRule firstRule, InventoryDiagramDataFlowNsgEndpointAttachment firstAttachment) = orderedRules[0];
-        bool firstRuleIsDeny = string.Equals(firstRule.Access, "Deny", StringComparison.OrdinalIgnoreCase);
-        string? effectiveDisplayLabel = BuildEffectiveDisplayLabel(firstRule);
+            if (orderedRules.Count == 0)
+            {
+                continue;
+            }
 
-        if (firstRuleIsDeny)
+            AzureInventoryNsgSecurityRule firstRule = orderedRules[0];
+
+            if (string.Equals(firstRule.Access, "Deny", StringComparison.OrdinalIgnoreCase))
+            {
+                effectiveDenyRules.Add((firstRule, attachment));
+                continue;
+            }
+
+            effectiveDisplayLabel ??= BuildEffectiveDisplayLabel(firstRule);
+            supportingRules.AddRange(
+                orderedRules
+                    .Where(rule => string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(
+                            BuildEffectiveDisplayLabel(rule),
+                            BuildEffectiveDisplayLabel(firstRule),
+                            StringComparison.OrdinalIgnoreCase))
+                    .Select(rule => ToRuleReference(rule, attachment, direction)));
+        }
+
+        if (effectiveDenyRules.Count > 0)
         {
+            AzureInventoryNsgSecurityRule denyRule = effectiveDenyRules[0].Rule;
+
             return new InventoryDiagramDataFlowNsgDirectionalEvaluation
             {
                 Direction = direction,
                 IsBlocked = true,
-                EffectiveDisplayLabel = effectiveDisplayLabel,
-                SupportingRules =
-                [
-                    ToRuleReference(firstRule, firstAttachment, direction),
-                ],
+                EffectiveDisplayLabel = BuildEffectiveDisplayLabel(denyRule),
+                SupportingRules = effectiveDenyRules
+                    .Select(entry => ToRuleReference(entry.Rule, entry.Attachment, direction))
+                    .ToList(),
             };
         }
 
-        List<InventoryDiagramDataFlowNsgRuleReference> supportingRules = orderedRules
-            .Where(entry => string.Equals(entry.Rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
-                && string.Equals(BuildEffectiveDisplayLabel(entry.Rule), effectiveDisplayLabel, StringComparison.OrdinalIgnoreCase))
-            .Select(entry => ToRuleReference(entry.Rule, entry.Attachment, direction))
-            .ToList();
+        if (supportingRules.Count == 0)
+        {
+            return null;
+        }
 
         return new InventoryDiagramDataFlowNsgDirectionalEvaluation
         {
