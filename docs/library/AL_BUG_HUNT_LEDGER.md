@@ -5288,10 +5288,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-09 — contextRunId switch left stale reasoning and publish toggle from prior scoped review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
