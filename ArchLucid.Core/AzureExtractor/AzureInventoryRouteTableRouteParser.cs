@@ -109,14 +109,34 @@ public static class AzureInventoryRouteTableRouteParser
         string index,
         string suffix)
     {
-        string key = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}{index}{suffix}";
+        string keyPrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}{index}";
 
-        if (!properties.TryGetValue(key, out string? value) || string.IsNullOrWhiteSpace(value))
+        return ReadFlattenedPropertyValue(properties, keyPrefix, suffix);
+    }
+
+    private static string? ReadFlattenedPropertyValue(
+        IReadOnlyDictionary<string, string> properties,
+        string keyPrefix,
+        string suffix)
+    {
+        string exactKey = $"{keyPrefix}{suffix}";
+
+        if (properties.TryGetValue(exactKey, out string? exactValue) && !string.IsNullOrWhiteSpace(exactValue))
         {
-            return null;
+            return exactValue.Trim();
         }
 
-        return value.Trim();
+        foreach ((string propertyKey, string propertyValue) in properties)
+        {
+            if (propertyKey.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase)
+                && propertyKey.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(propertyValue))
+            {
+                return propertyValue.Trim();
+            }
+        }
+
+        return null;
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)

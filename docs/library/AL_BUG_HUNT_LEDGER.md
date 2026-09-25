@@ -15598,11 +15598,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 22
-- **bugs-found:** 14
+- **hunts:** 23
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase Tags/Properties/IsUnknownType fields
+- **last-bug:** 2026-09-25 — NSG/route explicit flattened property parsers ignored PascalCase suffix keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15799,6 +15799,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) Corrupt ZIP validation reports nonzero `FileEntryCount` — **cheap-disproof 2026-09-10 seed hunt #1610:** invalid archive leaves count at default zero; regression `Validate_corrupted_bytes_reports_zero_file_entry_count`.
 
 2026-09-10 seed hunt #1610 (hit): reseeded core-azure-extractor after #1609; proved PascalCase tags/properties/isUnknownType binding gap; cheap-disproof closed string SKU trim parity, remaining companion malformed-JSON parity, and corrupt-archive file counts; 1023 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureInventoryNsgSecurityRuleParser` / `AzureInventoryRouteTableRouteParser` — explicit flattened NR-02 property index discovery used case-insensitive prefix/suffix matching but `ReadRuleProperty`/`ReadRouteProperty` required ordinal key equality — **hit 2026-09-25 seed hunt:** PascalCase suffix keys such as `.Protocol`/`.AddressPrefix` produced empty rule/route rows and blocked `securityRules`/`routes` JSON fallback; fixed with case-insensitive flattened property lookup; regressions `Parse_reads_explicit_flattened_rule_properties_when_suffix_casing_differs`, `Parse_reads_explicit_flattened_route_properties_when_suffix_casing_differs`.
+
+2026-09-25 seed hunt (seed→hit): reseeded core-azure-extractor; proved NR-02 NSG/route explicit flattened property parsers ignored PascalCase suffix keys; 1378 scoped `AzureExtractor` tests passed (1 unrelated pre-existing catalog association-type failure).
 
 ---
 ## Zone: core-configuration-summary
