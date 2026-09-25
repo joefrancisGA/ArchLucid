@@ -23432,11 +23432,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 17
-- **bugs-found:** 11
+- **hunts:** 18
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-11 — orphan rerun= from guided-intake deep links prefilled quick-start run title
+- **last-bug:** 2026-09-25 — detailed/guided intake wizard step stayed on step 0 after step= / intakeStep= URL navigation without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23467,6 +23467,12 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `use-first-pilot-intake-wizard` — orphan `rerun=` from guided-intake deep links prefilled quick-start run title after path switch back to quick-review — **hit 2026-09-11 seed hunt #1684:** `readPriorRunIdFromSearch` ran for any `rerun=`; #1212 misclassified as valid-no-repro; fixed by gating title prefill on `intent=revised-clone`; regressions `does not prefill the run title from orphan rerun= without revised-clone intent` and `prefills the run title when revised-clone intent carries rerun=`.
 
 2026-09-11 seed hunt #1684 (hit): reseeded ui-review-intake-wizards; proved orphan rerun quick-start title prefill; 4 first-pilot intake wizard unit tests passed.
+
+- [x] (proven) `useNewRunWizardSteps` / `useGuidedIntakeWizard` — wizard step index stayed on step 0 after App Router `step=` / `intakeStep=` navigation without `popstate` — **hit 2026-09-25 seed hunt #3908 (seed→hit):** hooks initialized step from URL in `useState` and only re-synced on `popstate`; client navigations left `filteredSorted`/confirm UI on the wrong slide; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in popstate handlers; regression `follows step= URL changes without a popstate event`.
+
+- [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `rerun=` survives switch to guided intake and prefills Socratic intake — **cheap-disproof 2026-09-25 seed hunt #3908:** guided intake intentionally consumes `rerun=` via `useGuidedIntakePriorRunPrefill`; regression `prefills guided intake from rerun= when the prior package intake is available`.
+
+2026-09-25 seed hunt #3908 (seed→hit): reseeded ui-review-intake-wizards after #1684; proved stale wizard step after URL navigation; cheap-disproof closed guided-intake rerun prefill as intentional; 13 scoped intake step + path-switcher unit tests passed.
 
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 

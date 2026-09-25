@@ -101,9 +101,17 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   );
 
   useEffect(() => {
+    if (urlStepIndex === null) {
+      return;
+    }
+
+    goToStep(clampWizardStepIndex(urlStepIndex, INTAKE_STEP_DEFINITIONS.length));
+  }, [urlStepIndex, goToStep]);
+
+  useEffect(() => {
     const syncIntakeStepFromUrl = (): void => {
       const nextStep = parseGuidedIntakeStepFromSearch(
-        new URLSearchParams(window.location.search).get("intakeStep"),
+        new URLSearchParams(readWindowLocationSearch()).get("intakeStep"),
       );
 
       if (nextStep === null) {
