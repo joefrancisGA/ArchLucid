@@ -23261,10 +23261,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-25
 - **last-bug:** 2026-09-10 — outcome cards omitted detail snapshot finding counts when explanation deferred
 - **related-pd-tb:** none
 - **code-changed-since:** yes
