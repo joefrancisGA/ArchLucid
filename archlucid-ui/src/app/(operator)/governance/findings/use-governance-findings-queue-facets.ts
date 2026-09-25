@@ -57,6 +57,7 @@ export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMo
         ? urlNlFacets
         : readGovernanceFindingsQueueFacets(mode).nlFacets,
   );
+  const hadJobViewInUrlRef = useRef(searchParams.has(REVIEW_FINDINGS_JOB_VIEW_PARAM));
   const hadNlFacetsInUrlRef = useRef(
     searchParams.has(GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM)
       || searchParams.has(GOVERNANCE_FINDINGS_NL_STATUS_PARAM)
@@ -64,8 +65,16 @@ export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMo
   );
 
   useEffect(() => {
-    setJobViewState(urlJobView);
-  }, [urlJobView]);
+    const hasActiveJobView = searchParams.has(REVIEW_FINDINGS_JOB_VIEW_PARAM);
+
+    if (hasActiveJobView) {
+      setJobViewState(urlJobView);
+      hadJobViewInUrlRef.current = true;
+    } else if (hadJobViewInUrlRef.current) {
+      setJobViewState(readGovernanceFindingsQueueFacets(mode).jobView);
+      hadJobViewInUrlRef.current = false;
+    }
+  }, [mode, searchParams, urlJobView]);
 
   useEffect(() => {
     const hasActiveNlFacets =

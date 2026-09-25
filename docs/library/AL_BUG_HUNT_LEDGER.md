@@ -23563,11 +23563,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 12
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — hideGeneric toggle stayed active after URL cleared hideGeneric without popstate
+- **last-bug:** 2026-09-25 — findingJobView filter stayed on default after URL cleared findingJobView without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23601,6 +23601,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `useGovernanceFindingsHideGenericState` — `hideGenericLowDensity` stayed enabled after App Router cleared `hideGeneric=` without `popstate` — **hit 2026-09-25 seed hunt #29:** the `searchParams` effect only applied URL values when `hideGeneric` was present, mirroring the register-filter and NL-facet gaps; fixed by resetting to account visibility prefs when a prior URL had `hideGeneric=` and the param is cleared; regression `follows hideGeneric URL changes without a popstate event`.
 
 2026-09-25 seed hunt #29 (seed→hit): reseeded ui-governance-findings-queue after NL facet URL sync hit; proved stale hideGeneric toggle after URL navigation; 17 scoped governance-findings URL-sync and saved-view unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsQueueFacets` — `jobView` stayed on `needs-my-decision` after App Router cleared `findingJobView=` without `popstate` instead of restoring storage-backed job view — **hit 2026-09-25 seed hunt #30:** unconditional `setJobViewState(urlJobView)` overwrote storage on mount and reset to default when the URL param cleared; fixed with `hadJobViewInUrlRef` mirroring NL-facet/hideGeneric URL sync; regressions `follows findingJobView URL changes without a popstate event` and `restores storage jobView when findingJobView URL param is cleared`.
+
+2026-09-25 seed hunt #30 (seed→hit): reseeded ui-governance-findings-queue after hideGeneric URL sync hit; proved stale findingJobView after URL navigation; cheap-disproof closed groupBy URL-sync gap; 20 scoped governance-findings URL-sync and saved-view unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 

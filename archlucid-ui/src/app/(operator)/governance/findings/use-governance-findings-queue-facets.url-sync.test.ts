@@ -40,6 +40,8 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
 
 import { useGovernanceFindingsQueueFacets } from "@/app/(operator)/governance/findings/use-governance-findings-queue-facets";
 import { EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS } from "@/lib/findings/findings-natural-language-filter";
+import { GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY } from "@/lib/governance/governance-findings-queue-facets-storage";
+import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
 
 function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
   useSyncExternalStore(
@@ -74,5 +76,40 @@ describe("useGovernanceFindingsQueueFacets URL sync", () => {
     rerender();
 
     expect(result.current.nlFacets).toEqual(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+  });
+
+  it("follows findingJobView URL changes without a popstate event", () => {
+    searchParamsHarness.state.query = `${REVIEW_FINDINGS_JOB_VIEW_PARAM}=ready-for-sponsor-packet`;
+
+    const { result, rerender } = renderHook(() => useGovernanceFindingsQueueFacets("tenant"), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.jobView).toBe("ready-for-sponsor-packet");
+
+    searchParamsHarness.applyQuery("");
+    rerender();
+
+    expect(result.current.jobView).toBe("needs-my-decision");
+  });
+
+  it("restores storage jobView when findingJobView URL param is cleared", () => {
+    window.localStorage.setItem(
+      GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY,
+      JSON.stringify({ registerFilter: "open", jobView: "ready-for-sponsor-packet" }),
+    );
+
+    searchParamsHarness.state.query = `${REVIEW_FINDINGS_JOB_VIEW_PARAM}=deferred`;
+
+    const { result, rerender } = renderHook(() => useGovernanceFindingsQueueFacets("tenant"), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.jobView).toBe("deferred");
+
+    searchParamsHarness.applyQuery("");
+    rerender();
+
+    expect(result.current.jobView).toBe("ready-for-sponsor-packet");
   });
 });
