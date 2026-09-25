@@ -7286,3 +7286,4 @@
 {"at":"2026-09-25T16:14:18.2636428Z","zoneId":"ui-auth-proxy","outcome":"seed-only"}
 {"at":"2026-09-25T16:18:24.1058939Z","zoneId":"ui-architecture-intelligence","outcome":"seed-only"}
 {"at":"2026-09-25T16:23:44.1210498Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
+{"at":"2026-09-25T16:27:21.9109545Z","zoneId":"auth-return-path","outcome":"seed-only"}
