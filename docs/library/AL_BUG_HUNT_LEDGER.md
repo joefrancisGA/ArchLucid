@@ -23879,13 +23879,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — buyer-polished technical disclosure URL sync omitted hub-resolved snapshotId when URL had no snapshotId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed-only): reseeded ui-infra-resource-hub after snapshot/runId parity fixes; cheap-disproof closed `switchActiveAuditControl` inline picker vs tab-bar/chip parity; no new hunt-ready rows; 24 scoped ResourceHubClient unit tests passed.
+
+- [x] (valid-no-repro) `ResourceHubClient.switchActiveAuditControl` — inline audit control picker drops hub-resolved `snapshotId`/`runId` when URL omits `snapshotId` — **cheap-disproof 2026-09-26 seed hunt:** `resourceHubFilterHrefFromSearch` patch already forwards `resolvedSnapshotId` and `runId` like `auditScopeChipHref`; regression `preserves hub snapshot and runId when switching audit control via inline picker`.
 
 2026-09-26 seed hunt (hit): proved `syncInfraResourceHubTechnicalKeyToUrl` forwarded raw `searchParams` into disclosure href sync, dropping hub-resolved `snapshotId`/`runId`; fixed via `buildInfraResourceHubTechnicalDisclosureScopedHref`; regressions `pins hub snapshot and runId when syncing buyer-polished technical disclosure` and audit-scope chip snapshot parity; 28 scoped ResourceHubClient tests passed.
 
