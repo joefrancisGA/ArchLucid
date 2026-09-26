@@ -15969,11 +15969,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 29
-- **bugs-found:** 20
+- **hunts:** 30
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — Public IP reference parser ignored JSON reference property values
+- **last-bug:** 2026-09-26 — Workflow action target parser normalized raw JSON reference blobs as ARM ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16198,7 +16198,9 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-25 seed hunt #28 (seed→hit): reseeded core-azure-extractor after network connection JSON reference hit; proved access connector external target parser ignored JSON reference property values; 1386 scoped `AzureExtractor` tests passed.
 
 - [x] (proven) `AzureInventoryPublicIpReferenceParser` — carrier property values serialized as package JSON reference blobs (`{"id":"..."}`) were ignored because only path-shaped strings and JSON arrays were parsed — **hit 2026-09-26 seed hunt #29:** `properties.publicIPAddress` object references dropped from NR-03 parent attachment and orphaned-state resolution; fixed with `AddFromJsonObject` using existing `TryReadPublicIpArmId`; regression `Parse_reads_arm_id_from_json_reference_property_values`.
-- [ ] (candidate) `AzureInventoryWorkflowActionTargetParser.NormalizeArmId` — explicit workflow action target properties storing JSON reference blobs may normalize the raw JSON string when it contains `/subscriptions/` instead of extracting `id` (reachability: package `ReadProperties` emits object `GetRawText()`; NR-01 explicit flattened keys on hydrator-built nodes)
+- [x] (proven) `AzureInventoryWorkflowActionTargetParser.NormalizeArmId` — explicit `inventory.workflow.action.*.targetArmId` properties storing package JSON reference blobs (`{"id":"..."}`) were lowercased wholesale because `NormalizeArmId` only required `/subscriptions/` substring — **hit 2026-09-26 thorough hunt #30:** promoted #29 candidate; hydrator `HydrateWorkflowNode` and orphaned-state workflow classification read explicit keys from inventory property bags serialized via `ReadProperties` `GetRawText()`; fixed with JSON `id` extraction parity to `AzureInventoryNetworkConnectionEndpointParser`; regression `Parse_reads_arm_id_from_json_reference_on_explicit_action_property`.
+
+2026-09-26 thorough hunt #30 (hit): proved workflow action target parser JSON reference normalization gap; 1396 scoped `AzureExtractor` tests passed.
 
 2026-09-26 seed hunt #29 (seed→hit): reseeded core-azure-extractor after access-connector JSON reference hit; proved public IP reference parser ignored JSON reference property values; seeded workflow action target JSON reference normalization candidate; 1395 scoped `AzureExtractor` tests passed.
 
