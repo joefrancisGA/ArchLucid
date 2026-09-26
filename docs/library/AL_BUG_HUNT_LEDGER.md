@@ -21293,13 +21293,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 37
-- **bugs-found:** 21
+- **hunts:** 38
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — graph projection pub/sub skipped when IConnectionMultiplexer pre-registered
+- **last-bug:** 2026-09-26 — graph projection cache factory ignored explicit Backend=Distributed when CacheProvider=Memory
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `ContextIngestionCompositionRegistrar` `IGraphSnapshotProjectionCache` factory used only `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend` while `ArchLucidDistributedCacheRegistrar` already treated explicit `ProjectionCache:Backend=Distributed` as distributed — hosts wired Redis pub/sub but resolved `GraphSnapshotProjectionMemoryCache` when `CacheProvider=Memory`; aligned factory with combined `Backend` + effective-backend check; regression `AddArchLucidApplicationServices_uses_distributed_graph_projection_cache_when_backend_distributed_even_if_cache_provider_memory`; 385/387 scoped host-composition tests passed (2 pre-existing unrelated failures).
+
+- [x] (proven) `ContextIngestionCompositionRegistrar` `IGraphSnapshotProjectionCache` factory — explicit `ProjectionCache:Backend=Distributed` with `CacheProvider=Memory` registered distributed invalidation infra but materialized in-process memory cache — **hit 2026-09-26 seed hunt:** mirror `ArchLucidDistributedCacheRegistrar` distributed gate; regression above.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `RegisterGraphProjectionRedisPubSub` returned before wiring broadcaster/subscriber when `IConnectionMultiplexer` was already in DI; fixed idempotent per-service registration; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_invalidation_when_connection_multiplexer_pre_registered`; 4 scoped graph-projection registration tests passed.
 
