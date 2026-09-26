@@ -21316,13 +21316,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 56
-- **bugs-found:** 25
+- **hunts:** 57
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — ActualCost query paging followed cross-subscription properties.nextLink
+- **last-bug:** 2026-09-26 — built-in policy definition pagination followed cross-collection nextLink
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListBuiltInPolicyDefinitionDocumentsAsync` followed `nextLink` to subscription-scoped policy definitions without a built-in collection guard; fixed with `EnsureTargetsBuiltInPolicyDefinitionsListing`; regression `ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`; 1 scoped GetOnlyHostedAzureArmReadClient test passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `TryQueryActualCostSummaryAsync` followed `properties.nextLink` to another subscription without `EnsureTargetsSubscription`; regression `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`; 2 HostedAzureManagementPostReadClient tests passed.
 
 2026-09-26 thorough hunt (hit): proved recovery-vault protected-item, generic child-resource (`ListJsonElementsAtRelativePathAsync`), and policy-compliance pagination followed cross-scope `nextLink` without guards; fixed with `EnsureTargetsArmRelativeListingPath` and subscription check on policy cursor; regressions in `ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id`, `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`, `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`; 26 scoped GetOnlyHostedAzureArmReadClient + HostedAzureManagementPostReadClient tests passed.
@@ -21457,6 +21459,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListJsonElementsAtRelativePathAsync` — generic child-resource pagination followed cross-parent `nextLink` — **hit 2026-09-26 thorough hunt:** SQL/Event Grid/Service Connector child listings could follow another parent's collection; same `EnsureTargetsArmRelativeListingPath` guard; regression in `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`.
 - [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — policy compliance cursor followed cross-subscription `nextLink` — **hit 2026-09-26 thorough hunt:** `@odata.nextLink` to another subscription could merge foreign policy rows; fixed with `EnsureTargetsSubscription` before advancing cursor; regression in `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`.
 - [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — ActualCost `properties.nextLink` followed cross-subscription cursor — **hit 2026-09-26 seed hunt (seed→hit):** mis-issued cost query `nextLink` could merge another subscription's cost rows into the scanned subscription summary; fixed with `EnsureTargetsSubscription` before following `properties.nextLink`; regression in `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListBuiltInPolicyDefinitionDocumentsAsync` — built-in policy definition pagination followed cross-collection `nextLink` — **hit 2026-09-26 seed hunt (seed→hit):** `validateSubscriptionNextLink: false` path had no scope guard; mis-issued `nextLink` to subscription policy definitions could merge non-built-in rows; fixed with `EnsureTargetsBuiltInPolicyDefinitionsListing`; regression in `ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`.
 
 ---
 

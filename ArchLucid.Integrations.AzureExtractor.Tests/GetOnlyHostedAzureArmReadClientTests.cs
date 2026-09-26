@@ -583,6 +583,78 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection()
+    {
+        const string crossScopeNextLink =
+            "https://management.azure.com/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyDefinitions?api-version=2021-06-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "builtin-audit",
+                                     "id": "/providers/Microsoft.Authorization/policyDefinitions/builtin-audit"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_SCOPE_LINK"
+                               }
+                               """.Replace("CROSS_SCOPE_LINK", crossScopeNextLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "name": "sub-leak",
+                                      "id": "/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyDefinitions/sub-leak"
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(crossScopeNextLink, request.RequestUri?.AbsoluteUri);
+
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: built-in policy definition listing did not stop on cross-collection nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListBuiltInPolicyDefinitionDocumentsAsync(
+                "token-abc",
+                CancellationToken.None));
+
+        Assert.Contains("policy definition", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionRoleEligibilitySchedulesAsync_maps_eligible_assignments()
     {
         HttpMessageHandler handler = new RecordingHandler(
