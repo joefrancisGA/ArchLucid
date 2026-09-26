@@ -18,6 +18,17 @@ python scripts/build_procurement_pack.py --dry-run --deal-ready `
   --classification-md-out artifacts/procurement-deal-ready-classification.md
 ```
 
+After building a buyer ZIP, verify the exact bytes and status labels being sent:
+
+```powershell
+python scripts/verify_procurement_pack.py dist/procurement-pack.zip `
+  --json-out artifacts/procurement-pack-verification.json
+```
+
+The verifier returns **PASS** or **HOLD** and exits nonzero for missing files,
+digest mismatches, contradictory classifications, or buyer-visible placeholders.
+Run it after any manual pack transfer or repackaging; it checks the ZIP itself.
+
 First-pilot proof collection runs the same dry-run and writes artifacts under the proof folder:
 
 - `procurement-deal-ready-check.txt`

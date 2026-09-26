@@ -464,23 +464,21 @@ def main() -> int:
     )
     pp_val.write_procurement_pack_quality_report(stage, quality_snapshot)
 
-    manifest_rows = build_manifest_rows(stage, entries)
-    (stage / "manifest.json").write_text(
-        json.dumps(
-            {
-                "generated_utc": datetime.now(timezone.utc).isoformat(),
-                "files": manifest_rows,
-                "quality": quality_snapshot,
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
     write_versions_txt(stage, root)
     write_redaction_report(stage, excluded)
     write_artifact_status_index(stage, entries)
     write_pack_readme(stage)
+
+    # README.md is generated after canonical sources are staged. Hash the bytes
+    # actually shipped in the ZIP, and label their provenance accurately.
+    manifest_rows = build_manifest_rows(stage, entries)
+    for row in manifest_rows:
+        if row["pack_path"] == "README.md":
+            row["source_repo_path"] = "generated:scripts/build_procurement_pack.py"
+    (stage / "manifest.json").write_text(
+        json.dumps({"generated_utc": datetime.now(timezone.utc).isoformat(), "files": manifest_rows,
+                    "quality": quality_snapshot}, indent=2) + "\n", encoding="utf-8"
+    )
 
     out_zip = args.out if args.out is not None else root / "dist" / "procurement-pack.zip"
     out_zip.parent.mkdir(parents=True, exist_ok=True)
