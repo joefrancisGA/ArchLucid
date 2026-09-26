@@ -15880,13 +15880,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 15
-- **bugs-found:** 10
+- **hunts:** 16
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `ArchLucid:FallbackLlm:Endpoints` JSON effective values leaked embedded ApiKey material
+- **last-bug:** 2026-09-26 — `Integrations:ItsmOutbound:Jira:OAuthClientSecret` / `ApiToken` compound segments leaked integration credentials
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed→hit): reseeded from `IntegrationsItsmOutboundOptions` / `ConfluencePublishingOptions`; proved `OAuthClientSecret` and `ApiToken` path segments leaked because embedded `Secret`/`Token` skips lacked compound suffix rules; fixed via `IsCompoundSecretCredentialSegment` (`ClientSecret`) and `IsCompoundTokenCredentialSegment` (`ApiToken`); seeded snake_case JSON credential property candidate; 1036 scoped Configuration tests passed.
 
 2026-09-26 thorough hunt (hit): proved `ArchLucid:FallbackLlm:Endpoints` catalog path returned raw JSON with `ApiKey` properties because only path segments were scanned; fixed via `ConfigurationSensitiveConfigValueScanner`; cheap-disproved compound `WebhookSecret` candidate (no catalog or host config path uses that segment); 1032 scoped Configuration tests passed.
 
@@ -15914,6 +15916,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound `SharedSecret` credential segments bypass embedded-`Secret` fragment matching — **hit 2026-09-26 seed hunt:** `ArchLucid:E2eHarness:SharedSecret` and `WebhookDelivery:HmacSha256SharedSecret` leaked raw HMAC shared secrets in operator config summary; fixed by extending `IsCompoundSecretCredentialSegment`; regression `Resolve_redacts_compound_shared_secret_config_paths`
 - [x] (invalid) `ConfigurationSensitiveConfigPathMatcher` — compound `WebhookSecret` segments bypass embedded-`Secret` skip — **invalid 2026-09-26 thorough hunt:** no `WebhookSecret` config path in `ConfigurationKeyCatalog` or host options; existing webhook secrets use `WebhookSigningSecret`, `HmacSha256SharedSecret`, or `SigningSecret` suffix rules
 - [x] (proven) `ConfigurationEffectiveValueResolver` — `ArchLucid:FallbackLlm:Endpoints` JSON effective values expose embedded `ApiKey` properties when path segment is not sensitive — **hit 2026-09-26 thorough hunt:** admin config summary returned raw fallback endpoint JSON; fixed by scanning JSON property names with `ConfigurationSensitiveConfigValueScanner`; regressions `Resolve_redacts_fallback_llm_endpoints_json_when_array_contains_api_key_properties` and `Resolve_preserves_non_credential_json_effective_values`
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound `OAuthClientSecret` and `ApiToken` integration paths bypass embedded-`Secret`/`Token` fragment matching — **hit 2026-09-26 seed hunt:** `Integrations:ItsmOutbound:Jira:OAuthClientSecret`, `Integrations:ItsmOutbound:Jira:ApiToken`, `Integrations:ConfluencePublishing:OAuthClientSecret`, and `Integrations:ConfluencePublishing:ApiToken` leaked raw Atlassian/Jira credentials in operator config summary; fixed with `ClientSecret` and `ApiToken` compound suffix rules; regression `Resolve_redacts_integrations_oauth_and_api_token_config_paths`
+- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON credential property names (`api_key`, `client_secret`) bypass PascalCase property-name scanner when stored on non-sensitive catalog paths
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.

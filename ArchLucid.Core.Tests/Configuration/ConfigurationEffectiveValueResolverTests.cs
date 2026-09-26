@@ -229,6 +229,25 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Theory]
+    [InlineData("Integrations:ItsmOutbound:Jira:OAuthClientSecret")]
+    [InlineData("Integrations:ItsmOutbound:Jira:ApiToken")]
+    [InlineData("Integrations:ConfluencePublishing:OAuthClientSecret")]
+    [InlineData("Integrations:ConfluencePublishing:ApiToken")]
+    public void Resolve_redacts_integrations_oauth_and_api_token_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "integration-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
     [InlineData("AzureDevOps:PersonalAccessToken")]
     [InlineData("Integrations:Itsm:Outbound:PersonalAccessToken")]
     [InlineData("Integrations:Itsm:Outbound:OAuthRefreshToken")]
