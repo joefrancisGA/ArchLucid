@@ -135,6 +135,68 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_pipeline_dead_letter_statuses()
+    {
+        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
+            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)",
+                "representative lookup must not pick pipeline dead-letter rows that retain GoldenManifestId (#1464 class).");
+    }
+
+    [Fact]
+    public async Task InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime createdUtc = new(2026, 9, 26, 15, 0, 0, DateTimeKind.Utc);
+        Guid committedRunId = Guid.NewGuid();
+        Guid failedRunId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-dead-letter",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = manifestId,
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = failedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-dead-letter",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = createdUtc.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+            scope,
+            "req-dead-letter",
+            CancellationToken.None);
+
+        representative.Should().Be(committedRunId,
+            "sealed-manifest guard must not treat newer Failed dead-letter reruns as the representative commit.");
+    }
+
+    [Fact]
     public async Task InMemory_representative_run_id_requires_golden_manifest_like_sql()
     {
         ScopeContext scope = new()
