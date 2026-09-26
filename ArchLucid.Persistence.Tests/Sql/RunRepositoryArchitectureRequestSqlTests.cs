@@ -127,6 +127,67 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void SelectRepresentativeRunIdForArchitectureRequestInScope_requires_golden_manifest_id()
+    {
+        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
+            .Contain("GoldenManifestId IS NOT NULL",
+                "sealed-manifest representative lookup must ignore in-flight reruns without a persisted manifest.");
+    }
+
+    [Fact]
+    public async Task InMemory_representative_run_id_requires_golden_manifest_like_sql()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime createdUtc = new(2026, 9, 26, 14, 0, 0, DateTimeKind.Utc);
+        Guid inFlightRunId = Guid.NewGuid();
+        Guid sealedRunId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = sealedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-sealed",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = manifestId,
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = inFlightRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-sealed",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+                CreatedUtc = createdUtc.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+            scope,
+            "req-sealed",
+            CancellationToken.None);
+
+        representative.Should().Be(sealedRunId,
+            "InMemory must match SQL and ignore newer in-flight reruns that lack GoldenManifestId.");
+    }
+
+    [Fact]
     public async Task InMemory_representative_run_id_picks_highest_run_id_when_created_utc_ties()
     {
         ScopeContext scope = new()
@@ -151,6 +212,7 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-tie",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc,
             },
             CancellationToken.None);
@@ -164,6 +226,7 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-tie",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc,
             },
             CancellationToken.None);
@@ -210,6 +273,7 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-archived",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc,
             },
             CancellationToken.None);
@@ -223,6 +287,7 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-archived",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc.AddMinutes(1),
                 ArchivedUtc = createdUtc.AddMinutes(2),
             },
