@@ -220,6 +220,60 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public async Task InMemory_representative_run_id_excludes_quality_rejected_dead_letter_with_retained_manifest()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime createdUtc = new(2026, 9, 26, 17, 0, 0, DateTimeKind.Utc);
+        Guid committedRunId = Guid.NewGuid();
+        Guid rejectedRunId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-quality-rejected",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = manifestId,
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = rejectedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-quality-rejected",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = createdUtc.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+            scope,
+            "req-quality-rejected",
+            CancellationToken.None);
+
+        representative.Should().Be(committedRunId,
+            "sealed-manifest guard must not treat newer quality-rejected dead-letter reruns as the representative commit.");
+    }
+
+    [Fact]
     public async Task InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest()
     {
         ScopeContext scope = new()
@@ -561,8 +615,51 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public async Task InMemory_count_active_runs_matches_tab_collapsed_to_space_in_stored_architecture_request_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req\tinternal",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        int count = await runs.CountActiveRunsForArchitectureRequestAsync(
+            scope,
+            "req internal",
+            CancellationToken.None);
+
+        count.Should().Be(0,
+            "SQL STRING_SPLIT collapses on space only; InMemory must not treat tab-separated stored ids as matching space-normalized seeks.");
+    }
+
+    [Fact]
+    public void Architecture_request_sql_normalization_uses_space_only_string_split()
+    {
+        RunRepositorySql.CountActiveRunsForArchitectureRequest.Should()
+            .Contain("STRING_SPLIT(LTRIM(RTRIM(ArchitectureRequestId)), N' ')")
+            .And.NotContain("CHAR(9)");
+    }
+
+    [Fact]
     public void NormalizeArchitectureRequestId_collapses_internal_whitespace()
     {
         RunRepositoryCore.NormalizeArchitectureRequestId("  req   internal  ").Should().Be("REQ INTERNAL");
+        RunRepositoryCore.NormalizeArchitectureRequestId("req\tinternal").Should().Be("REQ\tINTERNAL");
     }
 }

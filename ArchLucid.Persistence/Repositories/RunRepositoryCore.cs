@@ -28,7 +28,8 @@ internal static partial class RunRepositoryCore
     }
 
     /// <summary>
-    ///     Normalizes architecture request ids for scope seeks: trim edges, collapse internal whitespace, uppercase.
+    ///     Normalizes architecture request ids for scope seeks: trim edges, collapse space runs, uppercase.
+    ///     Matches SQL <c>STRING_SPLIT(..., N' ')</c> normalization on <c>ArchitectureRequestId</c>.
     /// </summary>
     public static string NormalizeArchitectureRequestId(string architectureRequestId)
     {
@@ -36,7 +37,7 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            architectureRequestId.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            architectureRequestId.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
