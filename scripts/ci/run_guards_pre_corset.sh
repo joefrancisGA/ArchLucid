@@ -2,6 +2,7 @@
 # Text/Python CI guards that do not require a full-solution dotnet build.
 # Invoked by workflow job "guards-pre-corset" (parallel with Tier 0.x; gates dotnet-fast-core).
 #
+# Includes `scripts/ci/tests/` pytest (OpenAPI/matrix guards, ui_unit_vitest_shards partition, etc.).
 # Usage (repo root):
 #   bash scripts/ci/run_guards_pre_corset.sh
 #
