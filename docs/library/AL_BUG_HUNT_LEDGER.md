@@ -2853,7 +2853,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -2861,11 +2861,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; attempted failing repros for ungrounded-assumed→grounded-candidate same-name insert and ungrounded-chosen→grounded-candidate same-name insert — both match intentional `ShouldTreatAsDuplicateByName` / `Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref` behavior; seeded multi-service same `TechnologyName` with distinct topology refs as `(candidate)` (reachability: `TechnologyLedgerTopologyProposalMapper` per-service `EvidenceRef`); 58 scoped TechnologyLedger tests passed.
+
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after chosen-name grounding hit; no new hunt-ready rows — same-family-without-novel-ref suppression, distinct-ref/name dedupe, evidence-ref parity, and `CloudProvider.None` chosen rows remain covered by existing regressions; 58 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (hit): proved chosen-family gate treated any novel agent `EvidenceRef` as insert-worthy even when a grounded `Chosen` row already shared the same `TechnologyName`; fixed by skipping when chosen name matches and chosen ref is substantive; regressions `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref` / `Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref`; 58 scoped TechnologyLedger tests passed.
 
 - [x] (proven) Grounded `Chosen` row with same provider family and `TechnologyName` still accepted a second assumed agent row when only `EvidenceRef` differed — **hit 2026-09-26 seed hunt:** chosen-family branch only checked novel refs, not whether authoritative chosen already grounded the technology name; fixed by returning null when chosen name matches and chosen `EvidenceRef` is substantive; regression `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref`.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — two topology services sharing a `ServiceName` with distinct `agentTopologyProposal:*` refs may both insert (`Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`); reachability requires duplicate display names in one `AgentTopologyProposal` batch.
 
 2026-09-25 seed hunt (seed-only): reseeded technology-ledger-merge; no new hunt-ready hypotheses — evidence-ref, case/whitespace name dedupe, and chosen-family distinct-ref paths remain covered; repaired stale `Resolve_skips_duplicate_same_family_when_chosen_exists` fixture (candidate always carried topology `EvidenceRef` after `CreateCandidate` helper); 56 scoped TechnologyLedger tests passed.
 
