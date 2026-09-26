@@ -20946,13 +20946,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 34
-- **bugs-found:** 18
+- **hunts:** 35
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-11
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — graph projection Redis invalidation subscriber skipped when distributed LLM completion cache registered `IDistributedCache` first
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-26 seed hunt (hit): reseeded host-composition; proved `RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` returned before `RegisterGraphProjectionRedisPubSub` when `IDistributedCache` was already registered for distributed LLM completion cache; fixed by always wiring pub/sub when projection cache backend is Distributed; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_llm_distributed_cache_already_registered`; 378 scoped host-composition tests passed (4 pre-existing unrelated failures).
 
 2026-09-13 seed hunt #2279 (seed-only): reseeded host-composition with `-Hint host composition`; no new hunt-ready rows.
 
@@ -20988,6 +20990,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `InMemoryValueReportJobQueue` poll failed across service instances — **hit 2026-08-24:** enqueue/poll used per-process memory only; regression in `InMemoryValueReportJobQueue_poll_reads_job_enqueued_on_another_instance_via_distributed_cache`
 - [x] (hunt-ready) `OutboxProcessorsCompositionRegistrar.RegisterIntegrationEventConsumer` gates on `hostingRole == Worker` only — sibling outbox/advisory registrars include `Combined`, so default Combined hosts never register `AzureServiceBusIntegrationEventConsumer` or integration handlers.
 - [x] (proven) Combined role omitted Service Bus integration event consumer — **hit 2026-08-25:** `RegisterIntegrationEventConsumer` returned before wiring handlers/consumer when role was `Combined`; fixed to match Worker (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Combined_role_registers_ServiceBus_integration_event_consumer`).
+
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` — `GraphProjectionCacheInvalidationSubscriberHostedService` omitted when distributed LLM completion cache already registered `IDistributedCache` — **hit 2026-09-26 seed hunt:** early return skipped `RegisterGraphProjectionRedisPubSub`; fixed by registering pub/sub whenever projection cache backend is Distributed; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_llm_distributed_cache_already_registered`
 - [x] (valid-no-repro) `servicebus-integration-events` container offload drops `ServiceBusIntegrationEventsArchLucidJob` — `RegisterArchLucidJobRunners` always registers the job; only `AzureServiceBusIntegrationEventConsumer` is gated by offload (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_registers_job_not_consumer`, 2026-08-26).
 - [x] (proven) Per-process `AddDistributedMemoryCache` broke async value report poll across Api replicas — **hit 2026-08-26:** `SponsorRoiCompositionRegistrar` registered per-process `IDistributedCache` when no shared Redis/hot-path cache was configured, so load-balanced replicas could not see enqueue state; fixed with `IValueReportJobPollStateCache` (registered `IDistributedCache` → dedicated Redis → process-shared fallback) and `ServiceCollectionExtensionsRegistrationTests.AddArchLucidApplicationServices_value_report_async_job_poll_works_across_separate_api_replica_roots`.
 - [x] (proven) Combined durable background jobs omit queue processor — **hit 2026-08-26:** `RegisterBackgroundJobs` registered `BackgroundJobQueueProcessorHostedService` only for `Worker` when `BackgroundJobs:Mode=Durable`; Combined hosts enqueued to SQL/queue but never drained; fixed with Combined branch + `BackgroundJobRepositoryCancellationWriter`; regression in `AddArchLucidApplicationServices_Combined_durable_registers_BackgroundJobQueueProcessorHostedService` and `AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService`.
