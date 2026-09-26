@@ -7040,3 +7040,4 @@
 {"at":"2026-09-26T11:08:13.8381494Z","zoneId":"decisioning","outcome":"hit"}
 {"at":"2026-09-26T11:18:04.8157563Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
 {"at":"2026-09-26T11:27:41.2954195Z","zoneId":"core-explanation-json","outcome":"hit"}
+{"at":"2026-09-26T11:40:44.0437388Z","zoneId":"core-explanation-json","outcome":"hit"}
