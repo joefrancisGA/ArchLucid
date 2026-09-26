@@ -5319,6 +5319,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved subscriptions section subtitle and create enable-step checklist still derived stale `webhookRows` after manual refresh failed (`hasLoadedSuccessfully` false); fixed by gating count copy on `hasLoadedSuccessfully` and enable-step satisfaction on verified inventory; regression `hides stale subscription count subtitle when manual refresh fails`; 52 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
+
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved configuration `StatusTag` still showed active subscription copy from stale `webhookRows` after manual refresh failed (`hasLoadedSuccessfully` false) while the page alert showed the load error; fixed by gating configuration status on `hasLoadedSuccessfully`; regression `shows unavailable configuration status when manual refresh fails with stale rows`; 50 scoped webhooks folder tests passed (1 pre-existing sources-strip failure unrelated).
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved manual `Refresh` after a successful hydration left `hasLoadedSuccessfully` true when `listAlertRoutingSubscriptions` failed, so create stayed enabled against a stale `webhookRows` inventory; fixed by clearing `hasLoadedSuccessfully` on load failure; regression `blocks create when manual refresh fails after subscriptions loaded`; 50 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
@@ -5331,11 +5333,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 23
-- **bugs-found:** 18
+- **hunts:** 24
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — configuration status claimed active subscriptions after failed refresh with stale rows
+- **last-bug:** 2026-09-26 — stale subscription count and enable checklist after failed refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5411,6 +5413,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `useWebhooksSettingsLoad.load` — failed refresh after successful hydration left `hasLoadedSuccessfully` true — **hit 2026-09-26 seed hunt (seed→hit):** operators could save new subscriptions while duplicate-name guard used stale rows; fixed by setting `hasLoadedSuccessfully` false in the load catch path; regression `blocks create when manual refresh fails after subscriptions loaded`.
 
 - [x] (proven) `WebhooksSettingsClient` configuration status — stale `webhookRows` after failed refresh still render active-subscription `StatusTag` — **hit 2026-09-26 seed hunt (seed→hit):** header status ignored `hasLoadedSuccessfully` and mislabeled configuration while the page alert showed the refresh error; fixed by showing needs-attention unavailable status when subscriptions are not verified; regression `shows unavailable configuration status when manual refresh fails with stale rows`.
+
+- [x] (proven) `WebhooksSettingsClient` subscriptions section — stale `webhookRows` after failed refresh still drive count subtitle and create enable-step checklist — **hit 2026-09-26 seed hunt (seed→hit):** count helper and enable step treated stale inventory as verified; fixed by gating subtitle and `subscriptionEnabled` checklist input on `hasLoadedSuccessfully`; regression `hides stale subscription count subtitle when manual refresh fails`.
 
 ## Zone: ui-host-gate
 
