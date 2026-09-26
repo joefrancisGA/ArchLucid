@@ -419,38 +419,14 @@ public sealed class PrivilegePathEngineTests
     public void Enumerate_unknown_role_with_explicit_action_emits_concrete_action_only()
     {
         const string principalNode = "azure-ad://principal/cccccccc-cccc-cccc-cccc-cccccccccccc";
-        const string roleNode = "azure-ad://role/unknown";
         const string scopeArm = StorageAccountArm;
 
-        InventoryPrivilegePathGraphSnapshot graph = new()
+        AzureInventorySnapshotDetailReadModel snapshot = new()
         {
-            OutgoingEdges = new Dictionary<string, List<PrivilegePathEdge>>(StringComparer.OrdinalIgnoreCase)
-            {
-                [principalNode] =
-                [
-                    new PrivilegePathEdge
-                    {
-                        FromNodeId = principalNode,
-                        ToNodeId = roleNode,
-                        EdgeType = GraphEdgeTypes.HasRole,
-                        ProvenanceKind = ProvenanceKind.ObservedFact,
-                    },
-                ],
-                [roleNode] =
-                [
-                    new PrivilegePathEdge
-                    {
-                        FromNodeId = roleNode,
-                        ToNodeId = scopeArm,
-                        EdgeType = GraphEdgeTypes.CanWrite,
-                        ProvenanceKind = ProvenanceKind.DerivedFact,
-                    },
-                ],
-            },
-            ResourcesByArmId = new Dictionary<string, AzureInventoryResourceRecord>(
-                StringComparer.OrdinalIgnoreCase)
-            {
-                [scopeArm] = new AzureInventoryResourceRecord
+            Header = CreateHeader(),
+            Resources =
+            [
+                new AzureInventoryResourceRecord
                 {
                     ResourceRowId = Guid.NewGuid(),
                     SnapshotId = SnapshotId,
@@ -458,9 +434,37 @@ public sealed class PrivilegePathEngineTests
                     AzureResourceId = scopeArm,
                     ResourceType = "Microsoft.Storage/storageAccounts",
                 },
-            },
+            ],
+            RoleAssignments =
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    PrincipalId = "cccccccc-cccc-cccc-cccc-cccccccccccc",
+                    Scope = scopeArm,
+                    RoleDefinitionId =
+                        "/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099",
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = principalNode,
+                    ToAzureResourceId = scopeArm,
+                    RelationshipType = GraphEdgeTypes.HasRole,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = principalNode,
+                    ToAzureResourceId = scopeArm,
+                    RelationshipType = GraphEdgeTypes.CanWrite,
+                    ProvenanceKind = ProvenanceKind.DerivedFact,
+                },
+            ],
         };
 
+        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot);
         IReadOnlyList<PrivilegePathCandidate> candidates =
             PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
 
