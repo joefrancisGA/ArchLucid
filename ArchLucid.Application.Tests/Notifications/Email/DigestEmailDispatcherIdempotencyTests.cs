@@ -1054,6 +1054,30 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown()
+    {
+        WeeklySponsorReportEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            new InMemorySentEmailLedger(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("39393939-3939-3939-3939-393939393939"),
+            "2026-W39",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "   ",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "Week 39",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("summaryMarkdown");
+    }
+
+    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_id_hex()
     {
         WeeklySponsorReportEmailDispatcher sut = new(
@@ -1474,6 +1498,30 @@ public sealed class DigestEmailDispatcherIdempotencyTests
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithParameterName("runDetailUrl");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown()
+    {
+        WeeklySponsorSummaryEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            new InMemorySentEmailLedger(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("40404040-4040-4040-4040-404040404040"),
+            "2026-W40",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "   ",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "Week 40",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("summaryMarkdown");
     }
 
     [Fact]
