@@ -21311,13 +21311,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — graph projection cache factory ignored explicit Backend=Distributed when CacheProvider=Memory
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+- [x] (valid-no-repro) `ContextIngestionCompositionRegistrar` + `ArchLucidDistributedCacheRegistrar` — `TryAddSingleton` Null `IGraphProjectionCacheInvalidationBroadcaster` prevents Redis broadcaster when registration order inverts — **cheap-disproof 2026-09-26 seed hunt #39:** `AddPlatformCapability` → `AddArchLucidStorage` (Redis pub/sub) always runs before `AddAuthorityCapability` → `PipelineCompositionModule`; `AddSingleton<RedisGraphProjectionCacheInvalidationBroadcaster>` remains the effective `GetRequiredService` implementation; graph-projection registration regressions in `ServiceCollectionExtensionsRegistrationTests`.
+- [x] (valid-no-repro) `ProjectionCache:Backend=Memory` with `CacheProvider=Auto` on multi-replica hosts still promotes distributed projection cache — **cheap-disproof 2026-09-26 seed hunt #39:** operator scale-out contract in `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md` requires `Backend=Distributed`; Auto + `ExpectedApiReplicaCount` promotion is intentional; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_auto_provider_promotes_to_distributed`.
+- [x] (valid-no-repro) `RegisterTenancyMetering` registers `ApiRequestUsageEventBatchFlushHostedService` on Api/Worker/Combined without leader election — **cheap-disproof 2026-09-26 seed hunt #39:** flushes are per-process `ApiRequestUsageEventBuffer` batches, not cross-replica shared queues; regression `AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`.
+
+2026-09-26 seed hunt #39 (seed-only): reseeded host-composition after graph projection cache parity hits; cheap-disproof closed broadcaster registration order, explicit Memory backend vs Auto promotion, and metering flush leader-election candidates; 387 scoped host-composition tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `ContextIngestionCompositionRegistrar` `IGraphSnapshotProjectionCache` factory used only `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend` while `ArchLucidDistributedCacheRegistrar` already treated explicit `ProjectionCache:Backend=Distributed` as distributed — hosts wired Redis pub/sub but resolved `GraphSnapshotProjectionMemoryCache` when `CacheProvider=Memory`; aligned factory with combined `Backend` + effective-backend check; regression `AddArchLucidApplicationServices_uses_distributed_graph_projection_cache_when_backend_distributed_even_if_cache_provider_memory`; 385/387 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
