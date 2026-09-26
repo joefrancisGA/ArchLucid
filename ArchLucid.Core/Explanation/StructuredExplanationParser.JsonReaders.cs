@@ -111,25 +111,36 @@ public static partial class StructuredExplanationParser
         List<string> parts = [];
 
         foreach (JsonElement item in reasoningElement.EnumerateArray())
-        {
-            string? part = item.ValueKind switch
-            {
-                JsonValueKind.String => item.GetString(),
-                JsonValueKind.Object => TryReadObjectStringProperty(item, "id", "text"),
-                _ => RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
-                    ? scalar
-                    : null,
-            };
-
-            if (string.IsNullOrWhiteSpace(part))
-                continue;
-
-            parts.Add(part.Trim());
-        }
+            CollectReasoningParts(item, parts);
 
         if (parts.Count == 0)
             return null;
 
         return string.Join("\n\n", parts);
+    }
+
+    private static void CollectReasoningParts(JsonElement item, List<string> parts)
+    {
+        if (item.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement inner in item.EnumerateArray())
+                CollectReasoningParts(inner, parts);
+
+            return;
+        }
+
+        string? part = item.ValueKind switch
+        {
+            JsonValueKind.String => item.GetString(),
+            JsonValueKind.Object => TryReadObjectStringProperty(item, "id", "text"),
+            _ => RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
+                ? scalar
+                : null,
+        };
+
+        if (string.IsNullOrWhiteSpace(part))
+            return;
+
+        parts.Add(part.Trim());
     }
 }

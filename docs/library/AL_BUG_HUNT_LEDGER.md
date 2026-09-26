@@ -18325,6 +18325,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-09-26 thorough hunt (hit): proved nested-array `evidenceRefs` entries (`[["dec-1"]]`) silently dropped in `TryReadStringList`; fixed by flattening nested JSON arrays in `CollectStringListEntries`; cheap-disproof closed nested-only `faithfulnessSupportRatio` as `(valid-no-repro)` per `RunExplanationSummary` OpenAPI root fields and pilot proof-packet `GET .../aggregate` body; regression `TryNormalizeStructuredJson_flattens_nested_array_evidence_ref_entries`; 67 scoped explanation unit tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded core-explanation-json; proved percent-suffixed `faithfulnessSupportRatio` (`"55%"`) parsed as `55.0` so `ResolveDisposition` returned PASS instead of WARN; fixed with `NormalizeUnitRatio` after `TryReadFiniteDouble` (parity with structured `ClampConfidence`); regression `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio`; seeded nested-`explanation` faithfulness path as `(candidate)`; 36 scoped RunExplanation unit tests passed.
 
 2026-09-26 thorough hunt (hit): proved percent-suffixed confidence string (`"75%"`) dropped in `TryNormalizeStructuredJson` while `75` and `"75"` coerced; fixed `RunExplanationAggregateJsonReader.TryReadFiniteDouble` to strip trailing `%` on string numerics; cheap-disproof closed object-shaped `riskPosture` as `(valid-no-repro)` per `EXPLANATION_SCHEMA.md` string enum contract; regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence`; 35 scoped RunExplanation unit tests passed.

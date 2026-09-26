@@ -348,6 +348,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_flattens_nested_array_reasoning_paragraphs()
+    {
+        const string json = """{"reasoning":[["First paragraph."],["Second paragraph."]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_flattens_nested_array_evidence_ref_entries()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":[["dec-1"]]}""";
