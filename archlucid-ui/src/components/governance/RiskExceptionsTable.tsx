@@ -65,7 +65,12 @@ export function RiskExceptionsTable({
           <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Status</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Active means the exception currently covers the finding.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Expires</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>

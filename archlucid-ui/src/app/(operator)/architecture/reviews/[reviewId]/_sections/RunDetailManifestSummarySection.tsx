@@ -114,6 +114,10 @@ export function RunDetailManifestSummarySection(
             <dd className={cn("m-0", definitionValueClass)}>
               {manifestStatusForDisplay(manifestSummary.status)}
             </dd>
+            <dt className={definitionLabelClass}>Seal scope</dt>
+            <dd className={cn("m-0", definitionValueClass)}>
+              The seal describes this finalized review package; it does not seal later workspace decisions.
+            </dd>
             <dt className={definitionLabelClass}>{evaluationStandardsLabel}</dt>
             <dd className={cn("m-0", definitionValueClass)}>
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}

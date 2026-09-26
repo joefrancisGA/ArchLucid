@@ -86,7 +86,12 @@ export function GovernanceFindingsQueueTableHead(props: {
             <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Recommended action</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Recommended action</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The next recorded action for this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
           </>
         ) : isAssignedToMe ? (
           <>
@@ -121,6 +126,7 @@ export function GovernanceFindingsQueueTableHead(props: {
             />
             <GovernanceFindingsQueueSortHeaderCell
               label="Due / revisit"
+              helperText="The date to revisit or complete this finding."
               sortKey="due"
               activeSortKey={assignedToMeSortKey}
               sortAsc={assignedToMeSortAsc}
