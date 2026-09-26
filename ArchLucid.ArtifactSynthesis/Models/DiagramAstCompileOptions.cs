@@ -72,6 +72,16 @@ public sealed class DiagramAstCompileOptions
     }
 
     /// <summary>
+    /// When true, Full subscription includes AVD-only inventory nodes instead of omitting them. Ignored outside
+    /// <see cref="DiagramMode.FullSubscription" />.
+    /// </summary>
+    public bool IncludeAvdAssets
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     /// When true, cross-group <c>applies</c> and <c>likely ·</c> fan-out edges are painted on forest and Graphviz exports.
     /// </summary>
     public bool IncludeCrossGroupFanOut
