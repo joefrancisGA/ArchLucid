@@ -2099,6 +2099,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — `endpointAliases` values copied without trim so padded declared alias targets missed relationship resolution and graph merge dropped dangling edges — **hit 2026-09-25 seed hunt #3908g (seed→hit):** #1777 trimmed alias keys only; rename-alias dictionaries could still map manifest labels to whitespace-padded graph node ids; relationships resolved to padded ids that `DropDanglingEdges` removed; fixed by trimming alias values before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_value_has_surrounding_whitespace`.
 
+- [x] (proven) `TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelResolutionAliases` — compute and datastore nodes with the same label both registered `svc-{label}` and `ds-{label}` aliases so the first node stole the opposite-prefix id and relationships using explicit `svc-`/`ds-` node ids resolved to the wrong endpoint — **hit 2026-09-26 seed hunt (seed→hit):** #3911 re-broadened aliases after #3914; restored category-primary aliases with terraform source-id fallback for cross-prefix mismatches; regression `MapRelationships_keeps_synthetic_service_and_datastore_aliases_distinct_when_labels_match`.
+
+2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved #3911 regression on shared-label svc/ds synthetic alias disambiguation; 303 scoped edge-mapper/graph-merge tests passed.
+
 2026-09-25 seed hunt #3908g (seed→hit): reseeded arm-terraform-source-ids; proved padded endpoint alias value resolution gap after #1777 key trim; 303 scoped edge-mapper/graph-merge tests passed.
 
 2026-09-13 seed hunt #2397 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
@@ -2107,11 +2111,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 68
-- **bugs-found:** 56
+- **hunts:** 69
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — padded declared endpoint alias values skipped edge resolution
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — shared-label svc/ds synthetic aliases collapsed to first node
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
