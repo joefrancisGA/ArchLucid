@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
@@ -12,16 +13,22 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Repositories;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 
@@ -117,6 +124,131 @@ public sealed class FinalizeReadinessServiceTests
             && block.Code == "pre_commit_gate"
             && block.Message == "Critical findings exceed policy pack threshold.");
         preCommitGate.Verify(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task BuildAsync_scorecard_counts_supplemental_findings_when_technology_consistency_would_block_gate()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = Guid.NewGuid().ToString("D"),
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = "[]",
+                StructuralExecutionMode = StructuralExecutionMode.Real,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository snapshots = new();
+        await snapshots.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runKey,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.PrimaryDatastore,
+                TechnologyName = "Amazon RDS",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        IFindingReviewTrailRepository trail =
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateEmptyFindingReviewTrailRepository();
+
+        PreCommitGovernanceGate gate = new(
+            Options.Create(new PreCommitGovernanceGateOptions
+            {
+                PreCommitGateEnabled = true,
+                PreCommitGateThreshold = "Error",
+            }),
+            scopeProvider.Object,
+            runs,
+            snapshots,
+            new InMemoryPolicyPackAssignmentRepository(),
+            new PassthroughSchemaValidationService(),
+            Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }),
+            ledgerRepository,
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            trail);
+
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        FinalizeReadinessService sut = CreateSut(
+            runs,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            preCommitGate: gate,
+            findingsSnapshot: null,
+            technologyLedgerRepository: ledgerRepository,
+            technologyConsistencyFindingEngine: new TechnologyConsistencyFindingEngine(),
+            technologyConsistencyOptions: Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }),
+            findingEvidenceLinkageFindingEngine: new FindingEvidenceLinkageFindingEngine(),
+            findingEvidenceLinkageOptions: Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            findingsSnapshotRepository: snapshots);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Blocks.Should().Contain(block => block.Code == "pre_commit_gate");
+        result.Scorecard.BlockingFindingCount.Should().BeGreaterThan(
+            0,
+            "scorecard must count supplemental findings the live pre-commit gate evaluates");
+        result.ScorecardBlockingReasons.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -422,7 +554,13 @@ public sealed class FinalizeReadinessServiceTests
         IArchitectureVersionRepository? architectureVersionRepository = null,
         IArchitectureRequestRepository? architectureRequestRepository = null,
         IPreCommitGovernanceBlockExplainer? preCommitGovernanceBlockExplainer = null,
-        bool explainGovernanceBlocksEnabled = false)
+        bool explainGovernanceBlocksEnabled = false,
+        ITechnologyLedgerRepository? technologyLedgerRepository = null,
+        ITechnologyConsistencyFindingEngine? technologyConsistencyFindingEngine = null,
+        IOptions<TechnologyConsistencyFindingEngineOptions>? technologyConsistencyOptions = null,
+        IFindingEvidenceLinkageFindingEngine? findingEvidenceLinkageFindingEngine = null,
+        IOptions<FindingEvidenceLinkageFindingEngineOptions>? findingEvidenceLinkageOptions = null,
+        IFindingsSnapshotRepository? findingsSnapshotRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -441,14 +579,16 @@ public sealed class FinalizeReadinessServiceTests
                 IntakeTransparencyTrail = transparencyTrail,
             });
 
-        Mock<IFindingsSnapshotRepository> snapshots = new();
-        snapshots
+        Mock<IFindingsSnapshotRepository> snapshotsMock = new();
+        snapshotsMock
             .Setup(repository => repository.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(findingsSnapshot ?? new FindingsSnapshot
             {
                 Findings = [],
                 GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
             });
+
+        IFindingsSnapshotRepository snapshots = findingsSnapshotRepository ?? snapshotsMock.Object;
 
         Mock<IFindingReviewTrailRepository> reviewTrail = new();
         reviewTrail
@@ -545,12 +685,20 @@ public sealed class FinalizeReadinessServiceTests
         IPreCommitGovernanceBlockExplainer blockExplainer =
             preCommitGovernanceBlockExplainer ?? blockExplainerMock.Object;
 
+        Mock<ITechnologyLedgerRepository> technologyLedger = new();
+        technologyLedger
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         return new FinalizeReadinessService(
             scopeProvider.Object,
             runRepository,
             tasks.Object,
             architectureRequestRepository ?? requests.Object,
-            snapshots.Object,
+            snapshots,
             reviewTrail.Object,
             traces.Object,
             stageOutcomes.Object,
@@ -559,6 +707,13 @@ public sealed class FinalizeReadinessServiceTests
             workspaceMode.Object,
             actor.Object,
             checklistService,
+            technologyLedgerRepository ?? technologyLedger.Object,
+            technologyConsistencyFindingEngine ?? new TechnologyConsistencyFindingEngine(),
+            technologyConsistencyOptions
+            ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            findingEvidenceLinkageFindingEngine ?? new FindingEvidenceLinkageFindingEngine(),
+            findingEvidenceLinkageOptions
+            ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
             preCommitGate ?? gate.Object,
             policyPackPins.Object,
             evidencePackagePins.Object,

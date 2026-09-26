@@ -22818,13 +22818,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 23
-- **bugs-found:** 17
+- **hunts:** 24
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-12 — PreCommitGateThresholdParser undefined numeric threshold
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — finalize readiness scorecard omitted supplemental findings
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
 2026-09-13 seed hunt #2446 (seed-only): reseeded application-governance-policy; no new hunt-ready rows.
 
@@ -22865,6 +22867,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreCommitGateThresholdParser.TryParseMinimumSeverity` accepts undefined numeric threshold strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-09-12 seed hunt #1851:** `"99"`/`"999"` mapped to out-of-range `FindingSeverity` values instead of null; fixed with `Enum.IsDefined` guard; regression `TryParseMinimumSeverity_returns_null_for_undefined_numeric_values`.
 
 2026-09-12 seed hunt #1851 (hit): reseeded application-governance-policy; proved undefined numeric pre-commit threshold parsing; 4 scoped PreCommitGateThresholdParser tests passed.
+
+- [x] (proven) `FinalizeReadinessService` finalize quality scorecard used raw snapshot findings while `PreCommitGovernanceGate` evaluated supplemental technology-consistency findings — **hit 2026-09-26 seed hunt (seed→hit):** empty snapshot showed `BlockingFindingCount == 0` beside `pre_commit_gate` block; fixed by scoring via `PreFinalizeGateParityFindingLoader` (parity with #1418 checklist fix); regression `BuildAsync_scorecard_counts_supplemental_findings_when_technology_consistency_would_block_gate`.
+- [ ] (candidate) `PolicyPackGovernanceDryRunService.MergeEnforcement` — metadata `"blockCommitMinimumSeverity": "99"` bypasses undefined-numeric guard proven on `PreCommitGateThresholdParser`
+- [ ] (candidate) `GovernanceLineageService.GetApprovalRequestLineageAsync` — promotions returned on unsealed manifest while summary/findings redacted
+- [ ] (candidate) `PreFinalizeExecuteBaselineDriftEvaluator` — compliance-rule-key changes not diffed against execute snapshot
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
