@@ -143,6 +143,21 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void SelectRepresentativeRunIdForArchitectureRequestInScope_status_filter_matches_unaliased_runs_table()
+    {
+        string sql = RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope;
+        bool runsTableAliased = sql.Contains("FROM dbo.Runs r", StringComparison.OrdinalIgnoreCase)
+            || sql.Contains("FROM dbo.Runs AS r", StringComparison.OrdinalIgnoreCase);
+
+        if (!runsTableAliased)
+        {
+            sql.Should().NotContain(
+                "r.LegacyRunStatus",
+                "representative SQL selects FROM dbo.Runs without alias r; r.LegacyRunStatus fails at execution on SQL Server.");
+        }
+    }
+
+    [Fact]
     public async Task InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest()
     {
         ScopeContext scope = new()
