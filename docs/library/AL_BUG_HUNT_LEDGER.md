@@ -20619,13 +20619,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 24
-- **bugs-found:** 21
+- **hunts:** 25
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — duplicate κ→Γ RELATES edges when model lists case-variant `ElementId` rows
+- **last-bug:** 2026-09-26 — duplicate rule nodes and `TriggeredByRule` edges when `AppliedRuleIds` differed only by surrounding whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` treated `AppliedRuleIds` with surrounding whitespace as distinct rule keys; fixed with `NormalizeId` trim on rule/decision/finding id keys and edge loops; regression `Build_deduplicates_triggered_by_rule_when_applied_rule_ids_differ_only_by_whitespace`; 46 Provenance scoped tests passed.
 
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ArchitectureKnowledgeModelGraphProjector` node dedup skipped case-variant elements but edge loop still emitted duplicate parallel RELATES edges; fixed with case-insensitive edge-key dedup; regression `Project_deduplicates_relates_edges_when_elements_list_case_variant_element_ids`; 5 projector + 45 Provenance scoped tests passed.
 
@@ -20678,6 +20680,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — revision fingerprint changed when `Artifacts` listed duplicate rows for the same `ArtifactId` though graph/provenance semantics match a single row — **hit 2026-09-26 seed hunt:** `GroupBy(ArtifactId)` before ordering/hashing artifact parts; regression `Compute_ignores_duplicate_artifact_rows_with_same_artifact_id`
 
 - [x] (proven) `ArchitectureKnowledgeModelGraphProjector.Project` — duplicate parallel RELATES edges when `model.Elements` lists case-variant `ElementId` rows that collapse to one graph node — **hit 2026-09-26 seed hunt:** case-insensitive `from|to|type` edge-key dedup in edge materialization loop; regression `Project_deduplicates_relates_edges_when_elements_list_case_variant_element_ids`
+
+- [x] (proven) `ProvenanceBuilder.Build` — duplicate rule nodes and `TriggeredByRule` edges when `AppliedRuleIds` listed the same rule with surrounding whitespace (`rule-1` vs `rule-1 `) — **hit 2026-09-26 seed hunt:** `NormalizeId` trim on rule/decision/finding ids before node keys and edge dedup loops; regression `Build_deduplicates_triggered_by_rule_when_applied_rule_ids_differ_only_by_whitespace`
 
 2026-09-11 seed hunt #1728 (hit): reseeded knowledge-graph-provenance; proved AS-018 compiled-graph binder parallel-edge collision after canonical bind (parity gap vs AS-050 rebinder fix); 266 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 

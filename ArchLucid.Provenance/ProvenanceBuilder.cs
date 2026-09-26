@@ -30,7 +30,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         IEnumerable<string> DistinctDecisionKeys()
         {
             return manifest.Decisions
-                .Select(d => d.DecisionId)
+                .Select(d => NormalizeId(d.DecisionId))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(id => $"decision:{id}");
         }
@@ -54,11 +54,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         foreach (Finding f in findings.Findings)
 
             AddNode(
-                $"finding:{f.FindingId}",
+                $"finding:{NormalizeId(f.FindingId)}",
                 CreateFindingNode(f));
 
 
-        foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string ruleId in trace.AppliedRuleIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
 
             AddNode(
                 $"rule:{ruleId}",
@@ -68,11 +68,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         foreach (ResolvedArchitectureDecision d in manifest.Decisions)
 
             AddNode(
-                $"decision:{d.DecisionId}",
+                $"decision:{NormalizeId(d.DecisionId)}",
                 new ProvenanceNode
                 {
                     Type = ProvenanceNodeType.Decision,
-                    ReferenceId = d.DecisionId,
+                    ReferenceId = NormalizeId(d.DecisionId),
                     Name = d.Title,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
@@ -112,7 +112,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Findings → Decisions (decision supported by findings)
         foreach (IGrouping<string, ResolvedArchitectureDecision> decisionGroup in manifest.Decisions.GroupBy(
-                     d => d.DecisionId,
+                     d => NormalizeId(d.DecisionId),
                      StringComparer.OrdinalIgnoreCase))
         {
             string decisionKey = $"decision:{decisionGroup.Key}";
@@ -122,6 +122,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
             foreach (string fk in decisionGroup
                          .SelectMany(d => d.SupportingFindingIds)
+                         .Select(NormalizeId)
                          .Distinct(StringComparer.OrdinalIgnoreCase)
                          .Select(fId => $"finding:{fId}"))
             {
@@ -134,7 +135,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Graph nodes → Findings (finding influenced by graph context)
         foreach (IGrouping<string, Finding> findingGroup in findings.Findings.GroupBy(
-                     f => f.FindingId,
+                     f => NormalizeId(f.FindingId),
                      StringComparer.OrdinalIgnoreCase))
         {
             string fk = $"finding:{findingGroup.Key}";
@@ -143,6 +144,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
             foreach (string relatedId in findingGroup
                          .SelectMany(f => f.RelatedNodeIds)
+                         .Select(NormalizeId)
                          .Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string gk = $"graph:{relatedId}";
@@ -159,7 +161,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;
 
-            foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (string ruleId in trace.AppliedRuleIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string rk = $"rule:{ruleId}";
                 if (!nodeMap.TryGetValue(rk, out Guid ruleNid))
@@ -176,7 +178,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
                 continue;
 
-            foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (string dId in a.ContributingDecisionIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string dk = $"decision:{dId}";
                 if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
@@ -212,7 +214,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             ProvenanceNode node = new()
             {
                 Type = ProvenanceNodeType.Finding,
-                ReferenceId = finding.FindingId,
+                ReferenceId = NormalizeId(finding.FindingId),
                 Name = finding.Title,
                 Metadata = metadata,
                 AgentExecutionTraceId = agentTraceId
@@ -247,5 +249,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         {
             result.Edges.Add(new ProvenanceEdge { Id = Guid.NewGuid(), FromNodeId = from, ToNodeId = to, Type = type });
         }
+
+        static string NormalizeId(string id) => id.Trim();
     }
 }
