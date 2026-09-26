@@ -39,6 +39,7 @@ public sealed class ProjectSnapshotScopeKeyTests
     [Theory]
     [InlineData(typeof(ISecurityEvidencePathRankRepository))]
     [InlineData(typeof(ISecurityEvidenceCutPointRepository))]
+    [InlineData(typeof(ISecurityEvidencePathRepository))]
     public void Snapshot_read_repository_boundary_requires_validated_key(Type repositoryType)
     {
         System.Reflection.MethodInfo method = repositoryType.GetMethod("ListBySnapshotAsync")!;

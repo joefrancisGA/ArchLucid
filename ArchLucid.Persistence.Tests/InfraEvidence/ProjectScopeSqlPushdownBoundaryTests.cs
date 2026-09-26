@@ -12,6 +12,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
     {
         yield return [typeof(ISecurityEvidencePathRankRepository), typeof(SqlSecurityEvidencePathRankRepository), "ListBySnapshotAsync"];
         yield return [typeof(ISecurityEvidenceCutPointRepository), typeof(SqlSecurityEvidenceCutPointRepository), "ListBySnapshotAsync"];
+        yield return [typeof(ISecurityEvidencePathRepository), typeof(SqlSecurityEvidencePathRepository), "ListBySnapshotAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByNaturalKeyInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "UpdateInScopeAsync"];

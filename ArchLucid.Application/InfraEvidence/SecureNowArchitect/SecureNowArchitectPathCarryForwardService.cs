@@ -22,10 +22,7 @@ public sealed class SecureNowArchitectPathCarryForwardService(ISecurityEvidenceP
         }
 
         IReadOnlyList<SecurityEvidencePathRecord> sourcePaths = await pathRepository.ListBySnapshotAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            fromSnapshotId,
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), fromSnapshotId),
             cancellationToken);
 
         if (sourcePaths.Count == 0)
@@ -39,7 +36,7 @@ public sealed class SecureNowArchitectPathCarryForwardService(ISecurityEvidenceP
         foreach (SecurityEvidencePathRecord sourcePath in sourcePaths)
         {
             IReadOnlyList<SecurityEvidencePathHopRecord> sourceHops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, sourcePath.PathId, cancellationToken);
+                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), sourcePath.PathId, cancellationToken);
 
             if (excludeCloudResourceIds is not null
                 && excludeCloudResourceIds.Count > 0

@@ -459,10 +459,7 @@ public sealed class RemediationInstanceService(
         {
             IReadOnlyList<SecurityEvidencePathRecord> verificationPaths =
                 await pathRepository.ListBySnapshotAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    verificationSnapshot.Header.SnapshotId,
+                    ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), verificationSnapshot.Header.SnapshotId),
                     cancellationToken);
 
             pathVerificationContext = new RemediationPathVerificationContext

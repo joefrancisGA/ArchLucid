@@ -333,12 +333,11 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
     }
 
     public async Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         const string sql = """
                            SELECT PathId, TenantId, WorkspaceId, ProjectId, SnapshotId, PathKind, PathConfidenceBand,
                                   CanonicalHopHashSha256, WeakestHopOrdinal, WeakestHopReason, CrownJewelAssertionId,
@@ -358,10 +357,10 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
                 sql,
                 new
                 {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    scope.SnapshotId,
                 },
                 cancellationToken: cancellationToken));
 

@@ -94,10 +94,7 @@ public sealed class SecureNowArchitectMetricsQueryService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<SecurityEvidencePathRecord> paths = await pathRepository.ListBySnapshotAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            snapshotId,
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
         Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = new();

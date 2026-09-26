@@ -398,18 +398,15 @@ public sealed class IntendedReachabilityEngineTests
             Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>((StoredPaths, StoredPaths.Count));
 
         public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>(
                 StoredPaths
                     .Where(path =>
-                        path.TenantId == tenantId
-                        && path.WorkspaceId == workspaceId
-                        && path.ProjectId == projectId
-                        && path.SnapshotId == snapshotId)
+                        path.TenantId == scope.TenantId
+                        && path.WorkspaceId == scope.WorkspaceId
+                        && path.ProjectId == scope.ProjectId
+                        && path.SnapshotId == scope.SnapshotId)
                     .ToList());
     }
 
