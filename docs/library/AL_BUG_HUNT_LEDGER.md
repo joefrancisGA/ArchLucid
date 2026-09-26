@@ -3139,13 +3139,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 32
-- **bugs-found:** 20
+- **hunts:** 33
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — halfwidth and presentation ideographic full-stop dot homoglyphs evaded return-path guard
+- **last-bug:** 2026-09-26 — presentation two-dot leader and katakana middle-dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed→hit): reseeded auth-return-path; proved presentation vertical two-dot leader and katakana middle-dot homoglyph traversal bypasses via NFKC inventory scan; cheap-disproved horizontal ellipsis pairs; 132 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) PRESENTATION FORM FOR VERTICAL TWO DOT LEADER (`︰`, `U+FE30`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** single-segment NFKC expands to ASCII `..` while `U+2025` was already blocked; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_presentation_two_dot_leader_and_katakana_middle_dot_homoglyph_path_traversal_segments`.
+- [x] (proven) KATAKANA MIDDLE DOT (`・`, `U+30FB`) and HALFWIDTH KATAKANA MIDDLE DOT (`･`, `U+FF65`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** parent-segment pairs evaded ASCII `..` checks while `U+00B7` middle dot was already blocked; fixed by extending `IsDotHomoglyph`; same regression test.
+- [x] (valid-no-repro) HORIZONTAL ELLIPSIS (`…`, `U+2026`) and presentation vertical horizontal ellipsis (`U+FE19`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** NFKC expands to three ASCII periods, not a `..` parent segment; same-origin relative prefix only.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path after `U+FF61`/`U+FE12` fix; NFKC scan found no further BMP FULL STOP compatibility gaps; cheap-disproved script punctuation and presentation vertical punctuation pairs; 126 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 

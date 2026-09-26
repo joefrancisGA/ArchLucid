@@ -306,4 +306,16 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/signin/\uFE30/other")]
+    [InlineData("/signin/%EF%B8%B0/other")]
+    [InlineData("/signin/\u30FB\u30FB/other")]
+    [InlineData("/signin/%E3%83%BB%E3%83%BB/other")]
+    [InlineData("/signin/\uFF65\uFF65/other")]
+    [InlineData("/signin/%EF%BD%A5%EF%BD%A5/other")]
+    public void TryNormalize_rejects_presentation_two_dot_leader_and_katakana_middle_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
 }
