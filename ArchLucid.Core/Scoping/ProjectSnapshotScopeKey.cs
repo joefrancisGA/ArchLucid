@@ -18,6 +18,7 @@ public sealed record ProjectSnapshotScopeKey
     public static ProjectSnapshotScopeKey Create(ProjectScopeKey project, Guid snapshotId)
     {
         ArgumentNullException.ThrowIfNull(project);
+
         if (snapshotId == Guid.Empty)
             throw new ArgumentException("Snapshot id must not be empty.", nameof(snapshotId));
         return new ProjectSnapshotScopeKey(project, snapshotId);

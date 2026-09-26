@@ -69,6 +69,7 @@ public sealed class SecureNowProductBoundaryTests
             foreach (Type type in result.FailingTypes ?? [])
             {
                 string? sourceNamespace = type.Namespace;
+
                 if (sourceNamespace is null)
                     continue;
 
