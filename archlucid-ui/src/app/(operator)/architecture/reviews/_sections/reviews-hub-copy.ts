@@ -14,7 +14,7 @@ export const REVIEWS_HUB_PAGE_TITLE = "Reviews";
 export const REVIEWS_HUB_PAGE_SUBTITLE =
   "Create, refine, evaluate, and approve architecture reviews.";
 
-/** Working inbox title — cross-architecture triage, not Monday morning (SN-011 / ADR 0079). */
+/** Working hub title — matches nav/route; subtitle still frames cross-architecture triage (SN-011 / ADR 0079). */
 export const WORKING_REVIEWS_HUB_PAGE_TITLE = SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE;
 
 export const WORKING_REVIEWS_HUB_PAGE_SUBTITLE = SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE;

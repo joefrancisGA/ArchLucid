@@ -102,7 +102,7 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
     expect(screen.queryByTestId("architecture-identity-list-showing-count")).not.toBeInTheDocument();
   });
 
-  it("CA-35: Working empty state offers New architecture without sample hrefs", () => {
+  it("CA-35: Working empty state offers Create architecture without sample hrefs", () => {
     useArchitectureIdentitiesListQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
@@ -118,7 +118,7 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
 
     render(<ArchitectureIdentityListClient />);
 
-    const createLink = screen.getByRole("link", { name: "New architecture" });
+    const createLink = screen.getByRole("link", { name: "Create architecture" });
 
     expect(createLink).toHaveAttribute("href", "/architecture/architectures/new");
     expect(screen.queryByRole("link", { name: /sample/i })).not.toBeInTheDocument();

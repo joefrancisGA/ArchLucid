@@ -15,7 +15,7 @@ const repoRoot = join(__dirname, "..", "..", "..");
 
 describe("SN-011 reviews hub inbox copy", () => {
   it("frames Working hub as cross-architecture inbox with desk resume", () => {
-    expect(SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE).toBe("Inbox");
+    expect(SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE).toBe("Reviews");
     expect(SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("cross-architecture");
     expect(SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("architectures");
     expect(SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE).toContain("Alt+R");

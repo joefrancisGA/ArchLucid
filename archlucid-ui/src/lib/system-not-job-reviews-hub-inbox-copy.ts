@@ -5,7 +5,7 @@ export const SYSTEM_NOT_JOB_REVIEWS_HUB_INBOX_DOC_ANCHOR =
   "docs/architecture/adrs/0079-working-desk-is-the-work-surface.md" as const;
 
 /** SN-011 / ADR 0079 — Working reviews list is cross-architecture inbox, not Monday morning. */
-export const SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE = "Inbox" as const;
+export const SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE = "Reviews" as const;
 
 export const SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE =
   "Cross-architecture review inbox for this workspace — resume work from Architectures or your last open desk (Alt+R), not from here." as const;

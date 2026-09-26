@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL } from "@/lib/cheap-exploration-adr-inventory";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -80,7 +81,7 @@ export const ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE = "No architectures yet" as 
 export const ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY =
   "Create an architecture draft and save it to establish an identity you can reopen all week." as const;
 
-export const ARCHITECTURE_IDENTITY_LIST_EMPTY_PRIMARY_LABEL = "New architecture" as const;
+export const ARCHITECTURE_IDENTITY_LIST_EMPTY_PRIMARY_LABEL = CREATE_ARCHITECTURE_LABEL;
 
 export const ARCHITECTURE_IDENTITY_LIST_LOADING_LABEL = "Loading architectures…" as const;
 
