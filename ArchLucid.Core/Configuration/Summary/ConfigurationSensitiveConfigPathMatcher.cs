@@ -29,6 +29,9 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         return configPath.EndsWith(":Key", StringComparison.OrdinalIgnoreCase);
     }
 
+    internal static bool IsSensitiveConfigPropertyName(string propertyName) =>
+        IsSensitiveConfigSegment(propertyName);
+
     private static bool IsSensitiveConfigSegment(string segment)
     {
         ReadOnlySpan<char> normalized = segment.AsSpan();

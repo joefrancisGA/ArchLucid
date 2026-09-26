@@ -23,6 +23,9 @@ public static class ConfigurationEffectiveValueResolver
         if (string.IsNullOrWhiteSpace(v))
             return null;
 
+        if (ConfigurationSensitiveConfigValueScanner.ContainsEmbeddedCredentialProperties(v))
+            return "***";
+
         const int maxLength = 256;
 
         return v.Length <= maxLength ? v : string.Concat(v.AsSpan(0, maxLength), "…");

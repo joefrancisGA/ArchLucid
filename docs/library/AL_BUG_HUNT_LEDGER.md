@@ -15880,13 +15880,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 14
-- **bugs-found:** 9
+- **hunts:** 15
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — compound SharedSecret config paths leaked through config summary redaction
+- **last-bug:** 2026-09-26 — `ArchLucid:FallbackLlm:Endpoints` JSON effective values leaked embedded ApiKey material
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 thorough hunt (hit): proved `ArchLucid:FallbackLlm:Endpoints` catalog path returned raw JSON with `ApiKey` properties because only path segments were scanned; fixed via `ConfigurationSensitiveConfigValueScanner`; cheap-disproved compound `WebhookSecret` candidate (no catalog or host config path uses that segment); 1032 scoped Configuration tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded core-configuration-summary; proved `SharedSecret` / `HmacSha256SharedSecret` compound segments leaked operator config summary values; fixed via `IsCompoundSecretCredentialSegment`; cheap-disproved `Authentication:ApiKey:AdminKey` (parent `ApiKey` segment already redacts); 1030 scoped Configuration tests passed.
 
@@ -15910,7 +15912,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound ConnectionString credential segments bypass embedded-`ConnectionString` fragment matching — **hit 2026-09-08 (#1314):** catalog paths such as `HotPathCache:RedisConnectionString` and `IntegrationEvents:ServiceBusConnectionString` leaked raw connection strings because mid-segment `ConnectionString` is treated as embedded; fixed with `IsCompoundConnectionStringCredentialSegment` suffix rule; regression `Resolve_redacts_compound_connection_string_config_paths`
 - [x] (invalid) `Authentication:ApiKey:AdminKey` / `ReadOnlyKey` leak because segment ends with `Key` not `ApiKey` — **invalid 2026-09-26 seed hunt:** parent `ApiKey` path segment already triggers redaction for the full config path
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound `SharedSecret` credential segments bypass embedded-`Secret` fragment matching — **hit 2026-09-26 seed hunt:** `ArchLucid:E2eHarness:SharedSecret` and `WebhookDelivery:HmacSha256SharedSecret` leaked raw HMAC shared secrets in operator config summary; fixed by extending `IsCompoundSecretCredentialSegment`; regression `Resolve_redacts_compound_shared_secret_config_paths`
-- [ ] (candidate) `ConfigurationSensitiveConfigPathMatcher` — compound `WebhookSecret` segments (without `SigningSecret` suffix) may bypass embedded-`Secret` skip when added to host config
+- [x] (invalid) `ConfigurationSensitiveConfigPathMatcher` — compound `WebhookSecret` segments bypass embedded-`Secret` skip — **invalid 2026-09-26 thorough hunt:** no `WebhookSecret` config path in `ConfigurationKeyCatalog` or host options; existing webhook secrets use `WebhookSigningSecret`, `HmacSha256SharedSecret`, or `SigningSecret` suffix rules
+- [x] (proven) `ConfigurationEffectiveValueResolver` — `ArchLucid:FallbackLlm:Endpoints` JSON effective values expose embedded `ApiKey` properties when path segment is not sensitive — **hit 2026-09-26 thorough hunt:** admin config summary returned raw fallback endpoint JSON; fixed by scanning JSON property names with `ConfigurationSensitiveConfigValueScanner`; regressions `Resolve_redacts_fallback_llm_endpoints_json_when_array_contains_api_key_properties` and `Resolve_preserves_non_credential_json_effective_values`
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.
