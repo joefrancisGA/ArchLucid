@@ -39,7 +39,10 @@ public sealed class FindingIacStubGeneratorEnrichmentPreservationTests
                     Message = "Use private endpoints.",
                     Category = "Network",
                     Severity = FindingSeverity.Warning,
-                    EvidenceRefs = ["evidence-1"],
+                    EvidenceRefs =
+                    [
+                        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                    ],
                 },
             ],
             WithheldFindings =

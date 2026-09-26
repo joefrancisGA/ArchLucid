@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Decisioning.Merge;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Findings;
@@ -76,7 +77,9 @@ public sealed class FindingIacStubGenerator(
             foreach (ArchitectureFinding finding in updatedResult.Findings)
             {
 
-                if (finding.IsMuted || !HasEvidenceReferences(finding))
+                if (finding.IsMuted
+                    || !HasEvidenceReferences(finding)
+                    || !AgentArchitectureFindingEmissionGate.HasTypedEmission(finding))
                     continue;
 
                 string userPrompt = BuildPrompt(finding);
