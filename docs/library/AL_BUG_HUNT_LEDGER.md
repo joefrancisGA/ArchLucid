@@ -20872,13 +20872,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 47
-- **bugs-found:** 35
+- **hunts:** 48
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — weekly sponsor report/summary email accepted whitespace-only runIdHex
+- **last-bug:** 2026-09-26 — exec digest email accepted whitespace-only dashboard and sponsor report URLs
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6978 (seed→hit): reseeded notifications-pipeline after #6958; proved `ExecDigestEmailDispatcher.TryDispatchAsync` accepted whitespace-only `DashboardUrl` / `SponsorValueReportUrl` after `WeekLabel` / `unsubscribeAbsoluteUrl` guards, sending digest mail with blank CTAs (parity gap vs weekly sponsor `runDetailUrl` validation); fixed with required URL validation and trim; regressions `ExecDigestEmailDispatcher_throws_for_whitespace_only_dashboard_url` and `ExecDigestEmailDispatcher_throws_for_whitespace_only_sponsor_value_report_url`; 134 scoped Application notifications/digest tests passed; 11 DigestSubscriptionsController unit tests passed (2 Api SQL integration auth tests skipped on VM without `ARCHLUCID_API_TEST_SQL`).
+
+- [x] (proven) `ExecDigestEmailDispatcher.TryDispatchAsync` — whitespace-only `DashboardUrl` / `SponsorValueReportUrl` sent weekly digest with blank links — **hit 2026-09-26 seed hunt #6978:** `ArgumentException` parity with sponsor `runDetailUrl` / `weekLabel`; regressions `ExecDigestEmailDispatcher_throws_for_whitespace_only_dashboard_url` and `ExecDigestEmailDispatcher_throws_for_whitespace_only_sponsor_value_report_url`.
 
 2026-09-26 seed hunt #6958 (seed-only): reseeded notifications-pipeline after runIdHex/weekLabel/runDetailUrl parity; cheap-disproof closed whitespace-only finding title and invitation accept URL candidates; 132 scoped Application notifications/digest tests passed; 11 DigestSubscriptionsController unit tests passed (2 Api SQL integration auth tests skipped on VM without `ARCHLUCID_API_TEST_SQL`).
 
