@@ -57,18 +57,19 @@ describe_warm_failure() {
   local label="$1"
   local url="$2"
   local status="$3"
+  local severity="${4:-error}"
 
   if [ "${status}" = "000" ] || [ -z "${status}" ]; then
-    echo "::error::Failed to warm ${label} at ${url}: API unreachable (HTTP 000). Skipping remaining 120s retries." >&2
+    echo "::${severity}::Failed to warm ${label} at ${url}: API unreachable (HTTP 000). Skipping remaining 120s retries." >&2
     return
   fi
 
   if [ "${status}" = "401" ]; then
-    echo "::error::Failed to warm ${label} at ${url}: HTTP 401. JwtBearer token may be expired or not forwarded. Re-mint with scripts/ci/refresh_private_beta_ci_jwt.sh before Playwright." >&2
+    echo "::${severity}::Failed to warm ${label} at ${url}: HTTP 401. JwtBearer token may be expired or not forwarded. Re-mint with scripts/ci/refresh_private_beta_ci_jwt.sh before Playwright." >&2
     return
   fi
 
-  echo "::error::Failed to warm ${label} at ${url} (last HTTP ${status})" >&2
+  echo "::${severity}::Failed to warm ${label} at ${url} (last HTTP ${status})" >&2
 }
 
 warm_path() {
@@ -140,7 +141,7 @@ warm_path_post() {
     fi
 
     if [ "${attempt}" -eq "${max_attempts}" ]; then
-      describe_warm_failure "${label}" "${url}" "${status}"
+      describe_warm_failure "${label}" "${url}" "${status}" "warning"
       return 1
     fi
 
