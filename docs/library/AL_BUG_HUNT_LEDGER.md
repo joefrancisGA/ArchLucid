@@ -4836,6 +4836,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved human-review regulatory markers and `Extract` heuristics used raw `Contains`, so `phi` inside `Delphi`, `public api` inside `republic api`, and `RTO` inside `CARTOON` misrouted classification/extraction; fixed with `ContainsHumanReviewMarker` (bounded + simple plural) and bounded phrase/token checks in `Extract`; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`; 48 scoped DifficultyBasedExtractionRouter tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved lifecycle phrase markers (`current state`, etc.) and bare `contradict` used substring `Contains`, so `recurrent state`/`contradictory` falsely classified `AmbiguousExtraction` and emitted transition/contradiction elements; fixed with `FindBoundedMarkerIndex` for phrases and `ContainsContradictMarker` word-form regex; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`; 44 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved `as-is`/`to-be` token markers matched inside unrelated words (`as-isolated`) for `LooksAmbiguous`, `ContainsDualLifecycleMarkers`, and `InferLifecycleScopeForIndex`; fixed with boundary-aware `ContainsTokenMarker`/`FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`; 40 scoped DifficultyBasedExtractionRouter tests passed.
@@ -4850,11 +4852,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 22
-- **bugs-found:** 14
+- **hunts:** 23
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — phrase lifecycle / contradict substring false positives
+- **last-bug:** 2026-09-26 — regulatory and Extract heuristic substring false positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4908,6 +4910,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `Extract` dual-lifecycle `Transition` assumption — only literal `current state` + `target state` detected — **hit 2026-09-26 seed hunt (seed→hit):** present/future and as-is/to-be synonym docs skipped the `Current vs target state` assumption despite #1421 lifecycle boundaries; fixed via shared `ContainsDualLifecycleMarkers`; regressions `Extract_tags_present_and_future_state_elements_with_lifecycle_scope` and `Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope`.
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
+- [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
 
 ---
 

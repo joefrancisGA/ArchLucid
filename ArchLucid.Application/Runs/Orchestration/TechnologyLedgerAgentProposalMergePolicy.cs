@@ -26,7 +26,8 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         if (chosen.ProviderFamily == candidate.ProviderFamily)
         {
             if (TechnologyNamesMatch(chosen.TechnologyName, candidate.TechnologyName)
-                && HasSubstantiveEvidenceRef(chosen.EvidenceRef))
+                && HasSubstantiveEvidenceRef(chosen.EvidenceRef)
+                && IsAuthoritativeChosenSource(chosen.Source))
             {
                 return null;
             }
@@ -69,6 +70,9 @@ public static class TechnologyLedgerAgentProposalMergePolicy
     }
 
     private static bool HasSubstantiveEvidenceRef(string? value) => !string.IsNullOrWhiteSpace(value);
+
+    private static bool IsAuthoritativeChosenSource(TechnologyLedgerSource source) =>
+        source is TechnologyLedgerSource.User or TechnologyLedgerSource.Evidence;
 
     private static bool ShouldTreatAsDuplicateByName(string? existingRef, string? candidateRef)
     {
