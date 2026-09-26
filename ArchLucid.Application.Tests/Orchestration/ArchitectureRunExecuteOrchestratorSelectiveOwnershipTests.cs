@@ -351,6 +351,48 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
     }
 
     [Fact]
+    public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_force_validation()
+    {
+        Guid runGuid = Guid.Parse("cdcdcdcd-cdcd-cdcd-cdcd-cdcdcdcdcdcd");
+        string runId = runGuid.ToString("N");
+        int taskLoadCount = 0;
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                taskLoadCount++;
+
+                return taskLoadCount <= 2
+                    ?
+                    [
+                        new AgentTask { RunId = runId, AgentType = AgentType.Cost, TaskId = "cost-task-stale" },
+                    ]
+                    : [];
+            });
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            Mock.Of<IAgentExecutor>(),
+            Mock.Of<IAgentResultRepository>(),
+            ownership.Object,
+            taskRepo: taskRepo);
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(runId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+
+        await act.Should().ThrowAsync<NoScheduledAgentTasksException>().WithMessage("*No tasks found*");
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_commits_after_force_validation()
     {
         Guid runGuid = Guid.Parse("10101010-1010-1010-1010-101010101010");

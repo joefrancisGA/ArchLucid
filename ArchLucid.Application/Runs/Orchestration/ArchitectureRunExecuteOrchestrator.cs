@@ -188,6 +188,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             && _runExecuteOwnershipLeaseService.IsEnabled)
         {
             await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+            await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
             await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
             using CancellationTokenSource executeCancellation =
