@@ -118,6 +118,7 @@ internal static partial class RunRepositorySql
                                                                                    AND ScopeProjectId = @ScopeProjectId
                                                                                    AND {CollapsedUpperArchitectureRequestId} = @NormalizedArchitectureRequestId
                                                                                    AND GoldenManifestId IS NOT NULL
+                                                                                   AND LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)
                                                                                  ORDER BY CreatedUtc DESC, RunId DESC;
 
                                                                                  """;

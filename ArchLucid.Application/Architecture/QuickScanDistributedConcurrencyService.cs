@@ -29,7 +29,10 @@ public sealed class QuickScanDistributedConcurrencyService(
         safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions));
 
     private readonly IQuickScanDistributedConcurrencyStore _store =
-        store ?? throw new ArgumentNullException(nameof(store));
+        new QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
+            store ?? throw new ArgumentNullException(nameof(store)),
+            safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions)),
+            timeProvider ?? throw new ArgumentNullException(nameof(timeProvider)));
 
     private readonly IQuickScanTelemetry _telemetry =
         telemetry ?? throw new ArgumentNullException(nameof(telemetry));
@@ -61,31 +64,32 @@ public sealed class QuickScanDistributedConcurrencyService(
                 QuickScanConcurrencyRejectionReason.EmergencyDisabled);
         }
 
-        DateTimeOffset utcNow = _timeProvider.GetUtcNow();
         TimeSpan queueWaitTimeout = TimeSpan.FromSeconds(safety.Concurrency.QueueWaitTimeoutSeconds);
         Guid leaseId = Guid.NewGuid();
         Guid queueEntryId = Guid.NewGuid();
 
-        QuickScanConcurrencyAdmitRequest admitRequest = new()
-        {
-            LeaseId = leaseId,
-            QueueEntryId = queueEntryId,
-            RequestKey = requestKey,
-            HolderInstanceId = HolderInstanceId,
-            UtcNow = utcNow,
-            MaxConcurrentScans = safety.Concurrency.MaxConcurrentAnonymousScans,
-            MaxQueuedScans = safety.Concurrency.MaxQueuedAnonymousScans,
-            QueueWaitTimeout = queueWaitTimeout,
-            LeaseDuration = TimeSpan.FromSeconds(safety.Concurrency.LeaseDurationSeconds),
-        };
-
         QuickScanConcurrencyAdmitResult admitResult;
+
+        DateTimeOffset admitUtcNow = _timeProvider.GetUtcNow();
 
         try
         {
+            QuickScanConcurrencyAdmitRequest admitRequest = new()
+            {
+                LeaseId = leaseId,
+                QueueEntryId = queueEntryId,
+                RequestKey = requestKey,
+                HolderInstanceId = HolderInstanceId,
+                UtcNow = admitUtcNow,
+                MaxConcurrentScans = safety.Concurrency.MaxConcurrentAnonymousScans,
+                MaxQueuedScans = safety.Concurrency.MaxQueuedAnonymousScans,
+                QueueWaitTimeout = queueWaitTimeout,
+                LeaseDuration = TimeSpan.FromSeconds(safety.Concurrency.LeaseDurationSeconds),
+            };
+
             admitResult = await _store.TryAdmitAsync(admitRequest, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Quick Scan distributed concurrency admit failed.");
 
@@ -133,7 +137,7 @@ public sealed class QuickScanDistributedConcurrencyService(
 
         _telemetry.RecordConcurrencyQueued(telemetryContext);
 
-        DateTimeOffset deadline = utcNow + queueWaitTimeout;
+        DateTimeOffset deadline = admitUtcNow + queueWaitTimeout;
         TimeSpan pollInterval = TimeSpan.FromMilliseconds(250);
         Guid promotedLeaseId = Guid.NewGuid();
         Guid waitingQueueEntryId = admitResult.QueueEntryId!.Value;

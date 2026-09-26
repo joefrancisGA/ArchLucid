@@ -2,6 +2,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.Resolution;
@@ -135,6 +136,184 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
         items.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_compliance_rule_keys_drift()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        Mock<IEffectiveGovernanceResolver> resolver = new();
+        resolver
+            .Setup(r => r.ResolveAsync(
+                TestScope.TenantId,
+                TestScope.WorkspaceId,
+                TestScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectiveGovernanceResolutionResult
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                EffectiveContent = new PolicyPackContentDocument
+                {
+                    ComplianceRuleKeys = ["cis-azure-1.2", "cis-azure-1.3"],
+                },
+            });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            effectiveGovernanceResolver: resolver.Object,
+            policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+        });
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "compliance-rule-keys-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        CommittedCoverageAssignmentSnapshot executeCoverage = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "2.0.0",
+            CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+            SelectionState = CoverageSelectionState.RecommendedButExcluded.ToString(),
+            ExclusionReason = "Operator excluded at execute",
+            QualityDimension = QualityDimension.Security.ToString(),
+            EvaluationVersion = "execute-scope-v1",
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            CoverageAssignments = [executeCoverage],
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+        });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "coverage-assignments-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_governance_conflict_count_drifts()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        Mock<IEffectiveGovernanceResolver> resolver = new();
+        resolver
+            .Setup(r => r.ResolveAsync(
+                TestScope.TenantId,
+                TestScope.WorkspaceId,
+                TestScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectiveGovernanceResolutionResult
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                EffectiveContent = new PolicyPackContentDocument(),
+                Conflicts =
+                [
+                    new GovernanceConflictRecord(),
+                    new GovernanceConflictRecord(),
+                ],
+            });
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            ConflictCount = 0,
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+        });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            effectiveGovernanceResolver: resolver.Object,
+            policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "governance-conflict-count-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+            NotAssessedQualityDimensions =
+            [
+                new NotAssessedQualityDimensionSnapshot
+                {
+                    QualityDimension = QualityDimension.ReliabilityAndResilience.ToString(),
+                    Reason = "Captured at execute with stale reason text",
+                },
+            ],
+        });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "not-assessed-quality-dimensions-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
     private static ArchitectureRequest CreateRequest(string description = "Design the order service.") =>
         new()
         {
@@ -190,7 +369,8 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
     }
 
     private static PreFinalizeExecuteBaselineDriftEvaluator CreateSut(
-        IPolicyPackAssignmentRepository? policyPackAssignmentRepository = null)
+        IPolicyPackAssignmentRepository? policyPackAssignmentRepository = null,
+        IEffectiveGovernanceResolver? effectiveGovernanceResolver = null)
     {
         Mock<IPolicyPackAssignmentRepository> emptyAssignments = new();
         emptyAssignments
@@ -202,18 +382,22 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
             .ReturnsAsync([]);
 
         Mock<IEffectiveGovernanceResolver> resolver = new();
-        resolver
-            .Setup(r => r.ResolveAsync(
-                TestScope.TenantId,
-                TestScope.WorkspaceId,
-                TestScope.ProjectId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new EffectiveGovernanceResolutionResult
-            {
-                TenantId = TestScope.TenantId,
-                WorkspaceId = TestScope.WorkspaceId,
-                ProjectId = TestScope.ProjectId
-            });
+        if (effectiveGovernanceResolver is null)
+        {
+            resolver
+                .Setup(r => r.ResolveAsync(
+                    TestScope.TenantId,
+                    TestScope.WorkspaceId,
+                    TestScope.ProjectId,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new EffectiveGovernanceResolutionResult
+                {
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    EffectiveContent = new PolicyPackContentDocument(),
+                });
+        }
 
         Mock<IPolicyPackRepository> packs = new();
         packs
@@ -229,7 +413,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
             ]);
 
         return new PreFinalizeExecuteBaselineDriftEvaluator(
-            resolver.Object,
+            effectiveGovernanceResolver ?? resolver.Object,
             new EffectiveGovernanceSnapshotBuilder(),
             policyPackAssignmentRepository ?? emptyAssignments.Object,
             packs.Object,

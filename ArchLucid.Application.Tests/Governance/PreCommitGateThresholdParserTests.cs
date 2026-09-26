@@ -34,4 +34,27 @@ public sealed class PreCommitGateThresholdParserTests
     {
         PreCommitGateThresholdParser.TryParseMinimumSeverity(input).Should().BeNull();
     }
+
+    [Theory]
+    [InlineData(99)]
+    [InlineData(999)]
+    public void TryCoerceDefinedSeverityOrdinal_returns_null_for_undefined_values(int ordinal)
+    {
+        PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal(ordinal).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseMinimumSeverityOrdinalFromMetadata_ignores_undefined_numeric_strings()
+    {
+        Dictionary<string, string> metadata = new(StringComparer.Ordinal)
+        {
+            ["blockCommitMinimumSeverity"] = "99",
+        };
+
+        PreCommitGateThresholdParser.TryParseMinimumSeverityOrdinalFromMetadata(
+                metadata,
+                ["blockCommitMinimumSeverity"])
+            .Should()
+            .BeNull();
+    }
 }

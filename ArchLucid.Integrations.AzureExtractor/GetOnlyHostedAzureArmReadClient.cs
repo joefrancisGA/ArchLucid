@@ -1645,9 +1645,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(apiVersion);
 
         List<JsonElement> items = [];
-        string trimmedVaultId = vaultResourceId.Trim();
+        string trimmedVaultId = vaultResourceId.Trim().TrimStart('/');
+        string listingRelativePath = $"{trimmedVaultId}/{childCollectionName}";
         string? nextLink =
-            $"https://management.azure.com/{trimmedVaultId}/{childCollectionName}?api-version={apiVersion}";
+            $"https://management.azure.com/{listingRelativePath}?api-version={apiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -1727,6 +1728,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
                     nextLink = candidateNextLink;
                 }
             }

@@ -129,7 +129,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
                 && nextLinkElement.ValueKind == JsonValueKind.String)
             {
-                nextLink = nextLinkElement.GetString();
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        trimmedPath);
+                    nextLink = candidateNextLink;
+                }
             }
         }
 

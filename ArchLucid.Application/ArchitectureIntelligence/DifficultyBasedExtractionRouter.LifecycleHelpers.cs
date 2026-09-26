@@ -77,6 +77,19 @@ public sealed partial class DifficultyBasedExtractionRouter
         return scope;
     }
 
+    private static bool ContainsDualLifecycleMarkers(string sourceText) =>
+        ContainsCurrentLifecycleMarker(sourceText) && ContainsTargetLifecycleMarker(sourceText);
+
+    private static bool ContainsCurrentLifecycleMarker(string sourceText) =>
+        ContainsPhraseMarker(sourceText, "current state")
+        || ContainsPhraseMarker(sourceText, "present state")
+        || ContainsTokenMarker(sourceText, "as-is");
+
+    private static bool ContainsTargetLifecycleMarker(string sourceText) =>
+        ContainsPhraseMarker(sourceText, "target state")
+        || ContainsPhraseMarker(sourceText, "future state")
+        || ContainsTokenMarker(sourceText, "to-be");
+
     private static void AddLifecycleBoundaries(
         string sourceText,
         string marker,
@@ -87,7 +100,9 @@ public sealed partial class DifficultyBasedExtractionRouter
 
         while (searchStart < sourceText.Length)
         {
-            int index = sourceText.IndexOf(marker, searchStart, StringComparison.OrdinalIgnoreCase);
+            int index = marker.Contains(' ', StringComparison.Ordinal)
+                ? sourceText.IndexOf(marker, searchStart, StringComparison.OrdinalIgnoreCase)
+                : FindTokenMarkerIndex(sourceText, marker, searchStart);
 
             if (index < 0)
             {

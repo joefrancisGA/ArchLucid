@@ -60,10 +60,14 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         if (string.IsNullOrWhiteSpace(runIdHex))
             throw new ArgumentException("Run id hex is required.", nameof(runIdHex));
 
+        if (string.IsNullOrWhiteSpace(summaryMarkdown))
+            throw new ArgumentException("Summary markdown is required.", nameof(summaryMarkdown));
+
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         string normalizedWeekLabel = weekLabel.Trim();
         string normalizedRunDetailUrl = runDetailUrl.Trim();
         string normalizedRunIdHex = runIdHex.Trim();
+        string normalizedSummaryMarkdown = summaryMarkdown.Trim();
 
         List<string> normalizedMailboxes = [];
 
@@ -88,7 +92,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
             WeekLabel = normalizedWeekLabel,
             RunIdHex = normalizedRunIdHex,
             RunDetailUrl = normalizedRunDetailUrl,
-            SummaryMarkdown = summaryMarkdown,
+            SummaryMarkdown = normalizedSummaryMarkdown,
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
         };
 

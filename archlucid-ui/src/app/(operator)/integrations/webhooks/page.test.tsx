@@ -80,6 +80,7 @@ import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
+import { REFRESH_BUTTON_LABEL } from "@/components/ui/refresh-button";
 
 import WebhooksIntegrationPage from "./page";
 
@@ -541,6 +542,154 @@ describe("WebhooksIntegrationPage", () => {
     await waitFor(() => {
       expect(showError).toHaveBeenCalledWith("We could not reach the destination.", "Connection refused");
     });
+
+    expect(screen.getByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent("Connection refused");
+  });
+
+  it("shows inline test failure when webhook test request throws before a structured response", async () => {
+    const subscriptionId = "22222222-2222-2222-2222-222222222222";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+    apiMocks.test.mockRejectedValue(new Error("network down"));
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-test-${subscriptionId}`));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("We could not reach the destination.", "network down");
+    });
+
+    expect(await screen.findByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent(/network down/i);
+  });
+
+  it("shows refresh control when subscription list fails to load", async () => {
+    apiMocks.list.mockRejectedValue(new Error("subscription list unavailable"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/subscription list unavailable/i);
+    });
+
+    expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL })).toBeInTheDocument();
+  });
+
+  it("blocks create when manual refresh fails after subscriptions loaded", async () => {
+    const subscriptionId = "33333333-3333-3333-3333-333333333333";
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Hook",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/hook",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ])
+      .mockRejectedValueOnce(new Error("refresh failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    fillValidWebhookForm();
+
+    expect(screen.getByTestId("webhook-save-button")).toBeDisabled();
+    expect(screen.getByTestId("webhook-save-readiness")).toHaveTextContent(/duplicate names can be checked/i);
+  });
+
+  it("shows unavailable configuration status when manual refresh fails with stale rows", async () => {
+    const subscriptionId = "44444444-4444-4444-4444-444444444444";
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Hook",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/hook",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ])
+      .mockRejectedValueOnce(new Error("refresh failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    expect(screen.getByLabelText("Status: Could not verify subscriptions")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: 1 active subscription")).toBeNull();
+  });
+
+  it("hides stale subscription count subtitle when manual refresh fails", async () => {
+    const subscriptionId = "55555555-5555-5555-5555-555555555555";
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Hook",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/hook",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ])
+      .mockRejectedValueOnce(new Error("refresh failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    expect(screen.queryByText(/1 subscription in this workspace/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("webhooks-create-setup-step-enable")).toHaveTextContent(/Pending/i);
   });
 
   it("does not show save success when list refresh fails after create", async () => {

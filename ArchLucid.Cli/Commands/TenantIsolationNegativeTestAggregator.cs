@@ -51,6 +51,27 @@ internal static class TenantIsolationNegativeTestAggregator
         return probes.Count(static probe => probe.Verdict == TenantIsolationNegativeTestVerdict.Fail);
     }
 
+    internal static bool RunListPayloadIsScannable(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind == JsonValueKind.Array)
+                return true;
+
+            return root.TryGetProperty("items", out JsonElement items) && items.ValueKind == JsonValueKind.Array;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     internal static bool TryFindRunIdInRunList(string json, string runId)
     {
         if (string.IsNullOrWhiteSpace(json) || string.IsNullOrWhiteSpace(runId))

@@ -26,4 +26,23 @@ describe("filterOrientationSourcesForJobContext", () => {
     expect(filtered[0]?.href).toBe("/governance/alerts");
     expect(filtered.some((link) => link.href === "/help/alerts")).toBe(true);
   });
+
+  it("keeps the full Architecture intelligence Sources index without job-context truncation", () => {
+    const architectureIntelligenceSources: readonly EvidenceOrientationLink[] = [
+      { label: "Findings", href: "/governance/findings" },
+      { label: "Start a review", href: "/architecture/reviews/new" },
+      { label: "Architecture reviews", href: "/architecture/reviews" },
+      { label: "Evidence trail help", href: "/help/evidence-trail" },
+      { label: "Audit", href: "/governance/audit" },
+    ];
+
+    const filtered = filterOrientationSourcesForJobContext(
+      architectureIntelligenceSources,
+      "/architecture/architecture-intelligence",
+    );
+
+    expect(filtered).toHaveLength(5);
+    expect(filtered.some((link) => link.href === "/help/evidence-trail")).toBe(true);
+    expect(filtered.some((link) => link.href === "/governance/audit")).toBe(true);
+  });
 });

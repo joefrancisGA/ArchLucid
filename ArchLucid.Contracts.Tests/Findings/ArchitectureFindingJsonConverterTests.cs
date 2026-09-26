@@ -413,6 +413,48 @@ public sealed class ArchitectureFindingJsonConverterTests
             .WithMessage("*Unknown source agent value*");
     }
 
+    [Fact]
+    public void Deserialize_integer_semantic_support_band_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Security",
+                              "enforcementTier": "PolicyViolation",
+                              "message": "Invalid semantic support band ordinal must not deserialize.",
+                              "semanticSupportBand": 99
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding semantic support band value*");
+    }
+
+    [Fact]
+    public void Deserialize_numeric_semantic_support_band_maps_supported_ordinal()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Security",
+                              "enforcementTier": "PolicyViolation",
+                              "message": "Semantic support band ordinal must map like treatment.",
+                              "semanticSupportBand": 0
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.SemanticSupportBand.Should().Be(FindingSemanticSupportBand.Supported);
+    }
+
     private static JsonSerializerOptions CreateOptions()
     {
         return new JsonSerializerOptions(JsonSerializerDefaults.Web)

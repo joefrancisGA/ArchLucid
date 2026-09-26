@@ -1823,6 +1823,159 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
   });
 
+  it("does not show inbound context line while product context is loading", async () => {
+    let resolveSourceContext: (() => void) | null = null;
+    const sourceContextGate = new Promise<void>((resolve) => {
+      resolveSourceContext = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          await sourceContextGate;
+
+          return okJsonFetchResponse({
+            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Hydrated after load.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-page-skeleton")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-inbound-context")).not.toBeInTheDocument();
+
+    resolveSourceContext?.();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+        "Loaded product intake from review",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-page-skeleton")).not.toBeInTheDocument();
+  });
+
+  it("does not show next-review footer while product context is loading", async () => {
+    let resolveSourceContext: (() => void) | null = null;
+    const sourceContextGate = new Promise<void>((resolve) => {
+      resolveSourceContext = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          await sourceContextGate;
+
+          return okJsonFetchResponse({
+            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Hydrated after load.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-page-skeleton")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+
+    resolveSourceContext?.();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-next-review-footer-stub")).toBeInTheDocument();
+    });
+  });
+
+  it("does not show inbound context line when product context load failure panel is visible", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return new Response("Unable to load product context", { status: 503 });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-inbound-context")).not.toBeInTheDocument();
+  });
+
   it("hydrates intake after successful product context retry", async () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "runId") {
@@ -2117,6 +2270,172 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
       "Deep (most specialist roles, highest cost)",
     );
+  });
+
+  it("resets analysis depth when operator scope switches without tier search param", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    const runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let activeTenant = "tenant-a";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return runId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      if (key === "tier") {
+        return activeTenant === "tenant-a" ? "Deep" : null;
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Architecture intake.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+        "Deep (most specialist roles, highest cost)",
+      );
+    });
+
+    activeTenant = "tenant-b";
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+        "Balanced (recommended)",
+      );
+    });
+  });
+
+  it("resets analysis depth when contextRunId switches without tier search param", async () => {
+    let currentContextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return currentContextRunId;
+      }
+
+      if (key === "tier") {
+        return currentContextRunId === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" ? "Deep" : null;
+      }
+
+      return null;
+    });
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+      "Deep (most specialist roles, highest cost)",
+    );
+
+    currentContextRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+        "Balanced (recommended)",
+      );
+    });
+  });
+
+  it("resets analysis depth to Standard when deep-linked runId switches without tier search param", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "tier") {
+        return currentRunId === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" ? "Deep" : null;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: currentRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: `Architecture for ${currentRunId}.`,
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+        "Deep (most specialist roles, highest cost)",
+      );
+    });
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+        "Balanced (recommended)",
+      );
+    });
   });
 
   it("clears hydrated intake when contextRunId switches to another review without inbound runId", async () => {

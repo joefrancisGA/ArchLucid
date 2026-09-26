@@ -117,6 +117,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
                     if (!string.IsNullOrWhiteSpace(next))
                     {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(next, subscriptionId);
                         cursor = next;
                     }
                 }
@@ -206,6 +207,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
                 if (!string.IsNullOrWhiteSpace(nextAbsolute))
                 {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(nextAbsolute, subscriptionId);
                     cursor = TryToRelativePath(nextAbsolute) ?? nextAbsolute;
                 }
             }
