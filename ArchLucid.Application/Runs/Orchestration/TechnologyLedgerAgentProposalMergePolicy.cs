@@ -76,7 +76,9 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         source is TechnologyLedgerSource.User or TechnologyLedgerSource.Evidence;
 
     private static bool SharesProviderFamilyGate(CloudProvider chosenFamily, CloudProvider candidateFamily) =>
-        chosenFamily == candidateFamily || chosenFamily == CloudProvider.None;
+        chosenFamily == candidateFamily
+        || chosenFamily == CloudProvider.None
+        || candidateFamily == CloudProvider.None;
 
     private static bool ShouldTreatAsDuplicateByName(string? existingRef, string? candidateRef)
     {
