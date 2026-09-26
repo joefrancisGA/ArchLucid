@@ -427,18 +427,15 @@ public sealed class FourRealityDriftEngineTests
             => Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord>, int)>(([], 0));
 
         public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
         {
             IReadOnlyList<SecurityEvidencePathRecord> paths = StoredPaths
                 .Where(path =>
-                    path.TenantId == tenantId
-                    && path.WorkspaceId == workspaceId
-                    && path.ProjectId == projectId
-                    && path.SnapshotId == snapshotId)
+                    path.TenantId == scope.TenantId
+                    && path.WorkspaceId == scope.WorkspaceId
+                    && path.ProjectId == scope.ProjectId
+                    && path.SnapshotId == scope.SnapshotId)
                 .ToList();
 
             return Task.FromResult(paths);

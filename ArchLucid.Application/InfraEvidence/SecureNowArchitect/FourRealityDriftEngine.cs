@@ -84,10 +84,7 @@ public sealed class FourRealityDriftEngine(
             await TryLoadDiagramReconciliationAsync(scope, snapshotId, cancellationToken);
 
         IReadOnlyList<SecurityEvidencePathRecord> privilegePaths = await pathRepository.ListBySnapshotAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            snapshotId,
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
         List<SecurityEvidencePathRecord> sourcePaths = privilegePaths

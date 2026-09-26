@@ -66,10 +66,11 @@ public sealed class PathRankingEngineTests
         Mock<ISecurityEvidencePathRepository> pathRepository = new();
         pathRepository
             .Setup(repository => repository.ListBySnapshotAsync(
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                SnapshotId,
+                It.Is<ProjectSnapshotScopeKey>(scope =>
+                    scope.TenantId == TenantId
+                    && scope.WorkspaceId == WorkspaceId
+                    && scope.ProjectId == ProjectId
+                    && scope.SnapshotId == SnapshotId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([path]);
         pathRepository

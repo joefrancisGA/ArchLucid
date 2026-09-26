@@ -84,10 +84,7 @@ public sealed class SecurityEvidencePathInspectorQueryService(
 
         IReadOnlyList<SecurityEvidencePathRecord> snapshotPaths =
             await pathRepository.ListBySnapshotAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                path.SnapshotId,
+                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId),
                 cancellationToken);
 
         if (!snapshotPaths.Any(candidate => candidate.PathId == path.PathId))

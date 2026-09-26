@@ -56,9 +56,6 @@ public interface ISecurityEvidencePathRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default);
 }

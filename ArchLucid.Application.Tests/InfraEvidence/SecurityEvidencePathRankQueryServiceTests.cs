@@ -232,10 +232,7 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
             => Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>(([], 0));
 
         public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>([]);
     }

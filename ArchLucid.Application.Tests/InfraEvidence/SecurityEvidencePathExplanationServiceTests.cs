@@ -329,10 +329,7 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             throw new NotSupportedException();
 
         public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
     }
