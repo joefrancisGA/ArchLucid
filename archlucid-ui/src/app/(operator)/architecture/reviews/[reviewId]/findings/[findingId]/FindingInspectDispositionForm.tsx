@@ -379,12 +379,14 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
           />
         ) : null}
         {dispositionLastSavedUtc !== null ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="finding-disposition-last-saved"
-          >
-            {formatLivelihoodLastSavedLabel(dispositionLastSavedUtc)}
-          </p>
+          <div data-testid="finding-disposition-last-saved">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatLivelihoodLastSavedLabel(dispositionLastSavedUtc)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Recorded on this finding. The sealed review record is unchanged.
+            </p>
+          </div>
         ) : null}
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {markRemediatedTransitionCopy()}

@@ -111,8 +111,19 @@ export default function RiskExceptionsClient() {
         navHref={GOVERNANCE_EXCEPTIONS_PATH}
         title={pageTitle}
         subtitle={pageSubtitle}
-        claimDiscipline={RISK_EXCEPTIONS_CLAIM_DISCIPLINE}
+        claimDiscipline={
+          buyerPolishedShell ? RISK_EXCEPTIONS_CLAIM_DISCIPLINE : "An exception is temporary. A disposition is the decision."
+        }
         claimDisciplineTestId="risk-exceptions-claim-discipline"
+        claimDisciplineSupplement={
+          buyerPolishedShell ? null : (
+            <p
+              className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            >
+              {RISK_EXCEPTIONS_CLAIM_DISCIPLINE}
+            </p>
+          )
+        }
         breadcrumb={buyerPolishedShell ? <RiskExceptionsBreadcrumb /> : undefined}
         actions={<PageContextualHelpButton />}
       />

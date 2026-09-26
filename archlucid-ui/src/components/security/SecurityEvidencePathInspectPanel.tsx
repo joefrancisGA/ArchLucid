@@ -80,6 +80,12 @@ function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
   readonly weakestHopOrdinal: number;
 }) {
+  const internetHopOrdinal = props.hops.find(
+    (hop) =>
+      securityEvidencePathHopNodeName(hop.fromNodeLabel) === "Internet"
+      || securityEvidencePathHopNodeName(hop.toNodeLabel) === "Internet",
+  )?.hopOrdinal;
+
   const bandMeaning = (band: string): string | null => {
     switch (band) {
       case "Confirmed":
@@ -127,6 +133,11 @@ function PathHopsTable(props: {
                   {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by {hop.edgeType}. Source:{" "}
                   {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}.
                 </p>
+                {hop.hopOrdinal === internetHopOrdinal ? (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-internet-boundary">
+                    Internet is the public boundary, not an Azure resource.
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell title={hop.fromNodeLabel}>{securityEvidencePathHopNodeName(hop.fromNodeLabel)}</EnterpriseTableCell>
               <EnterpriseTableCell title={hop.toNodeLabel}>{securityEvidencePathHopNodeName(hop.toNodeLabel)}</EnterpriseTableCell>
@@ -316,10 +327,12 @@ function RecommendedActionSection(props: {
       value: firstRoute?.displayName?.trim() || firstRoute?.role?.trim() || "Not cited.",
     },
     {
-      label: "Verification",
+      label: "How to check",
       value: props.path.explanationTemplate?.verify?.trim() || "Not cited.",
     },
   ];
+  const verificationValue = lines[lines.length - 1]?.value ?? "Not cited.";
+  const verificationIsProse = /\s/.test(verificationValue);
 
   return (
     <div className="space-y-2 rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-recommended-action">
@@ -328,7 +341,11 @@ function RecommendedActionSection(props: {
         {lines.map((line) => (
           <div key={line.label}>
             <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{line.label}</dt>
-            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>{line.value}</dd>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>
+              {line.label === "How to check" && !verificationIsProse
+                ? "A check is recorded for this path."
+                : line.value}
+            </dd>
           </div>
         ))}
       </dl>
@@ -341,6 +358,7 @@ function InspectSelectionIdentityHeader(props: {
   readonly pathSummary: SecurityEvidencePathRankSummary | null | undefined;
   readonly findingId: string | null;
   readonly pathId: string | null;
+  readonly verificationId?: string | null;
 }) {
   const pathname = usePathname() ?? "/governance/remediation-factory";
   const searchParams = useSearchParams();
@@ -379,7 +397,6 @@ function InspectSelectionIdentityHeader(props: {
           <InlineGlossaryChip nounId="finding">Finding</InlineGlossaryChip> rank{" "}
           {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"} · score{" "}
           {props.findingSummary.totalScore.toFixed(4)}
-          {props.findingSummary.patternKey != null ? ` · ${props.findingSummary.patternKey}` : ""}
         </p>
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
@@ -389,9 +406,21 @@ function InspectSelectionIdentityHeader(props: {
           {idsOpen ? "Hide identifiers" : "Show identifiers"}
         </Link>
         {idsOpen ? (
-          <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-finding-id">
-            Finding ID: {props.findingId}
-          </p>
+          <div className="space-y-1">
+            <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-finding-id">
+              Finding ID: {props.findingId}
+            </p>
+            {props.findingSummary?.patternKey != null ? (
+              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                Pattern key: {props.findingSummary.patternKey}
+              </p>
+            ) : null}
+            {props.verificationId != null && props.verificationId.trim().length > 0 ? (
+              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                Verification ID: {props.verificationId}
+              </p>
+            ) : null}
+          </div>
         ) : null}
       </div>
     );
@@ -581,6 +610,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             pathSummary={selectedPath}
             findingId={props.findingId}
             pathId={resolvedPathId}
+            verificationId={pathQuery.data.explanationTemplate?.verify}
           />
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind="neutral" label={formatSecurityEvidencePathKindLabel(pathQuery.data.pathKind)} title={pathQuery.data.pathKind} />

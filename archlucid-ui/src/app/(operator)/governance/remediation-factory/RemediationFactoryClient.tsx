@@ -249,7 +249,7 @@ function PriorityTable(props: {
               <EnterpriseTableCell>{index + 1}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.totalScore.toFixed(4)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.patternKey ?? "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.patternKey == null ? "—" : "Pattern"}</EnterpriseTableCell>
               <CompareDiffExpandableValueCell value={row.explanationSummary} />
             </EnterpriseTableRow>
           ))}
@@ -288,7 +288,12 @@ function RankedPathsTable(props: {
       <EnterpriseTable ariaLabel={SECURENOW_PATH_RANKED_PATHS_TITLE}>
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Rank</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                1 is the first path to inspect.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
@@ -480,7 +485,7 @@ export function RemediationFactoryClient() {
 
   const selectionLabel = useMemo(() => {
     if (selectedFinding != null) {
-      return `Finding ${selectedFinding.controlId ?? "—"} · ${selectedFinding.patternKey ?? "—"} · rank ${ranked.indexOf(selectedFinding) + 1}`;
+      return `Finding ${selectedFinding.controlId ?? "—"} · rank ${ranked.indexOf(selectedFinding) + 1}`;
     }
 
     if (selectedPath != null) {
@@ -572,9 +577,14 @@ export function RemediationFactoryClient() {
               {freshnessLabel}
             </OperatorPageFreshnessMetadata>
             {staleCue !== null ? (
-              <span data-testid="remediation-factory-stale-cue">
-                <StatusTag kind="needs-attention" label={staleCue} />
-              </span>
+              <>
+                <span data-testid="remediation-factory-stale-cue">
+                  <StatusTag kind="needs-attention" label={staleCue} />
+                </span>
+                <span className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-stale-refresh-honesty">
+                  Refresh rereads the SecureNow lists on this page. It does not change Azure.
+                </span>
+              </>
             ) : null}
           </div>
         }

@@ -32,9 +32,11 @@ import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-reru
 import { REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE } from "@/lib/operations/review-pipeline-rerun-in-flight";
 import { ReviewFailureTechnicalMetadataDisclosure } from "@/components/reviews/ReviewFailureTechnicalMetadataDisclosure";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
 
@@ -477,6 +479,11 @@ export function ReviewPackageDoThisNextStrip(
     </>
   );
 
+  const compareThisReviewHref = buildCompareTwoReviewsHref({ baseRunId: runId });
+  const compareAlreadyInActions =
+    next.secondaryAction?.href === compareThisReviewHref
+    || next.quickLinks?.some((link) => link.href === compareThisReviewHref) === true;
+
   const actionRow = (
     <>
       {primaryAction}
@@ -494,6 +501,14 @@ export function ReviewPackageDoThisNextStrip(
               <Link href={link.href}>{link.label}</Link>
             </Button>
           ))}
+        </div>
+      ) : null}
+      {hasGoldenManifest && !compareAlreadyInActions ? (
+        <div className="flex items-center gap-2" data-testid="review-package-compare-this-review">
+          <Link href={compareThisReviewHref} className={OPERATOR_LINK.inline}>
+            Compare this review
+          </Link>
+          <ShortcutHint shortcut="alt+c" />
         </div>
       ) : null}
     </>
