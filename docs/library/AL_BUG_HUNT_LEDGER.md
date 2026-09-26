@@ -23639,13 +23639,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 14
-- **bugs-found:** 11
+- **hunts:** 15
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — admit-path store handler swallowed `OperationCanceledException` as `StoreUnavailable`
+- **last-bug:** 2026-09-26 — direct `TryAdmit` used concurrency limits captured before store entry while promote re-reads live options (#1542)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6964 (seed→hit): reseeded direct-admit limit snapshot gap; proved `WaitForAdmissionAsync` built `TryAdmit` limits before store entry so a tightened `MaxConcurrentAnonymousScans` could still grant a second direct lease (promote loop already re-reads per #1542); fixed with `QuickScanDistributedConcurrencyAdmitLimitRefreshStore` re-reading limits at `TryAdmitAsync`; regression `WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_direct_admit_after_options_change`; 23 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — direct `TryAdmit` honors stale `MaxConcurrentAnonymousScans` captured before store entry — **hit 2026-09-26 seed hunt #6964:** admit limit refresh decorator re-reads `IOptionsMonitor` at store `TryAdmitAsync`; regression `WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_direct_admit_after_options_change`.
 
 2026-09-26 seed hunt #6963 (seed-only): picker repeat; reseeded promote-loop policy snapshots and operational failure mapping; cheap-disproof closed live `LeaseDurationSeconds` on promote, options `AnonymousExecutionEnabled=false` during queue wait, and operational snapshot store failures vs `StoreUnavailable`; regressions `WaitForAdmissionAsync_uses_current_lease_duration_on_each_promote_attempt`, `WaitForAdmissionAsync_still_promotes_when_anonymous_execution_disabled_during_queue_wait`, `WaitForAdmissionAsync_propagates_operational_snapshot_failure_without_store_unavailable`; 22 scoped QuickScanDistributedConcurrency tests passed.
 

@@ -29,7 +29,9 @@ public sealed class QuickScanDistributedConcurrencyService(
         safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions));
 
     private readonly IQuickScanDistributedConcurrencyStore _store =
-        store ?? throw new ArgumentNullException(nameof(store));
+        new QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
+            store ?? throw new ArgumentNullException(nameof(store)),
+            safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions)));
 
     private readonly IQuickScanTelemetry _telemetry =
         telemetry ?? throw new ArgumentNullException(nameof(telemetry));
@@ -66,23 +68,23 @@ public sealed class QuickScanDistributedConcurrencyService(
         Guid leaseId = Guid.NewGuid();
         Guid queueEntryId = Guid.NewGuid();
 
-        QuickScanConcurrencyAdmitRequest admitRequest = new()
-        {
-            LeaseId = leaseId,
-            QueueEntryId = queueEntryId,
-            RequestKey = requestKey,
-            HolderInstanceId = HolderInstanceId,
-            UtcNow = utcNow,
-            MaxConcurrentScans = safety.Concurrency.MaxConcurrentAnonymousScans,
-            MaxQueuedScans = safety.Concurrency.MaxQueuedAnonymousScans,
-            QueueWaitTimeout = queueWaitTimeout,
-            LeaseDuration = TimeSpan.FromSeconds(safety.Concurrency.LeaseDurationSeconds),
-        };
-
         QuickScanConcurrencyAdmitResult admitResult;
 
         try
         {
+            QuickScanConcurrencyAdmitRequest admitRequest = new()
+            {
+                LeaseId = leaseId,
+                QueueEntryId = queueEntryId,
+                RequestKey = requestKey,
+                HolderInstanceId = HolderInstanceId,
+                UtcNow = utcNow,
+                MaxConcurrentScans = safety.Concurrency.MaxConcurrentAnonymousScans,
+                MaxQueuedScans = safety.Concurrency.MaxQueuedAnonymousScans,
+                QueueWaitTimeout = queueWaitTimeout,
+                LeaseDuration = TimeSpan.FromSeconds(safety.Concurrency.LeaseDurationSeconds),
+            };
+
             admitResult = await _store.TryAdmitAsync(admitRequest, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
