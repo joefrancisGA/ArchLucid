@@ -20771,7 +20771,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -20895,6 +20895,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-26 thorough hunt (hit): proved `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` accepted whitespace-only `runDetailUrl` after `weekLabel` guards (#1858/#1773) and still reached template render with an empty CTA link; fixed with required run-detail URL validation; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_detail_url` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_detail_url`; 128 scoped notifications/digest tests passed.
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `runDetailUrl` sent weekly mail with blank run link — **hit 2026-09-26 thorough hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_detail_url` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_detail_url`.
+
+2026-09-26 seed hunt (seed-only): reseeded notifications-pipeline after runDetailUrl parity fix; cheap-disproved weekly `runIdHex` whitespace-only, ExecDigest sponsor deep-link URL whitespace-only, and remediation-assignment null assignee paths; 128 scoped notifications/digest tests passed.
+
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `runIdHex` leaves blank `RunIdHex` in template — **cheap-disproof 2026-09-26 seed hunt:** `WeeklySponsorReportDeliveryScanner.TryPublishForTenantAsync` returns before dispatch when `string.IsNullOrWhiteSpace(latestRunHex)`; `TryResolveLatestCommittedRunHexAsync` only emits `latestRunId.Value.ToString("N")`.
+- [x] (valid-no-repro) `ExecDigestEmailDispatcher` — whitespace-only `ExecDigestComposition.DashboardUrl` or `SponsorValueReportUrl` — **cheap-disproof 2026-09-26 seed hunt:** `ExecDigestWeeklyDeliveryScanner.ApplyTokenizedSponsorDeepLinks` always sets URLs from `ExecDigestSponsorDeepLinkOperatorLinks.BuildDashboardUrl` / `BuildRunCollateralUrl` (non-empty relative or absolute paths).
+- [x] (valid-no-repro) `FindingRemediationAssignmentEmailDispatcher` — null `assigneeMailbox` throws on `.Trim()` — **cheap-disproof 2026-09-26 seed hunt:** `FindingRemediationAssignmentController.PutRemediationAssignmentAsync` calls dispatch only when `assignee is not null` after clearing assignment.
 
 ## Zone: artifact-synthesis
 
