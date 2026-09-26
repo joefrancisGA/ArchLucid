@@ -41,7 +41,7 @@ internal static class ArchLucidDistributedCacheRegistrar
             configuration.GetSection(KgProjectionCacheOptions.SectionName).Get<KgProjectionCacheOptions>()
             ?? new KgProjectionCacheOptions();
 
-        if (kg.Backend != GraphProjectionCacheBackend.Distributed)
+        if (!kg.Enabled)
             return;
 
         HotPathCacheOptions hotPath =
@@ -51,6 +51,21 @@ internal static class ArchLucidDistributedCacheRegistrar
         LlmCompletionResponseCacheOptions llm =
             configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
             ?? new LlmCompletionResponseCacheOptions();
+
+        bool redisConfigured = !string.IsNullOrWhiteSpace(kg.RedisConnectionString)
+            || !string.IsNullOrWhiteSpace(llm.RedisConnectionString)
+            || !string.IsNullOrWhiteSpace(hotPath.RedisConnectionString);
+
+        GraphProjectionCacheBackend effectiveBackend = GraphProjectionCacheProviderResolver.ResolveEffectiveBackend(
+            kg,
+            hotPath.ExpectedApiReplicaCount,
+            redisConfigured);
+
+        bool distributedProjectionCache = kg.Backend == GraphProjectionCacheBackend.Distributed
+            || effectiveBackend == GraphProjectionCacheBackend.Distributed;
+
+        if (!distributedProjectionCache)
+            return;
 
         string? kgRedis = kg.RedisConnectionString?.Trim();
 
