@@ -37,6 +37,7 @@ import {
 import {
   WEBHOOKS_ENABLE_CONFIRM_LABEL,
   WEBHOOKS_ENABLE_CONFIRM_TITLE,
+  WEBHOOKS_CONFIGURATION_STATUS_UNAVAILABLE,
   WEBHOOKS_NOT_CONFIGURED_NEXT_STEP,
   WEBHOOKS_PAGE_DESCRIPTION,
   WEBHOOKS_PAGE_TITLE,
@@ -145,6 +146,8 @@ export function WebhooksSettingsClient() {
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Loading configuration status…
         </p>
+      ) : !hasLoadedSuccessfully ? (
+        <StatusTag kind="needs-attention" label={WEBHOOKS_CONFIGURATION_STATUS_UNAVAILABLE} />
       ) : (
         <StatusTag
           kind={webhooksConfigurationStatusTagKind(webhookRows.length, activeSubscriptionCount)}
