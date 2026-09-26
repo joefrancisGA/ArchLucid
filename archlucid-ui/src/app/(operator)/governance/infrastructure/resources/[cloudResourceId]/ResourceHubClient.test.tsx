@@ -392,6 +392,31 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves explorer workQueue on audit scope chip href", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const chip = await screen.findByTestId("infra-resource-hub-audit-scope-chip");
+
+    expect(chip).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+    expect(chip).toHaveAttribute("href", expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`));
+  });
+
+  it("preserves explorer workQueue when switching hub tabs from the tab bar", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-drift"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
   it("omits terraform mapping from overview when address is absent", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),
